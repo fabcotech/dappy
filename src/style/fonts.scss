@@ -1,0 +1,43 @@
+@font-face {
+  font-family: fira;
+  src: url("fonts/FiraSans-Light.ttf");
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: fira;
+  src: url("fonts/FiraSans-Light.ttf");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: fira;
+  src: url("fonts/FiraSans-Regular.ttf");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: fira;
+  src: url("fonts/FiraSans-Medium.ttf");
+  font-weight: 700;
+}
+
+body {
+  font-family: fira;
+  font-weight: 300;
+}
+label {
+  font-weight: 400 !important;
+}
+strong, b {
+  font-weight: 700;
+}
+p, ul, li {
+  font-weight: 400;
+}
+.smaller-text {
+  font-size: 0.9em;
+}
+.subtitle {
+  font-weight: 200;
+}

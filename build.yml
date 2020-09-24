@@ -1,0 +1,48 @@
+appId: tech.dappy.dappy
+artifactName: ${name}-${version}-${os}-${arch}.${ext}
+productName: dappy
+
+
+directories:
+  output: ./output
+files:
+  # TODO exclude not needed stuff in 'files:' section to reduce app packages size, can save megabytes, so a significant improvement
+  - "dapps/**/*"
+  - "dist/**/*"
+  - "icons/**/*"
+  - "main.js"
+asar: true
+
+win:
+  target: NSIS
+  icon: icons/ico/icon-win256x256.ico
+  forceCodeSigning: true
+  certificateFile: C:\Users\joe\path\to\certificate.p12
+  certificatePassword: password_for_certificate
+
+nsis:
+  installerIcon: icons/ico/icon-win256x256.ico
+  uninstallerIcon: icons/ico/icon-win256x256.ico
+  installerHeaderIcon: icons/ico/icon-win256x256.ico
+  perMachine: true
+
+linux:    
+  icon: icons/png
+  category: Network
+  packageCategory: Office
+  desktop:
+    MimeType: "x-scheme-handler/dappy;"
+
+mac:
+  category: public.app-category.productivity
+  icon: icons/png/icon-512x512.png
+  target: dmg
+  protocols:
+    name: "dappy-protocol"
+    schemes:
+      - "dappy"
+
+protocols:
+  - name: "dappy-protocol"
+    schemes:
+      - "dappy"

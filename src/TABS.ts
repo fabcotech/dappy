@@ -1,0 +1,48 @@
+import { Tab } from './models';
+
+export const PREDEFINED_TABS: Tab[] = [
+  {
+    active: true,
+    muted: false,
+    counter: 1,
+    id: '4197916470-3340326584-4078976114-3631511555',
+    img: undefined,
+    index: 1,
+    resourceId: 'betanetwork/welcome_4197916470-3340326584-4078976114-3631511555',
+    address: 'betanetwork/welcome',
+    title: 'Welcome on Dappy !',
+  },
+  {
+    active: true,
+    muted: false,
+    counter: 1,
+    id: '4197916470-3340326584-4078976114-3631401',
+    img: undefined,
+    index: 0,
+    resourceId: 'betanetwork/dappy_4197916470-3340326584-4078976114-3631511554',
+    address: 'betanetwork/dappy',
+    title: 'Dappy',
+  },
+  {
+    active: true,
+    muted: false,
+    counter: 1,
+    id: '4197916470-3340326584-4078976114-3631511401',
+    img: undefined,
+    index: 2,
+    resourceId: 'betanetwork/rchain_4197916470-3340326584-4078976114-3631511554',
+    address: 'betanetwork/rchain',
+    title: 'RChain',
+  },
+  {
+    active: true,
+    muted: false,
+    counter: 1,
+    id: '4197916470-3340326584-4078976114-3631511409',
+    img: undefined,
+    index: 3,
+    resourceId: 'betanetwork/erc1155_4197916470-3340326584-4078976114-3631511754',
+    address: 'betanetwork/erc1155',
+    title: 'ERC1155 manager',
+  },
+];

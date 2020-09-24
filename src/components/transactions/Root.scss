@@ -1,0 +1,8 @@
+.transactions {
+  background: #fafafa;
+   & > h3 {
+    @media screen and (max-width: 769px) {
+      padding-left: 58px;
+    }
+  }
+}

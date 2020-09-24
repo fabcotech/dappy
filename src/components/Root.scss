@@ -1,0 +1,58 @@
+.root {
+  width: 100%;
+  min-height: 100%;
+  position: relative;
+  display: grid;
+  grid-template-rows: 100%;
+  &.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  &.menu-collapsed {
+    grid-template-columns: 55px calc(100% - 55px);
+  }
+  &.menu-not-collapsed {
+    grid-template-columns: 194px calc(100% - 194px);
+  }
+  & > .root-left {
+    grid-row: 1;
+    grid-column: 1;
+  }
+  & > .root-right {
+    grid-row: 1;
+    grid-column: 2;
+    display: grid;
+    grid-template-rows: 100%;
+    grid-template-columns: 100%;
+    max-height: 100vh;
+    overflow: auto;
+
+    & > * {
+      grid-row: 1;
+      grid-column: 1;
+    }
+
+    // Only .dapps can be displayed behind one of the other main sections
+    & > .settings {
+      z-index: 2;
+    }
+    & > .deploy {
+      z-index: 4;
+    }
+    & > .dapps {
+      z-index: 1;
+    }
+    & > .transactions {
+      z-index: 3;
+    }
+  }
+  &.is-mobile {
+    grid-template-columns: 100%;
+    & > .root-right {
+      grid-row: 1;
+      grid-column: 1;
+    }
+  }
+}
+  

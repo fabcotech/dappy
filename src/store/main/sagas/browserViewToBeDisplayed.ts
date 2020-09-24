@@ -1,0 +1,31 @@
+import { takeEvery, select } from 'redux-saga/effects';
+
+import * as fromDapps from '../../dapps';
+import * as fromUi from '../../ui';
+import * as fromMain from '../';
+import { Action } from '../..';
+
+// todo can it be triggered not for every actions ????
+const browserViewToBeDisplayed = function* (action: Action) {
+  const shouldBrowserViewsBeDisplayed = yield select(fromMain.getShouldBrowserViewsBeDisplayed);
+  window.dispatchInMain(window.uniqueEphemeralToken, {
+    type: '[MAIN] Display only browser view x',
+    payload: {
+      resourceId: shouldBrowserViewsBeDisplayed,
+    },
+  });
+  return undefined;
+};
+
+export const browserViewToBeDisplayedSaga = function* () {
+  yield takeEvery(fromUi.NAVIGATE, browserViewToBeDisplayed);
+  yield takeEvery(fromUi.UPDATE_NAVIGATION_SUGGESTIONS_DISPLAY, browserViewToBeDisplayed);
+  yield takeEvery(fromDapps.FOCUS_TAB, browserViewToBeDisplayed);
+  yield takeEvery(fromDapps.FOCUS_SEARCH_DAPP, browserViewToBeDisplayed);
+  yield takeEvery(fromDapps.FOCUS_AND_ACTIVATE_TAB, browserViewToBeDisplayed);
+  yield takeEvery(fromDapps.STOP_TAB, browserViewToBeDisplayed);
+  yield takeEvery(fromMain.UPDATE_INITIALIZATION_OVER, browserViewToBeDisplayed);
+  yield takeEvery(fromMain.OPEN_DAPP_MODAL, browserViewToBeDisplayed);
+  yield takeEvery(fromMain.CLOSE_DAPP_MODAL, browserViewToBeDisplayed);
+  yield takeEvery(fromMain.CLOSE_ALL_DAPP_MODALS, browserViewToBeDisplayed);
+};

@@ -1,0 +1,12 @@
+node_modules
+todo.txt
+.cache
+*.d.ts
+.directory
+_executables
+_installers
+env.js
+output
+*.p12
+ipapps
+translations/getTranslationsDownloadLink.sh

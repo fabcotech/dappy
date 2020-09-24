@@ -1,0 +1,1 @@
+wget https:\/\/api.poeditor.com\/v2\/download\/file\/e7bb1d6c05f32d552a6e18c3ddbff857

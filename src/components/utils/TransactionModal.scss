@@ -1,0 +1,91 @@
+@import "../../style//variables.scss";
+
+.transaction-modal, .account-modal {
+  &.tip-modal {
+    .modal-card-head {
+      background: $primary;
+      & > .modal-card-title {
+        color: #fff;
+      }
+      & > .fa-times {
+        color: #fff;
+      }
+    }
+  }
+  .payment {
+    border: 1px solid #bbb;
+    background: linear-gradient(20deg, #dfdfdf, #efefef);
+    color: #222;
+    border-radius: 2px;
+    padding: 10px;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    font-weight: 400;
+    display: flex;
+    flex-direction: column;
+    & > * {
+      .label {
+        width: 100px;
+      }
+      display: flex;
+      justify-content: flex-start;
+      padding-top: 3px;
+      word-break: break-all;
+    }
+  }
+  pre {
+    padding: 1rem 1.1rem;
+    max-height: 200px;
+    overflow: auto;
+  }
+  .toggle-see-code {
+    cursor: pointer;
+  }
+  .toggle-see-signatures {
+    cursor: pointer;
+  }
+  .signatures {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+  .modal-card {
+    width: 800px;
+  }
+  .enter-password {
+    color: #aaa
+  }
+  .private-or-public-key {
+    max-width: 450px;
+    word-wrap: break-word;
+  }
+  &.is-tablet, &.is-mobile {
+    .private-or-public-key {
+      max-width: 300px;
+      word-wrap: break-word;
+    }
+  }
+  &.is-tablet {
+    .modal-card {
+      width: 600px;
+    }
+  }
+  &.is-mobile {
+    .modal-card {
+      width: 400px;
+    }
+  }
+  .found-record {
+    word-break: break-all;
+    padding: 5px;
+    display: block;
+    margin-left: 230px;
+    border : 1px solid $record-color;
+    background: lighten($record-color, 50%);
+    color: darken($record-color, 20%);
+    margin-bottom: 10px;
+  }
+  .text-danger {
+    padding-left: 230px;
+    margin-bottom: 10px;
+  }
+}

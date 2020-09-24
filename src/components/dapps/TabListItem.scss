@@ -1,0 +1,112 @@
+@import "../../style/variables.scss";
+
+.tab-list-item {
+  height: 34px;
+  &.small {
+    height: 26px;
+  }
+  &:not(.small) {
+    &.focused {
+      height: 40px;
+      position: relative;
+      border-top: 0px;
+      border-bottom: none;
+      font-weight: 400;
+      &:after, &:before {
+        width: 100%;
+        height: 3px;
+        content: '';
+        position: absolute;
+        
+      }
+      &:before {
+        background: linear-gradient(rgba(255,255,255,1), rgba(100,100,100,0.1));
+        top: 40px;
+      }
+      &:after {
+        background: linear-gradient(rgba(100,100,100,0.1), rgba(255,255,255,1));
+        top: -3px;
+      }
+    }
+  }
+  width: 100%; 
+  display: grid;
+  grid-template-rows: 100%;
+  grid-template-columns: 26px 3fr 1fr;
+  background: rgba(0,0,0,0);
+  transition: background 0.25s ease-out, height 0.1s ease-out;
+
+  cursor: default;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  &:hover {
+    background: rgba(0,0,0,0.05);
+  }
+  &.pending {
+    background: #EFEFEF;
+    color: rgba(0,0,0,0.2);
+  }
+  &.active {
+    background: $tab-active;
+  }
+  &.focused {
+    background: $tab-focused;
+  }
+  &:first-of-type {
+    border-top: 1px solid rgba(0,0,0,0.05);
+  }
+  .status {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .fa-stop, .fa-times, .three-points {
+    color: #888;
+    &:hover {
+      color: #555;
+    }
+  }
+  .dropdown-trigger {
+    transform: translateY(-4px);
+  }
+  .three-points {
+    font-size: 1.3rem;
+  }
+  .img-col {
+    img, .img {
+      width: 22px;
+      height: 22px;
+      &.small {
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+  .dapp-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    font-size: 0.9em;
+  }
+  .dapp-status {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    grid-column: 4;
+    .dropdown {
+      margin-left: 5px;
+      position: absolute;
+      .dropdown-trigger  {
+        transform: translateX(-8px);
+      }
+      .dropdown-menu {
+        transform: translate(-184px, 4px);
+        a.dropdown-item:hover, a.dropdown-item:hover > i {
+          color: #0a0a0a
+        }
+      }
+    }
+  }
+}

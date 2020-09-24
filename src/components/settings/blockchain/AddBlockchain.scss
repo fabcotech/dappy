@@ -1,0 +1,47 @@
+.add-blockchain-form {
+  max-width: 800px;
+  .message {
+    margin-bottom: 0.75rem;
+  }
+  .control-inline {
+    display: flex;
+    align-items: flex-start;
+  }
+  .text-danger {
+    transform: translateY(-0.3rem);
+  }
+  .chainid-and-custom-chainid {
+    margin-bottom: 0.75rem;
+  }
+
+  @media screen and (max-width: 768px) {
+    p.control {
+      display: none;
+    }
+  }
+  @media screen and (min-width: 769px) {
+    .default-nodes-field {
+      //padding-left: 230px;
+      .control {
+        display: flex;
+        flex-direction: column;
+        label {
+          margin-bottom: 6px;
+          margin-left: 0px;
+        }
+      }
+    }
+    .field.is-horizontal > label {
+      width: 230px;
+    }
+    .text-danger {
+      padding-left: 230px;
+    }
+  }
+
+  @media screen and (min-width: 992px) {
+    input[type=text] {
+        width: 540px;
+    }
+  }
+}

@@ -1,0 +1,72 @@
+@import "../style/variables.scss";
+@import "../../node_modules/bulma/sass/utilities/initial-variables.sass";
+
+li.dappy {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-left: 10px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 2rem;
+  height: 66px;
+  padding-bottom: 5px;
+  .version {
+    padding-left: 2px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    .update {
+      color: #ffdd57;
+      text-decoration: underline;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+  }
+}
+
+.root-left.menu {
+  background: linear-gradient(20deg, $menu-bottom, $primary);
+  &.menu-dev {
+    padding-top: 10px;
+    // background: linear-gradient(20deg, #000, #002);
+    ul ul {
+      border: none;
+    }
+  }
+  .menu-list.top {
+    width: 55px;
+    height: 55px;
+    a {
+      text-align: center;
+    }
+    &.not-collapsed {
+      width: 55px;
+      height: 120px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      flex-direction: column;
+    }
+  }
+  .menu-list li a.is-active {
+    background-color: darken($primary, 10%);
+  }
+  &.collapsed {
+    a {
+      text-align: center;
+    }
+  }
+  &.not-collapsed {
+    a.menu-icon {
+      // margin: 0.5em 0.75em;
+    }
+  }
+  i.fa {
+    font-size: 1.3em;
+    width: 26px;
+  }
+}

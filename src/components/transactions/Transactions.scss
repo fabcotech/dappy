@@ -1,0 +1,39 @@
+@import "../../style/variables.scss";
+
+.transactions-list {
+  .smaller-text {
+    max-width: 700px;
+  }
+  tbody tr th {
+    font-weight: normal;
+    &.origin {
+      max-width: 300px;
+      word-break: break-all;
+    }
+    &.value {
+      max-width: 300px;
+      word-break: break-all;
+    }
+    &.name {
+      font-weight: bold;
+    }
+    span.tag {
+      color: #fff;
+      &.aired {
+        background-color: $aired;
+      }
+      &.pending {
+        background-color: $pending;
+      }
+      &.failed {
+        background-color: $failed;
+      }
+      &.abandonned {
+        background-color: $abandonned;
+      }
+      &.completed {
+        background-color: $completed;
+      }
+    }
+  }
+}

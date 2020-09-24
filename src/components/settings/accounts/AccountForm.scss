@@ -1,0 +1,53 @@
+.account-form {
+  max-width: 800px;
+  .message {
+    margin-bottom: 0.75rem;
+  }
+  .generate-private-key {
+    margin-top: 5px;
+  }
+  .control-inline {
+    display: flex;
+    align-items: flex-start;
+  }
+  .text-danger, .text-warning {
+    transform: translateY(-0.3rem);
+  }
+  .field {
+    display: grid;
+    grid-template-columns: 230px calc(100% - 230px);
+    grid-template-rows: 100%;
+    label {
+      grid-row: 1;
+      grid-column: 1;
+    }
+    .control {
+      grid-row: 1;
+      grid-column: 2;
+    }
+    .public-key, .address {
+      word-break: break-all;
+      color: #666;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    p.control {
+      display: none;
+    }
+  }
+  @media screen and (min-width: 769px) {
+    .field.is-horizontal > label {
+      width: 230px;
+    }
+    .text-danger, .text-warning {
+      padding-left: 230px;
+    }
+  }
+
+  @media screen and (min-width: 992px) {
+    input[type=text] {
+        width: 540px;
+    }
+  }
+}

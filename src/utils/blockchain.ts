@@ -1,0 +1,248 @@
+import { Writer } from 'protobufjs';
+import { blake2b } from 'blakejs';
+import * as rchainToolkit from 'rchain-toolkit';
+import * as elliptic from 'elliptic';
+import Ajv from 'ajv';
+
+const ajv = new Ajv();
+const schema = {
+  schemaId: 'dpy-or-file-ast-rholang',
+  type: 'object',
+  properties: {
+    expr: {
+      type: 'object',
+      properties: {
+        ExprString: {
+          type: 'object',
+          properties: {
+            data: {
+              type: 'string',
+            },
+          },
+          require: ['data'],
+        },
+      },
+      required: ['ExprString'],
+    },
+    block: {
+      type: 'object',
+      properties: {
+        seqNum: {
+          type: 'number',
+        },
+        timestamp: {
+          type: 'number',
+        },
+      },
+      required: ['seqNum', 'timestamp'],
+    },
+  },
+  required: ['expr', 'block'],
+};
+
+ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
+const validate = ajv.compile(schema);
+
+import { Blockchain, DappManifest, LoadErrorWithArgs, LoadError, DappyFile, IPServer, DeployOptions } from '../models';
+
+const ec = new elliptic.ec('secp256k1');
+
+export const blockchain = {
+  getUniqueTransactionId: () => {
+    return new Date().getTime() + Math.round(Math.random() * 10000).toString();
+  },
+  buildSearch: (blockchainOrDappManifest: undefined | Blockchain | DappManifest, search: string) => {
+    if (!blockchainOrDappManifest) {
+      return undefined;
+    }
+    return `${blockchainOrDappManifest.platform}/${blockchainOrDappManifest.chainId}/${search}`;
+  },
+  resourceIdToAddress: (dappId: string): string => {
+    return dappId.split('_')[0];
+  },
+  createBase64: (htmlWithTags: string): string => {
+    return Buffer.from(htmlWithTags).toString('base64');
+  },
+  createSignature: (data: string, mimeType: string, name: string, privateKey: string) => {
+    const toSign = new Uint8Array(
+      Buffer.from(
+        JSON.stringify({
+          mimeType: mimeType,
+          name: name,
+          data: data,
+        })
+      )
+    );
+    const blake2Hash64 = blake2b(toSign, 0, 64);
+    const keyPair = ec.keyFromPrivate(privateKey);
+    const signature = keyPair.sign(blake2Hash64);
+    const signatureHex = Buffer.from(signature.toDER()).toString('hex');
+    if (!ec.verify(blake2Hash64, signature, keyPair.getPublic().encode('hex'), 'hex')) {
+      throw new Error('dpy signature verification failed');
+    }
+
+    return signatureHex;
+  },
+  createDpy: (data: string, mimeType: string, name: string, signature: string): string => {
+    return JSON.stringify({
+      mimeType: mimeType,
+      name: name,
+      data: data,
+      signature: signature,
+    });
+  },
+  getHtmlFromFile: (dappyFile: DappyFile): any => {
+    return atob(dappyFile.data);
+  },
+  shuffle: (array: any[]) => {
+    let currentIndex = array.length,
+      temporaryValue,
+      randomIndex;
+
+    while (0 !== currentIndex) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    }
+
+    return array;
+  },
+  rchain: {
+    getDeployOptions: (
+      timestamp: number,
+      term: string,
+      privateKey: string,
+      publicKey: string,
+      phloPrice = 1,
+      phloLimit = 10000,
+      validAfterBlockNumber = 0
+    ): DeployOptions => {
+      const dd = rchainToolkit.utils.getDeployOptions(
+        'secp256k1',
+        timestamp,
+        term,
+        privateKey,
+        publicKey,
+        phloPrice,
+        phloLimit,
+        // todo change to -1
+        validAfterBlockNumber || 1
+      );
+
+      return dd as DeployOptions;
+    },
+    buildNameTermPayload: (
+      publicKey: string,
+      name: string,
+      address: string | undefined,
+      servers: IPServer[] | undefined,
+      nonce: string
+    ): string => {
+      const payload: {
+        publicKey: string;
+        name: string;
+        nonce: string;
+        address?: string;
+        servers?: IPServer[];
+        deployerId?: string;
+      } = {
+        publicKey: publicKey,
+        name: name,
+        nonce: nonce,
+      };
+      if (address) {
+        payload.address = address;
+      }
+      if (servers) {
+        payload.servers = servers;
+      }
+      payload['deployerId'] = '*deployerId';
+      return JSON.stringify(payload);
+    },
+    balanceTerm: (address: string) => {
+      return ` new return, rl(\`rho:registry:lookup\`), RevVaultCh, vaultCh, balanceCh in {
+        rl!(\`rho:rchain:revVault\`, *RevVaultCh) |
+        for (@(_, RevVault) <- RevVaultCh) {
+          @RevVault!("findOrCreate", "${address}", *vaultCh) |
+          for (@(true, vault) <- vaultCh) {
+            @vault!("balance", *balanceCh) |
+            for (@balance <- balanceCh) { return!(balance) }
+          }
+        }
+      }`;
+    },
+    pushFileTerm: (publickey: string, htmlWithTags: string) => {
+      return `
+      new basket, file, publickey, verify, return, updateFile, fileUriCh, insertArbitrary(\`rho:registry:insertArbitrary\`), stdout(\`rho:io:stdout\`) in {
+        publickey!!("${publickey}") |
+        file!("${htmlWithTags}") |
+
+        contract updateFile(message, return) = {
+          for (current <- file; pk <- publickey) {
+            return!("success: file updated") |
+            file!(*message.get("file")) |
+            publickey!(*pk)
+          }
+        } |
+
+        insertArbitrary!(*updateFile, *fileUriCh) |
+
+        for (uri <- fileUriCh) {
+          basket!({
+            "registry_uri": *uri,
+            "unforgeable_name": *file
+          }) |
+          stdout!(*file)
+        }
+
+      }`;
+    },
+  },
+  transferFundsTerm: (from: string, to: string, amount: number) => {
+    return `new
+      rl(\`rho:registry:lookup\`),
+      RevVaultCh,
+      stdout(\`rho:io:stdout\`)
+    in {
+
+    rl!(\`rho:rchain:revVault\`, *RevVaultCh) |
+    for (@(_, RevVault) <- RevVaultCh) {
+
+      stdout!(("3.transfer_funds.rho")) |
+
+      match (
+        "${from}",
+        "${to}",
+        ${amount}
+      ) {
+        (from, to, amount) => {
+  
+          new vaultCh, vaultTo, revVaultkeyCh, deployerId(\`rho:rchain:deployerId\`) in {
+            @RevVault!("findOrCreate", from, *vaultCh) |
+            @RevVault!("findOrCreate", to, *vaultTo) |
+            @RevVault!("deployerAuthKey", *deployerId, *revVaultkeyCh) |
+            for (@(true, vault) <- vaultCh; key <- revVaultkeyCh; _ <- vaultTo) {
+
+              stdout!(("Beginning transfer of ", amount, "REV from", from, "to", to)) |
+
+              new resultCh in {
+                @vault!("transfer", to, amount, *key, *resultCh) |
+                for (@result <- resultCh) {
+                  stdout!(("Finished transfer of ", amount, "REV to", to, "result was:", result))
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }`;
+  },
+  unforgeableWithId: (id: Buffer) => {
+    const bytes = Writer.create().bytes(id).finish().slice(1);
+    return Buffer.from(bytes).toString('hex');
+  },
+};

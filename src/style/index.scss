@@ -1,0 +1,29 @@
+@import "./variables.scss";
+
+@import "../../node_modules/bulma/sass/utilities/_all.sass";
+
+@import "../../node_modules/bulma/sass/base/_all.sass";
+@import "../../node_modules/bulma/sass/grid/_all.sass";
+
+@import "../../node_modules/bulma/sass/elements/box.sass";
+@import "../../node_modules/bulma/sass/elements/form.sass";
+@import "../../node_modules/bulma/sass/elements/button.sass";
+@import "../../node_modules/bulma/sass/elements/container.sass";
+@import "../../node_modules/bulma/sass/elements/title.sass";
+@import "../../node_modules/bulma/sass/elements/tag.sass";
+@import "../../node_modules/bulma/sass/elements/table.sass";
+
+@import "../../node_modules/bulma/sass/components/card.sass";
+@import "../../node_modules/bulma/sass/components/message.sass";
+@import "../../node_modules/bulma/sass/components/menu.sass";
+@import "../../node_modules/bulma/sass/components/modal.sass";
+@import "../../node_modules/bulma/sass/components/dropdown.sass";
+@import "../../node_modules/bulma/sass/components/tabs.sass";
+@import "../../node_modules/bulma/sass/components/pagination.sass";
+
+@import "../../node_modules/bulma-extensions/bulma-tooltip/dist/css/bulma-tooltip.sass";
+@import "../../node_modules/bulma-extensions/bulma-checkradio/dist/css/bulma-checkradio.min.css";
+
+@import './main.scss';
+@import './fonts.scss';
+@import './animations.scss';

@@ -1,0 +1,38 @@
+.load-info-background {
+  background-color: rgba(0,0,0,0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.load-info {
+  background: linear-gradient(20deg, #dfdfdf, #efefef);
+  width: 550px;
+  max-width: 90%;
+  border: 1px solid #bbb;
+  border-radius: 2px;
+  padding: 40px;
+  padding-bottom: 40px;
+  h5 {
+    font-size: 1.8em;
+  }
+  h6 {
+    word-break: break-all;
+    font-size: 1.1em;
+    color: #666;
+    padding-top: 15px;
+    .internet-url {
+      text-decoration: underline;
+    }
+  }
+  p {
+    font-size: 1.2em;
+    line-height: 1.3em;
+    margin-bottom: 5px;
+  }
+  .servers {
+    word-break: break-word;
+    padding-top: 10px;
+    font-weight: 400;
+    font-size: 1.3em;
+  }
+}

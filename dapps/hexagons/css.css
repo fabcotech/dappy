@@ -1,0 +1,133 @@
+html {
+  overflow-y: hidden;
+}
+
+body {
+  width: 100vw;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+#root.loaded {
+  background: radial-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.9));
+}
+#root.loading {
+  background: #111;
+}
+#root.loading:before {
+  content: "Loading";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+}
+#root {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100%;
+  width: 100%;
+  background: radial-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.9));
+}
+
+.genesis-form {
+  padding-bottom: 10px;
+  color: #fff;
+}
+.genesis-form label {
+  color: #fff;
+}
+.genesis-form > p,
+.genesis-form > .field {
+  max-width: 600px;
+}
+
+.canvas-cont {
+  margin-top: 100px;
+  max-width: 1200px;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  color: #fff;
+}
+.canvas-cont .is-2 {
+  color: #fff;
+  margin-bottom: 50px;
+}
+#canvas {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cell-form {
+  width: 100%;
+  color: #fff;
+}
+.cell-form .label {
+  color: #fff;
+}
+
+.cell {
+  margin-right: 10px;
+}
+.cell,
+.cell-n {
+  font-size: 2.2em;
+}
+.cell-available {
+  font-size: 1.1em;
+}
+.cell-price {
+  font-size: 1.6em;
+}
+.n-and-color {
+  padding-left: 60px;
+  display: grid;
+  grid-template-rows: 100%;
+  grid-template-columns: 60% 40%;
+}
+
+.color-box {
+  width: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.n-and-color button {
+  width: 110px;
+}
+
+.color-square {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.color-input {
+  opacity: 0;
+}
+.bottom {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  color: #fff;
+}
+
+.modal {
+  display: block;
+}
+.modal-card {
+  margin-top: 100px;
+}
+
+.has-text-danger {
+  text-align: center;
+}

@@ -1,0 +1,49 @@
+.settings-resolver, .settings-names {
+  & > form {
+    max-width: 700px;
+  }
+  .message {
+    margin-bottom: 0.75rem;
+  }
+  input[type="radio"] {
+    margin-right: 5px;
+  }
+  .control-inline {
+    display: flex;
+    align-items: flex-start;
+  }
+  .text-danger {
+    transform: translateY(-0.3rem);
+  }
+  @media screen and (max-width: 768px) {
+    p.control {
+      display: none;
+    }
+  }
+  @media screen and (min-width: 769px) {
+    .field.is-horizontal > label {
+      width: 230px;
+    }
+    .text-danger {
+      padding-left: 230px;
+    }
+
+    .with-addons {
+      .control > input {
+        border-radius: 4px 0px 0px 4px;
+        width: 180px;
+      }
+      .control > a {
+        border-radius: 0px 4px 4px 0px;
+      }
+    }
+  }
+}
+
+.label-description {
+  display: block;
+  font-size: 0.9rem;
+}
+.smaller-text {
+  white-space: pre-line;
+}
