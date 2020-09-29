@@ -1,6 +1,6 @@
 ## Dappy browser 💻🌍
 
-Dappy is a no-DNS and no-CAs web browser, it works hand in hand with a blockchain platform. The dappy system is a decentralized alternative to the regular web, it allows for new kind of web applications being built and used by anyone.
+Dappy is a no-DNS and no-CAs web browser, it works hand in hand with a blockchain platform. The dappy system is a decentralized alternative to the regular web, it allows for new kind of web applications being built and used by human beings and corporations.
 
 The main features dappy includes are:
 - Decentralized name system on the blockchain, independant of the DNS and certificate authorities.

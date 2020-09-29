@@ -1,7 +1,7 @@
 {
   "name": "dappy",
   "productName": "dappy",
-  "description": "Dappy is a no-DNS and no-CAs web browser, it works hand in hand with a blockchain platform. The dappy system is a decentralized alternative to the regular web, it allows for new kind of web applications being built and used by anyone.",
+  "description": "Dappy is a no-DNS and no-CAs web browser, it works hand in hand with a blockchain platform. The dappy system is a decentralized alternative to the regular web, it allows for new kind of web applications being built and used by human beings and corporations.",
   "homepage": "https://github.com/fabcotech/dappy",
   "author": "FABCO <contact@fabco.tech>",
   "version": "0.3.3",
@@ -45,7 +45,7 @@
     "@sentry/browser": "^5.14.1",
     "@types/ws": "^6.0.3",
     "ajv": "^6.10.2",
-    "beesjs": "file:../beesjs/",
+    "beesjs": "fabcotech/beesjs",
     "blakejs": "^1.1.0",
     "bulma": "0.7.1",
     "bulma-extensions": "^6.2.4",

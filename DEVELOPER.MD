@@ -7,22 +7,20 @@ This document is about introducing the stack and structure of the project. It is
 If you don't understand some terms, please refer first to the [glossary](https://dappy.tech/glossary).
 
 **⚫ Main process**, 1 process, permanent :
-- Entry point: `main/main.ts`.
+- Entry point: `main/main.ts`, compile (rollup) `npm run build:main`.
 - Main electron JS process (Node JS + Typescript).
 - Node JS + typescript.
 - Includes a redux store, mainly replicated/synced with browser-s process store.
-- Compiled with rollup `npm run build:main`.
 - Handles all multi-requests / blockchain requests, see `main/performMultiRequest.ts` and `main/performSingleRequest.ts`.
 - Handles the HTTPS traffic coming from tabs and browser process, see `main/overrideHttpProtocols.ts`.
 
 **🐶 Browser process**, 1 process, permanent :
-- Entry point `src/index.tsx`.
+- Entry point `src/index.tsx`, compile (parcel) `npm run build`.
 - Main browser layout process (React JS + Redux JS + Redux saga + HTML/CSS + Typescript).
 - Includes a redux store divided in 7/8 parts (`dapps`, `ui`, `main` etc).
-- Compiled with parcel `npm run build`.
 
 **🌍 Tab processes** n processes, 1 per dapp or IP app, ephemeral :
-- If dapp, entry point is `src/dapp-sandboxed.ts` `npm run build:dapp-sandboxed`.
+- If dapp, entry point is `src/dapp-sandboxed.ts` compile (parcel) `npm run build:dapp-sandboxed`.
 - If IP app, no entry point, website loaded through HTTP + TLS.
 - Tab processes/windows are created in `main/store/sagas/loadOrReloadBrowserView.ts`.
 - Sandboxed environment with controlled internet access, each tab is identified by a randomId in user agent, see `main/overrideHttpProtocols.ts`.
