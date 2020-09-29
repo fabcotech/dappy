@@ -2636,6 +2636,7 @@ var getWsResponse = function (data, ws, timeout) {
 };
 
 var _this = undefined;
+/* browser to network */
 var performMultiRequest = function (body, parameters, connections) {
     return new Promise(function (resolve, reject) {
         resolver(function (index) {
@@ -10986,7 +10987,7 @@ var registerDappyProtocol = function (session, getState) {
             callback();
             return;
         }
-        // TODO if multi, limit to n unforgeable names
+        // todo if multi, limit to n unforgeable names
         var multipleResources = false;
         var exploreDeploys = false;
         if (url.includes('explore-deploys')) {
@@ -10997,7 +10998,7 @@ var registerDappyProtocol = function (session, getState) {
         }
         var split = url.replace('dappy://', '').split('/');
         var chainId = split[0];
-        // TODO
+        // todo
         // how to return errors ?
         var blockchains = getBlockchains$1(getState());
         var blockchain = blockchains[chainId];
@@ -11281,6 +11282,7 @@ var overrideHttpProtocols = function (session, getState, development) {
             return;
         }
         var browserView = browserViews[appId];
+        /* browser to server */
         var withoutProtocol = request.url.split('//').slice(1);
         var pathArray = withoutProtocol.join('').split('/');
         var host = pathArray.slice(0, 1)[0];
@@ -11304,6 +11306,7 @@ var overrideHttpProtocols = function (session, getState, development) {
             var s = serversWithSameHost[i];
             // See https://nodejs.org/docs/latest-v10.x/api/tls.html#tls_tls_createsecurecontext_options
             var a = new https.Agent({
+                /* no dns */
                 host: s.ip,
                 rejectUnauthorized: false,
                 cert: decodeURI(s.cert),
@@ -11313,7 +11316,9 @@ var overrideHttpProtocols = function (session, getState, development) {
                 agent: a,
                 method: request.method,
                 path: path ? "/" + path : '/',
-                headers: __assign({}, request.headers, { host: s.host, 'User-Agent': request.headers['User-Agent'].substr(0, io) }),
+                headers: __assign({}, request.headers, { 
+                    /* no dns */
+                    host: s.host, 'User-Agent': request.headers['User-Agent'].substr(0, io) }),
             };
             try {
                 var req_1 = https
@@ -15443,7 +15448,7 @@ var wsCron = function (getState, dispatchFromMain) {
                                                 rnodeVersion: resp.rnodeVersion,
                                             },
                                         };
-                                        // TODO validate b
+                                        // todo validate b
                                         // cannot because of "boolean" exported in yup
                                         dispatchFromMain({
                                             action: {
@@ -15503,6 +15508,8 @@ var wsCron = function (getState, dispatchFromMain) {
 var createConnection = function (ip, host, cert) { return __awaiter(_this$2, void 0, Promise, function () {
     return __generator(this, function (_a) {
         return [2 /*return*/, new Promise(function (resolve, reject) {
+                /* no dns */
+                /* browser to network */
                 var connection = new ws("wss://" + ip, {
                     host: ip,
                     headers: {
@@ -15529,6 +15536,7 @@ var createConnection = function (ip, host, cert) { return __awaiter(_this$2, voi
     });
 }); };
 
+/* browser to node */
 var performSingleRequest = function (body, connection) {
     return new Promise(function (resolve, reject) {
         var over = false;
@@ -15752,6 +15760,7 @@ var sendRChainTransactionFromSandboxSchema = lib_9()
     .strict(true)
     .noUnknown()
     .required();
+/* tab process - main process */
 var browserViewsMiddleware = function (store, dispatchFromMain) {
     electron.ipcMain.on('message-from-dapp-sandboxed', function (commEvent, action) {
         try {
@@ -18538,6 +18547,8 @@ var loadOrReloadBrowserView = function (action) {
                 view.webContents.setUserAgent(newUserAgent);
                 action.meta.browserWindow.addBrowserView(view);
                 view.setBounds(position);
+                /* browser to server */
+                // In the case of IP apps, payload.currentUrl is a https://xx address
                 view.webContents.loadURL(payload.currentUrl === 'dist/dapp-sandboxed.html'
                     ? path.join('file://', electron.app.getAppPath(), 'dist/dapp-sandboxed.html') + payload.path
                     : payload.currentUrl);
@@ -18585,7 +18596,9 @@ var loadOrReloadBrowserView = function (action) {
                                 if (!serverAuthorized) {
                                     throw new Error('No server authorized for host');
                                 }
+                                /* browser to server */
                                 var a_1 = new https.Agent({
+                                    /* no dns */
                                     host: serverAuthorized.ip,
                                     rejectUnauthorized: false,
                                     cert: decodeURI(serverAuthorized.cert),
@@ -18840,8 +18853,9 @@ var browserWindow;
 var commEventToRenderer = undefined;
 /*
   MESSAGE FROM BROWSER VIEWS (dapps and IP apps)
-  first message from dapps to ge the initial payload
+  first message from dapps to get the initial payload
 */
+/* tab process to main process */
 electron.ipcMain.on('hi-from-dapp-sandboxed', function (commEvent, userAgent) {
     var browserViews = getBrowserViewsMain(store.getState());
     var randomId = '';
@@ -18883,7 +18897,8 @@ electron.ipcMain.on('copy-to-clipboard', function (event, arg) {
   MESSAGE FROM BROWSER WINDOW
   uniqueEphemeralToken is a token wich is only known by the renderer and
   main process, the webviews don't know its value
-  */
+*/
+/* tab process to main process */
 var uniqueEphemeralToken;
 electron.ipcMain.on('ask-unique-ephemeral-token', function (event, arg) {
     commEventToRenderer = event;
@@ -18905,6 +18920,7 @@ electron.ipcMain.on('ask-unique-ephemeral-token', function (event, arg) {
   MESSAGE FROM BROWSER WINDOW
   Dappy query handlers
 */
+/* browser to node */
 electron.ipcMain.on('single-dappy-call', function (event, arg) {
     if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
         commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, {
@@ -18942,6 +18958,7 @@ electron.ipcMain.on('single-dappy-call', function (event, arg) {
   MESSAGE FROM BROWSER WINDOW
   Dappy query handlers
 */
+/* browser to network */
 electron.ipcMain.on('multi-dappy-call', function (event, arg) {
     if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
         commEventToRenderer.reply('multi-dappy-call-reply-' + arg.requestId, {
