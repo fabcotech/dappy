@@ -91,8 +91,6 @@ export const initDappsMiddleWare = () => {
     );
 
     const tab = tabs.find((t) => t.id === (dappFoundByRandomId as Dapp).tabId);
-    console.log(tab);
-    console.log(dappFoundByRandomId);
     if (!tab) {
       console.error('A dapp dispatched a transaction with an invalid randomId');
       return;

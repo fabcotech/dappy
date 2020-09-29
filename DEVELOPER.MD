@@ -79,10 +79,12 @@ Dappy browser interact with two kind of entities: a dappy network, or a private/
 ![Dappy browser connections](https://dappy.tech/images/dappy_browser_connections.jpg)
 
 Tags have been added to the code so you can quickly find where those connections / requests are made.
-- **/* no dns */**: Dappy browser does not use the Domain Name System, and does raw IP requests, check this tag to see where it occurs.
-- **/* browser to server */**: See how IP apps and no-DNS navigation is done.
-- **/* browser to network */**: See how Dappy browsers queries the Dappy network.
-- **/* browser to node */**: In case of a deploy (not a read query), multi-request is inadequat, a single browser to node query is performed.
+- **no dns**: Dappy browser does not use the Domain Name System, and does raw IP requests, check this tag to see where it occurs.
+- **browser to server**: See how IP apps and no-DNS navigation is done.
+- **browser to network**: See how Dappy browsers queries the Dappy network.
+- **browser to node**: In case of a deploy (not a read query), multi-request is inadequat, a single browser to node query is performed.
+- **tab process - main process**: Inter-process secure communication between a tab and the main process.
+- **browser process - main process**: Inter-process secure communication between the browser process and the main process.
 
 #### Add dappy local js/css libraries
 

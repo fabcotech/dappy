@@ -45,8 +45,9 @@ let commEventToRenderer = undefined;
 
 /*
   MESSAGE FROM BROWSER VIEWS (dapps and IP apps)
-  first message from dapps to ge the initial payload
+  first message from dapps to get the initial payload
 */
+/* tab process to main process */
 ipcMain.on('hi-from-dapp-sandboxed', (commEvent, userAgent) => {
   const browserViews = fromMainBrowserViews.getBrowserViewsMain(store.getState());
   let randomId = '';
@@ -90,7 +91,8 @@ ipcMain.on('copy-to-clipboard', (event, arg) => {
   MESSAGE FROM BROWSER WINDOW
   uniqueEphemeralToken is a token wich is only known by the renderer and 
   main process, the webviews don't know its value
-  */
+*/
+/* tab process to main process */
 let uniqueEphemeralToken;
 ipcMain.on('ask-unique-ephemeral-token', (event, arg) => {
   commEventToRenderer = event;

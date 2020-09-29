@@ -74,6 +74,7 @@ const sendRChainTransactionFromSandboxSchema = yup
   .noUnknown()
   .required();
 
+/* tab process - main process */
 export const browserViewsMiddleware = (store: Store<State>, dispatchFromMain: (a: any) => void) => {
   ipcMain.on('message-from-dapp-sandboxed', (commEvent, action) => {
     try {
