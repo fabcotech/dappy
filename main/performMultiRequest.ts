@@ -5,6 +5,7 @@ import { MultiCallBody, MultiCallParameters, MultiCallResult, MultiCallError } f
 import { Connections } from './store/connections';
 import { getWsResponse } from './wsUtils';
 
+/* browser to network */
 export const performMultiRequest = (
   body: MultiCallBody,
   parameters: MultiCallParameters,

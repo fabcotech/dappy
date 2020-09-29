@@ -113,6 +113,7 @@ ipcMain.on('ask-unique-ephemeral-token', (event, arg) => {
   MESSAGE FROM BROWSER WINDOW
   Dappy query handlers
 */
+/* browser to node */
 ipcMain.on('single-dappy-call', (event, arg) => {
   if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
     commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, {
@@ -155,6 +156,7 @@ ipcMain.on('single-dappy-call', (event, arg) => {
   MESSAGE FROM BROWSER WINDOW
   Dappy query handlers
 */
+/* browser to network */
 ipcMain.on('multi-dappy-call', (event, arg) => {
   if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
     commEventToRenderer.reply('multi-dappy-call-reply-' + arg.requestId, {

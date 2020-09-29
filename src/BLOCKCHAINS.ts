@@ -6,6 +6,7 @@ export const PREDEFINED_BLOCKCHAINS: Blockchain[] = [
     platform: 'rchain',
     chainId: 'betanetwork',
     chainName: 'Beta network (mainnet)',
+    /* no dns */
     nodes: [
       {
         name: 'Node 1',
@@ -44,6 +45,7 @@ hYC/xCXfAxQRUfkTmgL0LkTU1T8KqA8IWD1Xx1FZhJQcKfIY+STfgSeqJNoXJFxD
     platform: 'rchain',
     chainId: 'deltanetwork',
     chainName: 'Delta network (testnet)',
+    /* no dns */
     nodes: [
       {
         name: 'Node 1',

@@ -2,6 +2,7 @@ import WSC from 'ws';
 
 import { getWsResponse } from './wsUtils';
 
+/* browser to node */
 export const performSingleRequest = (
   body: { [key: string]: any },
   connection: WSC

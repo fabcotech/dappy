@@ -75,6 +75,8 @@ const loadOrReloadBrowserView = function* (action: any) {
   action.meta.browserWindow.addBrowserView(view);
   view.setBounds(position);
 
+  /* browser to server */
+  // In the case of IP apps, payload.currentUrl is a https://xx address
   view.webContents.loadURL(
     payload.currentUrl === 'dist/dapp-sandboxed.html'
       ? path.join('file://', app.getAppPath(), 'dist/dapp-sandboxed.html') + payload.path
@@ -129,7 +131,9 @@ const loadOrReloadBrowserView = function* (action: any) {
           if (!serverAuthorized) {
             throw new Error('No server authorized for host');
           }
+          /* browser to server */
           const a = new https.Agent({
+            /* no dns */
             host: serverAuthorized.ip,
             rejectUnauthorized: false, // cert does not have to be signed by CA (self-signed)
             cert: decodeURI(serverAuthorized.cert),

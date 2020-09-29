@@ -9,6 +9,7 @@ export interface NodeFromNetwork {
   cert: string;
 }
 
+/* no dns */
 export interface BlockchainNode {
   ip: string;
   host: string;

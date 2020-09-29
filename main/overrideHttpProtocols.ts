@@ -123,6 +123,8 @@ export const overrideHttpProtocols = (session: Session, getState, development: b
     }
     const browserView = browserViews[appId];
 
+    /* browser to server */
+
     const withoutProtocol = request.url.split('//').slice(1);
     const pathArray = withoutProtocol.join('').split('/');
     const host = pathArray.slice(0, 1)[0];
@@ -150,6 +152,7 @@ export const overrideHttpProtocols = (session: Session, getState, development: b
       const s = serversWithSameHost[i];
       // See https://nodejs.org/docs/latest-v10.x/api/tls.html#tls_tls_createsecurecontext_options
       const a = new https.Agent({
+        /* no dns */
         host: s.ip,
         rejectUnauthorized: false, // cert does not have to be signed by CA (self-signed)
         cert: decodeURI(s.cert),
@@ -162,6 +165,7 @@ export const overrideHttpProtocols = (session: Session, getState, development: b
         path: path ? `/${path}` : '/',
         headers: {
           ...request.headers,
+          /* no dns */
           host: s.host,
           'User-Agent': request.headers['User-Agent'].substr(0, io),
         },

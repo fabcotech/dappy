@@ -304,6 +304,8 @@ const createConnection = async (
   cert?: string
 ): Promise<{ connection: WSC; ssl: boolean }> => {
   return new Promise((resolve, reject) => {
+    /* no dns */
+    /* browser to network */
     const connection = new WSC(`wss://${ip}`, {
       host: ip,
       headers: {
