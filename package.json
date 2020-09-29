@@ -9,11 +9,11 @@
   "scripts": {
     "create-fake-ws-deps": "rm -rf ./node_modules/utf-8-validate && rm -rf ./node_modules/bufferutil && cp -r local_node_modules/utf-8-validate/ ./node_modules/ && cp -r local_node_modules/bufferutil/ ./node_modules/",
     "lint": "tsc --pretty --jsx react --noEmit  src/index.tsx",
-    "parcel:dev": "parcel -p 3033 src/index.html --target browser",
+    "parcel:dev": "npx parcel -p 3033 src/index.html --target browser",
     "start:electron": "export NODE_ENV=development && electron .",
     "build": "export NODE_ENV=production && rm -rf dist/ && npx parcel build src/index.html src/dapp-sandboxed.html --public-url . && cp -r dapp-libs/* dist/ && cp src/dapp-sandboxed-preload.js dist/dapp-sandboxed-preload.js && cp src/preload.js dist/preload.js",
     "build:dapp-sandboxed": "export NODE_ENV=production && npx parcel build src/dapp-sandboxed.html --public-url .",
-    "build:main": "rollup -c",
+    "build:main": "npx rollup -c",
     "electron-builder:dist:linux": "electron-builder -c build.yml --x64 --publish never --linux deb",
     "electron-builder:dist:windows:64": "electron-builder -c build.yml --x64 --publish never --win nsis",
     "electron-builder:dist:windows:32": "electron-builder -c build.yml --ia32 --publish never --win nsis",
@@ -91,9 +91,11 @@
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-typescript": "^1.0.1",
-    "sass": "^1.26.5",
+    "sass": "1.26.5",
     "source-map-loader": "^0.2.3",
     "ts-jest": "^26.1.4",
-    "typescript": "^3.5.3"
+    "typescript": "^3.5.3",
+    "parcel": "1.12.4",
+    "rollup": "1.26.0"
   }
 }

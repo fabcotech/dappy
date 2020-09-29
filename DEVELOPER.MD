@@ -46,8 +46,6 @@ Install global dependencies (sudo)
 # Add --unsafe-perm=true --allow-root if you have an error
 
 npm install typescript -g
-npm install parcel@1.12.4 -g
-npm install rollup@1.26.0 -g
 # sentry-cli
 curl -sL https://sentry.io/get-cli/ | bash
 ```
