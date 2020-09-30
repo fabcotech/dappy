@@ -4,6 +4,8 @@ import * as rchainToolkit from 'rchain-toolkit';
 import * as elliptic from 'elliptic';
 import Ajv from 'ajv';
 
+import { DappyFile, IPServer, DeployOptions } from '../models';
+
 const ajv = new Ajv();
 const schema = {
   schemaId: 'dpy-or-file-ast-rholang',
@@ -43,19 +45,11 @@ const schema = {
 ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
 const validate = ajv.compile(schema);
 
-import { Blockchain, DappManifest, LoadErrorWithArgs, LoadError, DappyFile, IPServer, DeployOptions } from '../models';
-
 const ec = new elliptic.ec('secp256k1');
 
 export const blockchain = {
   getUniqueTransactionId: () => {
     return new Date().getTime() + Math.round(Math.random() * 10000).toString();
-  },
-  buildSearch: (blockchainOrDappManifest: undefined | Blockchain | DappManifest, search: string) => {
-    if (!blockchainOrDappManifest) {
-      return undefined;
-    }
-    return `${blockchainOrDappManifest.platform}/${blockchainOrDappManifest.chainId}/${search}`;
   },
   resourceIdToAddress: (dappId: string): string => {
     return dappId.split('_')[0];

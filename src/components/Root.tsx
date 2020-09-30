@@ -15,6 +15,7 @@ import { DEVELOPMENT } from '../CONSTANTS';
 import { initTranslate } from '../utils/translate';
 
 interface RootComponentProps {
+  dappsListDisplay: number;
   menuCollapsed: boolean;
   navigationUrl: NavigationUrl;
   isMobile: boolean;
@@ -70,6 +71,7 @@ class RootComponent extends React.Component<RootComponentProps, {}> {
       <div className={klasses}>
         {this.props.modal ? <Modal /> : undefined}
         <Menu
+          dappsListDisplay={this.props.dappsListDisplay}
           menuCollapsed={this.props.menuCollapsed}
           toggleMenuCollapsed={this.props.toggleMenuCollapsed}
           isNavigationInDapps={this.props.isNavigationInDapps}
@@ -103,6 +105,7 @@ class RootComponent extends React.Component<RootComponentProps, {}> {
 
 export const Root = connect(
   state => ({
+    dappsListDisplay: fromUi.getDappsListDisplay(state),
     menuCollapsed: fromUi.getMenuCollapsed(state),
     isNavigationInDapps: fromUi.getIsNavigationInDapps(state),
     isNavigationInSettings: fromUi.getIsNavigationInSettings(state),

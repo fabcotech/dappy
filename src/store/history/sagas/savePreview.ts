@@ -5,10 +5,10 @@ import * as fromMain from '../../main';
 import * as fromDapps from '../../dapps';
 import { Action } from '../../';
 import { browserUtils } from '../../browser-utils';
-import { Preview, DappManifest, IpApp, LoadedFile, Tab } from '../../../models';
+import { Preview, Dapp, IpApp, LoadedFile, Tab } from '../../../models';
 
 const savePreview = function* (action: Action) {
-  const activeResource: DappManifest | IpApp | LoadedFile | undefined = yield select(fromDapps.getActiveResource);
+  const activeResource: Dapp | IpApp | LoadedFile | undefined = yield select(fromDapps.getActiveResource);
   const tabs: Tab[] = yield select(fromDapps.getTabs);
 
   let previewTitle = '';

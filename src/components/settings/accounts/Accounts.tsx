@@ -85,7 +85,8 @@ export function AccountsComponent(props: AccountsProps) {
                         title="Send REVs"
                         onClick={() => props.sendRChainPayment(a, (props.namesBlockchain as Blockchain).chainId)}
                         className="button is-info is-small">
-                        {t('send revs')} ({props.namesBlockchain.chainName})
+                        <i title="Tipping unavailable" className="fa fa-before fa-money-bill-wave"></i>
+                        {t('send revs')}
                       </button>
                     ) : (
                       <p className="text-danger">No network found, cannot send REVs</p>

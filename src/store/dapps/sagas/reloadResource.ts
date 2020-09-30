@@ -12,9 +12,9 @@ import { splitSearch } from '../../../utils/splitSearch';
 import { validateAndReturnFile } from '../../../utils/validateAndReturnFile';
 import { validateBlockchainResponse } from '../../../utils/validateBlockchainResponse';
 import {
-  DappManifest,
+  Dapp,
   Blockchain,
-  DappManifestFromNetwork,
+  DappFromNetwork,
   RChainInfos,
   LoadError,
   Record,
@@ -33,7 +33,7 @@ const reloadResource = function* (action: Action) {
   const payload: fromDapps.ReloadResourcePayload = action.payload;
 
   const tabs: Tab[] = yield select(fromDapps.getTabs);
-  const dappManifests: { [dappId: string]: DappManifest } = yield select(fromDapps.getDappManifests);
+  const dapps: { [dappId: string]: Dapp } = yield select(fromDapps.getDapps);
   const ipApps: { [appId: string]: IpApp } = yield select(fromDapps.getIpApps);
   const loadedFiles: { [fileId: string]: LoadedFile } = yield select(fromDapps.getLoadedFiles);
   const settings: fromSettings.Settings = yield select(fromSettings.getSettings);
@@ -54,14 +54,14 @@ const reloadResource = function* (action: Action) {
   }
 
   // Close all modals if a dapp is openned in tab payload.tabId
-  const dappId = Object.keys(dappManifests).find((k) => dappManifests[k].tabId === payload.tabId);
+  const dappId = Object.keys(dapps).find((k) => dapps[k].tabId === payload.tabId);
   if (dappId) {
     yield put(fromMain.closeAllDappModalsAction({ dappId: dappId as string }));
   }
 
   const resourceId = tab.resourceId;
   const search = blockchainUtils.resourceIdToAddress(resourceId);
-  const dappManifest = dappManifests[resourceId];
+  const dapp = dapps[resourceId];
 
   const searchSplitted = splitSearch(search);
   // Should not happen
@@ -376,7 +376,7 @@ const reloadResource = function* (action: Action) {
     return;
   }
 
-  const dappManifestFromNetwork: DappManifestFromNetwork = {
+  const dappFromNetwork: DappFromNetwork = {
     html: dappHtml,
     title: search,
     description: '',
@@ -388,15 +388,15 @@ const reloadResource = function* (action: Action) {
   const randomId = window.crypto.getRandomValues(new Uint32Array(12)).join('-');
   yield put(
     fromDapps.reloadDappCompletedAction({
-      dappManifest: {
-        ...dappManifestFromNetwork,
+      dapp: {
+        ...dappFromNetwork,
         id: resourceId,
         tabId: tab.id,
         origin: 'network',
-        chainId: dappManifest.chainId,
-        search: dappManifest.search,
+        chainId: dapp.chainId,
+        search: dapp.search,
         path: searchSplitted.path,
-        resourceId: dappManifest.resourceId,
+        resourceId: dapp.resourceId,
         publicKey: checkSignature ? publicKey : undefined,
         randomId: randomId,
         loadState: {

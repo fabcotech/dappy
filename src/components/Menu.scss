@@ -60,13 +60,17 @@ li.dappy {
       text-align: center;
     }
   }
-  &.not-collapsed {
-    a.menu-icon {
-      // margin: 0.5em 0.75em;
+  .menu-list li {
+    position: relative;
+    i.fa {
+      font-size: 1.3em;
+      width: 26px;
     }
-  }
-  i.fa {
-    font-size: 1.3em;
-    width: 26px;
+    i.fa-eye, i.fa-eye-slash {
+      font-size: 0.8em;
+      position: absolute;
+      right: 0;
+      top: 13px;
+    }
   }
 }

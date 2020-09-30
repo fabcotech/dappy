@@ -3,6 +3,7 @@ import './MenuMobile.scss';
 import { NavigationUrl } from '../models';
 
 interface MenuMobileComponentProps {
+  dappsListDisplay: number;
   isNavigationInDapps: boolean;
   isNavigationInSettings: boolean;
   isNavigationInDeploy: boolean;
@@ -57,6 +58,7 @@ class MenuMobileComponent extends React.Component<MenuMobileComponentProps, {}> 
                 onClick={() => this.onCollapseMobileMenuAndNavigate('/dapps')}>
                 <i className="fa fa-globe-europe fa-before" />
                 {t('menu browse')}
+                { this.props.dappsListDisplay === 0 ? <i className="fa fa-eye fa-after"></i> : undefined}
               </a>
             </li>
             <li>

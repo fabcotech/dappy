@@ -1,5 +1,4 @@
 export * from './Dapp';
-export * from './DappManifest';
 export * from './TransitoryState';
 export * from './Settings';
 export * from './Blockchain';

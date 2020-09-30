@@ -164,17 +164,17 @@ export const NavigationBar = connect(
     let chainId: string | undefined = '';
     let loadState: undefined | LoadCompletedData;
     if (tab) {
-      const dappManifest = fromDapps.getDappManifests(state)[tab.resourceId];
+      const dapp = fromDapps.getDapps(state)[tab.resourceId];
       const ipApp = fromDapps.getIpApps(state)[tab.resourceId];
       const loadedFile = fromDapps.getLoadedFiles(state)[tab.resourceId];
-      if (!!dappManifest) {
-        const firstKey = Object.keys(dappManifest.loadState.completed)[0];
-        loadState = dappManifest.loadState.completed[firstKey];
+      if (!!dapp) {
+        const firstKey = Object.keys(dapp.loadState.completed)[0];
+        loadState = dapp.loadState.completed[firstKey];
         resourceLoaded = true;
-        resourceId = dappManifest.id;
-        publicKey = dappManifest.publicKey;
-        chainId = dappManifest.chainId;
-        address = searchToAddress(dappManifest.search, dappManifest.chainId);
+        resourceId = dapp.id;
+        publicKey = dapp.publicKey;
+        chainId = dapp.chainId;
+        address = searchToAddress(dapp.search, dapp.chainId);
       } else if (!!ipApp) {
         resourceLoaded = !transitoryStates[ipApp.id] || !['loading', 'reloading'].includes(transitoryStates[ipApp.id]);
         appType = 'IP';

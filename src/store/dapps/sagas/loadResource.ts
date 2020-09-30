@@ -16,12 +16,12 @@ import { validateAndReturnFile } from '../../../utils/validateAndReturnFile';
 import {
   Record,
   Blockchain,
-  DappManifestFromNetwork,
+  DappFromNetwork,
   RChainInfos,
   LoadError,
   LoadErrorWithArgs,
   DappyFile,
-  DappManifest,
+  Dapp,
   IPServer,
 } from '../../../models';
 import { Action } from '../../';
@@ -31,7 +31,7 @@ const loadResource = function* (action: Action) {
   const payload: fromDapps.LoadResourcePayload = action.payload;
   const settings: fromSettings.Settings = yield select(fromSettings.getSettings);
   const blockchains: { [chainId: string]: Blockchain } = yield select(fromSettings.getOkBlockchains);
-  const dappManifests: { [id: string]: DappManifest } = yield select(fromDapps.getDappManifests);
+  const dapps: { [id: string]: Dapp } = yield select(fromDapps.getDapps);
   const rchainInfos: { [chainId: string]: RChainInfos } = yield select(fromBlockchain.getRChainInfos);
   const records: { [name: string]: Record } = yield select(fromBlockchain.getRecords);
 
@@ -40,7 +40,7 @@ const loadResource = function* (action: Action) {
   let tabId = payload.tabId as string;
   if (tabId) {
     // Close all modals if a dapp is openned in tab payload.tabId
-    const dappId = Object.keys(dappManifests).find((k) => dappManifests[k].tabId === payload.tabId);
+    const dappId = Object.keys(dapps).find((k) => dapps[k].tabId === payload.tabId);
     if (dappId) {
       yield put(fromMain.closeAllDappModalsAction({ dappId: dappId as string }));
     }
@@ -91,10 +91,10 @@ const loadResource = function* (action: Action) {
   // Should never happen
   // - wether a dapp is reloaded
   // - wether another dapp (event if it points to the same resource) is loaded in another tab (!= dappId)
-  if (dappManifests[resourceId]) {
+  if (dapps[resourceId]) {
     yield put(
       fromDapps.launchDappCompletedAction({
-        dappManifest: dappManifests[resourceId],
+        dapp: dapps[resourceId],
       })
     );
     return;
@@ -418,7 +418,7 @@ const loadResource = function* (action: Action) {
   }
 
   const randomId = window.crypto.getRandomValues(new Uint32Array(12)).join('-');
-  const dappManifestFromNetwork: DappManifestFromNetwork = {
+  const dappFromNetwork: DappFromNetwork = {
     html: dappHtml,
     title: payload.address,
     description: '',
@@ -428,8 +428,8 @@ const loadResource = function* (action: Action) {
   };
 
   const loadStates = yield select(fromDapps.getLoadStates);
-  const dappManifest: DappManifest = {
-    ...dappManifestFromNetwork,
+  const dapp: Dapp = {
+    ...dappFromNetwork,
     id: resourceId,
     tabId: tabId,
     randomId: randomId,
@@ -447,7 +447,7 @@ const loadResource = function* (action: Action) {
     launchedAt: new Date().toISOString(),
   };
 
-  yield put(fromDapps.launchDappCompletedAction({ dappManifest: dappManifest }));
+  yield put(fromDapps.launchDappCompletedAction({ dapp: dapp }));
 };
 
 export const loadResourceSaga = function* () {

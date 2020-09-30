@@ -4,14 +4,14 @@ import { store } from '../..';
 import * as fromDapps from '..';
 import * as fromMain from '../../main';
 import { browserUtils } from '../../browser-utils';
-import { Tab, DappManifest, IpApp, LoadedFile } from '../../../models';
+import { Tab, Dapp, IpApp, LoadedFile } from '../../../models';
 import { Action } from '../..';
 
 const removeTab = function* (action: Action) {
   const payload: fromDapps.RemoveTabPayload = action.payload;
   const tabId = payload.tabId;
 
-  const activeResource: DappManifest | IpApp | LoadedFile | undefined = yield select(fromDapps.getActiveResource);
+  const activeResource: Dapp | IpApp | LoadedFile | undefined = yield select(fromDapps.getActiveResource);
   const tabs: Tab[] = yield select(fromDapps.getTabs);
 
   try {

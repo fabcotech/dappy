@@ -1,5 +1,5 @@
 import {
-  DappManifest,
+  Dapp,
   LoadCompleted,
   LoadErrors,
   Tab,
@@ -99,7 +99,7 @@ export const updateLoadStateAction = (values: UpdateLoadStatePayload) => ({
 });
 
 export interface ReloadDappCompletedPayload {
-  dappManifest: DappManifest;
+  dapp: Dapp;
 }
 export const reloadDappCompletedAction = (values: ReloadDappCompletedPayload) => ({
   type: RELOAD_DAPP_COMPLETED,
@@ -187,7 +187,7 @@ export const removeTabCompletedAction = (payload: RemoveTabCompletedPayload) => 
 });
 
 export interface LaunchDappCompletedPayload {
-  dappManifest: DappManifest;
+  dapp: Dapp;
 }
 export const launchDappCompletedAction = (values: LaunchDappCompletedPayload) => ({
   type: LAUNCH_DAPP_COMPLETED,

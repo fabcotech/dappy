@@ -26,11 +26,12 @@
     grid-template-rows: 100%;
     grid-template-columns: 100%;
     max-height: 100vh;
-    overflow: auto;
+    overflow: hidden;
 
     & > * {
       grid-row: 1;
       grid-column: 1;
+      overflow: auto;
     }
 
     // Only .dapps can be displayed behind one of the other main sections

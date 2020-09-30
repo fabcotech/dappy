@@ -1,12 +1,12 @@
 import * as React from 'react';
 
 import './DappSandboxed.scss';
-import { DappManifest, TransitoryState, Tab, LastLoadError } from '../../models';
+import { Dapp, TransitoryState, Tab, LastLoadError } from '../../models';
 import { LoadErrorHtml } from '../utils';
 import { blockchain as blockchainUtils } from '../../utils/';
 
 interface DappSandboxedComponentProps {
-  dappManifest: undefined | DappManifest;
+  dapp: undefined | Dapp;
   transitoryStates: { [resourceId: string]: TransitoryState };
   zIndex: number;
   devMode: boolean;
@@ -39,8 +39,8 @@ class DappSandboxedComponent extends React.Component<DappSandboxedComponentProps
       return true;
     }
 
-    if (nextProps.dappManifest && nextProps.dappManifest.randomId !== this.currentlyRenderingRandomId) {
-      this.currentlyRenderingRandomId = nextProps.dappManifest.randomId;
+    if (nextProps.dapp && nextProps.dapp.randomId !== this.currentlyRenderingRandomId) {
+      this.currentlyRenderingRandomId = nextProps.dapp.randomId;
       return true;
     }
     return false;
@@ -64,21 +64,21 @@ class DappSandboxedComponent extends React.Component<DappSandboxedComponentProps
   render() {
     const transitoryState = this.props.tab ? this.props.transitoryStates[this.props.tab.resourceId] : undefined;
 
-    if (!this.props.lastLoadError && !!this.props.dappManifest) {
+    if (!this.props.lastLoadError && !!this.props.dapp) {
       window.dispatchInMain(window.uniqueEphemeralToken, {
         type: '[MAIN] Load or reload browser view',
         payload: {
           currentUrl: `dist/dapp-sandboxed.html`,
-          resourceId: this.props.dappManifest.id,
+          resourceId: this.props.dapp.id,
           tabId: this.props.tab.id,
           muted: this.props.tab.muted,
-          randomId: this.props.dappManifest.randomId,
-          path: this.props.dappManifest.path,
-          title: this.props.dappManifest.title,
-          address: `${this.props.dappManifest.chainId}/${this.props.dappManifest.search}`,
+          randomId: this.props.dapp.randomId,
+          path: this.props.dapp.path,
+          title: this.props.dapp.title,
+          address: `${this.props.dapp.chainId}/${this.props.dapp.search}`,
           devMode: this.props.devMode,
           servers: [],
-          html: this.props.dappManifest.html,
+          html: this.props.dapp.html,
         },
       });
     }
@@ -104,7 +104,7 @@ class DappSandboxedComponent extends React.Component<DappSandboxedComponentProps
             </div>
           </div>
         ) : undefined}
-        {!this.props.lastLoadError && !this.props.dappManifest ? (
+        {!this.props.lastLoadError && !this.props.dapp ? (
           <div className="retry">
             <div
               onClick={(e) =>

@@ -4,12 +4,12 @@ import { connect } from 'react-redux';
 import * as fromDapps from '../../store/dapps';
 import * as fromUi from '../../store/ui';
 import { blockchain as blockchainUtils } from '../../utils/';
-import { DappManifest, TransitoryState, Tab } from '../../models';
+import { Dapp, TransitoryState, Tab } from '../../models';
 import { TabListItem } from '.';
 import './TabsList.scss';
 
 interface TabsListProps {
-  dappManifests: { [id: string]: DappManifest };
+  dapps: { [id: string]: Dapp };
   tabs: Tab[];
   tabsFocusOrder: string[];
   transitoryStates: { [dappId: string]: TransitoryState };
@@ -33,14 +33,14 @@ class TabsListComponent extends React.Component<TabsListProps, {}> {
       <div
         className={`tabs-list ${this.props.onlyIcons ? 'only-icons' : ''} ${this.props.isMobile ? 'is-mobile' : ''}`}>
         {this.props.tabs.map((tab) => {
-          const dappManifest = this.props.dappManifests[tab.resourceId];
+          const dapp = this.props.dapps[tab.resourceId];
           const focusedTabId = this.props.tabsFocusOrder[this.props.tabsFocusOrder.length - 1];
           return (
             <TabListItem
               key={tab.id}
-              dappManifest={dappManifest}
+              dapp={dapp}
               tab={tab}
-              launchedAt={dappManifest ? dappManifest.launchedAt : undefined}
+              launchedAt={dapp ? dapp.launchedAt : undefined}
               transitoryState={this.props.transitoryStates[tab.resourceId]}
               focused={!this.props.isSearchFocused && focusedTabId === tab.id}
               onlyIcons={this.props.onlyIcons}
@@ -78,7 +78,7 @@ export const TabsList = connect(
       transitoryStates: fromDapps.getDappsTransitoryStates(state),
       tabs: fromDapps.getTabs(state),
       tabsFocusOrder: fromDapps.getTabsFocusOrderWithoutSearch(state),
-      dappManifests: fromDapps.getDappManifests(state),
+      dapps: fromDapps.getDapps(state),
       isMobile: fromUi.getIsMobile(state),
       isSearchFocused: fromDapps.getIsSearchFocused(state),
       onlyIcons: fromUi.getDappsListDisplay(state) === 3,

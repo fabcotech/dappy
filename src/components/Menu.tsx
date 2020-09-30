@@ -4,6 +4,7 @@ import { NavigationUrl } from '../models';
 import { MenuMobile } from '.';
 
 interface MenuComponentProps {
+  dappsListDisplay: number;
   menuCollapsed: boolean;
   isNavigationInDapps: boolean;
   isNavigationInSettings: boolean;
@@ -22,6 +23,7 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
     if (this.props.isMobile) {
       return (
         <MenuMobile
+          dappsListDisplay={this.props.dappsListDisplay}
           isAwaitingUpdate={this.props.isAwaitingUpdate}
           currentVersion={this.props.currentVersion}
           isBeta={this.props.isBeta}
@@ -36,7 +38,7 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
 
     if (this.props.menuCollapsed) {
       return (
-        <aside className={`root-left menu ${this.props.menuCollapsed ? 'collapsed' : 'not-collapsed'}`}>
+        <aside className={`root-left menu collapsed`}>
           <ul className="menu-list top fc">
             <li>
               <a onClick={this.props.toggleMenuCollapsed} className="menu-icon">
@@ -47,6 +49,7 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
           <ul className="menu-list">
             <li>
               <a
+                title={this.props.isNavigationInDapps ? "Click to swistch tabs display" : ""}
                 className={this.props.isNavigationInDapps ? 'is-active' : ''}
                 onClick={() => this.props.navigate('/dapps')}>
                 <i className="fa fa-globe-europe fa-before" />
@@ -97,10 +100,14 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
         <ul className="menu-list">
           <li>
             <a
+              title={this.props.isNavigationInDapps ? "Click to swistch tabs display" : ""}
               className={this.props.isNavigationInDapps ? 'is-active' : ''}
               onClick={() => this.props.navigate('/dapps')}>
               <i className="fa fa-globe-europe fa-before" />
               {t('menu browse')}
+              { this.props.dappsListDisplay === 1 ? <i className="fa fa-eye-slash fa-after"></i> : undefined}
+              { this.props.dappsListDisplay === 2 ? <i className="fa fa-eye fa-after"></i> : undefined}
+              { this.props.dappsListDisplay === 3 ? <i className="fa fa-eye fa-after"></i> : undefined}
             </a>
           </li>
           <li>

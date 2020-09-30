@@ -8,7 +8,7 @@ import * as fromMain from '../../store/main';
 import * as fromHistory from '../../store/history';
 import * as fromSettings from '../../store/settings';
 import {
-  DappManifest,
+  Dapp,
   TransactionState,
   TransitoryState,
   Tab,
@@ -25,7 +25,7 @@ interface DappsSandboxedComponentProps {
   activeTabs: { [tabId: string]: Tab };
   loadedFiles: { [fileId: string]: LoadedFile };
   ipApps: { [appId: string]: IpApp };
-  dappsManifests: { [dappId: string]: DappManifest };
+  dapps: { [dappId: string]: Dapp };
   tabsFocusOrder: string[];
   dappTransactions: TransactionState[];
   transitoryStates: { [dappId: string]: TransitoryState };
@@ -127,7 +127,7 @@ class DappsSandboxedComponent extends React.Component<DappsSandboxedComponentPro
               />
               <DappSandboxed
                 zIndex={(this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10}
-                dappManifest={this.props.dappsManifests[tab.resourceId]}
+                dapp={this.props.dapps[tab.resourceId]}
                 transitoryStates={this.props.transitoryStates}
                 lastLoadError={this.props.lastLoadErrors[tabId]}
                 tab={tab}
@@ -149,7 +149,7 @@ export const DappsSandboxed = connect(
       activeTabs: fromDapps.getActiveTabs(state),
       loadedFiles: fromDapps.getLoadedFiles(state),
       ipApps: fromDapps.getIpApps(state),
-      dappsManifests: fromDapps.getDappManifests(state),
+      dapps: fromDapps.getDapps(state),
       tabsFocusOrder: fromDapps.getTabsFocusOrderWithoutSearch(state),
       dappTransactions: fromBlockchain.getDappTransactions(state),
       transitoryStates: fromDapps.getDappsTransitoryStates(state),

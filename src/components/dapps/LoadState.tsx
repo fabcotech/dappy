@@ -4,37 +4,37 @@ import * as fromDapps from '../../store/dapps';
 import * as fromMain from '../../store/main';
 import './LoadState.scss';
 import { connect } from 'react-redux';
-import { DappManifest } from '../../models';
+import { Dapp } from '../../models';
 
 interface LoadStateProps {
   dappId: string;
   closeModal: () => void;
-  dappManifest: DappManifest;
+  dapp: Dapp;
 }
 
 class LoadStateComponent extends React.Component<LoadStateProps, {}> {
   render() {
-    const completeds = Object.keys(this.props.dappManifest.loadState.completed);
-    const errors = Object.keys(this.props.dappManifest.loadState.errors);
+    const completeds = Object.keys(this.props.dapp.loadState.completed);
+    const errors = Object.keys(this.props.dapp.loadState.errors);
     return (
       <div className={`load-state`}>
         <u>
           <b>File informations :</b>
         </u>
         <ul>
-          <li>Origin : {this.props.dappManifest.origin}</li>
+          <li>Origin : {this.props.dapp.origin}</li>
           <li>Platform : RChain</li>
-          <li>Shard : {this.props.dappManifest.chainId}</li>
-          <li className="unforgeable-name">Blockchain address : {this.props.dappManifest.resourceId}</li>
-          {this.props.dappManifest.publicKey ? (
+          <li>Shard : {this.props.dapp.chainId}</li>
+          <li className="unforgeable-name">Blockchain address : {this.props.dapp.resourceId}</li>
+          {this.props.dapp.publicKey ? (
             <li>
               Signature : <i className="fa fa-lock fa-after" /> <b>verified</b>
             </li>
           ) : (
             <li>No signature provided</li>
           )}
-          {this.props.dappManifest.publicKey ? (
-            <li className="public-key">Public key : {this.props.dappManifest.publicKey}</li>
+          {this.props.dapp.publicKey ? (
+            <li className="public-key">Public key : {this.props.dapp.publicKey}</li>
           ) : undefined}
         </ul>
         <br />
@@ -43,11 +43,11 @@ class LoadStateComponent extends React.Component<LoadStateProps, {}> {
         </u>
         <div>
           {completeds.length ? <b>Success(es) : </b> : undefined}
-          {this.props.dappManifest.loadState &&
+          {this.props.dapp.loadState &&
             completeds.map((key) => (
               <div className="completeds" key={key}>
-                {this.props.dappManifest.loadState &&
-                  this.props.dappManifest.loadState.completed[key].nodeUrls.map((url) => (
+                {this.props.dapp.loadState &&
+                  this.props.dapp.loadState.completed[key].nodeUrls.map((url) => (
                     <div key={key + url}>
                       <span>{url}</span>
                       <div className="fc">
@@ -65,13 +65,13 @@ class LoadStateComponent extends React.Component<LoadStateProps, {}> {
           ) : undefined}
           {errors.length ? <b>Failure(s) : </b> : undefined}
           <div className="errors">
-            {this.props.dappManifest.loadState &&
+            {this.props.dapp.loadState &&
               errors.map((key) => (
                 <div key={key}>
                   <span>{key}</span>
                   <div className="fc">
                     <span className="tag is-danger">
-                      {this.props.dappManifest.loadState && this.props.dappManifest.loadState.errors[key].status}
+                      {this.props.dapp.loadState && this.props.dapp.loadState.errors[key].status}
                     </span>
                   </div>
                 </div>
@@ -86,7 +86,7 @@ class LoadStateComponent extends React.Component<LoadStateProps, {}> {
 
 export const LoadState = connect(
   (state, props: { dappId: string }) => ({
-    dappManifest: fromDapps.getDappManifests(state)[props.dappId],
+    dapp: fromDapps.getDapps(state)[props.dappId],
     dappId: props.dappId,
   }),
   (dispatch) => ({

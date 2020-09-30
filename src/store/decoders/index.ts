@@ -1,4 +1,4 @@
-export * from './DappManifest';
+export * from './Dapp';
 export * from './Settings';
 export * from './Blockchain';
 export * from './Blockchains';

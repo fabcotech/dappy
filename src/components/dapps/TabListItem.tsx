@@ -3,11 +3,11 @@ import xs, { Subscription } from 'xstream';
 
 import { DappImage } from '../utils';
 import { ActionsComponent } from '.';
-import { TransitoryState, Tab, DappManifest } from '../../models';
+import { TransitoryState, Tab, Dapp } from '../../models';
 import './TabListItem.scss';
 
 interface TabListItemProps {
-  dappManifest: undefined | DappManifest;
+  dapp: undefined | Dapp;
   tab: Tab;
   transitoryState: undefined | TransitoryState;
   launchedAt: string | undefined;
@@ -111,7 +111,7 @@ export class TabListItem extends React.Component<TabListItemProps, {}> {
           (!this.props.transitoryState ||
             !['launching', 'stopping', 'loading', 'reloading'].includes(this.props.transitoryState)) ? (
             <ActionsComponent
-              dappManifest={this.props.dappManifest}
+              dapp={this.props.dapp}
               tab={this.props.tab}
               reloadResource={this.onReloadResource}
               onSetMuteResource={this.props.onSetMuteResource}

@@ -1,8 +1,10 @@
 import * as yup from 'yup';
 import { loadStateSchema } from '.';
-import { DappManifestWithLoadState } from '../../models';
+import { Dapp } from '../../models';
 
-export const dappManifestFromNetworkSchema = yup
+// todo remove this file ?
+
+export const dappFromNetworkSchema = yup
   .object()
   .shape({
     version: yup.string().required(),
@@ -17,7 +19,7 @@ export const dappManifestFromNetworkSchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const dappManifestSchema = yup
+export const dappSchema = yup
   .object()
   .shape({
     id: yup.string().required(),
@@ -45,10 +47,10 @@ export const dappManifestSchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const validateDappManifestFromNetwork = (dappManifest: any): Promise<boolean> =>
+export const validateDappFromNetwork = (dapp: any): Promise<boolean> =>
   new Promise((resolve, reject) => {
-    dappManifestFromNetworkSchema
-      .validate(dappManifest)
+    dappFromNetworkSchema
+      .validate(dapp)
       .then(() => {
         resolve();
       })
@@ -57,13 +59,13 @@ export const validateDappManifestFromNetwork = (dappManifest: any): Promise<bool
       });
   });
 
-export const validateDappManifest = (dappManifest: any): Promise<boolean> =>
+export const validateDapp = (dapp: any): Promise<boolean> =>
   new Promise((resolve, reject) => {
-    dappManifestSchema
-      .validate(dappManifest)
+    dappSchema
+      .validate(dapp)
       .then(() => {
         loadStateSchema
-          .validate(dappManifest.loadState)
+          .validate(dapp.loadState)
           .then(() => {
             resolve();
           })
@@ -76,16 +78,16 @@ export const validateDappManifest = (dappManifest: any): Promise<boolean> =>
       });
   });
 
-export const validateDappManifests = (dappManifests: any): Promise<DappManifestWithLoadState[]> => {
+export const validateDapps = (dapps: any): Promise<Dapp[]> => {
   return new Promise((resolve, reject) => {
-    if (!dappManifests || !Array.isArray(dappManifests)) {
+    if (!dapps || !Array.isArray(dapps)) {
       reject();
       return;
     }
 
-    return Promise.all(dappManifests.map(validateDappManifest))
+    return Promise.all(dapps.map(validateDapp))
       .then(() => {
-        resolve(dappManifests as DappManifestWithLoadState[]);
+        resolve(dapps as Dapp[]);
       })
       .catch(e => {
         reject(e);

@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { DappManifest, Tab } from '../../models';
+import { Dapp, Tab } from '../../models';
 
 interface ActionsProps {
-  dappManifest: undefined | DappManifest;
+  dapp: undefined | Dapp;
   tab: Tab;
   stopTab: () => void;
   removeTab: () => void;
@@ -69,7 +69,7 @@ export class ActionsComponent extends React.Component<ActionsProps, {}> {
           <div className="dropdown-content">
             <a className="dropdown-item" onClick={this.onReloadResource}>
               <i className="fa fa-before fa-redo"></i>
-              {`${t('reload')} ${!!this.props.dappManifest ? t('dapp') : t('ip app')}`}
+              {`${t('reload')} ${!!this.props.dapp ? t('dapp') : t('ip app')}`}
             </a>
 
             <a
