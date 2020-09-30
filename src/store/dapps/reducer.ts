@@ -146,9 +146,6 @@ export const reducer = (state = initialState, action: Action): State => {
       const newTransitoryStates = { ...state.transitoryStates };
       delete newTransitoryStates[tab.resourceId];
 
-      const newDapps = { ...state.dapps };
-      delete newDapps[tab.resourceId];
-
       const newDappManifests = { ...state.dappManifests };
       delete newDappManifests[tab.resourceId];
 
@@ -160,7 +157,6 @@ export const reducer = (state = initialState, action: Action): State => {
         },
         transitoryStates: newTransitoryStates,
         errors: state.errors.concat(action.payload),
-        dapps: newDapps,
         dappManifests: newDappManifests,
       };
     }
@@ -204,9 +200,6 @@ export const reducer = (state = initialState, action: Action): State => {
       const newTransitoryStates = { ...state.transitoryStates };
       delete newTransitoryStates[tab.resourceId];
 
-      const newDapps = { ...state.dapps };
-      delete newDapps[tab.resourceId];
-
       const newDappManifests = { ...state.dappManifests };
       delete newDappManifests[tab.resourceId];
 
@@ -219,7 +212,6 @@ export const reducer = (state = initialState, action: Action): State => {
         transitoryStates: newTransitoryStates,
         errors: state.errors.concat(action.payload),
         dappManifests: newDappManifests,
-        dapps: newDapps,
       };
     }
 
@@ -232,13 +224,6 @@ export const reducer = (state = initialState, action: Action): State => {
 
       return {
         ...state,
-        dapps: {
-          ...state.dapps,
-          [dappManifest.id]: {
-            ...state.dapps[dappManifest.id],
-            loadState: payload.loadState,
-          },
-        },
         dappManifests: {
           ...state.dappManifests,
           [dappManifest.id]: dappManifest,
@@ -335,16 +320,13 @@ export const reducer = (state = initialState, action: Action): State => {
 
     case fromActions.LAUNCH_DAPP_COMPLETED: {
       const payload: fromActions.LaunchDappCompletedPayload = action.payload;
-      const dapp = payload.dapp;
       const dappManifest = payload.dappManifest;
 
       const newTransitoryStates = { ...state.transitoryStates };
-      delete newTransitoryStates[dapp.id];
+      delete newTransitoryStates[dappManifest.id];
 
       const newLastLoadErrors = { ...state.lastLoadErrors };
-      delete newLastLoadErrors[dapp.id];
-
-      const tabId: string = payload.tabId;
+      delete newLastLoadErrors[dappManifest.id];
 
       let newState = {
         ...state,
@@ -353,10 +335,6 @@ export const reducer = (state = initialState, action: Action): State => {
           ...state.dappManifests,
           [dappManifest.id]: dappManifest,
         },
-        dapps: {
-          ...state.dapps,
-          [dapp.id]: dapp,
-        },
         transitoryStates: newTransitoryStates,
         lastLoadErrors: newLastLoadErrors,
       };
@@ -364,10 +342,10 @@ export const reducer = (state = initialState, action: Action): State => {
       newState = {
         ...newState,
         tabs: state.tabs.map((tab, i) => {
-          if (tab.id === payload.tabId) {
+          if (tab.id === dappManifest.tabId) {
             return {
               ...tab,
-              active: tab.active || tab.id === tabId,
+              active: tab.active || tab.id === dappManifest.id,
               title: dappManifest.title,
               img: dappManifest.img,
               index: i,
@@ -453,12 +431,6 @@ export const reducer = (state = initialState, action: Action): State => {
         }
       });
 
-      let newDapps = state.dapps;
-      if (newDapps[resourceId]) {
-        newDapps = { ...state.dapps };
-        delete newDapps[resourceId];
-      }
-
       let newDappManifests = state.dappManifests;
       if (newDappManifests[resourceId]) {
         newDappManifests = { ...state.dappManifests };
@@ -484,7 +456,6 @@ export const reducer = (state = initialState, action: Action): State => {
 
       return {
         ...state,
-        dapps: newDapps,
         ipApps: newIpApps,
         loadedFiles: newLoadedFiles,
         dappManifests: newDappManifests,
@@ -501,13 +472,9 @@ export const reducer = (state = initialState, action: Action): State => {
       const tabsWithSameDappId = state.tabs.filter((t) => t.resourceId === payload.resourceId).length;
       if (tabsWithSameDappId === 1) {
         let newDappManifests = state.dappManifests;
-        let newDapps = state.dapps;
         if (resourceId) {
           newDappManifests = { ...state.dappManifests };
           delete newDappManifests[resourceId];
-
-          newDapps = { ...state.dapps };
-          delete newDapps[resourceId];
         }
 
         let searchError = state.searchError;
@@ -518,7 +485,6 @@ export const reducer = (state = initialState, action: Action): State => {
         return {
           ...state,
           dappManifests: newDappManifests,
-          dapps: newDapps,
           searchError: searchError,
           tabs: state.tabs.filter((dio) => dio.id !== payload.tabId).map((dio, i) => ({ ...dio, index: i })),
         };
@@ -676,7 +642,6 @@ export const getSearching = createSelector(getDappsState, (state: State) => stat
 export const getLastLoadErrors = createSelector(getDappsState, (state: State) => state.lastLoadErrors);
 export const getLoadStates = createSelector(getDappsState, (state: State) => state.loadStates);
 export const getDappManifests = createSelector(getDappsState, (state: State) => state.dappManifests);
-export const getDapps = createSelector(getDappsState, (state: State) => state.dapps);
 export const getTabsFocusOrder = createSelector(getDappsState, (state: State) => state.tabsFocusOrder);
 export const getTabs = createSelector(getDappsState, (state: State) => state.tabs);
 export const getDappsTransitoryStates = createSelector(getDappsState, (state: State) => state.transitoryStates);
@@ -730,29 +695,19 @@ export const getActiveTabs = createSelector(getTabs, (tabs) => {
   return activeTabs;
 });
 
-export const getActiveDappsDappManifests = createSelector(getDapps, getDappManifests, (activeDapps, dappManifests) => {
-  const activeDappsManifests: { [key: string]: DappManifest } = {};
-  Object.keys(activeDapps).forEach((id) => {
-    activeDappsManifests[id] = dappManifests[id];
-  });
-
-  return activeDappsManifests;
-});
-
 export const getActiveResource = createSelector(
   getFocusedTabId,
   getTabs,
   getDappManifests,
-  getDapps,
   getIpApps,
   getLoadedFiles,
-  (focusedTabId, tabs, dappManifests, dapps, ipApps, loadedFiles): DappManifest | IpApp | LoadedFile | undefined => {
+  (focusedTabId, tabs, dappManifests, ipApps, loadedFiles): DappManifest | IpApp | LoadedFile | undefined => {
     const tab = tabs.find((t) => t.id === focusedTabId);
     if (!tab) {
       return undefined;
     }
 
-    if (dapps[tab.resourceId] && dappManifests[tab.resourceId]) {
+    if (dappManifests[tab.resourceId]) {
       return dappManifests[tab.resourceId];
     } else if (ipApps[tab.resourceId]) {
       return ipApps[tab.resourceId];

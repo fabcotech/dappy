@@ -4,7 +4,7 @@ import { store } from '../..';
 import * as fromDapps from '..';
 import * as fromMain from '../../main';
 import { browserUtils } from '../../browser-utils';
-import { Dapp, Tab, DappManifest, IpApp, LoadedFile } from '../../../models';
+import { Tab, DappManifest, IpApp, LoadedFile } from '../../../models';
 import { Action } from '../..';
 
 const removeTab = function* (action: Action) {

@@ -149,7 +149,7 @@ export const DappsSandboxed = connect(
       activeTabs: fromDapps.getActiveTabs(state),
       loadedFiles: fromDapps.getLoadedFiles(state),
       ipApps: fromDapps.getIpApps(state),
-      dappsManifests: fromDapps.getActiveDappsDappManifests(state),
+      dappsManifests: fromDapps.getDappManifests(state),
       tabsFocusOrder: fromDapps.getTabsFocusOrderWithoutSearch(state),
       dappTransactions: fromBlockchain.getDappTransactions(state),
       transitoryStates: fromDapps.getDappsTransitoryStates(state),

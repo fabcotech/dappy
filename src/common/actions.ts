@@ -1,10 +1,7 @@
 import {
-  DappManifest,
-  TransactionOrigin,
   TransactionState,
   Identification,
   TransactionOriginDapp,
-  ParsedHtmlAndTags,
 } from '../models';
 
 export const DAPP_INITIAL_SETUP = '[Common] dapp initial setup';

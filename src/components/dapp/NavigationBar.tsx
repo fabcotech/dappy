@@ -168,9 +168,8 @@ export const NavigationBar = connect(
       const ipApp = fromDapps.getIpApps(state)[tab.resourceId];
       const loadedFile = fromDapps.getLoadedFiles(state)[tab.resourceId];
       if (!!dappManifest) {
-        const dapp = fromDapps.getDapps(state)[tab.resourceId];
-        const firstKey = Object.keys(dapp.loadState.completed)[0];
-        loadState = dapp.loadState.completed[firstKey];
+        const firstKey = Object.keys(dappManifest.loadState.completed)[0];
+        loadState = dappManifest.loadState.completed[firstKey];
         resourceLoaded = true;
         resourceId = dappManifest.id;
         publicKey = dappManifest.publicKey;

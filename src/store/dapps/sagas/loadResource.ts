@@ -12,10 +12,8 @@ import { rholangFilesModuleResourceTerm } from '../../../utils/rholangFilesModul
 import { validateSearch } from '../../../utils/validateSearch';
 import { getNodeIndex } from '../../../utils/getNodeIndex';
 import { validateBlockchainResponse } from '../../../utils/validateBlockchainResponse';
-import { color as colorUtils } from '../../../utils';
 import { validateAndReturnFile } from '../../../utils/validateAndReturnFile';
 import {
-  Dapp,
   Record,
   Blockchain,
   DappManifestFromNetwork,
@@ -33,7 +31,6 @@ const loadResource = function* (action: Action) {
   const payload: fromDapps.LoadResourcePayload = action.payload;
   const settings: fromSettings.Settings = yield select(fromSettings.getSettings);
   const blockchains: { [chainId: string]: Blockchain } = yield select(fromSettings.getOkBlockchains);
-  const dapps: { [id: string]: Dapp } = yield select(fromDapps.getDapps);
   const dappManifests: { [id: string]: DappManifest } = yield select(fromDapps.getDappManifests);
   const rchainInfos: { [chainId: string]: RChainInfos } = yield select(fromBlockchain.getRChainInfos);
   const records: { [name: string]: Record } = yield select(fromBlockchain.getRecords);
@@ -43,7 +40,7 @@ const loadResource = function* (action: Action) {
   let tabId = payload.tabId as string;
   if (tabId) {
     // Close all modals if a dapp is openned in tab payload.tabId
-    const dappId = Object.keys(dapps).find((k) => dapps[k].tabId === payload.tabId);
+    const dappId = Object.keys(dappManifests).find((k) => dappManifests[k].tabId === payload.tabId);
     if (dappId) {
       yield put(fromMain.closeAllDappModalsAction({ dappId: dappId as string }));
     }
@@ -94,12 +91,10 @@ const loadResource = function* (action: Action) {
   // Should never happen
   // - wether a dapp is reloaded
   // - wether another dapp (event if it points to the same resource) is loaded in another tab (!= dappId)
-  if (dapps[resourceId]) {
+  if (dappManifests[resourceId]) {
     yield put(
       fromDapps.launchDappCompletedAction({
         dappManifest: dappManifests[resourceId],
-        dapp: dapps[resourceId],
-        tabId: tabId,
       })
     );
     return;
@@ -432,9 +427,11 @@ const loadResource = function* (action: Action) {
     version: '',
   };
 
+  const loadStates = yield select(fromDapps.getLoadStates);
   const dappManifest: DappManifest = {
     ...dappManifestFromNetwork,
     id: resourceId,
+    tabId: tabId,
     randomId: randomId,
     origin: 'network',
     chainId: searchSplitted.chainId,
@@ -442,22 +439,15 @@ const loadResource = function* (action: Action) {
     path: searchSplitted.path,
     resourceId: registryUri,
     publicKey: checkSignature ? publicKey : undefined,
-  };
-
-  // TODO live update of the loadStates ?
-  const loadStates = yield select(fromDapps.getLoadStates);
-  const dapp: Dapp = {
-    id: resourceId,
-    tabId: tabId,
-    launchedAt: new Date().toISOString(),
     loadState: {
       completed: (multiCallResult as MultiCallResult).loadState,
       errors: (multiCallResult as MultiCallResult).loadErrors,
       pending: [],
     },
+    launchedAt: new Date().toISOString(),
   };
 
-  yield put(fromDapps.launchDappCompletedAction({ dappManifest: dappManifest, dapp: dapp, tabId: tabId }));
+  yield put(fromDapps.launchDappCompletedAction({ dappManifest: dappManifest }));
 };
 
 export const loadResourceSaga = function* () {

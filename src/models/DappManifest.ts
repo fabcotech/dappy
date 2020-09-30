@@ -21,14 +21,6 @@ export interface HeadTag {
   innerText?: string;
 }
 
-export interface ParsedHtmlAndTags {
-  errors: string[];
-  warnings: string[];
-  body: undefined | string;
-  headTags: HeadTag[];
-  lang: string | undefined;
-}
-
 export interface PredefinedDapp {
   img: string;
   description: string;
@@ -52,6 +44,7 @@ export interface DappManifestFromNetwork {
 
 export interface DappManifest extends DappManifestFromNetwork {
   id: string;
+  tabId: string | undefined;
   randomId: string;
   // the aaa part of aaa/bbb
   // newtork ID / chain ID (only "betanetwork" is possible now)
@@ -63,6 +56,12 @@ export interface DappManifest extends DappManifestFromNetwork {
   resourceId: string;
   origin: 'network' | 'file';
   publicKey: undefined | string;
+  loadState: {
+    completed: LoadCompleted;
+    errors: LoadErrors;
+    pending: string[];
+  };
+  launchedAt: undefined | string;
 }
 
 export interface DappManifestWithLoadState extends DappManifest {

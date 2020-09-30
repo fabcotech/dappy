@@ -4,19 +4,18 @@ import * as fromDapps from '../../store/dapps';
 import * as fromMain from '../../store/main';
 import './LoadState.scss';
 import { connect } from 'react-redux';
-import { Dapp, DappManifest } from '../../models';
+import { DappManifest } from '../../models';
 
 interface LoadStateProps {
   dappId: string;
   closeModal: () => void;
-  dapp: Dapp;
   dappManifest: DappManifest;
 }
 
 class LoadStateComponent extends React.Component<LoadStateProps, {}> {
   render() {
-    const completeds = Object.keys(this.props.dapp.loadState.completed);
-    const errors = Object.keys(this.props.dapp.loadState.errors);
+    const completeds = Object.keys(this.props.dappManifest.loadState.completed);
+    const errors = Object.keys(this.props.dappManifest.loadState.errors);
     return (
       <div className={`load-state`}>
         <u>
@@ -44,11 +43,11 @@ class LoadStateComponent extends React.Component<LoadStateProps, {}> {
         </u>
         <div>
           {completeds.length ? <b>Success(es) : </b> : undefined}
-          {this.props.dapp.loadState &&
+          {this.props.dappManifest.loadState &&
             completeds.map((key) => (
               <div className="completeds" key={key}>
-                {this.props.dapp.loadState &&
-                  this.props.dapp.loadState.completed[key].nodeUrls.map((url) => (
+                {this.props.dappManifest.loadState &&
+                  this.props.dappManifest.loadState.completed[key].nodeUrls.map((url) => (
                     <div key={key + url}>
                       <span>{url}</span>
                       <div className="fc">
@@ -66,13 +65,13 @@ class LoadStateComponent extends React.Component<LoadStateProps, {}> {
           ) : undefined}
           {errors.length ? <b>Failure(s) : </b> : undefined}
           <div className="errors">
-            {this.props.dapp.loadState &&
+            {this.props.dappManifest.loadState &&
               errors.map((key) => (
                 <div key={key}>
                   <span>{key}</span>
                   <div className="fc">
                     <span className="tag is-danger">
-                      {this.props.dapp.loadState && this.props.dapp.loadState.errors[key].status}
+                      {this.props.dappManifest.loadState && this.props.dappManifest.loadState.errors[key].status}
                     </span>
                   </div>
                 </div>
@@ -87,7 +86,6 @@ class LoadStateComponent extends React.Component<LoadStateProps, {}> {
 
 export const LoadState = connect(
   (state, props: { dappId: string }) => ({
-    dapp: fromDapps.getDapps(state)[props.dappId],
     dappManifest: fromDapps.getDappManifests(state)[props.dappId],
     dappId: props.dappId,
   }),

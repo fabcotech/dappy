@@ -19,8 +19,6 @@ import * as fromSettings from './settings';
 import * as fromBlockchain from './blockchain';
 import * as fromHistory from './history';
 
-import { initDappsMiddleWare } from './dapps-middleware';
-
 import {
   validateSettings,
   validateBenchmarks,
@@ -526,8 +524,6 @@ dbReq.onerror = err => {
     })
   );
 };
-
-initDappsMiddleWare();
 
 const windowResizeStream = fromEvent(window, 'resize', true);
 xstream.merge(windowResizeStream.compose(throttle(600)), windowResizeStream.compose(debounce(600))).subscribe({

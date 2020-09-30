@@ -11,7 +11,6 @@ import { getNodeIndex } from '../../../utils/getNodeIndex';
 import { splitSearch } from '../../../utils/splitSearch';
 import { validateAndReturnFile } from '../../../utils/validateAndReturnFile';
 import { validateBlockchainResponse } from '../../../utils/validateBlockchainResponse';
-import { color as colorUtils } from '../../../utils';
 import {
   DappManifest,
   Blockchain,
@@ -26,7 +25,6 @@ import {
   LoadedFile,
   IPServer,
   IpApp,
-  Dapp,
 } from '../../../models';
 import { Action } from '../../';
 import { ipRecordSchema, dappRecordSchema, validateRecordFromNetwork } from '../../decoders';
@@ -37,7 +35,6 @@ const reloadResource = function* (action: Action) {
   const tabs: Tab[] = yield select(fromDapps.getTabs);
   const dappManifests: { [dappId: string]: DappManifest } = yield select(fromDapps.getDappManifests);
   const ipApps: { [appId: string]: IpApp } = yield select(fromDapps.getIpApps);
-  const dapps: { [id: string]: Dapp } = yield select(fromDapps.getDapps);
   const loadedFiles: { [fileId: string]: LoadedFile } = yield select(fromDapps.getLoadedFiles);
   const settings: fromSettings.Settings = yield select(fromSettings.getSettings);
   const blockchains: { [chainId: string]: Blockchain } = yield select(fromSettings.getOkBlockchains);
@@ -57,7 +54,7 @@ const reloadResource = function* (action: Action) {
   }
 
   // Close all modals if a dapp is openned in tab payload.tabId
-  const dappId = Object.keys(dapps).find((k) => dapps[k].tabId === payload.tabId);
+  const dappId = Object.keys(dappManifests).find((k) => dappManifests[k].tabId === payload.tabId);
   if (dappId) {
     yield put(fromMain.closeAllDappModalsAction({ dappId: dappId as string }));
   }
@@ -391,14 +388,10 @@ const reloadResource = function* (action: Action) {
   const randomId = window.crypto.getRandomValues(new Uint32Array(12)).join('-');
   yield put(
     fromDapps.reloadDappCompletedAction({
-      loadState: {
-        completed: (multiCallResult as MultiCallResult).loadState,
-        errors: (multiCallResult as MultiCallResult).loadErrors,
-        pending: [],
-      },
       dappManifest: {
         ...dappManifestFromNetwork,
         id: resourceId,
+        tabId: tab.id,
         origin: 'network',
         chainId: dappManifest.chainId,
         search: dappManifest.search,
@@ -406,6 +399,12 @@ const reloadResource = function* (action: Action) {
         resourceId: dappManifest.resourceId,
         publicKey: checkSignature ? publicKey : undefined,
         randomId: randomId,
+        loadState: {
+          completed: (multiCallResult as MultiCallResult).loadState,
+          errors: (multiCallResult as MultiCallResult).loadErrors,
+          pending: [],
+        },
+        launchedAt: new Date().toISOString(),
       },
     })
   );

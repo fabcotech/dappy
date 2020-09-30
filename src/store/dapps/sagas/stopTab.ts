@@ -1,10 +1,8 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
 
-import { store } from '../..';
 import * as fromDapps from '..';
 import * as fromMain from '../../main';
-import { browserUtils } from '../../browser-utils';
-import { Dapp, Tab } from '../../../models';
+import { Tab } from '../../../models';
 import { Action } from '../..';
 
 const stop = function*(action: Action) {

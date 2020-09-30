@@ -4,12 +4,11 @@ import { connect } from 'react-redux';
 import * as fromDapps from '../../store/dapps';
 import * as fromUi from '../../store/ui';
 import { blockchain as blockchainUtils } from '../../utils/';
-import { Dapp, DappManifest, TransitoryState, Tab } from '../../models';
+import { DappManifest, TransitoryState, Tab } from '../../models';
 import { TabListItem } from '.';
 import './TabsList.scss';
 
 interface TabsListProps {
-  dapps: { [id: string]: Dapp };
   dappManifests: { [id: string]: DappManifest };
   tabs: Tab[];
   tabsFocusOrder: string[];
@@ -34,14 +33,14 @@ class TabsListComponent extends React.Component<TabsListProps, {}> {
       <div
         className={`tabs-list ${this.props.onlyIcons ? 'only-icons' : ''} ${this.props.isMobile ? 'is-mobile' : ''}`}>
         {this.props.tabs.map((tab) => {
-          const dapp = this.props.dapps[tab.resourceId];
+          const dappManifest = this.props.dappManifests[tab.resourceId];
           const focusedTabId = this.props.tabsFocusOrder[this.props.tabsFocusOrder.length - 1];
           return (
             <TabListItem
               key={tab.id}
-              dapp={dapp}
+              dappManifest={dappManifest}
               tab={tab}
-              launchedAt={dapp ? dapp.launchedAt : undefined}
+              launchedAt={dappManifest ? dappManifest.launchedAt : undefined}
               transitoryState={this.props.transitoryStates[tab.resourceId]}
               focused={!this.props.isSearchFocused && focusedTabId === tab.id}
               onlyIcons={this.props.onlyIcons}
@@ -79,7 +78,6 @@ export const TabsList = connect(
       transitoryStates: fromDapps.getDappsTransitoryStates(state),
       tabs: fromDapps.getTabs(state),
       tabsFocusOrder: fromDapps.getTabsFocusOrderWithoutSearch(state),
-      dapps: fromDapps.getDapps(state),
       dappManifests: fromDapps.getDappManifests(state),
       isMobile: fromUi.getIsMobile(state),
       isSearchFocused: fromDapps.getIsSearchFocused(state),
