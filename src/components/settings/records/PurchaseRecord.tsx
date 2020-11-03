@@ -149,6 +149,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
           <div className="message-body">{t('dappy beta warning')}</div>
         </div>
         <RecordForm
+          validateName
           nameDisabled={false}
           filledRecord={this.onFilledRecords}
           partialRecord={this.state.partialRecord}

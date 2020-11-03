@@ -64,7 +64,8 @@ export type JsLibraries =
   | 'bootstrap@4.3.1'
   | 'semantic-ui@2.4.1'
   | 'vue@2.6.10'
-  | 'vuex@3.1.1';
+  | 'vuex@3.1.1'
+  | 'pako@1.0.11';
 
 export type CssLibraries = 'bulma@0.x' | 'semantic-ui@2.x' | 'bootstrap@4.x';
 

@@ -44,10 +44,10 @@ let browserWindow;
 let commEventToRenderer = undefined;
 
 /*
-  MESSAGE FROM BROWSER VIEWS (dapps and IP apps)
+  MESSAGE FROM BROWSER VIEWS / TABS (dapps and IP apps)
   first message from dapps to get the initial payload
 */
-/* tab process to main process */
+/* tab process - main process */
 ipcMain.on('hi-from-dapp-sandboxed', (commEvent, userAgent) => {
   const browserViews = fromMainBrowserViews.getBrowserViewsMain(store.getState());
   let randomId = '';
@@ -64,6 +64,8 @@ ipcMain.on('hi-from-dapp-sandboxed', (commEvent, userAgent) => {
       type: fromCommon.DAPP_INITIAL_SETUP,
       payload: {
         html: browserViews[id].html,
+        address: browserViews[id].address,
+        path: browserViews[id].path,
         title: browserViews[id].title,
         dappId: browserViews[id].resourceId,
         randomId: browserViews[id].randomId,
@@ -92,7 +94,7 @@ ipcMain.on('copy-to-clipboard', (event, arg) => {
   uniqueEphemeralToken is a token wich is only known by the renderer and 
   main process, the webviews don't know its value
 */
-/* tab process to main process */
+/* browser process - main process */
 let uniqueEphemeralToken;
 ipcMain.on('ask-unique-ephemeral-token', (event, arg) => {
   commEventToRenderer = event;
@@ -116,6 +118,7 @@ ipcMain.on('ask-unique-ephemeral-token', (event, arg) => {
   Dappy query handlers
 */
 /* browser to node */
+/* browser process - main process */
 ipcMain.on('single-dappy-call', (event, arg) => {
   if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
     commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, {
@@ -159,6 +162,7 @@ ipcMain.on('single-dappy-call', (event, arg) => {
   Dappy query handlers
 */
 /* browser to network */
+/* browser process - main process */
 ipcMain.on('multi-dappy-call', (event, arg) => {
   if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
     commEventToRenderer.reply('multi-dappy-call-reply-' + arg.requestId, {
@@ -244,6 +248,7 @@ ipcMain.on('multi-dappy-call', (event, arg) => {
 });
 
 // Get predefined dapps
+/* browser process - main process */
 ipcMain.on('get-dapps', (event, arg) => {
   if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
     commEventToRenderer.reply('get-dapps-reply-' + arg.requestId, {
@@ -269,6 +274,7 @@ ipcMain.on('get-dapps', (event, arg) => {
 });
 
 // Get IP address + cert from hostname
+/* browser process - main process */
 ipcMain.on('get-ip-address-and-cert', (event, arg) => {
   if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
     commEventToRenderer.reply('get-ip-address-and-cert-reply-' + arg.requestId, {
@@ -296,8 +302,9 @@ ipcMain.on('get-ip-address-and-cert', (event, arg) => {
 
 /*
   Dispatches coming from MAIN process
-  to browser window store
+  to browser process store
 */
+/* browser process - main process */
 export interface DispatchFromMainArg {
   data?: { [key: string]: any };
   action: { type: string; payload: any };
@@ -351,6 +358,7 @@ const dispatchFromMain = (a: DispatchFromMainArg) => {
   Dispatches coming from browser window
   to MAIN process store
 */
+/* browser process - main process */
 ipcMain.on('dispatch-in-main', (event, a) => {
   if (a.uniqueEphemeralToken === uniqueEphemeralToken) {
     if (a.action.type === fromMainBrowserViews.LOAD_OR_RELOAD_BROWSER_VIEW) {

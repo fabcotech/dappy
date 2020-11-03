@@ -12,6 +12,8 @@ import { LOGREV_TO_REV_RATE } from '../../../CONSTANTS';
 interface AccountsProps {
   accounts: { [name: string]: Account };
   namesBlockchain: Blockchain | undefined;
+  executingAccountsCronJobs: boolean;
+  updateBalances: () => void;
   deleteAccount: (a: Account) => void;
   setAccountAsMain: (a: Account) => void;
   showAccountModal: (a: Account) => void;
@@ -44,6 +46,26 @@ export function AccountsComponent(props: AccountsProps) {
         <div>
           <h3 className="subtitle is-4"></h3>
           <p className="smaller-text" dangerouslySetInnerHTML={{ __html: t('add account paragraph') }}></p>
+          <br />
+          { props.executingAccountsCronJobs ?
+            <button
+              title={t('update balances')}
+              disabled
+              className="disabled button is-info is-small"
+            >
+              <i className="fa fa-before fa-redo rotating"></i>
+              {t('update balances')}
+            </button> :
+            <button
+              title={t('update balances')}
+              className="disabled button is-info is-small"
+              onClick={() => props.updateBalances()}
+            >
+              <i className="fa fa-before fa-redo"></i>
+              {t('update balances')}
+            </button>
+          }
+          <br />
           <br />
           <div>
             {Object.keys(props.accounts).length === 0 ? (
@@ -116,6 +138,7 @@ export const Accounts = connect(
     return {
       accounts: fromSettings.getAccounts(state),
       namesBlockchain: fromSettings.getNamesBlockchain(state),
+      executingAccountsCronJobs: fromSettings.getExecutingAccountsCronJobs(state)
     };
   },
   (dispatch) => ({
@@ -161,6 +184,9 @@ export const Accounts = connect(
         })
       );
     },
+    updateBalances: () => dispatch(
+      fromSettings.executeAccountsCronJobsAction()
+    ),
     deleteAccount: (a: Account) =>
       dispatch(
         fromMain.openModalAction({

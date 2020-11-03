@@ -1,11 +1,12 @@
 import { BrowserView } from 'electron';
 
-import { IPServer, ParsedHtmlAndTags } from '../../src/models';
+import { IPServer } from '../../src/models';
 
 export interface DappyBrowserView {
   visible: boolean;
   resourceId: string;
   address: string;
+  path: string;
   tabId: string;
   randomId: string;
   servers: IPServer[];

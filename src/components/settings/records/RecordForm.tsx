@@ -7,6 +7,7 @@ import { Record, IPServer, PartialRecord } from '../../../models';
 import { IPServersComponent } from './IPServers';
 
 interface RecordFormProps {
+  validateName?: boolean;
   nameDisabled: boolean;
   records: { [key: string]: Record };
   partialRecord: PartialRecord | undefined;
@@ -103,6 +104,10 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
             errors.name = t('field required');
           } else if (!!exists) {
             errors.name = t('record exists');
+          }
+
+          if (!errors.name && this.props.validateName && !/^[a-z][a-z0-9]*$/.test(values.name)) {
+            errors.name = t('record regexp');
           }
 
           if (values.type === 'ip') {

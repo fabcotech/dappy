@@ -21,6 +21,7 @@ export interface State {
     [chainId: string]: Blockchain;
   };
   errors: { errorCode: number; error: string }[];
+  executingAccountsCronJobs: boolean;
 }
 
 export const initialState: State = {
@@ -34,6 +35,7 @@ export const initialState: State = {
   accounts: {},
   blockchains: {},
   errors: [],
+  executingAccountsCronJobs: false,
 };
 
 export const reducer = (state = initialState, action: Action): State => {
@@ -316,6 +318,25 @@ export const reducer = (state = initialState, action: Action): State => {
           ...state.accounts,
           ...payload.accounts,
         },
+        executingAccountsCronJobs: false,
+      };
+    }
+
+    case fromActions.UPDATE_ACCOUNTS_BALANCE_FAILED: {
+      const payload: fromActions.UpdateAccountBalanceFailedPayload = action.payload;
+
+      return {
+        ...state,
+        executingAccountsCronJobs: false,
+      };
+    }
+
+    case fromActions.EXECUTE_ACCOUNTS_CRON_JOBS: {
+      const payload: fromActions.UpdateAccountsCompletedPayload = action.payload;
+
+      return {
+        ...state,
+        executingAccountsCronJobs: true,
       };
     }
 
@@ -335,6 +356,8 @@ export const getSettings = createSelector(getSettingsState, (state: State) => st
 export const getBlockchains = createSelector(getSettingsState, (state: State) => state.blockchains);
 
 export const getAccounts = createSelector(getSettingsState, (state: State) => state.accounts);
+
+export const getExecutingAccountsCronJobs = createSelector(getSettingsState, (state: State) => state.executingAccountsCronJobs);
 
 export const getAvailableBlockchains = createSelector(getBlockchains, (blockchains) => {
   const availableBlockchains: { [chainId: string]: Blockchain } = {};
