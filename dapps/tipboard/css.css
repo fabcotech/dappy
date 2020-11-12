@@ -8,10 +8,11 @@ body {
   background-position: center;
   background-size: cover;
   background-attachment: fixed;
+  background: linear-gradient(45deg, #46c, #44a);
 }
 
 #root.loaded {
-  background: radial-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.9));
+  background: radial-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.5));
 }
 #root.loading {
   background: #111;
@@ -67,6 +68,30 @@ body {
 p {
   color: #fff;
 }
+.contribution-form {
+  width: 780px;
+  border: 1px solid #fff;
+  border-radius: 2px;
+  padding: 5px;
+  padding-bottom: 10px;
+}
+.emojis-list {
+  width: 400px;
+  height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.emojis-list span{
+  cursor: pointer;
+  width: 10px;
+  height: 12px;
+  font-size: 1.1rem;
+  padding: 1px;
+}
+.emojis-list span:hover{
+  transform: scale(1.05);
+  background-color: rgba(255,255,255,0.9);
+}
 .cell-form {
   margin-top: 20px;
   width: 100%;
@@ -74,9 +99,14 @@ p {
   grid-template-rows: 100%;
   grid-template-columns: 2fr 2fr 2fr 1fr;
 }
-.cell-form label,
+.contribution-form label,
 .cell-form .total-price {
   color: #fff;
+}
+.label-emoji {
+  font-size: 1.6rem;
+  margin: 0px;
+  margin-left: 4px;
 }
 .cell-form .total-price {
   height: 36px;
@@ -91,21 +121,34 @@ p {
 .cell-form > div input {
   max-width: 175px;
 }
+.emoji-btn:hover {
+  color: #fff;
+}
+.emoji-btn {
+  color: #fff;
+  text-decoration: underline;
+}
+.small-p {
+  font-size: 0.9rem;
+}
 .tips {
   margin-top: 20px;
 }
 .tips > p {
   margin-bottom: 2px;
-  font-size: 1.1em;
+  font-size: 1.1rem;
   display: grid;
   grid-template-rows: 100%;
-  grid-template-columns: 150px 63px 180px;
+  grid-template-columns: 200px 63px 180px;
   opacity: 1;
   transform: translateY(0px);
   animation: slide;
   animation-duration: 0.9s;
   animation-timing-function: ease-out;
   animation-iteration-count: 1;
+}
+.tips > p .emoji {
+
 }
 @keyframes slide {
   from {
@@ -135,9 +178,4 @@ p {
 
 .has-text-danger {
   text-align: center;
-}
-
-.note {
-  font-size: 0.8em;
-  margin-bottom: 0.5em;
 }
