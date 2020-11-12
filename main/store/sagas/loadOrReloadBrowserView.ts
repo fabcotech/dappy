@@ -129,7 +129,8 @@ const loadOrReloadBrowserView = function* (action: any) {
           const urlDecomposed = decomposeUrl(favicons[0]);
           const serverAuthorized = payload.servers.find((s) => s.host === urlDecomposed.host);
           if (!serverAuthorized) {
-            throw new Error('No server authorized for host');
+            console.error(`Could not get favicon, no servers authorized to reach https address ${favicons[0]}`);
+            return;
           }
           /* browser to server */
           const a = new https.Agent({
@@ -148,7 +149,9 @@ const loadOrReloadBrowserView = function* (action: any) {
             },
             (res) => {
               if (res.statusCode !== 200) {
-                throw new Error('Status code is not 200');
+                console.error(`Could not get favicon (status !== 200) for ${payload.address}${currentPath}`);
+                console.log(favicons[0])
+                return;
               }
               let s = new Buffer('');
               res.on('data', (a) => {
@@ -167,7 +170,7 @@ const loadOrReloadBrowserView = function* (action: any) {
             }
           );
         } catch (err) {
-          console.error('[dapp] Could not download favicon ' + favicons[0]);
+          console.error('[dapp] Could not get favicon ' + favicons[0]);
           console.log(err);
         }
       }

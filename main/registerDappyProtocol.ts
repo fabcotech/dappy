@@ -213,11 +213,5 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
           return;
         });
     },
-    (error) => {
-      if (error) {
-        console.error('Failed to register dappy:// protocol');
-        console.log(error);
-      }
-    }
-  );
+  )
 };
