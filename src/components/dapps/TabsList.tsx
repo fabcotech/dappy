@@ -17,7 +17,7 @@ interface TabsListProps {
   isSearchFocused: boolean;
   onlyIcons: boolean;
   focusTab: (tabId: string) => void;
-  launchDapp: (dappId: string, tabId: string) => void;
+  launchDapp: (address: string, tabId: string) => void;
   removeTab: (tabId: string) => void;
   stopTab: (tabId: string) => void;
   reloadResource: (tabId: string) => void;
@@ -86,10 +86,10 @@ export const TabsList = connect(
   },
   (dispatch) => ({
     focusTab: (tabId: string) => dispatch(fromDapps.focusTabAction({ tabId: tabId })),
-    launchDapp: (dappId: string, tabId: string) =>
+    launchDapp: (address: string, tabId: string) =>
       dispatch(
         fromDapps.loadResourceAction({
-          address: blockchainUtils.resourceIdToAddress(dappId),
+          address: address,
           tabId: tabId,
         })
       ),
