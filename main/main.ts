@@ -18,6 +18,7 @@ import {
 
 import * as fromMainBrowserViews from './store/browserViews';
 import * as fromConnections from './store/connections';
+import * as fromBlockchains from './store/blockchains';
 import { WS_RECONNECT_PERIOD } from '../src/CONSTANTS';
 import { registerDappyProtocol } from './registerDappyProtocol';
 import { overrideHttpProtocols } from './overrideHttpProtocols';
@@ -359,6 +360,7 @@ const dispatchFromMain = (a: DispatchFromMainArg) => {
   to MAIN process store
 */
 /* browser process - main process */
+let wsCronRanOnce = false;
 ipcMain.on('dispatch-in-main', (event, a) => {
   if (a.uniqueEphemeralToken === uniqueEphemeralToken) {
     if (a.action.type === fromMainBrowserViews.LOAD_OR_RELOAD_BROWSER_VIEW) {
@@ -368,6 +370,16 @@ ipcMain.on('dispatch-in-main', (event, a) => {
       });
     } else if (a.action.type === fromMainBrowserViews.DESTROY_BROWSER_VIEW) {
       store.dispatch({ ...a.action, meta: { browserWindow: browserWindow } });
+    } else if (a.action.type === fromBlockchains.SYNC_BLOCKCHAINS) {
+      store.dispatch(a.action);
+      /*
+        Do not wait the setInterval to run wsCron
+        do it instantly after dispatch
+      */
+      if (wsCronRanOnce === false) {
+        wsCronRanOnce = true;
+        wsCron(store.getState, dispatchFromMain);
+      }
     } else {
       store.dispatch(a.action);
     }
