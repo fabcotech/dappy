@@ -260,12 +260,14 @@ var initialState = {
     accounts: {},
     blockchains: {},
     errors: [],
+    executingAccountsCronJobs: false,
 };
 // SELECTORS
 var getSettingsState = lib_4(function (state) { return state; }, function (state) { return state.settings; });
 var getSettings = lib_4(getSettingsState, function (state) { return state.settings; });
 var getBlockchains = lib_4(getSettingsState, function (state) { return state.blockchains; });
 var getAccounts = lib_4(getSettingsState, function (state) { return state.accounts; });
+var getExecutingAccountsCronJobs = lib_4(getSettingsState, function (state) { return state.executingAccountsCronJobs; });
 var getAvailableBlockchains = lib_4(getBlockchains, function (blockchains) {
     var availableBlockchains = {};
     Object.keys(blockchains).forEach(function (chainId) {
@@ -337,12 +339,6 @@ var saveFailedRChainTransactionAction = function (values) { return ({
     payload: values,
 }); };
 
-var LoadStatus;
-(function (LoadStatus) {
-    LoadStatus["Loading"] = "loading";
-    LoadStatus["Failed"] = "failed";
-    LoadStatus["Completed"] = "completed";
-})(LoadStatus || (LoadStatus = {}));
 var LoadError;
 (function (LoadError) {
     // request
@@ -412,6 +408,20 @@ var getRecordNamesInAlphaOrder = lib_4(getRecords, function (records) {
             return 1;
         }
     });
+});
+// todo, this is all reprocessed everytime state.records change
+// maybe do it another way
+var getRecordBadges = lib_4(getRecords, function (records) {
+    var recordBadges = {};
+    Object.keys(records).forEach(function (name) {
+        Object.keys(records[name].badges || {}).forEach(function (n) {
+            if (!recordBadges[n]) {
+                recordBadges[n] = {};
+            }
+            recordBadges[n][name] = records[name].badges[n];
+        });
+    });
+    return recordBadges;
 });
 var getLastFinalizedBlockNumber = lib_4(getRecords, function (records) {
     return Object.keys(records).sort(function (a, b) {
@@ -491,6 +501,33 @@ var reducer$1 = function (state, action) {
 };
 var getConnectionsMainState = lib_4(function (state) { return state; }, function (state) { return state.connections; });
 var getConnections = lib_4(getConnectionsMainState, function (state) { return state.connections; });
+
+var SYNC_BLOCKCHAINS = '[MAIN] Sync blockchains';
+var initialState$3 = {};
+var reducer$2 = function (state, action) {
+    if (state === void 0) { state = initialState$3; }
+    switch (action.type) {
+        case SYNC_BLOCKCHAINS: {
+            return action.payload;
+        }
+        default:
+            return state;
+    }
+};
+var getBlockchainsMainState = lib_4(function (state) { return state; }, function (state) { return state.blockchains; });
+var getBlockchains$1 = lib_4(getBlockchainsMainState, function (state) { return state; });
+// if modified, must be modified in renderer also
+var getOkBlockchainsMain = lib_4(getBlockchainsMainState, function (blockchains) {
+    var okBlockchains = {};
+    Object.keys(blockchains).forEach(function (chainId) {
+        var nodes = blockchains[chainId].nodes.filter(function (n) { return n.active && n.readyState === 1; });
+        if (!nodes.length) {
+            return;
+        }
+        okBlockchains[chainId] = __assign({}, blockchains[chainId], { nodes: nodes.filter(function (n) { return n.readyState === 1; }) });
+    });
+    return okBlockchains;
+});
 
 var MAX_SIMULTANEOUS_WS_CONNECTIONS = 10;
 var WS_RECONNECT_PERIOD = 10000;
@@ -2769,9 +2806,9 @@ var performMultiRequest = function (body, parameters, connections) {
 };
 
 var SYNC_SETTINGS = '[MAIN] Sync settings';
-var initialState$3 = initialState.settings;
-var reducer$2 = function (state, action) {
-    if (state === void 0) { state = initialState$3; }
+var initialState$4 = initialState.settings;
+var reducer$3 = function (state, action) {
+    if (state === void 0) { state = initialState$4; }
     switch (action.type) {
         case SYNC_SETTINGS: {
             return action.payload;
@@ -2782,33 +2819,6 @@ var reducer$2 = function (state, action) {
 };
 var getSettingsMainState = lib_4(function (state) { return state; }, function (state) { return state.settings; });
 var getSettings$1 = lib_4(getSettingsMainState, function (state) { return state; });
-
-var SYNC_BLOCKCHAINS = '[MAIN] Sync blockchains';
-var initialState$4 = {};
-var reducer$3 = function (state, action) {
-    if (state === void 0) { state = initialState$4; }
-    switch (action.type) {
-        case SYNC_BLOCKCHAINS: {
-            return action.payload;
-        }
-        default:
-            return state;
-    }
-};
-var getBlockchainsMainState = lib_4(function (state) { return state; }, function (state) { return state.blockchains; });
-var getBlockchains$1 = lib_4(getBlockchainsMainState, function (state) { return state; });
-// if modified, must be modified in renderer also
-var getOkBlockchainsMain = lib_4(getBlockchainsMainState, function (blockchains) {
-    var okBlockchains = {};
-    Object.keys(blockchains).forEach(function (chainId) {
-        var nodes = blockchains[chainId].nodes.filter(function (n) { return n.active && n.readyState === 1; });
-        if (!nodes.length) {
-            return;
-        }
-        okBlockchains[chainId] = __assign({}, blockchains[chainId], { nodes: nodes.filter(function (n) { return n.readyState === 1; }) });
-    });
-    return okBlockchains;
-});
 
 var interopRequireDefault = createCommonjsModule(function (module) {
 function _interopRequireDefault(obj) {
@@ -11158,14 +11168,203 @@ var registerDappyProtocol = function (session, getState) {
             callback();
             return;
         });
-    }, function (error) {
-        if (error) {
-            console.error('Failed to register dappy:// protocol');
-            console.log(error);
-        }
     });
 };
 
+var defaultParseOptions = {
+  decodeValues: true,
+  map: false,
+  silent: false,
+};
+
+function isNonEmptyString(str) {
+  return typeof str === "string" && !!str.trim();
+}
+
+function parseString(setCookieValue, options) {
+  var parts = setCookieValue.split(";").filter(isNonEmptyString);
+  var nameValue = parts.shift().split("=");
+  var name = nameValue.shift();
+  var value = nameValue.join("="); // everything after the first =, joined by a "=" if there was more than one part
+
+  options = options
+    ? Object.assign({}, defaultParseOptions, options)
+    : defaultParseOptions;
+
+  var cookie = {
+    name: name, // grab everything before the first =
+    value: options.decodeValues ? decodeURIComponent(value) : value, // decode cookie value
+  };
+
+  parts.forEach(function (part) {
+    var sides = part.split("=");
+    var key = sides.shift().trimLeft().toLowerCase();
+    var value = sides.join("=");
+    if (key === "expires") {
+      cookie.expires = new Date(value);
+    } else if (key === "max-age") {
+      cookie.maxAge = parseInt(value, 10);
+    } else if (key === "secure") {
+      cookie.secure = true;
+    } else if (key === "httponly") {
+      cookie.httpOnly = true;
+    } else if (key === "samesite") {
+      cookie.sameSite = value;
+    } else {
+      cookie[key] = value;
+    }
+  });
+
+  return cookie;
+}
+
+function parse(input, options) {
+  options = options
+    ? Object.assign({}, defaultParseOptions, options)
+    : defaultParseOptions;
+
+  if (!input) {
+    if (!options.map) {
+      return [];
+    } else {
+      return {};
+    }
+  }
+
+  if (input.headers && input.headers["set-cookie"]) {
+    // fast-path for node.js (which automatically normalizes header names to lower-case
+    input = input.headers["set-cookie"];
+  } else if (input.headers) {
+    // slow-path for other environments - see #25
+    var sch =
+      input.headers[
+        Object.keys(input.headers).find(function (key) {
+          return key.toLowerCase() === "set-cookie";
+        })
+      ];
+    // warn if called on a request-like object with a cookie header rather than a set-cookie header - see #34, 36
+    if (!sch && input.headers.cookie && !options.silent) {
+      console.warn(
+        "Warning: set-cookie-parser appears to have been called on a request object. It is designed to parse Set-Cookie headers from responses, not Cookie headers from requests. Set the option {silent: true} to suppress this warning."
+      );
+    }
+    input = sch;
+  }
+  if (!Array.isArray(input)) {
+    input = [input];
+  }
+
+  options = options
+    ? Object.assign({}, defaultParseOptions, options)
+    : defaultParseOptions;
+
+  if (!options.map) {
+    return input.filter(isNonEmptyString).map(function (str) {
+      return parseString(str, options);
+    });
+  } else {
+    var cookies = {};
+    return input.filter(isNonEmptyString).reduce(function (cookies, str) {
+      var cookie = parseString(str, options);
+      cookies[cookie.name] = cookie;
+      return cookies;
+    }, cookies);
+  }
+}
+
+/*
+  Set-Cookie header field-values are sometimes comma joined in one string. This splits them without choking on commas
+  that are within a single set-cookie field-value, such as in the Expires portion.
+
+  This is uncommon, but explicitly allowed - see https://tools.ietf.org/html/rfc2616#section-4.2
+  Node.js does this for every header *except* set-cookie - see https://github.com/nodejs/node/blob/d5e363b77ebaf1caf67cd7528224b651c86815c1/lib/_http_incoming.js#L128
+  React Native's fetch does this for *every* header, including set-cookie.
+
+  Based on: https://github.com/google/j2objc/commit/16820fdbc8f76ca0c33472810ce0cb03d20efe25
+  Credits to: https://github.com/tomball for original and https://github.com/chrusart for JavaScript implementation
+*/
+function splitCookiesString(cookiesString) {
+  if (Array.isArray(cookiesString)) {
+    return cookiesString;
+  }
+  if (typeof cookiesString !== "string") {
+    return [];
+  }
+
+  var cookiesStrings = [];
+  var pos = 0;
+  var start;
+  var ch;
+  var lastComma;
+  var nextStart;
+  var cookiesSeparatorFound;
+
+  function skipWhitespace() {
+    while (pos < cookiesString.length && /\s/.test(cookiesString.charAt(pos))) {
+      pos += 1;
+    }
+    return pos < cookiesString.length;
+  }
+
+  function notSpecialChar() {
+    ch = cookiesString.charAt(pos);
+
+    return ch !== "=" && ch !== ";" && ch !== ",";
+  }
+
+  while (pos < cookiesString.length) {
+    start = pos;
+    cookiesSeparatorFound = false;
+
+    while (skipWhitespace()) {
+      ch = cookiesString.charAt(pos);
+      if (ch === ",") {
+        // ',' is a cookie separator if we have later first '=', not ';' or ','
+        lastComma = pos;
+        pos += 1;
+
+        skipWhitespace();
+        nextStart = pos;
+
+        while (pos < cookiesString.length && notSpecialChar()) {
+          pos += 1;
+        }
+
+        // currently special character
+        if (pos < cookiesString.length && cookiesString.charAt(pos) === "=") {
+          // we found cookies separator
+          cookiesSeparatorFound = true;
+          // pos is inside the next cookie, so back up and return it.
+          pos = nextStart;
+          cookiesStrings.push(cookiesString.substring(start, lastComma));
+          start = pos;
+        } else {
+          // in param ',' or param separator ';',
+          // we continue from that comma
+          pos = lastComma + 1;
+        }
+      } else {
+        pos += 1;
+      }
+    }
+
+    if (!cookiesSeparatorFound || pos >= cookiesString.length) {
+      cookiesStrings.push(cookiesString.substring(start, cookiesString.length));
+    }
+  }
+
+  return cookiesStrings;
+}
+
+var setCookie = parse;
+var parse_1 = parse;
+var parseString_1 = parseString;
+var splitCookiesString_1 = splitCookiesString;
+setCookie.parse = parse_1;
+setCookie.parseString = parseString_1;
+setCookie.splitCookiesString = splitCookiesString_1;
+
+var _this$2 = undefined;
 var httpErrorServerUrl = undefined;
 var overrideHttpProtocols = function (session, getState, development) {
     // debug
@@ -11224,206 +11423,237 @@ var overrideHttpProtocols = function (session, getState, development) {
             return;
         });
     }
-    session.protocol.interceptStreamProtocol('https', function (request, callback) {
-        // todo : cleaner sentry.io handling
-        /*
-          todo, forbid third party apps from talking to sentry.io without authorization
-          check the User-Agent to see if it is legit (it should be the User-Agent of main process)
-          */
-        if (request.url.startsWith('https://sentry.io')) {
-            try {
-                var options = {
-                    method: request.method,
-                    host: 'sentry.io',
-                    port: 443,
-                    rejectUnauthorized: true,
-                    path: request.url.replace('https://sentry.io', '') || '/',
-                    headers: request.headers,
-                };
-                https
-                    .request(options, function (resp) {
-                    callback(resp);
-                })
-                    .on('error', function (er) {
-                    console.log(er);
-                })
-                    .end(request.uploadData[0].bytes.toString('utf8'));
-                return;
-            }
-            catch (err) {
-                console.log(err);
-                return;
-            }
-        }
-        var randomId = '';
-        var userAgent = request.headers['User-Agent'];
-        try {
-            var io = userAgent.indexOf('randomId=');
-            randomId = userAgent.substring(io + 'randomId='.length);
-        }
-        catch (err) {
-            console.log('[https] An unauthorized app tried to make an https request');
-            http
-                .request(httpErrorServerUrl + "/unauthorized-app", function (resp) {
-                callback(resp);
-            })
-                .end();
-            return;
-        }
-        var browserViews = getBrowserViewsMain(getState());
-        var appId = Object.keys(browserViews).find(function (appId) { return browserViews[appId].randomId === randomId; });
-        if (!appId) {
-            console.log('[https] An unauthorized app tried to make an https request');
-            http
-                .request(httpErrorServerUrl + "/unauthorized-app", function (resp) {
-                callback(resp);
-            })
-                .end();
-            return;
-        }
-        var browserView = browserViews[appId];
-        /* browser to server */
-        var withoutProtocol = request.url.split('//').slice(1);
-        var pathArray = withoutProtocol.join('').split('/');
-        var host = pathArray.slice(0, 1)[0];
-        var path = pathArray.slice(1).join('/');
-        var serversWithSameHost = browserView.servers.filter(function (s) { return s.host === host; });
-        if (!serversWithSameHost.length) {
-            console.log("[https] An app (" + browserView.resourceId + ") tried to make an https request to an unknown host (" + host + ")");
-            http
-                .request(httpErrorServerUrl + "/unauthorized-host", function (resp) {
-                callback(resp);
-            })
-                .end();
-            return;
-        }
-        var loadFails = {};
-        var over = false;
-        var i = 0;
-        var tryToLoad = function (i) {
-            if (debug)
-                console.log('[https load]', request.url, i);
-            var s = serversWithSameHost[i];
-            // See https://nodejs.org/docs/latest-v10.x/api/tls.html#tls_tls_createsecurecontext_options
-            var a = new https.Agent({
-                /* no dns */
-                host: s.ip,
-                rejectUnauthorized: false,
-                cert: decodeURI(s.cert),
-                ca: [],
-            });
-            var options = {
-                agent: a,
-                method: request.method,
-                path: path ? "/" + path : '/',
-                headers: __assign({}, request.headers, { 
-                    /* no dns */
-                    host: s.host, 'User-Agent': request.headers['User-Agent'].substr(0, io) }),
-            };
-            try {
-                var req_1 = https
-                    .request(options, function (resp) {
-                    if (debug)
-                        console.log('[https load] OK', resp.statusCode, request.url, i);
-                    if (!over) {
-                        callback(resp);
-                        over = true;
-                    }
-                })
-                    .on('error', function (err) {
-                    if (debug)
-                        console.log('[https load] ERR', request.url, err.message, i);
-                    var error;
-                    if (err.message.includes('connect ECONNRESET')) {
-                        error = {
-                            errorCode: 523,
-                            errorMessage: 'Origin Is Unreachable',
-                        };
-                    }
-                    else {
-                        error = {
-                            errorCode: 520,
-                            errorMessage: 'Unknown Error',
-                        };
-                    }
-                    loadFails[i] = error;
-                    if (serversWithSameHost[i + 1]) {
-                        console.log('WILL TRY AGAIN');
-                        i += 1;
-                        tryToLoad(i);
-                    }
-                    else {
-                        if (debug) {
-                            console.log("[https load] Resource for app (" + browserView.resourceId + ") failed to load (" + path + ")");
-                        }
-                        http
-                            .get(httpErrorServerUrl + "/load-fails?p=" + encodeURIComponent(JSON.stringify(loadFails)), function (resp) {
-                            if (!over) {
+    session.protocol.interceptStreamProtocol('https', function (request, callback) { return __awaiter(_this$2, void 0, void 0, function () {
+        var options, randomId, userAgent, io, browserViews, appId, browserView, withoutProtocol, pathArray, host, path, serversWithSameHost, cookies, cookieHeader, loadFails, over, i, tryToLoad;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    // todo : cleaner sentry.io handling
+                    /*
+                      todo, forbid third party apps from talking to sentry.io without authorization
+                      check the User-Agent to see if it is legit (it should be the User-Agent of main process)
+                      */
+                    if (request.url.startsWith('https://sentry.io')) {
+                        try {
+                            options = {
+                                method: request.method,
+                                host: 'sentry.io',
+                                port: 443,
+                                rejectUnauthorized: true,
+                                path: request.url.replace('https://sentry.io', '') || '/',
+                                headers: request.headers,
+                            };
+                            https
+                                .request(options, function (resp) {
                                 callback(resp);
-                                over = true;
-                            }
+                            })
+                                .on('error', function (er) {
+                                console.log(er);
+                            })
+                                .end(request.uploadData[0].bytes.toString('utf8'));
+                            return [2 /*return*/];
+                        }
+                        catch (err) {
+                            console.log(err);
+                            return [2 /*return*/];
+                        }
+                    }
+                    randomId = '';
+                    userAgent = request.headers['User-Agent'];
+                    try {
+                        io = userAgent.indexOf('randomId=');
+                        randomId = userAgent.substring(io + 'randomId='.length);
+                    }
+                    catch (err) {
+                        console.log('[https] An unauthorized app tried to make an https request');
+                        http
+                            .request(httpErrorServerUrl + "/unauthorized-app", function (resp) {
+                            callback(resp);
                         })
                             .end();
-                        return;
+                        return [2 /*return*/];
                     }
-                });
-                if (request.uploadData && request.uploadData[0]) {
-                    request.uploadData.forEach(function (ud) {
-                        if (ud.type === 'rawData') {
-                            req_1.write(ud.bytes);
-                        }
-                        else {
-                            // todo is this safe ?
-                            // can a IP app or dapp set filePath to /home/bob/anything ???
-                            var file = fs.readFileSync(ud.filePath);
-                            // todo, test file upload on other platforms than discord (works on discord)
-                            req_1.write(file);
-                        }
-                    });
-                    req_1.end();
-                }
-                else {
-                    req_1.end();
-                }
-            }
-            catch (err) {
-                if (debug)
-                    console.log('[https load] ERR', request.url, err.message, i);
-                var error = void 0;
-                if (err.message.includes('SSL')) {
-                    error = {
-                        errorCode: 526,
-                        errorMessage: 'Invalid SSL Certificate',
-                    };
-                }
-                else {
-                    error = {
-                        errorCode: 520,
-                        errorMessage: 'Unknown Error',
-                    };
-                }
-                loadFails[i] = error;
-                if (serversWithSameHost[i + 1]) {
-                    i += 1;
-                    tryToLoad(i);
-                }
-                else {
-                    if (debug)
-                        console.log("[https] Resource for app (" + browserView.resourceId + ") failed to load (" + path + ")");
-                    http
-                        .get(httpErrorServerUrl + "/load-fails?p=" + encodeURIComponent(JSON.stringify(loadFails)), function (resp) {
-                        if (!over) {
+                    browserViews = getBrowserViewsMain(getState());
+                    appId = Object.keys(browserViews).find(function (appId) { return browserViews[appId].randomId === randomId; });
+                    if (!appId) {
+                        console.log('[https] An unauthorized app tried to make an https request');
+                        http
+                            .request(httpErrorServerUrl + "/unauthorized-app", function (resp) {
                             callback(resp);
-                            over = true;
+                        })
+                            .end();
+                        return [2 /*return*/];
+                    }
+                    browserView = browserViews[appId];
+                    withoutProtocol = request.url.split('//').slice(1);
+                    pathArray = withoutProtocol.join('').split('/');
+                    host = pathArray.slice(0, 1)[0];
+                    path = pathArray.slice(1).join('/');
+                    serversWithSameHost = browserView.servers.filter(function (s) { return s.host === host; });
+                    if (!serversWithSameHost.length) {
+                        console.log("[https] An app (" + browserView.resourceId + ") tried to make an https request to an unknown host (" + host + ")");
+                        http
+                            .request(httpErrorServerUrl + "/unauthorized-host", function (resp) {
+                            callback(resp);
+                        })
+                            .end();
+                        return [2 /*return*/];
+                    }
+                    cookies = [];
+                    if (!serversWithSameHost[0]) return [3 /*break*/, 2];
+                    return [4 /*yield*/, browserViews[appId].browserView.webContents.session.cookies.get({ url: "https://" + serversWithSameHost[0].host })];
+                case 1:
+                    cookies = _a.sent();
+                    _a.label = 2;
+                case 2:
+                    cookieHeader = cookies.map(function (c) { return c.name + "=" + c.value; }).join('; ');
+                    loadFails = {};
+                    over = false;
+                    i = 0;
+                    tryToLoad = function (i) {
+                        if (debug)
+                            console.log('[https load]', request.url, i);
+                        var s = serversWithSameHost[i];
+                        // See https://nodejs.org/docs/latest-v10.x/api/tls.html#tls_tls_createsecurecontext_options
+                        var a = new https.Agent({
+                            /* no dns */
+                            host: s.ip,
+                            rejectUnauthorized: false,
+                            cert: decodeURI(s.cert),
+                            ca: [],
+                        });
+                        var options = {
+                            agent: a,
+                            method: request.method,
+                            path: path ? "/" + path : '/',
+                            headers: __assign({}, request.headers, { 
+                                /* no dns */
+                                host: s.host, 'User-Agent': request.headers['User-Agent'].substr(0, io), 'Cookie': cookieHeader }),
+                        };
+                        try {
+                            var req_1 = https
+                                .request(options, function (resp) {
+                                if (resp.headers && resp.headers['set-cookie']) {
+                                    var cookies_1 = setCookie.parse(resp, {
+                                        decodeValues: true
+                                    });
+                                    cookies_1.forEach(function (c) {
+                                        browserViews[appId].browserView.webContents.session.cookies.set({
+                                            name: c.name,
+                                            value: c.value,
+                                            url: "https://" + serversWithSameHost[0].host,
+                                            expirationDate: c.expires ? new Date(c.expires).getTime() / 1000 : undefined,
+                                            secure: true,
+                                            httpOnly: true,
+                                        });
+                                    });
+                                    if (debug && cookies_1.length)
+                                        console.log("[https load] set " + cookies_1.length + " cookie(s)");
+                                }
+                                if (debug)
+                                    console.log('[https load] OK', resp.statusCode, request.url, i);
+                                if (!over) {
+                                    callback(resp);
+                                    over = true;
+                                }
+                            })
+                                .on('error', function (err) {
+                                if (debug)
+                                    console.log('[https load] ERR', request.url, err.message, i);
+                                var error;
+                                if (err.message.includes('connect ECONNRESET')) {
+                                    error = {
+                                        errorCode: 523,
+                                        errorMessage: 'Origin Is Unreachable',
+                                    };
+                                }
+                                else {
+                                    error = {
+                                        errorCode: 520,
+                                        errorMessage: 'Unknown Error',
+                                    };
+                                }
+                                loadFails[i] = error;
+                                if (serversWithSameHost[i + 1]) {
+                                    console.log('WILL TRY AGAIN');
+                                    i += 1;
+                                    tryToLoad(i);
+                                }
+                                else {
+                                    if (debug) {
+                                        console.log("[https load] Resource for app (" + browserView.resourceId + ") failed to load (" + path + ")");
+                                    }
+                                    http
+                                        .get(httpErrorServerUrl + "/load-fails?p=" + encodeURIComponent(JSON.stringify(loadFails)), function (resp) {
+                                        if (!over) {
+                                            callback(resp);
+                                            over = true;
+                                        }
+                                    })
+                                        .end();
+                                    return;
+                                }
+                            });
+                            if (request.uploadData && request.uploadData[0]) {
+                                request.uploadData.forEach(function (ud) {
+                                    if (ud.type === 'rawData') {
+                                        req_1.write(ud.bytes);
+                                    }
+                                    else {
+                                        // todo is this safe ?
+                                        // can a IP app or dapp set filePath to /home/bob/anything ???
+                                        var file = fs.readFileSync(ud.filePath);
+                                        // todo, test file upload on other platforms than discord (works on discord)
+                                        req_1.write(file);
+                                    }
+                                });
+                                req_1.end();
+                            }
+                            else {
+                                req_1.end();
+                            }
                         }
-                    })
-                        .end();
-                    return;
-                }
+                        catch (err) {
+                            if (debug)
+                                console.log('[https load] ERR', request.url, err.message, i);
+                            var error = void 0;
+                            if (err.message.includes('SSL')) {
+                                error = {
+                                    errorCode: 526,
+                                    errorMessage: 'Invalid SSL Certificate',
+                                };
+                            }
+                            else {
+                                error = {
+                                    errorCode: 520,
+                                    errorMessage: 'Unknown Error',
+                                };
+                            }
+                            loadFails[i] = error;
+                            if (serversWithSameHost[i + 1]) {
+                                i += 1;
+                                tryToLoad(i);
+                            }
+                            else {
+                                if (debug)
+                                    console.log("[https] Resource for app (" + browserView.resourceId + ") failed to load (" + path + ")");
+                                http
+                                    .get(httpErrorServerUrl + "/load-fails?p=" + encodeURIComponent(JSON.stringify(loadFails)), function (resp) {
+                                    if (!over) {
+                                        callback(resp);
+                                        over = true;
+                                    }
+                                })
+                                    .end();
+                                return;
+                            }
+                        }
+                    };
+                    tryToLoad(i);
+                    return [2 /*return*/];
             }
-        };
-        tryToLoad(i);
-    });
+        });
+    }); });
 };
 
 var constants = {
@@ -13546,7 +13776,7 @@ function push(dest, name, elem) {
  * @return {Object} The parsed object
  * @public
  */
-function parse(header) {
+function parse$1(header) {
   const offers = Object.create(null);
 
   if (header === undefined || header === '') return offers;
@@ -13721,7 +13951,7 @@ function format(extensions) {
     .join(', ');
 }
 
-var extension = { format, parse };
+var extension = { format, parse: parse$1 };
 
 const { randomBytes, createHash } = crypto;
 const { URL } = url;
@@ -13738,7 +13968,7 @@ const {
   NOOP: NOOP$1
 } = constants;
 const { addEventListener, removeEventListener } = eventTarget;
-const { format: format$1, parse: parse$1 } = extension;
+const { format: format$1, parse: parse$2 } = extension;
 const { toBuffer: toBuffer$1 } = bufferUtil;
 
 const readyStates = ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED'];
@@ -14340,7 +14570,7 @@ function initAsClient(websocket, address, protocols, options) {
 
     if (perMessageDeflate) {
       try {
-        const extensions = parse$1(res.headers['sec-websocket-extensions']);
+        const extensions = parse$2(res.headers['sec-websocket-extensions']);
 
         if (extensions[permessageDeflate.extensionName]) {
           perMessageDeflate.accept(extensions[permessageDeflate.extensionName]);
@@ -14790,7 +15020,7 @@ const { createServer, STATUS_CODES } = http;
 
 
 
-const { format: format$2, parse: parse$2 } = extension;
+const { format: format$2, parse: parse$3 } = extension;
 const { GUID: GUID$1, kWebSocket: kWebSocket$2 } = constants;
 
 const keyRegex = /^[+/0-9A-Za-z]{22}==$/;
@@ -14990,7 +15220,7 @@ class WebSocketServer extends events {
       );
 
       try {
-        const offers = parse$2(req.headers['sec-websocket-extensions']);
+        const offers = parse$3(req.headers['sec-websocket-extensions']);
 
         if (offers[permessageDeflate.extensionName]) {
           perMessageDeflate.accept(offers[permessageDeflate.extensionName]);
@@ -15194,7 +15424,7 @@ websocket.Sender = sender;
 
 var ws = websocket;
 
-var _this$2 = undefined;
+var _this$3 = undefined;
 function asyncForEach(array, callback) {
     return __awaiter(this, void 0, void 0, function () {
         var index;
@@ -15311,7 +15541,7 @@ var wsCron = function (getState, dispatchFromMain) {
         });
         return;
     }
-    asyncForEach(chainIds, function (chainId) { return __awaiter(_this$2, void 0, void 0, function () {
+    asyncForEach(chainIds, function (chainId) { return __awaiter(_this$3, void 0, void 0, function () {
         var blockchain, nodesInactive, nodesInactiveAndReady, nodesActive, nodesActiveAndReady, nodesActiveAndClosed;
         var _this = this;
         return __generator(this, function (_a) {
@@ -15505,7 +15735,7 @@ var wsCron = function (getState, dispatchFromMain) {
         });
     }); });
 };
-var createConnection = function (ip, host, cert) { return __awaiter(_this$2, void 0, Promise, function () {
+var createConnection = function (ip, host, cert) { return __awaiter(_this$3, void 0, Promise, function () {
     return __generator(this, function (_a) {
         return [2 /*return*/, new Promise(function (resolve, reject) {
                 /* no dns */
@@ -15590,7 +15820,6 @@ var getSearchError = lib_4(getDappsState, function (state) { return state.search
 var getSearching = lib_4(getDappsState, function (state) { return state.searching; });
 var getLastLoadErrors = lib_4(getDappsState, function (state) { return state.lastLoadErrors; });
 var getLoadStates = lib_4(getDappsState, function (state) { return state.loadStates; });
-var getDappManifests = lib_4(getDappsState, function (state) { return state.dappManifests; });
 var getDapps = lib_4(getDappsState, function (state) { return state.dapps; });
 var getTabsFocusOrder = lib_4(getDappsState, function (state) { return state.tabsFocusOrder; });
 var getTabs = lib_4(getDappsState, function (state) { return state.tabs; });
@@ -15606,7 +15835,6 @@ var getTabsFocusOrderWithoutSearch = lib_4(getTabsFocusOrder, function (tabsFocu
 var getFocusedTabId = lib_4(getTabsFocusOrderWithoutSearch, function (tabsFocusOrder) { return tabsFocusOrder[tabsFocusOrder.length - 1]; });
 var getSearchTransitoryState = lib_4(getSearch, getDappsTransitoryStates, function (search, transitoryStates) { return transitoryStates[search]; });
 var getSearchLoadStates = lib_4(getSearch, getLoadStates, function (search, loadStates) { return (search ? loadStates[search] : undefined); });
-var getDappManifestAlreadyExists = lib_4(getSearch, getDappManifests, function (search, dappManifests) { return !!(search && dappManifests[search]); });
 var getActiveTabs = lib_4(getTabs, function (tabs) {
     var activeTabs = {};
     tabs.forEach(function (t) {
@@ -15616,20 +15844,13 @@ var getActiveTabs = lib_4(getTabs, function (tabs) {
     });
     return activeTabs;
 });
-var getActiveDappsDappManifests = lib_4(getDapps, getDappManifests, function (activeDapps, dappManifests) {
-    var activeDappsManifests = {};
-    Object.keys(activeDapps).forEach(function (id) {
-        activeDappsManifests[id] = dappManifests[id];
-    });
-    return activeDappsManifests;
-});
-var getActiveResource = lib_4(getFocusedTabId, getTabs, getDappManifests, getDapps, getIpApps, getLoadedFiles, function (focusedTabId, tabs, dappManifests, dapps, ipApps, loadedFiles) {
+var getActiveResource = lib_4(getFocusedTabId, getTabs, getDapps, getIpApps, getLoadedFiles, function (focusedTabId, tabs, dapps, ipApps, loadedFiles) {
     var tab = tabs.find(function (t) { return t.id === focusedTabId; });
     if (!tab) {
         return undefined;
     }
-    if (dapps[tab.resourceId] && dappManifests[tab.resourceId]) {
-        return dappManifests[tab.resourceId];
+    if (dapps[tab.resourceId]) {
+        return dapps[tab.resourceId];
     }
     else if (ipApps[tab.resourceId]) {
         return ipApps[tab.resourceId];
@@ -18594,7 +18815,8 @@ var loadOrReloadBrowserView = function (action) {
                                 var urlDecomposed_1 = decomposeUrl(favicons[0]);
                                 var serverAuthorized = payload.servers.find(function (s) { return s.host === urlDecomposed_1.host; });
                                 if (!serverAuthorized) {
-                                    throw new Error('No server authorized for host');
+                                    console.error("Could not get favicon, no servers authorized to reach https address " + favicons[0]);
+                                    return;
                                 }
                                 /* browser to server */
                                 var a_1 = new https.Agent({
@@ -18611,7 +18833,9 @@ var loadOrReloadBrowserView = function (action) {
                                     method: 'get',
                                 }, function (res) {
                                     if (res.statusCode !== 200) {
-                                        throw new Error('Status code is not 200');
+                                        console.error("Could not get favicon (status !== 200) for " + payload.address + currentPath);
+                                        console.log(favicons[0]);
+                                        return;
                                     }
                                     var s = new Buffer('');
                                     res.on('data', function (a) {
@@ -18630,7 +18854,7 @@ var loadOrReloadBrowserView = function (action) {
                                 });
                             }
                             catch (err) {
-                                console.error('[dapp] Could not download favicon ' + favicons[0]);
+                                console.error('[dapp] Could not get favicon ' + favicons[0]);
                                 console.log(err);
                             }
                         }
@@ -18833,8 +19057,8 @@ var rootSagas = function () {
 };
 var sagaMiddleware = sagaMiddlewareFactory();
 var store = createStore(combineReducers({
-    settings: reducer$2,
-    blockchains: reducer$3,
+    settings: reducer$3,
+    blockchains: reducer$2,
     ipApps: reducer$4,
     browserViews: reducer,
     transactions: reducer$5,
@@ -18852,10 +19076,10 @@ var development$1 = !!process.defaultApp;
 var browserWindow;
 var commEventToRenderer = undefined;
 /*
-  MESSAGE FROM BROWSER VIEWS (dapps and IP apps)
+  MESSAGE FROM BROWSER VIEWS / TABS (dapps and IP apps)
   first message from dapps to get the initial payload
 */
-/* tab process to main process */
+/* tab process - main process */
 electron.ipcMain.on('hi-from-dapp-sandboxed', function (commEvent, userAgent) {
     var browserViews = getBrowserViewsMain(store.getState());
     var randomId = '';
@@ -18871,6 +19095,8 @@ electron.ipcMain.on('hi-from-dapp-sandboxed', function (commEvent, userAgent) {
             type: DAPP_INITIAL_SETUP,
             payload: {
                 html: browserViews[id].html,
+                address: browserViews[id].address,
+                path: browserViews[id].path,
                 title: browserViews[id].title,
                 dappId: browserViews[id].resourceId,
                 randomId: browserViews[id].randomId,
@@ -18898,7 +19124,7 @@ electron.ipcMain.on('copy-to-clipboard', function (event, arg) {
   uniqueEphemeralToken is a token wich is only known by the renderer and
   main process, the webviews don't know its value
 */
-/* tab process to main process */
+/* browser process - main process */
 var uniqueEphemeralToken;
 electron.ipcMain.on('ask-unique-ephemeral-token', function (event, arg) {
     commEventToRenderer = event;
@@ -18921,6 +19147,7 @@ electron.ipcMain.on('ask-unique-ephemeral-token', function (event, arg) {
   Dappy query handlers
 */
 /* browser to node */
+/* browser process - main process */
 electron.ipcMain.on('single-dappy-call', function (event, arg) {
     if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
         commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, {
@@ -18959,6 +19186,7 @@ electron.ipcMain.on('single-dappy-call', function (event, arg) {
   Dappy query handlers
 */
 /* browser to network */
+/* browser process - main process */
 electron.ipcMain.on('multi-dappy-call', function (event, arg) {
     if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
         commEventToRenderer.reply('multi-dappy-call-reply-' + arg.requestId, {
@@ -19052,6 +19280,7 @@ electron.ipcMain.on('multi-dappy-call', function (event, arg) {
     });
 });
 // Get predefined dapps
+/* browser process - main process */
 electron.ipcMain.on('get-dapps', function (event, arg) {
     if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
         commEventToRenderer.reply('get-dapps-reply-' + arg.requestId, {
@@ -19075,6 +19304,7 @@ electron.ipcMain.on('get-dapps', function (event, arg) {
     }
 });
 // Get IP address + cert from hostname
+/* browser process - main process */
 electron.ipcMain.on('get-ip-address-and-cert', function (event, arg) {
     if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
         commEventToRenderer.reply('get-ip-address-and-cert-reply-' + arg.requestId, {
@@ -19149,6 +19379,8 @@ var dispatchFromMain = function (a) {
   Dispatches coming from browser window
   to MAIN process store
 */
+/* browser process - main process */
+var wsCronRanOnce = false;
 electron.ipcMain.on('dispatch-in-main', function (event, a) {
     if (a.uniqueEphemeralToken === uniqueEphemeralToken) {
         if (a.action.type === LOAD_OR_RELOAD_BROWSER_VIEW) {
@@ -19156,6 +19388,17 @@ electron.ipcMain.on('dispatch-in-main', function (event, a) {
         }
         else if (a.action.type === DESTROY_BROWSER_VIEW) {
             store.dispatch(__assign({}, a.action, { meta: { browserWindow: browserWindow } }));
+        }
+        else if (a.action.type === SYNC_BLOCKCHAINS) {
+            store.dispatch(a.action);
+            /*
+              Do not wait the setInterval to run wsCron
+              do it instantly after dispatch
+            */
+            if (wsCronRanOnce === false) {
+                wsCronRanOnce = true;
+                wsCron(store.getState, dispatchFromMain);
+            }
         }
         else {
             store.dispatch(a.action);
