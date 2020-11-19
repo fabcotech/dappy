@@ -1,0 +1,21 @@
+@import "../../style/variables.scss";
+
+.badge-appreciation {
+  i {
+    padding: 4px;
+    margin-right: 5px;
+    border-radius: 2px;
+    color: #fff;
+    width: 25px;
+    text-align: center;
+    &.fa-check {
+      background-color: $completed;
+    }
+    &.fa-exclamation-triangle {
+      background-color: $warning;
+    }
+    &.fa-times {
+      background-color: $failed;
+    }
+  }
+}

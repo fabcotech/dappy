@@ -24,6 +24,24 @@
       text-decoration: underline;
     }
   }
+  .badges {
+    background: linear-gradient(200deg, rgba(0, 0, 0, -0.95), rgba(0, 0, 0, 0.1));
+    padding: 5px;
+    border-radius: 2px;
+    border: 1px solid #bbb;
+    margin-top: 10px;
+    font-size: 0.9em;
+    h6 {
+      padding-bottom: 5px;
+    }
+    p.badge {
+      display: grid;
+      grid-template-columns: 150px 300px;
+    }
+    & > * {
+      padding: 0;
+    }
+  }
   p {
     font-size: 1.2em;
     line-height: 1.3em;

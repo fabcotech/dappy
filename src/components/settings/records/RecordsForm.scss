@@ -36,21 +36,28 @@
     }
   }
   .badges-field {
+    .badge-line {
+      display: grid;
+      grid-template-columns: 140px 280px 60px;
+      margin-bottom: 5px;
+    }
+    .remove-badge {
+      cursor: pointer;
+    }
     .control {
       display: flex;
-      .tag:not(:first-of-type) {
-        margin-left: 5px;
-      }
-      .tag {
-        background: linear-gradient(20deg, #262626, #4A4A4A);
-        font-weight: 400;
-      }
+    }
+    .badge-input {
+      width: 160px !important;
+    }
+    .badge-appreciation {
+      margin-left: 5px;
+    }
+    .badge-appreciation-input {
+      margin-left: 5px;
     }
     button {
       margin-left: 5px;
-    }
-    input {
-      width: 200px !important;
     }
   }
 }

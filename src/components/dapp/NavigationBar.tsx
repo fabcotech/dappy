@@ -31,8 +31,11 @@ class NavigationBarComponent extends WithSuggestions {
       resourceId: this.props.tab.resourceId,
       appType: this.props.appType,
       address: this.props.address,
+      tabId: this.props.tab.id,
       loadState: this.props.loadState,
       servers: this.props.servers,
+      badges: this.props.recordBadges ?
+        this.props.recordBadges[this.props.search || ''] : {}
     });
   };
 
@@ -159,6 +162,7 @@ export const NavigationBar = connect(
     let appType: 'DA' | 'IP' = 'DA';
     let servers = undefined;
     let address = undefined;
+    let search = undefined;
     let resourceId: string | undefined = '';
     let publicKey: string | undefined = '';
     let chainId: string | undefined = '';
@@ -174,10 +178,12 @@ export const NavigationBar = connect(
         resourceId = dapp.id;
         publicKey = dapp.publicKey;
         chainId = dapp.chainId;
+        search = dapp.search;
         address = searchToAddress(dapp.search, dapp.chainId);
       } else if (!!ipApp) {
         resourceLoaded = !transitoryStates[ipApp.id] || !['loading', 'reloading'].includes(transitoryStates[ipApp.id]);
         appType = 'IP';
+        search = ipApp.search;
         address = searchToAddress(ipApp.search, ipApp.chainId);
         servers = ipApp.servers;
         resourceId = ipApp.id;
@@ -187,6 +193,7 @@ export const NavigationBar = connect(
         resourceLoaded = true;
         const firstKey = Object.keys(loadedFile.loadState.completed)[0];
         loadState = loadedFile.loadState.completed[firstKey];
+        search = loadedFile.search;
         address = searchToAddress(loadedFile.search, loadedFile.chainId);
         resourceId = loadedFile.id;
         publicKey = loadedFile.publicKey;
@@ -207,10 +214,12 @@ export const NavigationBar = connect(
       sessionItem: sessionItem,
       previews: fromHistory.getPreviews(state),
       recordNames: fromBlockchain.getRecordNamesInAlphaOrder(state),
+      recordBadges: fromBlockchain.getRecordBadges(state),
       resourceLoaded: resourceLoaded,
       appType: appType,
       servers: servers,
       address: address,
+      search: search,
       resourceId: resourceId,
       publicKey: publicKey,
       chainId: chainId,

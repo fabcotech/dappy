@@ -65,6 +65,7 @@ export interface WithSuggestionsComponentProps {
   resourceId: string | undefined;
   publicKey: string | undefined;
   chainId: string | undefined;
+  recordBadges: undefined | { [name: string]: { [name: string]: string }};
   showLoadInfos: (resourceId: string, parameters: any) => void;
   isDisplayed?: (a: boolean) => void;
   stopTab: (tabId: string) => void;

@@ -45,6 +45,9 @@ export const AddRecord = (props: AddRecordProps) => {
               const r: PartialRecord = {
                 name: (partialRecord as PartialRecord).name,
               };
+              if (partialRecord && partialRecord.badges) {
+                r.badges = partialRecord.badges;
+              }
               if (partialRecord && partialRecord.address) {
                 r.address = partialRecord.address;
               }

@@ -4,6 +4,7 @@ import { Formik, Field } from 'formik';
 import './RecordsForm.scss';
 import { Record, IPServer, PartialRecord } from '../../../models';
 
+import { BadgeAppreciation } from '../../utils/BadgeAppreciation';
 import { IPServersComponent } from './IPServers';
 
 interface RecordFormProps {
@@ -41,15 +42,20 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
   }
 
   badgeInput: undefined | HTMLInputElement = undefined;
+  badgeAppreciationInput: undefined | HTMLInputElement = undefined;
 
   state: {
     servers: IPServer[];
     settingUpIpServers: boolean;
-    badge: '';
+    badge: string;
+    badgeAppreciation: string;
+    badgeAppreciationPrefix: 'BS' | 'BW' | 'BD';
   } = {
     servers: [],
     settingUpIpServers: false,
     badge: '',
+    badgeAppreciation: '',
+    badgeAppreciationPrefix: 'BS',
   };
 
   componentDidMount() {
@@ -222,18 +228,28 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                   <label className="label">{t('reputation badges')}*</label>
                   <div className="control">
                     <p className="smaller-text">
-                      Badges allow you to attest or certify third party websites on Dappy. If you add the badge "bob" to
-                      your record "mysite", users who visits "bob" website will see a badge "mysite approves this site".
+                      Badges allow you to attest, certify or discredit other websites on dappy. If you add the badge "bob" to
+                      your record "mysite", users who visits "bob" website will see a certification or discredit badge from "mysite".
                     </p>
                   </div>
                 </div>
                 <div className="field badges-field">
                   <label></label>
-                  <div className="control">
+                  <div>
                     {Object.keys(values.badges).map((t) => (
-                      <span key={t} className="tag is-dark is-medium">
-                        {t}
-                      </span>
+                      <div key={t} className="badge-line">
+                        <div>
+                          <u>
+                            {t}
+                          </u>
+                        </div>
+                        <BadgeAppreciation appreciation={values.badges[t]} />
+                        <u className="remove-badge" onClick={() => {
+                          const newBadges = { ...values.badges };
+                          delete newBadges[t];
+                          setFieldValue('badges', newBadges);
+                        }}>remove</u>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -241,7 +257,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                   <label className="label"></label>
                   <div className="control">
                     <input
-                      className="input"
+                      className="input badge-input"
                       type="text"
                       placeholder={'dappy'}
                       onChange={(e) => {
@@ -249,14 +265,40 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                         this.setState({ badge: e.target.value });
                       }}
                     />
+                    <div className="badge-appreciation fc" onClick={() => {
+                      this.setState({
+                        badgeAppreciationPrefix:
+                          { BS: 'BW', BW: 'BD', BD: 'BS' }[this.state.badgeAppreciationPrefix]
+                      })
+                    }}>
+                      {
+                        {
+                          BS: <i className="fa fa-check"></i>,
+                          BW: <i className="fa fa-exclamation-triangle"></i>,
+                          BD: <i className="fa fa-times"></i>,
+                        }[this.state.badgeAppreciationPrefix]
+                      }
+                    </div>
+                    <input
+                      className="input badge-appreciation-input"
+                      type="text"
+                      placeholder={'recommended and endorsed'}
+                      onChange={(e) => {
+                        this.badgeAppreciationInput = e.target;
+                        this.setState({ badgeAppreciation: e.target.value });
+                      }}
+                    />
                     <button
                       onClick={() => {
                         if (this.badgeInput) {
                           this.badgeInput.value = '';
                         }
+                        if (this.badgeAppreciationInput) {
+                          this.badgeAppreciationInput.value = '';
+                        }
                         setFieldValue('badges', {
                           ...values.badges,
-                          [this.state.badge]: '',
+                          [this.state.badge]: this.state.badgeAppreciationPrefix + this.state.badgeAppreciation,
                         });
                       }}
                       type="button"

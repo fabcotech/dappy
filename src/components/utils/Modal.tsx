@@ -55,6 +55,8 @@ class ModalComponent extends React.Component<ModalComponentProps, {}> {
         <LoadInfo
           appType={this.props.modal.parameters.appType}
           address={this.props.modal.parameters.address}
+          tabId={this.props.modal.parameters.tabId}
+          badges={this.props.modal.parameters.badges}
           loadState={this.props.modal.parameters.loadState}
           resourceId={this.props.modal.parameters.resourceId}
           servers={this.props.modal.parameters.servers}
