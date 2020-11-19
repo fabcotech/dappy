@@ -2,6 +2,7 @@ import https from 'https';
 import http from 'http';
 import fs from 'fs';
 import { Session } from 'electron';
+import setCookie from 'set-cookie-parser';
 
 import * as fromMainBrowserViews from './store/browserViews';
 
@@ -63,7 +64,7 @@ export const overrideHttpProtocols = (session: Session, getState, development: b
     });
   }
 
-  session.protocol.interceptStreamProtocol('https', (request, callback) => {
+  session.protocol.interceptStreamProtocol('https', async (request, callback) => {
     // todo : cleaner sentry.io handling
     /*
       todo, forbid third party apps from talking to sentry.io without authorization
@@ -143,6 +144,14 @@ export const overrideHttpProtocols = (session: Session, getState, development: b
         .end();
       return;
     }
+
+    let cookies: Electron.Cookie[] = [];
+    if (serversWithSameHost[0]) {
+      cookies = await browserViews[appId].browserView.webContents.session.cookies.get({url: `https://${serversWithSameHost[0].host}` });
+    }
+
+    const cookieHeader: string = cookies.map(c => `${c.name}=${c.value}`).join('; ')
+
     const loadFails = {};
 
     let over = false;
@@ -159,7 +168,7 @@ export const overrideHttpProtocols = (session: Session, getState, development: b
         ca: [], // we don't want to rely on CA
       });
 
-      const options = {
+      const options: https.RequestOptions = {
         agent: a,
         method: request.method,
         path: path ? `/${path}` : '/',
@@ -168,12 +177,30 @@ export const overrideHttpProtocols = (session: Session, getState, development: b
           /* no dns */
           host: s.host,
           'User-Agent': request.headers['User-Agent'].substr(0, io),
+          'Cookie': cookieHeader,
         },
       };
 
       try {
         const req = https
           .request(options, (resp) => {
+            if (resp.headers && resp.headers['set-cookie']) {
+              const cookies = setCookie.parse(resp, {
+                decodeValues: true
+              });
+              cookies.forEach(c => {
+                browserViews[appId].browserView.webContents.session.cookies.set({
+                  name: c.name,
+                  value: c.value,
+                  url: `https://${serversWithSameHost[0].host}`,
+                  expirationDate: c.expires ? new Date(c.expires).getTime() / 1000 : undefined,
+                  secure: true,
+                  httpOnly: true,
+                });
+              });
+              if (debug && cookies.length) console.log(`[https load] set ${cookies.length} cookie(s)`);
+            }
+
             if (debug) console.log('[https load] OK', resp.statusCode, request.url, i);
             if (!over) {
               callback(resp);
