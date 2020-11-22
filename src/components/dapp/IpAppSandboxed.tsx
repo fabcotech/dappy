@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Tab, IpApp, Session, SessionItem } from '../../models';
+import { Tab, IpApp, Session, SessionItem, Cookie } from '../../models';
 import './DappSandboxed.scss';
 
 interface IpAppSandboxedComponentProps {
@@ -9,6 +9,8 @@ interface IpAppSandboxedComponentProps {
   zIndex: number;
   tab: Tab;
   session: undefined | Session;
+  cookies: Cookie[];
+  address: string;
 }
 
 interface IpAppSandboxedComponentState {
@@ -103,11 +105,12 @@ export class IpAppSandboxedComponent extends React.Component<
         muted: this.props.tab.muted,
         randomId: this.props.ipApp.randomId,
         path: this.props.ipApp.path,
-        address: `${this.props.ipApp.chainId}/${this.props.ipApp.search}`,
+        address: this.props.address,
         servers: this.props.ipApp.servers,
         devMode: this.props.devMode,
         html: undefined,
         title: this.props.ipApp.name,
+        cookies: this.props.cookies,
       },
     });
 

@@ -47,12 +47,12 @@ export const browserUtils = {
   },
 
   saveStorageIndexed: (
-    key: 'previews' | 'tabs' | 'blockchains' | 'records' | 'accounts' | 'transactions',
+    key: 'previews' | 'tabs' | 'blockchains' | 'records' | 'accounts' | 'transactions' | 'cookies',
     value: { [id: string]: any }
   ) => {
     return new Promise((resolve, reject) => {
       try {
-        if (!['previews', 'tabs', 'blockchains', 'records', 'accounts', 'transactions'].find((k) => k === key)) {
+        if (!['previews', 'tabs', 'blockchains', 'records', 'accounts', 'transactions', 'cookies'].find((k) => k === key)) {
           reject('Unknown db key ' + key);
         }
         const tx = getDb().transaction(key, 'readwrite');

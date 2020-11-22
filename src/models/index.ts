@@ -14,3 +14,4 @@ export * from './File';
 export * from './History';
 export * from './IpApp';
 export * from './Language';
+export * from './Cookie';

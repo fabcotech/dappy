@@ -4,11 +4,17 @@ import fs from 'fs';
 import { Session } from 'electron';
 import setCookie from 'set-cookie-parser';
 
+import * as fromCookies from '../src/store/cookies';
 import * as fromMainBrowserViews from './store/browserViews';
+import { DappyBrowserView } from './models';
 
 let httpErrorServerUrl = undefined;
 
-export const overrideHttpProtocols = (session: Session, getState, development: boolean) => {
+export const overrideHttpProtocols = (
+  session: Session, getState,
+  development: boolean,
+  dispatchFromMain: (a: any) => void
+) => {
   
   // debug
   let debug = development;
@@ -63,6 +69,31 @@ export const overrideHttpProtocols = (session: Session, getState, development: b
       return;
     });
   }
+
+  let browserView: undefined | DappyBrowserView = undefined;
+  session.cookies.on('changed', async (e, c, ca, re) => {
+    if (!browserView) {
+      console.log('no browserView, cannot save cookies');
+      return;
+    }
+    const servers = browserView.servers.filter((s) => s.host === c.domain);
+    if (!servers.length) {
+      console.log('no browserView.servers matching cookies domain ' + c.domain);
+      return;
+    }
+    const cookies = await browserView.browserView.webContents.session.cookies.get({url: `https://${c.domain}` });
+    dispatchFromMain({
+      action: fromCookies.saveCookiesForDomainAction({
+        address: browserView.address,
+        cookies: cookies.filter(c => typeof c.expirationDate === 'number').map(cook => ({
+          domain: cook.domain,
+          name: cook.name,
+          value: cook.value,
+          expirationDate: cook.expirationDate,
+        }))
+      }),
+    });
+  });
 
   session.protocol.interceptStreamProtocol('https', async (request, callback) => {
     // todo : cleaner sentry.io handling
@@ -122,7 +153,7 @@ export const overrideHttpProtocols = (session: Session, getState, development: b
         .end();
       return;
     }
-    const browserView = browserViews[appId];
+    browserView = browserViews[appId];
 
     /* browser to server */
 
@@ -132,7 +163,6 @@ export const overrideHttpProtocols = (session: Session, getState, development: b
     const path = pathArray.slice(1).join('/');
 
     const serversWithSameHost = browserView.servers.filter((s) => s.host === host);
-
     if (!serversWithSameHost.length) {
       console.log(
         `[https] An app (${browserView.resourceId}) tried to make an https request to an unknown host (${host})`
@@ -146,9 +176,7 @@ export const overrideHttpProtocols = (session: Session, getState, development: b
     }
 
     let cookies: Electron.Cookie[] = [];
-    if (serversWithSameHost[0]) {
-      cookies = await browserViews[appId].browserView.webContents.session.cookies.get({url: `https://${serversWithSameHost[0].host}` });
-    }
+    cookies = await browserView.browserView.webContents.session.cookies.get({url: `https://${serversWithSameHost[0].host}` });
 
     const cookieHeader: string = cookies.map(c => `${c.name}=${c.value}`).join('; ')
 

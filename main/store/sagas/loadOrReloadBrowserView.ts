@@ -58,9 +58,19 @@ const loadOrReloadBrowserView = function* (action: any) {
     },
   });
 
+  // cookies to start with (from storage)
+  payload.cookies.map(c => {
+    view.webContents.session.cookies.set({
+      ...c,
+      url: `https://${c.domain}`,
+      secure: true,
+      httpOnly: true,
+    });
+  });
+
   // todo, avoid circular ref to "store" (see logs when "npm run build:main")
   registerDappyProtocol(session.fromPartition(`persist:${payload.address}`), store.getState);
-  overrideHttpProtocols(session.fromPartition(`persist:${payload.address}`), store.getState, development);
+  overrideHttpProtocols(session.fromPartition(`persist:${payload.address}`), store.getState, development, action.meta.dispatchFromMain);
 
   if (payload.devMode) {
     view.webContents.openDevTools();

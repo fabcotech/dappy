@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import './DappSandboxed.scss';
-import { Dapp, TransitoryState, Tab, LastLoadError } from '../../models';
+import { Dapp, TransitoryState, Tab, LastLoadError, Cookie } from '../../models';
 import { LoadErrorHtml } from '../utils';
 import { blockchain as blockchainUtils } from '../../utils/';
 
@@ -12,6 +12,8 @@ interface DappSandboxedComponentProps {
   devMode: boolean;
   tab: Tab;
   lastLoadError: undefined | LastLoadError;
+  cookies: Cookie[];
+  address: string;
   clearSearchAndLoadError: (tabId: string, clearSearch: boolean) => void;
   loadResource: (address: string, tabId: string) => void;
 }
@@ -75,10 +77,11 @@ class DappSandboxedComponent extends React.Component<DappSandboxedComponentProps
           randomId: this.props.dapp.randomId,
           path: this.props.dapp.path,
           title: this.props.dapp.title,
-          address: `${this.props.dapp.chainId}/${this.props.dapp.search}`,
+          address: this.props.address,
           devMode: this.props.devMode,
           servers: [],
           html: this.props.dapp.html,
+          cookies: this.props.cookies
         },
       });
     }

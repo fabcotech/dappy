@@ -11,3 +11,4 @@ export * from './Tab';
 export * from './RChain';
 export * from './Nodes';
 export * from './TransactionState';
+export * from './Cookie';

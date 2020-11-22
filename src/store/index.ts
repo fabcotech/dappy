@@ -11,6 +11,7 @@ import { sagas as fromDappsSagas } from './dapps/sagas';
 import { sagas as fromSettingsSagas } from './settings/sagas';
 import { sagas as fromBlockchainSagas } from './blockchain/sagas';
 import { sagas as fromHistorySagas } from './history/sagas';
+import { sagas as fromCookiesSagas } from './cookies/sagas';
 
 import * as fromMain from './main';
 import * as fromUi from './ui';
@@ -18,6 +19,7 @@ import * as fromDapps from './dapps';
 import * as fromSettings from './settings';
 import * as fromBlockchain from './blockchain';
 import * as fromHistory from './history';
+import * as fromCookies from './cookies';
 
 import {
   validateSettings,
@@ -28,6 +30,7 @@ import {
   validateDappyNodeFullInfo,
   validateTabs,
   validateTransactionStates,
+  validateCookies,
 } from './decoders';
 import fromEvent from 'xstream/extra/fromEvent';
 import { DEVELOPMENT } from '../CONSTANTS';
@@ -51,6 +54,7 @@ export interface State {
   settings: fromSettings.State;
   blockchain: fromBlockchain.State;
   history: fromHistory.State;
+  cookies: fromCookies.State;
 }
 
 const errorCatcherMiddleware = store => next => action => {
@@ -78,6 +82,7 @@ export const store: Store<State> = createStore(
     settings: fromSettings.reducer,
     blockchain: fromBlockchain.reducer,
     history: fromHistory.reducer,
+    cookies: fromCookies.reducer,
   }),
   applyMiddleware(...middlewares)
 );
@@ -93,16 +98,18 @@ const sagas = function* rootSaga() {
       fromBlockchainSagas(),
       fromUiSagas(),
       fromHistorySagas(),
+      fromCookiesSagas(),
     ];
   } else {
     sagas = [
-      loggerSaga(),
+      loggerSaga(), // todo: remove logger in prod ?
       fromMainSagas(),
       fromDappsSagas(),
       fromSettingsSagas(),
       fromBlockchainSagas(),
       fromUiSagas(),
       fromHistorySagas(),
+      fromCookiesSagas(),
     ];
   }
 
@@ -122,7 +129,7 @@ const sagas = function* rootSaga() {
 sagaMiddleware.run(sagas);
 
 const dispatchInitActions = () => {
-  if (asyncActionsOver === 11) {
+  if (asyncActionsOver === 12) {
     store.dispatch(
       fromUi.setBodyDimensionsAction({ bodyDimensions: [document.body.clientWidth, document.body.clientHeight] })
     );
@@ -135,7 +142,7 @@ const dispatchInitActions = () => {
   }
 };
 
-export const dbReq = window.indexedDB.open('dappy', 18);
+export const dbReq = window.indexedDB.open('dappy', 19);
 export let db;
 
 export const getDb = () => db;
@@ -176,6 +183,9 @@ dbReq.onupgradeneeded = event => {
   }
   if (!db.objectStoreNames.contains('accounts')) {
     db.createObjectStore('accounts', { keyPath: 'name' });
+  }
+  if (!db.objectStoreNames.contains('cookies')) {
+    db.createObjectStore('cookies', { keyPath: 'address' });
   }
 };
 
@@ -290,30 +300,55 @@ dbReq.onsuccess = event => {
       });
   };
 
-    // PREVIEWS
-    const previewsTx = db.transaction('previews', 'readonly');
-    var previewsStore = previewsTx.objectStore('previews');
-    const requestPreviews = previewsStore.getAll();
-    requestPreviews.onsuccess = e => {
-      const previewsToCheck = requestPreviews.result;
-      validatePreviews(previewsToCheck)
-        .then(previews => {
-          asyncActionsOver += 1;
-          store.dispatch(fromHistory.updatPreviewsFromStorageAction({ previews: previews }));
-          dispatchInitActions();
-        })
-        .catch(e => {
-          asyncActionsOver += 1;
-          store.dispatch(
-            fromMain.saveErrorAction({
-              errorCode: 2041,
-              error: 'Unable to read previews from storage',
-              trace: e,
-            })
-          );
-          dispatchInitActions();
-        });
-    };
+  // PREVIEWS
+  const previewsTx = db.transaction('previews', 'readonly');
+  var previewsStore = previewsTx.objectStore('previews');
+  const requestPreviews = previewsStore.getAll();
+  requestPreviews.onsuccess = e => {
+    const previewsToCheck = requestPreviews.result;
+    validatePreviews(previewsToCheck)
+      .then(previews => {
+        asyncActionsOver += 1;
+        store.dispatch(fromHistory.updatPreviewsFromStorageAction({ previews: previews }));
+        dispatchInitActions();
+      })
+      .catch(e => {
+        asyncActionsOver += 1;
+        store.dispatch(
+          fromMain.saveErrorAction({
+            errorCode: 2041,
+            error: 'Unable to read previews from storage',
+            trace: e,
+          })
+        );
+        dispatchInitActions();
+      });
+  };
+
+  // COOKIES
+  const cookiesTx = db.transaction('cookies', 'readonly');
+  var cookiesStore = cookiesTx.objectStore('cookies');
+  const requestCookes = cookiesStore.getAll();
+  requestCookes.onsuccess = e => {
+    const cookiesToCheck = requestCookes.result;
+    validateCookies(cookiesToCheck)
+      .then(cookiesFromStorage => {
+        asyncActionsOver += 1;
+        store.dispatch(fromCookies.updateCookiesFromStorageAction({ cookiesFromStorage: cookiesFromStorage }));
+        dispatchInitActions();
+      })
+      .catch(e => {
+        asyncActionsOver += 1;
+        store.dispatch(
+          fromMain.saveErrorAction({
+            errorCode: 2053,
+            error: 'Unable to read cookies from storage',
+            trace: e,
+          })
+        );
+        dispatchInitActions();
+      });
+  };
 
   // BLOCKCHAINS
   const blockchainsTx = db.transaction('blockchains', 'readonly');
