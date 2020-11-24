@@ -70,7 +70,13 @@ const loadOrReloadBrowserView = function* (action: any) {
 
   // todo, avoid circular ref to "store" (see logs when "npm run build:main")
   registerDappyProtocol(session.fromPartition(`persist:${payload.address}`), store.getState);
-  overrideHttpProtocols(session.fromPartition(`persist:${payload.address}`), store.getState, development, action.meta.dispatchFromMain);
+  overrideHttpProtocols(
+    session.fromPartition(`persist:${payload.address}`),
+    store.getState,
+    development,
+    action.meta.dispatchFromMain,
+    false
+  );
 
   if (payload.devMode) {
     view.webContents.openDevTools();

@@ -105,15 +105,6 @@ const sendRChainTransaction = function* (action: Action) {
 
     if (payload.alert) {
       let message = 'The transaction has been successfully sent to the network';
-      if (payload.origin.origin === 'record') {
-        if (payload.transaction.data.term.includes('UPDATE')) {
-          message =
-            'The transaction has been successfully sent to the network. The record should be updated in a short amount of time.';
-        } else if (payload.transaction.data.term.includes('CREATE')) {
-          message =
-            'The transaction has been successfully sent to the network. The record should be created and activated in a short amount of time.';
-        }
-      }
       if (payload.origin.origin === 'transfer') {
         message =
           'The transaction has been successfully sent to the network. Your balance should update after few minutes.';

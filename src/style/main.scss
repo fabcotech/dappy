@@ -51,7 +51,9 @@ html, body {
 .pt20 { padding-top: 20px; }
 .pb20 { padding-bottom: 20px; }
 
-
+.mw700 {
+  max-width: 700px;
+}
 @keyframes spin {
   from {transform:rotate(0deg);}
   to {transform:rotate(360deg);}

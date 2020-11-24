@@ -493,12 +493,18 @@ app.on('second-instance', (event, argv, cwd) => {
 });
 
 function createWindow() {
-  registerDappyProtocol(session.defaultSession, store.getState);
-  overrideHttpProtocols(session.defaultSession, store.getState, development);
   setInterval(() => {
     wsCron(store.getState, dispatchFromMain);
   }, WS_RECONNECT_PERIOD);
   browserViewsMiddleware(store, dispatchFromMain);
+
+  /*
+    CAREFUL
+    Partition is the cold storage identifier on the OS where dappy is installed,
+    changing this will remove everything that is in dappy localStorage
+    PRIVATE KEYS LOST, ACCOUNTS LOST, TABS LOST etc.....
+  */
+  const partition = `persist:dappy0.3.0`;
 
   // Create the browser window.
   browserWindow = new BrowserWindow({
@@ -506,7 +512,7 @@ function createWindow() {
     height: 800,
     // frame: false,
     webPreferences: {
-      partition: `persist:dappy0.3.0`,
+      partition: partition,
       sandbox: true,
       nodeIntegration: false,
       preload: development
@@ -514,6 +520,14 @@ function createWindow() {
         : path.join(app.getAppPath(), 'dist/preload.js'),
     },
   });
+  registerDappyProtocol(session.fromPartition(partition), store.getState);
+  overrideHttpProtocols(
+    session.fromPartition(partition),
+    store.getState,
+    development,
+    dispatchFromMain,
+    true
+  );
 
   browserWindow.setMenuBarVisibility(false);
 

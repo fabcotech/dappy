@@ -14,6 +14,27 @@ interface RootProps {
 
 export class RootComponent extends React.Component<RootProps, {}> {
   state = {};
+  testSentry = 0;
+
+  componentWillUnmount() {
+    document.removeEventListener('keypress', this.sentryTestListener);
+  }
+
+  componentDidMount() {
+    document.addEventListener('keypress', this.sentryTestListener);
+  }
+
+  sentryTestListener = (e: KeyboardEvent) => {
+    if (e.key === 't') {
+      this.testSentry += 1;
+    } else {
+      this.testSentry = 0;
+    }
+    if (this.testSentry === 40) {
+      this.props.navigate.testSentry.testSentry;
+      this.testSentry = 0;
+    }
+  }
 
   render() {
     return (

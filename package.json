@@ -42,7 +42,7 @@
     "trailingComma": "es5"
   },
   "dependencies": {
-    "@sentry/browser": "^5.14.1",
+    "@sentry/browser": "^5.27.6",
     "@types/ws": "^6.0.3",
     "ajv": "^6.10.2",
     "beesjs": "fabcotech/beesjs",

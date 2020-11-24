@@ -13,7 +13,8 @@ let httpErrorServerUrl = undefined;
 export const overrideHttpProtocols = (
   session: Session, getState,
   development: boolean,
-  dispatchFromMain: (a: any) => void
+  dispatchFromMain: (a: any) => void,
+  allowSentry: boolean
 ) => {
   
   // debug
@@ -101,29 +102,33 @@ export const overrideHttpProtocols = (
       todo, forbid third party apps from talking to sentry.io without authorization
       check the User-Agent to see if it is legit (it should be the User-Agent of main process)
       */
-    if (request.url.startsWith('https://sentry.io')) {
-      try {
-        const options = {
-          method: request.method,
-          host: 'sentry.io',
-          port: 443,
-          rejectUnauthorized: true,
-          path: request.url.replace('https://sentry.io', '') || '/',
-          headers: request.headers,
-        };
-        https
-          .request(options, (resp) => {
-            callback(resp);
-          })
-          .on('error', (er) => {
-            console.log(er);
-          })
-          .end(request.uploadData[0].bytes.toString('utf8'));
-        return;
-      } catch (err) {
-        console.log(err);
-        return;
+     console.log('allowSentry', allowSentry, request.url)
+    if (allowSentry === true) {
+      if (request.url.startsWith('https://sentry.io')) {
+        try {
+          const options = {
+            method: request.method,
+            host: 'sentry.io',
+            port: 443,
+            rejectUnauthorized: true,
+            path: request.url.replace('https://sentry.io', '') || '/',
+            headers: request.headers,
+          };
+          https
+            .request(options, (resp) => {
+              callback(resp);
+            })
+            .on('error', (er) => {
+              console.log(er);
+            })
+            .end(request.uploadData[0].bytes.toString('utf8'));
+          return;
+        } catch (err) {
+          console.log(err);
+          return;
+        }
       }
+
     }
 
     let randomId = '';

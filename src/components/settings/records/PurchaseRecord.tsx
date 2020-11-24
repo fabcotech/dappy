@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import rchainNames from 'rchain-names';
 
 import './RecordsForm.scss';
-import { Record, TransactionState, RChainInfos, Account, IPServer, PartialRecord } from '../../../models';
+import { Record, TransactionState, RChainInfos, Account, IPServer, PartialRecord, TransactionStatus } from '../../../models';
 import { blockchain as blockchainUtils } from '../../../utils';
 import * as fromBlockchain from '../../../store/blockchain';
 import { TransactionForm } from '../../utils';
@@ -18,6 +18,14 @@ interface PurchaseRecordProps {
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
 }
 
+const defaultState = {
+  privatekey: '',
+  publickey: '',
+  phloLimit: 0,
+  settingUpIpServers: false,
+  partialRecord: undefined,
+};
+
 export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
   constructor(props: PurchaseRecordProps) {
     super(props);
@@ -32,13 +40,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
     phloLimit: number;
     settingUpIpServers: boolean;
     partialRecord: PartialRecord | undefined;
-  } = {
-    privatekey: '',
-    publickey: '',
-    phloLimit: 0,
-    settingUpIpServers: false,
-    partialRecord: undefined,
-  };
+  } = defaultState;
 
   transactionId = '';
 
@@ -103,24 +105,8 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
       platform: 'rchain',
       blockchainId: (this.props.namesBlockchainInfos as RChainInfos).chainId,
       id: id,
-      alert: true,
+      alert: false,
       sentAt: new Date().toISOString(),
-    });
-  };
-
-  transactionFilled = () => {
-    return this.state.privatekey && this.state.publickey && this.state.phloLimit;
-  };
-
-  onToggleSetupIpServers = () => {
-    this.setState({
-      settingUpIpServers: !this.state.settingUpIpServers,
-    });
-  };
-
-  onSetIpServers = (a: IPServer[]) => {
-    this.setState({
-      ipServers: a,
     });
   };
 
@@ -136,6 +122,30 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
             }}></p>
         </Fragment>
       );
+    }
+
+    if (
+      this.transactionId &&
+      this.props.transactions[this.transactionId] &&
+      this.props.transactions[this.transactionId].status === TransactionStatus.Aired
+    ) {
+      return (
+        <Fragment>
+          <h3 className="subtitle is-4">{t('purchase a name')}</h3>
+          <p className="smaller-text">
+            ✓ Transaction was successfully sent to the blockchain. Your name should appear in ten or twenty minutes
+            after the transaction is processed, and the new name indexed by network members.
+          </p>
+          <br />
+          <br />
+          <button type="button" className="button is-light" onClick={() => {
+            this.transactionId = '';
+            this.setState(defaultState);
+          }}>
+            {t('ok go back')}
+          </button>
+        </Fragment>
+      )
     }
 
     return (

@@ -20,6 +20,15 @@ interface UpdateRecordProps {
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
 }
 
+const defaultState = {
+  privatekey: '',
+  publickey: '',
+  phloLimit: 0,
+  name: '',
+  record: undefined,
+  newRecord: undefined,
+};
+
 export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
   constructor(props: UpdateRecordProps) {
     super(props);
@@ -35,16 +44,8 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
     name: string;
     record: PartialRecord | undefined;
     newRecord: PartialRecord | undefined;
-  } = {
-    privatekey: '',
-    publickey: '',
-    phloLimit: 0,
-    name: '',
-    record: undefined,
-    newRecord: undefined,
-  };
+  } = defaultState;
 
-  publickey = '';
   transactionId = '';
   exists: Record | undefined = undefined;
 
@@ -118,7 +119,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
       platform: 'rchain',
       blockchainId: (this.props.namesBlockchainInfos as RChainInfos).chainId,
       id: id,
-      alert: true,
+      alert: false,
       sentAt: new Date().toISOString(),
     });
   };
@@ -137,22 +138,35 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
       );
     }
 
-    if (
-      this.transactionId &&
-      this.props.transactions[this.transactionId] &&
-      this.props.transactions[this.transactionId].status === TransactionStatus.Aired
-    ) {
-      this.transactionId = '';
-      this.setState({
-        name: '',
-        record: undefined,
-      });
+    if (this.transactionId && this.props.transactions[this.transactionId] && this.props.transactions[this.transactionId]) {
+      return (
+        <Fragment>
+          <h3 className="subtitle is-4">{t('update a name')}</h3>
+          <p className="smaller-text">
+            ✓ Transaction was successfully sent to the blockchain. Your name should update in ten or twenty minutes
+            after the transaction is processed, and the new name indexed by network members.
+          </p>
+          <br />
+          <br />
+          <button type="button" className="button is-light" onClick={() => {
+            this.transactionId = '';
+            this.setState(defaultState);
+          }}>
+            {t('ok go back')}
+          </button>
+        </Fragment>
+      )
     }
 
     return (
       <Fragment>
         <h3 className="subtitle is-4">{t('update a name')}</h3>
         <p className="smaller-text">{t('update name paragraph')}</p>
+        <br />
+        <p className="smaller-text">
+          You can't update the same name many times in a short period of time,
+          wait for each update to appear before making new updates.
+        </p>
         <br />
         <TransactionForm accounts={this.props.accounts} filledTransactionData={this.onFilledTransactionData} />
         <br />
@@ -210,12 +224,18 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
               partialRecord={this.state.record}
               filledRecord={(a) => this.setState({ newRecord: a })}></RecordForm>
           )}
-          <button
-            onClick={this.onSubmit}
-            className="button is-link"
-            disabled={!this.state.newRecord || !this.state.privatekey}>
-            {t('update name')}
-          </button>
+          <form>
+            <div className="field is-horizontal is-grouped pt20">
+              <div className="control">
+                <button
+                  onClick={this.onSubmit}
+                  className="button is-link"
+                  disabled={!this.state.newRecord || !this.state.privatekey}>
+                  {t('update name')}
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
       </Fragment>
     );
