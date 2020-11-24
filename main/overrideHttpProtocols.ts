@@ -102,7 +102,6 @@ export const overrideHttpProtocols = (
       todo, forbid third party apps from talking to sentry.io without authorization
       check the User-Agent to see if it is legit (it should be the User-Agent of main process)
       */
-     console.log('allowSentry', allowSentry, request.url)
     if (allowSentry === true) {
       if (request.url.startsWith('https://sentry.io')) {
         try {

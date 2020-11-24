@@ -6,6 +6,7 @@ interface MenuMobileComponentProps {
   dappsListDisplay: number;
   isNavigationInDapps: boolean;
   isNavigationInSettings: boolean;
+  isNavigationInAccounts: boolean;
   isNavigationInDeploy: boolean;
   isNavigationInTransactions: boolean;
   isBeta: boolean;
@@ -71,9 +72,17 @@ class MenuMobileComponent extends React.Component<MenuMobileComponentProps, {}> 
             </li>
             <li>
               <a
+                className={this.props.isNavigationInAccounts ? 'is-active' : ''}
+                onClick={() => this.onCollapseMobileMenuAndNavigate('/accounts')}>
+                <i className="fa fa-money-check fa-before" />
+                {t('menu accounts')}
+              </a>
+            </li>
+            <li>
+              <a
                 className={this.props.isNavigationInDeploy ? 'is-active' : ''}
                 onClick={() => this.onCollapseMobileMenuAndNavigate('/deploy/dapp')}>
-                <i className="fa fa-wrench fa-before" />
+                <i className="fa fa-angle-double-up fa-before" />
                 {t('menu deploy')}
               </a>
             </li>

@@ -7,6 +7,7 @@ import * as fromMain from '../store/main';
 import { Dapps } from './dapps';
 import { Root as DeployRoot } from './deploy';
 import { Root as SettingsRoot } from './settings';
+import { Root as AccountsRoot } from './accounts';
 import { Root as TransactionsRoot } from './transactions';
 import { Menu } from './Menu';
 import { Modal } from './utils';
@@ -22,6 +23,7 @@ interface RootComponentProps {
   language: Language;
   isNavigationInDapps: boolean;
   isNavigationInSettings: boolean;
+  isNavigationInAccounts: boolean;
   isNavigationInTransactions: boolean;
   isNavigationInDeploy: boolean;
   isBeta: boolean;
@@ -76,6 +78,7 @@ class RootComponent extends React.Component<RootComponentProps, {}> {
           toggleMenuCollapsed={this.props.toggleMenuCollapsed}
           isNavigationInDapps={this.props.isNavigationInDapps}
           isNavigationInSettings={this.props.isNavigationInSettings}
+          isNavigationInAccounts={this.props.isNavigationInAccounts}
           isNavigationInDeploy={this.props.isNavigationInDeploy}
           isNavigationInTransactions={this.props.isNavigationInTransactions}
           isMobile={this.props.isMobile}
@@ -87,6 +90,11 @@ class RootComponent extends React.Component<RootComponentProps, {}> {
         <div className="root-right">
           {this.props.isNavigationInSettings ? (
             <SettingsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
+          ) : (
+            undefined
+          )}
+          {this.props.isNavigationInAccounts ? (
+            <AccountsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
           ) : (
             undefined
           )}
@@ -109,6 +117,7 @@ export const Root = connect(
     menuCollapsed: fromUi.getMenuCollapsed(state),
     isNavigationInDapps: fromUi.getIsNavigationInDapps(state),
     isNavigationInSettings: fromUi.getIsNavigationInSettings(state),
+    isNavigationInAccounts: fromUi.getIsNavigationInAccounts(state),
     isNavigationInTransactions: fromUi.getIsNavigationInTransactions(state),
     isNavigationInDeploy: fromUi.getIsNavigationInDeploy(state),
     navigationUrl: fromUi.getNavigationUrl(state),

@@ -8,6 +8,7 @@ interface MenuComponentProps {
   menuCollapsed: boolean;
   isNavigationInDapps: boolean;
   isNavigationInSettings: boolean;
+  isNavigationInAccounts: boolean;
   isNavigationInDeploy: boolean;
   isNavigationInTransactions: boolean;
   isBeta: boolean;
@@ -29,6 +30,7 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
           isBeta={this.props.isBeta}
           isNavigationInDapps={this.props.isNavigationInDapps}
           isNavigationInSettings={this.props.isNavigationInSettings}
+          isNavigationInAccounts={this.props.isNavigationInAccounts}
           isNavigationInDeploy={this.props.isNavigationInDeploy}
           isNavigationInTransactions={this.props.isNavigationInTransactions}
           navigate={this.props.navigate}
@@ -60,6 +62,13 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
                 className={this.props.isNavigationInSettings ? 'is-active' : ''}
                 onClick={() => this.props.navigate('/settings')}>
                 <i className="fa fa-wrench fa-before" />
+              </a>
+            </li>
+            <li>
+              <a
+                className={this.props.isNavigationInAccounts ? 'is-active' : ''}
+                onClick={() => this.props.navigate('/accounts')}>
+                <i className="fa fa-money-check fa-before" />
               </a>
             </li>
             <li>
@@ -116,6 +125,14 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
               onClick={() => this.props.navigate('/settings')}>
               <i className="fa fa-wrench fa-before" />
               {t('menu settings')}
+            </a>
+          </li>
+          <li>
+            <a
+              className={this.props.isNavigationInAccounts ? 'is-active' : ''}
+              onClick={() => this.props.navigate('/accounts')}>
+              <i className="fa fa-money-check fa-before" />
+              {t('menu accounts')}
             </a>
           </li>
           <li>

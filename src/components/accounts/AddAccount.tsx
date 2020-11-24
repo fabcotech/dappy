@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
 import './Accounts.scss';
-import { Account } from '../../../models';
-import * as fromSettings from '../../../store/settings';
+import { Account } from '../../models';
+import * as fromSettings from '../../store/settings';
 import { AccountForm } from './AccountForm';
 
 interface AddAccountsProps {

@@ -35,6 +35,9 @@
     }
 
     // Only .dapps can be displayed behind one of the other main sections
+    & > .accounts {
+      z-index: 5;
+    }
     & > .settings {
       z-index: 2;
     }

@@ -5,7 +5,6 @@ import { Blockchains } from './blockchain';
 import { Root as RecordsRoot } from './records/';
 import { NavigationUrl } from '../../models';
 import './Root.scss';
-import { Accounts } from './accounts';
 
 interface RootProps {
   navigationUrl: NavigationUrl;
@@ -45,9 +44,6 @@ export class RootComponent extends React.Component<RootProps, {}> {
             <li className={this.props.navigationUrl === '/settings' ? 'is-active' : ''}>
               <a onClick={() => this.props.navigate('/settings')}>{t('menu settings')}</a>
             </li>
-            <li className={this.props.navigationUrl === '/settings/accounts' ? 'is-active' : ''}>
-              <a onClick={() => this.props.navigate('/settings/accounts')}>{t('menu accounts')}</a>
-            </li>
             <li className={this.props.navigationUrl === '/settings/blockchains' ? 'is-active' : ''}>
               <a onClick={() => this.props.navigate('/settings/blockchains')}>{t('menu networks')}</a>
             </li>
@@ -71,7 +67,6 @@ export class RootComponent extends React.Component<RootProps, {}> {
         )}
         {this.props.navigationUrl === '/settings/blockchains' ? <Blockchains /> : undefined}
         {this.props.navigationUrl === '/settings/names' ? <RecordsRoot /> : undefined}
-        {this.props.navigationUrl === '/settings/accounts' ? <Accounts /> : undefined}
       </div>
     );
   }

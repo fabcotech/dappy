@@ -10,7 +10,7 @@ export const uiSchema = yup
     navigationUrl: yup
       .string()
       .matches(
-        /\/settings\/blockchain|\/settings|\/|\/dapps|\/settings\/names|\/dev\/manifest|transactions|\/deploy\/dapps|\/deploy\/file-upload|\/deploy\/rholang/
+        /\/settings\/blockchain|\/settings|\/|\/dapps|\/settings\/names|\/dev\/manifest|transactions|\/deploy\/dapps|\/deploy\/file-upload|\/deploy\/rholang|\/accounts/
       )
       .required()
       .strict(true),

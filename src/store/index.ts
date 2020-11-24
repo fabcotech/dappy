@@ -214,6 +214,9 @@ dbReq.onsuccess = event => {
     validateUi(ui)
       .then(() => {
         asyncActionsOver += 1;
+        if (ui.navigationUrl === '/settings/accounts') {
+          ui.navigationUrl = '/accounts';
+        }
         store.dispatch(fromUi.updateUiFromStorageAction({ uiState: ui }));
         dispatchInitActions();
       })

@@ -3,10 +3,10 @@ import { Formik, Field } from 'formik';
 import * as elliptic from 'elliptic';
 import * as rchainToolkit from 'rchain-toolkit';
 
-import { Account } from '../../../models';
-import { account as accountUtils } from '../../../utils/account';
+import { Account } from '../../models';
+import { account as accountUtils } from '../../utils/account';
 import './AccountForm.scss';
-import { PrivateKeyWarning } from '../../utils';
+import { PrivateKeyWarning } from '../utils';
 
 const ec = new elliptic.ec('secp256k1');
 

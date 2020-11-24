@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
 import './Accounts.scss';
-import { Account, Blockchain } from '../../../models';
-import * as fromSettings from '../../../store/settings';
-import * as fromMain from '../../../store/main';
-import * as fromCommon from '../../../common';
+import { Account, Blockchain } from '../../models';
+import * as fromSettings from '../../store/settings';
+import * as fromMain from '../../store/main';
+import * as fromCommon from '../../common';
 import { AddAccount } from './AddAccount';
-import { LOGREV_TO_REV_RATE } from '../../../CONSTANTS';
+import { LOGREV_TO_REV_RATE } from '../../CONSTANTS';
 
 interface AccountsProps {
   accounts: { [name: string]: Account };

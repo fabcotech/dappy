@@ -123,6 +123,10 @@ export const getIsNavigationInSettings = createSelector(getNavigationUrl, naviga
   navigationUrl.startsWith('/settings')
 );
 
+export const getIsNavigationInAccounts = createSelector(getNavigationUrl, navigationUrl =>
+  navigationUrl.startsWith('/accounts')
+);
+
 export const getIsNavigationInDapps = createSelector(
   getNavigationUrl,
   navigationUrl => navigationUrl === '/' || navigationUrl.startsWith('/dapps')

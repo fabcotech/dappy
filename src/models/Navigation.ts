@@ -2,7 +2,7 @@ export type NavigationUrl =
   | '/settings'
   | '/settings/blockchains'
   | '/settings/names'
-  | '/settings/accounts'
+  | '/accounts'
   | '/deploy/file-upload'
   | '/deploy/dapp'
   | '/deploy/rholang'
