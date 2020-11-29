@@ -1,4 +1,5 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
+import { readBagOrTokenDataTerm } from 'rchain-token-files';
 
 import { multiCall } from '../../../utils/wsUtils';
 import { MultiCallResult } from '../../../models/WebSocket';
@@ -8,7 +9,6 @@ import * as fromBlockchain from '../../blockchain';
 import * as fromMain from '../../main';
 import { blockchain as blockchainUtils } from '../../../utils/blockchain';
 import { splitSearch } from '../../../utils/splitSearch';
-import { rholangFilesModuleResourceTerm } from '../../../utils/rholangFilesModuleResourceTerm';
 import { validateSearch } from '../../../utils/validateSearch';
 import { getNodeIndex } from '../../../utils/getNodeIndex';
 import { validateBlockchainResponse } from '../../../utils/validateBlockchainResponse';
@@ -303,10 +303,11 @@ const loadResource = function* (action: Action) {
       {
         type: 'explore-deploy',
         body: {
-          term: rholangFilesModuleResourceTerm(
+          term: readBagOrTokenDataTerm(
             registryUri.split('.')[0],
+            "bags",
             searchSplitted.search.split('.')[1] || 'index'
-          ),
+          )
         },
       },
       {

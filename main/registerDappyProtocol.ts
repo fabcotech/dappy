@@ -1,5 +1,6 @@
 import { Session } from 'electron';
 import zlib from 'zlib';
+import { readBagOrTokenDataTerm } from 'rchain-token-files';
 
 import { performMultiRequest } from './performMultiRequest';
 import * as fromConnections from './store/connections';
@@ -9,7 +10,6 @@ import * as fromMainBrowserViews from './store/browserViews';
 
 import { LoadError, DappyFile } from '../src/models';
 import { validateFile } from '../src/store/decoders/Dpy';
-import { rholangFilesModuleResourceTerm } from '../src/utils/rholangFilesModuleResourceTerm';
 import { getNodeIndex } from '../src/utils/getNodeIndex';
 import { validateSearchWithProtocol, validateShortcutSearchWithProtocol } from '../src/utils/validateSearch';
 
@@ -89,13 +89,21 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
           .filter((a) => !!a)
           .map((u) => {
             return {
-              term: rholangFilesModuleResourceTerm(u.split('.')[0], u.split('.')[1]),
+              term: readBagOrTokenDataTerm(
+                u.split('.')[0],
+                "bags",
+                u.split('.')[1]
+              )
             };
           });
       } else {
         type = 'explore-deploy';
         query = {
-          term: rholangFilesModuleResourceTerm(split[1].split('.')[0], split[1].split('.')[1]),
+          term: readBagOrTokenDataTerm(
+            split[1].split('.')[0],
+            "bags",
+            split[1].split('.')[1]
+          )
         };
       }
 

@@ -77,7 +77,6 @@ export interface PredefinedDapp {
   js: string;
   css: string;
   html: string;
-  pushFileTerm?: string;
 }
 
 export interface DappFromNetwork {

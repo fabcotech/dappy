@@ -208,7 +208,6 @@ export interface SendRChainTransactionWithFilePayload {
     mimeType: string;
     name: string;
   };
-  pushFileTerm?: string;
   fileAsBase64?: string;
   encrypted: string;
   publicKey: string;

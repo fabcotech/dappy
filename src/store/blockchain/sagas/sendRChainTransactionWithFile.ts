@@ -1,13 +1,16 @@
 import { takeEvery, put, select } from 'redux-saga/effects';
 import zlib from 'zlib';
 import * as rchainToolkit from 'rchain-toolkit';
+import {
+  readBagOrTokenDataTerm,
+  mainTerm,
+  createTokensTerm,
+} from 'rchain-token-files';
 
 import { Blockchain, TransactionStatus, BlockchainNode, MultiCallResult, MultiCallError } from '../../../models';
 import * as fromBlockchain from '..';
 import { account as accountUtils } from '../../../utils/account';
-import { rholangFilesModuleTerm } from '../../../utils/rholangFilesModuleTerm';
 import { getNodeIndex } from '../../../utils/getNodeIndex';
-import { rholangFilesModuleResourceTerm } from '../../../utils/rholangFilesModuleResourceTerm';
 import { generateNonce } from '../../../utils/generateNonce';
 import { generateSignatureForNonce } from '../../../utils/generateSignatureForNonce';
 import { blockchain as blockchainUtils } from '../../../utils/blockchain';
@@ -18,8 +21,6 @@ import * as fromSettings from '../../settings';
 import { singleCall } from '../../../utils/wsUtils';
 import { Settings } from '../../settings';
 import { buildUnforgeableNameQuery } from '../../../utils/buildUnforgeableNameQuery';
-import { rhoValToJs } from 'rchain-toolkit/dist/utils';
-import { rholangFilesModuleAddResourceTerm } from '../../../utils/rholangFilesModuleAddResourceTerm';
 import { validateBlockchainResponse } from '../../../utils/validateBlockchainResponse';
 
 const sendRChainTransactionWithFile = function* (action: Action) {
@@ -117,21 +118,39 @@ const sendRChainTransactionWithFile = function* (action: Action) {
 
   let term;
 
-  const fileIsIncludedInFIrstDeploy = !payload.pushFileTerm && !!payload.fileAsBase64;
+  const fileIsIncludedInFirstDeploy = !!payload.fileAsBase64;
 
-  if (payload.pushFileTerm) {
-    term = payload.pushFileTerm;
-  } else if (payload.fileAsBase64) {
+  const bagId = "index";
+  if (payload.fileAsBase64) {
     /*
       If file is already provided, include it in the files module
       deployment, there is no need for 2 steps (2 deploys)
     */
-    term = rholangFilesModuleTerm(payload.publicKey, generateNonce(), {
-      fileId: 'index',
-      fileAsBase64: payload.fileAsBase64,
-    });
+    term = mainTerm(
+      generateNonce(),
+      payload.publicKey
+    ).replace(
+      '/*DEFAULT_BAGS*/',
+      `{
+        "${bagId}": {
+          "n": "0",
+          "publicKey": "${payload.publicKey}",
+          "price": Nil,
+          "quantity": 1,
+        }
+      }`
+      ).replace(
+        '/*DEFAULT_BAGS_DATA*/',
+        `{
+          "${bagId}": "${payload.fileAsBase64}"
+        }`
+      );
+
   } else {
-    term = rholangFilesModuleTerm(payload.publicKey, generateNonce());
+    term = mainTerm(
+      generateNonce(),
+      payload.publicKey
+    );
   }
 
   while (term.indexOf('NONCE') !== -1) {
@@ -156,7 +175,6 @@ const sendRChainTransactionWithFile = function* (action: Action) {
       origin: { origin: 'deploy' },
       platform: 'rchain',
       blockchainId: payload.blockchainId,
-      postProcess: undefined,
       id: payload.id,
       alert: true,
       sentAt: new Date().toISOString(),
@@ -267,19 +285,19 @@ const sendRChainTransactionWithFile = function* (action: Action) {
     return;
   }
   clearInterval(interval);
-  const jsValue = rhoValToJs(dataAtNameResponseExpr);
+  const jsValue = rchainToolkit.utils.rhoValToJs(dataAtNameResponseExpr);
 
   /*
     If file is already included, it has been uplaoded already
     no need to replace values
   */
-  if (fileIsIncludedInFIrstDeploy) {
+  if (fileIsIncludedInFirstDeploy) {
     yield put(
       fromBlockchain.updateRChainTransactionStatusAction({
         id: payload.id,
         status: TransactionStatus.Completed,
         value: {
-          address: `${jsValue.registryUri.replace('rho:id:', '')}.index`,
+          address: `${jsValue.registryUri.replace('rho:id:', '')}.${bagId}`,
         },
       })
     );
@@ -306,7 +324,7 @@ const sendRChainTransactionWithFile = function* (action: Action) {
   let fileWithReplacedValues = payload.data.file
     .replace(new RegExp('REGISTRY_URI', 'g'), jsValue.registryUri.replace('rho:id:', ''))
     .replace(new RegExp('PUBLIC_KEY', 'g'), payload.publicKey)
-    .replace(new RegExp('FULL_ADDRESS', 'g'), `${jsValue.registryUri.replace('rho:id:', '')}.${'index'}`)
+    .replace(new RegExp('FULL_ADDRESS', 'g'), `${jsValue.registryUri.replace('rho:id:', '')}.${bagId}`)
     .replace(new RegExp('REV_ADDRESS', 'g'), rchainToolkit.utils.revAddressFromPublicKey(payload.publicKey));
 
   while (fileWithReplacedValues.indexOf('NONCE') !== -1) {
@@ -315,20 +333,41 @@ const sendRChainTransactionWithFile = function* (action: Action) {
   }
 
   const htmlAsBase64 = blockchainUtils.createBase64(fileWithReplacedValues);
-  const signature = blockchainUtils.createSignature(htmlAsBase64, payload.data.mimeType, payload.data.name, privateKey);
-  const fileAsString = blockchainUtils.createDpy(htmlAsBase64, payload.data.mimeType, payload.data.name, signature);
+  const fileSignature = blockchainUtils.createSignature(htmlAsBase64, payload.data.mimeType, payload.data.name, privateKey);
+  const fileAsString = blockchainUtils.createDpy(htmlAsBase64, payload.data.mimeType, payload.data.name, fileSignature);
   const fileAsBase64 = zlib.gzipSync(fileAsString).toString('base64');
 
   let timestamp2 = timestamp + 1;
 
+  const newNonce = generateNonce();
+  const bagNonce = generateNonce();
+  const payloadForSignature = {
+    nonce: jsValue.nonce,
+    bagNonce: bagNonce,
+    publicKey: payload.publicKey,
+    data: encodeURI(fileAsBase64),
+    newBagId: bagId,
+    n: '0',
+    newNonce: newNonce,
+    price: undefined,
+    quantity: 1,
+  }
+
+  const ba = rchainToolkit.utils.objectToByteArray(payloadForSignature);
+  const payloadSignature = generateSignatureForNonce(ba, privateKey);
   const deployOptions2 = blockchainUtils.rchain.getDeployOptions(
     timestamp2,
-    rholangFilesModuleAddResourceTerm(
-      jsValue.registryUri,
-      'index',
-      fileAsBase64,
-      generateSignatureForNonce(jsValue.nonce, privateKey),
-      generateNonce()
+    createTokensTerm(
+      jsValue.registryUri.replace('rho:id:', ''),
+      payloadSignature,
+      newNonce,
+      bagNonce,
+      bagId,
+      payload.publicKey,
+      '0',
+      undefined,
+      1,
+      fileAsBase64
     ),
     privateKey,
     payload.publicKey,
@@ -346,7 +385,6 @@ const sendRChainTransactionWithFile = function* (action: Action) {
       origin: { origin: 'deploy' },
       platform: 'rchain',
       blockchainId: payload.blockchainId,
-      postProcess: undefined,
       id: id2,
       alert: false,
       sentAt: new Date().toISOString(),
@@ -362,7 +400,7 @@ const sendRChainTransactionWithFile = function* (action: Action) {
   } catch (err) {
     yield put(
       fromBlockchain.rChainTransactionErrorAction({
-        id: payload.id,
+        id: id2,
         error: err.message || err,
         alert: payload.alert,
       })
@@ -407,7 +445,11 @@ const sendRChainTransactionWithFile = function* (action: Action) {
             {
               type: 'explore-deploy',
               body: {
-                term: rholangFilesModuleResourceTerm(jsValue.registryUri.replace('rho:id:', ''), 'index'),
+                term: readBagOrTokenDataTerm(
+                  jsValue.registryUri.replace('rho:id:', ''),
+                  "bags",
+                  bagId
+                )
               },
             },
             {
@@ -461,13 +503,13 @@ const sendRChainTransactionWithFile = function* (action: Action) {
   }
 
   clearInterval(interval2);
-  const jsValue2 = rhoValToJs(exploreDeployResponseExpr);
+  const jsValue2 = rchainToolkit.utils.rhoValToJs(exploreDeployResponseExpr);
 
   yield put(
     fromBlockchain.updateRChainTransactionStatusAction({
       id: id2,
       status: TransactionStatus.Completed,
-      value: { address: `${jsValue.registryUri.replace('rho:id:', '')}.index` },
+      value: { address: `${jsValue.registryUri.replace('rho:id:', '')}.${bagId}` },
     })
   );
 

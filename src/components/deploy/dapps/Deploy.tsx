@@ -22,7 +22,6 @@ export interface PartialManifest {
   js: string;
   css: string;
   html: string;
-  pushFileTerm?: string;
 }
 
 export class Deploy extends React.Component<DeployProps, {}> {
@@ -67,7 +66,7 @@ export class Deploy extends React.Component<DeployProps, {}> {
     }
   };
 
-  onFilledManifestData = (t: { js: string; css: string; html: string; pushFileTerm?: string; publickey: string }) => {
+  onFilledManifestData = (t: { js: string; css: string; html: string; publickey: string }) => {
     const variables: Variables = {
       js: manifestUtils.getMatchesInAssets(t.js || ''),
       css: manifestUtils.getMatchesInAssets(t.css || ''),
@@ -76,13 +75,13 @@ export class Deploy extends React.Component<DeployProps, {}> {
 
     if (variables.js.length || variables.css.length || variables.html.length) {
       this.setState({
-        manifest: { js: t.js, css: t.css, html: t.html, pushFileTerm: t.pushFileTerm },
+        manifest: { js: t.js, css: t.css, html: t.html },
         variables: variables,
         step: 2,
       });
     } else {
       this.setState({
-        manifest: { js: t.js, css: t.css, html: t.html, pushFileTerm: t.pushFileTerm },
+        manifest: { js: t.js, css: t.css, html: t.html },
         manifestWithVariables: { js: t.js, css: t.css, html: t.html },
         step: 3,
       });
@@ -177,7 +176,6 @@ export class Deploy extends React.Component<DeployProps, {}> {
           mimeType: mimeType,
           name: name,
         },
-        pushFileTerm: this.state.manifest ? this.state.manifest.pushFileTerm : '',
         encrypted: accountUtils.encrypt(this.state.privatekey, passwordBytes),
         publicKey: this.state.publickey,
         phloLimit: this.state.phloLimit,
@@ -187,6 +185,7 @@ export class Deploy extends React.Component<DeployProps, {}> {
         id: id,
         alert: true,
         sentAt: new Date().toISOString(),
+        fileAsBase64: undefined,
       });
     } catch (err) {
       console.log(err);

@@ -1,4 +1,3 @@
-import { ResolverMode } from '../models';
 import { MultiCallBody, MultiCallParameters, MultiCallResult, SingleCallParameters } from '../models/WebSocket';
 
 export const singleCall = (body: { [key: string]: any }, parameters: SingleCallParameters) => {

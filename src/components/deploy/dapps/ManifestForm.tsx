@@ -19,7 +19,7 @@ interface ManifestFormState {
 interface ManifestFormProps {
   back?: () => void;
   manifest?: undefined | PartialManifest;
-  filledManifestData: (t: { js: string; css: string; html: string; pushFileTerm?: string; publickey: string }) => void;
+  filledManifestData: (t: { js: string; css: string; html: string; publickey: string }) => void;
   openModal: (t: fromMain.OpenModalPayload) => void;
 }
 
@@ -143,7 +143,6 @@ const FormPredefinedManifestComponent = (props: any) => (
                   props.setFieldValue('jsLibraries', dapp.jsLibraries);
                   props.setFieldValue('js', dapp.js);
                   props.setFieldValue('html', dapp.html);
-                  props.setFieldValue('pushFileTerm', dapp.pushFileTerm);
                   props.setFieldTouched('html');
                 }}>
                 <div className={`dapp-img dapp-${PREDEFINED_DAPPS[key].img}`} />
@@ -188,7 +187,6 @@ export class ManifestForm extends React.Component<ManifestFormProps, {}> {
       js: string;
       css: string;
       html: string;
-      pushFileTerm?: string;
     } = {
       publickey: '',
       jsLibraries: [],
@@ -236,7 +234,6 @@ export class ManifestForm extends React.Component<ManifestFormProps, {}> {
             js: values.js,
             css: values.css,
             html: dappHtml,
-            pushFileTerm: values.pushFileTerm,
             publickey: values.publickey,
           });
         }}

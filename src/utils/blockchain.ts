@@ -168,32 +168,6 @@ export const blockchain = {
         }
       }`;
     },
-    pushFileTerm: (publickey: string, htmlWithTags: string) => {
-      return `
-      new basket, file, publickey, verify, return, updateFile, fileUriCh, insertArbitrary(\`rho:registry:insertArbitrary\`), stdout(\`rho:io:stdout\`) in {
-        publickey!!("${publickey}") |
-        file!("${htmlWithTags}") |
-
-        contract updateFile(message, return) = {
-          for (current <- file; pk <- publickey) {
-            return!("success: file updated") |
-            file!(*message.get("file")) |
-            publickey!(*pk)
-          }
-        } |
-
-        insertArbitrary!(*updateFile, *fileUriCh) |
-
-        for (uri <- fileUriCh) {
-          basket!({
-            "registry_uri": *uri,
-            "unforgeable_name": *file
-          }) |
-          stdout!(*file)
-        }
-
-      }`;
-    },
   },
   transferFundsTerm: (from: string, to: string, amount: number) => {
     return `new
