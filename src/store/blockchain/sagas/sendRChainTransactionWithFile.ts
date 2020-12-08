@@ -1,18 +1,14 @@
 import { takeEvery, put, select } from 'redux-saga/effects';
 import zlib from 'zlib';
 import * as rchainToolkit from 'rchain-toolkit';
-import {
-  readBagOrTokenDataTerm,
-  mainTerm,
-  createTokensTerm,
-} from 'rchain-token-files';
+import { readBagOrTokenDataTerm, mainTerm, createTokensTerm } from 'rchain-token-files';
 
 import { Blockchain, TransactionStatus, BlockchainNode, MultiCallResult, MultiCallError } from '../../../models';
 import * as fromBlockchain from '..';
 import { account as accountUtils } from '../../../utils/account';
 import { getNodeIndex } from '../../../utils/getNodeIndex';
 import { generateNonce } from '../../../utils/generateNonce';
-import { generateSignatureForNonce } from '../../../utils/generateSignatureForNonce';
+import { generateSignature } from '../../../utils/generateSignature';
 import { blockchain as blockchainUtils } from '../../../utils/blockchain';
 import { multiCall } from '../../../utils/wsUtils';
 import * as fromMain from '../../main';
@@ -120,18 +116,16 @@ const sendRChainTransactionWithFile = function* (action: Action) {
 
   const fileIsIncludedInFirstDeploy = !!payload.fileAsBase64;
 
-  const bagId = "index";
+  const bagId = 'index';
   if (payload.fileAsBase64) {
     /*
       If file is already provided, include it in the files module
       deployment, there is no need for 2 steps (2 deploys)
     */
-    term = mainTerm(
-      generateNonce(),
-      payload.publicKey
-    ).replace(
-      '/*DEFAULT_BAGS*/',
-      `{
+    term = mainTerm(generateNonce(), payload.publicKey)
+      .replace(
+        '/*DEFAULT_BAGS*/',
+        `{
         "${bagId}": {
           "n": "0",
           "publicKey": "${payload.publicKey}",
@@ -139,18 +133,15 @@ const sendRChainTransactionWithFile = function* (action: Action) {
           "quantity": 1,
         }
       }`
-      ).replace(
+      )
+      .replace(
         '/*DEFAULT_BAGS_DATA*/',
         `{
           "${bagId}": "${payload.fileAsBase64}"
         }`
       );
-
   } else {
-    term = mainTerm(
-      generateNonce(),
-      payload.publicKey
-    );
+    term = mainTerm(generateNonce(), payload.publicKey);
   }
 
   while (term.indexOf('NONCE') !== -1) {
@@ -333,42 +324,42 @@ const sendRChainTransactionWithFile = function* (action: Action) {
   }
 
   const htmlAsBase64 = blockchainUtils.createBase64(fileWithReplacedValues);
-  const fileSignature = blockchainUtils.createSignature(htmlAsBase64, payload.data.mimeType, payload.data.name, privateKey);
+  const fileSignature = blockchainUtils.createSignature(
+    htmlAsBase64,
+    payload.data.mimeType,
+    payload.data.name,
+    privateKey
+  );
   const fileAsString = blockchainUtils.createDpy(htmlAsBase64, payload.data.mimeType, payload.data.name, fileSignature);
   const fileAsBase64 = zlib.gzipSync(fileAsString).toString('base64');
 
   let timestamp2 = timestamp + 1;
 
   const newNonce = generateNonce();
-  const bagNonce = generateNonce();
   const payloadForSignature = {
+    bags: {
+      [bagId]: {
+        nonce: generateNonce(),
+        price: null,
+        quantity: 1,
+        publicKey: payload.publicKey,
+        n: '0',
+      },
+    },
+    data: {
+      [bagId]: encodeURI(fileAsBase64),
+    },
     nonce: jsValue.nonce,
-    bagNonce: bagNonce,
-    publicKey: payload.publicKey,
-    data: encodeURI(fileAsBase64),
-    newBagId: bagId,
-    n: '0',
     newNonce: newNonce,
-    price: undefined,
-    quantity: 1,
-  }
+  };
+  console.log('payloadForSignature');
+  console.log(payloadForSignature);
 
-  const ba = rchainToolkit.utils.objectToByteArray(payloadForSignature);
-  const payloadSignature = generateSignatureForNonce(ba, privateKey);
+  const ba = rchainToolkit.utils.toByteArray(payloadForSignature);
+  const payloadSignature = generateSignature(ba, privateKey);
   const deployOptions2 = blockchainUtils.rchain.getDeployOptions(
     timestamp2,
-    createTokensTerm(
-      jsValue.registryUri.replace('rho:id:', ''),
-      payloadSignature,
-      newNonce,
-      bagNonce,
-      bagId,
-      payload.publicKey,
-      '0',
-      undefined,
-      1,
-      fileAsBase64
-    ),
+    createTokensTerm(jsValue.registryUri.replace('rho:id:', ''), payloadForSignature, payloadSignature),
     privateKey,
     payload.publicKey,
     1,
@@ -445,11 +436,7 @@ const sendRChainTransactionWithFile = function* (action: Action) {
             {
               type: 'explore-deploy',
               body: {
-                term: readBagOrTokenDataTerm(
-                  jsValue.registryUri.replace('rho:id:', ''),
-                  "bags",
-                  bagId
-                )
+                term: readBagOrTokenDataTerm(jsValue.registryUri.replace('rho:id:', ''), 'bags', bagId),
               },
             },
             {

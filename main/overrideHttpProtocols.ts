@@ -9,6 +9,7 @@ import * as fromMainBrowserViews from './store/browserViews';
 import { DappyBrowserView } from './models';
 
 let httpErrorServerUrl = undefined;
+const agents: { [key: string]: https.Agent } = {};
 
 export const overrideHttpProtocols = (
   session: Session, getState,
@@ -192,16 +193,19 @@ export const overrideHttpProtocols = (
       if (debug) console.log('[https load]', request.url, i);
       const s = serversWithSameHost[i];
       // See https://nodejs.org/docs/latest-v10.x/api/tls.html#tls_tls_createsecurecontext_options
-      const a = new https.Agent({
-        /* no dns */
-        host: s.ip,
-        rejectUnauthorized: false, // cert does not have to be signed by CA (self-signed)
-        cert: decodeURI(s.cert),
-        ca: [], // we don't want to rely on CA
-      });
+      if (!agents[`${s.ip}-${s.cert}`]) {
+        agents[`${s.ip}-${s.cert}`] = new https.Agent({
+          /* no dns */
+          host: s.ip,
+          rejectUnauthorized: false, // cert does not have to be signed by CA (self-signed)
+          cert: decodeURI(s.cert),
+          minVersion: 'TLSv1.2',
+          ca: [], // we don't want to rely on CA
+        });
+      }
 
       const options: https.RequestOptions = {
-        agent: a,
+        agent: agents[`${s.ip}-${s.cert}`],
         method: request.method,
         path: path ? `/${path}` : '/',
         headers: {

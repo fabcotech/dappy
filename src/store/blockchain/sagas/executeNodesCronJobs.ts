@@ -13,7 +13,6 @@ import { getNodeIndex } from '../../../utils/getNodeIndex';
 
 const executeNodesCronJobs = function* (action: Action) {
   const namesBlockchain: Blockchain | undefined = yield select(fromSettings.getNamesBlockchain);
-
   const t = new Date().getTime();
   try {
     if (!namesBlockchain) {

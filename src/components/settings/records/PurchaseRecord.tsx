@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
-import rchainNames from 'rchain-names';
+import { purchaseTokensTerm } from 'rchain-token-files';
 
 import './RecordsForm.scss';
-import { Record, TransactionState, RChainInfos, Account, IPServer, PartialRecord, TransactionStatus } from '../../../models';
+import { Record, TransactionState, RChainInfos, Account, PartialRecord, TransactionStatus } from '../../../models';
 import { blockchain as blockchainUtils } from '../../../utils';
 import * as fromBlockchain from '../../../store/blockchain';
 import { TransactionForm } from '../../utils';
@@ -59,34 +59,31 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
     const id = blockchainUtils.getUniqueTransactionId();
     this.transactionId = id;
 
-    const payload = blockchainUtils.rchain.buildNameTermPayload(
-      this.state.publickey,
-      partialRecord.name,
-      partialRecord.address ? partialRecord.address : undefined,
-      partialRecord.servers ? partialRecord.servers : [],
-      generateNonce()
-    );
-
-    let serversAsString = '[]';
-    if (partialRecord.servers) {
-      serversAsString = JSON.stringify({ servers: partialRecord.servers });
-      serversAsString = serversAsString.substr(11, serversAsString.length - 12);
-    }
-
-    const term = rchainNames.createNameTerm(
-      (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesRegistryUri,
-      generateNonce(),
-      partialRecord.name,
-      this.state.publickey,
-      serversAsString,
-      JSON.stringify(partialRecord.badges || {}),
-      partialRecord.address ? partialRecord.address : undefined,
-      1500000000
-    );
+    const term = purchaseTokensTerm((this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesRegistryUri, {
+      publicKey: this.state.publickey,
+      newBagId: partialRecord.name,
+      bagId: '0',
+      quantity: 1,
+      price: (this.props.namesBlockchainInfos as RChainInfos).info.namePrice,
+      bagNonce: generateNonce(),
+      data: Buffer.from(
+        JSON.stringify({
+          address: partialRecord.address,
+          badges: partialRecord.badges || {},
+          servers: partialRecord.servers || [],
+        }),
+        'utf8'
+      ).toString('hex'),
+    });
 
     let validAfterBlockNumber = 0;
     if ((this.props.namesBlockchainInfos as RChainInfos).info) {
       validAfterBlockNumber = (this.props.namesBlockchainInfos as RChainInfos).info.lastFinalizedBlockNumber;
+    }
+
+    let special = (this.props.namesBlockchainInfos as RChainInfos).info.special;
+    if (!special || !['special1'].includes(special.name)) {
+      special = undefined;
     }
 
     const deployOptions = blockchainUtils.rchain.getDeployOptions(
@@ -138,14 +135,17 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
           </p>
           <br />
           <br />
-          <button type="button" className="button is-light" onClick={() => {
-            this.transactionId = '';
-            this.setState(defaultState);
-          }}>
+          <button
+            type="button"
+            className="button is-light"
+            onClick={() => {
+              this.transactionId = '';
+              this.setState(defaultState);
+            }}>
             {t('ok go back')}
           </button>
         </Fragment>
-      )
+      );
     }
 
     return (
@@ -159,6 +159,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
           <div className="message-body">{t('dappy beta warning')}</div>
         </div>
         <RecordForm
+          special={(this.props.namesBlockchainInfos as RChainInfos).info.special}
           validateName
           nameDisabled={false}
           filledRecord={this.onFilledRecords}

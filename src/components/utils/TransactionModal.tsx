@@ -96,7 +96,7 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
         if (!payload.parameters.signatures || !payload.parameters.signatures[k]) {
           return;
         }
-        const bufferToSign = Buffer.from(payload.parameters.signatures[k], 'utf8');
+        const bufferToSign = Buffer.from(payload.parameters.signatures[k], 'hex');
         const uInt8Array = new Uint8Array(bufferToSign);
         const blake2bHash = blake2b(uInt8Array, 0, 32);
         const signature = signSecp256k1(blake2bHash, this.state.privatekey);

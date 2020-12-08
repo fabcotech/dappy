@@ -16,7 +16,7 @@ npm install
 npm run create-fake-ws-deps
 
 # Parcel server on localhost:3033, live reload of css and js
-npm run parcel:dev
+npm run start:parcel
 
 # Electron
 npm run start:electron

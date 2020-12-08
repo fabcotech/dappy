@@ -1,6 +1,6 @@
 import { Session } from 'electron';
 import zlib from 'zlib';
-import { readBagOrTokenDataTerm } from 'rchain-token-files';
+import { readBagOrTokenDataTerm, read } from 'rchain-token-files';
 
 import { performMultiRequest } from './performMultiRequest';
 import * as fromConnections from './store/connections';
@@ -12,6 +12,20 @@ import { LoadError, DappyFile } from '../src/models';
 import { validateFile } from '../src/store/decoders/Dpy';
 import { getNodeIndex } from '../src/utils/getNodeIndex';
 import { validateSearchWithProtocol, validateShortcutSearchWithProtocol } from '../src/utils/validateSearch';
+
+const readDataorBagData = (registryUri: string, fileId: string) => {
+  // read bag data if fileId
+  if (fileId) {
+    return readBagOrTokenDataTerm(
+      registryUri,
+      "bags",
+      fileId
+    )
+  }
+
+  // read contract values { registryUri: ..., nonce: ...} if no file ID
+  return read(registryUri)
+}
 
 export const registerDappyProtocol = (session: Session, getState: () => void) => {
   session.protocol.registerBufferProtocol(
@@ -80,7 +94,13 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
       let type;
       if (exploreDeploys) {
         type = 'explore-deploy-x';
-        query = JSON.parse(request.headers['Explore-Deploys']).data.map((d) => ({ term: d }));
+        try {
+          query = JSON.parse(request.headers['Explore-Deploys']).data.map((d) => ({ term: d }));
+        } catch (err) {
+          console.error('[dapp] could not parse explore-deploys haders');
+          callback();
+          return;
+        }
       } else if (multipleResources) {
         type = 'explore-deploy-x';
         query = split[1]
@@ -89,9 +109,8 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
           .filter((a) => !!a)
           .map((u) => {
             return {
-              term: readBagOrTokenDataTerm(
+              term: readDataorBagData(
                 u.split('.')[0],
-                "bags",
                 u.split('.')[1]
               )
             };
@@ -99,9 +118,8 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
       } else {
         type = 'explore-deploy';
         query = {
-          term: readBagOrTokenDataTerm(
+          term: readDataorBagData(
             split[1].split('.')[0],
-            "bags",
             split[1].split('.')[1]
           )
         };

@@ -38,9 +38,9 @@ export const PREDEFINED_DAPPS: { [key: string]: PredefinedDapp } = {
     css: '', // recovered in ./dapps/*
     html: '', // recovered in ./dapps/*
   },
-  erc1155token: {
-    img: 'erc1155token',
-    description: 'ERC 1155 token manager, deploy, create tokens, send tokens etc.',
+  'token-manager': {
+    img: 'token-manager',
+    description: 'Token manager, deploy, create tokens, send tokens etc.',
     cssLibraries: [],
     jsLibraries: [],
     js: '', // recovered in ./dapps/*

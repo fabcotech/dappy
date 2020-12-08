@@ -263,9 +263,11 @@ const loadResource = function* (action: Action) {
       );
       return;
     } catch (err) {
+      console.log(err);
       try {
         yield dappRecordSchema.validate(record);
       } catch (err2) {
+        console.error('record is neither a valid dapp record or a valid IP app record');
         console.log(err2);
         yield put(
           fromDapps.loadResourceFailedAction({
@@ -305,9 +307,9 @@ const loadResource = function* (action: Action) {
         body: {
           term: readBagOrTokenDataTerm(
             registryUri.split('.')[0],
-            "bags",
+            'bags',
             searchSplitted.search.split('.')[1] || 'index'
-          )
+          ),
         },
       },
       {

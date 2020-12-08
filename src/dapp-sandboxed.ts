@@ -9,13 +9,19 @@ import {
 } from './common';
 import { TransactionState, Identification } from './models';
 import { buildUnforgeableNameQuery } from './utils/buildUnforgeableNameQuery';
+import { generateSignature } from './utils/generateSignature';
 import { generateNonce } from './utils/generateNonce';
 
 const blockchainUtils = {
   rhoValToJs: rchainToolkit.utils.rhoValToJs,
   revAddressFromPublicKey: rchainToolkit.utils.revAddressFromPublicKey,
+  toByteArray: rchainToolkit.utils.toByteArray,
   buildUnforgeableNameQuery: buildUnforgeableNameQuery,
   generateNonce: generateNonce,
+  generateSignature: generateSignature,
+  uInt8ArrayToHex: (uint8array: Uint8Array): string => {
+    return Array.prototype.map.call(uint8array, x => ('00' + x.toString(16)).slice(-2)).join('');
+  }
 };
 window.blockchainUtils = blockchainUtils;
 
@@ -99,7 +105,7 @@ class DappyRChain {
     });
   }
 
-  exploreDeploys(url: string, terms: string[]) {
+  exploreDeploys(terms: string[]) {
     return new Promise((resolve, reject) => {
       const req = new XMLHttpRequest();
 
@@ -114,7 +120,7 @@ class DappyRChain {
         }
       };
 
-      req.open('GET', url, true);
+      req.open('GET', 'dappy://explore-deploys', true);
       req.setRequestHeader('Explore-Deploys', JSON.stringify({ data: terms }));
       req.setRequestHeader('Accept', 'rholang/term');
       req.send(null);
@@ -275,6 +281,7 @@ window.dappyRChain = dappyRChain;
 window.messageFromMain = (action) => {
   if (action.type === fromCommon.DAPP_INITIAL_SETUP) {
     const payload: fromCommon.DappInitialSetupPayload = action.payload;
+    console.log('[dappy] initial payload');
     console.log(payload);
     document.title = payload.title;
     dappId = payload.dappId;

@@ -10,6 +10,11 @@ export interface RChainInfo {
   rchainNamesRegistryUri: string;
   rchainNetwork: string;
   namePrice: number;
+  special?: {
+    name: string;
+    max: number;
+    current: number;
+  };
 }
 
 export interface Payment {

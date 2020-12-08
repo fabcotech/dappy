@@ -9,6 +9,15 @@ const dappyNodeInfoSchema = yup
     rnodeVersion: yup.string().required(),
     rchainNetwork: yup.string().required(),
     namePrice: yup.number().required(),
+    special: yup
+      .object()
+      .shape({
+        name: yup.string().required(),
+        max: yup.number().required(),
+        current: yup.number().required(),
+      })
+      .noUnknown(true)
+      .strict(true),
   })
   .required()
   .noUnknown(true)
@@ -31,7 +40,7 @@ export const validateDappyNodeFullInfo = (dnfi: any) => {
       reject();
       return;
     }
-    dappyNodeInfoFullSchema.isValid(dnfi).then(valid => {
+    dappyNodeInfoFullSchema.isValid(dnfi).then((valid) => {
       if (valid) {
         resolve();
       } else {
@@ -46,12 +55,15 @@ export const validateDappyNodeInfo = (dni: any) => {
       reject();
       return;
     }
-    dappyNodeInfoSchema.isValid(dni).then(valid => {
-      if (valid) {
+
+    dappyNodeInfoSchema
+      .validate(dni)
+      .then(() => {
         resolve();
-      } else {
-        reject();
-      }
-    });
+      })
+      .catch((err) => {
+        console.log(err);
+        reject(err);
+      });
   });
 };

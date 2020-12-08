@@ -70,6 +70,29 @@
       color: darken($record-color, 20%);
     }
   }
+  input.name-input {
+    margin-top: 5px;
+  }
+  .name-error {
+    padding-left: 0px;
+    padding-top: 6px;
+  }
+  .special-offer {
+    margin-top: 5px;
+    padding: 10px;
+    border: 1px solid $primary;
+    font-size: 1.2em;
+    border-radius: 2px;
+    .activate {
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .small {
+      margin-top: 5px;
+      display: block;
+      font-size: 0.9em;
+    }
+  }
 }
 
 .ip-servers-form {

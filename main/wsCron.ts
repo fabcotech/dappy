@@ -308,12 +308,12 @@ const createConnection = async (
     /* browser to network */
     const connection = new WSC(`wss://${ip}`, {
       host: ip,
-      headers: {
-        Host: host,
-      },
       rejectUnauthorized: false, // cert does not have to be signed by CA (self-signed)
       cert: cert ? decodeURI(cert) : undefined,
       ca: [],
+      headers: {
+        Host: host,
+      },
     });
 
     let initialized = false;

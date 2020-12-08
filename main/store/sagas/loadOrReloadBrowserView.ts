@@ -154,6 +154,7 @@ const loadOrReloadBrowserView = function* (action: any) {
             host: serverAuthorized.ip,
             rejectUnauthorized: false, // cert does not have to be signed by CA (self-signed)
             cert: decodeURI(serverAuthorized.cert),
+            minVersion: 'TLSv1.2',
             ca: [], // we don't want to rely on CA
           });
           https.get(
@@ -169,7 +170,7 @@ const loadOrReloadBrowserView = function* (action: any) {
                 console.log(favicons[0])
                 return;
               }
-              let s = new Buffer('');
+              let s = Buffer.from('');
               res.on('data', (a) => {
                 s = Buffer.concat([s, a]);
               });

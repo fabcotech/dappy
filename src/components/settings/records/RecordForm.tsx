@@ -2,8 +2,7 @@ import React, { Fragment, useState } from 'react';
 import { Formik, Field } from 'formik';
 
 import './RecordsForm.scss';
-import { Record, IPServer, PartialRecord } from '../../../models';
-
+import { Record, IPServer, RChainInfo, PartialRecord } from '../../../models';
 import { BadgeAppreciation } from '../../utils/BadgeAppreciation';
 import { IPServersComponent } from './IPServers';
 
@@ -12,6 +11,7 @@ interface RecordFormProps {
   nameDisabled: boolean;
   records: { [key: string]: Record };
   partialRecord: PartialRecord | undefined;
+  special?: RChainInfo['special'];
   filledRecord: (t: undefined | PartialRecord) => void;
 }
 
@@ -45,12 +45,14 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
   badgeAppreciationInput: undefined | HTMLInputElement = undefined;
 
   state: {
+    special: boolean;
     servers: IPServer[];
     settingUpIpServers: boolean;
     badge: string;
     badgeAppreciation: string;
-    badgeAppreciationPrefix: 'BS' | 'BW' | 'BD';
+    badgeAppreciationPrefix: 'BS' | 'BW' | 'BD';
   } = {
+    special: false,
     servers: [],
     settingUpIpServers: false,
     badge: '',
@@ -87,9 +89,10 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                 ...this.props.partialRecord,
                 type: this.props.partialRecord.address ? 'dapp' : 'ip',
                 badges: this.props.partialRecord.badges || {},
+                names: [this.props.partialRecord.name],
               }
             : {
-                name: '',
+                names: [''],
                 address: '',
                 type: 'ip',
                 servers: [],
@@ -99,38 +102,63 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
         validate={(values) => {
           let errors: {
             name?: string;
+            names: string[];
             address?: string;
             servers?: string;
             tags?: string;
-          } = {};
+          } = {
+            names: [],
+          };
 
-          const exists = this.props.records[values.name];
-
-          if (!values.name) {
-            errors.name = t('field required');
-          } else if (!!exists) {
-            errors.name = t('record exists');
-          }
-
-          if (!errors.name && this.props.validateName && !/^[a-z][a-z0-9]*$/.test(values.name)) {
-            errors.name = t('record regexp');
-          }
-
-          if (values.type === 'ip') {
-            if (!this.state.servers.length) {
-              errors.servers = t('at least on ip server');
-            }
-          } else {
-            if (!values.address) {
-              errors.address = t('field required');
-            }
-          }
-
-          if (Object.keys(errors).length === 0) {
-            this.props.filledRecord({
-              ...values,
-              servers: this.state.servers,
+          if (this.state.special) {
+            [0, 1, 2, 3].forEach((i) => {
+              if (!values.names[i]) {
+                errors.names[i] = t('field required');
+              } else if (this.props.records[values.names[i]]) {
+                errors.names[i] = t('record exists');
+              } else if (this.props.validateName && !/^[a-z][a-z0-9]*$/.test(values.names[i])) {
+                errors.names[i] = t('record regexp');
+              } else if ([0, 1, 2, 3].filter((j) => values.names[j] === values.names[i]).length > 1) {
+                errors.names[i] = 'This name is duplicate';
+              }
             });
+          } else {
+            if (!values.names[0]) {
+              errors.names[0] = t('field required');
+            } else if (this.props.records[values.names[0]]) {
+              errors.names[0] = t('record exists');
+            } else if (this.props.validateName && !/^[a-z][a-z0-9]*$/.test(values.names[0])) {
+              errors.names[0] = t('record regexp');
+            }
+
+            if (values.type === 'ip') {
+              if (!this.state.servers.length) {
+                errors.servers = t('at least on ip server');
+              }
+            } else {
+              if (!values.address) {
+                errors.address = t('field required');
+              }
+            }
+          }
+
+          console.log(errors);
+          if (Object.keys(errors).length === 1 && errors.names.length === 0) {
+            if (this.state.special && this.props.special) {
+              this.props.filledRecord({
+                servers: this.state.servers,
+                name: [this.props.special.name].concat(values.names).join(','),
+                address: values.address,
+                badges: values.badges,
+              });
+            } else {
+              this.props.filledRecord({
+                servers: this.state.servers,
+                name: values.names[0],
+                address: values.address,
+                badges: values.badges,
+              });
+            }
           } else {
             this.props.filledRecord(undefined);
           }
@@ -160,6 +188,69 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
               </div>
             );
           }
+
+          const SpecialComponent = (p: { special: RChainInfo['special']; setSpecial: (a: boolean) => void }) => {
+            if (p.special) {
+              return (
+                <p className="special-offer text-blue">
+                  <i className="fa fa-before fa-gifts"></i>
+                  Special offer going on, get 4 names for the price of one{' '}
+                  {this.state.special ? (
+                    <span className="activate" onClick={() => p.setSpecial(false)}>
+                      cancel
+                    </span>
+                  ) : (
+                    <span className="activate" onClick={() => p.setSpecial(true)}>
+                      activate offer
+                    </span>
+                  )}
+                  <span className="small">
+                    {p.special.max - p.special.current} names still available out of {p.special.max}
+                  </span>
+                </p>
+              );
+            }
+
+            return <span></span>;
+          };
+
+          // special is available and activated
+          if (this.state.special) {
+            return (
+              <form>
+                <div className="record-form">
+                  <h5 className="is-6 title">{t('record')}</h5>
+                  <div className="field is-horizontal">
+                    <label className="label">{t('name')}*</label>
+
+                    <div className="control">
+                      {[0, 1, 2, 3].map((i) => {
+                        return (
+                          <Fragment key={i}>
+                            <Field
+                              className="input name-input"
+                              type="text"
+                              name={`names.${i}`}
+                              placeholder={`name ${i}`}
+                            />
+                            {touched.names && touched.names[i] && errors.names && errors.names[i] && (
+                              <p className="text-danger name-error">{(errors as any).names[i]}</p>
+                            )}
+                          </Fragment>
+                        );
+                      })}
+                      <SpecialComponent
+                        special={this.props.special}
+                        setSpecial={(a) => this.setState({ special: a })}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </form>
+            );
+          }
+
+          // special is not activated or not available
           return (
             <form>
               <div className="record-form">
@@ -167,17 +258,13 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                 <div className="field is-horizontal">
                   <label className="label">{t('name')}*</label>
                   <div className="control">
-                    <Field
-                      disabled={this.props.nameDisabled}
-                      className="input"
-                      name="name"
-                      placeholder="Name"
-                      type="text"
-                    />
+                    <Field className="input" type="text" name={`names.0`} placeholder={`name`} />
+                    {touched.names && touched.names[0] && errors.names && errors.names[0] && (
+                      <p className="text-danger">{(errors as any).names[0]}</p>
+                    )}
+                    <SpecialComponent special={this.props.special} setSpecial={(a) => this.setState({ special: a })} />
                   </div>
                 </div>
-                {touched.name && errors.name && <p className="text-danger">{(errors as any).name}</p>}
-
                 <div className="field is-horizontal">
                   <label className="label">{t('application type')}*</label>
                   <div className="control">
@@ -228,8 +315,9 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                   <label className="label">{t('reputation badges')}*</label>
                   <div className="control">
                     <p className="smaller-text">
-                      Badges allow you to attest, certify or discredit other websites on dappy. If you add the badge "bob" to
-                      your record "mysite", users who visits "bob" website will see a certification or discredit badge from "mysite".
+                      Badges allow you to attest, certify or discredit other websites on dappy. If you add the badge
+                      "bob" to your record "mysite", users who visits "bob" website will see a certification or
+                      discredit badge from "mysite".
                     </p>
                   </div>
                 </div>
@@ -237,18 +325,20 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                   <label></label>
                   <div>
                     {Object.keys(values.badges).map((t) => (
-                      <div key={t} className="badge-line">
+                      <div key={t} className="badge-line">
                         <div>
-                          <u>
-                            {t}
-                          </u>
+                          <u>{t}</u>
                         </div>
                         <BadgeAppreciation appreciation={values.badges[t]} />
-                        <u className="remove-badge" onClick={() => {
-                          const newBadges = { ...values.badges };
-                          delete newBadges[t];
-                          setFieldValue('badges', newBadges);
-                        }}>remove</u>
+                        <u
+                          className="remove-badge"
+                          onClick={() => {
+                            const newBadges = { ...values.badges };
+                            delete newBadges[t];
+                            setFieldValue('badges', newBadges);
+                          }}>
+                          remove
+                        </u>
                       </div>
                     ))}
                   </div>
@@ -265,12 +355,13 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                         this.setState({ badge: e.target.value });
                       }}
                     />
-                    <div className="badge-appreciation fc" onClick={() => {
-                      this.setState({
-                        badgeAppreciationPrefix:
-                          { BS: 'BW', BW: 'BD', BD: 'BS' }[this.state.badgeAppreciationPrefix]
-                      })
-                    }}>
+                    <div
+                      className="badge-appreciation fc"
+                      onClick={() => {
+                        this.setState({
+                          badgeAppreciationPrefix: { BS: 'BW', BW: 'BD', BD: 'BS' }[this.state.badgeAppreciationPrefix],
+                        });
+                      }}>
                       {
                         {
                           BS: <i className="fa fa-check"></i>,

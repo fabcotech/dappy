@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react';
-import { blake2b } from 'blakejs';
-import rchainNames from 'rchain-names';
+import { updateBagDataTerm } from 'rchain-token-files';
 import * as rchainToolkit from 'rchain-toolkit';
 
 import { generateNonce } from '../../../utils/generateNonce';
+import { generateSignature } from '../../../utils/generateSignature';
 import { Record, TransactionState, RChainInfos, Account, PartialRecord, TransactionStatus } from '../../../models';
 import { blockchain as blockchainUtils } from '../../../utils';
 import * as fromBlockchain from '../../../store/blockchain';
@@ -70,32 +70,29 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
       return;
     }
 
-    const bufferToSign = Buffer.from((this.exists as Record).nonce, 'utf8');
-    const uInt8Array = new Uint8Array(bufferToSign);
-
-    const blake2bHash = blake2b(uInt8Array, 0, 32);
-    const signature = rchainToolkit.utils.signSecp256k1(blake2bHash, this.state.privatekey);
-
-    const signatureHex = Buffer.from(signature).toString('hex');
-
     const id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
     this.transactionId = id;
 
-    let serversAsString = '[]';
-    if (this.state.newRecord.servers) {
-      serversAsString = JSON.stringify({ servers: this.state.newRecord.servers });
-      serversAsString = serversAsString.substr(11, serversAsString.length - 12);
-    }
+    const payload = {
+      nonce: (this.exists as Record).nonce,
+      newNonce: generateNonce(),
+      bagId: this.state.name,
+      data: Buffer.from(
+        JSON.stringify({
+          address: this.state.newRecord.address,
+          badges: this.state.newRecord.badges || {} || {},
+          servers: this.state.newRecord.servers || [],
+        }),
+        'utf8'
+      ).toString('hex'),
+    };
 
-    const term1 = rchainNames.updateNameTerm(
+    const ba = rchainToolkit.utils.toByteArray(payload);
+    const signature = generateSignature(ba, this.state.privatekey);
+    const term1 = updateBagDataTerm(
       (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesRegistryUri,
-      generateNonce(),
-      this.state.name,
-      this.state.publickey,
-      serversAsString,
-      JSON.stringify(this.state.newRecord.badges || {}),
-      this.state.newRecord.address,
-      signatureHex
+      payload,
+      signature
     );
 
     let validAfterBlockNumber = 0;
@@ -138,7 +135,11 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
       );
     }
 
-    if (this.transactionId && this.props.transactions[this.transactionId] && this.props.transactions[this.transactionId]) {
+    if (
+      this.transactionId &&
+      this.props.transactions[this.transactionId] &&
+      this.props.transactions[this.transactionId]
+    ) {
       return (
         <Fragment>
           <h3 className="subtitle is-4">{t('update a name')}</h3>
@@ -148,14 +149,17 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
           </p>
           <br />
           <br />
-          <button type="button" className="button is-light" onClick={() => {
-            this.transactionId = '';
-            this.setState(defaultState);
-          }}>
+          <button
+            type="button"
+            className="button is-light"
+            onClick={() => {
+              this.transactionId = '';
+              this.setState(defaultState);
+            }}>
             {t('ok go back')}
           </button>
         </Fragment>
-      )
+      );
     }
 
     return (
@@ -164,8 +168,8 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
         <p className="smaller-text">{t('update name paragraph')}</p>
         <br />
         <p className="smaller-text">
-          You can't update the same name many times in a short period of time,
-          wait for each update to appear before making new updates.
+          You can't update the same name many times in a short period of time, wait for each update to appear before
+          making new updates.
         </p>
         <br />
         <TransactionForm accounts={this.props.accounts} filledTransactionData={this.onFilledTransactionData} />
