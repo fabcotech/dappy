@@ -42,7 +42,8 @@ export const Records = (props: RecordsProps) => {
     <div>
       <h3 className="subtitle is-4">{t('name', true)}</h3>
       <p className="smaller-text">
-        {t('names paragraph')} <a onClick={() => props.setTab('add-name')}>{t('add one locally')}</a>
+        {t('names paragraph').replace('ADD_ONE_LOCALLY', t('add one locally'))}{' '}
+        <a onClick={() => props.setTab('add-name')}>{t('add one locally')}</a>
         <br />
         <br />
       </p>

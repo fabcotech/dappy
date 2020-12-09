@@ -18,18 +18,18 @@ var stream$1 = _interopDefault(require('stream'));
 var dns = _interopDefault(require('dns'));
 
 /*! *****************************************************************************
-Copyright (c) Microsoft Corporation. All rights reserved.
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-this file except in compliance with the License. You may obtain a copy of the
-License at http://www.apache.org/licenses/LICENSE-2.0
+Copyright (c) Microsoft Corporation.
 
-THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-MERCHANTABLITY OR NON-INFRINGEMENT.
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
 
-See the Apache Version 2.0 License for specific language governing permissions
-and limitations under the License.
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
 
 var __assign = function() {
@@ -44,10 +44,11 @@ var __assign = function() {
 };
 
 function __awaiter(thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 }
@@ -303,7 +304,7 @@ var getOkBlockchains = lib_4(getBlockchains, function (blockchains) {
         if (!nodes.length) {
             return;
         }
-        okBlockchains[chainId] = __assign({}, blockchains[chainId], { nodes: nodes.filter(function (n) { return n.readyState === 1; }) });
+        okBlockchains[chainId] = __assign(__assign({}, blockchains[chainId]), { nodes: nodes.filter(function (n) { return n.readyState === 1; }) });
     });
     return okBlockchains;
 });
@@ -449,7 +450,7 @@ var reducer = function (state, action) {
     if (state === void 0) { state = initialState$1; }
     switch (action.type) {
         case LOAD_OR_RELOAD_BROWSER_VIEW_COMPLETED: {
-            return __assign({}, state, { browserViews: __assign({}, state.browserViews, action.payload) });
+            return __assign(__assign({}, state), { browserViews: __assign(__assign({}, state.browserViews), action.payload) });
         }
         case DESTROY_BROWSER_VIEW: {
             if (state.browserViews[action.payload.resourceId]) {
@@ -457,7 +458,7 @@ var reducer = function (state, action) {
                 state.browserViews[action.payload.resourceId].browserView.destroy();
                 var newBrowserViews = __assign({}, state.browserViews);
                 delete newBrowserViews[action.payload.resourceId];
-                return __assign({}, state, { browserViews: newBrowserViews });
+                return __assign(__assign({}, state), { browserViews: newBrowserViews });
             }
             else {
                 return state;
@@ -469,13 +470,13 @@ var reducer = function (state, action) {
                     state.browserViews[k].browserView.setBounds(action.payload);
                 }
             });
-            return __assign({}, state, { position: action.payload });
+            return __assign(__assign({}, state), { position: action.payload });
         }
         case SAVE_BROWSER_VIEW_COMM_EVENT: {
-            return __assign({}, state, { browserViews: __assign({}, state.browserViews, (_a = {}, _a[action.payload.id] = __assign({}, state.browserViews[action.payload.id], { commEvent: action.payload.commEvent }), _a)) });
+            return __assign(__assign({}, state), { browserViews: __assign(__assign({}, state.browserViews), (_a = {}, _a[action.payload.id] = __assign(__assign({}, state.browserViews[action.payload.id]), { commEvent: action.payload.commEvent }), _a)) });
         }
         case DISPLAY_ONLY_BROWSER_VIEW_X_COMPLETED: {
-            return __assign({}, state, { browserViews: __assign({}, state.browserViews, action.payload) });
+            return __assign(__assign({}, state), { browserViews: __assign(__assign({}, state.browserViews), action.payload) });
         }
         default:
             return state;
@@ -493,7 +494,7 @@ var reducer$1 = function (state, action) {
     if (state === void 0) { state = initialState$2; }
     switch (action.type) {
         case UPDATE_CONNECTIONS: {
-            return __assign({}, state, { connections: action.payload });
+            return __assign(__assign({}, state), { connections: action.payload });
         }
         default:
             return state;
@@ -524,7 +525,7 @@ var getOkBlockchainsMain = lib_4(getBlockchainsMainState, function (blockchains)
         if (!nodes.length) {
             return;
         }
-        okBlockchains[chainId] = __assign({}, blockchains[chainId], { nodes: nodes.filter(function (n) { return n.readyState === 1; }) });
+        okBlockchains[chainId] = __assign(__assign({}, blockchains[chainId]), { nodes: nodes.filter(function (n) { return n.readyState === 1; }) });
     });
     return okBlockchains;
 });
@@ -532,6 +533,1305 @@ var getOkBlockchainsMain = lib_4(getBlockchainsMainState, function (blockchains)
 var MAX_SIMULTANEOUS_WS_CONNECTIONS = 10;
 var WS_RECONNECT_PERIOD = 10000;
 var WS_PAYLOAD_PAX_SIZE = 256000; // bits
+
+var mainTerm_1 = (newNonce, publicKey) => {
+    return `new 
+  mainCh,
+
+  createCh,
+  purchaseCh,
+  sendCh,
+  changePriceCh,
+  entryCh,
+  entryUriCh,
+  setLockedCh,
+  updateTokenDataCh,
+  updateBagDataCh,
+  verifySignatureAndUpdateNonceCh,
+  justVerifySignatureCh,
+
+  bags,
+  bagsData,
+  tokensData,
+
+  insertArbitrary(\`rho:registry:insertArbitrary\`),
+  stdout(\`rho:io:stdout\`),
+  secpVerify(\`rho:crypto:secp256k1Verify\`),
+  blake2b256(\`rho:crypto:blake2b256Hash\`),
+  revAddress(\`rho:rev:address\`),
+  registryLookup(\`rho:registry:lookup\`)
+in {
+
+
+  /*
+    bags: {
+      [bagId: String (incremental id)]: {
+        publicKey: String (public key),
+        n: Nil \\/ String (token id),
+        price: Nil \\/ Int
+        quantity: Int
+      }
+    }
+  */
+  bags!({/*DEFAULT_BAGS*/}) |
+
+  /*
+    bagsData: {
+      [bagId: String (bag id)]: Any
+    }
+  */
+  bagsData!({/*DEFAULT_BAGS_DATA*/}) |
+
+  /*
+    tokensData: {
+      [n: Strig (token id)]: String (registry URI)
+    }
+  */
+  tokensData!({/*DEFAULT_TOKENS_DATA*/}) |
+
+  for (@(payload, signature, returnCh) <= verifySignatureAndUpdateNonceCh) {
+    new hashCh, verifySignatureCh in {
+      for (@current <<- mainCh) {
+        blake2b256!(
+          payload.set("nonce", current.get("nonce")).toByteArray(),
+          *hashCh
+        ) |
+        for (@hash <- hashCh) {
+          secpVerify!(
+            hash,
+            signature.hexToBytes(),
+            current.get("publicKey").hexToBytes(),
+            *verifySignatureCh
+          )
+        } |
+        for (@result <- verifySignatureCh) {
+          match result {
+            true => {
+              @returnCh!(true) |
+              for (@c <- mainCh) {
+                mainCh!(c.set("nonce", payload.get("newNonce")))
+              }
+            }
+            false => {
+              @returnCh!("error: Invalid signature, could not perform operation")
+            }
+          }
+        }
+      }
+    }
+  } |
+
+  for (@(publicKey, signature, payload, nonce, returnCh) <= justVerifySignatureCh) {
+    stdout!("justVerifySignatureCh") |
+    new hashCh, verifySignatureCh in {
+      blake2b256!(
+        payload.set("nonce", nonce).toByteArray(),
+        *hashCh
+      ) |
+      for (@hash <- hashCh) {
+        secpVerify!(
+          hash,
+          signature.hexToBytes(),
+          publicKey.hexToBytes(),
+          *verifySignatureCh
+        )
+      } |
+      for (@result <- verifySignatureCh) {
+        @returnCh!(result)
+      }
+    }
+  } |
+
+  contract setLockedCh(payload, signature, return) = {
+    stdout!("setLockedCh") |
+
+    for (@current <<- mainCh) {
+      match current.get("locked") {
+        true => {
+          return!("error: contract is already locked")
+        }
+        false => {
+          new verifyCh in {
+            verifySignatureAndUpdateNonceCh!((
+              *payload,
+              *signature,
+              *verifyCh
+            )) |
+            for (@verified <- verifyCh) {
+              match verified {
+                true => {
+                  for (@c <- mainCh) {
+                    mainCh!(c.set("locked", true))
+                  } |
+                  return!(true)
+                }
+                err => {
+                  return!(err)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  } |
+
+  contract updateTokenDataCh(payload, signature, return) = {
+    stdout!("updateTokenDataCh") |
+
+    for (@current <<- mainCh) {
+      match current.get("locked") {
+        true => {
+          return!("error: contract is locked, cannot update token data")
+        }
+        false => {
+          new verifyCh in {
+            verifySignatureAndUpdateNonceCh!((
+              *payload,
+              *signature,
+              *verifyCh
+            )) |
+            for (@verified <- verifyCh) {
+              match verified {
+                true => {
+                  for (@currentTokensData <- tokensData) {
+                    tokensData!(
+                      currentTokensData.set(*payload.get("n"), *payload.get("data"))
+                    )
+                  } |
+                  return!(true)
+                }
+                err => {
+                  return!(err)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  } |
+
+  contract updateBagDataCh(payload, signature, return) = {
+    stdout!("updateBagDataCh") |
+    for (@currentBags <<- bags) {
+      match currentBags.get(*payload.get("bagId")) {
+        Nil => {
+          return!("error : token (bag ID) " ++ *payload.get("bagId") ++ " does not exist")
+        }
+        bag => {
+          new justVerifySignatureReturnCh in {
+            justVerifySignatureCh!((
+              bag.get("publicKey"),
+              *signature,
+              *payload,
+              bag.get("nonce"),
+              *justVerifySignatureReturnCh
+            )) |
+            for (@verified <- justVerifySignatureReturnCh) {
+              match verified {
+                true => {
+                  for (@currentBagsData <- bagsData) {
+                    bagsData!(
+                      currentBagsData.set(*payload.get("bagId"), *payload.get("data"))
+                    ) |
+                    return!(true)
+                  }
+                }
+                err => {
+                  return!("error: Invalid signature, could not perform operation")
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  } |
+
+  // add a token (1 or more)
+  contract createCh(payload, signature, return) = {
+    stdout!("createCh") |
+
+    for (@current <<- mainCh) {
+      match current.get("locked") {
+        true => {
+          return!("error: contract is locked, cannot create token")
+        }
+        false => {
+          for (@currentBags <<- bags) {
+            new verifyCh in {
+              verifySignatureAndUpdateNonceCh!((
+                *payload,
+                *signature,
+                *verifyCh
+              )) |
+              for (@verified <- verifyCh) {
+                match verified {
+                  true => {
+                    new newBagIdCh in {
+                      match currentBags.get(*payload.get("newBagId")) {
+                        Nil => { newBagIdCh!(*payload.get("newBagId")) }
+                        _ => { return!("error: bagId, already exists") }
+                      } |
+
+                      for (@newBagId <- newBagIdCh) {
+                        for (_ <- bags) {
+                          bags!(
+                            currentBags.union(*payload.get("bags"))
+                          )
+                        } |
+
+                        match *payload.get("data") {
+                          Nil => {}
+                          data => {
+                            for (@currentBagsData <- bagsData) {
+                              bagsData!(
+                                currentBagsData.union(*payload.get("data"))
+                              )
+                            }
+                          }
+                        } |
+
+                        return!(true)
+                      }
+                    }
+                  }
+                  err => {
+                    return!(err)
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  } |
+
+  // purchase token (1 or more)
+  contract purchaseCh(payload, return) = {
+    stdout!("purchaseCh") |
+    for (@currentBags <<- bags) {
+      match currentBags.get(*payload.get("bagId")) {
+        Nil => {
+          return!("error : token (bag ID) " ++ *payload.get("bagId") ++ " does not exist")
+        }
+        bag => {
+          match bag.get("quantity") - *payload.get("quantity") >= 0 {
+            false => {
+              return!("error : not enough tokens in bag (bag ID: " ++ *payload.get("bagId") ++ ") available")
+            }
+            true => {
+              new RevVaultCh, ownerRevAddressCh, purseVaultCh in {
+
+                registryLookup!(\`rho:rchain:revVault\`, *RevVaultCh) |
+                revAddress!("fromPublicKey", bag.get("publicKey").hexToBytes(), *ownerRevAddressCh) |
+
+                for (@(_, RevVault) <- RevVaultCh; @ownerRevAddress <- ownerRevAddressCh) {
+                  match (
+                    *payload.get("purseRevAddr"),
+                    ownerRevAddress,
+                    *payload.get("quantity") * bag.get("price")
+                  ) {
+                    (from, to, amount) => {
+                      @RevVault!("findOrCreate", from, *purseVaultCh) |
+                      for (@(true, purseVault) <- purseVaultCh) {
+                        new resultCh, newBagIdCh, performRefundCh in {
+                          // refund
+                          for (@message <- performRefundCh) {
+                            new refundPurseBalanceCh, refundRevAddressCh, refundResultCh in {
+                              @purseVault!("balance", *refundPurseBalanceCh) |
+                              revAddress!("fromPublicKey", *payload.get("publicKey").hexToBytes(), *refundRevAddressCh) |
+                              for (@balance <- refundPurseBalanceCh; @revAddress <- refundRevAddressCh) {
+                                @purseVault!("transfer", revAddress, balance, *payload.get("purseAuthKey"), *refundResultCh) |
+                                for (@refundResult <- refundResultCh) {
+                                  match refundResult {
+                                    (true, Nil) => {
+                                      stdout!("refund went well") |
+                                      return!(message ++ ", issuer was refunded")
+                                    }
+                                    _ => {
+                                      stdout!("error: refund DID NOT go well") |
+                                      return!(message ++ ", issuer was NOT refunded")
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          } |
+                          @purseVault!("transfer", to, amount, *payload.get("purseAuthKey"), *resultCh) |
+                          for (@result <- resultCh) {
+                            match result {
+                              (true, Nil) => {
+                                match currentBags.get(*payload.get("newBagId")) {
+                                  Nil => { newBagIdCh!(*payload.get("newBagId")) }
+                                  _ => { performRefundCh!("error: bagId, already exists") }
+                                } |
+                                for (@newBagId <- newBagIdCh) {
+                                  match *payload.get("data") {
+                                    Nil => {}
+                                    data => {
+                                      for (@currentBagsData <- bagsData) {
+                                        bagsData!(currentBagsData.set(newBagId, data))
+                                      }
+                                    }
+                                  } |
+                                  for (_ <- bags) {
+                                    match *payload.get("bagId") == "0" {
+                                      true => {
+                                        // purchase from bag "0"
+                                        // creating a bag with new bag ID is allowed
+                                        bags!(
+                                          currentBags.set(newBagId, {
+                                            "quantity": *payload.get("quantity"),
+                                            "publicKey": *payload.get("publicKey"),
+                                            "nonce": *payload.get("nonce"),
+                                            "n": bag.get("n"),
+                                            "price": Nil,
+                                          // Udate quantity in seller token ownership
+                                          }).set(
+                                            *payload.get("bagId"),
+                                            bag.set("quantity", bag.get("quantity") - *payload.get("quantity"))
+                                          )
+                                        )
+                                      }
+                                      false => {
+                                        // purchase from bag other than "0"
+                                        // creating a bag with new bag ID is NOT allowed
+                                        // buyer takes control of the bag
+                                        // todo, should we delete bag data for *payload.get("bagId") here ?
+                                        bags!(
+                                          currentBags.set(*payload.get("bagId"), {
+                                            "quantity": *payload.get("quantity"),
+                                            "publicKey": *payload.get("publicKey"),
+                                            "nonce": *payload.get("nonce"),
+                                            "n": bag.get("n"),
+                                            "price": Nil,
+                                          })
+                                        )
+                                      }
+                                    } |
+                                    return!(true)
+                                  }
+                                }
+                              }
+                              _ => {
+                                performRefundCh!("error: REV transfer went wrong")
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  } |
+
+  contract sendCh(payload, signature, return) = {
+    stdout!("sendCh") |
+    for (@currentBags <<- bags) {
+      match currentBags.get(*payload.get("bagId")) {
+        Nil => {
+          return!("error : token (bag ID) " ++ *payload.get("bagId") ++ " does not exist")
+        }
+        bag => {
+          match currentBags.get(*payload.get("newBagId")) {
+            Nil => {
+              match bag.get("quantity") - *payload.get("quantity") >= 0 {
+                true => {
+                  new justVerifySignatureReturnCh in {
+                    justVerifySignatureCh!((
+                      bag.get("publicKey"),
+                      *signature,
+                      *payload,
+                      bag.get("nonce"),
+                      *justVerifySignatureReturnCh
+                    )) |
+                    for (@r <- justVerifySignatureReturnCh) {
+                      match r {
+                        true => {
+                          // Add bag data if found in payload
+                          match *payload.get("data") {
+                            Nil => {}
+                            data => {
+                              for (@currentBagsData <- bagsData) {
+                                bagsData!(currentBagsData.set(*payload.get("newBagId"), data))
+                              }
+                            }
+                          } |
+                          for (_ <- bags) {
+                            match bag.get("quantity") - *payload.get("quantity") == 0 {
+                              true => {
+                                bags!(
+                                  // todo, should we delete bag data for *payload.get("bagId") here ?
+                                  currentBags.set(*payload.get("newBagId"), {
+                                    "quantity": *payload.get("quantity"),
+                                    "publicKey": *payload.get("publicKey"),
+                                    "nonce": *payload.get("bagNonce2"),
+                                    "n": bag.get("n"),
+                                    "price": Nil,
+                                  // Delete issuer bag
+                                  }).delete(*payload.get("bagId"))
+                                )
+                              }
+                              false => {
+                                bags!(
+                                  // New bag ID for new bag
+                                  currentBags.set(*payload.get("newBagId"), {
+                                    "quantity": *payload.get("quantity"),
+                                    "publicKey": *payload.get("publicKey"),
+                                    "nonce": *payload.get("bagNonce2"),
+                                    "n": bag.get("n"),
+                                    "price": Nil,
+                                  // Udate quantity in seller bag
+                                  }).set(
+                                    *payload.get("bagId"),
+                                    bag.set(
+                                      "quantity", bag.get("quantity") - *payload.get("quantity")
+                                    ).set(
+                                      "nonce",
+                                      *payload.get("bagNonce")
+                                    )
+                                  )
+                                )
+                              }
+                            } |
+                            return!(true)
+                          }
+                        }
+                        false => {
+                          return!("error: Invalid signature, could not perform operation")
+                        }
+                      }
+                    }
+                  }
+                }
+                false => {
+                  return!("error : not enough tokens in bag (bag ID) " ++ *payload.get("bagId") ++ " available")
+                }
+              }
+            }
+            _ => {
+              return!("error : new bag ID already exists")
+            }
+          }
+        }
+      }
+    }
+  } |
+
+  contract changePriceCh(payload, signature, return) = {
+    stdout!("changePriceCh") |
+    for (@currentBags <<- bags) {
+      match currentBags.get(*payload.get("bagId")) {
+        Nil => {
+          return!("error : token (bag ID) " ++ *payload.get("bagId") ++ " does not exist")
+        }
+        bag => {
+          new justVerifySignatureReturnCh in {
+            justVerifySignatureCh!((
+              bag.get("publicKey"),
+              *signature,
+              *payload,
+              bag.get("nonce"),
+              *justVerifySignatureReturnCh
+            )) |
+            for (@r <- justVerifySignatureReturnCh) {
+              match r {
+                true => {
+                  for (_ <- bags) {
+                    bags!(
+                      currentBags.set(
+                        *payload.get("bagId"),
+                        bag
+                          .set("price", *payload.get("price"))
+                          .set("nonce", *payload.get("bagNonce"))
+                      )
+                    ) |
+                    return!(true)
+                  }
+                }
+                false => {
+                  return!("error: Invalid signature, could not perform operation")
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  } |
+  
+  contract entryCh(action, return) = {
+    match *action.get("type") {
+      // Read capabilities
+      "READ_BAGS" => {
+        for (currentBags <<- bags) {
+          return!(*currentBags)
+        }
+      }
+      "READ_BAGS_DATA" => {
+        for (currentBagsData <<- bagsData) {
+          return!(*currentBagsData)
+        }
+      }
+      "READ_TOKENS_DATA" => {
+        for (@currentTokensData <<- tokensData) {
+          return!(currentTokensData)
+        }
+      }
+      "READ" => {
+        for (current <<- mainCh) {
+          return!(*current)
+        }
+      }
+      // Admin capabilities (require a signature of the nonce)
+      "SET_LOCKED" => {
+        match *action.get("payload") {
+          { "newNonce": String } => {
+            setLockedCh!(
+              *action.get("payload"),
+              *action.get("signature"),
+              *return
+            )
+          }
+          _ => {
+            return!("error: invalid payload, structure should be { 'newNonce': String, 'locked': Boolean }")
+          }
+        }
+      }
+      "UPDATE_TOKEN_DATA" => {
+        match *action.get("payload") {
+          { "newNonce": String, "n": String, "data": _ } => {
+            updateTokenDataCh!(*action.get("payload"), *action.get("signature"), *return)
+          }
+          _ => {
+            return!("error: invalid payload, structure should be { 'newNonce': String, 'n': String, 'data': _ }")
+          }
+        }
+      }
+      "UPDATE_BAG_DATA" => {
+        match *action.get("payload") {
+          { "newNonce": String, "bagId": String, "data": _ } => {
+            updateBagDataCh!(
+              *action.get("payload"),
+              *action.get("signature"),
+              *return
+            )
+          }
+          _ => {
+            return!("error: invalid payload, structure should be { 'newNonce': String, 'bagId': String, 'data': _ }")
+          }
+        }
+      }
+      "CREATE_TOKENS" => {
+        match *action.get("payload") {
+          {
+            "bags": _,
+            "data": _,
+/*             "bags": {
+              [String]: {
+                "nonce": String,
+                "quantity": Int,
+                "publicKey": String,
+                "n": String,
+                "price": Nil \\/ Int,
+              }
+            },
+            "data": {
+              [String]: _
+            }, */
+            "newNonce": String,
+          } => {
+            createCh!(
+              *action.get("payload"),
+              *action.get("signature"),
+              *return
+            )
+          }
+          _ => {
+            return!("error: invalid payload, structure should be { 'newNonce': String, 'newBagId': String, 'bagNonce': String, 'quantity': Int, 'n': String, 'price': Nil or Int, 'publicKey': String, 'data': Any }")
+          }
+        }
+      }
+      // Anyone capabilities
+      "PURCHASE_TOKENS" => {
+        match *action.get("payload") {
+          { "quantity": 1, "bagId": String, "newBagId": String, "publicKey": String, "nonce": String, "data": _, "purseRevAddr": _, "purseAuthKey": _ } => {
+            purchaseCh!(*action.get("payload"), *return)
+          }
+          _ => {
+            return!("error: invalid payload, structure should be { 'quantity': 1, 'bagId': String, 'newBagId': String, 'publicKey': String, 'nonce': String, 'data': Any, 'purseRevAddr': String, 'purseAuthKey': AuthKey }")
+          }
+        }
+      }
+      "SEND_TOKENS" => {
+        match *action.get("payload") {
+          { "quantity": Int, "bagId": "0", "newBagId": String, "publicKey": String, "bagNonce": String, "bagNonce2": String, "data": _, } => {
+            sendCh!(
+              *action.get("payload"),
+              *action.get("signature"),
+              *return
+            )
+          }
+          _ => {
+            return!("error: invalid payload, structure should be { 'quantity': Int, 'bagId': '0', 'newBagId': String 'publicKey': String, 'bagNonce': String, 'bagNonce2': String, 'data': Any }")
+          }
+        }
+      }
+      "CHANGE_PRICE" => {
+        match *action.get("payload") {
+          { "bagId": String, "price": Nil \\/ Int, "bagNonce": String } => {
+            changePriceCh!(
+              *action.get("payload"),
+              *action.get("signature"),
+              *return
+            )
+          }
+          _ => {
+            return!("error: invalid payload, structure should be { 'price': Nil or Int, 'bagId': String, 'bagNonce': String }")
+          }
+        }
+      }
+      _ => {
+        return!("error: unknown action")
+      }
+    }
+  } |
+
+  insertArbitrary!(bundle+{*entryCh}, *entryUriCh) |
+
+  for (entryUri <- entryUriCh) {
+
+    mainCh!({
+      "registryUri": *entryUri,
+      "locked": false,
+      "publicKey": "${publicKey}",
+      "nonce": "${newNonce}",
+      "version": "4.0.0"
+    }) |
+    stdout!({
+      "registryUri": *entryUri,
+      "locked": false,
+      "publicKey": "${publicKey}",
+      "nonce": "${newNonce}",
+      "version": "4.0.0"
+    })
+
+    /*OUTPUT_CHANNEL*/
+  }
+}
+`;
+};
+
+var mainTerm = {
+	mainTerm: mainTerm_1
+};
+
+var createTokensTerm_1 = (
+  registryUri,
+  payload,
+  signature,
+) => {
+  return `new basket,
+  returnCh,
+  entryCh,
+  lookup(\`rho:registry:lookup\`),
+  stdout(\`rho:io:stdout\`)
+in {
+
+  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+
+  for(entry <- entryCh) {
+    entry!(
+      {
+        "type": "CREATE_TOKENS",
+        // signature of the payload + contract nonce in it, with the private key of the owner (generateSignatureForNonce.js)
+        "signature": "${signature}",
+        "payload": {
+          // new nonce, must be different and random (generateNonce.js)
+          "newNonce": "${payload.newNonce}",
+          // example
+          // "bags": { "0": { "price": 2, "quantity": 3, "publicKey": "aaa", "nonce": "abcdefba", data: Nil }}
+          "bags": ${JSON.stringify(payload.bags).replace(new RegExp(': null|:null', 'g'), ': Nil')},
+          // example
+          // "data": { "0": "this bag is mine" }
+          "data": ${JSON.stringify(payload.data).replace(new RegExp(': null|:null', 'g'), ': Nil')},
+        }
+      },
+      *returnCh
+    )
+  } |
+
+  for (resp <- returnCh) {
+    match *resp {
+      true => {
+        basket!({ "status": "completed" }) |
+        stdout!("completed, tokens created")
+      }
+      _ => {
+        basket!({ "status": "failed", "message": *resp }) |
+        stdout!(("failed", *resp))
+      }
+    }
+  }
+}
+`;
+};
+
+var createTokensTerm = {
+	createTokensTerm: createTokensTerm_1
+};
+
+var purchaseTokensTerm_1 = (
+  registryUri,
+  payload
+) => {
+  return `
+new
+  basket,
+  revVaultPurseCh,
+  priceCh,
+  quantityCh,
+  publicKeyCh,
+  nonceCh,
+  bagDataCh,
+  returnCh,
+  bagIdCh,
+  newBagIdCh,
+  registryUriCh,
+  revAddressCh,
+  registryLookup(\`rho:registry:lookup\`),
+  stdout(\`rho:io:stdout\`),
+  revAddress(\`rho:rev:address\`)
+in {
+
+  /*
+    The 5 following values must be filled with proper values
+  */ 
+  // Registry URI of the contract
+  registryUriCh!!(\`rho:id:${registryUri}\`) |
+  // Unique ID of the token you want to purchase
+  bagIdCh!!("${payload.bagId}") |
+  // new bag ID (index, home, contact, document etc.)
+  newBagIdCh!!("${payload.newBagId}") |
+  // Per token price, make sure it is accurate
+  priceCh!!(${payload.price || "Nil"}) |
+  // Bag data: Any
+  bagDataCh!!(${payload.data ? '"' + payload.data + '"' : "Nil"}) |
+  // Quantity you want to purchase, make sure enough are available
+  quantityCh!!(${payload.quantity}) |
+  // Your public key
+  // If the transfer fails, refund will go to the corresponding REV address
+  publicKeyCh!!("${payload.publicKey}") |
+  // A unique nonce to be changed on each operation
+  nonceCh!!("${payload.bagNonce}") |
+
+  registryLookup!(\`rho:rchain:revVault\`, *revVaultPurseCh) |
+
+  /*
+    Create a vault/purse that is just used once (purse)
+  */
+  for(@(_, *RevVaultPurse) <- revVaultPurseCh) {
+    new unf, purseRevAddrCh, purseAuthKeyCh, vaultCh, revAddressCh in {
+      revAddress!("fromUnforgeable", *unf, *purseRevAddrCh) |
+      RevVaultPurse!("unforgeableAuthKey", *unf, *purseAuthKeyCh) |
+      for (@purseAuthKey <- purseAuthKeyCh; @purseRevAddr <- purseRevAddrCh) {
+
+        stdout!({"new purse rev addr": purseRevAddr, "purse authKey": purseAuthKey}) |
+
+        RevVaultPurse!("findOrCreate", purseRevAddr, *vaultCh) |
+
+        for (
+          @(true, *vault) <- vaultCh;
+          @publicKey <- publicKeyCh;
+          @nonce <- nonceCh;
+          @bagId <- bagIdCh;
+          @newBagId <- newBagIdCh;
+          @registryUri <- registryUriCh;
+          @price <- priceCh;
+          @bagData <- bagDataCh;
+          @quantity <- quantityCh
+        ) {
+
+          revAddress!("fromPublicKey", publicKey.hexToBytes(), *revAddressCh) |
+
+          new RevVaultCh in {
+
+            registryLookup!(\`rho:rchain:revVault\`, *RevVaultCh) |
+            for (@(_, RevVault) <- RevVaultCh; deployerRevAddress <- revAddressCh) {
+
+              stdout!(("3.transfer_funds.rho")) |
+
+              /*
+                Put price * quantity REV in the purse
+              */
+              match (
+                *deployerRevAddress,
+                purseRevAddr,
+                price * quantity
+              ) {
+                (from, to, amount) => {
+
+                  new vaultCh, revVaultkeyCh, deployerId(\`rho:rchain:deployerId\`) in {
+                    @RevVault!("findOrCreate", from, *vaultCh) |
+                    @RevVault!("deployerAuthKey", *deployerId, *revVaultkeyCh) |
+                    for (@(true, vault) <- vaultCh; key <- revVaultkeyCh) {
+
+                      stdout!(("Beginning transfer of ", amount, "REV from", from, "to", to)) |
+
+                      new resultCh, entryCh in {
+                        @vault!("transfer", to, amount, *key, *resultCh) |
+                        for (@result <- resultCh) {
+
+                          stdout!(("Finished transfer of ", amount, "REV to", to, "result was:", result)) |
+                          match result {
+                            (true, Nil) => {
+                              stdout!("yes") |
+                              registryLookup!(registryUri, *entryCh) |
+
+                              for(entry <- entryCh) {
+                                stdout!(("GET ENTRY", *entry)) |
+                                entry!(
+                                  {
+                                    "type": "PURCHASE_TOKENS",
+                                    "payload": {
+                                      "quantity": quantity,
+                                      "bagId": bagId,
+                                      "newBagId": newBagId,
+                                      "data": bagData,
+                                      "nonce": nonce,
+                                      "publicKey": publicKey,
+                                      "purseRevAddr": purseRevAddr,
+                                      "purseAuthKey": purseAuthKey
+                                    }
+                                  },
+                                  *returnCh
+                                ) |
+                                for (resp <- returnCh) {
+                                  match *resp {
+                                    true => {
+                                      basket!({ "status": "completed" }) |
+                                      stdout!("completed, tokens purchased")
+                                    }
+                                    _ => {
+                                      basket!({ "status": "failed", "message": *resp }) |
+                                      stdout!(("failed", *resp))
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                            _ => {
+                              basket!({ "status": "failed", "message": result }) |
+                              stdout!(("failed", result))
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`;
+};
+
+var purchaseTokensTerm = {
+	purchaseTokensTerm: purchaseTokensTerm_1
+};
+
+var sendTokensTerm_1 = (
+  registryUri,
+  payload,
+  signature, 
+) => {
+  return `new basket,
+  returnCh,
+  entryCh,
+  lookup(\`rho:registry:lookup\`),
+  stdout(\`rho:io:stdout\`)
+in {
+
+  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+
+  for(entry <- entryCh) {
+    entry!(
+      {
+        "type": "SEND_TOKENS",
+        // signature of the payload + bag nonce in it, with the private key of the bag owner (generateSignatureForNonce.js)
+        "signature": "${signature}",
+        "payload": {
+          // new nonce, must be different and random (generateNonce.js)
+          "bagNonce": "${payload.bagNonce}",
+          // new nonce for the new bag
+          "bagNonce2": "${payload.bagNonce2}",
+          // bag ID to send tokens from (ex: "0")
+          "bagId": "${payload.bagId}",
+          // new bag ID (index, home, contact, document etc.)
+          "newBagId": "${payload.newBagId}",
+          // quantity of tokens to send
+          "quantity": ${payload.quantity},
+          // publicKey this send those tokens to (can be the same just split a bag)
+          "publicKey": "${payload.publicKey}",
+          // data (optional) to be attached to the new bag (in bagsData)
+          "data": ${payload.data ? '"' + payload.data + '"' : "Nil"}
+        }
+      },
+      *returnCh
+    )
+  } |
+
+  for (resp <- returnCh) {
+    match *resp {
+      true => {
+        basket!({ "status": "completed" }) |
+        stdout!("completed, tokens send")
+      }
+      _ => {
+        basket!({ "status": "failed", "message": *resp }) |
+        stdout!(("failed", *resp))
+      }
+    }
+  }
+}
+`;
+};
+
+var sendTokensTerm = {
+	sendTokensTerm: sendTokensTerm_1
+};
+
+var setLockedTerm_1 = (registryUri, payload, signature) => {
+  return `new basket,
+  entryCh,
+  returnCh,
+  lookup(\`rho:registry:lookup\`),
+  stdout(\`rho:io:stdout\`)
+in {
+
+  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+
+  for(entry <- entryCh) {
+    entry!(
+      {
+        "type": "SET_LOCKED",
+        // signature of the payload + contract nonce in it, with the private key of the owner (generateSignatureForNonce.js)
+        "signature": "${signature}",
+        "payload": {
+          // new nonce, must be different and random (generateNonce.js)
+          "newNonce": "${payload.newNonce}",
+        }
+      },
+      *returnCh
+    )
+  } |
+
+  for (resp <- returnCh) {
+    match *resp {
+      true => {
+        basket!({ "status": "completed" }) |
+        stdout!("completed, contract locked")
+      }
+      _ => {
+        basket!({ "status": "failed", "message": *resp }) |
+        stdout!(("failed", *resp))
+      }
+    }
+  }
+}
+`;
+};
+
+var setLockedTerm = {
+	setLockedTerm: setLockedTerm_1
+};
+
+var updateTokenDataTerm_1 = (
+  registryUri,
+  payload,
+  signature, 
+) => {
+  return `new basket,
+  entryCh,
+  returnCh,
+  lookup(\`rho:registry:lookup\`),
+  stdout(\`rho:io:stdout\`)
+in {
+
+  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+
+  for(entry <- entryCh) {
+    entry!(
+      {
+        "type": "UPDATE_TOKEN_DATA",
+        // signature of the payload + contract nonce in it, with the private key of the owner (generateSignatureForNonce.js)
+        "signature": "${signature}",
+        "payload": {
+          // new nonce, must be different and random (generateNonce.js)
+          "newNonce": "${payload.newNonce}",
+          // token ID you want to attach data to
+          "n": ${typeof payload.n == "string" ? '"' + payload.n + '"' : "Nil"},
+          // data is used only if new token ("n" : Nil)
+          "data": ${payload.data ? '"' + payload.data + '"' : "Nil"}
+        }
+      },
+      *returnCh
+    )
+  } |
+
+  for (resp <- returnCh) {
+    match *resp {
+      true => {
+        basket!({ "status": "completed" }) |
+        stdout!("completed, data updated")
+      }
+      _ => {
+        basket!({ "status": "failed", "message": *resp }) |
+        stdout!(("failed", *resp))
+      }
+    }
+  }
+}
+`;
+};
+
+var updateTokenDataTerm = {
+	updateTokenDataTerm: updateTokenDataTerm_1
+};
+
+var updateBagDataTerm_1 = (
+  registryUri,
+  payload,
+  signature,
+) => {
+  return `new basket,
+  entryCh,
+  returnCh,
+  lookup(\`rho:registry:lookup\`),
+  stdout(\`rho:io:stdout\`)
+in {
+
+  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+
+  for(entry <- entryCh) {
+    entry!(
+      {
+        "type": "UPDATE_BAG_DATA",
+        // signature of the payload + bag nonce in it, with the private key of the bag owner (generateSignatureForNonce.js)
+        "signature": "${signature}",
+        "payload": {
+          // new nonce, must be different and random (generateNonce.js)
+          "newNonce": "${payload.newNonce}",
+          // bag ID you want to attach data to
+          "bagId": "${payload.bagId}",
+          // data is used only if new token ("n" : Nil)
+          "data": ${payload.data ? '"' + payload.data + '"' : "Nil"}
+        }
+      },
+      *returnCh
+    )
+  } |
+
+  for (resp <- returnCh) {
+    match *resp {
+      true => {
+        basket!({ "status": "completed" }) |
+        stdout!("completed, data updated")
+      }
+      _ => {
+        basket!({ "status": "failed", "message": *resp }) |
+        stdout!(("failed", *resp))
+      }
+    }
+  }
+}
+`;
+};
+
+var updateBagDataTerm = {
+	updateBagDataTerm: updateBagDataTerm_1
+};
+
+var readBagOrTokenDataTerm_1 = (
+  registryUri,
+  bagsOrTokens,
+  bagOrTokenId,
+) => {
+  return `new return, entryCh, readCh, lookup(\`rho:registry:lookup\`) in {
+    lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+    for(entry <- entryCh) {
+      new x in {
+        entry!({ "type": "${bagsOrTokens === "tokens" ? "READ_TOKENS_DATA" : "READ_BAGS_DATA"}" }, *x) |
+        for (y <- x) {
+          return!(*y.get("${bagOrTokenId}"))
+        }
+      }
+    }
+  }`;
+};
+
+var readBagOrTokenDataTerm = {
+	readBagOrTokenDataTerm: readBagOrTokenDataTerm_1
+};
+
+var readBagsOrTokensDataTerm_1 = (
+  registryUri,
+  bagsOrTokens
+) => {
+  return `new return, entryCh, readCh, lookup(\`rho:registry:lookup\`) in {
+    lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+    for(entry <- entryCh) {
+      new x in {
+        entry!({ "type": "${bagsOrTokens === "tokens" ? "READ_TOKENS_DATA" : "READ_BAGS_DATA"}" }, *x) |
+        for (y <- x) {
+          return!(*y)
+        }
+      }
+    }
+  }`;
+};
+
+var readBagsOrTokensDataTerm = {
+	readBagsOrTokensDataTerm: readBagsOrTokensDataTerm_1
+};
+
+var read_1 = (
+  registryUri,
+) => {
+  return `new return, entryCh, readCh, lookup(\`rho:registry:lookup\`) in {
+    lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+    for(entry <- entryCh) {
+      new x in {
+        entry!({ "type": "READ" }, *x) |
+        for (y <- x) {
+          return!(*y)
+        }
+      }
+    }
+  }`;
+};
+
+var read = {
+	read: read_1
+};
+
+var readBagsTerm_1 = (
+  registryUri
+) => {
+  return `new return, entryCh, readCh, lookup(\`rho:registry:lookup\`) in {
+    lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+    for(entry <- entryCh) {
+      new x in {
+        entry!({ "type": "READ_BAGS" }, *x) |
+        for (y <- x) {
+          return!(*y)
+        }
+      }
+    }
+  }`;
+};
+
+var readBagsTerm = {
+	readBagsTerm: readBagsTerm_1
+};
+
+var changePriceTerm_1 = (
+  registryUri,
+  payload,
+  signature,
+) => {
+  return `new basket,
+  returnCh,
+  entryCh,
+  lookup(\`rho:registry:lookup\`),
+  stdout(\`rho:io:stdout\`)
+in {
+
+  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+
+  for(entry <- entryCh) {
+    entry!(
+      {
+        "type": "CHANGE_PRICE",
+        // signature of the payload + bag nonce in it, with the private key of the bag owner (generateSignatureForNonce.js)
+        "signature": "${signature}",
+        "payload": {
+          // new nonce, must be different and random (generateNonce.js)
+          "bagNonce": "${payload.bagNonce}",
+          // bag ID (ex: "0")
+          "bagId": "${payload.bagId}",
+          // quantity of tokens to send
+          "price": ${payload.price || "Nil"},
+        }
+      },
+      *returnCh
+    )
+  } |
+
+  for (resp <- returnCh) {
+    match *resp {
+      true => {
+        basket!({ "status": "completed" }) |
+        stdout!("completed, bag price changed")
+      }
+      _ => {
+        basket!({ "status": "failed", "message": *resp }) |
+        stdout!(("failed", *resp))
+      }
+    }
+  }
+}
+`;
+};
+
+var changePriceTerm = {
+	changePriceTerm: changePriceTerm_1
+};
+
+const { mainTerm: mainTerm$1 } = mainTerm;
+const { createTokensTerm: createTokensTerm$1 } = createTokensTerm;
+const { purchaseTokensTerm: purchaseTokensTerm$1 } = purchaseTokensTerm;
+const { sendTokensTerm: sendTokensTerm$1 } = sendTokensTerm;
+const { setLockedTerm: setLockedTerm$1 } = setLockedTerm;
+const { updateTokenDataTerm: updateTokenDataTerm$1 } = updateTokenDataTerm;
+const { updateBagDataTerm: updateBagDataTerm$1 } = updateBagDataTerm;
+const { readBagOrTokenDataTerm: readBagOrTokenDataTerm$1 } = readBagOrTokenDataTerm;
+const { readBagsOrTokensDataTerm: readBagsOrTokensDataTerm$1 } = readBagsOrTokensDataTerm;
+const { read: read$1 } = read;
+const { readBagsTerm: readBagsTerm$1 } = readBagsTerm;
+const { changePriceTerm: changePriceTerm$1 } = changePriceTerm;
+
+var src = {
+  version: '4.0.0',
+  mainTerm: mainTerm$1,
+  createTokensTerm: createTokensTerm$1,
+  purchaseTokensTerm: purchaseTokensTerm$1,
+  sendTokensTerm: sendTokensTerm$1,
+  setLockedTerm: setLockedTerm$1,
+  updateTokenDataTerm: updateTokenDataTerm$1,
+  updateBagDataTerm: updateBagDataTerm$1,
+  readBagOrTokenDataTerm: readBagOrTokenDataTerm$1,
+  readBagsOrTokensDataTerm: readBagsOrTokensDataTerm$1,
+  read: read$1,
+  readBagsTerm: readBagsTerm$1,
+  changePriceTerm: changePriceTerm$1,
+};
+var src_9 = src.readBagOrTokenDataTerm;
+var src_11 = src.read;
 
 var dist = createCommonjsModule(function (module, exports) {
 
@@ -2672,12 +3972,11 @@ var getWsResponse = function (data, ws, timeout) {
     });
 };
 
-var _this = undefined;
 /* browser to network */
 var performMultiRequest = function (body, parameters, connections) {
     return new Promise(function (resolve, reject) {
         resolver(function (index) {
-            return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
                 var connection, over_1, requestId, newBodyForRequest, resp, err_1;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
@@ -2699,7 +3998,7 @@ var performMultiRequest = function (body, parameters, connections) {
                         case 1:
                             _a.trys.push([1, 3, , 4]);
                             requestId = Math.round(Math.random() * 1000000).toString();
-                            newBodyForRequest = __assign({}, body, { requestId: requestId });
+                            newBodyForRequest = __assign(__assign({}, body), { requestId: requestId });
                             return [4 /*yield*/, getWsResponse(newBodyForRequest, connection, 50000)];
                         case 2:
                             resp = _a.sent();
@@ -4891,11 +6190,11 @@ var _baseKeysIn = baseKeysIn;
  * _.keysIn(new Foo);
  * // => ['a', 'b', 'c'] (iteration order is not guaranteed)
  */
-function keysIn$1(object) {
+function keysIn(object) {
   return isArrayLike_1(object) ? _arrayLikeKeys(object, true) : _baseKeysIn(object);
 }
 
-var keysIn_1 = keysIn$1;
+var keysIn_1 = keysIn;
 
 /**
  * The base implementation of `_.assignIn` without support for multiple sources
@@ -5674,7 +6973,7 @@ function baseClone(value, bitmask, customizer, key, object, stack) {
 
   var keysFunc = isFull
     ? (isFlat ? _getAllKeysIn : _getAllKeys)
-    : (isFlat ? keysIn : keys_1);
+    : (isFlat ? keysIn_1 : keys_1);
 
   var props = isArr ? undefined : keysFunc(value);
   _arrayEach(props || value, function(subValue, key) {
@@ -6258,9 +7557,11 @@ function _objectWithoutPropertiesLoose(source, excluded) {
 var objectWithoutPropertiesLoose = _objectWithoutPropertiesLoose;
 
 /* jshint node: true */
+
 function makeArrayFrom(obj) {
   return Array.prototype.slice.apply(obj);
 }
+
 var
   PENDING = "pending",
   RESOLVED = "resolved",
@@ -6282,6 +7583,10 @@ function SynchronousPromise(handler) {
 
 function looksLikeAPromise(obj) {
   return obj && typeof (obj.then) === "function";
+}
+
+function passThrough(value) {
+  return value;
 }
 
 SynchronousPromise.prototype = {
@@ -6330,6 +7635,37 @@ SynchronousPromise.prototype = {
     });
     this._runRejections();
     return next;
+  },
+  finally: function (callback) {
+    var ran = false;
+
+    function runFinally(result, err) {
+      if (!ran) {
+        ran = true;
+        if (!callback) {
+          callback = passThrough;
+        }
+        var callbackResult = callback(result);
+        if (looksLikeAPromise(callbackResult)) {
+          return callbackResult.then(function () {
+            if (err) {
+              throw err;
+            }
+            return result;
+          });
+        } else {
+          return result;
+        }
+      }
+    }
+
+    return this
+      .then(function (result) {
+        return runFinally(result);
+      })
+      .catch(function (err) {
+        return runFinally(null, err);
+      });
   },
   pause: function () {
     this._paused = true;
@@ -6415,7 +7751,6 @@ SynchronousPromise.prototype = {
           var catchResult = cont.catchFn(error);
           self._handleUserFunctionResult(catchResult, cont.promise);
         } catch (e) {
-          var message = e.message;
           cont.promise.reject(e);
         }
       } else {
@@ -6424,7 +7759,7 @@ SynchronousPromise.prototype = {
     });
   },
   _runResolutions: function () {
-    if (this._paused || !this._isResolved()) {
+    if (this._paused || !this._isResolved() || this._isPending()) {
       return;
     }
     var continuations = this._takeContinuations();
@@ -6572,12 +7907,95 @@ SynchronousPromise.all = function () {
   });
 };
 
+function createAggregateErrorFrom(errors) {
+  /* jshint ignore:start */
+  if (typeof window !== "undefined" && "AggregateError" in window) {
+    return new window.AggregateError(errors);
+  }
+  /* jshint ignore:end */
+
+  return { errors: errors };
+}
+
+SynchronousPromise.any = function () {
+  var args = makeArrayFrom(arguments);
+  if (Array.isArray(args[0])) {
+    args = args[0];
+  }
+  if (!args.length) {
+    return SynchronousPromise.reject(createAggregateErrorFrom([]));
+  }
+  return new SynchronousPromise(function (resolve, reject) {
+    var
+      allErrors = [],
+      numRejected = 0,
+      doReject = function () {
+        if (numRejected === args.length) {
+          reject(createAggregateErrorFrom(allErrors));
+        }
+      },
+      resolved = false,
+      doResolve = function (result) {
+        if (resolved) {
+          return;
+        }
+        resolved = true;
+        resolve(result);
+      };
+    args.forEach(function (arg, idx) {
+      SynchronousPromise.resolve(arg).then(function (thisResult) {
+        doResolve(thisResult);
+      }).catch(function (err) {
+        allErrors[idx] = err;
+        numRejected += 1;
+        doReject();
+      });
+    });
+  });
+};
+
+SynchronousPromise.allSettled = function () {
+  var args = makeArrayFrom(arguments);
+  if (Array.isArray(args[0])) {
+    args = args[0];
+  }
+  if (!args.length) {
+    return SynchronousPromise.resolve([]);
+  }
+  return new SynchronousPromise(function (resolve) {
+    var
+      allData = [],
+      numSettled = 0,
+      doSettled = function () {
+        numSettled += 1;
+        if (numSettled === args.length) {
+          resolve(allData);
+        }
+      };
+    args.forEach(function (arg, idx) {
+      SynchronousPromise.resolve(arg).then(function (thisResult) {
+        allData[idx] = {
+          status: "fulfilled",
+          value: thisResult
+        };
+        doSettled();
+      }).catch(function (err) {
+        allData[idx] = {
+          status: "rejected",
+          reason: err
+        };
+        doSettled();
+      });
+    });
+  });
+};
+
 /* jshint ignore:start */
 if (Promise === SynchronousPromise) {
   throw new Error("Please use SynchronousPromise.installGlobally() to install globally");
 }
 var RealPromise = Promise;
-SynchronousPromise.installGlobally = function(__awaiter) {
+SynchronousPromise.installGlobally = function (__awaiter) {
   if (Promise === SynchronousPromise) {
     return __awaiter;
   }
@@ -6586,23 +8004,24 @@ SynchronousPromise.installGlobally = function(__awaiter) {
   return result;
 };
 
-SynchronousPromise.uninstallGlobally = function() {
+SynchronousPromise.uninstallGlobally = function () {
   if (Promise === SynchronousPromise) {
     Promise = RealPromise;
   }
 };
 
 function patchAwaiterIfRequired(__awaiter) {
-  if (typeof(__awaiter) === "undefined" || __awaiter.__patched) {
+  if (typeof (__awaiter) === "undefined" || __awaiter.__patched) {
     return __awaiter;
   }
   var originalAwaiter = __awaiter;
-  __awaiter = function() {
+  __awaiter = function () {
     originalAwaiter.apply(this, makeArrayFrom(arguments));
   };
   __awaiter.__patched = true;
   return __awaiter;
 }
+
 /* jshint ignore:end */
 
 var synchronousPromise = {
@@ -7015,10 +8434,11 @@ function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
   if (arrLength != othLength && !(isPartial && othLength > arrLength)) {
     return false;
   }
-  // Assume cyclic values are equal.
-  var stacked = stack.get(array);
-  if (stacked && stack.get(other)) {
-    return stacked == other;
+  // Check that cyclic values are equal.
+  var arrStacked = stack.get(array);
+  var othStacked = stack.get(other);
+  if (arrStacked && othStacked) {
+    return arrStacked == other && othStacked == array;
   }
   var index = -1,
       result = true,
@@ -7215,10 +8635,11 @@ function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
       return false;
     }
   }
-  // Assume cyclic values are equal.
-  var stacked = stack.get(object);
-  if (stacked && stack.get(other)) {
-    return stacked == other;
+  // Check that cyclic values are equal.
+  var objStacked = stack.get(object);
+  var othStacked = stack.get(other);
+  if (objStacked && othStacked) {
+    return objStacked == other && othStacked == object;
   }
   var result = true;
   stack.set(object, other);
@@ -10951,20 +12372,18 @@ var dpySchema = lib_9()
     .noUnknown(true)
     .strict(true);
 
-var rholangFilesModuleResourceTerm = function (registryUri, fileId) {
-    if (fileId) {
-        return "new return, entryCh, readCh, lookup(`rho:registry:lookup`) in {\n      lookup!(`rho:id:" + registryUri + "`, *entryCh) |\n      for(entry <- entryCh) {\n        new x, z in {\n          entry!({ \"type\": \"READ\" }, *x) |\n          for (y <- x) {\n            lookup!(*y.get(\"files\").get(\"" + fileId + "\"), *z) |\n            for (value <- z) {\n              return!(*value)\n            }\n          }\n        }\n      }\n    }";
-    }
-    else {
-        return "new return, entryCh, readCh, lookup(`rho:registry:lookup`) in {\n      lookup!(`rho:id:" + registryUri + "`, *entryCh) |\n      for(entry <- entryCh) {\n        new x in {\n          entry!({ \"type\": \"READ\" }, *x) |\n          for (y <- x) {\n            return!(*y)\n          }\n        }\n      }\n    }";
-    }
-};
-
 var getNodeIndex = function (node) {
     return node.ip + "---" + node.host;
 };
 
-var _this$1 = undefined;
+var readDataorBagData = function (registryUri, fileId) {
+    // read bag data if fileId
+    if (fileId) {
+        return src_9(registryUri, "bags", fileId);
+    }
+    // read contract values { registryUri: ..., nonce: ...} if no file ID
+    return src_11(registryUri);
+};
 var registerDappyProtocol = function (session, getState) {
     session.protocol.registerBufferProtocol('dappy', function (request, callback) {
         var valid = false;
@@ -11022,7 +12441,14 @@ var registerDappyProtocol = function (session, getState) {
         var type;
         if (exploreDeploys) {
             type = 'explore-deploy-x';
-            query = JSON.parse(request.headers['Explore-Deploys']).data.map(function (d) { return ({ term: d }); });
+            try {
+                query = JSON.parse(request.headers['Explore-Deploys']).data.map(function (d) { return ({ term: d }); });
+            }
+            catch (err) {
+                console.error('[dapp] could not parse explore-deploys haders');
+                callback();
+                return;
+            }
         }
         else if (multipleResources) {
             type = 'explore-deploy-x';
@@ -11032,14 +12458,14 @@ var registerDappyProtocol = function (session, getState) {
                 .filter(function (a) { return !!a; })
                 .map(function (u) {
                 return {
-                    term: rholangFilesModuleResourceTerm(u.split('.')[0], u.split('.')[1]),
+                    term: readDataorBagData(u.split('.')[0], u.split('.')[1])
                 };
             });
         }
         else {
             type = 'explore-deploy';
             query = {
-                term: rholangFilesModuleResourceTerm(split[1].split('.')[0], split[1].split('.')[1]),
+                term: readDataorBagData(split[1].split('.')[0], split[1].split('.')[1])
             };
         }
         var settings = getSettings$1(getState());
@@ -11068,7 +12494,7 @@ var registerDappyProtocol = function (session, getState) {
                 }
             },
         }, connections)
-            .then(function (multiCallResult) { return __awaiter(_this$1, void 0, void 0, function () {
+            .then(function (multiCallResult) { return __awaiter(void 0, void 0, void 0, function () {
             var json, dataFromBlockchainParsed, file, dataAtNameBuffer, unzippedBuffer, parsedFile, err_1, err_2, err_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -11364,9 +12790,20 @@ setCookie.parse = parse_1;
 setCookie.parseString = parseString_1;
 setCookie.splitCookiesString = splitCookiesString_1;
 
-var _this$2 = undefined;
+var SAVE_COOKIES_FOR_DOMAIN = '[Cookies] Save cookies for domain';
+var saveCookiesForDomainAction = function (values) { return ({
+    type: SAVE_COOKIES_FOR_DOMAIN,
+    payload: values,
+}); };
+
+// SELECTORS
+var getCookiesState = lib_4(function (state) { return state; }, function (state) { return state.cookies; });
+var getCookies = lib_4(getCookiesState, function (state) { return state.cookies; });
+// COMBINED SELECTORS
+
 var httpErrorServerUrl = undefined;
-var overrideHttpProtocols = function (session, getState, development) {
+var agents = {};
+var overrideHttpProtocols = function (session, getState, development, dispatchFromMain, allowSentry) {
     // debug
     var debug = development;
     if (!httpErrorServerUrl) {
@@ -11423,8 +12860,41 @@ var overrideHttpProtocols = function (session, getState, development) {
             return;
         });
     }
-    session.protocol.interceptStreamProtocol('https', function (request, callback) { return __awaiter(_this$2, void 0, void 0, function () {
-        var options, randomId, userAgent, io, browserViews, appId, browserView, withoutProtocol, pathArray, host, path, serversWithSameHost, cookies, cookieHeader, loadFails, over, i, tryToLoad;
+    var browserView = undefined;
+    session.cookies.on('changed', function (e, c, ca, re) { return __awaiter(void 0, void 0, void 0, function () {
+        var servers, cookies;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (!browserView) {
+                        console.log('no browserView, cannot save cookies');
+                        return [2 /*return*/];
+                    }
+                    servers = browserView.servers.filter(function (s) { return s.host === c.domain; });
+                    if (!servers.length) {
+                        console.log('no browserView.servers matching cookies domain ' + c.domain);
+                        return [2 /*return*/];
+                    }
+                    return [4 /*yield*/, browserView.browserView.webContents.session.cookies.get({ url: "https://" + c.domain })];
+                case 1:
+                    cookies = _a.sent();
+                    dispatchFromMain({
+                        action: saveCookiesForDomainAction({
+                            address: browserView.address,
+                            cookies: cookies.filter(function (c) { return typeof c.expirationDate === 'number'; }).map(function (cook) { return ({
+                                domain: cook.domain,
+                                name: cook.name,
+                                value: cook.value,
+                                expirationDate: cook.expirationDate,
+                            }); })
+                        }),
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    }); });
+    session.protocol.interceptStreamProtocol('https', function (request, callback) { return __awaiter(void 0, void 0, void 0, function () {
+        var options, randomId, userAgent, io, browserViews, appId, withoutProtocol, pathArray, host, path, serversWithSameHost, cookies, cookieHeader, loadFails, over, i, tryToLoad;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -11433,29 +12903,31 @@ var overrideHttpProtocols = function (session, getState, development) {
                       todo, forbid third party apps from talking to sentry.io without authorization
                       check the User-Agent to see if it is legit (it should be the User-Agent of main process)
                       */
-                    if (request.url.startsWith('https://sentry.io')) {
-                        try {
-                            options = {
-                                method: request.method,
-                                host: 'sentry.io',
-                                port: 443,
-                                rejectUnauthorized: true,
-                                path: request.url.replace('https://sentry.io', '') || '/',
-                                headers: request.headers,
-                            };
-                            https
-                                .request(options, function (resp) {
-                                callback(resp);
-                            })
-                                .on('error', function (er) {
-                                console.log(er);
-                            })
-                                .end(request.uploadData[0].bytes.toString('utf8'));
-                            return [2 /*return*/];
-                        }
-                        catch (err) {
-                            console.log(err);
-                            return [2 /*return*/];
+                    if (allowSentry === true) {
+                        if (request.url.startsWith('https://sentry.io')) {
+                            try {
+                                options = {
+                                    method: request.method,
+                                    host: 'sentry.io',
+                                    port: 443,
+                                    rejectUnauthorized: true,
+                                    path: request.url.replace('https://sentry.io', '') || '/',
+                                    headers: request.headers,
+                                };
+                                https
+                                    .request(options, function (resp) {
+                                    callback(resp);
+                                })
+                                    .on('error', function (er) {
+                                    console.log(er);
+                                })
+                                    .end(request.uploadData[0].bytes.toString('utf8'));
+                                return [2 /*return*/];
+                            }
+                            catch (err) {
+                                console.log(err);
+                                return [2 /*return*/];
+                            }
                         }
                     }
                     randomId = '';
@@ -11500,12 +12972,9 @@ var overrideHttpProtocols = function (session, getState, development) {
                         return [2 /*return*/];
                     }
                     cookies = [];
-                    if (!serversWithSameHost[0]) return [3 /*break*/, 2];
-                    return [4 /*yield*/, browserViews[appId].browserView.webContents.session.cookies.get({ url: "https://" + serversWithSameHost[0].host })];
+                    return [4 /*yield*/, browserView.browserView.webContents.session.cookies.get({ url: "https://" + serversWithSameHost[0].host })];
                 case 1:
                     cookies = _a.sent();
-                    _a.label = 2;
-                case 2:
                     cookieHeader = cookies.map(function (c) { return c.name + "=" + c.value; }).join('; ');
                     loadFails = {};
                     over = false;
@@ -11515,18 +12984,21 @@ var overrideHttpProtocols = function (session, getState, development) {
                             console.log('[https load]', request.url, i);
                         var s = serversWithSameHost[i];
                         // See https://nodejs.org/docs/latest-v10.x/api/tls.html#tls_tls_createsecurecontext_options
-                        var a = new https.Agent({
-                            /* no dns */
-                            host: s.ip,
-                            rejectUnauthorized: false,
-                            cert: decodeURI(s.cert),
-                            ca: [],
-                        });
+                        if (!agents[s.ip + "-" + s.cert]) {
+                            agents[s.ip + "-" + s.cert] = new https.Agent({
+                                /* no dns */
+                                host: s.ip,
+                                rejectUnauthorized: false,
+                                cert: decodeURI(s.cert),
+                                minVersion: 'TLSv1.2',
+                                ca: [],
+                            });
+                        }
                         var options = {
-                            agent: a,
+                            agent: agents[s.ip + "-" + s.cert],
                             method: request.method,
                             path: path ? "/" + path : '/',
-                            headers: __assign({}, request.headers, { 
+                            headers: __assign(__assign({}, request.headers), { 
                                 /* no dns */
                                 host: s.host, 'User-Agent': request.headers['User-Agent'].substr(0, io), 'Cookie': cookieHeader }),
                         };
@@ -11668,13 +13140,14 @@ var constants = {
 // Workaround to fix webpack's build warnings: 'the request of a dependency is an expression'
 var runtimeRequire = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : commonjsRequire; // eslint-disable-line
 
+var vars = (process.config && process.config.variables) || {};
 var prebuildsOnly = !!process.env.PREBUILDS_ONLY;
 var abi = process.versions.modules; // TODO: support old node where this is undef
 var runtime = isElectron() ? 'electron' : 'node';
 var arch = os.arch();
 var platform = os.platform();
 var libc = process.env.LIBC || (isAlpine(platform) ? 'musl' : 'glibc');
-var armv = process.env.ARM_VERSION || (arch === 'arm64' ? '8' : process.config.variables.arm_version) || '';
+var armv = process.env.ARM_VERSION || (arch === 'arm64' ? '8' : vars.arm_version) || '';
 var uv = (process.versions.uv || '').split('.')[0];
 
 var nodeGypBuild = load;
@@ -11699,12 +13172,11 @@ load.path = function (dir) {
     if (debug) return debug
   }
 
-  // Find most specific flavor first
-  var prebuilds = path.join(dir, 'prebuilds', platform + '-' + arch);
-  var parsed = readdirSync(prebuilds).map(parseTags);
-  var candidates = parsed.filter(matchTags(runtime, abi));
-  var winner = candidates.sort(compareTags(runtime))[0];
-  if (winner) return path.join(prebuilds, winner.file)
+  var prebuild = resolve(dir);
+  if (prebuild) return prebuild
+
+  var nearby = resolve(path.dirname(process.execPath));
+  if (nearby) return nearby
 
   var target = [
     'platform=' + platform,
@@ -11713,10 +13185,22 @@ load.path = function (dir) {
     'abi=' + abi,
     'uv=' + uv,
     armv ? 'armv=' + armv : '',
-    'libc=' + libc
+    'libc=' + libc,
+    'node=' + process.versions.node,
+    (process.versions && process.versions.electron) ? 'electron=' + process.versions.electron : '',
+    typeof __webpack_require__ === 'function' ? 'webpack=true' : '' // eslint-disable-line
   ].filter(Boolean).join(' ');
 
-  throw new Error('No native build was found for ' + target)
+  throw new Error('No native build was found for ' + target + '\n    loaded from: ' + dir + '\n')
+
+  function resolve (dir) {
+    // Find most specific flavor first
+    var prebuilds = path.join(dir, 'prebuilds', platform + '-' + arch);
+    var parsed = readdirSync(prebuilds).map(parseTags);
+    var candidates = parsed.filter(matchTags(runtime, abi));
+    var winner = candidates.sort(compareTags(runtime))[0];
+    if (winner) return path.join(prebuilds, winner.file)
+  }
 };
 
 function readdirSync (dir) {
@@ -12005,8 +13489,8 @@ class Limiter {
   /**
    * Creates a new `Limiter`.
    *
-   * @param {Number} concurrency The maximum number of jobs allowed to run
-   *     concurrently
+   * @param {Number} [concurrency=Infinity] The maximum number of jobs allowed
+   *     to run concurrently
    */
   constructor(concurrency) {
     this[kDone] = () => {
@@ -12021,6 +13505,7 @@ class Limiter {
   /**
    * Adds a job to the queue.
    *
+   * @param {Function} job The job to run
    * @public
    */
   add(job) {
@@ -12072,24 +13557,26 @@ class PerMessageDeflate {
   /**
    * Creates a PerMessageDeflate instance.
    *
-   * @param {Object} options Configuration options
-   * @param {Boolean} options.serverNoContextTakeover Request/accept disabling
-   *     of server context takeover
-   * @param {Boolean} options.clientNoContextTakeover Advertise/acknowledge
-   *     disabling of client context takeover
-   * @param {(Boolean|Number)} options.serverMaxWindowBits Request/confirm the
+   * @param {Object} [options] Configuration options
+   * @param {Boolean} [options.serverNoContextTakeover=false] Request/accept
+   *     disabling of server context takeover
+   * @param {Boolean} [options.clientNoContextTakeover=false] Advertise/
+   *     acknowledge disabling of client context takeover
+   * @param {(Boolean|Number)} [options.serverMaxWindowBits] Request/confirm the
    *     use of a custom server window size
-   * @param {(Boolean|Number)} options.clientMaxWindowBits Advertise support
+   * @param {(Boolean|Number)} [options.clientMaxWindowBits] Advertise support
    *     for, or request, a custom client window size
-   * @param {Object} options.zlibDeflateOptions Options to pass to zlib on deflate
-   * @param {Object} options.zlibInflateOptions Options to pass to zlib on inflate
-   * @param {Number} options.threshold Size (in bytes) below which messages
-   *     should not be compressed
-   * @param {Number} options.concurrencyLimit The number of concurrent calls to
-   *     zlib
-   * @param {Boolean} isServer Create the instance in either server or client
-   *     mode
-   * @param {Number} maxPayload The maximum allowed message length
+   * @param {Object} [options.zlibDeflateOptions] Options to pass to zlib on
+   *     deflate
+   * @param {Object} [options.zlibInflateOptions] Options to pass to zlib on
+   *     inflate
+   * @param {Number} [options.threshold=1024] Size (in bytes) below which
+   *     messages should not be compressed
+   * @param {Number} [options.concurrencyLimit=10] The number of concurrent
+   *     calls to zlib
+   * @param {Boolean} [isServer=false] Create the instance in either server or
+   *     client mode
+   * @param {Number} [maxPayload=0] The maximum allowed message length
    */
   constructor(options, isServer, maxPayload) {
     this._maxPayload = maxPayload | 0;
@@ -12686,11 +14173,11 @@ class Receiver extends Writable {
   /**
    * Creates a Receiver instance.
    *
-   * @param {String} binaryType The type for binary data
-   * @param {Object} extensions An object containing the negotiated extensions
-   * @param {Boolean} isServer Specifies whether to operate in client or server
-   *     mode
-   * @param {Number} maxPayload The maximum allowed message length
+   * @param {String} [binaryType=nodebuffer] The type for binary data
+   * @param {Object} [extensions] An object containing the negotiated extensions
+   * @param {Boolean} [isServer=false] Specifies whether to operate in client or
+   *     server mode
+   * @param {Number} [maxPayload=0] The maximum allowed message length
    */
   constructor(binaryType, extensions, isServer, maxPayload) {
     super();
@@ -13181,7 +14668,7 @@ class Sender {
    * Creates a Sender instance.
    *
    * @param {net.Socket} socket The connection socket
-   * @param {Object} extensions An object containing the negotiated extensions
+   * @param {Object} [extensions] An object containing the negotiated extensions
    */
   constructor(socket, extensions) {
     this._extensions = extensions || {};
@@ -13201,10 +14688,14 @@ class Sender {
    * @param {Buffer} data The data to frame
    * @param {Object} options Options object
    * @param {Number} options.opcode The opcode
-   * @param {Boolean} options.readOnly Specifies whether `data` can be modified
-   * @param {Boolean} options.fin Specifies whether or not to set the FIN bit
-   * @param {Boolean} options.mask Specifies whether or not to mask `data`
-   * @param {Boolean} options.rsv1 Specifies whether or not to set the RSV1 bit
+   * @param {Boolean} [options.readOnly=false] Specifies whether `data` can be
+   *     modified
+   * @param {Boolean} [options.fin=false] Specifies whether or not to set the
+   *     FIN bit
+   * @param {Boolean} [options.mask=false] Specifies whether or not to mask
+   *     `data`
+   * @param {Boolean} [options.rsv1=false] Specifies whether or not to set the
+   *     RSV1 bit
    * @return {Buffer[]} The framed data as a list of `Buffer` instances
    * @public
    */
@@ -13257,10 +14748,10 @@ class Sender {
   /**
    * Sends a close message to the other peer.
    *
-   * @param {(Number|undefined)} code The status code component of the body
-   * @param {String} data The message component of the body
-   * @param {Boolean} mask Specifies whether or not to mask the message
-   * @param {Function} cb Callback
+   * @param {Number} [code] The status code component of the body
+   * @param {String} [data] The message component of the body
+   * @param {Boolean} [mask=false] Specifies whether or not to mask the message
+   * @param {Function} [cb] Callback
    * @public
    */
   close(code, data, mask, cb) {
@@ -13296,8 +14787,8 @@ class Sender {
    * Frames and sends a close message.
    *
    * @param {Buffer} data The message to send
-   * @param {Boolean} mask Specifies whether or not to mask `data`
-   * @param {Function} cb Callback
+   * @param {Boolean} [mask=false] Specifies whether or not to mask `data`
+   * @param {Function} [cb] Callback
    * @private
    */
   doClose(data, mask, cb) {
@@ -13317,8 +14808,8 @@ class Sender {
    * Sends a ping message to the other peer.
    *
    * @param {*} data The message to send
-   * @param {Boolean} mask Specifies whether or not to mask `data`
-   * @param {Function} cb Callback
+   * @param {Boolean} [mask=false] Specifies whether or not to mask `data`
+   * @param {Function} [cb] Callback
    * @public
    */
   ping(data, mask, cb) {
@@ -13339,9 +14830,9 @@ class Sender {
    * Frames and sends a ping message.
    *
    * @param {Buffer} data The message to send
-   * @param {Boolean} mask Specifies whether or not to mask `data`
-   * @param {Boolean} readOnly Specifies whether `data` can be modified
-   * @param {Function} cb Callback
+   * @param {Boolean} [mask=false] Specifies whether or not to mask `data`
+   * @param {Boolean} [readOnly=false] Specifies whether `data` can be modified
+   * @param {Function} [cb] Callback
    * @private
    */
   doPing(data, mask, readOnly, cb) {
@@ -13361,8 +14852,8 @@ class Sender {
    * Sends a pong message to the other peer.
    *
    * @param {*} data The message to send
-   * @param {Boolean} mask Specifies whether or not to mask `data`
-   * @param {Function} cb Callback
+   * @param {Boolean} [mask=false] Specifies whether or not to mask `data`
+   * @param {Function} [cb] Callback
    * @public
    */
   pong(data, mask, cb) {
@@ -13383,9 +14874,9 @@ class Sender {
    * Frames and sends a pong message.
    *
    * @param {Buffer} data The message to send
-   * @param {Boolean} mask Specifies whether or not to mask `data`
-   * @param {Boolean} readOnly Specifies whether `data` can be modified
-   * @param {Function} cb Callback
+   * @param {Boolean} [mask=false] Specifies whether or not to mask `data`
+   * @param {Boolean} [readOnly=false] Specifies whether `data` can be modified
+   * @param {Function} [cb] Callback
    * @private
    */
   doPong(data, mask, readOnly, cb) {
@@ -13406,11 +14897,15 @@ class Sender {
    *
    * @param {*} data The message to send
    * @param {Object} options Options object
-   * @param {Boolean} options.compress Specifies whether or not to compress `data`
-   * @param {Boolean} options.binary Specifies whether `data` is binary or text
-   * @param {Boolean} options.fin Specifies whether the fragment is the last one
-   * @param {Boolean} options.mask Specifies whether or not to mask `data`
-   * @param {Function} cb Callback
+   * @param {Boolean} [options.compress=false] Specifies whether or not to
+   *     compress `data`
+   * @param {Boolean} [options.binary=false] Specifies whether `data` is binary
+   *     or text
+   * @param {Boolean} [options.fin=false] Specifies whether the fragment is the
+   *     last one
+   * @param {Boolean} [options.mask=false] Specifies whether or not to mask
+   *     `data`
+   * @param {Function} [cb] Callback
    * @public
    */
   send(data, options, cb) {
@@ -13464,14 +14959,19 @@ class Sender {
    * Dispatches a data message.
    *
    * @param {Buffer} data The message to send
-   * @param {Boolean} compress Specifies whether or not to compress `data`
+   * @param {Boolean} [compress=false] Specifies whether or not to compress
+   *     `data`
    * @param {Object} options Options object
    * @param {Number} options.opcode The opcode
-   * @param {Boolean} options.readOnly Specifies whether `data` can be modified
-   * @param {Boolean} options.fin Specifies whether or not to set the FIN bit
-   * @param {Boolean} options.mask Specifies whether or not to mask `data`
-   * @param {Boolean} options.rsv1 Specifies whether or not to set the RSV1 bit
-   * @param {Function} cb Callback
+   * @param {Boolean} [options.readOnly=false] Specifies whether `data` can be
+   *     modified
+   * @param {Boolean} [options.fin=false] Specifies whether or not to set the
+   *     FIN bit
+   * @param {Boolean} [options.mask=false] Specifies whether or not to mask
+   *     `data`
+   * @param {Boolean} [options.rsv1=false] Specifies whether or not to set the
+   *     RSV1 bit
+   * @param {Function} [cb] Callback
    * @private
    */
   dispatch(data, compress, options, cb) {
@@ -13538,7 +15038,7 @@ class Sender {
    * Sends a frame.
    *
    * @param {Buffer[]} list The frame to send
-   * @param {Function} cb Callback
+   * @param {Function} [cb] Callback
    * @private
    */
   sendFrame(list, cb) {
@@ -13565,7 +15065,8 @@ class Event {
    * Create a new `Event`.
    *
    * @param {String} type The name of the event
-   * @param {Object} target A reference to the target to which the event was dispatched
+   * @param {Object} target A reference to the target to which the event was
+   *     dispatched
    */
   constructor(type, target) {
     this.target = target;
@@ -13584,7 +15085,8 @@ class MessageEvent extends Event {
    * Create a new `MessageEvent`.
    *
    * @param {(String|Buffer|ArrayBuffer|Buffer[])} data The received data
-   * @param {WebSocket} target A reference to the target to which the event was dispatched
+   * @param {WebSocket} target A reference to the target to which the event was
+   *     dispatched
    */
   constructor(data, target) {
     super('message', target);
@@ -13603,9 +15105,12 @@ class CloseEvent extends Event {
   /**
    * Create a new `CloseEvent`.
    *
-   * @param {Number} code The status code explaining why the connection is being closed
-   * @param {String} reason A human-readable string explaining why the connection is closing
-   * @param {WebSocket} target A reference to the target to which the event was dispatched
+   * @param {Number} code The status code explaining why the connection is being
+   *     closed
+   * @param {String} reason A human-readable string explaining why the
+   *     connection is closing
+   * @param {WebSocket} target A reference to the target to which the event was
+   *     dispatched
    */
   constructor(code, reason, target) {
     super('close', target);
@@ -13626,7 +15131,8 @@ class OpenEvent extends Event {
   /**
    * Create a new `OpenEvent`.
    *
-   * @param {WebSocket} target A reference to the target to which the event was dispatched
+   * @param {WebSocket} target A reference to the target to which the event was
+   *     dispatched
    */
   constructor(target) {
     super('open', target);
@@ -13644,7 +15150,8 @@ class ErrorEvent extends Event {
    * Create a new `ErrorEvent`.
    *
    * @param {Object} error The error that generated this event
-   * @param {WebSocket} target A reference to the target to which the event was dispatched
+   * @param {WebSocket} target A reference to the target to which the event was
+   *     dispatched
    */
   constructor(error, target) {
     super('error', target);
@@ -13666,11 +15173,11 @@ const EventTarget = {
    *
    * @param {String} type A string representing the event type to listen for
    * @param {Function} listener The listener to add
-   * @param {Object} options An options object specifies characteristics about
+   * @param {Object} [options] An options object specifies characteristics about
    *     the event listener
-   * @param {Boolean} options.once A `Boolean`` indicating that the listener
-   *     should be invoked at most once after being added. If `true`, the
-   *     listener would be automatically removed when invoked.
+   * @param {Boolean} [options.once=false] A `Boolean`` indicating that the
+   *     listener should be invoked at most once after being added. If `true`,
+   *     the listener would be automatically removed when invoked.
    * @public
    */
   addEventListener(type, listener, options) {
@@ -13985,22 +15492,21 @@ class WebSocket extends events {
    * Create a new `WebSocket`.
    *
    * @param {(String|url.URL)} address The URL to which to connect
-   * @param {(String|String[])} protocols The subprotocols
-   * @param {Object} options Connection options
+   * @param {(String|String[])} [protocols] The subprotocols
+   * @param {Object} [options] Connection options
    */
   constructor(address, protocols, options) {
     super();
 
-    this.readyState = WebSocket.CONNECTING;
-    this.protocol = '';
-
     this._binaryType = BINARY_TYPES$1[0];
+    this._closeCode = 1006;
     this._closeFrameReceived = false;
     this._closeFrameSent = false;
     this._closeMessage = '';
     this._closeTimer = null;
-    this._closeCode = 1006;
     this._extensions = {};
+    this._protocol = '';
+    this._readyState = WebSocket.CONNECTING;
     this._receiver = null;
     this._sender = null;
     this._socket = null;
@@ -14021,19 +15527,6 @@ class WebSocket extends events {
     } else {
       this._isServer = true;
     }
-  }
-
-  get CONNECTING() {
-    return WebSocket.CONNECTING;
-  }
-  get CLOSING() {
-    return WebSocket.CLOSING;
-  }
-  get CLOSED() {
-    return WebSocket.CLOSED;
-  }
-  get OPEN() {
-    return WebSocket.OPEN;
   }
 
   /**
@@ -14075,16 +15568,37 @@ class WebSocket extends events {
   }
 
   /**
+   * @type {String}
+   */
+  get protocol() {
+    return this._protocol;
+  }
+
+  /**
+   * @type {Number}
+   */
+  get readyState() {
+    return this._readyState;
+  }
+
+  /**
+   * @type {String}
+   */
+  get url() {
+    return this._url;
+  }
+
+  /**
    * Set up the socket and the internal resources.
    *
    * @param {net.Socket} socket The network socket between the server and client
    * @param {Buffer} head The first packet of the upgraded stream
-   * @param {Number} maxPayload The maximum allowed message size
+   * @param {Number} [maxPayload=0] The maximum allowed message size
    * @private
    */
   setSocket(socket, head, maxPayload) {
     const receiver$1 = new receiver(
-      this._binaryType,
+      this.binaryType,
       this._extensions,
       this._isServer,
       maxPayload
@@ -14114,7 +15628,7 @@ class WebSocket extends events {
     socket.on('end', socketOnEnd);
     socket.on('error', socketOnError);
 
-    this.readyState = WebSocket.OPEN;
+    this._readyState = WebSocket.OPEN;
     this.emit('open');
   }
 
@@ -14125,7 +15639,7 @@ class WebSocket extends events {
    */
   emitClose() {
     if (!this._socket) {
-      this.readyState = WebSocket.CLOSED;
+      this._readyState = WebSocket.CLOSED;
       this.emit('close', this._closeCode, this._closeMessage);
       return;
     }
@@ -14135,7 +15649,7 @@ class WebSocket extends events {
     }
 
     this._receiver.removeAllListeners();
-    this.readyState = WebSocket.CLOSED;
+    this._readyState = WebSocket.CLOSED;
     this.emit('close', this._closeCode, this._closeMessage);
   }
 
@@ -14154,8 +15668,8 @@ class WebSocket extends events {
    *     - - - - -|fin|<---------------------+
    *              +---+
    *
-   * @param {Number} code Status code explaining why the connection is closing
-   * @param {String} data A string explaining why the connection is closing
+   * @param {Number} [code] Status code explaining why the connection is closing
+   * @param {String} [data] A string explaining why the connection is closing
    * @public
    */
   close(code, data) {
@@ -14170,7 +15684,7 @@ class WebSocket extends events {
       return;
     }
 
-    this.readyState = WebSocket.CLOSING;
+    this._readyState = WebSocket.CLOSING;
     this._sender.close(code, data, !this._isServer, (err) => {
       //
       // This error is handled by the `'error'` listener on the socket. We only
@@ -14194,9 +15708,9 @@ class WebSocket extends events {
   /**
    * Send a ping.
    *
-   * @param {*} data The data to send
-   * @param {Boolean} mask Indicates whether or not to mask `data`
-   * @param {Function} cb Callback which is executed when the ping is sent
+   * @param {*} [data] The data to send
+   * @param {Boolean} [mask] Indicates whether or not to mask `data`
+   * @param {Function} [cb] Callback which is executed when the ping is sent
    * @public
    */
   ping(data, mask, cb) {
@@ -14226,9 +15740,9 @@ class WebSocket extends events {
   /**
    * Send a pong.
    *
-   * @param {*} data The data to send
-   * @param {Boolean} mask Indicates whether or not to mask `data`
-   * @param {Function} cb Callback which is executed when the pong is sent
+   * @param {*} [data] The data to send
+   * @param {Boolean} [mask] Indicates whether or not to mask `data`
+   * @param {Function} [cb] Callback which is executed when the pong is sent
    * @public
    */
   pong(data, mask, cb) {
@@ -14259,13 +15773,15 @@ class WebSocket extends events {
    * Send a data message.
    *
    * @param {*} data The message to send
-   * @param {Object} options Options object
-   * @param {Boolean} options.compress Specifies whether or not to compress
+   * @param {Object} [options] Options object
+   * @param {Boolean} [options.compress] Specifies whether or not to compress
    *     `data`
-   * @param {Boolean} options.binary Specifies whether `data` is binary or text
-   * @param {Boolean} options.fin Specifies whether the fragment is the last one
-   * @param {Boolean} options.mask Specifies whether or not to mask `data`
-   * @param {Function} cb Callback which is executed when data is written out
+   * @param {Boolean} [options.binary] Specifies whether `data` is binary or
+   *     text
+   * @param {Boolean} [options.fin=true] Specifies whether the fragment is the
+   *     last one
+   * @param {Boolean} [options.mask] Specifies whether or not to mask `data`
+   * @param {Function} [cb] Callback which is executed when data is written out
    * @public
    */
   send(data, options, cb) {
@@ -14313,14 +15829,28 @@ class WebSocket extends events {
     }
 
     if (this._socket) {
-      this.readyState = WebSocket.CLOSING;
+      this._readyState = WebSocket.CLOSING;
       this._socket.destroy();
     }
   }
 }
 
 readyStates.forEach((readyState, i) => {
-  WebSocket[readyState] = i;
+  const descriptor = { enumerable: true, value: i };
+
+  Object.defineProperty(WebSocket.prototype, readyState, descriptor);
+  Object.defineProperty(WebSocket, readyState, descriptor);
+});
+
+[
+  'binaryType',
+  'bufferedAmount',
+  'extensions',
+  'protocol',
+  'readyState',
+  'url'
+].forEach((property) => {
+  Object.defineProperty(WebSocket.prototype, property, { enumerable: true });
 });
 
 //
@@ -14329,6 +15859,8 @@ readyStates.forEach((readyState, i) => {
 //
 ['open', 'error', 'close', 'message'].forEach((method) => {
   Object.defineProperty(WebSocket.prototype, `on${method}`, {
+    configurable: true,
+    enumerable: true,
     /**
      * Return the listener of the event.
      *
@@ -14372,19 +15904,22 @@ var websocket = WebSocket;
  *
  * @param {WebSocket} websocket The client to initialize
  * @param {(String|url.URL)} address The URL to which to connect
- * @param {String} protocols The subprotocols
- * @param {Object} options Connection options
- * @param {(Boolean|Object)} options.perMessageDeflate Enable/disable
+ * @param {String} [protocols] The subprotocols
+ * @param {Object} [options] Connection options
+ * @param {(Boolean|Object)} [options.perMessageDeflate=true] Enable/disable
  *     permessage-deflate
- * @param {Number} options.handshakeTimeout Timeout in milliseconds for the
+ * @param {Number} [options.handshakeTimeout] Timeout in milliseconds for the
  *     handshake request
- * @param {Number} options.protocolVersion Value of the `Sec-WebSocket-Version`
- *     header
- * @param {String} options.origin Value of the `Origin` or
+ * @param {Number} [options.protocolVersion=13] Value of the
+ *     `Sec-WebSocket-Version` header
+ * @param {String} [options.origin] Value of the `Origin` or
  *     `Sec-WebSocket-Origin` header
- * @param {Number} options.maxPayload The maximum allowed message size
- * @param {Boolean} options.followRedirects Whether or not to follow redirects
- * @param {Number} options.maxRedirects The maximum number of redirects allowed
+ * @param {Number} [options.maxPayload=104857600] The maximum allowed message
+ *     size
+ * @param {Boolean} [options.followRedirects=false] Whether or not to follow
+ *     redirects
+ * @param {Number} [options.maxRedirects=10] The maximum number of redirects
+ *     allowed
  * @private
  */
 function initAsClient(websocket, address, protocols, options) {
@@ -14417,10 +15952,10 @@ function initAsClient(websocket, address, protocols, options) {
 
   if (address instanceof URL) {
     parsedUrl = address;
-    websocket.url = address.href;
+    websocket._url = address.href;
   } else {
     parsedUrl = new URL(address);
-    websocket.url = address;
+    websocket._url = address;
   }
 
   const isUnixSocket = parsedUrl.protocol === 'ws+unix:';
@@ -14495,7 +16030,7 @@ function initAsClient(websocket, address, protocols, options) {
     if (websocket._req.aborted) return;
 
     req = websocket._req = null;
-    websocket.readyState = WebSocket.CLOSING;
+    websocket._readyState = WebSocket.CLOSING;
     websocket.emit('error', err);
     websocket.emitClose();
   });
@@ -14566,7 +16101,7 @@ function initAsClient(websocket, address, protocols, options) {
       return;
     }
 
-    if (serverProt) websocket.protocol = serverProt;
+    if (serverProt) websocket._protocol = serverProt;
 
     if (perMessageDeflate) {
       try {
@@ -14631,7 +16166,7 @@ function tlsConnect(options) {
  * @private
  */
 function abortHandshake(websocket, stream, message) {
-  websocket.readyState = WebSocket.CLOSING;
+  websocket._readyState = WebSocket.CLOSING;
 
   const err = new Error(message);
   Error.captureStackTrace(err, abortHandshake);
@@ -14652,8 +16187,8 @@ function abortHandshake(websocket, stream, message) {
  * when the `readyState` attribute is `CLOSING` or `CLOSED`.
  *
  * @param {WebSocket} websocket The WebSocket instance
- * @param {*} data The data to send
- * @param {Function} cb Callback
+ * @param {*} [data] The data to send
+ * @param {Function} [cb] Callback
  * @private
  */
 function sendAfterClose(websocket, data, cb) {
@@ -14720,7 +16255,7 @@ function receiverOnError(err) {
 
   websocket._socket.removeListener('data', socketOnData);
 
-  websocket.readyState = WebSocket.CLOSING;
+  websocket._readyState = WebSocket.CLOSING;
   websocket._closeCode = err[kStatusCode$2];
   websocket.emit('error', err);
   websocket._socket.destroy();
@@ -14779,7 +16314,7 @@ function socketOnClose() {
   this.removeListener('close', socketOnClose);
   this.removeListener('end', socketOnEnd);
 
-  websocket.readyState = WebSocket.CLOSING;
+  websocket._readyState = WebSocket.CLOSING;
 
   //
   // The close frame might not have been received or the `'end'` event emitted,
@@ -14830,7 +16365,7 @@ function socketOnData(chunk) {
 function socketOnEnd() {
   const websocket = this[kWebSocket$1];
 
-  websocket.readyState = WebSocket.CLOSING;
+  websocket._readyState = WebSocket.CLOSING;
   websocket._receiver.end();
   this.end();
 }
@@ -14847,7 +16382,7 @@ function socketOnError() {
   this.on('error', NOOP$1);
 
   if (websocket) {
-    websocket.readyState = WebSocket.CLOSING;
+    websocket._readyState = WebSocket.CLOSING;
     this.destroy();
   }
 }
@@ -14878,6 +16413,7 @@ function duplexOnEnd() {
 /**
  * The listener of the `'error'` event.
  *
+ * @param {Error} err The error
  * @private
  */
 function duplexOnError(err) {
@@ -14893,7 +16429,7 @@ function duplexOnError(err) {
  * Wraps a `WebSocket` in a duplex stream.
  *
  * @param {WebSocket} ws The `WebSocket` to wrap
- * @param {Object} options The options for the `Duplex` constructor
+ * @param {Object} [options] The options for the `Duplex` constructor
  * @return {stream.Duplex} The duplex stream
  * @public
  */
@@ -15035,21 +16571,22 @@ class WebSocketServer extends events {
    * Create a `WebSocketServer` instance.
    *
    * @param {Object} options Configuration options
-   * @param {Number} options.backlog The maximum length of the queue of pending
-   *     connections
-   * @param {Boolean} options.clientTracking Specifies whether or not to track
-   *     clients
-   * @param {Function} options.handleProtocols A hook to handle protocols
-   * @param {String} options.host The hostname where to bind the server
-   * @param {Number} options.maxPayload The maximum allowed message size
-   * @param {Boolean} options.noServer Enable no server mode
-   * @param {String} options.path Accept only connections matching this path
-   * @param {(Boolean|Object)} options.perMessageDeflate Enable/disable
+   * @param {Number} [options.backlog=511] The maximum length of the queue of
+   *     pending connections
+   * @param {Boolean} [options.clientTracking=true] Specifies whether or not to
+   *     track clients
+   * @param {Function} [options.handleProtocols] A hook to handle protocols
+   * @param {String} [options.host] The hostname where to bind the server
+   * @param {Number} [options.maxPayload=104857600] The maximum allowed message
+   *     size
+   * @param {Boolean} [options.noServer=false] Enable no server mode
+   * @param {String} [options.path] Accept only connections matching this path
+   * @param {(Boolean|Object)} [options.perMessageDeflate=false] Enable/disable
    *     permessage-deflate
-   * @param {Number} options.port The port where to bind the server
-   * @param {http.Server} options.server A pre-created HTTP/S server to use
-   * @param {Function} options.verifyClient A hook to reject connections
-   * @param {Function} callback A listener for the `listening` event
+   * @param {Number} [options.port] The port where to bind the server
+   * @param {http.Server} [options.server] A pre-created HTTP/S server to use
+   * @param {Function} [options.verifyClient] A hook to reject connections
+   * @param {Function} [callback] A listener for the `listening` event
    */
   constructor(options, callback) {
     super();
@@ -15096,13 +16633,13 @@ class WebSocketServer extends events {
     }
 
     if (this._server) {
+      const emitConnection = this.emit.bind(this, 'connection');
+
       this._removeListeners = addListeners(this._server, {
         listening: this.emit.bind(this, 'listening'),
         error: this.emit.bind(this, 'error'),
         upgrade: (req, socket, head) => {
-          this.handleUpgrade(req, socket, head, (ws) => {
-            this.emit('connection', ws, req);
-          });
+          this.handleUpgrade(req, socket, head, emitConnection);
         }
       });
     }
@@ -15133,7 +16670,7 @@ class WebSocketServer extends events {
   /**
    * Close the server.
    *
-   * @param {Function} cb Callback
+   * @param {Function} [cb] Callback
    * @public
    */
   close(cb) {
@@ -15312,7 +16849,7 @@ class WebSocketServer extends events {
 
       if (protocol) {
         headers.push(`Sec-WebSocket-Protocol: ${protocol}`);
-        ws.protocol = protocol;
+        ws._protocol = protocol;
       }
     }
 
@@ -15340,7 +16877,7 @@ class WebSocketServer extends events {
       ws.on('close', () => this.clients.delete(ws));
     }
 
-    cb(ws);
+    cb(ws, req);
   }
 }
 
@@ -15352,7 +16889,8 @@ var websocketServer = WebSocketServer;
  *
  * @param {EventEmitter} server The event emitter
  * @param {Object.<String, Function>} map The listeners to add
- * @return {Function} A function that will remove the added listeners when called
+ * @return {Function} A function that will remove the added listeners when
+ *     called
  * @private
  */
 function addListeners(server, map) {
@@ -15424,7 +16962,6 @@ websocket.Sender = sender;
 
 var ws = websocket;
 
-var _this$3 = undefined;
 function asyncForEach(array, callback) {
     return __awaiter(this, void 0, void 0, function () {
         var index;
@@ -15541,14 +17078,13 @@ var wsCron = function (getState, dispatchFromMain) {
         });
         return;
     }
-    asyncForEach(chainIds, function (chainId) { return __awaiter(_this$3, void 0, void 0, function () {
+    asyncForEach(chainIds, function (chainId) { return __awaiter(void 0, void 0, void 0, function () {
         var blockchain, nodesInactive, nodesInactiveAndReady, nodesActive, nodesActiveAndReady, nodesActiveAndClosed;
-        var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     blockchain = blockchains[chainId];
-                    return [4 /*yield*/, asyncForEach(Object.keys(connections[chainId] || {}), function (index) { return __awaiter(_this, void 0, void 0, function () {
+                    return [4 /*yield*/, asyncForEach(Object.keys(connections[chainId] || {}), function (index) { return __awaiter(void 0, void 0, void 0, function () {
                             var foundNode;
                             return __generator(this, function (_a) {
                                 foundNode = blockchain.nodes.find(function (n) { return n.ip + "---" + n.host === index; });
@@ -15577,7 +17113,7 @@ var wsCron = function (getState, dispatchFromMain) {
                     _a.sent();
                     nodesInactive = blockchain.nodes.filter(function (n) { return !n.active; });
                     nodesInactiveAndReady = nodesInactive.filter(function (n) { return n.readyState === 1; });
-                    return [4 /*yield*/, asyncForEach(nodesInactiveAndReady, function (node) { return __awaiter(_this, void 0, void 0, function () {
+                    return [4 /*yield*/, asyncForEach(nodesInactiveAndReady, function (node) { return __awaiter(void 0, void 0, void 0, function () {
                             return __generator(this, function (_a) {
                                 if (!connections[chainId] || !connections[chainId][node.ip]) {
                                     console.log("[ws] error, could not find ws connection " + chainId + "." + node.ip + ", " + node.host + " to disconnect");
@@ -15608,7 +17144,7 @@ var wsCron = function (getState, dispatchFromMain) {
                         return [2 /*return*/];
                     }
                     nodesActiveAndClosed = nodesActive.filter(function (n) { return n.readyState === 3 && !ongoingConnectionTrials[n.ip]; });
-                    return [4 /*yield*/, asyncForEach(nodesActiveAndClosed, function (node) { return __awaiter(_this, void 0, void 0, function () {
+                    return [4 /*yield*/, asyncForEach(nodesActiveAndClosed, function (node) { return __awaiter(void 0, void 0, void 0, function () {
                             var nodeCertOrInvalid, _a, connection_1, ssl, t, requestId, resp, b, err_1, err_2;
                             return __generator(this, function (_b) {
                                 switch (_b.label) {
@@ -15735,19 +17271,19 @@ var wsCron = function (getState, dispatchFromMain) {
         });
     }); });
 };
-var createConnection = function (ip, host, cert) { return __awaiter(_this$3, void 0, Promise, function () {
+var createConnection = function (ip, host, cert) { return __awaiter(void 0, void 0, Promise, function () {
     return __generator(this, function (_a) {
         return [2 /*return*/, new Promise(function (resolve, reject) {
                 /* no dns */
                 /* browser to network */
                 var connection = new ws("wss://" + ip, {
                     host: ip,
-                    headers: {
-                        Host: host,
-                    },
                     rejectUnauthorized: false,
                     cert: cert ? decodeURI(cert) : undefined,
                     ca: [],
+                    headers: {
+                        Host: host,
+                    },
                 });
                 var initialized = false;
                 connection.on('open', function (a) {
@@ -15874,6 +17410,9 @@ var getIsMobile = lib_4(getBodyDimensions, function (dimensions) { return !!(dim
 var getIsTablet = lib_4(getBodyDimensions, function (dimensions) { return !!(dimensions && dimensions[0] <= 959); });
 var getIsNavigationInSettings = lib_4(getNavigationUrl, function (navigationUrl) {
     return navigationUrl.startsWith('/settings');
+});
+var getIsNavigationInAccounts = lib_4(getNavigationUrl, function (navigationUrl) {
+    return navigationUrl.startsWith('/accounts');
 });
 var getIsNavigationInDapps = lib_4(getNavigationUrl, function (navigationUrl) { return navigationUrl === '/' || navigationUrl.startsWith('/dapps'); });
 var getIsNavigationInDeploy = lib_4(getNavigationUrl, function (navigationUrl) {
@@ -18547,7 +20086,7 @@ var reducer$5 = function (state, action) {
     if (state === void 0) { state = initialState$6; }
     switch (action.type) {
         case TRANSFER_TRANSACTIONS: {
-            return __assign({}, state, action.payload);
+            return __assign(__assign({}, state), action.payload);
         }
         default:
             return state;
@@ -18562,7 +20101,7 @@ var reducer$6 = function (state, action) {
     switch (action.type) {
         case TRANSFER_IDENTIFICATIONS: {
             var payload = action.payload;
-            return __assign({}, state, (_a = {}, _a[payload.dappId] = __assign({}, state[payload.dappId], (_b = {}, _b[payload.callId] = payload.identification, _b)), _a));
+            return __assign(__assign({}, state), (_a = {}, _a[payload.dappId] = __assign(__assign({}, state[payload.dappId]), (_b = {}, _b[payload.callId] = payload.identification, _b)), _a));
         }
         default:
             return state;
@@ -18583,7 +20122,7 @@ var transferTransactionsToDapps = function (action) {
                         if (!transactionsToTransfer[origin.dappId]) {
                             transactionsToTransfer[origin.dappId] = {};
                         }
-                        transactionsToTransfer[origin.dappId] = __assign({}, transactionsToTransfer[origin.dappId], (_a = {}, _a[k] = payload[k], _a));
+                        transactionsToTransfer[origin.dappId] = __assign(__assign({}, transactionsToTransfer[origin.dappId]), (_a = {}, _a[k] = payload[k], _a));
                     }
                 });
                 return [4 /*yield*/, select(getBrowserViewsMain)];
@@ -18754,9 +20293,13 @@ var loadOrReloadBrowserView = function (action) {
                         nodeIntegration: false,
                     },
                 });
+                // cookies to start with (from storage)
+                payload.cookies.map(function (c) {
+                    view.webContents.session.cookies.set(__assign(__assign({}, c), { url: "https://" + c.domain, secure: true, httpOnly: true }));
+                });
                 // todo, avoid circular ref to "store" (see logs when "npm run build:main")
                 registerDappyProtocol(electron.session.fromPartition("persist:" + payload.address), store.getState);
-                overrideHttpProtocols(electron.session.fromPartition("persist:" + payload.address), store.getState, development);
+                overrideHttpProtocols(electron.session.fromPartition("persist:" + payload.address), store.getState, development, action.meta.dispatchFromMain, false);
                 if (payload.devMode) {
                     view.webContents.openDevTools();
                 }
@@ -18824,6 +20367,7 @@ var loadOrReloadBrowserView = function (action) {
                                     host: serverAuthorized.ip,
                                     rejectUnauthorized: false,
                                     cert: decodeURI(serverAuthorized.cert),
+                                    minVersion: 'TLSv1.2',
                                     ca: [],
                                 });
                                 https.get({
@@ -18837,7 +20381,7 @@ var loadOrReloadBrowserView = function (action) {
                                         console.log(favicons[0]);
                                         return;
                                     }
-                                    var s = new Buffer('');
+                                    var s = Buffer.from('');
                                     res.on('data', function (a) {
                                         s = Buffer.concat([s, a]);
                                     });
@@ -18922,12 +20466,12 @@ var loadOrReloadBrowserView = function (action) {
                     });
                 });
                 newBrowserViews = {};
-                newBrowserViews[payload.resourceId] = __assign({}, payload, { browserView: view, commEvent: undefined, visible: true });
+                newBrowserViews[payload.resourceId] = __assign(__assign({}, payload), { browserView: view, commEvent: undefined, visible: true });
                 Object.keys(browserViews).forEach(function (id) {
                     var _a;
                     if (id !== payload.resourceId && browserViews[id].visible) {
                         browserViews[id].browserView.setBounds({ x: 0, y: 0, width: 0, height: 0 });
-                        newBrowserViews = __assign({}, newBrowserViews, (_a = {}, _a[id] = __assign({}, browserViews[id], { visible: false }), _a));
+                        newBrowserViews = __assign(__assign({}, newBrowserViews), (_a = {}, _a[id] = __assign(__assign({}, browserViews[id]), { visible: false }), _a));
                     }
                 });
                 return [4 /*yield*/, put({
@@ -18968,12 +20512,12 @@ var displayOnlyBrowserViewX = function (action) {
                     if (id !== payload.resourceId && browserViews[id].visible) {
                         modified = true;
                         browserViews[id].browserView.setBounds({ x: 0, y: 0, width: 0, height: 0 });
-                        newBrowserViews = __assign({}, newBrowserViews, (_a = {}, _a[id] = __assign({}, browserViews[id], { visible: false }), _a));
+                        newBrowserViews = __assign(__assign({}, newBrowserViews), (_a = {}, _a[id] = __assign(__assign({}, browserViews[id]), { visible: false }), _a));
                     }
                     else if (id === payload.resourceId && !browserViews[id].visible) {
                         modified = true;
                         browserViews[id].browserView.setBounds(position);
-                        newBrowserViews = __assign({}, newBrowserViews, (_b = {}, _b[id] = __assign({}, browserViews[id], { visible: true }), _b));
+                        newBrowserViews = __assign(__assign({}, newBrowserViews), (_b = {}, _b[id] = __assign(__assign({}, browserViews[id]), { visible: true }), _b));
                     }
                 });
                 if (!modified) return [3 /*break*/, 4];
@@ -19158,7 +20702,7 @@ electron.ipcMain.on('single-dappy-call', function (event, arg) {
     }
     var parameters = arg.parameters;
     try {
-        var newBodyForRequest = __assign({}, arg.body, { requestId: arg.requestId });
+        var newBodyForRequest = __assign(__assign({}, arg.body), { requestId: arg.requestId });
         var connections = getConnections(store.getState());
         if (connections[parameters.chainId] && connections[parameters.chainId][parameters.url]) {
             var connection = connections[parameters.chainId][parameters.url];
@@ -19384,10 +20928,10 @@ var wsCronRanOnce = false;
 electron.ipcMain.on('dispatch-in-main', function (event, a) {
     if (a.uniqueEphemeralToken === uniqueEphemeralToken) {
         if (a.action.type === LOAD_OR_RELOAD_BROWSER_VIEW) {
-            store.dispatch(__assign({}, a.action, { meta: { openExternal: openExternal, browserWindow: browserWindow, dispatchFromMain: dispatchFromMain } }));
+            store.dispatch(__assign(__assign({}, a.action), { meta: { openExternal: openExternal, browserWindow: browserWindow, dispatchFromMain: dispatchFromMain } }));
         }
         else if (a.action.type === DESTROY_BROWSER_VIEW) {
-            store.dispatch(__assign({}, a.action, { meta: { browserWindow: browserWindow } }));
+            store.dispatch(__assign(__assign({}, a.action), { meta: { browserWindow: browserWindow } }));
         }
         else if (a.action.type === SYNC_BLOCKCHAINS) {
             store.dispatch(a.action);
@@ -19499,19 +21043,24 @@ electron.app.on('second-instance', function (event, argv, cwd) {
     return;
 });
 function createWindow() {
-    registerDappyProtocol(electron.session.defaultSession, store.getState);
-    overrideHttpProtocols(electron.session.defaultSession, store.getState, development$1);
     setInterval(function () {
         wsCron(store.getState, dispatchFromMain);
     }, WS_RECONNECT_PERIOD);
     browserViewsMiddleware(store, dispatchFromMain);
+    /*
+      CAREFUL
+      Partition is the cold storage identifier on the OS where dappy is installed,
+      changing this will remove everything that is in dappy localStorage
+      PRIVATE KEYS LOST, ACCOUNTS LOST, TABS LOST etc.....
+    */
+    var partition = "persist:dappy0.3.0";
     // Create the browser window.
     browserWindow = new electron.BrowserWindow({
         width: 1200,
         height: 800,
         // frame: false,
         webPreferences: {
-            partition: "persist:dappy0.3.0",
+            partition: partition,
             sandbox: true,
             nodeIntegration: false,
             preload: development$1
@@ -19519,6 +21068,8 @@ function createWindow() {
                 : path.join(electron.app.getAppPath(), 'dist/preload.js'),
         },
     });
+    registerDappyProtocol(electron.session.fromPartition(partition), store.getState);
+    overrideHttpProtocols(electron.session.fromPartition(partition), store.getState, development$1, dispatchFromMain, true);
     browserWindow.setMenuBarVisibility(false);
     // and load the index.html of the app.
     if (development$1) {
