@@ -12,12 +12,12 @@ let httpErrorServerUrl = undefined;
 const agents: { [key: string]: https.Agent } = {};
 
 export const overrideHttpProtocols = (
-  session: Session, getState,
+  session: Session,
+  getState,
   development: boolean,
   dispatchFromMain: (a: any) => void,
   allowSentry: boolean
 ) => {
-  
   // debug
   let debug = development;
 
@@ -72,7 +72,7 @@ export const overrideHttpProtocols = (
     });
   }
 
-  let browserView: undefined | DappyBrowserView = undefined;
+  let browserView: undefined | DappyBrowserView = undefined;
   session.cookies.on('changed', async (e, c, ca, re) => {
     if (!browserView) {
       console.log('no browserView, cannot save cookies');
@@ -83,16 +83,18 @@ export const overrideHttpProtocols = (
       console.log('no browserView.servers matching cookies domain ' + c.domain);
       return;
     }
-    const cookies = await browserView.browserView.webContents.session.cookies.get({url: `https://${c.domain}` });
+    const cookies = await browserView.browserView.webContents.session.cookies.get({ url: `https://${c.domain}` });
     dispatchFromMain({
       action: fromCookies.saveCookiesForDomainAction({
         address: browserView.address,
-        cookies: cookies.filter(c => typeof c.expirationDate === 'number').map(cook => ({
-          domain: cook.domain,
-          name: cook.name,
-          value: cook.value,
-          expirationDate: cook.expirationDate,
-        }))
+        cookies: cookies
+          .filter((c) => typeof c.expirationDate === 'number')
+          .map((cook) => ({
+            domain: cook.domain,
+            name: cook.name,
+            value: cook.value,
+            expirationDate: cook.expirationDate,
+          })),
       }),
     });
   });
@@ -128,7 +130,6 @@ export const overrideHttpProtocols = (
           return;
         }
       }
-
     }
 
     let randomId = '';
@@ -181,9 +182,11 @@ export const overrideHttpProtocols = (
     }
 
     let cookies: Electron.Cookie[] = [];
-    cookies = await browserView.browserView.webContents.session.cookies.get({url: `https://${serversWithSameHost[0].host}` });
+    cookies = await browserView.browserView.webContents.session.cookies.get({
+      url: `https://${serversWithSameHost[0].host}`,
+    });
 
-    const cookieHeader: string = cookies.map(c => `${c.name}=${c.value}`).join('; ')
+    const cookieHeader: string = cookies.map((c) => `${c.name}=${c.value}`).join('; ');
 
     const loadFails = {};
 
@@ -213,7 +216,7 @@ export const overrideHttpProtocols = (
           /* no dns */
           host: s.host,
           'User-Agent': request.headers['User-Agent'].substr(0, io),
-          'Cookie': cookieHeader,
+          Cookie: cookieHeader,
         },
       };
 
@@ -222,9 +225,9 @@ export const overrideHttpProtocols = (
           .request(options, (resp) => {
             if (resp.headers && resp.headers['set-cookie']) {
               const cookies = setCookie.parse(resp, {
-                decodeValues: true
+                decodeValues: true,
               });
-              cookies.forEach(c => {
+              cookies.forEach((c) => {
                 browserViews[appId].browserView.webContents.session.cookies.set({
                   name: c.name,
                   value: c.value,

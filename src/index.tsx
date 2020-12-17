@@ -35,7 +35,7 @@ if (!DEVELOPMENT) {
         event.exception.values[0].stacktrace &&
         event.exception.values[0].stacktrace.frames
       ) {
-        const framesWithUrlUpdated = event.exception.values[0].stacktrace.frames.map(f => {
+        const framesWithUrlUpdated = event.exception.values[0].stacktrace.frames.map((f) => {
           let filename = f.filename;
           if (filename && (filename.startsWith('file://') || filename.startsWith('/C:/'))) {
             const splitted = filename.split('/');
@@ -65,6 +65,6 @@ const renderApp = () => {
   );
 };
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   renderApp();
 });
