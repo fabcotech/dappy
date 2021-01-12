@@ -1,22 +1,28 @@
 import http from 'http';
 import resolver, { LoadError } from 'beesjs';
 
+import { getNodeFromIndex } from '../src/utils/getNodeFromIndex';
 import { MultiCallBody, MultiCallParameters, MultiCallResult, MultiCallError } from '../src/models/WebSocket';
 import { Connections } from './store/connections';
+import * as fromBlockchains from './store/blockchains';
 import { getWsResponse } from './wsUtils';
 
 /* browser to network */
 export const performMultiRequest = (
   body: MultiCallBody,
   parameters: MultiCallParameters,
-  connections: Connections
+  blockchains: fromBlockchains.State
 ): Promise<MultiCallResult> => {
   return new Promise((resolve, reject) => {
     resolver(
       (index) => {
+        const a = getNodeFromIndex(index);
         return new Promise(async (resolve, reject) => {
-          if (connections[parameters.chainId] && connections[parameters.chainId][index]) {
-            const connection = connections[parameters.chainId][index];
+          if (
+            blockchains[parameters.chainId] &&
+            blockchains[parameters.chainId].nodes.find((n) => n.ip === a.ip && n.host === a.host)
+          ) {
+            const node = blockchains[parameters.chainId].nodes.find((n) => n.ip === a.ip && n.host === a.host);
             let over = false;
             setTimeout(() => {
               if (!over) {
@@ -34,7 +40,7 @@ export const performMultiRequest = (
                 ...body,
                 requestId: requestId,
               };
-              const resp = await getWsResponse(newBodyForRequest, connection, 50000);
+              const resp = await getWsResponse(newBodyForRequest, node, 50000);
               if (!over) {
                 resolve({
                   type: 'SUCCESS',

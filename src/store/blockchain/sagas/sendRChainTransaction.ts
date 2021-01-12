@@ -65,8 +65,8 @@ const sendRChainTransaction = function* (action: Action) {
       };
 
       const prepareDeployResponse = yield singleCall(
-        { type: 'prepare-deploy', body: channelRequest },
-        { chainId: payload.blockchainId, url: getNodeIndex(node as BlockchainNode) }
+        { type: 'api/prepare-deploy', body: channelRequest },
+        node as BlockchainNode
       );
 
       // TODO random node / multiple nodes
@@ -87,10 +87,7 @@ const sendRChainTransaction = function* (action: Action) {
 
   let deployResponse = '';
   try {
-    deployResponse = yield singleCall(
-      { type: 'deploy', body: payload.transaction },
-      { chainId: payload.blockchainId, url: getNodeIndex(node as BlockchainNode) }
-    );
+    deployResponse = yield singleCall({ type: 'api/deploy', body: payload.transaction }, node as BlockchainNode);
 
     if (!deployResponse.startsWith('"Success')) {
       yield put(
@@ -169,7 +166,7 @@ const sendRChainTransaction = function* (action: Action) {
               )
                 .then((resp) => {
                   const parsedResp = JSON.parse(resp.result.data);
-                  if (parsedResp && parsedResp.success && parsedResp.data && parsedResp.data.expr) {
+                  if (parsedResp && parsedResp.data && parsedResp.data.expr) {
                     resolve(parsedResp.data.expr);
                     clearInterval(interval);
                   } else {

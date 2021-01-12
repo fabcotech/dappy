@@ -1,11 +1,10 @@
-import WSC from 'ws';
-
+import { BlockchainNode } from '../src/models';
 import { getWsResponse } from './wsUtils';
 
 /* browser to node */
 export const performSingleRequest = (
   body: { [key: string]: any },
-  connection: WSC
+  node: BlockchainNode
 ): Promise<{ success: boolean; error?: { message: string }; data?: any }> => {
   return new Promise((resolve, reject) => {
     let over = false;
@@ -19,14 +18,14 @@ export const performSingleRequest = (
       }
     }, 20000);
 
-    getWsResponse(body, connection)
-      .then(result => {
+    getWsResponse(body, node)
+      .then((result) => {
         if (!over) {
           over = true;
           resolve(result);
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
         reject({
           success: false,

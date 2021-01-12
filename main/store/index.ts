@@ -8,7 +8,6 @@ import * as fromIpApps from './ipApps';
 import * as fromBrowserViews from './browserViews';
 import * as fromTransactions from './transactions';
 import * as fromIdentifications from './identifications';
-import * as fromConnections from './connections';
 import { sagas } from './sagas';
 
 export interface State {
@@ -18,7 +17,6 @@ export interface State {
   identifications: fromIdentifications.State;
   ipApps: fromIpApps.State;
   browserViews: fromBrowserViews.State;
-  connections: fromConnections.State;
 }
 
 const rootSagas = function* () {
@@ -35,7 +33,6 @@ export const store: Store<State> = createStore(
     browserViews: fromBrowserViews.reducer,
     transactions: fromTransactions.reducer,
     identifications: fromIdentifications.reducer,
-    connections: fromConnections.reducer,
   }),
   applyMiddleware(sagaMiddleware)
 );

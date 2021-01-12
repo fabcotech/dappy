@@ -54,42 +54,28 @@ const executeRChainCronJobsInfo = function* (action: Action) {
     )
       .then((a) => {
         const resultFromBlockchain = JSON.parse(a.result.data);
-
-        if (resultFromBlockchain.success) {
-          validateDappyNodeInfo(resultFromBlockchain.data)
-            .then((valid) => {
-              store.dispatch(
-                fromBlockchain.updateRChainBlockchainInfoCompletedAction({
-                  chainId: blockchain.chainId,
-                  date: new Date().toISOString(),
-                  info: resultFromBlockchain.data as RChainInfo,
-                })
-              );
-            })
-            .catch((err) => {
-              store.dispatch(
-                fromBlockchain.updateRChainBlockchainInfoFailedAction({
-                  chainId: blockchain.chainId,
-                  date: new Date().toISOString(),
-                  error: {
-                    error: LoadError.FailedToParseResponse,
-                    args: {},
-                  },
-                })
-              );
-            });
-        } else {
-          store.dispatch(
-            fromBlockchain.updateRChainBlockchainInfoFailedAction({
-              chainId: blockchain.chainId,
-              date: new Date().toISOString(),
-              error: {
-                error: LoadError.FailedToParseResponse,
-                args: {},
-              },
-            })
-          );
-        }
+        validateDappyNodeInfo(resultFromBlockchain.data)
+          .then((valid) => {
+            store.dispatch(
+              fromBlockchain.updateRChainBlockchainInfoCompletedAction({
+                chainId: blockchain.chainId,
+                date: new Date().toISOString(),
+                info: resultFromBlockchain.data as RChainInfo,
+              })
+            );
+          })
+          .catch((err) => {
+            store.dispatch(
+              fromBlockchain.updateRChainBlockchainInfoFailedAction({
+                chainId: blockchain.chainId,
+                date: new Date().toISOString(),
+                error: {
+                  error: LoadError.FailedToParseResponse,
+                  args: {},
+                },
+              })
+            );
+          });
       })
       .catch((err: MultiCallError) => {
         store.dispatch(

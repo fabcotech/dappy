@@ -127,7 +127,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
             } catch (e) {}
 
             // get data at name
-            if (parsedResp && parsedResp.success && parsedResp.data && parsedResp.data.expr) {
+            if (parsedResp && parsedResp.data && parsedResp.data.expr) {
               this.setState({
                 parsedResp: JSON.stringify(parsedResp.data, null, 2),
                 jsValue: JSON.stringify(rhoValToJs(parsedResp.data.expr), null, 2),
@@ -294,7 +294,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
         this.deployId = this.deployId.substr(0, this.deployId.length - 1);
         this.unforgeableName = '';
         this.initStep3({
-          type: 'listen-for-data-at-name',
+          type: 'api/listen-for-data-at-name',
           body: {
             name: buildUnforgeableDeployQuery(this.deployId),
             depth: depth,
@@ -316,12 +316,12 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
       });
     }
     let runningGetDataAtName = false;
-    let getDataAtName = this.query && this.query.type === 'listen-for-data-at-name';
+    let getDataAtName = this.query && this.query.type === 'api/listen-for-data-at-name';
     let runningExploreDeploy = false;
-    let exploreDeploy = this.query && this.query.type === 'explore-deploy';
+    let exploreDeploy = this.query && this.query.type === 'api/explore-deploy';
     if (this.state.run > 0 && !this.state.parsedResp && this.query) {
-      runningGetDataAtName = this.query.type === 'listen-for-data-at-name';
-      runningExploreDeploy = this.query.type === 'explore-deploy';
+      runningGetDataAtName = this.query.type === 'api/listen-for-data-at-name';
+      runningExploreDeploy = this.query.type === 'api/explore-deploy';
     }
 
     return (
@@ -350,7 +350,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
                     onClick={() => {
                       this.unforgeableName = '';
                       this.initStep3({
-                        type: 'listen-for-data-at-name',
+                        type: 'api/listen-for-data-at-name',
                         body: {
                           name: buildUnforgeableDeployQuery(this.deployId),
                           depth: depth,
@@ -380,7 +380,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
                     onClick={() => {
                       this.deployId = '';
                       this.initStep3({
-                        type: 'listen-for-data-at-name',
+                        type: 'api/listen-for-data-at-name',
                         body: {
                           name: buildUnforgeableNameQuery(this.unforgeableName),
                           depth: depth,
@@ -424,7 +424,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
                 type="button"
                 onClick={() => {
                   this.initStep3({
-                    type: 'explore-deploy',
+                    type: 'api/explore-deploy',
                     body: {
                       term: this.state.rholang,
                     },
@@ -461,7 +461,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
                 {getDataAtName
                   ? `Now trying to get data every 15 seconds, note that depth is limited to ${depth} blocks in the past (run ${this.state.run})`
                   : undefined}
-                {this.query && this.query.type === 'explore-deploy' ? `Running explore deploy` : undefined}
+                {this.query && this.query.type === 'api/explore-deploy' ? `Running explore deploy` : undefined}
               </p>
               <br />
               {getDataAtName && this.deployId && (

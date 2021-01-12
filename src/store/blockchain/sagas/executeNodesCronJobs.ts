@@ -43,23 +43,6 @@ const executeNodesCronJobs = function* (action: Action) {
       .then((a) => {
         const u = new Date().getTime() - t;
         const resultFromBlockchain = JSON.parse(a.result.data);
-
-        if (!resultFromBlockchain.success) {
-          store.dispatch(
-            fromBlockchain.getNodesFailedAction({
-              chainId: namesBlockchain.chainId,
-              loadState: a.loadState,
-              date: new Date().toISOString(),
-              time: u,
-              error: {
-                error: LoadError.ResourceNotFound,
-                args: { message: 'Nodes not found on the blockchain' },
-              },
-            })
-          );
-          return;
-        }
-
         const result = resultFromBlockchain.data;
 
         try {

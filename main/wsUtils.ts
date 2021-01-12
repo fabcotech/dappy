@@ -1,7 +1,9 @@
-import WSC from 'ws';
-import { WS_PAYLOAD_PAX_SIZE } from '../src/CONSTANTS';
+import https from 'https';
 
-export const getWsResponse = (data: { [key: string]: any }, ws: WSC, timeout?: number) => {
+import { WS_PAYLOAD_PAX_SIZE } from '../src/CONSTANTS';
+import { BlockchainNode } from '../src/models';
+
+export const getWsResponse = (data: { [key: string]: any }, node: BlockchainNode, timeout?: number) => {
   return new Promise((resolve, reject) => {
     const s = JSON.stringify(data);
     const l = Buffer.from(s).length;
@@ -9,40 +11,45 @@ export const getWsResponse = (data: { [key: string]: any }, ws: WSC, timeout?: n
       reject(`Websocket payload is ${l / 1000}kb, max size is ${WS_PAYLOAD_PAX_SIZE / 1000}kb`);
       return;
     }
-    ws.send(s, err => {
-      if (err) {
-        console.log(err);
-        reject('Error when sending');
-      }
-    });
-    let respReceived = false;
-    const listenner = resp => {
-      respReceived = true;
-      try {
-        const json = JSON.parse(resp);
-        if (json.requestId === data.requestId) {
-          resolve(resp);
-          ws.removeEventListener('message', listenner);
-          ws.removeEventListener('error', listennerError);
+    try {
+      const req = https.request(
+        {
+          hostname: node.ip.split(':')[0],
+          port: node.ip.indexOf(':') === -1 ? 443 : node.ip.split(':')[1],
+          path: `/${data.type}`,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Host: node.host,
+          },
+          rejectUnauthorized: false, // cert does not have to be signed by CA (self-signed)
+          cert: node.cert ? decodeURI(node.cert) : undefined,
+          ca: [],
+        },
+        (res) => {
+          let data = '';
+          res.on('data', (chunk) => {
+            data += chunk;
+          });
+          res.on('end', () => {
+            console.log(data);
+            resolve(data);
+          });
         }
-      } catch (err) {
+      );
+      if (data.body) {
+        req.end(JSON.stringify(data.body));
+      } else {
+        req.end();
+      }
+
+      req.on('error', (err) => {
         console.log(err);
-        reject('Could not read response');
-        ws.removeEventListener('message', listenner);
-        ws.removeEventListener('error', listennerError);
-      }
-    };
-    const listennerError = err => {
+        reject(err);
+      });
+    } catch (err) {
       console.log(err);
-    };
-    ws.on('message', listenner);
-    ws.on('error', listennerError);
-    setTimeout(() => {
-      if (!respReceived) {
-        reject('Timeout error');
-        ws.removeEventListener('message', listenner);
-        ws.removeEventListener('error', listennerError);
-      }
-    }, timeout || 8000);
+      reject(err);
+    }
   });
 };

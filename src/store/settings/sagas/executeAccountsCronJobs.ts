@@ -57,11 +57,7 @@ const executeAccountsCronJobs = function* (action: Action) {
     multiCallResult = yield multiCall(
       {
         type: 'explore-deploy-x',
-        body: Object.keys(accounts).map((k) => {
-          return {
-            term: blockchainUtils.rchain.balanceTerm(accounts[k].address),
-          };
-        }),
+        body: { terms: Object.keys(accounts).map((k) => blockchainUtils.rchain.balanceTerm(accounts[k].address)) },
       },
       {
         // todo, accounts must be attached to a blockchain

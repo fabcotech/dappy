@@ -251,13 +251,13 @@ const reloadResource = function* (action: Action) {
     indexes = blockchainUtils.shuffle(indexes);
     multiCallResult = yield multiCall(
       {
-        type: 'explore-deploy',
+        type: 'api/explore-deploy',
         body: {
           term: readBagOrTokenDataTerm(
             registryUri.split('.')[0],
-            "bags",
+            'bags',
             searchSplitted.search.split('.')[1] || 'index'
-          )
+          ),
         },
       },
       {

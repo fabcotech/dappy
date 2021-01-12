@@ -43,14 +43,14 @@ window.openExternal = (url) => {
   });
 };
 
-window.singleDappyWsCall = (body, parameters) => {
+window.singleDappyWsCall = (body, node) => {
   return new Promise((resolve, reject) => {
     const requestId = Math.round(Math.random() * 1000000).toString();
     ipcRenderer.send('single-dappy-call', {
       uniqueEphemeralToken: uniqueEphemeralToken,
       requestId: requestId,
       body: body,
-      parameters: parameters,
+      node: node,
     });
     ipcRenderer.addListener('single-dappy-call-reply-' + requestId, (event, result) => {
       // Error thrown by main process
@@ -60,12 +60,7 @@ window.singleDappyWsCall = (body, parameters) => {
       }
       try {
         const json = JSON.parse(result);
-        if (json.success) {
-          resolve(json.data);
-        } else {
-          // Error in the response from server
-          reject(json.error);
-        }
+        resolve(json.data);
       } catch (err) {
         reject({ message: 'Could not parse response' });
       }

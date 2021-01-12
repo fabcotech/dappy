@@ -78,13 +78,13 @@ const sendRChainTransactionWithFile = function* (action: Action) {
     };
 
     const prepareDeployResponse = yield singleCall(
-      { type: 'prepare-deploy', body: channelRequest },
-      { chainId: payload.blockchainId, url: getNodeIndex(node as BlockchainNode) }
+      { type: 'api/prepare-deploy', body: channelRequest },
+      node as BlockchainNode
     );
 
     lastFinalizedBlockNumberResponse = yield singleCall(
       { type: 'last-finalized-block-number' },
-      { chainId: payload.blockchainId, url: getNodeIndex(node as BlockchainNode) }
+      node as BlockchainNode
     );
 
     if (typeof lastFinalizedBlockNumberResponse !== 'number') {
@@ -174,10 +174,7 @@ const sendRChainTransactionWithFile = function* (action: Action) {
 
   let deployResponse = '';
   try {
-    deployResponse = yield singleCall(
-      { type: 'deploy', body: deployOptions },
-      { chainId: payload.blockchainId, url: getNodeIndex(node as BlockchainNode) }
-    );
+    deployResponse = yield singleCall({ type: 'api/deploy', body: deployOptions }, node as BlockchainNode);
   } catch (err) {
     yield put(
       fromBlockchain.rChainTransactionErrorAction({
@@ -225,7 +222,7 @@ const sendRChainTransactionWithFile = function* (action: Action) {
         try {
           multiCall(
             {
-              type: 'listen-for-data-at-name',
+              type: 'api/listen-for-data-at-name',
               body: {
                 name: unforgeableNameQuery,
                 depth: 5,
@@ -242,7 +239,7 @@ const sendRChainTransactionWithFile = function* (action: Action) {
           )
             .then((resp) => {
               const parsedResp = JSON.parse(resp.result.data);
-              if (parsedResp && parsedResp.success && parsedResp.data && parsedResp.data.expr) {
+              if (parsedResp && parsedResp.data && parsedResp.data.expr) {
                 resolve(parsedResp.data.expr);
               } else {
                 console.log('Did not find transaction data (files module deployment), will try again in 15 seconds');
@@ -384,10 +381,7 @@ const sendRChainTransactionWithFile = function* (action: Action) {
 
   let deployResponse2 = '';
   try {
-    deployResponse2 = yield singleCall(
-      { type: 'deploy', body: deployOptions2 },
-      { chainId: payload.blockchainId, url: getNodeIndex(node as BlockchainNode) }
-    );
+    deployResponse2 = yield singleCall({ type: 'api/deploy', body: deployOptions2 }, node as BlockchainNode);
   } catch (err) {
     yield put(
       fromBlockchain.rChainTransactionErrorAction({
@@ -434,7 +428,7 @@ const sendRChainTransactionWithFile = function* (action: Action) {
         try {
           multiCall(
             {
-              type: 'explore-deploy',
+              type: 'api/explore-deploy',
               body: {
                 term: readBagOrTokenDataTerm(jsValue.registryUri.replace('rho:id:', ''), 'bags', bagId),
               },

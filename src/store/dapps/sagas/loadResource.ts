@@ -303,7 +303,7 @@ const loadResource = function* (action: Action) {
 
     multiCallResult = yield multiCall(
       {
-        type: 'explore-deploy',
+        type: 'api/explore-deploy',
         body: {
           term: readBagOrTokenDataTerm(
             registryUri.split('.')[0],

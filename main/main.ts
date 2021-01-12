@@ -5,8 +5,11 @@ import fs from 'fs';
 import crypto from 'crypto';
 
 import * as fromCommon from '../src/common';
-import { UPDATE_NODE_READY_STATE, UpdateNodeReadyStatePayload } from '../src/store/settings/actions';
-import { EXECUTE_ACCOUNTS_CRON_JOBS } from '../src/store/settings';
+import {
+  EXECUTE_ACCOUNTS_CRON_JOBS,
+  UPDATE_NODE_READY_STATE,
+  UpdateNodeReadyStatePayload,
+} from '../src/store/settings';
 import { validateSearch } from '../src/utils/validateSearch';
 import {
   EXECUTE_RCHAIN_CRON_JOBS,
@@ -129,29 +132,25 @@ ipcMain.on('single-dappy-call', (event, arg) => {
     return;
   }
 
-  const parameters: SingleCallParameters = arg.parameters;
+  console.log('single-dappy-call');
+  console.log(arg);
 
   try {
-    let newBodyForRequest = {
-      ...arg.body,
-      requestId: arg.requestId,
-    };
-
-    const connections = fromConnections.getConnections(store.getState());
+    performSingleRequest(arg.body, arg.node)
+      .then((a) => {
+        commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, a);
+      })
+      .catch((err) => {
+        commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, err);
+      });
+    /* const connections = fromConnections.getConnections(store.getState());
     if (connections[parameters.chainId] && connections[parameters.chainId][parameters.url]) {
       const connection = connections[parameters.chainId][parameters.url];
-      performSingleRequest(newBodyForRequest, connection)
-        .then((a) => {
-          commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, a);
-        })
-        .catch((err) => {
-          commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, err);
-        });
     } else {
       commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, {
         error: { message: 'Node not available' },
       });
-    }
+    } */
   } catch (err) {
     console.log(err);
     commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, { error: { message: err.message } });
@@ -235,8 +234,8 @@ ipcMain.on('multi-dappy-call', (event, arg) => {
     parameters.comparer = (res) => res;
   }
 
-  const connections = fromConnections.getConnections(store.getState());
-  performMultiRequest(arg.body, parameters, connections)
+  const blockchains = fromBlockchains.getBlockchains(store.getState());
+  performMultiRequest(arg.body, parameters, blockchains)
     .then((result) => {
       commEventToRenderer.reply('multi-dappy-call-reply-' + arg.requestId, {
         success: true,
@@ -311,44 +310,8 @@ export interface DispatchFromMainArg {
   action: { type: string; payload: any };
 }
 const dispatchFromMain = (a: DispatchFromMainArg) => {
-  /*
-    Keep a reference to every active websocket connection
-  */
-  const connections = fromConnections.getConnections(store.getState());
-  if (a.action.type === 'REMOVE_BLOCKCHAIN') {
-    const payload: { chainId: string } = a.action.payload;
-    let newConnections = { ...connections };
-    delete newConnections[payload.chainId];
-    store.dispatch({
-      type: fromConnections.UPDATE_CONNECTIONS,
-      payload: newConnections,
-    });
-  } else if (a.action.type === UPDATE_NODE_READY_STATE) {
+  if (a.action.type === UPDATE_NODE_READY_STATE) {
     const payload: UpdateNodeReadyStatePayload = a.action.payload;
-    if (a.action.payload.readyState === 1) {
-      let newConnections = { ...connections };
-      if (!newConnections[payload.chainId]) {
-        newConnections[payload.chainId] = {};
-      }
-      newConnections[payload.chainId][`${payload.ip}---${payload.host}`] = a.data.connection;
-      store.dispatch({
-        type: fromConnections.UPDATE_CONNECTIONS,
-        payload: newConnections,
-      });
-    } else {
-      const index = `${payload.ip}---${payload.host}`;
-      if (connections[payload.chainId] && connections[payload.chainId][index]) {
-        console.log(`[ws] closing connection ${index}`);
-        let newConnections = { ...connections };
-        newConnections[payload.chainId][index].removeAllListeners();
-        newConnections[payload.chainId][index].close();
-        delete newConnections[payload.chainId][index];
-        store.dispatch({
-          type: fromConnections.UPDATE_CONNECTIONS,
-          payload: newConnections,
-        });
-      }
-    }
     commEventToRenderer.reply('dispatch-from-main', a.action);
   } else {
     commEventToRenderer.reply('dispatch-from-main', a.action);
@@ -521,13 +484,7 @@ function createWindow() {
     },
   });
   registerDappyProtocol(session.fromPartition(partition), store.getState);
-  overrideHttpProtocols(
-    session.fromPartition(partition),
-    store.getState,
-    development,
-    dispatchFromMain,
-    true
-  );
+  overrideHttpProtocols(session.fromPartition(partition), store.getState, development, dispatchFromMain, true);
 
   browserWindow.setMenuBarVisibility(false);
 
