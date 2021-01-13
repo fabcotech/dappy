@@ -147,7 +147,7 @@ const sendRChainTransaction = function* (action: Action) {
             try {
               multiCall(
                 {
-                  type: 'listen-for-data-at-name',
+                  type: 'api/listen-for-data-at-name',
                   body: {
                     name: unforgeableNameQuery,
                     depth: 5,
