@@ -19,7 +19,6 @@ const PING_PONG_DELAY = 8000;
 
 // todo handle network initerruption with ping/pong
 const ping = (getState: () => void, dispatchFromMain: (a: DispatchFromMainArg) => void) => {
-  console.log('PING');
   const blockchains = fromBlockchains.getBlockchains(getState());
   Object.keys(blockchains).forEach((chainId) => {
     blockchains[chainId].nodes.forEach((node) => {
@@ -29,7 +28,7 @@ const ping = (getState: () => void, dispatchFromMain: (a: DispatchFromMainArg) =
           const resp = JSON.parse(a);
           if (resp.data !== 'pong') {
             console.log(
-              `[ws] websocket did not get "pong" from server under ${PING_PONG_DELAY} seconds, will close connection `,
+              `[bn] websocket did not get "pong" from server under ${PING_PONG_DELAY} seconds, will close connection `,
               getNodeIndex(node)
             );
             dispatchFromMain({
@@ -47,7 +46,7 @@ const ping = (getState: () => void, dispatchFromMain: (a: DispatchFromMainArg) =
           }
         })
         .catch((err) => {
-          console.log('[ws] websocket timeout error, will close connection ', getNodeIndex(node));
+          console.log('[bn] websocket timeout error, will close connection ', getNodeIndex(node));
           console.log(err);
           dispatchFromMain({
             action: {
@@ -140,14 +139,14 @@ export const wsCron = (getState: () => void, dispatchFromMain: (a: DispatchFromM
               },
             },
           });
-          console.log('[ws] [ssl] connected with ' + node.ip + ' ' + node.host);
+          console.log('[bn] [ssl] connected with ' + node.ip + ' ' + node.host);
         } catch (err) {
-          console.log('[ws] error when trying to get info ' + node.ip + ' ' + node.host);
+          console.log('[bn] error when trying to get info ' + node.ip + ' ' + node.host);
           console.log(err);
         }
       } catch (err) {
         ongoingConnectionTrials[node.ip] = false;
-        console.log('[ws] could not connect with ' + node.ip + ' ' + node.host);
+        console.log('[bn] could not connect with ' + node.ip + ' ' + node.host);
         if (err) {
           console.log(err);
         }

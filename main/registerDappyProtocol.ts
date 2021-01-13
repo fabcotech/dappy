@@ -104,7 +104,7 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
           .map((u) => readDataorBagData(u.split('.')[0], u.split('.')[1])),
       };
     } else {
-      type = 'explore-deploy';
+      type = 'api/explore-deploy';
       query = {
         term: readDataorBagData(split[1].split('.')[0], split[1].split('.')[1]),
       };

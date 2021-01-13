@@ -32,7 +32,6 @@ export const getWsResponse = (data: { [key: string]: any }, node: BlockchainNode
             data += chunk;
           });
           res.on('end', () => {
-            console.log(data);
             resolve(data);
           });
         }
