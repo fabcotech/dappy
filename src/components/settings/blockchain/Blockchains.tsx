@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { Formik, Field, Form, FieldArray } from 'formik';
+import { Formik, Form, FieldArray } from 'formik';
 import { connect } from 'react-redux';
-import xs from 'xstream';
 
 import './Blockchains.scss';
 

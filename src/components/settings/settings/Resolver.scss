@@ -15,6 +15,9 @@
   .text-danger {
     transform: translateY(-0.3rem);
   }
+  .ongoing-async-warning, .ongoing-async {
+    padding-bottom: 10px;
+  }
   @media screen and (max-width: 768px) {
     p.control {
       display: none;
@@ -24,8 +27,11 @@
     .field.is-horizontal > label {
       width: 230px;
     }
-    .text-danger {
+    .text-danger, .text-warning, .ongoing-async, .text-success {
       padding-left: 230px;
+    }
+    .no-padding {
+      padding: 0px;
     }
 
     .with-addons {

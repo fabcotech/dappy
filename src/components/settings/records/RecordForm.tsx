@@ -1,10 +1,15 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment } from 'react';
 import { Formik, Field } from 'formik';
+import xs, { Stream } from 'xstream';
+import debounce from 'xstream/extra/debounce';
 
 import './RecordsForm.scss';
-import { Record, IPServer, RChainInfo, PartialRecord } from '../../../models';
+import { Record, IPServer, RChainInfo, PartialRecord, Blockchain } from '../../../models';
 import { BadgeAppreciation } from '../../utils/BadgeAppreciation';
 import { IPServersComponent } from './IPServers';
+import * as fromBlockchain from '../../../store/blockchain';
+import { multiCall } from '../../../utils/wsUtils';
+import { getNodeIndex } from '../../../utils/getNodeIndex';
 
 interface RecordFormProps {
   validateName?: boolean;
@@ -12,6 +17,7 @@ interface RecordFormProps {
   records: { [key: string]: Record };
   partialRecord: PartialRecord | undefined;
   special?: RChainInfo['special'];
+  namesBlockchain?: Blockchain;
   filledRecord: (t: undefined | PartialRecord) => void;
 }
 
@@ -43,6 +49,12 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
 
   badgeInput: undefined | HTMLInputElement = undefined;
   badgeAppreciationInput: undefined | HTMLInputElement = undefined;
+  setFieldTouched: any;
+  values: any;
+  asyncErrors: any = {};
+  stream: Stream<undefined> = xs.create();
+  skipAsyncValidation = false;
+  couldNotAsynValidate = false;
 
   state: {
     special: boolean;
@@ -51,6 +63,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
     badge: string;
     badgeAppreciation: string;
     badgeAppreciationPrefix: 'BS' | 'BW' | 'BD';
+    availables: { [key: string]: boolean };
   } = {
     special: false,
     servers: [],
@@ -58,6 +71,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
     badge: '',
     badgeAppreciation: '',
     badgeAppreciationPrefix: 'BS',
+    availables: {},
   };
 
   componentDidMount() {
@@ -66,6 +80,11 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
         servers: this.props.partialRecord.servers,
       });
     }
+    xs.merge(this.stream.compose(debounce(600))).subscribe({
+      next: () => {
+        this.validateAvailability();
+      },
+    });
   }
 
   onToggleSetupIpServers = () => {
@@ -80,6 +99,80 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
     });
   };
 
+  validateAvailability = async () => {
+    let errors: {
+      names: string[];
+    } = {
+      names: [],
+    };
+
+    if (
+      this.props.namesBlockchain &&
+      this.values.names.find((n: string) => n && !this.state.availables.hasOwnProperty(n))
+    ) {
+      const indexes = this.props.namesBlockchain.nodes.map(getNodeIndex);
+
+      // todo only ask for names that are not in this.state.availables
+      let a;
+      try {
+        a = await multiCall(
+          { type: 'get-x-records', body: { names: this.values.names } },
+          {
+            chainId: this.props.namesBlockchain.chainId,
+            urls: indexes,
+            resolverMode: 'absolute',
+            resolverAccuracy: 100,
+            resolverAbsolute: indexes.length,
+            multiCallId: fromBlockchain.EXECUTE_RECORDS_CRON_JOBS,
+          }
+        );
+      } catch (err) {
+        console.log(err);
+        this.couldNotAsynValidate = true;
+        this.asyncErrors = {};
+        this.setState({
+          ...this.state,
+        });
+        return;
+      }
+      this.couldNotAsynValidate = false;
+
+      const records = JSON.parse(a.result.data);
+      this.values.names.forEach((n: string) => {
+        this.setState({
+          availables: {
+            ...this.state.availables,
+            [n]: records[n] !== null,
+          },
+        });
+      });
+    }
+    if (this.state.special) {
+      [0, 1, 2, 3].forEach((i) => {
+        if (this.state.availables[this.values.names[i]] === false) {
+          errors.names[i] = t('record exists');
+        }
+      });
+    } else {
+      if (this.state.availables[this.values.names[0]] === false) {
+        errors.names[0] = t('record exists');
+      }
+    }
+
+    // only set errors if at least one
+    if (Object.keys(errors).length == 1 && errors.names.length === 0) {
+      this.asyncErrors = {};
+    } else {
+      this.asyncErrors = errors;
+    }
+    this.setState({
+      ...this.state,
+    });
+
+    this.skipAsyncValidation = true;
+    this.setFieldTouched('names[0]');
+  };
+
   render() {
     return (
       <Formik
@@ -88,7 +181,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
             ? {
                 ...this.props.partialRecord,
                 type: this.props.partialRecord.address ? 'dapp' : 'ip',
-                badges: this.props.partialRecord.badges || {},
+                badges: this.props.partialRecord.badges || ({} as { [key: string]: string }),
                 names: [this.props.partialRecord.name],
               }
             : {
@@ -96,7 +189,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                 address: '',
                 type: 'ip',
                 servers: [],
-                badges: {},
+                badges: {} as { [key: string]: string },
               }
         }
         validate={(values) => {
@@ -110,12 +203,23 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
             names: [],
           };
 
+          this.values = values;
+          if (this.skipAsyncValidation === false) {
+            this.asyncErrors = {
+              ...this.asyncErrors,
+              ongoing: 'Name availability validation ongoing',
+            };
+            this.setState({
+              ...this.state,
+            });
+            this.stream.shamefullySendNext(undefined);
+          }
+          this.skipAsyncValidation = false;
+
           if (this.state.special) {
             [0, 1, 2, 3].forEach((i) => {
               if (!values.names[i]) {
                 errors.names[i] = t('field required');
-              } else if (this.props.records[values.names[i]]) {
-                errors.names[i] = t('record exists');
               } else if (this.props.validateName && !/^[a-z][a-z0-9]*$/.test(values.names[i])) {
                 errors.names[i] = t('record regexp');
               } else if ([0, 1, 2, 3].filter((j) => values.names[j] === values.names[i]).length > 1) {
@@ -125,8 +229,6 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
           } else {
             if (!values.names[0]) {
               errors.names[0] = t('field required');
-            } else if (this.props.records[values.names[0]]) {
-              errors.names[0] = t('record exists');
             } else if (this.props.validateName && !/^[a-z][a-z0-9]*$/.test(values.names[0])) {
               errors.names[0] = t('record regexp');
             }
@@ -142,8 +244,11 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
             }
           }
 
-          console.log(errors);
-          if (Object.keys(errors).length === 1 && errors.names.length === 0) {
+          if (
+            Object.keys(this.asyncErrors).length === 0 &&
+            Object.keys(errors).length === 1 &&
+            errors.names.length === 0
+          ) {
             if (this.state.special && this.props.special) {
               this.props.filledRecord({
                 servers: this.state.servers,
@@ -163,10 +268,14 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
             this.props.filledRecord(undefined);
           }
 
+          // will be used by the async function
           return errors;
         }}
         onSubmit={() => {}}
         render={({ values, setFieldValue, setFieldTouched, errors, touched }) => {
+          if (!this.setFieldTouched) {
+            this.setFieldTouched = setFieldTouched;
+          }
           if (this.state.settingUpIpServers) {
             return (
               <div className="ip-servers-form">
@@ -220,6 +329,15 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
               <form>
                 <div className="record-form">
                   <h5 className="is-6 title">{t('record')}</h5>
+                  {touched.names && (this.asyncErrors as any).ongoing && (
+                    <p className="ongoing-async">
+                      <i className={`rotating fa fa-redo fa-before`} />
+                      {(this.asyncErrors as any).ongoing}
+                    </p>
+                  )}
+                  {this.couldNotAsynValidate && (
+                    <p className="text-warning ongoing-async-warning">Could not validate the availability of names</p>
+                  )}
                   <div className="field is-horizontal">
                     <label className="label">{t('name')}*</label>
 
@@ -234,8 +352,24 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                               placeholder={`name ${i}`}
                             />
                             {touched.names && touched.names[i] && errors.names && errors.names[i] && (
-                              <p className="text-danger name-error">{(errors as any).names[i]}</p>
+                              <p className="text-danger name-error no-padding">{(errors as any).names[i]}</p>
                             )}
+                            {touched.names &&
+                              touched.names[i] &&
+                              this.asyncErrors.names &&
+                              this.asyncErrors.names[i] && (
+                                <p className="text-danger name-error no-padding">
+                                  {(this.asyncErrors as any).names[i]}
+                                </p>
+                              )}
+                            {touched.names &&
+                              touched.names[i] &&
+                              !this.asyncErrors.ongoing &&
+                              (!this.asyncErrors || !this.asyncErrors.names || !this.asyncErrors.names[i]) && (
+                                <p className="text-success no-padding">
+                                  <i className="fa fa-check"></i> available
+                                </p>
+                              )}
                           </Fragment>
                         );
                       })}
@@ -255,13 +389,38 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
             <form>
               <div className="record-form">
                 <h5 className="is-6 title">{t('record')}</h5>
+                {(this.asyncErrors as any).ongoing && (
+                  <p className="ongoing-async">
+                    <i className={`rotating fa fa-redo fa-before`} />
+                    {(this.asyncErrors as any).ongoing}
+                  </p>
+                )}
+                {this.couldNotAsynValidate && (
+                  <p className="text-warning ongoing-async-warning">Could not validate the availability of names</p>
+                )}
                 <div className="field is-horizontal">
                   <label className="label">{t('name')}*</label>
                   <div className="control">
                     <Field className="input" type="text" name={`names.0`} placeholder={`name`} />
-                    {touched.names && touched.names[0] && errors.names && errors.names[0] && (
-                      <p className="text-danger">{(errors as any).names[0]}</p>
-                    )}
+                  </div>
+                </div>
+                {touched.names && touched.names[0] && errors.names && errors.names[0] && (
+                  <p className="text-danger">{(errors as any).names[0]}</p>
+                )}
+                {touched.names && touched.names[0] && this.asyncErrors.names && this.asyncErrors.names[0] && (
+                  <p className="text-danger">{(this.asyncErrors as any).names[0]}</p>
+                )}
+                {touched.names &&
+                  touched.names[0] &&
+                  !this.asyncErrors.ongoing &&
+                  (!this.asyncErrors || !this.asyncErrors.names || !this.asyncErrors.names[0]) && (
+                    <p className="text-success">
+                      <i className="fa fa-check"></i> available
+                    </p>
+                  )}
+                <div className="field is-horizontal">
+                  <label className="label"></label>
+                  <div className="control">
                     <SpecialComponent special={this.props.special} setSpecial={(a) => this.setState({ special: a })} />
                   </div>
                 </div>

@@ -59,15 +59,15 @@ const DESCRIPTIONS: { [key: string]: (args: { [key: string]: any }) => string } 
   [LoadError.RecordNotFound]: (args) => `Could not find a record associated with name "${args.name}"`,
 };
 
+export const loadErrorText = (loadError: LoadErrorWithArgs) => {
+  return DESCRIPTIONS[loadError.error] ? DESCRIPTIONS[loadError.error](loadError.args) : 'Unknown load error';
+};
+
 export const LoadErrorHtml = (props: { loadError: LoadErrorWithArgs; clearSearchAndLoadError: () => void }) => {
   return (
     <div>
       <h4 className="title is-4">{TITLES[props.loadError.error] || 'Load error'}</h4>
-      <p>
-        {DESCRIPTIONS[props.loadError.error]
-          ? DESCRIPTIONS[props.loadError.error](props.loadError.args)
-          : 'Unknown load error'}
-      </p>
+      <p>{loadErrorText(props.loadError)}</p>
       <Button ok={props.clearSearchAndLoadError} />
     </div>
   );

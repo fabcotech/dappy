@@ -1,7 +1,5 @@
 import * as React from 'react';
-import { Formik, Field } from 'formik';
 import { connect } from 'react-redux';
-import xs from 'xstream';
 
 import './Resolver.scss';
 import * as fromSettings from '../../../store/settings';
@@ -20,12 +18,12 @@ export class FactorySettingsComponent extends React.Component<FactorySettingsPro
 }
 
 export const FactorySettings = connect(
-  state => {
+  (state) => {
     return {
       settings: fromSettings.getSettings(state),
     };
   },
-  dispatch => ({
+  (dispatch) => ({
     updateDevMode: (flag: boolean) => dispatch(fromSettings.updateDevModeAction({ flag: flag })),
   })
 )(FactorySettingsComponent);

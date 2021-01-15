@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
 import './Records.scss';
-import { Record, RecordFromNetwork, TransactionState, RChainInfos, Account } from '../../../models';
+import { Record, RecordFromNetwork, TransactionState, RChainInfos, Account, Blockchain } from '../../../models';
 import * as fromBlockchain from '../../../store/blockchain';
 import * as fromSettings from '../../../store/settings';
 import { AddRecord } from './AddRecord';
@@ -16,6 +16,7 @@ interface RecordsRootProps {
   recordNamesInAlphaOrder: string[];
   transactions: { [id: string]: TransactionState };
   rchainInfos: { [chainId: string]: RChainInfos };
+  namesBlockchain: Blockchain;
   namesBlockchainInfos: RChainInfos | undefined;
   accounts: { [accountName: string]: Account };
   addRecord: (a: RecordFromNetwork) => void;
@@ -61,6 +62,7 @@ export function RootComponent(props: RecordsRootProps) {
           namesBlockchainInfos={props.namesBlockchainInfos}
           accounts={props.accounts}
           sendRChainTransaction={props.sendRChainTransaction}
+          namesBlockchain={props.namesBlockchain}
         />
       ) : undefined}
       {tab === 'update-name' ? (
@@ -89,6 +91,7 @@ export function RootComponent(props: RecordsRootProps) {
 export const Root = connect(
   (state) => {
     return {
+      namesBlockchain: fromSettings.getNamesBlockchain(state),
       records: fromBlockchain.getRecords(state),
       recordNamesInAlphaOrder: fromBlockchain.getRecordNamesInAlphaOrder(state),
       transactions: fromBlockchain.getTransactions(state),

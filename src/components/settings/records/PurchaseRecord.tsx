@@ -2,7 +2,15 @@ import React, { Fragment } from 'react';
 import { purchaseTokensTerm } from 'rchain-token-files';
 
 import './RecordsForm.scss';
-import { Record, TransactionState, RChainInfos, Account, PartialRecord, TransactionStatus } from '../../../models';
+import {
+  Record,
+  TransactionState,
+  RChainInfos,
+  Account,
+  PartialRecord,
+  TransactionStatus,
+  Blockchain,
+} from '../../../models';
 import { blockchain as blockchainUtils } from '../../../utils';
 import * as fromBlockchain from '../../../store/blockchain';
 import { TransactionForm } from '../../utils';
@@ -15,6 +23,7 @@ interface PurchaseRecordProps {
   rchainInfos: { [chainId: string]: RChainInfos };
   namesBlockchainInfos: RChainInfos | undefined;
   accounts: { [accountName: string]: Account };
+  namesBlockchain: Blockchain;
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
 }
 
@@ -165,6 +174,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
           filledRecord={this.onFilledRecords}
           partialRecord={this.state.partialRecord}
           records={this.props.records}
+          namesBlockchain={this.props.namesBlockchain}
         />
         <form>
           <div className="field is-horizontal is-grouped pt20">
