@@ -149,8 +149,7 @@ const reloadResource = function* (action: Action) {
       }
       const dataFromBlockchain = (multiCallResultRecordLookup as MultiCallResult).result.data;
       try {
-        const dataFromBlockchainParsed = JSON.parse(dataFromBlockchain);
-        let recordFromBlockchain = JSON.parse(dataFromBlockchainParsed.data);
+        let recordFromBlockchain = JSON.parse(dataFromBlockchain);
         // .servers is always stringified
         if (recordFromBlockchain && recordFromBlockchain.servers) {
           const servers = JSON.parse(`{ "value": ${recordFromBlockchain.servers}}`).value;

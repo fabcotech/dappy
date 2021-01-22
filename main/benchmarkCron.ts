@@ -1,5 +1,5 @@
 import { DispatchFromMainArg } from './main';
-import { getWsResponse } from './wsUtils';
+import { httpBrowserToNode } from './httpBrowserToNode';
 
 import { BlockchainNode, Blockchain, Benchmark } from '../src/models';
 import { UPDATE_NODE_READY_STATE } from '../src/store/settings/actions';
@@ -23,7 +23,7 @@ const ping = (getState: () => void, dispatchFromMain: (a: DispatchFromMainArg) =
   Object.keys(blockchains).forEach((chainId) => {
     blockchains[chainId].nodes.forEach((node) => {
       const requestId = Math.round(Math.random() * 1000000).toString();
-      getWsResponse({ requestId: requestId, type: 'ping' }, node, PING_PONG_DELAY)
+      httpBrowserToNode({ requestId: requestId, type: 'ping' }, node, PING_PONG_DELAY)
         .then((a: string) => {
           const resp = JSON.parse(a);
           if (resp.data !== 'pong') {
@@ -66,13 +66,13 @@ const ping = (getState: () => void, dispatchFromMain: (a: DispatchFromMainArg) =
 
 let pingPongLaunched = false;
 
-export const wsCron = (getState: () => void, dispatchFromMain: (a: DispatchFromMainArg) => void) => {
+export const benchmarkCron = (getState: () => void, dispatchFromMain: (a: DispatchFromMainArg) => void) => {
   if (!pingPongLaunched) {
     pingPongLaunched = true;
     // First try 2 seconds after launch
     setTimeout(() => ping(getState, dispatchFromMain), 2000);
     // Then every 20 seconds
-    const interval = setInterval(() => ping(getState, dispatchFromMain), 20000);
+    const interval = setInterval(() => ping(getState, dispatchFromMain), 60000);
   }
 
   const blockchains = fromBlockchains.getBlockchains(getState());
@@ -98,13 +98,12 @@ export const wsCron = (getState: () => void, dispatchFromMain: (a: DispatchFromM
           node.cert may be undefined, if node.cert is undefined and node is from default/blockchain
           we volontarily setting an invalid cert "INVALID"
         */
-        const nodeCertOrInvalid = node.cert || 'INVALID CERT';
         ongoingConnectionTrials[node.ip] = false;
 
         let t = new Date().getTime();
         const requestId = Math.round(Math.random() * 1000000).toString();
         try {
-          const resp = await getWsResponse({ requestId: requestId, type: 'info' }, node);
+          const resp = await httpBrowserToNode({ requestId: requestId, type: 'info' }, node);
           const b: Benchmark = {
             id: chainId + '-' + node.ip,
             chainId: chainId,

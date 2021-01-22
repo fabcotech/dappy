@@ -22,7 +22,6 @@ export interface State {
     loadErrors: fromActions.UpdateRChainBlockchainInfoFailedPayload[];
   };
   records: {
-    cronStream: undefined | NodeJS.Timeout;
     records: { [name: string]: Record };
     date: string;
     loadErrors: LoadRecordsError[];
@@ -48,7 +47,6 @@ export const initialState: State = {
     loadErrors: [],
   },
   records: {
-    cronStream: undefined,
     records: {},
     date: '',
     loadErrors: [],
@@ -83,18 +81,6 @@ export const reducer = (state = initialState, action: any): State => {
         ...state,
         rchain: {
           ...state.rchain,
-          cronStream: payload.stream,
-        },
-      };
-    }
-
-    case fromActions.SAVE_RECORDS_CRON_JOBS_STREAM: {
-      const payload: fromActions.SaveRecordsCronJobsStreamPayload = action.payload;
-
-      return {
-        ...state,
-        records: {
-          ...state.records,
           cronStream: payload.stream,
         },
       };

@@ -1,5 +1,5 @@
 import { BlockchainNode } from '../src/models';
-import { getWsResponse } from './wsUtils';
+import { httpBrowserToNode } from './httpBrowserToNode';
 
 /* browser to node */
 export const performSingleRequest = (
@@ -18,7 +18,7 @@ export const performSingleRequest = (
       }
     }, 20000);
 
-    getWsResponse(body, node)
+    httpBrowserToNode(body, node)
       .then((result) => {
         if (!over) {
           over = true;

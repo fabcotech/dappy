@@ -6,28 +6,22 @@ import crypto from 'crypto';
 
 import * as fromCommon from '../src/common';
 import {
-  EXECUTE_ACCOUNTS_CRON_JOBS,
   UPDATE_NODE_READY_STATE,
   UpdateNodeReadyStatePayload,
 } from '../src/store/settings';
 import { validateSearch } from '../src/utils/validateSearch';
 import {
   EXECUTE_RCHAIN_CRON_JOBS,
-  EXECUTE_RECORDS_CRON_JOBS,
-  LISTEN_FOR_DATA_AT_NAME,
-  GET_ONE_RECORD,
-  EXECUTE_NODES_CRON_JOBS,
 } from '../src/store/blockchain';
 
 import * as fromMainBrowserViews from './store/browserViews';
-import * as fromConnections from './store/connections';
 import * as fromBlockchains from './store/blockchains';
 import { WS_RECONNECT_PERIOD } from '../src/CONSTANTS';
 import { registerDappyProtocol } from './registerDappyProtocol';
 import { overrideHttpProtocols } from './overrideHttpProtocols';
-import { wsCron } from './wsCron';
+import { benchmarkCron } from './benchmarkCron';
 import { performMultiRequest } from './performMultiRequest';
-import { MultiCallParameters, SingleCallParameters } from '../src/models/WebSocket';
+import { MultiCallParameters } from '../src/models/WebSocket';
 import { performSingleRequest } from './performSingleRequest';
 import { browserViewsMiddleware } from './browserViewsMiddleware';
 import { getIpAddressAndCert } from './getIpAddressAndCert';
@@ -132,9 +126,6 @@ ipcMain.on('single-dappy-call', (event, arg) => {
     return;
   }
 
-  console.log('single-dappy-call');
-  console.log(arg);
-
   try {
     performSingleRequest(arg.body, arg.node)
       .then((a) => {
@@ -143,14 +134,6 @@ ipcMain.on('single-dappy-call', (event, arg) => {
       .catch((err) => {
         commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, err);
       });
-    /* const connections = fromConnections.getConnections(store.getState());
-    if (connections[parameters.chainId] && connections[parameters.chainId][parameters.url]) {
-      const connection = connections[parameters.chainId][parameters.url];
-    } else {
-      commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, {
-        error: { message: 'Node not available' },
-      });
-    } */
   } catch (err) {
     console.log(err);
     commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, { error: { message: err.message } });
@@ -177,58 +160,8 @@ ipcMain.on('multi-dappy-call', (event, arg) => {
   if (parameters.multiCallId === EXECUTE_RCHAIN_CRON_JOBS) {
     parameters.comparer = (res: any) => {
       const json = JSON.parse(res as string);
-      if (json.success) {
-        return `${json.data.rchainNetwork}-${json.data.lastFinalizedBlockNumber}-${json.data.rchainNamesRegistryUri}`;
-      } else {
-        return '';
-      }
-    };
-  } else if (parameters.multiCallId === EXECUTE_RECORDS_CRON_JOBS) {
-    parameters.comparer = (res: any) => {
-      const json = JSON.parse(res as string);
-      if (json.success) {
-        return json.data;
-      } else {
-        return '';
-      }
-    };
-  } else if (parameters.multiCallId === LISTEN_FOR_DATA_AT_NAME) {
-    parameters.comparer = (res: any) => {
-      const json = JSON.parse(res as string);
-      if (json.success) {
-        return JSON.stringify(json.data);
-      } else {
-        return '';
-      }
-    };
-  } else if (parameters.multiCallId === GET_ONE_RECORD) {
-    parameters.comparer = (res: any) => {
-      const json = JSON.parse(res as string);
-      if (json.success) {
-        return JSON.stringify(json.data);
-      } else {
-        return '';
-      }
-    };
-  } else if (parameters.multiCallId === EXECUTE_NODES_CRON_JOBS) {
-    parameters.comparer = (res: any) => {
-      const json = JSON.parse(res as string);
-      // Comes from WS/SSL call
-      if (json.requestId) {
-        return JSON.stringify(json.data);
-        // Comes from HTTP call
-      } else {
-        return res;
-      }
-    };
-  } else if (parameters.multiCallId === EXECUTE_ACCOUNTS_CRON_JOBS) {
-    parameters.comparer = (res: any) => {
-      const json = JSON.parse(res as string);
-      if (json.success) {
-        return JSON.stringify(json.data);
-      } else {
-        return '';
-      }
+      // do not include json.rnodeVersion that might differ
+      return `${json.data.rchainNetwork}-${json.data.lastFinalizedBlockNumber}-${json.data.rchainNamesRegistryUri}`;
     };
   } else {
     parameters.comparer = (res) => res;
@@ -323,7 +256,7 @@ const dispatchFromMain = (a: DispatchFromMainArg) => {
   to MAIN process store
 */
 /* browser process - main process */
-let wsCronRanOnce = false;
+let benchmarkCronRanOnce = false;
 ipcMain.on('dispatch-in-main', (event, a) => {
   if (a.uniqueEphemeralToken === uniqueEphemeralToken) {
     if (a.action.type === fromMainBrowserViews.LOAD_OR_RELOAD_BROWSER_VIEW) {
@@ -336,12 +269,12 @@ ipcMain.on('dispatch-in-main', (event, a) => {
     } else if (a.action.type === fromBlockchains.SYNC_BLOCKCHAINS) {
       store.dispatch(a.action);
       /*
-        Do not wait the setInterval to run wsCron
+        Do not wait the setInterval to run benchmarkCron
         do it instantly after dispatch
       */
-      if (wsCronRanOnce === false) {
-        wsCronRanOnce = true;
-        wsCron(store.getState, dispatchFromMain);
+      if (benchmarkCronRanOnce === false) {
+        benchmarkCronRanOnce = true;
+        benchmarkCron(store.getState, dispatchFromMain);
       }
     } else {
       store.dispatch(a.action);
@@ -356,7 +289,7 @@ ipcMain.on('trigger-command', (event, arg) => {
   console.log('trigger-command', arg.command);
   if (arg.uniqueEphemeralToken === uniqueEphemeralToken) {
     if (arg.command === 'run-ws-cron') {
-      wsCron(store.getState, dispatchFromMain);
+      benchmarkCron(store.getState, dispatchFromMain);
     }
     if (arg.command === 'download-file') {
       dialog
@@ -457,7 +390,7 @@ app.on('second-instance', (event, argv, cwd) => {
 
 function createWindow() {
   setInterval(() => {
-    wsCron(store.getState, dispatchFromMain);
+    benchmarkCron(store.getState, dispatchFromMain);
   }, WS_RECONNECT_PERIOD);
   browserViewsMiddleware(store, dispatchFromMain);
 

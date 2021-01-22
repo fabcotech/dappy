@@ -2,6 +2,7 @@ import { takeEvery, select, put } from 'redux-saga/effects';
 import Ajv from 'ajv';
 
 import * as fromSettings from '..';
+import * as fromBlockchain from '../../blockchain/';
 
 import { LOGREV_TO_REV_RATE } from '../../../CONSTANTS';
 import { blockchain as blockchainUtils } from '../../../utils/blockchain';
@@ -66,7 +67,7 @@ const executeAccountsCronJobs = function* (action: Action) {
         resolverMode: 'absolute',
         resolverAccuracy: 100,
         resolverAbsolute: firstBlockchain.nodes.length,
-        multiCallId: fromSettings.EXECUTE_ACCOUNTS_CRON_JOBS,
+        multiCallId: fromBlockchain.EXPLORE_DEPLOY_X,
       }
     );
   } catch (e) {

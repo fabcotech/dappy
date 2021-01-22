@@ -43,7 +43,7 @@ window.openExternal = (url) => {
   });
 };
 
-window.singleDappyWsCall = (body, node) => {
+window.singleDappyCall = (body, node) => {
   return new Promise((resolve, reject) => {
     const requestId = Math.round(Math.random() * 1000000).toString();
     ipcRenderer.send('single-dappy-call', {
@@ -68,7 +68,7 @@ window.singleDappyWsCall = (body, node) => {
   });
 };
 
-window.multiDappyWsCall = (body, parameters) => {
+window.multiDappyCall = (body, parameters) => {
   return new Promise((resolve, reject) => {
     const requestId = Math.round(Math.random() * 1000000).toString();
     ipcRenderer.send('multi-dappy-call', {

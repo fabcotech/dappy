@@ -3,9 +3,8 @@ import resolver, { LoadError } from 'beesjs';
 
 import { getNodeFromIndex } from '../src/utils/getNodeFromIndex';
 import { MultiCallBody, MultiCallParameters, MultiCallResult, MultiCallError } from '../src/models/WebSocket';
-import { Connections } from './store/connections';
 import * as fromBlockchains from './store/blockchains';
-import { getWsResponse } from './wsUtils';
+import { httpBrowserToNode } from './httpBrowserToNode';
 
 /* browser to network */
 export const performMultiRequest = (
@@ -40,7 +39,7 @@ export const performMultiRequest = (
                 ...body,
                 requestId: requestId,
               };
-              const resp = await getWsResponse(newBodyForRequest, node, 50000);
+              const resp = await httpBrowserToNode(newBodyForRequest, node, 50000);
               if (!over) {
                 resolve({
                   type: 'SUCCESS',

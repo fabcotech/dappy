@@ -123,7 +123,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
             resolverMode: 'absolute',
             resolverAccuracy: 100,
             resolverAbsolute: indexes.length,
-            multiCallId: fromBlockchain.EXECUTE_RECORDS_CRON_JOBS,
+            multiCallId: fromBlockchain.GET_X_RECORDS,
           }
         );
       } catch (err) {

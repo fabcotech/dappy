@@ -3,12 +3,12 @@ import https from 'https';
 import { WS_PAYLOAD_PAX_SIZE } from '../src/CONSTANTS';
 import { BlockchainNode } from '../src/models';
 
-export const getWsResponse = (data: { [key: string]: any }, node: BlockchainNode, timeout?: number) => {
+export const httpBrowserToNode = (data: { [key: string]: any }, node: BlockchainNode, timeout?: number) => {
   return new Promise((resolve, reject) => {
     const s = JSON.stringify(data);
     const l = Buffer.from(s).length;
     if (l > WS_PAYLOAD_PAX_SIZE) {
-      reject(`Websocket payload is ${l / 1000}kb, max size is ${WS_PAYLOAD_PAX_SIZE / 1000}kb`);
+      reject(`bn payload is ${l / 1000}kb, max size is ${WS_PAYLOAD_PAX_SIZE / 1000}kb`);
       return;
     }
     try {
@@ -22,8 +22,10 @@ export const getWsResponse = (data: { [key: string]: any }, node: BlockchainNode
             'Content-Type': 'application/json',
             Host: node.host,
           },
-          rejectUnauthorized: false, // cert does not have to be signed by CA (self-signed)
-          cert: node.cert ? decodeURI(node.cert) : undefined,
+          // cert does not have to be signed by CA (self-signed)
+          rejectUnauthorized: false,
+          // only origin user can have invalid cert
+          cert: node.cert ? decodeURI(node.cert) : (node.origin === 'user' ? undefined : 'INVALIDCERT'),
           ca: [],
         },
         (res) => {

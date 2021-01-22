@@ -18,7 +18,6 @@ const transferIdentificationtionsToDapps = function*(action: any) {
     console.log('error cannot transfer transaction to browser view (no comm event)');
     return;
   }
-  console.log({ [payload.callId]: payload.identification });
   browserViews[payload.dappId].commEvent.reply(
     'message-from-main',
     fromCommon.updateIdentificationsAction({ identifications: { [payload.callId]: payload.identification } })

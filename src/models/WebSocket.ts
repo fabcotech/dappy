@@ -3,11 +3,6 @@ import { LoadCompleted, LoadErrors } from 'beesjs';
 import { ResolverMode } from './Settings';
 import { LoadErrorWithArgs } from './Dapp';
 
-export interface SingleCallParameters {
-  chainId: string;
-  url: string;
-}
-
 export interface MultiCallParameters {
   chainId: string;
   urls: string[];
