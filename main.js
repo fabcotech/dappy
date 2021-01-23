@@ -96,7 +96,6 @@ var updateIdentificationsAction = function (values) {
 };
 
 var UPDATE_NODE_READY_STATE = '[Settings] Update node ready state';
-var EXECUTE_ACCOUNTS_CRON_JOBS = '[Settings] Execute accounts cron jobs';
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -320,12 +319,8 @@ var validateShortcutSearchWithProtocol = function (search) {
 };
 
 var EXECUTE_RCHAIN_CRON_JOBS = '[Blockchain] Execute RChain cron jobs';
-var EXECUTE_NODES_CRON_JOBS = '[Blockchain] Execute Nodes cron jobs';
-var EXECUTE_RECORDS_CRON_JOBS = '[Blockchain] Execute records cron jobs';
 var PERFORM_BENCHMARK_COMPLETED = '[Blockchain] Perform benchmark completed';
 var SAVE_FAILED_RCHAIN_TRANSACTION = '[Blockchain] Save failed RChain transaction';
-var LISTEN_FOR_DATA_AT_NAME = '[Common] Listen for data at name';
-var GET_ONE_RECORD = '[Common] Get one record';
 var saveFailedRChainTransactionAction = function (values) { return ({
     type: SAVE_FAILED_RCHAIN_TRANSACTION,
     payload: values,
@@ -3913,18 +3908,14 @@ var getNodeFromIndex = function (index) {
     };
 };
 
-var getWsResponse = function (data, node, timeout) {
+var httpBrowserToNode = function (data, node, timeout) {
     return new Promise(function (resolve, reject) {
         var s = JSON.stringify(data);
         var l = Buffer.from(s).length;
         if (l > WS_PAYLOAD_PAX_SIZE) {
-            reject("Websocket payload is " + l / 1000 + "kb, max size is " + WS_PAYLOAD_PAX_SIZE / 1000 + "kb");
+            reject("bn payload is " + l / 1000 + "kb, max size is " + WS_PAYLOAD_PAX_SIZE / 1000 + "kb");
             return;
         }
-        console.log("/" + data.type);
-        console.log(data);
-        console.log(node.ip.split(':')[0]);
-        console.log(node.ip.indexOf(':') === -1 ? 443 : node.ip.split(':')[1]);
         try {
             var req = https.request({
                 hostname: node.ip.split(':')[0],
@@ -3935,8 +3926,10 @@ var getWsResponse = function (data, node, timeout) {
                     'Content-Type': 'application/json',
                     Host: node.host,
                 },
+                // cert does not have to be signed by CA (self-signed)
                 rejectUnauthorized: false,
-                cert: node.cert ? decodeURI(node.cert) : undefined,
+                // only origin user can have invalid cert
+                cert: node.cert ? decodeURI(node.cert) : (node.origin === 'user' ? undefined : 'INVALIDCERT'),
                 ca: [],
             }, function (res) {
                 var data = '';
@@ -3944,7 +3937,6 @@ var getWsResponse = function (data, node, timeout) {
                     data += chunk;
                 });
                 res.on('end', function () {
-                    console.log(data);
                     resolve(data);
                 });
             });
@@ -3995,7 +3987,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
                             _a.trys.push([1, 3, , 4]);
                             requestId = Math.round(Math.random() * 1000000).toString();
                             newBodyForRequest = __assign(__assign({}, body), { requestId: requestId });
-                            return [4 /*yield*/, getWsResponse(newBodyForRequest, node)];
+                            return [4 /*yield*/, httpBrowserToNode(newBodyForRequest, node)];
                         case 2:
                             resp = _a.sent();
                             if (!over_1) {
@@ -12457,7 +12449,7 @@ var registerDappyProtocol = function (session, getState) {
             };
         }
         else {
-            type = 'explore-deploy';
+            type = 'api/explore-deploy';
             query = {
                 term: readDataorBagData(split[1].split('.')[0], split[1].split('.')[1]),
             };
@@ -13141,16 +13133,15 @@ var ongoingConnectionTrials = {};
 var PING_PONG_DELAY = 8000;
 // todo handle network initerruption with ping/pong
 var ping = function (getState, dispatchFromMain) {
-    console.log('PING');
     var blockchains = getBlockchains$1(getState());
     Object.keys(blockchains).forEach(function (chainId) {
         blockchains[chainId].nodes.forEach(function (node) {
             var requestId = Math.round(Math.random() * 1000000).toString();
-            getWsResponse({ requestId: requestId, type: 'ping' }, node)
+            httpBrowserToNode({ requestId: requestId, type: 'ping' }, node)
                 .then(function (a) {
                 var resp = JSON.parse(a);
                 if (resp.data !== 'pong') {
-                    console.log("[ws] websocket did not get \"pong\" from server under " + PING_PONG_DELAY + " seconds, will close connection ", getNodeIndex(node));
+                    console.log("[bn] websocket did not get \"pong\" from server under " + PING_PONG_DELAY + " seconds, will close connection ", getNodeIndex(node));
                     dispatchFromMain({
                         action: {
                             type: UPDATE_NODE_READY_STATE,
@@ -13166,7 +13157,7 @@ var ping = function (getState, dispatchFromMain) {
                 }
             })
                 .catch(function (err) {
-                console.log('[ws] websocket timeout error, will close connection ', getNodeIndex(node));
+                console.log('[bn] websocket timeout error, will close connection ', getNodeIndex(node));
                 console.log(err);
                 dispatchFromMain({
                     action: {
@@ -13184,13 +13175,13 @@ var ping = function (getState, dispatchFromMain) {
     });
 };
 var pingPongLaunched = false;
-var wsCron = function (getState, dispatchFromMain) {
+var benchmarkCron = function (getState, dispatchFromMain) {
     if (!pingPongLaunched) {
         pingPongLaunched = true;
         // First try 2 seconds after launch
         setTimeout(function () { return ping(getState, dispatchFromMain); }, 2000);
         // Then every 20 seconds
-        var interval = setInterval(function () { return ping(getState, dispatchFromMain); }, 20000);
+        var interval = setInterval(function () { return ping(getState, dispatchFromMain); }, 60000);
     }
     var blockchains = getBlockchains$1(getState());
     var chainIds = Object.keys(blockchains).filter(function (chainId) {
@@ -13205,7 +13196,7 @@ var wsCron = function (getState, dispatchFromMain) {
                     nodesActive = blockchain.nodes.filter(function (n) { return n.active; });
                     nodesActiveAndClosed = nodesActive.filter(function (n) { return n.readyState === 3 && !ongoingConnectionTrials[n.ip]; });
                     return [4 /*yield*/, asyncForEach(nodesActiveAndClosed, function (node) { return __awaiter(void 0, void 0, void 0, function () {
-                            var nodeCertOrInvalid, t, requestId, resp, b, err_1, err_2;
+                            var t, requestId, resp, b, err_1, err_2;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
@@ -13214,14 +13205,18 @@ var wsCron = function (getState, dispatchFromMain) {
                                             return [2 /*return*/];
                                         }
                                         ongoingConnectionTrials[node.ip] = true;
-                                        nodeCertOrInvalid = node.cert || 'INVALID CERT';
+                                        /*
+                                          cert (SSL connection) is mandatory for nodes retreived from default/blockchain but
+                                          node.cert may be undefined, if node.cert is undefined and node is from default/blockchain
+                                          we volontarily setting an invalid cert "INVALID"
+                                        */
                                         ongoingConnectionTrials[node.ip] = false;
                                         t = new Date().getTime();
                                         requestId = Math.round(Math.random() * 1000000).toString();
                                         _a.label = 1;
                                     case 1:
                                         _a.trys.push([1, 3, , 4]);
-                                        return [4 /*yield*/, getWsResponse({ requestId: requestId, type: 'info' }, node)];
+                                        return [4 /*yield*/, httpBrowserToNode({ requestId: requestId, type: 'info' }, node)];
                                     case 2:
                                         resp = _a.sent();
                                         b = {
@@ -13257,18 +13252,18 @@ var wsCron = function (getState, dispatchFromMain) {
                                                 },
                                             },
                                         });
-                                        console.log('[ws] [ssl] connected with ' + node.ip + ' ' + node.host);
+                                        console.log('[bn] [ssl] connected with ' + node.ip + ' ' + node.host);
                                         return [3 /*break*/, 4];
                                     case 3:
                                         err_1 = _a.sent();
-                                        console.log('[ws] error when trying to get info ' + node.ip + ' ' + node.host);
+                                        console.log('[bn] error when trying to get info ' + node.ip + ' ' + node.host);
                                         console.log(err_1);
                                         return [3 /*break*/, 4];
                                     case 4: return [3 /*break*/, 6];
                                     case 5:
                                         err_2 = _a.sent();
                                         ongoingConnectionTrials[node.ip] = false;
-                                        console.log('[ws] could not connect with ' + node.ip + ' ' + node.host);
+                                        console.log('[bn] could not connect with ' + node.ip + ' ' + node.host);
                                         if (err_2) {
                                             console.log(err_2);
                                         }
@@ -13287,7 +13282,6 @@ var wsCron = function (getState, dispatchFromMain) {
 
 /* browser to node */
 var performSingleRequest = function (body, node) {
-    console.log('performSingleRequest');
     return new Promise(function (resolve, reject) {
         var over = false;
         setTimeout(function () {
@@ -13299,7 +13293,7 @@ var performSingleRequest = function (body, node) {
                 over = true;
             }
         }, 20000);
-        getWsResponse(body, node)
+        httpBrowserToNode(body, node)
             .then(function (result) {
             if (!over) {
                 over = true;
@@ -16140,14 +16134,14 @@ var transferTransactionsToDappsSaga = function () {
 
 var transferIdentificationtionsToDapps = function (action) {
     var payload, browserViews;
-    var _a, _b;
-    return __generator(this, function (_c) {
-        switch (_c.label) {
+    var _a;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0:
                 payload = action.payload;
                 return [4 /*yield*/, select(getBrowserViewsMain)];
             case 1:
-                browserViews = _c.sent();
+                browserViews = _b.sent();
                 if (!browserViews[payload.dappId]) {
                     console.log('error cannot transfer transaction to not found browser view');
                     return [2 /*return*/];
@@ -16156,8 +16150,7 @@ var transferIdentificationtionsToDapps = function (action) {
                     console.log('error cannot transfer transaction to browser view (no comm event)');
                     return [2 /*return*/];
                 }
-                console.log((_a = {}, _a[payload.callId] = payload.identification, _a));
-                browserViews[payload.dappId].commEvent.reply('message-from-main', updateIdentificationsAction({ identifications: (_b = {}, _b[payload.callId] = payload.identification, _b) }));
+                browserViews[payload.dappId].commEvent.reply('message-from-main', updateIdentificationsAction({ identifications: (_a = {}, _a[payload.callId] = payload.identification, _a) }));
                 return [2 /*return*/];
         }
     });
@@ -16683,8 +16676,6 @@ electron.ipcMain.on('single-dappy-call', function (event, arg) {
         });
         return;
     }
-    console.log('single-dappy-call');
-    console.log(arg);
     try {
         performSingleRequest(arg.body, arg.node)
             .then(function (a) {
@@ -16693,14 +16684,6 @@ electron.ipcMain.on('single-dappy-call', function (event, arg) {
             .catch(function (err) {
             commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, err);
         });
-        /* const connections = fromConnections.getConnections(store.getState());
-        if (connections[parameters.chainId] && connections[parameters.chainId][parameters.url]) {
-          const connection = connections[parameters.chainId][parameters.url];
-        } else {
-          commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, {
-            error: { message: 'Node not available' },
-          });
-        } */
     }
     catch (err) {
         console.log(err);
@@ -16725,69 +16708,8 @@ electron.ipcMain.on('multi-dappy-call', function (event, arg) {
     if (parameters.multiCallId === EXECUTE_RCHAIN_CRON_JOBS) {
         parameters.comparer = function (res) {
             var json = JSON.parse(res);
-            if (json.success) {
-                return json.data.rchainNetwork + "-" + json.data.lastFinalizedBlockNumber + "-" + json.data.rchainNamesRegistryUri;
-            }
-            else {
-                return '';
-            }
-        };
-    }
-    else if (parameters.multiCallId === EXECUTE_RECORDS_CRON_JOBS) {
-        parameters.comparer = function (res) {
-            var json = JSON.parse(res);
-            if (json.success) {
-                return json.data;
-            }
-            else {
-                return '';
-            }
-        };
-    }
-    else if (parameters.multiCallId === LISTEN_FOR_DATA_AT_NAME) {
-        parameters.comparer = function (res) {
-            var json = JSON.parse(res);
-            if (json.success) {
-                return JSON.stringify(json.data);
-            }
-            else {
-                return '';
-            }
-        };
-    }
-    else if (parameters.multiCallId === GET_ONE_RECORD) {
-        parameters.comparer = function (res) {
-            var json = JSON.parse(res);
-            if (json.success) {
-                return JSON.stringify(json.data);
-            }
-            else {
-                return '';
-            }
-        };
-    }
-    else if (parameters.multiCallId === EXECUTE_NODES_CRON_JOBS) {
-        parameters.comparer = function (res) {
-            var json = JSON.parse(res);
-            // Comes from WS/SSL call
-            if (json.requestId) {
-                return JSON.stringify(json.data);
-                // Comes from HTTP call
-            }
-            else {
-                return res;
-            }
-        };
-    }
-    else if (parameters.multiCallId === EXECUTE_ACCOUNTS_CRON_JOBS) {
-        parameters.comparer = function (res) {
-            var json = JSON.parse(res);
-            if (json.success) {
-                return JSON.stringify(json.data);
-            }
-            else {
-                return '';
-            }
+            // do not include json.rnodeVersion that might differ
+            return json.data.rchainNetwork + "-" + json.data.lastFinalizedBlockNumber + "-" + json.data.rchainNamesRegistryUri;
         };
     }
     else {
@@ -16868,7 +16790,7 @@ var dispatchFromMain = function (a) {
   to MAIN process store
 */
 /* browser process - main process */
-var wsCronRanOnce = false;
+var benchmarkCronRanOnce = false;
 electron.ipcMain.on('dispatch-in-main', function (event, a) {
     if (a.uniqueEphemeralToken === uniqueEphemeralToken) {
         if (a.action.type === LOAD_OR_RELOAD_BROWSER_VIEW) {
@@ -16880,12 +16802,12 @@ electron.ipcMain.on('dispatch-in-main', function (event, a) {
         else if (a.action.type === SYNC_BLOCKCHAINS) {
             store.dispatch(a.action);
             /*
-              Do not wait the setInterval to run wsCron
+              Do not wait the setInterval to run benchmarkCron
               do it instantly after dispatch
             */
-            if (wsCronRanOnce === false) {
-                wsCronRanOnce = true;
-                wsCron(store.getState, dispatchFromMain);
+            if (benchmarkCronRanOnce === false) {
+                benchmarkCronRanOnce = true;
+                benchmarkCron(store.getState, dispatchFromMain);
             }
         }
         else {
@@ -16900,7 +16822,7 @@ electron.ipcMain.on('trigger-command', function (event, arg) {
     console.log('trigger-command', arg.command);
     if (arg.uniqueEphemeralToken === uniqueEphemeralToken) {
         if (arg.command === 'run-ws-cron') {
-            wsCron(store.getState, dispatchFromMain);
+            benchmarkCron(store.getState, dispatchFromMain);
         }
         if (arg.command === 'download-file') {
             electron.dialog
@@ -16988,7 +16910,7 @@ electron.app.on('second-instance', function (event, argv, cwd) {
 });
 function createWindow() {
     setInterval(function () {
-        wsCron(store.getState, dispatchFromMain);
+        benchmarkCron(store.getState, dispatchFromMain);
     }, WS_RECONNECT_PERIOD);
     browserViewsMiddleware(store, dispatchFromMain);
     /*

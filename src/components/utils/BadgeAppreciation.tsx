@@ -4,7 +4,6 @@ import './BadgeAppreciation.scss';
 
 export const BadgeAppreciation = (props: { appreciation: string }) => {
   let text = props.appreciation;
-  console.log('text', text)
   let Icon = () => <i className="fa fa-check"></i>;
   if (props.appreciation.startsWith('BS')) {
     text = text.slice(2);

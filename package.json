@@ -4,7 +4,7 @@
   "description": "Dappy is a no-DNS and no-CAs web browser, it works hand in hand with a blockchain platform. The dappy system is a decentralized alternative to the regular web, it allows for new kind of web applications being built and used by human beings and corporations.",
   "homepage": "https://github.com/fabcotech/dappy",
   "author": "FABCO <contact@fabco.tech>",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "main": "main.js",
   "scripts": {
     "create-fake-ws-deps": "rm -rf ./node_modules/utf-8-validate && rm -rf ./node_modules/bufferutil && cp -r local_node_modules/utf-8-validate/ ./node_modules/ && cp -r local_node_modules/bufferutil/ ./node_modules/",
@@ -43,7 +43,6 @@
   },
   "dependencies": {
     "@sentry/browser": "^5.28.0",
-    "@types/ws": "^6.0.3",
     "ajv": "^6.12.6",
     "beesjs": "fabcotech/beesjs",
     "blakejs": "^1.1.0",
@@ -54,7 +53,7 @@
     "luxon": "^1.3.3",
     "node-gyp-build": "^4.1.1",
     "protobufjs": "^6.10.2",
-    "rchain-token-files": "fabcotech/rchain-token#aaf8df2b9715608f307647989f5f8f3e24565bae",
+    "rchain-token-files": "fabcotech/rchain-token#adc293753e0e8533477465ca39e26a5669046660",
     "rchain-toolkit": "0.2.8",
     "react": "^17.0.1",
     "react-autosuggest": "^9.4.3",
@@ -67,7 +66,6 @@
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1",
     "uuid": "^3.4.0",
-    "ws": "7.4.0",
     "xstream": "^11.7.0",
     "yup": "^0.26.10"
   },
