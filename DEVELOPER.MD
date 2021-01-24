@@ -115,7 +115,7 @@ git add main.js
 
 #### Register new release to sentry
 
-Important : do this after you have built, the file names for this release should not change.
+Important : do this after you have built and tested on all platforms, the file names for this release should not change.
 
 Each new release must be registered to sentry, and .js and .js.map files uploaded.
 
@@ -161,7 +161,8 @@ npm run electron-builder:dist:windows:32
 
 Package for linux (on linux)
 ```
-npm run electron-builder:dist:linux
+npm run electron-builder:dist:linux:deb
+npm run electron-builder:dist:linux:rpm
 ```
 
 On mac (on macOS)
