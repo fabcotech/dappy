@@ -33,7 +33,7 @@ import {
   validateCookies,
 } from './decoders';
 import fromEvent from 'xstream/extra/fromEvent';
-import { DEVELOPMENT } from '../CONSTANTS';
+import { DEVELOPMENT, RELOAD_INDEXEDDB_PERIOD } from '../CONSTANTS';
 import { validateAccounts } from './decoders/Account';
 import { loggerSaga } from './utils';
 import { validatePreviews } from './decoders/Preview';
@@ -142,17 +142,18 @@ const dispatchInitActions = () => {
   }
 };
 
-export const dbReq = window.indexedDB.open('dappy', 19);
-export let db;
+const DB_MIGRATION_NUMBER = 19;
+export const dbReq: IDBOpenDBRequest = window.indexedDB.open('dappy', DB_MIGRATION_NUMBER);
+export let db: undefined | IDBDatabase;
 
-export const getDb = () => db;
+export const getDb: () => IDBDatabase = () => db as IDBDatabase;
 
 dbReq.onupgradeneeded = event => {
   if (!event.target) {
     console.error('DB onupgradeneeded failed to initialize');
     return;
   }
-  db = event.target.result;
+  db = ((event.target as any).result) as IDBDatabase;
 
   if (!db.objectStoreNames.contains('ui')) {
     db.createObjectStore('ui', {});
@@ -189,13 +190,41 @@ dbReq.onupgradeneeded = event => {
   }
 };
 
+const registerIDBOpenDBRequestErrorListener = (idbOpenRequest: IDBOpenDBRequest) => {
+  idbOpenRequest.onerror = err => {
+    store.dispatch(
+      fromMain.saveErrorAction({
+        errorCode: 2017,
+        error: 'indexDB error',
+        trace: err,
+      })
+    );
+  };
+}
+
+setInterval(() => {
+  const opennedDB = getDb();
+  console.log('IndexedDB reload: closing connection');
+  try {
+    opennedDB.close();
+  } catch (e) {}
+  setTimeout(() => {
+    const a = window.indexedDB.open('dappy', DB_MIGRATION_NUMBER);
+    a.onsuccess = event => {
+      console.log('IndexedDB reload: successful');
+      db = ((event.target as any).result) as IDBDatabase;
+    }
+    registerIDBOpenDBRequestErrorListener(a);
+  }, 100)
+}, RELOAD_INDEXEDDB_PERIOD);
+
 let asyncActionsOver = 0;
 dbReq.onsuccess = event => {
   if (!event.target) {
     console.error('DB onsuccess failed to initialize');
     return;
   }
-  db = event.target.result;
+  db = ((event.target as any).result) as IDBDatabase;
 
   // UI
   const uiTx = db.transaction('ui', 'readonly');
@@ -536,6 +565,8 @@ dbReq.onsuccess = event => {
         dispatchInitActions();
       });
   };
+
+  registerIDBOpenDBRequestErrorListener(dbReq);
 };
 
 const uniqueEphemeralTokenInterval =  setInterval(() => {
@@ -552,16 +583,6 @@ window.dispatchFromMainProcess = (action) => {
 if (window.dispatchWhenReady) {
   store.dispatch(window.dispatchWhenReady);
 }
-
-dbReq.onerror = err => {
-  store.dispatch(
-    fromMain.saveErrorAction({
-      errorCode: 2017,
-      error: 'indexDB error',
-      trace: err,
-    })
-  );
-};
 
 const windowResizeStream = fromEvent(window, 'resize', true);
 xstream.merge(windowResizeStream.compose(throttle(600)), windowResizeStream.compose(debounce(600))).subscribe({

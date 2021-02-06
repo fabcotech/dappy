@@ -30,19 +30,31 @@ export const browserUtils = {
     value: string[]
   ) => {
     return new Promise((resolve, reject) => {
-      try {
-        if (!['previews', 'tabs', 'blockchains', 'records', 'accounts', 'transactions'].find((k) => k === key)) {
-          reject('Unknown db key ' + key);
+      let i = 0;
+      const doOperation = () => {
+        try {
+          if (!['previews', 'tabs', 'blockchains', 'records', 'accounts', 'transactions'].find((k) => k === key)) {
+            i = 3;
+            reject('Unknown db key ' + key);
+          }
+          const tx = getDb().transaction(key, 'readwrite');
+          const objectStore = tx.objectStore(key);
+          value.forEach((i) => {
+            objectStore.delete(i);
+          });
+          resolve();
+        } catch (e) {
+          console.log(e);
+          if (i < 3) {
+            i += 1;
+            console.log('indexedDB error, will retry in 1 second');
+            setTimeout(doOperation as () => void, 1000);
+          } else {
+            reject(e);
+          }
         }
-        const tx = getDb().transaction(key, 'readwrite');
-        const objectStore = tx.objectStore(key);
-        value.forEach((i) => {
-          objectStore.delete(i);
-        });
-        resolve();
-      } catch (e) {
-        reject(e);
-      }
+      };
+      doOperation();
     });
   },
 
@@ -51,65 +63,104 @@ export const browserUtils = {
     value: { [id: string]: any }
   ) => {
     return new Promise((resolve, reject) => {
-      try {
-        if (!['previews', 'tabs', 'blockchains', 'records', 'accounts', 'transactions', 'cookies'].find((k) => k === key)) {
-          reject('Unknown db key ' + key);
+      let i = 0;
+      const doOperation = () => {
+        try {
+          if (
+            !['previews', 'tabs', 'blockchains', 'records', 'accounts', 'transactions', 'cookies'].find(
+              (k) => k === key
+            )
+          ) {
+            i = 3;
+            reject('Unknown db key ' + key);
+          }
+
+          const tx = getDb().transaction(key, 'readwrite');
+          const objectStore = tx.objectStore(key);
+          Object.keys(value).forEach((id) => {
+            objectStore.put(value[id]);
+          });
+          resolve();
+        } catch (e) {
+          console.log(e);
+          if (i < 3) {
+            i += 1;
+            console.log('indexedDB error, will retry in 1 second');
+            setTimeout(doOperation as () => void, 1000);
+          } else {
+            reject(e);
+          }
         }
-        const tx = getDb().transaction(key, 'readwrite');
-        const objectStore = tx.objectStore(key);
-        Object.keys(value).forEach((id) => {
-          objectStore.put(value[id]);
-        });
-        resolve();
-      } catch (e) {
-        reject(e);
-      }
+      };
+      doOperation();
     });
   },
 
   saveStorage: (key: string, value: any, autoIndexed = false) => {
     return new Promise((resolve, reject) => {
-      try {
-        if (!['ui', 'settings', 'benchmarks', 'rchainInfos'].find((k) => k === key)) {
-          reject('Unknown db key ' + key);
+      let i = 0;
+      const doOperation = () => {
+        try {
+          if (!['ui', 'settings', 'benchmarks', 'rchainInfos'].find((k) => k === key)) {
+            i = 3;
+            reject('Unknown db key ' + key);
+          }
+          const tx = getDb().transaction(key, 'readwrite');
+          const objectStore = tx.objectStore(key);
+          if (autoIndexed) {
+            objectStore.put(value);
+          } else {
+            objectStore.put(value, 0);
+          }
+          resolve();
+        } catch (e) {
+          console.log(e);
+          if (i < 3) {
+            i += 1;
+            console.log('indexedDB error, will retry in 1 second');
+            setTimeout(doOperation as () => void, 1000);
+          } else {
+            reject(e);
+          }
         }
-        const tx = getDb().transaction(key, 'readwrite');
-        const objectStore = tx.objectStore(key);
-        if (autoIndexed) {
-          objectStore.put(value);
-        } else {
-          objectStore.put(value, 0);
-        }
-        resolve();
-      } catch (e) {
-        reject(e);
-      }
+      };
+      doOperation();
     });
   },
 
   removeInStorage: (key: string, index: string | number) => {
     return new Promise((resolve, reject) => {
-      try {
-        if (
-          !['ui', 'settings', 'benchmarks', 'rchainInfos', 'blockchains', 'tabs', 'accounts', 'transactions'].find(
-            (k) => k === key
-          )
-        ) {
-          reject('Unknown db key ' + key);
+      let i = 0;
+      const doOperation = () => {
+        try {
+          if (
+            !['ui', 'settings', 'benchmarks', 'rchainInfos', 'blockchains', 'tabs', 'accounts', 'transactions'].find(
+              (k) => k === key
+            )
+          ) {
+            i = 3;
+            reject('Unknown db key ' + key);
+          }
+          const tx = getDb().transaction(key, 'readwrite');
+          const objectStore = tx.objectStore(key);
+          objectStore.delete(index);
+
+          if (key === 'blockchain') {
+            getDb().transaction('benchmarks', 'readwrite').objectStore('benchmarks').delete(index);
+          }
+          resolve();
+        } catch (e) {
+          console.log(e);
+          if (i < 3) {
+            i += 1;
+            console.log('indexedDB error, will retry in 1 second');
+            setTimeout(doOperation as () => void, 1000);
+          } else {
+            reject(e);
+          }
         }
-
-        const tx = getDb().transaction(key, 'readwrite');
-        const objectStore = tx.objectStore(key);
-        objectStore.delete(index);
-
-        if (key === 'blockchain') {
-          getDb().transaction('benchmarks', 'readwrite').objectStore('benchmarks').delete(index);
-        }
-
-        resolve();
-      } catch (e) {
-        reject(e);
-      }
+      };
+      doOperation();
     });
   },
 
