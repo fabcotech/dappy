@@ -5,11 +5,11 @@ import * as fromMain from '../../main';
 import { Tab } from '../../../models';
 import { Action } from '../..';
 
-const stop = function*(action: Action) {
+const stop = function* (action: Action) {
   const payload: fromDapps.StopTabPayload = action.payload;
 
   const tabs: Tab[] = yield select(fromDapps.getTabs);
-  const tab = tabs.find(t => t.id === payload.tabId);
+  const tab = tabs.find((t) => t.id === payload.tabId);
 
   if (!tab) {
     yield put(
@@ -21,12 +21,12 @@ const stop = function*(action: Action) {
     return;
   }
 
-  window.dispatchInMain(window.uniqueEphemeralToken, {
+  window.dispatchInMain({
     type: '[MAIN] Destroy browser view',
     payload: { resourceId: tab.resourceId },
   });
 };
 
-export const stopSaga = function*() {
+export const stopSaga = function* () {
   yield takeEvery(fromDapps.STOP_TAB, stop);
 };

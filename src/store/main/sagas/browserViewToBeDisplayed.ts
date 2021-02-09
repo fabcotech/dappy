@@ -8,7 +8,7 @@ import { Action } from '../..';
 // todo can it be triggered not for every actions ????
 const browserViewToBeDisplayed = function* (action: Action) {
   const shouldBrowserViewsBeDisplayed = yield select(fromMain.getShouldBrowserViewsBeDisplayed);
-  window.dispatchInMain(window.uniqueEphemeralToken, {
+  window.dispatchInMain({
     type: '[MAIN] Display only browser view x',
     payload: {
       resourceId: shouldBrowserViewsBeDisplayed,

@@ -5,7 +5,7 @@ import * as fromUi from '..';
 import * as fromMain from '../../main';
 import { Action } from '../../';
 
-const saveUiToStorage = function*(action: Action) {
+const saveUiToStorage = function* (action: Action) {
   const uiState: fromUi.State = yield select(fromUi.getUiState);
   const isTablet = yield select(fromUi.getIsTablet);
   const isMobile = yield select(fromUi.getIsMobile);
@@ -48,7 +48,7 @@ const saveUiToStorage = function*(action: Action) {
     height: uiState.windowDimensions[1] - y,
   };
 
-  window.dispatchInMain(window.uniqueEphemeralToken, {
+  window.dispatchInMain({
     type: '[MAIN] Update browser views position',
     payload: browserViewsPosition,
   });
@@ -66,7 +66,7 @@ const saveUiToStorage = function*(action: Action) {
   }
 };
 
-export const saveUiToStorageSaga = function*() {
+export const saveUiToStorageSaga = function* () {
   yield takeEvery(fromUi.TOGGLE_MENU_COLLAPSED, saveUiToStorage);
   yield takeEvery(fromUi.TOGGLE_DAPPS_DISPLAY, saveUiToStorage);
   yield takeEvery(fromUi.NAVIGATE, saveUiToStorage);

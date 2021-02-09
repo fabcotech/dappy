@@ -3,7 +3,7 @@ import { takeEvery, select } from 'redux-saga/effects';
 import * as fromBlockchain from '..';
 import { Action } from '../..';
 
-const transferRChainTransaction = function*(action: Action) {
+const transferRChainTransaction = function* (action: Action) {
   let payload:
     | fromBlockchain.UpdateRChainTransactionStatusPayload
     | fromBlockchain.UpdateRChainTransactionValuePayload
@@ -23,13 +23,13 @@ const transferRChainTransaction = function*(action: Action) {
 
   const transactions = yield select(fromBlockchain.getTransactions);
   const transaction = transactions[payload.id];
-  window.dispatchInMain(window.uniqueEphemeralToken, {
+  window.dispatchInMain({
     type: '[MAIN] Transfer transactions',
     payload: { [payload.id]: transaction },
   });
 };
 
-export const transferRChainTransactionSaga = function*() {
+export const transferRChainTransactionSaga = function* () {
   yield takeEvery(fromBlockchain.UPDATE_RCHAIN_TRANSACTION_STATUS, transferRChainTransaction);
   yield takeEvery(fromBlockchain.UPDATE_RCHAIN_TRANSACTION_VALUE, transferRChainTransaction);
   yield takeEvery(fromBlockchain.SAVE_FAILED_RCHAIN_TRANSACTION, transferRChainTransaction);

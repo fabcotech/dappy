@@ -5,11 +5,11 @@ import * as fromMain from '../../main';
 import { Tab } from '../../../models';
 import { Action } from '../..';
 
-const loadOrReloadResourceFailed = function*(action: Action) {
+const loadOrReloadResourceFailed = function* (action: Action) {
   const payload: fromDapps.LoadResourceFailedPayload = action.payload;
 
   const tabs: Tab[] = yield select(fromDapps.getTabs);
-  const tab = tabs.find(t => t.id === payload.tabId);
+  const tab = tabs.find((t) => t.id === payload.tabId);
 
   if (!tab) {
     yield put(
@@ -21,13 +21,13 @@ const loadOrReloadResourceFailed = function*(action: Action) {
     return;
   }
 
-  window.dispatchInMain(window.uniqueEphemeralToken, {
+  window.dispatchInMain({
     type: '[MAIN] Destroy browser view',
     payload: { resourceId: tab.resourceId },
   });
 };
 
-export const loadOrReloadResourceFailedSaga = function*() {
+export const loadOrReloadResourceFailedSaga = function* () {
   yield takeEvery(fromDapps.LOAD_RESOURCE_FAILED, loadOrReloadResourceFailed);
   yield takeEvery(fromDapps.RELOAD_RESOURCE_FAILED, loadOrReloadResourceFailed);
 };

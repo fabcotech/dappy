@@ -1,31 +1,18 @@
 // Modules to control application life and create native browser window
-import { app, BrowserWindow, ipcMain, protocol, shell, dialog, session, clipboard } from 'electron';
+import { app, BrowserWindow, ipcMain, protocol, shell, session } from 'electron';
 import path from 'path';
-import fs from 'fs';
-import crypto from 'crypto';
 
 import * as fromCommon from '../src/common';
-import {
-  UPDATE_NODE_READY_STATE,
-  UpdateNodeReadyStatePayload,
-} from '../src/store/settings';
+import { UPDATE_NODE_READY_STATE, UpdateNodeReadyStatePayload } from '../src/store/settings';
 import { validateSearch } from '../src/utils/validateSearch';
-import {
-  EXECUTE_RCHAIN_CRON_JOBS,
-} from '../src/store/blockchain';
 
 import * as fromMainBrowserViews from './store/browserViews';
-import * as fromBlockchains from './store/blockchains';
 import { WS_RECONNECT_PERIOD } from '../src/CONSTANTS';
 import { registerDappyProtocol } from './registerDappyProtocol';
 import { overrideHttpProtocols } from './overrideHttpProtocols';
+import { registerInterProcessProtocol } from './registerInterProcessProtocol';
 import { benchmarkCron } from './benchmarkCron';
-import { performMultiRequest } from './performMultiRequest';
-import { MultiCallParameters } from '../src/models/WebSocket';
-import { performSingleRequest } from './performSingleRequest';
 import { browserViewsMiddleware } from './browserViewsMiddleware';
-import { getIpAddressAndCert } from './getIpAddressAndCert';
-import { getDapps } from './getDapps';
 
 import { store } from './store';
 
@@ -83,252 +70,23 @@ ipcMain.on('hi-from-dapp-sandboxed', (commEvent, userAgent) => {
   }
 });
 
-ipcMain.on('copy-to-clipboard', (event, arg) => {
-  clipboard.writeText(arg);
-});
-
-/*
-  MESSAGE FROM BROWSER WINDOW
-  uniqueEphemeralToken is a token wich is only known by the renderer and 
-  main process, the webviews don't know its value
-*/
-/* browser process - main process */
-let uniqueEphemeralToken;
-ipcMain.on('ask-unique-ephemeral-token', (event, arg) => {
-  commEventToRenderer = event;
-  crypto.randomBytes(256, (err, buf) => {
-    uniqueEphemeralToken = buf.toString('hex');
-    commEventToRenderer.reply('ask-unique-ephemeral-token-reply', uniqueEphemeralToken);
-  });
-  // dappy has been openned with a URL
-  if (loadResourceWhenReady) {
-    commEventToRenderer.reply('dispatch-from-main', {
-      type: '[Main] Update load resource when ready',
-      payload: {
-        loadResource: loadResourceWhenReady,
-      },
-    });
-  }
-});
-
-/*
-  MESSAGE FROM BROWSER WINDOW
-  Dappy query handlers
-*/
-/* browser to node */
-/* browser process - main process */
-ipcMain.on('single-dappy-call', (event, arg) => {
-  if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
-    commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, {
-      success: false,
-      error: { message: 'Wrong ephemeral unique token' },
-    });
-    return;
-  }
-
-  try {
-    performSingleRequest(arg.body, arg.node)
-      .then((a) => {
-        commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, a);
-      })
-      .catch((err) => {
-        commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, err);
-      });
-  } catch (err) {
-    console.log(err);
-    commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, { error: { message: err.message } });
-  }
-});
-
-/*
-  MESSAGE FROM BROWSER WINDOW
-  Dappy query handlers
-*/
-/* browser to network */
-/* browser process - main process */
-ipcMain.on('multi-dappy-call', (event, arg) => {
-  if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
-    commEventToRenderer.reply('multi-dappy-call-reply-' + arg.requestId, {
-      success: false,
-      error: { message: 'Wrong ephemeral unique token' },
-    });
-    return;
-  }
-
-  const parameters: MultiCallParameters = arg.parameters;
-
-  if (parameters.multiCallId === EXECUTE_RCHAIN_CRON_JOBS) {
-    parameters.comparer = (res: any) => {
-      const json = JSON.parse(res as string);
-      // do not include json.rnodeVersion that might differ
-      return `${json.data.rchainNetwork}-${json.data.lastFinalizedBlockNumber}-${json.data.rchainNamesRegistryUri}`;
-    };
-  } else {
-    parameters.comparer = (res) => res;
-  }
-
-  const blockchains = fromBlockchains.getBlockchains(store.getState());
-  performMultiRequest(arg.body, parameters, blockchains)
-    .then((result) => {
-      commEventToRenderer.reply('multi-dappy-call-reply-' + arg.requestId, {
-        success: true,
-        data: result,
-      });
-    })
-    .catch((err) => {
-      commEventToRenderer.reply('multi-dappy-call-reply-' + arg.requestId, err);
-    });
-});
-
-// Get predefined dapps
-/* browser process - main process */
-ipcMain.on('get-dapps', (event, arg) => {
-  if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
-    commEventToRenderer.reply('get-dapps-reply-' + arg.requestId, {
-      success: false,
-      error: { message: 'Wrong ephemeral unique token' },
-    });
-    return;
-  }
-
-  try {
-    const dapps = getDapps(app.getAppPath());
-
-    commEventToRenderer.reply('get-dapps-reply-' + arg.requestId, {
-      success: true,
-      data: JSON.stringify(dapps),
-    });
-  } catch (err) {
-    commEventToRenderer.reply('get-dapps-reply-' + arg.requestId, {
-      success: false,
-      error: { message: err.message },
-    });
-  }
-});
-
-// Get IP address + cert from hostname
-/* browser process - main process */
-ipcMain.on('get-ip-address-and-cert', (event, arg) => {
-  if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
-    commEventToRenderer.reply('get-ip-address-and-cert-reply-' + arg.requestId, {
-      success: false,
-      error: { message: 'Wrong ephemeral unique token' },
-    });
-    return;
-  }
-
-  getIpAddressAndCert(arg.parameters.host)
-    .then((response) => {
-      commEventToRenderer.reply('get-ip-address-and-cert-reply-' + arg.requestId, {
-        success: true,
-        data: response,
-      });
-      return;
-    })
-    .catch((err) => {
-      commEventToRenderer.reply('get-ip-address-and-cert-reply-' + arg.requestId, {
-        success: false,
-        error: { message: err.message },
-      });
-    });
-});
-
+let dispatchesFromMainAwaiting = [];
+const getDispatchesFromMainAwaiting = () => {
+  const t = [].concat(dispatchesFromMainAwaiting);
+  dispatchesFromMainAwaiting = [];
+  return t;
+};
 /*
   Dispatches coming from MAIN process
   to browser process store
 */
 /* browser process - main process */
 export interface DispatchFromMainArg {
-  data?: { [key: string]: any };
   action: { type: string; payload: any };
 }
 const dispatchFromMain = (a: DispatchFromMainArg) => {
-  if (a.action.type === UPDATE_NODE_READY_STATE) {
-    const payload: UpdateNodeReadyStatePayload = a.action.payload;
-    commEventToRenderer.reply('dispatch-from-main', a.action);
-  } else {
-    commEventToRenderer.reply('dispatch-from-main', a.action);
-  }
+  dispatchesFromMainAwaiting.push(a.action);
 };
-
-/*
-  Dispatches coming from browser window
-  to MAIN process store
-*/
-/* browser process - main process */
-let benchmarkCronRanOnce = false;
-ipcMain.on('dispatch-in-main', (event, a) => {
-  if (a.uniqueEphemeralToken === uniqueEphemeralToken) {
-    if (a.action.type === fromMainBrowserViews.LOAD_OR_RELOAD_BROWSER_VIEW) {
-      store.dispatch({
-        ...a.action,
-        meta: { openExternal: openExternal, browserWindow: browserWindow, dispatchFromMain: dispatchFromMain },
-      });
-    } else if (a.action.type === fromMainBrowserViews.DESTROY_BROWSER_VIEW) {
-      store.dispatch({ ...a.action, meta: { browserWindow: browserWindow } });
-    } else if (a.action.type === fromBlockchains.SYNC_BLOCKCHAINS) {
-      store.dispatch(a.action);
-      /*
-        Do not wait the setInterval to run benchmarkCron
-        do it instantly after dispatch
-      */
-      if (benchmarkCronRanOnce === false) {
-        benchmarkCronRanOnce = true;
-        benchmarkCron(store.getState, dispatchFromMain);
-      }
-    } else {
-      store.dispatch(a.action);
-    }
-  }
-});
-
-/*
-  Commands / jobs coming from browser window
-*/
-ipcMain.on('trigger-command', (event, arg) => {
-  console.log('trigger-command', arg.command);
-  if (arg.uniqueEphemeralToken === uniqueEphemeralToken) {
-    if (arg.command === 'run-ws-cron') {
-      benchmarkCron(store.getState, dispatchFromMain);
-    }
-    if (arg.command === 'download-file') {
-      dialog
-        .showOpenDialog({
-          title: 'Save file',
-          properties: ['openDirectory', 'createDirectory'],
-        })
-        .then((a) => {
-          if (!a.canceled) {
-            if (a.filePaths[0]) {
-              fs.writeFile(
-                path.join(a.filePaths[0], arg.payload.name || 'file'),
-                arg.payload.data,
-                { encoding: 'base64' },
-                (b) => {}
-              );
-            } else {
-              console.error('a.filePaths[0] is not defined ' + a.filePaths[0]);
-            }
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-
-      /* dialog.showOpenDialogSync(browserWindow, {
-        properties: ['openDirectory'],
-      }); */
-      /* dialog
-        .showSaveDialog(browserWindow, {
-          title: 'Save file',
-        })
-        .then(result => {
-          console.log(result);
-          console.log(result);
-        }); */
-    }
-  }
-});
 
 /*
   Open external link
@@ -336,13 +94,9 @@ ipcMain.on('trigger-command', (event, arg) => {
 const openExternal = (url) => {
   shell.openExternal(url);
 };
-ipcMain.on('open-external', (event, arg) => {
-  if (arg.uniqueEphemeralToken === uniqueEphemeralToken) {
-    openExternal(arg.value);
-  }
-});
 
 let loadResourceWhenReady = undefined;
+const getLoadResourceWhenReady = () => loadResourceWhenReady;
 const validateAndProcessAddresses = (addresses: string[]) => {
   const validDappyAddress = addresses.find((a) => {
     const withoutProtocol = a.replace('dappy://', '');
@@ -358,7 +112,7 @@ const validateAndProcessAddresses = (addresses: string[]) => {
     }
 
     if (commEventToRenderer) {
-      commEventToRenderer.reply('dispatch-from-main', {
+      dispatchesFromMainAwaiting.push({
         type: '[Dapps] Load resource',
         payload: {
           address: validDappyAddress.replace('dappy://', ''),
@@ -410,14 +164,20 @@ function createWindow() {
     webPreferences: {
       partition: partition,
       sandbox: true,
-      nodeIntegration: false,
-      preload: development
-        ? path.join(app.getAppPath(), 'src/preload.js')
-        : path.join(app.getAppPath(), 'dist/preload.js'),
+      contextIsolation: true,
     },
   });
   registerDappyProtocol(session.fromPartition(partition), store.getState);
   overrideHttpProtocols(session.fromPartition(partition), store.getState, development, dispatchFromMain, true);
+  registerInterProcessProtocol(
+    session.fromPartition(partition),
+    store,
+    getLoadResourceWhenReady,
+    openExternal,
+    browserWindow,
+    dispatchFromMain,
+    getDispatchesFromMainAwaiting
+  );
 
   browserWindow.setMenuBarVisibility(false);
 

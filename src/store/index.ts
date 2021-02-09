@@ -40,6 +40,7 @@ import { validatePreviews } from './decoders/Preview';
 import { PREDEFINED_BLOCKCHAINS } from '../BLOCKCHAINS';
 import { PREDEFINED_TABS } from '../TABS';
 import { initCronJobs } from './initCronJobs';
+import { interProcess } from '../interProcess';
 // import { upgrades } from './upgrades';
 
 export interface Action {
@@ -583,6 +584,7 @@ window.dispatchFromMainProcess = (action) => {
 if (window.dispatchWhenReady) {
   store.dispatch(window.dispatchWhenReady);
 }
+interProcess(store)
 
 const windowResizeStream = fromEvent(window, 'resize', true);
 xstream.merge(windowResizeStream.compose(throttle(600)), windowResizeStream.compose(debounce(600))).subscribe({

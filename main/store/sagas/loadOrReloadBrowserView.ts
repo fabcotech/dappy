@@ -54,12 +54,12 @@ const loadOrReloadBrowserView = function* (action: any) {
       partition: `persist:${payload.address}`,
       // sandbox forbids the navigation
       //sandbox: true,
-      nodeIntegration: false,
+      contextIsolation: true,
     },
   });
 
   // cookies to start with (from storage)
-  payload.cookies.map(c => {
+  payload.cookies.map((c) => {
     view.webContents.session.cookies.set({
       ...c,
       url: `https://${c.domain}`,
@@ -167,7 +167,7 @@ const loadOrReloadBrowserView = function* (action: any) {
             (res) => {
               if (res.statusCode !== 200) {
                 console.error(`Could not get favicon (status !== 200) for ${payload.address}${currentPath}`);
-                console.log(favicons[0])
+                console.log(favicons[0]);
                 return;
               }
               let s = Buffer.from('');

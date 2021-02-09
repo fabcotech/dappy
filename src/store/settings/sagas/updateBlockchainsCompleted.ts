@@ -12,7 +12,7 @@ const updateBlockchainsCompleted = function* (action: Action) {
   } = yield select(fromSettings.getBlockchains);
   const loadResourceWhenReady: string | undefined = yield select(fromMain.getLoadResourceWhenReady);
 
-  window.dispatchInMain(window.uniqueEphemeralToken, {
+  window.dispatchInMain({
     type: '[MAIN] Sync blockchains',
     payload: blockchains,
   });
@@ -24,7 +24,7 @@ const updateBlockchainsCompleted = function* (action: Action) {
       fromSettings.UPDATE_NODE_ACTIVE,
     ].includes(action.type)
   ) {
-    window.triggerCommand(window.uniqueEphemeralToken, 'run-ws-cron');
+    window.triggerCommand('run-ws-cron');
   }
 
   if (loadResourceWhenReady && [fromSettings.UPDATE_NODE_READY_STATE].includes(action.type)) {

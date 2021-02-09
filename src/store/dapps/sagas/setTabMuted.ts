@@ -19,7 +19,7 @@ const setTabMuted = function* (action: Action) {
     return;
   }
 
-  window.dispatchInMain(window.uniqueEphemeralToken, {
+  window.dispatchInMain({
     type: '[MAIN] Set browser view muted',
     payload: {
       muted: payload.muted,
