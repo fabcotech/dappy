@@ -1,3 +1,5 @@
+import { createSelector } from 'reselect';
+
 import { Identification } from '../../src/models';
 import * as fromDapps from '../../src/store/dapps';
 
@@ -29,3 +31,10 @@ export const reducer = (state = initialState, action: any): State => {
       return state;
   }
 };
+
+const getIdentificationsMainState = createSelector(
+  (state) => state,
+  (state: any) => state.identifications
+);
+
+export const getIdentificationsMain = createSelector(getIdentificationsMainState, (state: State) => state);

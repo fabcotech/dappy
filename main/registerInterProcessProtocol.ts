@@ -63,6 +63,7 @@ export const registerInterProcessProtocol = (
         throw new Error();
       }
     } catch (err) {
+      console.log(request.url);
       console.log('[https] An unauthorized app tried to make an interprocess request');
       callback(Buffer.from(''));
       return;
@@ -128,10 +129,10 @@ export const registerInterProcessProtocol = (
             );
           })
           .catch((err) => {
-            callback(Buffer.from(err));
+            callback(err);
           });
       } catch (e) {
-        callback(Buffer.from(e));
+        callback(e);
       }
     }
 
@@ -143,10 +144,10 @@ export const registerInterProcessProtocol = (
         const body: MultiCallBody = data.body;
         performSingleRequest(body, node)
           .then((a) => {
-            callback(Buffer.from(JSON.stringify(a)));
+            callback(Buffer.from(a));
           })
           .catch((err) => {
-            callback(Buffer.from(err));
+            callback(err);
           });
       } catch (err) {
         console.log(err);
@@ -191,7 +192,7 @@ export const registerInterProcessProtocol = (
         openExternal(value);
       } catch (err) {
         console.log(err);
-        callback(Buffer.from(err));
+        callback(err);
       }
     }
 
@@ -264,7 +265,7 @@ export const registerInterProcessProtocol = (
         }
       } catch (err) {
         console.log(err);
-        callback(Buffer.from(err));
+        callback(err);
       }
     }
 

@@ -162,9 +162,7 @@ export class ManifestForm extends React.Component<ManifestFormProps, {}> {
   };
 
   componentDidMount() {
-    window.getDapps().then((response: string) => {
-      let predefinedDapps: { [dappName: string]: PredefinedDapp } = JSON.parse(response);
-
+    window.getDapps().then((predefinedDapps: { [dappName: string]: PredefinedDapp }) => {
       Object.keys(predefinedDapps).forEach((dappName: string) => {
         predefinedDapps[dappName] = {
           ...PREDEFINED_DAPPS[dappName],

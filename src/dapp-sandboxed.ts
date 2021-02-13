@@ -20,10 +20,23 @@ const blockchainUtils = {
   generateNonce: generateNonce,
   generateSignature: generateSignature,
   uInt8ArrayToHex: (uint8array: Uint8Array): string => {
-    return Array.prototype.map.call(uint8array, x => ('00' + x.toString(16)).slice(-2)).join('');
-  }
+    return uint8array.join(',');
+  },
 };
 window.blockchainUtils = blockchainUtils;
+
+const sendMessageToHost = (m) => {
+  const interProcess2 = new XMLHttpRequest();
+  interProcess2.open('POST', 'interprocessdapp://message-from-dapp-sandboxed');
+  interProcess2.setRequestHeader(
+    'Data',
+    JSON.stringify({
+      randomId: randomId,
+      action: m,
+    })
+  );
+  interProcess2.send();
+};
 
 interface State {
   transactions: TransactionState[];
@@ -49,7 +62,6 @@ const store = createStore((state = initialState, action: any) => {
 
     case fromCommon.UPDATE_IDENTIFICATIONS: {
       const payload: fromCommon.UpdateIdentificationsPayload = action.payload;
-
       return {
         ...state,
         identifications: {
@@ -320,14 +332,85 @@ window.messageFromMain = (action) => {
       }, 0);
     });
   }
+};
 
-  if (action.type == fromCommon.UPDATE_TRANSACTIONS) {
-    const payload: fromCommon.UpdateTransactionsPayload = action.payload;
-    dappyRChain.updateTransactions(payload.transactions);
-  }
+let DOMContentLoaded = false;
+let initializePayload: any = undefined;
 
-  if (action.type == fromCommon.UPDATE_IDENTIFICATIONS) {
-    const payload: fromCommon.UpdateIdentificationsPayload = action.payload;
-    dappyRChain.updateIdentifications(payload.identifications);
+const io = navigator.userAgent.indexOf('randomId=');
+randomId = navigator.userAgent.substring(io + 'randomId='.length);
+const interProcess = new XMLHttpRequest();
+interProcess.open('POST', 'interprocessdapp://hi-from-dapp-sandboxed');
+interProcess.setRequestHeader(
+  'Data',
+  JSON.stringify({
+    randomId: randomId,
+  })
+);
+interProcess.send();
+interProcess.onload = (a) => {
+  try {
+    const r = JSON.parse(a.target.responseText);
+    initializePayload = r;
+    if (DOMContentLoaded) {
+      window.messageFromMain(r);
+    }
+  } catch (e) {
+    reject({ message: 'could not parse response' });
   }
 };
+
+document.addEventListener('DOMContentLoaded', function () {
+  DOMContentLoaded = true;
+  if (initializePayload) {
+    window.messageFromMain(initializePayload);
+  }
+});
+
+setInterval(() => {
+  const io = navigator.userAgent.indexOf('randomId=');
+  randomId = navigator.userAgent.substring(io + 'randomId='.length);
+  const interProcess = new XMLHttpRequest();
+  interProcess.open('POST', 'interprocessdapp://get-identifications');
+  interProcess.setRequestHeader(
+    'Data',
+    JSON.stringify({
+      randomId: randomId,
+    })
+  );
+  interProcess.send();
+  interProcess.onload = (a) => {
+    try {
+      const r = JSON.parse(a.target.responseText);
+      const payload: fromCommon.UpdateIdentificationsPayload = r;
+      console.log('payload.identifications');
+      console.log(payload.identifications);
+      if (payload.identifications) {
+        dappyRChain.updateIdentifications(payload.identifications);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const interProcess2 = new XMLHttpRequest();
+  interProcess2.open('POST', 'interprocessdapp://get-transactions');
+  interProcess2.setRequestHeader(
+    'Data',
+    JSON.stringify({
+      randomId: randomId,
+    })
+  );
+  interProcess2.send();
+  interProcess2.onload = (a) => {
+    try {
+      const r = JSON.parse(a.target.responseText);
+      const payload: fromCommon.UpdateTransactionsPayload = r;
+      if (payload.transactions) {
+        dappyRChain.updateTransactions(payload.transactions);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+}, 5000);

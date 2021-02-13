@@ -13,8 +13,6 @@ export const interProcess = (store: Store) => {
     );
     interProcess.send();
     interProcess.onload = (a) => {
-      console.log('RESPONSE get-dispatches-from-main-awaiting');
-      console.log(a.target.responseText);
       try {
         const r = JSON.parse(a.target.responseText);
         r.actions.forEach((action) => {
@@ -115,11 +113,13 @@ export const interProcess = (store: Store) => {
       );
       interProcess.send();
       interProcess.onload = (a) => {
-        console.log('RESPONSE single-dappy-call');
-        console.log(a.target.responseText);
         try {
           const r = JSON.parse(a.target.responseText);
-          resolve(r.data);
+          if (r.success) {
+            resolve(r.data);
+          } else {
+            reject(r.error || { message: 'Unknown error' });
+          }
         } catch (e) {
           reject({ message: 'could not parse response' });
         }
@@ -141,8 +141,6 @@ export const interProcess = (store: Store) => {
       );
       interProcess.send();
       interProcess.onload = (a) => {
-        console.log('RESPONSE multi-dappy-call');
-        console.log(a.target.responseText);
         try {
           const r = JSON.parse(a.target.responseText);
           if (r.success) {
@@ -170,8 +168,6 @@ export const interProcess = (store: Store) => {
       );
       interProcess.send();
       interProcess.onload = (a) => {
-        console.log('RESPONSE get-ip-address-and-cert');
-        console.log(a.target.responseText);
         try {
           const r = JSON.parse(a.target.responseText);
           if (r.success) {
@@ -190,10 +186,14 @@ export const interProcess = (store: Store) => {
     return new Promise((resolve, reject) => {
       const interProcess = new XMLHttpRequest();
       interProcess.open('POST', 'interprocess://get-dapps');
+      interProcess.setRequestHeader(
+        'Data',
+        JSON.stringify({
+          uniqueEphemeralToken: uniqueEphemeralToken,
+        })
+      );
       interProcess.send();
       interProcess.onload = (a) => {
-        console.log('RESPONSE get-dapps');
-        console.log(a.target.responseText);
         try {
           const r = JSON.parse(a.target.responseText);
           if (r.success) {

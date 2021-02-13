@@ -1,7 +1,9 @@
+import { Transaction } from 'electron';
 import { takeEvery, select } from 'redux-saga/effects';
 
 import * as fromBlockchain from '..';
 import { Action } from '../..';
+import { TransactionState } from '../../../models';
 
 const transferRChainTransaction = function* (action: Action) {
   let payload:
@@ -22,11 +24,13 @@ const transferRChainTransaction = function* (action: Action) {
   }
 
   const transactions = yield select(fromBlockchain.getTransactions);
-  const transaction = transactions[payload.id];
-  window.dispatchInMain({
-    type: '[MAIN] Transfer transactions',
-    payload: { [payload.id]: transaction },
-  });
+  const transaction: TransactionState = transactions[payload.id];
+  if (transaction.origin.origin === 'dapp') {
+    window.dispatchInMain({
+      type: '[MAIN] Transfer transactions',
+      payload: transaction,
+    });
+  }
 };
 
 export const transferRChainTransactionSaga = function* () {

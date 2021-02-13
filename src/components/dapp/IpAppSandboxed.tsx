@@ -96,7 +96,7 @@ export class IpAppSandboxedComponent extends React.Component<
     if (!this.currentlyRenderingRandomId) {
       this.currentlyRenderingRandomId = this.props.ipApp.randomId;
     }
-    window.dispatchInMain(window.uniqueEphemeralToken, {
+    window.dispatchInMain({
       type: '[MAIN] Load or reload browser view',
       payload: {
         currentUrl: this.currentUrl,

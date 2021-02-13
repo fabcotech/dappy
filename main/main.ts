@@ -12,8 +12,6 @@ import { registerDappyProtocol } from './registerDappyProtocol';
 import { overrideHttpProtocols } from './overrideHttpProtocols';
 import { registerInterProcessProtocol } from './registerInterProcessProtocol';
 import { benchmarkCron } from './benchmarkCron';
-import { browserViewsMiddleware } from './browserViewsMiddleware';
-
 import { store } from './store';
 
 protocol.registerSchemesAsPrivileged([
@@ -146,7 +144,6 @@ function createWindow() {
   setInterval(() => {
     benchmarkCron(store.getState, dispatchFromMain);
   }, WS_RECONNECT_PERIOD);
-  browserViewsMiddleware(store, dispatchFromMain);
 
   /*
     CAREFUL

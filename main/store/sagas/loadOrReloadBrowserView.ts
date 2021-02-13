@@ -7,6 +7,7 @@ import { BrowserView, app, session } from 'electron';
 import * as fromBrowserViews from '../browserViews';
 import { DappyBrowserView } from '../../models';
 import { registerDappyProtocol } from '../../registerDappyProtocol';
+import { registerInterProcessDappProtocol } from '../../registerInterProcessDappProtocol';
 import { overrideHttpProtocols } from '../../overrideHttpProtocols';
 import { store } from '../';
 
@@ -31,24 +32,21 @@ const loadOrReloadBrowserView = function* (action: any) {
   // reload
   if (browserViews[payload.resourceId]) {
     session.fromPartition(`persist:${payload.address}`).protocol.unregisterProtocol('dappy');
+    if (browserViews[payload.resourceId].browserView.webContents.isDevToolsOpened()) {
+      browserViews[payload.resourceId].browserView.webContents.closeDevTools();
+      browserViews[payload.resourceId].browserView.webContents.forcefullyCrashRenderer();
+    }
     action.meta.browserWindow.removeBrowserView(browserViews[payload.resourceId].browserView);
-    browserViews[payload.resourceId].browserView.destroy();
   }
 
   if (!position) {
     console.error('No position, cannot create browserView');
     return undefined;
   }
-  let preload = !!payload.html ? path.join(app.getAppPath(), 'dist/dapp-sandboxed-preload.js') : undefined;
-  if (development) {
-    preload = !!payload.html ? path.join(app.getAppPath(), 'src/dapp-sandboxed-preload.js') : undefined;
-  }
 
   // todo partition ?
   const view = new BrowserView({
     webPreferences: {
-      // preload only for dapps
-      preload: preload,
       devTools: true,
       disableDialogs: true,
       partition: `persist:${payload.address}`,
@@ -70,6 +68,11 @@ const loadOrReloadBrowserView = function* (action: any) {
 
   // todo, avoid circular ref to "store" (see logs when "npm run build:main")
   registerDappyProtocol(session.fromPartition(`persist:${payload.address}`), store.getState);
+  registerInterProcessDappProtocol(
+    session.fromPartition(`persist:${payload.address}`),
+    store,
+    action.meta.dispatchFromMain
+  );
   overrideHttpProtocols(
     session.fromPartition(`persist:${payload.address}`),
     store.getState,
@@ -129,6 +132,11 @@ const loadOrReloadBrowserView = function* (action: any) {
   view.webContents.addListener('new-window', (e) => {
     e.preventDefault();
   });
+
+  // contextMenu.ts
+  view.webContents.executeJavaScript(`
+  const paste=["Paste",(e,t,o)=>{navigator.clipboard.readText().then(function(e){const t=o.value,n=o.selectionStart;o.value=t.slice(0,n)+e+t.slice(n)}),e.remove()}],copy=["Copy",(e,t,o)=>{navigator.clipboard.writeText(t),e.remove()}];document.addEventListener("contextmenu",e=>{let t=[];const o=window.getSelection()&&window.getSelection().toString();if(o&&(t=[copy]),"TEXTAREA"!==e.target.tagName&&"INPUT"!==e.target.tagName||(t=t.concat([paste])),0===t.length)return;const n=document.createElement("div");n.className="context-menu",n.style.width="160px",n.style.color="#fff",n.style.backgroundColor="rgba(04, 04, 04, 0.8)",n.style.top=e.clientY-5+"px",n.style.left=e.clientX-5+"px",n.style.position="absolute",n.style.zIndex=10,n.style.fontSize="16px",n.style.borderRadius="2px",n.style.fontFamily="fira",n.addEventListener("mouseleave",()=>{n.remove()}),t.forEach(t=>{const l=document.createElement("div");l.style.padding="6px",l.style.cursor="pointer",l.style.borderBottom="1px solid #aaa",l.addEventListener("mouseenter",()=>{console.log("onmouseenter"),l.style.backgroundColor="rgba(255, 255, 255, 0.1)",l.style.color="#fff"}),l.addEventListener("mouseleave",()=>{console.log("onmouseleave"),l.style.backgroundColor="transparent",l.style.color="#fff"}),l.innerText=t[0],l.addEventListener("click",()=>t[1](n,o,e.target)),n.appendChild(l)}),document.body.appendChild(n)});
+  `);
 
   view.webContents.addListener('page-favicon-updated', (a, favicons) => {
     if (favicons && favicons[0] && typeof favicons[0] === 'string') {

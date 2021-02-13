@@ -8,6 +8,9 @@ import './index.scss';
 import './style/index.scss';
 import { Root } from './components';
 import { DEVELOPMENT, VERSION } from './CONSTANTS';
+import { contextMenu } from './contextMenu';
+
+contextMenu(document);
 
 if (!DEVELOPMENT) {
   Sentry.init({

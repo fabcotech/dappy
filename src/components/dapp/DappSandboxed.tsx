@@ -67,7 +67,7 @@ class DappSandboxedComponent extends React.Component<DappSandboxedComponentProps
     const transitoryState = this.props.tab ? this.props.transitoryStates[this.props.tab.resourceId] : undefined;
 
     if (!this.props.lastLoadError && !!this.props.dapp) {
-      window.dispatchInMain(window.uniqueEphemeralToken, {
+      window.dispatchInMain({
         type: '[MAIN] Load or reload browser view',
         payload: {
           currentUrl: `dist/dapp-sandboxed.html`,
@@ -81,7 +81,7 @@ class DappSandboxedComponent extends React.Component<DappSandboxedComponentProps
           devMode: this.props.devMode,
           servers: [],
           html: this.props.dapp.html,
-          cookies: this.props.cookies
+          cookies: this.props.cookies,
         },
       });
     }
