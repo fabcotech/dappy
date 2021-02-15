@@ -251,6 +251,31 @@ class DappyRChain {
     return promise;
   }
 
+  requestTransactions = () => {
+    const io = navigator.userAgent.indexOf('randomId=');
+    randomId = navigator.userAgent.substring(io + 'randomId='.length);
+    const interProcess = new XMLHttpRequest();
+    interProcess.open('POST', 'interprocessdapp://get-transactions');
+    interProcess.setRequestHeader(
+      'Data',
+      JSON.stringify({
+        randomId: randomId,
+      })
+    );
+    interProcess.send();
+    interProcess.onload = (a: any) => {
+      try {
+        const r = JSON.parse(a.target.responseText);
+        const payload: fromCommon.UpdateTransactionsPayload = r;
+        if (payload.transactions) {
+          this.updateTransactions(payload.transactions);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+  };
+
   updateTransactions(transactions: { [transactionId: string]: TransactionState }) {
     Object.keys(this.transactions).forEach((key) => {
       const callTransaction = Object.values(transactions).find(
@@ -270,6 +295,31 @@ class DappyRChain {
       store.dispatch(fromCommon.updateTransactionsAction({ transactions: transactions }));
     });
   }
+
+  requestIdentifications = () => {
+    const io = navigator.userAgent.indexOf('randomId=');
+    randomId = navigator.userAgent.substring(io + 'randomId='.length);
+    const interProcess = new XMLHttpRequest();
+    interProcess.open('POST', 'interprocessdapp://get-identifications');
+    interProcess.setRequestHeader(
+      'Data',
+      JSON.stringify({
+        randomId: randomId,
+      })
+    );
+    interProcess.send();
+    interProcess.onload = (a: any) => {
+      try {
+        const r = JSON.parse(a.target.responseText);
+        const payload: fromCommon.UpdateIdentificationsPayload = r;
+        if (payload.identifications) {
+          this.updateIdentifications(payload.identifications);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+  };
 
   updateIdentifications(identifications: { [callId: string]: Identification }) {
     Object.keys(this.identifications).forEach((key) => {
@@ -365,52 +415,6 @@ document.addEventListener('DOMContentLoaded', function () {
   if (initializePayload) {
     window.messageFromMain(initializePayload);
   }
+  dappyRChain.requestIdentifications();
+  dappyRChain.requestTransactions();
 });
-
-setInterval(() => {
-  const io = navigator.userAgent.indexOf('randomId=');
-  randomId = navigator.userAgent.substring(io + 'randomId='.length);
-  const interProcess = new XMLHttpRequest();
-  interProcess.open('POST', 'interprocessdapp://get-identifications');
-  interProcess.setRequestHeader(
-    'Data',
-    JSON.stringify({
-      randomId: randomId,
-    })
-  );
-  interProcess.send();
-  interProcess.onload = (a) => {
-    try {
-      const r = JSON.parse(a.target.responseText);
-      const payload: fromCommon.UpdateIdentificationsPayload = r;
-      console.log('payload.identifications');
-      console.log(payload.identifications);
-      if (payload.identifications) {
-        dappyRChain.updateIdentifications(payload.identifications);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  const interProcess2 = new XMLHttpRequest();
-  interProcess2.open('POST', 'interprocessdapp://get-transactions');
-  interProcess2.setRequestHeader(
-    'Data',
-    JSON.stringify({
-      randomId: randomId,
-    })
-  );
-  interProcess2.send();
-  interProcess2.onload = (a) => {
-    try {
-      const r = JSON.parse(a.target.responseText);
-      const payload: fromCommon.UpdateTransactionsPayload = r;
-      if (payload.transactions) {
-        dappyRChain.updateTransactions(payload.transactions);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  };
-}, 5000);

@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 
-import { Transaction, TransactionOriginDapp, TransactionState } from '../../src/models';
+import { TransactionOriginDapp, TransactionState } from '../../src/models';
 
 export const TRANSFER_TRANSACTIONS = '[MAIN] Transfer transactions';
 

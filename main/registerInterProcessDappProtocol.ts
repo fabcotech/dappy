@@ -252,6 +252,7 @@ export const registerInterProcessDappProtocol = (session: Session, store: Store,
                   buttons: [],
                 }),
               });
+              callback(Buffer.from(''));
             })
             .catch((err: Error) => {
               // todo : does the dapp need to have this error returned ?
@@ -288,6 +289,7 @@ export const registerInterProcessDappProtocol = (session: Session, store: Store,
                   buttons: [],
                 }),
               });
+              callback(Buffer.from(''));
             })
             .catch((err: Error) => {
               // todo : does the dapp need to have this error returned ?
@@ -308,6 +310,7 @@ export const registerInterProcessDappProtocol = (session: Session, store: Store,
                   buttons: [],
                 }),
               });
+              callback(Buffer.from(''));
             })
             .catch((err: Error) => {
               console.error('A dapp tried to trigger an identification with an invalid schema');
