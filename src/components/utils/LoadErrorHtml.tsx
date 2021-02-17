@@ -28,7 +28,7 @@ const TITLES: { [key: string]: string } = {
 
 const DESCRIPTIONS: { [key: string]: (args: { [key: string]: any }) => string } = {
   [LoadError.IncompleteAddress]: (args) =>
-    `The address ${args.search} is incomplete or invalid. It must have the following structure : rchain/network/xxx`,
+    `The address ${args.search} is incomplete or invalid. It must have the following structure : network/xxx`,
   [LoadError.ChainNotFound]: (args) => `Could not find a network to query for network ID ${args.chainId}`,
   [LoadError.ResourceNotFound]: (args) =>
     `The resource on the blockchain was not found, make sure that the following resource exists : ${args.search}`,

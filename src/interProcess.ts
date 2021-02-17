@@ -1,4 +1,8 @@
 import { Store } from 'redux';
+import * as fromDapps from './store/dapps';
+import * as fromMain from './store/main';
+
+const actionsAwaitingEphemeralToken: any[] = [];
 
 export const interProcess = (store: Store) => {
   let uniqueEphemeralToken = '';
@@ -32,16 +36,20 @@ export const interProcess = (store: Store) => {
       const r = JSON.parse(a.target.responseText);
       window.uniqueEphemeralToken = r.uniqueEphemeralToken;
       uniqueEphemeralToken = r.uniqueEphemeralToken;
-
+      if (actionsAwaitingEphemeralToken.length) {
+        actionsAwaitingEphemeralToken.forEach((a) => {
+          dispatchInMain(a);
+        });
+      }
       if (r.loadResourceWhenReady) {
-        console.log('will load resource when ready', r.loadResourceWhenReady);
-        const action = {
-          type: '[Dapps] Load resource',
-          payload: {
-            address: r.loadResourceWhenReady.replace('dappy://', ''),
-          },
-        };
-        store.dispatch(action);
+        const initializationOver = fromMain.getInitializationOver(store.getState());
+        const action = fromDapps.loadResourceAction({ address: r.loadResourceWhenReady });
+        if (initializationOver) {
+          console.log('will load resource when ready', r.loadResourceWhenReady);
+          store.dispatch(action);
+        } else {
+          store.dispatch(fromMain.dispatchWhenInitializationOverAction({ payload: action }));
+        }
       }
     };
   }, 0);
@@ -60,6 +68,10 @@ export const interProcess = (store: Store) => {
   };
 
   window.dispatchInMain = (action) => {
+    if (!uniqueEphemeralToken) {
+      actionsAwaitingEphemeralToken.push(action);
+      return;
+    }
     const interProcess = new XMLHttpRequest();
     interProcess.open('POST', 'interprocess://dispatch-in-main');
     interProcess.setRequestHeader(

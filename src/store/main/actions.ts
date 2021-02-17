@@ -9,6 +9,7 @@ export const OPEN_DAPP_MODAL = '[Main] Open dapp modal';
 export const CLOSE_DAPP_MODAL = '[Main] Close dapp modal';
 export const CLOSE_ALL_DAPP_MODALS = '[Main] Close all dapp modals';
 export const UPDATE_INITIALIZATION_OVER = '[Main] Update initialization over';
+export const DISPATCH_WHEN_INITIALIZATION_OVER = '[Main] Dispatch when initialization over';
 export const UPDATE_LOAD_RESOURCE_WHEN_READY = '[Main] Update load resource when ready';
 
 export interface UpdateMainFromStoragePayload {
@@ -64,6 +65,14 @@ export const closeAllDappModalsAction = (values: CloseDappModalPayload) => ({
 
 export const updateInitializationOverAction = () => ({
   type: UPDATE_INITIALIZATION_OVER,
+});
+
+export interface DispatchWhenInitializationOverPayload {
+  payload: { type: string; payload: any };
+}
+export const dispatchWhenInitializationOverAction = (payload: DispatchWhenInitializationOverPayload) => ({
+  type: DISPATCH_WHEN_INITIALIZATION_OVER,
+  payload: payload,
 });
 
 export interface UpdateLoasResourceWhenReadyPayload {

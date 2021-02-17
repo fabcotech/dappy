@@ -3,7 +3,7 @@ import { httpBrowserToNode } from './httpBrowserToNode';
 
 import { BlockchainNode, Blockchain, Benchmark } from '../src/models';
 import { UPDATE_NODE_READY_STATE } from '../src/store/settings/actions';
-import { PERFORM_BENCHMARK_COMPLETED, PerformBenchmarkCompletedPayload } from '../src/store/blockchain';
+import { PERFORM_MANY_BENCHMARKS_COMPLETED } from '../src/store/blockchain';
 import * as fromBlockchains from './store/blockchains';
 import { getNodeIndex } from '../src/utils/getNodeIndex';
 
@@ -66,7 +66,7 @@ const ping = (getState: () => void, dispatchFromMain: (a: DispatchFromMainArg) =
 
 let pingPongLaunched = false;
 
-export const benchmarkCron = (getState: () => void, dispatchFromMain: (a: DispatchFromMainArg) => void) => {
+export const benchmarkCron = async (getState: () => void, dispatchFromMain: (a: DispatchFromMainArg) => void) => {
   if (!pingPongLaunched) {
     pingPongLaunched = true;
     // First try 2 seconds after launch
@@ -81,8 +81,25 @@ export const benchmarkCron = (getState: () => void, dispatchFromMain: (a: Dispat
     return blockchains[chainId].platform === 'rchain';
   });
 
-  asyncForEach(chainIds, async (chainId) => {
+  const actions = [];
+  const benchmarks: Benchmark[] = [];
+
+  await asyncForEach(chainIds, async (chainId) => {
     const blockchain: Blockchain = blockchains[chainId];
+
+    const nodesInactiveAndOpened = blockchain.nodes.filter((n) => !n.active && n.readyState === 1);
+    nodesInactiveAndOpened.forEach((node) => {
+      actions.push({
+        type: UPDATE_NODE_READY_STATE,
+        payload: {
+          chainId: chainId,
+          readyState: 3,
+          ip: node.ip,
+          host: node.host,
+          ssl: true,
+        },
+      });
+    });
 
     const nodesActive = blockchain.nodes.filter((n) => n.active);
     const nodesActiveAndClosed = nodesActive.filter((n) => n.readyState === 3 && !ongoingConnectionTrials[n.ip]);
@@ -105,7 +122,7 @@ export const benchmarkCron = (getState: () => void, dispatchFromMain: (a: Dispat
         try {
           const resp = await httpBrowserToNode({ requestId: requestId, type: 'info' }, node);
           const b: Benchmark = {
-            id: chainId + '-' + node.ip,
+            id: chainId + '-' + getNodeIndex(node),
             chainId: chainId,
             ip: node.ip,
             responseTime: new Date().getTime() - t,
@@ -117,25 +134,15 @@ export const benchmarkCron = (getState: () => void, dispatchFromMain: (a: Dispat
           };
           // todo validate b
           // cannot because of "boolean" exported in yup
-
-          dispatchFromMain({
-            action: {
-              type: PERFORM_BENCHMARK_COMPLETED,
-              payload: {
-                benchmark: b,
-              } as PerformBenchmarkCompletedPayload,
-            },
-          });
-          dispatchFromMain({
-            action: {
-              type: UPDATE_NODE_READY_STATE,
-              payload: {
-                chainId: chainId,
-                readyState: 1,
-                ip: node.ip,
-                host: node.host,
-                ssl: true,
-              },
+          benchmarks.push(b);
+          actions.push({
+            type: UPDATE_NODE_READY_STATE,
+            payload: {
+              chainId: chainId,
+              readyState: 1,
+              ip: node.ip,
+              host: node.host,
+              ssl: true,
             },
           });
           console.log('[bn] [ssl] connected with ' + node.ip + ' ' + node.host);
@@ -152,6 +159,18 @@ export const benchmarkCron = (getState: () => void, dispatchFromMain: (a: Dispat
       }
 
       return;
+    });
+  });
+
+  actions.push({
+    type: PERFORM_MANY_BENCHMARKS_COMPLETED,
+    payload: {
+      benchmarks: benchmarks,
+    },
+  });
+  actions.forEach((a) => {
+    dispatchFromMain({
+      action: a,
     });
   });
 };

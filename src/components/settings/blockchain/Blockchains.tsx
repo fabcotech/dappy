@@ -12,6 +12,7 @@ import * as fromBlockchain from '../../../store/blockchain';
 import * as fromMain from '../../../store/main';
 import * as fromUi from '../../../store/ui';
 import { PREDEFINED_BLOCKCHAINS } from '../../../BLOCKCHAINS';
+import { getNodeIndex } from '../../../utils/getNodeIndex';
 import { AddNode } from './AddNode';
 
 const REGEXP_IP = /^(?!\.)^[a-z0-9.-]*$/;
@@ -433,7 +434,7 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                             let benchmark: undefined | Benchmark = undefined;
                             if (this.state.selectedBlockchain && node) {
                               benchmark = this.props.benchmarks[
-                                `${this.state.selectedBlockchain.chainId || ''}-${formNode.host}`
+                                `${this.state.selectedBlockchain.chainId || ''}-${getNodeIndex(formNode)}`
                               ];
                             }
 

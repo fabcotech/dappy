@@ -24,8 +24,6 @@ const development = !!process.defaultApp;
 // be closed automatically when the JavaScript object is garbage collected.
 let browserWindow;
 
-let commEventToRenderer = undefined;
-
 /*
   MESSAGE FROM BROWSER VIEWS / TABS (dapps and IP apps)
   first message from dapps to get the initial payload
@@ -109,16 +107,7 @@ const validateAndProcessAddresses = (addresses: string[]) => {
       browserWindow.focus();
     }
 
-    if (commEventToRenderer) {
-      dispatchesFromMainAwaiting.push({
-        type: '[Dapps] Load resource',
-        payload: {
-          address: validDappyAddress.replace('dappy://', ''),
-        },
-      });
-    } else {
-      loadResourceWhenReady = validDappyAddress.replace('dappy://', '');
-    }
+    loadResourceWhenReady = validDappyAddress.replace('dappy://', '');
   }
 };
 validateAndProcessAddresses(process.argv);

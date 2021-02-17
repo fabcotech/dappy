@@ -65,7 +65,7 @@ export interface WithSuggestionsComponentProps {
   resourceId: string | undefined;
   publicKey: string | undefined;
   chainId: string | undefined;
-  recordBadges: undefined | { [name: string]: { [name: string]: string }};
+  recordBadges: undefined | { [name: string]: { [name: string]: string } };
   showLoadInfos: (resourceId: string, parameters: any) => void;
   isDisplayed?: (a: boolean) => void;
   stopTab: (tabId: string) => void;
@@ -239,10 +239,10 @@ export class WithSuggestionsComponent extends React.Component<
       this.dispatchTabUpdateStream.compose(debounce(600))
     ).subscribe({
       next: (x) => {
-        if (x.tabId) {
+        if (x.tabId && x.search) {
           this.props.updateTabSearch({
             tabId: x.tabId,
-            search: x.search || '',
+            search: x.search,
           });
         }
       },

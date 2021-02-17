@@ -359,6 +359,9 @@ window.messageFromMain = (action) => {
     document.close();
 
     document.addEventListener('DOMContentLoaded', function () {
+      if (typeof window.initContextMenu !== 'undefined') {
+        window.initContextMenu();
+      }
       setTimeout(() => {
         var link = document.querySelector("link[rel*='icon']");
         if (link !== null) {

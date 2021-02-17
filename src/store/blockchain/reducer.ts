@@ -32,7 +32,7 @@ export interface State {
     [transactionId: string]: TransactionState;
   };
   benchmarks: {
-    [chainIdAndUrl: string]: Benchmark;
+    [chainIdAndNodeIndex: string]: Benchmark;
   };
   benchmarkTransitoryStates: {
     [chainId: string]: undefined | 'loading';
@@ -63,7 +63,7 @@ export const reducer = (state = initialState, action: any): State => {
     case fromActions.UPDATE_BENCHMARKS_FROM_STORAGE: {
       const benchmarksFromStorage: Benchmark[] = action.payload.benchmarks;
 
-      const benchmarks: { [chainIdAndUrl: string]: Benchmark } = {};
+      const benchmarks: { [chainIdAndNodeIndex: string]: Benchmark } = {};
       benchmarksFromStorage.forEach((benchmark) => {
         benchmarks[benchmark.id] = benchmark;
       });
@@ -363,19 +363,29 @@ export const reducer = (state = initialState, action: any): State => {
       };
     }
 
-    case fromActions.PERFORM_BENCHMARK_COMPLETED: {
-      const payload: fromActions.PerformBenchmarkCompletedPayload = action.payload;
+    case fromActions.PERFORM_MANY_BENCHMARKS_COMPLETED: {
+      const payload: fromActions.PerformManyBenchmarksCompletedPayload = action.payload;
+
+      let newBenchmarks = { ...state.benchmarks };
+      payload.benchmarks.forEach((b) => {
+        newBenchmarks = {
+          ...newBenchmarks,
+          [b.id]: b,
+        };
+      });
+
+      let newBenchmarkTransitoryStates = { ...state.benchmarkTransitoryStates };
+      payload.benchmarks.forEach((b) => {
+        newBenchmarkTransitoryStates = {
+          ...newBenchmarkTransitoryStates,
+          [b.id]: undefined,
+        };
+      });
 
       return {
         ...state,
-        benchmarks: {
-          ...state.benchmarks,
-          [payload.benchmark.id]: payload.benchmark,
-        },
-        benchmarkTransitoryStates: {
-          ...state.benchmarkTransitoryStates,
-          [payload.benchmark.id]: undefined,
-        },
+        benchmarks: newBenchmarks,
+        benchmarkTransitoryStates: newBenchmarkTransitoryStates,
       };
     }
 
@@ -463,14 +473,14 @@ export const getRecordNamesInAlphaOrder = createSelector(getRecords, (records: {
 // todo, this is all reprocessed everytime state.records change
 // maybe do it another way
 export const getRecordBadges = createSelector(getRecords, (records: { [name: string]: Record }) => {
-  const recordBadges: { [name: string]: { [name: string]: string }} = {};
+  const recordBadges: { [name: string]: { [name: string]: string } } = {};
 
   Object.keys(records).forEach((name) => {
     Object.keys(records[name].badges || {}).forEach((n) => {
       if (!recordBadges[n]) {
         recordBadges[n] = {};
       }
-      recordBadges[n][name] = records[name].badges[n]
+      recordBadges[n][name] = records[name].badges[n];
     });
   });
 

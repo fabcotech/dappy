@@ -32,6 +32,7 @@ export interface State {
     [dappId: string]: Modal[];
   };
   initializationOver: boolean;
+  dispatchWhenInitializationOver: fromActions.DispatchWhenInitializationOverPayload['payload'][];
   loadResourceWhenReady: undefined | string;
 }
 
@@ -44,6 +45,7 @@ export const initialState: State = {
   modals: [],
   dappModals: {},
   initializationOver: false,
+  dispatchWhenInitializationOver: [],
   loadResourceWhenReady: undefined,
 };
 
@@ -163,6 +165,14 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
+    case fromActions.DISPATCH_WHEN_INITIALIZATION_OVER: {
+      const payload: fromActions.DispatchWhenInitializationOverPayload = action.payload;
+      return {
+        ...state,
+        dispatchWhenInitializationOver: state.dispatchWhenInitializationOver.concat(payload.payload),
+      };
+    }
+
     case fromActions.UPDATE_LOAD_RESOURCE_WHEN_READY: {
       const payload: fromActions.UpdateLoasResourceWhenReadyPayload = action.payload;
 
@@ -190,6 +200,10 @@ export const getDappModals = createSelector(getMainState, (state: State) => stat
 export const getCurrentVersion = createSelector(getMainState, (state: State) => state.currentVersion);
 export const getIsBeta = createSelector(getMainState, (state: State) => state.isBeta);
 export const getInitializationOver = createSelector(getMainState, (state: State) => state.initializationOver);
+export const getDispatchWhenInitializationOver = createSelector(
+  getMainState,
+  (state: State) => state.dispatchWhenInitializationOver
+);
 export const getLoadResourceWhenReady = createSelector(getMainState, (state: State) => state.loadResourceWhenReady);
 
 export const getShouldBrowserViewsBeDisplayed = createSelector(

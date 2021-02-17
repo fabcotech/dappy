@@ -7,6 +7,7 @@ import * as fromDapps from '..';
 import * as fromSettings from '../../settings';
 import * as fromBlockchain from '../../blockchain';
 import * as fromMain from '../../main';
+import * as fromUi from '../../ui';
 import { blockchain as blockchainUtils } from '../../../utils/blockchain';
 import { splitSearch } from '../../../utils/splitSearch';
 import { validateSearch } from '../../../utils/validateSearch';
@@ -34,6 +35,11 @@ const loadResource = function* (action: Action) {
   const dapps: { [id: string]: Dapp } = yield select(fromDapps.getDapps);
   const rchainInfos: { [chainId: string]: RChainInfos } = yield select(fromBlockchain.getRChainInfos);
   const records: { [name: string]: Record } = yield select(fromBlockchain.getRecords);
+  const isNavigationInDapps = yield select(fromUi.getIsNavigationInDapps);
+
+  if (!isNavigationInDapps) {
+    yield put(fromUi.navigateAction({ navigationUrl: '/dapps' }));
+  }
 
   let resourceId = payload.address;
 

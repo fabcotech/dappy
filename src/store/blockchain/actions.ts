@@ -41,7 +41,7 @@ export const REMOVE_OLD_RECORDS_COMPLETED = '[Blockchain] Remove old records com
 export const ADD_RECORD = '[Blockchain] Add record';
 
 export const UPDATE_BENCHMARKS_FROM_STORAGE = '[Blockchain] Update benchmarks from storage';
-export const PERFORM_BENCHMARK_COMPLETED = '[Blockchain] Perform benchmark completed';
+export const PERFORM_MANY_BENCHMARKS_COMPLETED = '[Blockchain] Perform many benchmarks completed';
 
 export const UPDATE_TRANSACTIONS_FROM_STORAGE = '[Blockchain] Update transactions from storage';
 export const ADD_RCHAIN_TRANSACTION = '[Blockchain] Add RChain transaction';
@@ -181,11 +181,11 @@ export const updateBenchmarksFromStorageAction = (values: UpdateBenchmarksFromSt
   payload: values,
 });
 
-export interface PerformBenchmarkCompletedPayload {
-  benchmark: Benchmark;
+export interface PerformManyBenchmarksCompletedPayload {
+  benchmarks: Benchmark[];
 }
-export const performBenchmarkCompletedAction = (values: PerformBenchmarkCompletedPayload) => ({
-  type: PERFORM_BENCHMARK_COMPLETED,
+export const performManyBenchmarksCompletedAction = (values: PerformManyBenchmarksCompletedPayload) => ({
+  type: PERFORM_MANY_BENCHMARKS_COMPLETED,
   payload: values,
 });
 
