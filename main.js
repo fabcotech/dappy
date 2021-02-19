@@ -4,13 +4,28 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var electron = require('electron');
 var path = _interopDefault(require('path'));
-var fs = _interopDefault(require('fs'));
-var crypto = _interopDefault(require('crypto'));
 var zlib = _interopDefault(require('zlib'));
 var http = _interopDefault(require('http'));
 var https = _interopDefault(require('https'));
+var fs = _interopDefault(require('fs'));
+var crypto = _interopDefault(require('crypto'));
 var dns = _interopDefault(require('dns'));
 var url = _interopDefault(require('url'));
+
+var DAPP_INITIAL_SETUP = '[Common] dapp initial setup';
+var SEND_RCHAIN_TRANSACTION_FROM_SANDBOX = '[Common] Send RChain transaction from sandbox';
+var SEND_RCHAIN_PAYMENT_REQUEST_FROM_SANDBOX = '[Common] Send RChain payment request from sandbox';
+var IDENTIFY_FROM_SANDBOX = '[Common] Identify from sandbox';
+
+var validateSearch = function (search) {
+    return /[a-z]*\/(\w[A-Za-z0-9]*)(\w[A-Za-z0-9?%&()*+-_.\/:.@=\[\]{}]*)?$/gs.test(search);
+};
+var validateSearchWithProtocol = function (search) {
+    return /^dappy:\/\/\w[a-z]*\/(\w[A-Za-z0-9]*)(\w[A-Za-z0-9?%&()*+-_.\/:.@=\[\]{}]*)?$/gs.test(search);
+};
+var validateShortcutSearchWithProtocol = function (search) {
+    return /^dappy:\/\/(\w[A-Za-z0-9]*)(\w[A-Za-z0-9?%&()*+-_.\/:.@=\[\]{}]*)?$/gs.test(search);
+};
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -75,27 +90,6 @@ function __generator(thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 }
-
-var DAPP_INITIAL_SETUP = '[Common] dapp initial setup';
-var SEND_RCHAIN_TRANSACTION_FROM_SANDBOX = '[Common] Send RChain transaction from sandbox';
-var SEND_RCHAIN_PAYMENT_REQUEST_FROM_SANDBOX = '[Common] Send RChain payment request from sandbox';
-var IDENTIFY_FROM_SANDBOX = '[Common] Identify from sandbox';
-var UPDATE_TRANSACTIONS = '[Common] Update transactions';
-var UPDATE_IDENTIFICATIONS = '[Common] Update identifications';
-var updateTransactionsAction = function (values) {
-    return {
-        type: UPDATE_TRANSACTIONS,
-        payload: values,
-    };
-};
-var updateIdentificationsAction = function (values) {
-    return {
-        type: UPDATE_IDENTIFICATIONS,
-        payload: values,
-    };
-};
-
-var UPDATE_NODE_READY_STATE = '[Settings] Update node ready state';
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -240,187 +234,6 @@ var lib_2 = lib.createSelectorCreator;
 var lib_3 = lib.createStructuredSelector;
 var lib_4 = lib.createSelector;
 
-var initialState = {
-    settings: {
-        resolver: 'custom',
-        resolverMode: 'absolute',
-        resolverAccuracy: 100,
-        resolverAbsolute: 1,
-        devMode: false,
-    },
-    accounts: {},
-    blockchains: {},
-    errors: [],
-    executingAccountsCronJobs: false,
-};
-// SELECTORS
-var getSettingsState = lib_4(function (state) { return state; }, function (state) { return state.settings; });
-var getSettings = lib_4(getSettingsState, function (state) { return state.settings; });
-var getBlockchains = lib_4(getSettingsState, function (state) { return state.blockchains; });
-var getAccounts = lib_4(getSettingsState, function (state) { return state.accounts; });
-var getExecutingAccountsCronJobs = lib_4(getSettingsState, function (state) { return state.executingAccountsCronJobs; });
-var getAvailableBlockchains = lib_4(getBlockchains, function (blockchains) {
-    var availableBlockchains = {};
-    Object.keys(blockchains).forEach(function (chainId) {
-        if (blockchains[chainId].nodes.length > 0) {
-            availableBlockchains[chainId] = blockchains[chainId];
-        }
-    });
-    return availableBlockchains;
-});
-var getNamesBlockchain = lib_4(getAvailableBlockchains, function (availableBlockchains) {
-    var chainId = Object.keys(availableBlockchains)[0];
-    if (chainId) {
-        return availableBlockchains[chainId];
-    }
-    else {
-        return undefined;
-    }
-});
-var getAvailableRChainBlockchains = lib_4(getAvailableBlockchains, function (availableBlockchains) {
-    var rchainBlockchains = {};
-    Object.keys(availableBlockchains).forEach(function (chainId) {
-        if (availableBlockchains[chainId].platform === 'rchain') {
-            rchainBlockchains[chainId] = availableBlockchains[chainId];
-        }
-    });
-    return rchainBlockchains;
-});
-// if modified, must be modified in main also
-var getOkBlockchains = lib_4(getBlockchains, function (blockchains) {
-    var okBlockchains = {};
-    Object.keys(blockchains).forEach(function (chainId) {
-        var nodes = blockchains[chainId].nodes.filter(function (n) { return n.active && n.readyState === 1; });
-        if (!nodes.length) {
-            return;
-        }
-        okBlockchains[chainId] = __assign(__assign({}, blockchains[chainId]), { nodes: nodes.filter(function (n) { return n.readyState === 1; }) });
-    });
-    return okBlockchains;
-});
-var getIsLoadReady = lib_4(getBlockchains, getSettings, function (blockchains, settings) {
-    var key = Object.keys(blockchains)[0];
-    var firstBlockchain = blockchains[key];
-    if (!firstBlockchain) {
-        return false;
-    }
-    var nodes = firstBlockchain.nodes.filter(function (n) { return n.active && n.readyState === 1; });
-    return nodes.length >= settings.resolverAbsolute;
-});
-
-var validateSearch = function (search) {
-    return /[a-z]*\/(\w[A-Za-z0-9]*)(\w[A-Za-z0-9?%&()*+-_.\/:.@=\[\]{}]*)?$/gs.test(search);
-};
-var validateSearchWithProtocol = function (search) {
-    return /^dappy:\/\/\w[a-z]*\/(\w[A-Za-z0-9]*)(\w[A-Za-z0-9?%&()*+-_.\/:.@=\[\]{}]*)?$/gs.test(search);
-};
-var validateShortcutSearchWithProtocol = function (search) {
-    return /^dappy:\/\/(\w[A-Za-z0-9]*)(\w[A-Za-z0-9?%&()*+-_.\/:.@=\[\]{}]*)?$/gs.test(search);
-};
-
-var EXECUTE_RCHAIN_CRON_JOBS = '[Blockchain] Execute RChain cron jobs';
-var PERFORM_BENCHMARK_COMPLETED = '[Blockchain] Perform benchmark completed';
-var SAVE_FAILED_RCHAIN_TRANSACTION = '[Blockchain] Save failed RChain transaction';
-var saveFailedRChainTransactionAction = function (values) { return ({
-    type: SAVE_FAILED_RCHAIN_TRANSACTION,
-    payload: values,
-}); };
-
-var LoadError;
-(function (LoadError) {
-    // request
-    LoadError["IncompleteAddress"] = "The address is incomplete";
-    LoadError["ChainNotFound"] = "Blockchain not found";
-    LoadError["MissingBlockchainData"] = "Missing data from the blockchain";
-    LoadError["RecordNotFound"] = "Record not found";
-    // not found
-    LoadError["ResourceNotFound"] = "Contract not found";
-    // server error
-    LoadError["ServerError"] = "Server error";
-    // resolver
-    LoadError["InsufficientNumberOfNodes"] = "Insufficient number of nodes";
-    LoadError["OutOfNodes"] = "Out of nodes";
-    LoadError["UnstableState"] = "Unstable state";
-    LoadError["UnaccurateState"] = "Unaccurate state";
-    // parsing
-    LoadError["FailedToParseResponse"] = "Failed to parse response";
-    LoadError["InvalidManifest"] = "Invalid manifest";
-    LoadError["InvalidSignature"] = "Invalid signature";
-    LoadError["InvalidRecords"] = "Invalid records";
-    LoadError["InvalidNodes"] = "Invalid nodes";
-})(LoadError || (LoadError = {}));
-
-var TransactionStatus;
-(function (TransactionStatus) {
-    TransactionStatus["Pending"] = "pending";
-    TransactionStatus["Aired"] = "aired";
-    TransactionStatus["Failed"] = "failed";
-    TransactionStatus["Abandonned"] = "abandonned";
-    TransactionStatus["Completed"] = "completed";
-})(TransactionStatus || (TransactionStatus = {}));
-var CallStatus;
-(function (CallStatus) {
-    CallStatus["Pending"] = "pending";
-    CallStatus["Failed"] = "failed";
-    CallStatus["Completed"] = "completed";
-})(CallStatus || (CallStatus = {}));
-
-// SELECTORS
-var getBlockchainState = lib_4(function (state) { return state; }, function (state) { return state.blockchain; });
-var getRChainInfos = lib_4(getBlockchainState, function (state) { return state.rchain.infos; });
-var getBenchmarks = lib_4(getBlockchainState, function (state) { return state.benchmarks; });
-var getBenchmarkTransitoryStates = lib_4(getBlockchainState, function (state) { return state.benchmarkTransitoryStates; });
-var getRecords = lib_4(getBlockchainState, function (state) { return state.records.records; });
-var getTransactions = lib_4(getBlockchainState, function (state) { return state.transactions; });
-var getLoadRecordsErrors = lib_4(getBlockchainState, function (state) { return state.records.loadErrors; });
-var getLoadRecordsSuccesses = lib_4(getBlockchainState, function (state) { return state.records.loadSuccesses; });
-var getLoadNodesErrors = lib_4(getBlockchainState, function (state) { return state.loadNodesErrors; });
-var getDappTransactions = lib_4(getTransactions, function (transactions) {
-    return Object.values(transactions).filter(function (t) { return t.origin.origin === 'dapp'; });
-});
-var getNamesBlockchainInfos = lib_4(getNamesBlockchain, getRChainInfos, function (namesBlockchain, rchainInfos) {
-    if (namesBlockchain && rchainInfos[namesBlockchain.chainId]) {
-        return rchainInfos[namesBlockchain.chainId];
-    }
-    else {
-        return undefined;
-    }
-});
-var getRecordNamesInAlphaOrder = lib_4(getRecords, function (records) {
-    return Object.keys(records).sort(function (a, b) {
-        if (a < b) {
-            return -1;
-        }
-        else {
-            return 1;
-        }
-    });
-});
-// todo, this is all reprocessed everytime state.records change
-// maybe do it another way
-var getRecordBadges = lib_4(getRecords, function (records) {
-    var recordBadges = {};
-    Object.keys(records).forEach(function (name) {
-        Object.keys(records[name].badges || {}).forEach(function (n) {
-            if (!recordBadges[n]) {
-                recordBadges[n] = {};
-            }
-            recordBadges[n][name] = records[name].badges[n];
-        });
-    });
-    return recordBadges;
-});
-var getLastFinalizedBlockNumber = lib_4(getRecords, function (records) {
-    return Object.keys(records).sort(function (a, b) {
-        if (a < b) {
-            return -1;
-        }
-        else {
-            return 1;
-        }
-    });
-});
-
 var LOAD_OR_RELOAD_BROWSER_VIEW = '[MAIN] Load or reload browser view';
 var LOAD_OR_RELOAD_BROWSER_VIEW_COMPLETED = '[MAIN] Load or reload browser view completed';
 var DESTROY_BROWSER_VIEW = '[MAIN] Destroy browser view';
@@ -429,19 +242,23 @@ var SAVE_BROWSER_VIEW_COMM_EVENT = '[MAIN] Save browser view comm event';
 var DISPLAY_ONLY_BROWSER_VIEW_X = '[MAIN] Display only browser view x';
 var DISPLAY_ONLY_BROWSER_VIEW_X_COMPLETED = '[MAIN] Display only browser view x completed';
 var SET_BROWSER_VIEW_MUTED = '[MAIN] Set browser view muted';
-var initialState$1 = { browserViews: {}, position: undefined };
+var initialState = { browserViews: {}, position: undefined };
 // todo DO a saga
 var reducer = function (state, action) {
     var _a;
-    if (state === void 0) { state = initialState$1; }
+    if (state === void 0) { state = initialState; }
     switch (action.type) {
         case LOAD_OR_RELOAD_BROWSER_VIEW_COMPLETED: {
             return __assign(__assign({}, state), { browserViews: __assign(__assign({}, state.browserViews), action.payload) });
         }
         case DESTROY_BROWSER_VIEW: {
-            if (state.browserViews[action.payload.resourceId]) {
-                action.meta.browserWindow.removeBrowserView(state.browserViews[action.payload.resourceId].browserView);
-                state.browserViews[action.payload.resourceId].browserView.destroy();
+            var browserView = state.browserViews[action.payload.resourceId];
+            if (browserView) {
+                if (browserView.browserView.webContents.isDevToolsOpened()) {
+                    browserView.browserView.webContents.closeDevTools();
+                    browserView.browserView.webContents.forcefullyCrashRenderer();
+                }
+                action.meta.browserWindow.removeBrowserView(browserView.browserView);
                 var newBrowserViews = __assign({}, state.browserViews);
                 delete newBrowserViews[action.payload.resourceId];
                 return __assign(__assign({}, state), { browserViews: newBrowserViews });
@@ -471,33 +288,6 @@ var reducer = function (state, action) {
 var getBrowserViewsMainState = lib_4(function (state) { return state; }, function (state) { return state.browserViews; });
 var getBrowserViewsMain = lib_4(getBrowserViewsMainState, function (state) { return state.browserViews; });
 var getBrowserViewsPositionMain = lib_4(getBrowserViewsMainState, function (state) { return state.position; });
-
-var SYNC_BLOCKCHAINS = '[MAIN] Sync blockchains';
-var initialState$2 = {};
-var reducer$1 = function (state, action) {
-    if (state === void 0) { state = initialState$2; }
-    switch (action.type) {
-        case SYNC_BLOCKCHAINS: {
-            return action.payload;
-        }
-        default:
-            return state;
-    }
-};
-var getBlockchainsMainState = lib_4(function (state) { return state; }, function (state) { return state.blockchains; });
-var getBlockchains$1 = lib_4(getBlockchainsMainState, function (state) { return state; });
-// if modified, must be modified in renderer also
-var getOkBlockchainsMain = lib_4(getBlockchainsMainState, function (blockchains) {
-    var okBlockchains = {};
-    Object.keys(blockchains).forEach(function (chainId) {
-        var nodes = blockchains[chainId].nodes.filter(function (n) { return n.active && n.readyState === 1; });
-        if (!nodes.length) {
-            return;
-        }
-        okBlockchains[chainId] = __assign(__assign({}, blockchains[chainId]), { nodes: nodes.filter(function (n) { return n.readyState === 1; }) });
-    });
-    return okBlockchains;
-});
 
 var WS_RECONNECT_PERIOD = 10000;
 var WS_PAYLOAD_PAX_SIZE = 256000; // bits
@@ -4092,10 +3882,80 @@ var performMultiRequest = function (body, parameters, blockchains) {
     });
 };
 
+var UPDATE_NODE_READY_STATE = '[Settings] Update node ready state';
+
+var initialState$1 = {
+    settings: {
+        resolver: 'custom',
+        resolverMode: 'absolute',
+        resolverAccuracy: 100,
+        resolverAbsolute: 1,
+        devMode: false,
+    },
+    accounts: {},
+    blockchains: {},
+    errors: [],
+    executingAccountsCronJobs: false,
+};
+// SELECTORS
+var getSettingsState = lib_4(function (state) { return state; }, function (state) { return state.settings; });
+var getSettings = lib_4(getSettingsState, function (state) { return state.settings; });
+var getBlockchains = lib_4(getSettingsState, function (state) { return state.blockchains; });
+var getAccounts = lib_4(getSettingsState, function (state) { return state.accounts; });
+var getExecutingAccountsCronJobs = lib_4(getSettingsState, function (state) { return state.executingAccountsCronJobs; });
+var getAvailableBlockchains = lib_4(getBlockchains, function (blockchains) {
+    var availableBlockchains = {};
+    Object.keys(blockchains).forEach(function (chainId) {
+        if (blockchains[chainId].nodes.length > 0) {
+            availableBlockchains[chainId] = blockchains[chainId];
+        }
+    });
+    return availableBlockchains;
+});
+var getNamesBlockchain = lib_4(getAvailableBlockchains, function (availableBlockchains) {
+    var chainId = Object.keys(availableBlockchains)[0];
+    if (chainId) {
+        return availableBlockchains[chainId];
+    }
+    else {
+        return undefined;
+    }
+});
+var getAvailableRChainBlockchains = lib_4(getAvailableBlockchains, function (availableBlockchains) {
+    var rchainBlockchains = {};
+    Object.keys(availableBlockchains).forEach(function (chainId) {
+        if (availableBlockchains[chainId].platform === 'rchain') {
+            rchainBlockchains[chainId] = availableBlockchains[chainId];
+        }
+    });
+    return rchainBlockchains;
+});
+// if modified, must be modified in main also
+var getOkBlockchains = lib_4(getBlockchains, function (blockchains) {
+    var okBlockchains = {};
+    Object.keys(blockchains).forEach(function (chainId) {
+        var nodes = blockchains[chainId].nodes.filter(function (n) { return n.active && n.readyState === 1; });
+        if (!nodes.length) {
+            return;
+        }
+        okBlockchains[chainId] = __assign(__assign({}, blockchains[chainId]), { nodes: nodes.filter(function (n) { return n.readyState === 1; }) });
+    });
+    return okBlockchains;
+});
+var getIsLoadReady = lib_4(getBlockchains, getSettings, function (blockchains, settings) {
+    var key = Object.keys(blockchains)[0];
+    var firstBlockchain = blockchains[key];
+    if (!firstBlockchain) {
+        return false;
+    }
+    var nodes = firstBlockchain.nodes.filter(function (n) { return n.active && n.readyState === 1; });
+    return nodes.length >= settings.resolverAbsolute;
+});
+
 var SYNC_SETTINGS = '[MAIN] Sync settings';
-var initialState$3 = initialState.settings;
-var reducer$2 = function (state, action) {
-    if (state === void 0) { state = initialState$3; }
+var initialState$2 = initialState$1.settings;
+var reducer$1 = function (state, action) {
+    if (state === void 0) { state = initialState$2; }
     switch (action.type) {
         case SYNC_SETTINGS: {
             return action.payload;
@@ -4106,6 +3966,72 @@ var reducer$2 = function (state, action) {
 };
 var getSettingsMainState = lib_4(function (state) { return state; }, function (state) { return state.settings; });
 var getSettings$1 = lib_4(getSettingsMainState, function (state) { return state; });
+
+var SYNC_BLOCKCHAINS = '[MAIN] Sync blockchains';
+var initialState$3 = {};
+var reducer$2 = function (state, action) {
+    if (state === void 0) { state = initialState$3; }
+    switch (action.type) {
+        case SYNC_BLOCKCHAINS: {
+            return action.payload;
+        }
+        default:
+            return state;
+    }
+};
+var getBlockchainsMainState = lib_4(function (state) { return state; }, function (state) { return state.blockchains; });
+var getBlockchains$1 = lib_4(getBlockchainsMainState, function (state) { return state; });
+// if modified, must be modified in renderer also
+var getOkBlockchainsMain = lib_4(getBlockchainsMainState, function (blockchains) {
+    var okBlockchains = {};
+    Object.keys(blockchains).forEach(function (chainId) {
+        var nodes = blockchains[chainId].nodes.filter(function (n) { return n.active && n.readyState === 1; });
+        if (!nodes.length) {
+            return;
+        }
+        okBlockchains[chainId] = __assign(__assign({}, blockchains[chainId]), { nodes: nodes.filter(function (n) { return n.readyState === 1; }) });
+    });
+    return okBlockchains;
+});
+
+var LoadError;
+(function (LoadError) {
+    // request
+    LoadError["IncompleteAddress"] = "The address is incomplete";
+    LoadError["ChainNotFound"] = "Blockchain not found";
+    LoadError["MissingBlockchainData"] = "Missing data from the blockchain";
+    LoadError["RecordNotFound"] = "Record not found";
+    // not found
+    LoadError["ResourceNotFound"] = "Contract not found";
+    // server error
+    LoadError["ServerError"] = "Server error";
+    // resolver
+    LoadError["InsufficientNumberOfNodes"] = "Insufficient number of nodes";
+    LoadError["OutOfNodes"] = "Out of nodes";
+    LoadError["UnstableState"] = "Unstable state";
+    LoadError["UnaccurateState"] = "Unaccurate state";
+    // parsing
+    LoadError["FailedToParseResponse"] = "Failed to parse response";
+    LoadError["InvalidManifest"] = "Invalid manifest";
+    LoadError["InvalidSignature"] = "Invalid signature";
+    LoadError["InvalidRecords"] = "Invalid records";
+    LoadError["InvalidNodes"] = "Invalid nodes";
+})(LoadError || (LoadError = {}));
+
+var TransactionStatus;
+(function (TransactionStatus) {
+    TransactionStatus["Pending"] = "pending";
+    TransactionStatus["Aired"] = "aired";
+    TransactionStatus["Failed"] = "failed";
+    TransactionStatus["Abandonned"] = "abandonned";
+    TransactionStatus["Completed"] = "completed";
+})(TransactionStatus || (TransactionStatus = {}));
+var CallStatus;
+(function (CallStatus) {
+    CallStatus["Pending"] = "pending";
+    CallStatus["Failed"] = "failed";
+    CallStatus["Completed"] = "completed";
+})(CallStatus || (CallStatus = {}));
 
 var interopRequireDefault = createCommonjsModule(function (module) {
 function _interopRequireDefault(obj) {
@@ -12592,9 +12518,18 @@ function parseString(setCookieValue, options) {
     ? Object.assign({}, defaultParseOptions, options)
     : defaultParseOptions;
 
+  try {
+    value = options.decodeValues ? decodeURIComponent(value) : value; // decode cookie value
+  } catch (e) {
+    console.error(
+      `set-cookie-parser encountered an error while decoding a cookie with value '${value}'. Set options.decodeValues to false to disable this feature.`,
+      e
+    );
+  }
+
   var cookie = {
     name: name, // grab everything before the first =
-    value: options.decodeValues ? decodeURIComponent(value) : value, // decode cookie value
+    value: value,
   };
 
   parts.forEach(function (part) {
@@ -13107,6 +13042,137 @@ var overrideHttpProtocols = function (session, getState, development, dispatchFr
     }); });
 };
 
+var getIpAddressAndCert = function (hostname) {
+    return new Promise(function (resolve, reject) {
+        dns.lookup(hostname, {}, function (err, ip, ipv6oripv4) {
+            if (err) {
+                reject(err);
+                return;
+            }
+            if (!ip) {
+                reject(new Error('IP address not found'));
+            }
+            var options = {
+                host: hostname,
+                port: 443,
+                method: 'GET',
+            };
+            var req = https.request(options, function (res) {
+                if (res && res.connection && res.connection.getPeerCertificate) {
+                    var cert = res.connection.getPeerCertificate();
+                    if (cert.raw && cert.raw.toString('base64')) {
+                        resolve({
+                            ip: ip,
+                            cert: '-----BEGIN CERTIFICATE-----\n' + cert.raw.toString('base64') + '\n-----END CERTIFICATE-----',
+                        });
+                    }
+                }
+                else {
+                    reject(new Error('Response connection not found'));
+                }
+            });
+            req.on('error', function (err) {
+                reject(err);
+            });
+            req.end();
+        });
+    });
+};
+
+var EXECUTE_RCHAIN_CRON_JOBS = '[Blockchain] Execute RChain cron jobs';
+var PERFORM_MANY_BENCHMARKS_COMPLETED = '[Blockchain] Perform many benchmarks completed';
+var SAVE_FAILED_RCHAIN_TRANSACTION = '[Blockchain] Save failed RChain transaction';
+var saveFailedRChainTransactionAction = function (values) { return ({
+    type: SAVE_FAILED_RCHAIN_TRANSACTION,
+    payload: values,
+}); };
+
+// SELECTORS
+var getBlockchainState = lib_4(function (state) { return state; }, function (state) { return state.blockchain; });
+var getRChainInfos = lib_4(getBlockchainState, function (state) { return state.rchain.infos; });
+var getBenchmarks = lib_4(getBlockchainState, function (state) { return state.benchmarks; });
+var getBenchmarkTransitoryStates = lib_4(getBlockchainState, function (state) { return state.benchmarkTransitoryStates; });
+var getRecords = lib_4(getBlockchainState, function (state) { return state.records.records; });
+var getTransactions = lib_4(getBlockchainState, function (state) { return state.transactions; });
+var getLoadRecordsErrors = lib_4(getBlockchainState, function (state) { return state.records.loadErrors; });
+var getLoadRecordsSuccesses = lib_4(getBlockchainState, function (state) { return state.records.loadSuccesses; });
+var getLoadNodesErrors = lib_4(getBlockchainState, function (state) { return state.loadNodesErrors; });
+var getDappTransactions = lib_4(getTransactions, function (transactions) {
+    return Object.values(transactions).filter(function (t) { return t.origin.origin === 'dapp'; });
+});
+var getNamesBlockchainInfos = lib_4(getNamesBlockchain, getRChainInfos, function (namesBlockchain, rchainInfos) {
+    if (namesBlockchain && rchainInfos[namesBlockchain.chainId]) {
+        return rchainInfos[namesBlockchain.chainId];
+    }
+    else {
+        return undefined;
+    }
+});
+var getRecordNamesInAlphaOrder = lib_4(getRecords, function (records) {
+    return Object.keys(records).sort(function (a, b) {
+        if (a < b) {
+            return -1;
+        }
+        else {
+            return 1;
+        }
+    });
+});
+// todo, this is all reprocessed everytime state.records change
+// maybe do it another way
+var getRecordBadges = lib_4(getRecords, function (records) {
+    var recordBadges = {};
+    Object.keys(records).forEach(function (name) {
+        Object.keys(records[name].badges || {}).forEach(function (n) {
+            if (!recordBadges[n]) {
+                recordBadges[n] = {};
+            }
+            recordBadges[n][name] = records[name].badges[n];
+        });
+    });
+    return recordBadges;
+});
+var getLastFinalizedBlockNumber = lib_4(getRecords, function (records) {
+    return Object.keys(records).sort(function (a, b) {
+        if (a < b) {
+            return -1;
+        }
+        else {
+            return 1;
+        }
+    });
+});
+
+/* browser to node */
+var performSingleRequest = function (body, node) {
+    return new Promise(function (resolve, reject) {
+        var over = false;
+        setTimeout(function () {
+            if (!over) {
+                reject({
+                    success: false,
+                    error: 'Timeout error',
+                });
+                over = true;
+            }
+        }, 20000);
+        httpBrowserToNode(body, node)
+            .then(function (result) {
+            if (!over) {
+                over = true;
+                resolve(result);
+            }
+        })
+            .catch(function (err) {
+            console.log(err);
+            reject({
+                success: false,
+                error: { message: typeof err === 'string' ? err : 'Communication error' },
+            });
+        });
+    });
+};
+
 function asyncForEach(array, callback) {
     return __awaiter(this, void 0, void 0, function () {
         var index;
@@ -13175,547 +13241,137 @@ var ping = function (getState, dispatchFromMain) {
     });
 };
 var pingPongLaunched = false;
-var benchmarkCron = function (getState, dispatchFromMain) {
-    if (!pingPongLaunched) {
-        pingPongLaunched = true;
-        // First try 2 seconds after launch
-        setTimeout(function () { return ping(getState, dispatchFromMain); }, 2000);
-        // Then every 20 seconds
-        var interval = setInterval(function () { return ping(getState, dispatchFromMain); }, 60000);
-    }
-    var blockchains = getBlockchains$1(getState());
-    var chainIds = Object.keys(blockchains).filter(function (chainId) {
-        return blockchains[chainId].platform === 'rchain';
-    });
-    asyncForEach(chainIds, function (chainId) { return __awaiter(void 0, void 0, void 0, function () {
-        var blockchain, nodesActive, nodesActiveAndClosed;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    blockchain = blockchains[chainId];
-                    nodesActive = blockchain.nodes.filter(function (n) { return n.active; });
-                    nodesActiveAndClosed = nodesActive.filter(function (n) { return n.readyState === 3 && !ongoingConnectionTrials[n.ip]; });
-                    return [4 /*yield*/, asyncForEach(nodesActiveAndClosed, function (node) { return __awaiter(void 0, void 0, void 0, function () {
-                            var t, requestId, resp, b, err_1, err_2;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0:
-                                        _a.trys.push([0, 5, , 6]);
-                                        if (ongoingConnectionTrials[node.ip]) {
-                                            return [2 /*return*/];
-                                        }
-                                        ongoingConnectionTrials[node.ip] = true;
-                                        /*
-                                          cert (SSL connection) is mandatory for nodes retreived from default/blockchain but
-                                          node.cert may be undefined, if node.cert is undefined and node is from default/blockchain
-                                          we volontarily setting an invalid cert "INVALID"
-                                        */
-                                        ongoingConnectionTrials[node.ip] = false;
-                                        t = new Date().getTime();
-                                        requestId = Math.round(Math.random() * 1000000).toString();
-                                        _a.label = 1;
-                                    case 1:
-                                        _a.trys.push([1, 3, , 4]);
-                                        return [4 /*yield*/, httpBrowserToNode({ requestId: requestId, type: 'info' }, node)];
-                                    case 2:
-                                        resp = _a.sent();
-                                        b = {
-                                            id: chainId + '-' + node.ip,
-                                            chainId: chainId,
-                                            ip: node.ip,
-                                            responseTime: new Date().getTime() - t,
-                                            date: new Date().toISOString(),
-                                            info: {
-                                                dappyNodeVersion: resp.dappyNodeVersion,
-                                                rnodeVersion: resp.rnodeVersion,
-                                            },
-                                        };
-                                        // todo validate b
-                                        // cannot because of "boolean" exported in yup
-                                        dispatchFromMain({
-                                            action: {
-                                                type: PERFORM_BENCHMARK_COMPLETED,
-                                                payload: {
-                                                    benchmark: b,
-                                                },
-                                            },
-                                        });
-                                        dispatchFromMain({
-                                            action: {
-                                                type: UPDATE_NODE_READY_STATE,
-                                                payload: {
-                                                    chainId: chainId,
-                                                    readyState: 1,
-                                                    ip: node.ip,
-                                                    host: node.host,
-                                                    ssl: true,
-                                                },
-                                            },
-                                        });
-                                        console.log('[bn] [ssl] connected with ' + node.ip + ' ' + node.host);
-                                        return [3 /*break*/, 4];
-                                    case 3:
-                                        err_1 = _a.sent();
-                                        console.log('[bn] error when trying to get info ' + node.ip + ' ' + node.host);
-                                        console.log(err_1);
-                                        return [3 /*break*/, 4];
-                                    case 4: return [3 /*break*/, 6];
-                                    case 5:
-                                        err_2 = _a.sent();
-                                        ongoingConnectionTrials[node.ip] = false;
-                                        console.log('[bn] could not connect with ' + node.ip + ' ' + node.host);
-                                        if (err_2) {
-                                            console.log(err_2);
-                                        }
-                                        return [3 /*break*/, 6];
-                                    case 6: return [2 /*return*/];
-                                }
-                            });
-                        }); })];
-                case 1:
-                    _a.sent();
-                    return [2 /*return*/];
-            }
-        });
-    }); });
-};
-
-/* browser to node */
-var performSingleRequest = function (body, node) {
-    return new Promise(function (resolve, reject) {
-        var over = false;
-        setTimeout(function () {
-            if (!over) {
-                reject({
-                    success: false,
-                    error: 'Timeout error',
+var benchmarkCron = function (getState, dispatchFromMain) { return __awaiter(void 0, void 0, void 0, function () {
+    var interval, blockchains, chainIds, actions, benchmarks;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                if (!pingPongLaunched) {
+                    pingPongLaunched = true;
+                    // First try 2 seconds after launch
+                    setTimeout(function () { return ping(getState, dispatchFromMain); }, 2000);
+                    interval = setInterval(function () { return ping(getState, dispatchFromMain); }, 60000);
+                }
+                blockchains = getBlockchains$1(getState());
+                chainIds = Object.keys(blockchains).filter(function (chainId) {
+                    return blockchains[chainId].platform === 'rchain';
                 });
-                over = true;
-            }
-        }, 20000);
-        httpBrowserToNode(body, node)
-            .then(function (result) {
-            if (!over) {
-                over = true;
-                resolve(result);
-            }
-        })
-            .catch(function (err) {
-            console.log(err);
-            reject({
-                success: false,
-                error: { message: typeof err === 'string' ? err : 'Communication error' },
-            });
-        });
-    });
-};
-
-var OPEN_DAPP_MODAL = '[Main] Open dapp modal';
-var openDappModalAction = function (values) { return ({
-    type: OPEN_DAPP_MODAL,
-    payload: values,
-}); };
-
-var LOAD_RESOURCE = '[Dapps] Load resource';
-var UPDATE_TRANSITORY_STATE = '[Dapps] Update transitory state';
-var loadResourceAction = function (payload) { return ({
-    type: LOAD_RESOURCE,
-    payload: payload,
-}); };
-var updateTransitoryStateAction = function (values) { return ({
-    type: UPDATE_TRANSITORY_STATE,
-    payload: values,
-}); };
-
-// SELECTORS
-var getDappsState = lib_4(function (state) { return state; }, function (state) { return state.dapps; });
-var getSearch = lib_4(getDappsState, function (state) { return state.search; });
-var getSearchError = lib_4(getDappsState, function (state) { return state.searchError; });
-var getSearching = lib_4(getDappsState, function (state) { return state.searching; });
-var getLastLoadErrors = lib_4(getDappsState, function (state) { return state.lastLoadErrors; });
-var getLoadStates = lib_4(getDappsState, function (state) { return state.loadStates; });
-var getDapps = lib_4(getDappsState, function (state) { return state.dapps; });
-var getTabsFocusOrder = lib_4(getDappsState, function (state) { return state.tabsFocusOrder; });
-var getTabs = lib_4(getDappsState, function (state) { return state.tabs; });
-var getDappsTransitoryStates = lib_4(getDappsState, function (state) { return state.transitoryStates; });
-var getIdentifications = lib_4(getDappsState, function (state) { return state.identifications; });
-var getLoadedFiles = lib_4(getDappsState, function (state) { return state.loadedFiles; });
-var getIpApps = lib_4(getDappsState, function (state) { return state.ipApps; });
-// COMBINED SELECTORS
-var getIsSearchFocused = lib_4(getTabsFocusOrder, function (tabsFocusOrder) { return tabsFocusOrder[tabsFocusOrder.length - 1] === 'search'; });
-var getTabsFocusOrderWithoutSearch = lib_4(getTabsFocusOrder, function (tabsFocusOrder) {
-    return tabsFocusOrder.filter(function (d) { return d !== 'search'; });
-});
-var getFocusedTabId = lib_4(getTabsFocusOrderWithoutSearch, function (tabsFocusOrder) { return tabsFocusOrder[tabsFocusOrder.length - 1]; });
-var getSearchTransitoryState = lib_4(getSearch, getDappsTransitoryStates, function (search, transitoryStates) { return transitoryStates[search]; });
-var getSearchLoadStates = lib_4(getSearch, getLoadStates, function (search, loadStates) { return (search ? loadStates[search] : undefined); });
-var getActiveTabs = lib_4(getTabs, function (tabs) {
-    var activeTabs = {};
-    tabs.forEach(function (t) {
-        if (t.active) {
-            activeTabs[t.id] = t;
-        }
-    });
-    return activeTabs;
-});
-var getActiveResource = lib_4(getFocusedTabId, getTabs, getDapps, getIpApps, getLoadedFiles, function (focusedTabId, tabs, dapps, ipApps, loadedFiles) {
-    var tab = tabs.find(function (t) { return t.id === focusedTabId; });
-    if (!tab) {
-        return undefined;
-    }
-    if (dapps[tab.resourceId]) {
-        return dapps[tab.resourceId];
-    }
-    else if (ipApps[tab.resourceId]) {
-        return ipApps[tab.resourceId];
-    }
-    else if (loadedFiles[tab.resourceId]) {
-        return loadedFiles[tab.resourceId];
-    }
-    return undefined;
-});
-
-// SELECTORS
-var getUiState = lib_4(function (state) { return state; }, function (state) { return state.ui; });
-var getLanguage = lib_4(getUiState, function (state) { return state.language; });
-var getMenuCollapsed = lib_4(getUiState, function (state) { return state.menuCollapsed; });
-var getDappsListDisplay = lib_4(getUiState, function (state) { return state.dappsListDisplay; });
-var getDevMode = lib_4(getUiState, function (state) { return state.devMode; });
-var getNavigationUrl = lib_4(getUiState, function (state) { return state.navigationUrl; });
-var getBodyDimensions = lib_4(getUiState, function (state) { return state.windowDimensions; });
-var getNavigationSuggestionsDisplayed = lib_4(getUiState, function (state) { return state.navigationSuggestionsDisplayed; });
-var getIsMobile = lib_4(getBodyDimensions, function (dimensions) { return !!(dimensions && dimensions[0] <= 769); });
-var getIsTablet = lib_4(getBodyDimensions, function (dimensions) { return !!(dimensions && dimensions[0] <= 959); });
-var getIsNavigationInSettings = lib_4(getNavigationUrl, function (navigationUrl) {
-    return navigationUrl.startsWith('/settings');
-});
-var getIsNavigationInAccounts = lib_4(getNavigationUrl, function (navigationUrl) {
-    return navigationUrl.startsWith('/accounts');
-});
-var getIsNavigationInDapps = lib_4(getNavigationUrl, function (navigationUrl) { return navigationUrl === '/' || navigationUrl.startsWith('/dapps'); });
-var getIsNavigationInDeploy = lib_4(getNavigationUrl, function (navigationUrl) {
-    return navigationUrl.startsWith('/deploy');
-});
-var getIsNavigationInTransactions = lib_4(getNavigationUrl, function (navigationUrl) {
-    return navigationUrl.startsWith('/transactions');
-});
-
-// SELECTORS
-var getMainState = lib_4(function (state) { return state; }, function (state) { return state.main; });
-var getErrors = lib_4(getMainState, function (state) { return state.errors; });
-var getModal = lib_4(getMainState, function (state) { return state.modals[0]; });
-var getDappModals = lib_4(getMainState, function (state) { return state.dappModals; });
-var getCurrentVersion = lib_4(getMainState, function (state) { return state.currentVersion; });
-var getIsBeta = lib_4(getMainState, function (state) { return state.isBeta; });
-var getInitializationOver = lib_4(getMainState, function (state) { return state.initializationOver; });
-var getLoadResourceWhenReady = lib_4(getMainState, function (state) { return state.loadResourceWhenReady; });
-var getShouldBrowserViewsBeDisplayed = lib_4(getIsNavigationInDapps, getNavigationSuggestionsDisplayed, getDappModals, getTabsFocusOrder, getTabs, function (isNavigationInDapps, navigationSuggestionsDisplayed, dappModals, tabsFocusOrder, tabs) {
-    if (!navigationSuggestionsDisplayed && isNavigationInDapps && tabsFocusOrder.length > 0) {
-        var tab = tabs.find(function (t) { return t.id === tabsFocusOrder[tabsFocusOrder.length - 1]; });
-        // should always be true
-        if (tab && (!dappModals[tab.resourceId] || dappModals[tab.resourceId].length === 0)) {
-            return tab.resourceId;
-        }
-        return undefined;
-    }
-    else {
-        return undefined;
-    }
-});
-
-var splitSearch = function (address) {
-    var split = address.split('/');
-    var chainId = split[0];
-    var search = split.slice(1).join('/');
-    var path = '';
-    var ioSlash = search.indexOf('/');
-    var ioInt = search.indexOf('?');
-    if (ioSlash !== -1 && (ioInt === -1 || ioInt > ioSlash)) {
-        path = search.slice(ioSlash);
-        search = search.slice(0, ioSlash);
-    }
-    else if (ioInt !== -1 && (ioSlash === -1 || ioSlash > ioInt)) {
-        path = search.slice(ioInt);
-        search = search.slice(0, ioInt);
-    }
-    return {
-        chainId: chainId,
-        search: search,
-        path: path,
-    };
-};
-
-var identifyFromSandboxSchema = lib_9()
-    .shape({
-    parameters: lib_9()
-        .shape({
-        publicKey: lib_6(),
-    })
-        .noUnknown()
-        .strict(true)
-        .required(),
-    callId: lib_6().required(),
-    dappId: lib_6().required(),
-    randomId: lib_6().required(),
-})
-    .noUnknown()
-    .strict(true)
-    .required();
-var sendRChainPaymentRequestFromSandboxSchema = lib_9()
-    .shape({
-    parameters: lib_9()
-        .shape({
-        from: lib_6(),
-        // .to is required when it comes from dapp
-        to: lib_6().required(),
-        // .amount is required when it comes from dapp
-        amount: lib_7().required(),
-    })
-        .noUnknown()
-        .strict(true)
-        .required(),
-    callId: lib_6().required(),
-    dappId: lib_6().required(),
-    randomId: lib_6().required(),
-})
-    .strict(true)
-    .noUnknown()
-    .required();
-var sendRChainTransactionFromSandboxSchema = lib_9()
-    .shape({
-    parameters: lib_9()
-        .shape({
-        term: lib_6().required(),
-        signatures: lib_9(),
-    })
-        .noUnknown()
-        .required()
-        .strict(true),
-    callId: lib_6().required(),
-    dappId: lib_6().required(),
-    randomId: lib_6().required(),
-})
-    .strict(true)
-    .noUnknown()
-    .required();
-/* tab process - main process */
-var browserViewsMiddleware = function (store, dispatchFromMain) {
-    electron.ipcMain.on('message-from-dapp-sandboxed', function (commEvent, action) {
-        try {
-            var state = store.getState();
-            var payloadBeforeValid_1 = action.payload;
-            if (!payloadBeforeValid_1 || !payloadBeforeValid_1.randomId || !payloadBeforeValid_1.dappId) {
-                if (payloadBeforeValid_1) {
-                    console.error('A dapp dispatched a transaction with an invalid payload');
-                }
-                else {
-                    console.error('A dapp dispatched a transaction with an invalid payload, randomId : ' +
-                        payloadBeforeValid_1.randomId +
-                        ', dappId : ' +
-                        payloadBeforeValid_1.dappId);
-                }
-                return;
-            }
-            var okBlockchains = getOkBlockchainsMain(state);
-            var browserViews_1 = getBrowserViewsMain(state);
-            var browserViewFoundByRandomId_1 = Object.values(browserViews_1).find(function (d) { return browserViews_1[d.resourceId] && browserViews_1[d.resourceId].randomId === payloadBeforeValid_1.randomId; });
-            if (!browserViewFoundByRandomId_1) {
-                console.error('A dapp dispatched a transaction with an invalid randomId');
-                return;
-            }
-            var searchSplitted_1 = undefined;
-            try {
-                searchSplitted_1 = splitSearch(payloadBeforeValid_1.dappId);
-                if (!okBlockchains[searchSplitted_1.chainId]) {
-                    dispatchFromMain({
-                        action: saveFailedRChainTransactionAction({
-                            blockchainId: searchSplitted_1.chainId,
-                            platform: 'rchain',
-                            origin: {
-                                origin: 'dapp',
-                                dappId: browserViewFoundByRandomId_1.resourceId,
-                                dappTitle: browserViewFoundByRandomId_1.title,
-                                callId: payloadBeforeValid_1.callId,
-                            },
-                            value: { message: "blockchain " + searchSplitted_1.chainId + " not available" },
-                            sentAt: new Date().toISOString(),
-                            id: new Date().getTime() + Math.round(Math.random() * 10000).toString(),
-                        }),
-                    });
-                    console.error("blockchain " + searchSplitted_1.chainId + " not available");
-                    return;
-                }
-                if (browserViewFoundByRandomId_1.resourceId !== payloadBeforeValid_1.dappId) {
-                    dispatchFromMain({
-                        action: saveFailedRChainTransactionAction({
-                            blockchainId: searchSplitted_1.chainId,
-                            platform: 'rchain',
-                            origin: {
-                                origin: 'dapp',
-                                dappId: browserViewFoundByRandomId_1.resourceId,
-                                dappTitle: browserViewFoundByRandomId_1.title,
-                                callId: payloadBeforeValid_1.callId,
-                            },
-                            value: { message: "Wrong id, identity theft attempt" },
-                            sentAt: new Date().toISOString(),
-                            id: new Date().getTime() + Math.round(Math.random() * 10000).toString(),
-                        }),
-                    });
-                    console.error('A dapp dispatched a transaction with randomId and dappId that do not match ' +
-                        'dappId from payload: ' +
-                        payloadBeforeValid_1.dappId +
-                        ', dappId found from randomId: ' +
-                        browserViewFoundByRandomId_1.resourceId);
-                    return;
-                }
-            }
-            catch (err) {
-                console.error('Unknown error');
-                console.error(err);
-                return;
-            }
-            if (action.type === SEND_RCHAIN_TRANSACTION_FROM_SANDBOX) {
-                sendRChainTransactionFromSandboxSchema
-                    .validate(payloadBeforeValid_1)
-                    .then(function (valid) {
-                    if (payloadBeforeValid_1.parameters.signatures) {
-                        Object.keys(payloadBeforeValid_1.parameters.signatures).forEach(function (k) {
-                            if (typeof k !== 'string' || typeof payloadBeforeValid_1.parameters.signatures[k] !== 'string') {
-                                throw new Error('payloadBeforeValid.parameters.signatures is not valid');
+                actions = [];
+                benchmarks = [];
+                return [4 /*yield*/, asyncForEach(chainIds, function (chainId) { return __awaiter(void 0, void 0, void 0, function () {
+                        var blockchain, nodesInactiveAndOpened, nodesActive, nodesActiveAndClosed;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    blockchain = blockchains[chainId];
+                                    nodesInactiveAndOpened = blockchain.nodes.filter(function (n) { return !n.active && n.readyState === 1; });
+                                    nodesInactiveAndOpened.forEach(function (node) {
+                                        actions.push({
+                                            type: UPDATE_NODE_READY_STATE,
+                                            payload: {
+                                                chainId: chainId,
+                                                readyState: 3,
+                                                ip: node.ip,
+                                                host: node.host,
+                                                ssl: true,
+                                            },
+                                        });
+                                    });
+                                    nodesActive = blockchain.nodes.filter(function (n) { return n.active; });
+                                    nodesActiveAndClosed = nodesActive.filter(function (n) { return n.readyState === 3 && !ongoingConnectionTrials[n.ip]; });
+                                    return [4 /*yield*/, asyncForEach(nodesActiveAndClosed, function (node) { return __awaiter(void 0, void 0, void 0, function () {
+                                            var t, requestId, resp, b, err_1, err_2;
+                                            return __generator(this, function (_a) {
+                                                switch (_a.label) {
+                                                    case 0:
+                                                        _a.trys.push([0, 5, , 6]);
+                                                        if (ongoingConnectionTrials[node.ip]) {
+                                                            return [2 /*return*/];
+                                                        }
+                                                        ongoingConnectionTrials[node.ip] = true;
+                                                        /*
+                                                          cert (SSL connection) is mandatory for nodes retreived from default/blockchain but
+                                                          node.cert may be undefined, if node.cert is undefined and node is from default/blockchain
+                                                          we volontarily setting an invalid cert "INVALID"
+                                                        */
+                                                        ongoingConnectionTrials[node.ip] = false;
+                                                        t = new Date().getTime();
+                                                        requestId = Math.round(Math.random() * 1000000).toString();
+                                                        _a.label = 1;
+                                                    case 1:
+                                                        _a.trys.push([1, 3, , 4]);
+                                                        return [4 /*yield*/, httpBrowserToNode({ requestId: requestId, type: 'info' }, node)];
+                                                    case 2:
+                                                        resp = _a.sent();
+                                                        b = {
+                                                            id: chainId + '-' + getNodeIndex(node),
+                                                            chainId: chainId,
+                                                            ip: node.ip,
+                                                            responseTime: new Date().getTime() - t,
+                                                            date: new Date().toISOString(),
+                                                            info: {
+                                                                dappyNodeVersion: resp.dappyNodeVersion,
+                                                                rnodeVersion: resp.rnodeVersion,
+                                                            },
+                                                        };
+                                                        // todo validate b
+                                                        // cannot because of "boolean" exported in yup
+                                                        benchmarks.push(b);
+                                                        actions.push({
+                                                            type: UPDATE_NODE_READY_STATE,
+                                                            payload: {
+                                                                chainId: chainId,
+                                                                readyState: 1,
+                                                                ip: node.ip,
+                                                                host: node.host,
+                                                                ssl: true,
+                                                            },
+                                                        });
+                                                        console.log('[bn] [ssl] connected with ' + node.ip + ' ' + node.host);
+                                                        return [3 /*break*/, 4];
+                                                    case 3:
+                                                        err_1 = _a.sent();
+                                                        console.log('[bn] error when trying to get info ' + node.ip + ' ' + node.host);
+                                                        console.log(err_1);
+                                                        return [3 /*break*/, 4];
+                                                    case 4: return [3 /*break*/, 6];
+                                                    case 5:
+                                                        err_2 = _a.sent();
+                                                        ongoingConnectionTrials[node.ip] = false;
+                                                        console.log('[bn] could not connect with ' + node.ip + ' ' + node.host);
+                                                        if (err_2) {
+                                                            console.log(err_2);
+                                                        }
+                                                        return [3 /*break*/, 6];
+                                                    case 6: return [2 /*return*/];
+                                                }
+                                            });
+                                        }); })];
+                                case 1:
+                                    _a.sent();
+                                    return [2 /*return*/];
                             }
                         });
-                    }
-                    var payload = payloadBeforeValid_1;
-                    var id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
-                    var payload2 = {
-                        parameters: payload.parameters,
-                        origin: {
-                            origin: 'dapp',
-                            dappId: payload.dappId,
-                            dappTitle: browserViewFoundByRandomId_1.title,
-                            callId: payload.callId,
-                        },
-                        chainId: searchSplitted_1.chainId,
-                        dappId: payload.dappId,
-                        id: id,
-                    };
-                    dispatchFromMain({
-                        action: openDappModalAction({
-                            dappId: payload.dappId,
-                            title: 'TRANSACTION_MODAL',
-                            text: '',
-                            parameters: payload2,
-                            buttons: [],
-                        }),
-                    });
-                })
-                    .catch(function (err) {
-                    // todo : does the dapp need to have this error returned ?
-                    console.error('A dapp tried to send RChain transaction with an invalid schema');
-                    console.error(err);
-                    return;
+                    }); })];
+            case 1:
+                _a.sent();
+                actions.push({
+                    type: PERFORM_MANY_BENCHMARKS_COMPLETED,
+                    payload: {
+                        benchmarks: benchmarks,
+                    },
                 });
-            }
-            else if (action.type === SEND_RCHAIN_PAYMENT_REQUEST_FROM_SANDBOX) {
-                sendRChainPaymentRequestFromSandboxSchema
-                    .validate(payloadBeforeValid_1)
-                    .then(function () {
-                    var payload = payloadBeforeValid_1;
-                    var id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
-                    var payload2 = {
-                        parameters: payload.parameters,
-                        origin: {
-                            origin: 'dapp',
-                            dappId: payload.dappId,
-                            dappTitle: browserViewFoundByRandomId_1.title,
-                            callId: payload.callId,
-                        },
-                        chainId: searchSplitted_1.chainId,
-                        dappId: payload.dappId,
-                        id: id,
-                    };
+                actions.forEach(function (a) {
                     dispatchFromMain({
-                        action: openDappModalAction({
-                            dappId: browserViewFoundByRandomId_1.resourceId,
-                            title: 'PAYMENT_REQUEST_MODAL',
-                            text: '',
-                            parameters: payload2,
-                            buttons: [],
-                        }),
+                        action: a,
                     });
-                })
-                    .catch(function (err) {
-                    // todo : does the dapp need to have this error returned ?
-                    console.error('A dapp tried to send RChain transaction with an invalid schema');
-                    console.error(err);
-                    return;
                 });
-            }
-            else if (action.type === IDENTIFY_FROM_SANDBOX) {
-                identifyFromSandboxSchema
-                    .validate(payloadBeforeValid_1)
-                    .then(function (valid) {
-                    dispatchFromMain({
-                        action: openDappModalAction({
-                            dappId: payloadBeforeValid_1.dappId,
-                            title: 'IDENTIFICATION_MODAL',
-                            text: '',
-                            parameters: payloadBeforeValid_1,
-                            buttons: [],
-                        }),
-                    });
-                })
-                    .catch(function (err) {
-                    console.error('A dapp tried to trigger an identification with an invalid schema');
-                    console.error(err);
-                });
-            }
-        }
-        catch (err) {
-            console.error('An error occured in browserViewsMiddleware');
-            console.error(err);
+                return [2 /*return*/];
         }
     });
-};
+}); };
 
-var getIpAddressAndCert = function (hostname) {
-    return new Promise(function (resolve, reject) {
-        dns.lookup(hostname, {}, function (err, ip, ipv6oripv4) {
-            if (err) {
-                reject(err);
-                return;
-            }
-            if (!ip) {
-                reject(new Error('IP address not found'));
-            }
-            var options = {
-                host: hostname,
-                port: 443,
-                method: 'GET',
-            };
-            var req = https.request(options, function (res) {
-                if (res && res.connection && res.connection.getPeerCertificate) {
-                    var cert = res.connection.getPeerCertificate();
-                    if (cert.raw && cert.raw.toString('base64')) {
-                        resolve({
-                            ip: ip,
-                            cert: '-----BEGIN CERTIFICATE-----\n' + cert.raw.toString('base64') + '\n-----END CERTIFICATE-----',
-                        });
-                    }
-                }
-                else {
-                    reject(new Error('Response connection not found'));
-                }
-            });
-            req.on('error', function (err) {
-                reject(err);
-            });
-            req.end();
-        });
-    });
-};
-
-var getDapps$1 = function (path) {
+var getDapps = function (path) {
     var directories = fs.readdirSync(path + '/dapps/');
     var dapps = {};
     directories.forEach(function (d) {
@@ -13726,6 +13382,225 @@ var getDapps$1 = function (path) {
         };
     });
     return dapps;
+};
+
+var benchmarkCronRanOnce = false;
+var uniqueEphemeralTokenAskedOnce = false;
+var uniqueEphemeralToken = '';
+/* browser process - main process */
+var registerInterProcessProtocol = function (session, store, getLoadResourceWhenReady, openExternal, browserWindow, dispatchFromMain, getDispatchesFromMainAwaiting) {
+    session.protocol.registerBufferProtocol('interprocess', function (request, callback) {
+        if (request.url === 'interprocess://ask-unique-ephemeral-token') {
+            if (uniqueEphemeralTokenAskedOnce === false) {
+                uniqueEphemeralTokenAskedOnce = true;
+                return crypto.randomBytes(64, function (err, buf) {
+                    uniqueEphemeralToken = buf.toString('hex');
+                    console.log(uniqueEphemeralToken),
+                        callback(Buffer.from(JSON.stringify({
+                            uniqueEphemeralToken: uniqueEphemeralToken,
+                            loadResourceWhenReady: getLoadResourceWhenReady(),
+                        })));
+                });
+            }
+            else {
+                callback(Buffer.from(JSON.stringify({
+                    uniqueEphemeralToken: uniqueEphemeralToken,
+                })));
+                return;
+            }
+        }
+        var uniqueEphemeralTokenFromrequest = '';
+        try {
+            uniqueEphemeralTokenFromrequest = JSON.parse(request.headers['Data']).uniqueEphemeralToken;
+            if (uniqueEphemeralToken !== uniqueEphemeralTokenFromrequest) {
+                throw new Error();
+            }
+        }
+        catch (err) {
+            console.log(request.url);
+            console.log('[https] An unauthorized app tried to make an interprocess request');
+            callback(Buffer.from(''));
+            return;
+        }
+        if (request.url === 'interprocess://get-ip-address-and-cert') {
+            var host = '';
+            try {
+                host = JSON.parse(request.headers['Data']).parameters.host;
+            }
+            catch (e) { }
+            getIpAddressAndCert(host)
+                .then(function (response) {
+                callback(Buffer.from(JSON.stringify({
+                    success: true,
+                    data: response,
+                })));
+                return;
+            })
+                .catch(function (err) {
+                callback(Buffer.from(JSON.stringify({
+                    success: false,
+                    error: { message: err.message },
+                })));
+            });
+        }
+        /* browser to node */
+        if (request.url === 'interprocess://multi-dappy-call') {
+            try {
+                var data = JSON.parse(request.headers['Data']);
+                var parameters = data.parameters;
+                var body = data.body;
+                if (parameters.multiCallId === EXECUTE_RCHAIN_CRON_JOBS) {
+                    parameters.comparer = function (res) {
+                        var json = JSON.parse(res);
+                        // do not include json.rnodeVersion that might differ
+                        return json.data.rchainNetwork + "-" + json.data.lastFinalizedBlockNumber + "-" + json.data.rchainNamesRegistryUri;
+                    };
+                }
+                else {
+                    parameters.comparer = function (res) { return res; };
+                }
+                var blockchains = getBlockchains$1(store.getState());
+                performMultiRequest(body, parameters, blockchains)
+                    .then(function (result) {
+                    callback(Buffer.from(JSON.stringify({
+                        success: true,
+                        data: result,
+                    })));
+                })
+                    .catch(function (err) {
+                    callback(err);
+                });
+            }
+            catch (e) {
+                callback(e);
+            }
+        }
+        /* browser to node */
+        if (request.url === 'interprocess://single-dappy-call') {
+            try {
+                var data = JSON.parse(request.headers['Data']);
+                var node = data.node;
+                var body = data.body;
+                performSingleRequest(body, node)
+                    .then(function (a) {
+                    callback(Buffer.from(a));
+                })
+                    .catch(function (err) {
+                    callback(err);
+                });
+            }
+            catch (err) {
+                console.log(err);
+                callback(Buffer.from(err));
+            }
+        }
+        if (request.url === 'interprocess://dispatch-in-main') {
+            try {
+                var data = JSON.parse(request.headers['Data']);
+                var action = data.action;
+                if (action.type === LOAD_OR_RELOAD_BROWSER_VIEW) {
+                    store.dispatch(__assign(__assign({}, action), { meta: { openExternal: openExternal, browserWindow: browserWindow, dispatchFromMain: dispatchFromMain } }));
+                }
+                else if (action.type === DESTROY_BROWSER_VIEW) {
+                    store.dispatch(__assign(__assign({}, action), { meta: { browserWindow: browserWindow } }));
+                }
+                else if (action.type === SYNC_BLOCKCHAINS) {
+                    store.dispatch(action);
+                    /*
+                      Do not wait the setInterval to run benchmarkCron
+                      do it instantly after dispatch
+                    */
+                    if (benchmarkCronRanOnce === false) {
+                        benchmarkCronRanOnce = true;
+                        benchmarkCron(store.getState, dispatchFromMain);
+                    }
+                }
+                else {
+                    store.dispatch(action);
+                }
+            }
+            catch (err) {
+                console.log(err);
+                callback(Buffer.from(err));
+            }
+        }
+        if (request.url === 'interprocess://open-external') {
+            try {
+                var data = JSON.parse(request.headers['Data']);
+                var value = data.value;
+                openExternal(value);
+            }
+            catch (err) {
+                console.log(err);
+                callback(err);
+            }
+        }
+        if (request.url === 'interprocess://copy-to-clipboard') {
+            try {
+                var data = JSON.parse(request.headers['Data']);
+                var value = data.value;
+                electron.clipboard.writeText(value);
+            }
+            catch (err) {
+                console.log(err);
+                callback(Buffer.from(err));
+            }
+        }
+        if (request.url === 'interprocess://get-dapps') {
+            try {
+                var dapps = getDapps(electron.app.getAppPath());
+                callback(Buffer.from(JSON.stringify({
+                    success: true,
+                    data: dapps,
+                })));
+            }
+            catch (err) {
+                callback(Buffer.from(JSON.stringify({
+                    success: false,
+                    error: { message: err.message },
+                })));
+            }
+        }
+        if (request.url === 'interprocess://trigger-command') {
+            try {
+                var data = JSON.parse(request.headers['Data']);
+                var command = data.command;
+                var payload_1 = data.payload;
+                if (command === 'run-ws-cron') {
+                    benchmarkCron(store.getState, dispatchFromMain);
+                }
+                if (command === 'download-file') {
+                    electron.dialog
+                        .showOpenDialog({
+                        title: 'Save file',
+                        properties: ['openDirectory', 'createDirectory'],
+                    })
+                        .then(function (a) {
+                        if (!a.canceled) {
+                            if (a.filePaths[0]) {
+                                fs.writeFile(path.join(a.filePaths[0], payload_1.name || 'file'), payload_1.data, { encoding: 'base64' }, function (b) { });
+                            }
+                            else {
+                                console.error('a.filePaths[0] is not defined ' + a.filePaths[0]);
+                            }
+                        }
+                    })
+                        .catch(function (err) {
+                        console.log(err);
+                    });
+                }
+            }
+            catch (err) {
+                console.log(err);
+                callback(err);
+            }
+        }
+        if (request.url === 'interprocess://get-dispatches-from-main-awaiting') {
+            callback(Buffer.from(JSON.stringify({
+                actions: getDispatchesFromMainAwaiting(),
+            })));
+        }
+    });
 };
 
 function symbolObservablePonyfill(root) {
@@ -16061,15 +15936,19 @@ var reducer$3 = function (state, action) {
 var TRANSFER_TRANSACTIONS = '[MAIN] Transfer transactions';
 var initialState$5 = {};
 var reducer$4 = function (state, action) {
+    var _a, _b;
     if (state === void 0) { state = initialState$5; }
     switch (action.type) {
         case TRANSFER_TRANSACTIONS: {
-            return __assign(__assign({}, state), action.payload);
+            var payload = action.payload;
+            return __assign(__assign({}, state), (_a = {}, _a[payload.origin.dappId] = __assign(__assign({}, (state[payload.origin.dappId] || {})), (_b = {}, _b[payload.id] = payload, _b)), _a));
         }
         default:
             return state;
     }
 };
+var getTransactionsMainState = lib_4(function (state) { return state; }, function (state) { return state.transactions; });
+var getTransactionsMain = lib_4(getTransactionsMainState, function (state) { return state; });
 
 var TRANSFER_IDENTIFICATIONS = '[MAIN] Transfer identification';
 var initialState$6 = {};
@@ -16085,83 +15964,427 @@ var reducer$5 = function (state, action) {
             return state;
     }
 };
+var getIdentificationsMainState = lib_4(function (state) { return state; }, function (state) { return state.identifications; });
+var getIdentificationsMain = lib_4(getIdentificationsMainState, function (state) { return state; });
 
-var transferTransactionsToDapps = function (action) {
-    var payload, transactionsToTransfer, browserViews;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                payload = action.payload;
-                transactionsToTransfer = {};
-                Object.keys(payload).forEach(function (k) {
-                    var _a;
-                    if (payload[k].origin.origin === 'dapp') {
-                        var origin = payload[k].origin;
-                        if (!transactionsToTransfer[origin.dappId]) {
-                            transactionsToTransfer[origin.dappId] = {};
+var OPEN_DAPP_MODAL = '[Main] Open dapp modal';
+var openDappModalAction = function (values) { return ({
+    type: OPEN_DAPP_MODAL,
+    payload: values,
+}); };
+
+var LOAD_RESOURCE = '[Dapps] Load resource';
+var UPDATE_TRANSITORY_STATE = '[Dapps] Update transitory state';
+var loadResourceAction = function (payload) { return ({
+    type: LOAD_RESOURCE,
+    payload: payload,
+}); };
+var updateTransitoryStateAction = function (values) { return ({
+    type: UPDATE_TRANSITORY_STATE,
+    payload: values,
+}); };
+
+// SELECTORS
+var getDappsState = lib_4(function (state) { return state; }, function (state) { return state.dapps; });
+var getSearch = lib_4(getDappsState, function (state) { return state.search; });
+var getSearchError = lib_4(getDappsState, function (state) { return state.searchError; });
+var getSearching = lib_4(getDappsState, function (state) { return state.searching; });
+var getLastLoadErrors = lib_4(getDappsState, function (state) { return state.lastLoadErrors; });
+var getLoadStates = lib_4(getDappsState, function (state) { return state.loadStates; });
+var getDapps$1 = lib_4(getDappsState, function (state) { return state.dapps; });
+var getTabsFocusOrder = lib_4(getDappsState, function (state) { return state.tabsFocusOrder; });
+var getTabs = lib_4(getDappsState, function (state) { return state.tabs; });
+var getDappsTransitoryStates = lib_4(getDappsState, function (state) { return state.transitoryStates; });
+var getIdentifications = lib_4(getDappsState, function (state) { return state.identifications; });
+var getLoadedFiles = lib_4(getDappsState, function (state) { return state.loadedFiles; });
+var getIpApps = lib_4(getDappsState, function (state) { return state.ipApps; });
+// COMBINED SELECTORS
+var getIsSearchFocused = lib_4(getTabsFocusOrder, function (tabsFocusOrder) { return tabsFocusOrder[tabsFocusOrder.length - 1] === 'search'; });
+var getTabsFocusOrderWithoutSearch = lib_4(getTabsFocusOrder, function (tabsFocusOrder) {
+    return tabsFocusOrder.filter(function (d) { return d !== 'search'; });
+});
+var getFocusedTabId = lib_4(getTabsFocusOrderWithoutSearch, function (tabsFocusOrder) { return tabsFocusOrder[tabsFocusOrder.length - 1]; });
+var getSearchTransitoryState = lib_4(getSearch, getDappsTransitoryStates, function (search, transitoryStates) { return transitoryStates[search]; });
+var getSearchLoadStates = lib_4(getSearch, getLoadStates, function (search, loadStates) { return (search ? loadStates[search] : undefined); });
+var getActiveTabs = lib_4(getTabs, function (tabs) {
+    var activeTabs = {};
+    tabs.forEach(function (t) {
+        if (t.active) {
+            activeTabs[t.id] = t;
+        }
+    });
+    return activeTabs;
+});
+var getActiveResource = lib_4(getFocusedTabId, getTabs, getDapps$1, getIpApps, getLoadedFiles, function (focusedTabId, tabs, dapps, ipApps, loadedFiles) {
+    var tab = tabs.find(function (t) { return t.id === focusedTabId; });
+    if (!tab) {
+        return undefined;
+    }
+    if (dapps[tab.resourceId]) {
+        return dapps[tab.resourceId];
+    }
+    else if (ipApps[tab.resourceId]) {
+        return ipApps[tab.resourceId];
+    }
+    else if (loadedFiles[tab.resourceId]) {
+        return loadedFiles[tab.resourceId];
+    }
+    return undefined;
+});
+
+// SELECTORS
+var getUiState = lib_4(function (state) { return state; }, function (state) { return state.ui; });
+var getLanguage = lib_4(getUiState, function (state) { return state.language; });
+var getMenuCollapsed = lib_4(getUiState, function (state) { return state.menuCollapsed; });
+var getDappsListDisplay = lib_4(getUiState, function (state) { return state.dappsListDisplay; });
+var getDevMode = lib_4(getUiState, function (state) { return state.devMode; });
+var getNavigationUrl = lib_4(getUiState, function (state) { return state.navigationUrl; });
+var getBodyDimensions = lib_4(getUiState, function (state) { return state.windowDimensions; });
+var getNavigationSuggestionsDisplayed = lib_4(getUiState, function (state) { return state.navigationSuggestionsDisplayed; });
+var getIsMobile = lib_4(getBodyDimensions, function (dimensions) { return !!(dimensions && dimensions[0] <= 769); });
+var getIsTablet = lib_4(getBodyDimensions, function (dimensions) { return !!(dimensions && dimensions[0] <= 959); });
+var getIsNavigationInSettings = lib_4(getNavigationUrl, function (navigationUrl) {
+    return navigationUrl.startsWith('/settings');
+});
+var getIsNavigationInAccounts = lib_4(getNavigationUrl, function (navigationUrl) {
+    return navigationUrl.startsWith('/accounts');
+});
+var getIsNavigationInDapps = lib_4(getNavigationUrl, function (navigationUrl) { return navigationUrl === '/' || navigationUrl.startsWith('/dapps'); });
+var getIsNavigationInDeploy = lib_4(getNavigationUrl, function (navigationUrl) {
+    return navigationUrl.startsWith('/deploy');
+});
+var getIsNavigationInTransactions = lib_4(getNavigationUrl, function (navigationUrl) {
+    return navigationUrl.startsWith('/transactions');
+});
+
+// SELECTORS
+var getMainState = lib_4(function (state) { return state; }, function (state) { return state.main; });
+var getErrors = lib_4(getMainState, function (state) { return state.errors; });
+var getModal = lib_4(getMainState, function (state) { return state.modals[0]; });
+var getDappModals = lib_4(getMainState, function (state) { return state.dappModals; });
+var getCurrentVersion = lib_4(getMainState, function (state) { return state.currentVersion; });
+var getIsBeta = lib_4(getMainState, function (state) { return state.isBeta; });
+var getInitializationOver = lib_4(getMainState, function (state) { return state.initializationOver; });
+var getDispatchWhenInitializationOver = lib_4(getMainState, function (state) { return state.dispatchWhenInitializationOver; });
+var getLoadResourceWhenReady = lib_4(getMainState, function (state) { return state.loadResourceWhenReady; });
+var getShouldBrowserViewsBeDisplayed = lib_4(getIsNavigationInDapps, getNavigationSuggestionsDisplayed, getDappModals, getTabsFocusOrder, getTabs, function (isNavigationInDapps, navigationSuggestionsDisplayed, dappModals, tabsFocusOrder, tabs) {
+    if (!navigationSuggestionsDisplayed && isNavigationInDapps && tabsFocusOrder.length > 0) {
+        var tab = tabs.find(function (t) { return t.id === tabsFocusOrder[tabsFocusOrder.length - 1]; });
+        // should always be true
+        if (tab && (!dappModals[tab.resourceId] || dappModals[tab.resourceId].length === 0)) {
+            return tab.resourceId;
+        }
+        return undefined;
+    }
+    else {
+        return undefined;
+    }
+});
+
+var splitSearch = function (address) {
+    var split = address.split('/');
+    var chainId = split[0];
+    var search = split.slice(1).join('/');
+    var path = '';
+    var ioSlash = search.indexOf('/');
+    var ioInt = search.indexOf('?');
+    if (ioSlash !== -1 && (ioInt === -1 || ioInt > ioSlash)) {
+        path = search.slice(ioSlash);
+        search = search.slice(0, ioSlash);
+    }
+    else if (ioInt !== -1 && (ioSlash === -1 || ioSlash > ioInt)) {
+        path = search.slice(ioInt);
+        search = search.slice(0, ioInt);
+    }
+    return {
+        chainId: chainId,
+        search: search,
+        path: path,
+    };
+};
+
+var identifyFromSandboxSchema = lib_9()
+    .shape({
+    parameters: lib_9()
+        .shape({
+        publicKey: lib_6(),
+    })
+        .noUnknown()
+        .strict(true)
+        .required(),
+    callId: lib_6().required(),
+    dappId: lib_6().required(),
+    randomId: lib_6().required(),
+})
+    .noUnknown()
+    .strict(true)
+    .required();
+var sendRChainPaymentRequestFromSandboxSchema = lib_9()
+    .shape({
+    parameters: lib_9()
+        .shape({
+        from: lib_6(),
+        // .to is required when it comes from dapp
+        to: lib_6().required(),
+        // .amount is required when it comes from dapp
+        amount: lib_7().required(),
+    })
+        .noUnknown()
+        .strict(true)
+        .required(),
+    callId: lib_6().required(),
+    dappId: lib_6().required(),
+    randomId: lib_6().required(),
+})
+    .strict(true)
+    .noUnknown()
+    .required();
+var sendRChainTransactionFromSandboxSchema = lib_9()
+    .shape({
+    parameters: lib_9()
+        .shape({
+        term: lib_6().required(),
+        signatures: lib_9(),
+    })
+        .noUnknown()
+        .required()
+        .strict(true),
+    callId: lib_6().required(),
+    dappId: lib_6().required(),
+    randomId: lib_6().required(),
+})
+    .strict(true)
+    .noUnknown()
+    .required();
+/* browser process - main process */
+var registerInterProcessDappProtocol = function (session, store, dispatchFromMain) {
+    session.protocol.registerBufferProtocol('interprocessdapp', function (request, callback) {
+        var id;
+        var data;
+        var browserViews = getBrowserViewsMain(store.getState());
+        try {
+            data = JSON.parse(request.headers['Data']);
+            id = Object.keys(browserViews).find(function (k) { return browserViews[k].randomId === data.randomId; });
+            if (!id) {
+                console.error('Could not find browser view from hi-from-dapp-sandboxed message');
+                console.log('data.randomId', data.randomId);
+                console.log(Object.keys(browserViews).map(function (k) { return browserViews[k].randomId; }));
+                callback(Buffer.from(''));
+                return;
+            }
+        }
+        catch (e) {
+            console.error('Error in hi-from-dapp-sandboxed message');
+            console.log(e);
+            callback(Buffer.from(''));
+            return;
+        }
+        var browserView = browserViews[id];
+        if (request.url === 'interprocessdapp://hi-from-dapp-sandboxed') {
+            try {
+                callback(Buffer.from(JSON.stringify({
+                    type: DAPP_INITIAL_SETUP,
+                    payload: {
+                        html: browserView.html,
+                        address: browserView.address,
+                        path: browserView.path,
+                        title: browserView.title,
+                        dappId: browserView.resourceId,
+                        randomId: browserView.randomId,
+                        appPath: path.join(electron.app.getAppPath(), 'dist/'),
+                    },
+                })));
+            }
+            catch (err) {
+                console.error('Could not get randomId from hi-from-dapp-sandboxed message');
+                callback(Buffer.from(''));
+                return;
+            }
+        }
+        if (request.url === 'interprocessdapp://get-identifications') {
+            var identifications = getIdentificationsMain(store.getState());
+            callback(Buffer.from(JSON.stringify({ identifications: identifications[browserView.resourceId] })));
+        }
+        if (request.url === 'interprocessdapp://get-transactions') {
+            var transactions = getTransactionsMain(store.getState());
+            callback(Buffer.from(JSON.stringify({ transactions: transactions[browserView.resourceId] })));
+        }
+        if (request.url === 'interprocessdapp://message-from-dapp-sandboxed') {
+            try {
+                var state = store.getState();
+                var payloadBeforeValid_1 = data.action.payload;
+                if (!payloadBeforeValid_1 || !payloadBeforeValid_1.randomId || !payloadBeforeValid_1.dappId) {
+                    if (payloadBeforeValid_1) {
+                        console.error('A dapp dispatched a transaction with an invalid payload');
+                    }
+                    else {
+                        console.error('A dapp dispatched a transaction with an invalid payload, randomId : ' +
+                            payloadBeforeValid_1.randomId +
+                            ', dappId : ' +
+                            payloadBeforeValid_1.dappId);
+                    }
+                    callback(Buffer.from(''));
+                    return;
+                }
+                var okBlockchains = getOkBlockchainsMain(state);
+                var searchSplitted_1 = undefined;
+                try {
+                    searchSplitted_1 = splitSearch(payloadBeforeValid_1.dappId);
+                    if (!okBlockchains[searchSplitted_1.chainId]) {
+                        dispatchFromMain({
+                            action: saveFailedRChainTransactionAction({
+                                blockchainId: searchSplitted_1.chainId,
+                                platform: 'rchain',
+                                origin: {
+                                    origin: 'dapp',
+                                    dappId: browserView.resourceId,
+                                    dappTitle: browserView.title,
+                                    callId: payloadBeforeValid_1.callId,
+                                },
+                                value: { message: "blockchain " + searchSplitted_1.chainId + " not available" },
+                                sentAt: new Date().toISOString(),
+                                id: new Date().getTime() + Math.round(Math.random() * 10000).toString(),
+                            }),
+                        });
+                        console.error("blockchain " + searchSplitted_1.chainId + " not available");
+                        callback(Buffer.from(''));
+                        return;
+                    }
+                    if (browserView.resourceId !== payloadBeforeValid_1.dappId) {
+                        dispatchFromMain({
+                            action: saveFailedRChainTransactionAction({
+                                blockchainId: searchSplitted_1.chainId,
+                                platform: 'rchain',
+                                origin: {
+                                    origin: 'dapp',
+                                    dappId: browserView.resourceId,
+                                    dappTitle: browserView.title,
+                                    callId: payloadBeforeValid_1.callId,
+                                },
+                                value: { message: "Wrong id, identity theft attempt" },
+                                sentAt: new Date().toISOString(),
+                                id: new Date().getTime() + Math.round(Math.random() * 10000).toString(),
+                            }),
+                        });
+                        console.error('A dapp dispatched a transaction with randomId and dappId that do not match ' +
+                            'dappId from payload: ' +
+                            payloadBeforeValid_1.dappId +
+                            ', dappId found from randomId: ' +
+                            browserView.resourceId);
+                        callback(Buffer.from(''));
+                        return;
+                    }
+                }
+                catch (err) {
+                    console.error('Unknown error');
+                    console.error(err);
+                    callback(Buffer.from(''));
+                    return;
+                }
+                if (data.action.type === SEND_RCHAIN_TRANSACTION_FROM_SANDBOX) {
+                    sendRChainTransactionFromSandboxSchema
+                        .validate(payloadBeforeValid_1)
+                        .then(function (valid) {
+                        if (payloadBeforeValid_1.parameters.signatures) {
+                            Object.keys(payloadBeforeValid_1.parameters.signatures).forEach(function (k) {
+                                if (typeof k !== 'string' || typeof payloadBeforeValid_1.parameters.signatures[k] !== 'string') {
+                                    throw new Error('payloadBeforeValid.parameters.signatures is not valid');
+                                }
+                            });
                         }
-                        transactionsToTransfer[origin.dappId] = __assign(__assign({}, transactionsToTransfer[origin.dappId]), (_a = {}, _a[k] = payload[k], _a));
-                    }
-                });
-                return [4 /*yield*/, select(getBrowserViewsMain)];
-            case 1:
-                browserViews = _a.sent();
-                Object.keys(transactionsToTransfer).forEach(function (dappId) {
-                    if (!browserViews[dappId]) {
-                        console.log('error cannot transfer transaction to not found browser view');
+                        var payload = payloadBeforeValid_1;
+                        var id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
+                        var payload2 = {
+                            parameters: payload.parameters,
+                            origin: {
+                                origin: 'dapp',
+                                dappId: payload.dappId,
+                                dappTitle: browserView.title,
+                                callId: payload.callId,
+                            },
+                            chainId: searchSplitted_1.chainId,
+                            dappId: payload.dappId,
+                            id: id,
+                        };
+                        dispatchFromMain({
+                            action: openDappModalAction({
+                                dappId: payload.dappId,
+                                title: 'TRANSACTION_MODAL',
+                                text: '',
+                                parameters: payload2,
+                                buttons: [],
+                            }),
+                        });
+                        callback(Buffer.from(''));
+                    })
+                        .catch(function (err) {
+                        // todo : does the dapp need to have this error returned ?
+                        console.error('A dapp tried to send RChain transaction with an invalid schema');
+                        console.error(err);
                         return;
-                    }
-                    if (!browserViews[dappId].commEvent) {
-                        console.log('error cannot transfer transaction to browser view (no comm event)');
+                    });
+                }
+                else if (data.action.type === SEND_RCHAIN_PAYMENT_REQUEST_FROM_SANDBOX) {
+                    sendRChainPaymentRequestFromSandboxSchema
+                        .validate(payloadBeforeValid_1)
+                        .then(function () {
+                        var payload = payloadBeforeValid_1;
+                        var id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
+                        var payload2 = {
+                            parameters: payload.parameters,
+                            origin: {
+                                origin: 'dapp',
+                                dappId: payload.dappId,
+                                dappTitle: browserView.title,
+                                callId: payload.callId,
+                            },
+                            chainId: searchSplitted_1.chainId,
+                            dappId: payload.dappId,
+                            id: id,
+                        };
+                        dispatchFromMain({
+                            action: openDappModalAction({
+                                dappId: browserView.resourceId,
+                                title: 'PAYMENT_REQUEST_MODAL',
+                                text: '',
+                                parameters: payload2,
+                                buttons: [],
+                            }),
+                        });
+                        callback(Buffer.from(''));
+                    })
+                        .catch(function (err) {
+                        // todo : does the dapp need to have this error returned ?
+                        console.error('A dapp tried to send RChain transaction with an invalid schema');
+                        console.error(err);
                         return;
-                    }
-                    browserViews[dappId].commEvent.reply('message-from-main', updateTransactionsAction({ transactions: transactionsToTransfer[dappId] }));
-                });
-                return [2 /*return*/];
-        }
-    });
-};
-var transferTransactionsToDappsSaga = function () {
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, takeEvery$1(TRANSFER_TRANSACTIONS, transferTransactionsToDapps)];
-            case 1:
-                _a.sent();
-                return [2 /*return*/];
-        }
-    });
-};
-
-var transferIdentificationtionsToDapps = function (action) {
-    var payload, browserViews;
-    var _a;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
-            case 0:
-                payload = action.payload;
-                return [4 /*yield*/, select(getBrowserViewsMain)];
-            case 1:
-                browserViews = _b.sent();
-                if (!browserViews[payload.dappId]) {
-                    console.log('error cannot transfer transaction to not found browser view');
-                    return [2 /*return*/];
+                    });
                 }
-                if (!browserViews[payload.dappId].commEvent) {
-                    console.log('error cannot transfer transaction to browser view (no comm event)');
-                    return [2 /*return*/];
+                else if (data.action.type === IDENTIFY_FROM_SANDBOX) {
+                    identifyFromSandboxSchema
+                        .validate(payloadBeforeValid_1)
+                        .then(function (valid) {
+                        dispatchFromMain({
+                            action: openDappModalAction({
+                                dappId: payloadBeforeValid_1.dappId,
+                                title: 'IDENTIFICATION_MODAL',
+                                text: '',
+                                parameters: payloadBeforeValid_1,
+                                buttons: [],
+                            }),
+                        });
+                        callback(Buffer.from(''));
+                    })
+                        .catch(function (err) {
+                        console.error('A dapp tried to trigger an identification with an invalid schema');
+                        console.error(err);
+                    });
                 }
-                browserViews[payload.dappId].commEvent.reply('message-from-main', updateIdentificationsAction({ identifications: (_a = {}, _a[payload.callId] = payload.identification, _a) }));
-                return [2 /*return*/];
-        }
-    });
-};
-var transferIdentificationtionsToDappsSaga = function () {
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, takeEvery$1(TRANSFER_IDENTIFICATIONS, transferIdentificationtionsToDapps)];
-            case 1:
-                _a.sent();
-                return [2 /*return*/];
+            }
+            catch (err) {
+                console.error('An error occured when checking message-from-dapp-sandboxed');
+                console.error(err);
+            }
         }
     });
 };
@@ -16233,7 +16456,7 @@ var searchToAddress = function (name, chainId) {
 
 var development = !!process.defaultApp;
 var loadOrReloadBrowserView = function (action) {
-    var payload, browserViews, position, preload, view, ua, newUserAgent, previewId, currentPath, newBrowserViews;
+    var payload, browserViews, position, view, ua, newUserAgent, previewId, currentPath, newBrowserViews;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -16247,27 +16470,24 @@ var loadOrReloadBrowserView = function (action) {
                 // reload
                 if (browserViews[payload.resourceId]) {
                     electron.session.fromPartition("persist:" + payload.address).protocol.unregisterProtocol('dappy');
+                    if (browserViews[payload.resourceId].browserView.webContents.isDevToolsOpened()) {
+                        browserViews[payload.resourceId].browserView.webContents.closeDevTools();
+                        browserViews[payload.resourceId].browserView.webContents.forcefullyCrashRenderer();
+                    }
                     action.meta.browserWindow.removeBrowserView(browserViews[payload.resourceId].browserView);
-                    browserViews[payload.resourceId].browserView.destroy();
                 }
                 if (!position) {
                     console.error('No position, cannot create browserView');
                     return [2 /*return*/, undefined];
                 }
-                preload = !!payload.html ? path.join(electron.app.getAppPath(), 'dist/dapp-sandboxed-preload.js') : undefined;
-                if (development) {
-                    preload = !!payload.html ? path.join(electron.app.getAppPath(), 'src/dapp-sandboxed-preload.js') : undefined;
-                }
                 view = new electron.BrowserView({
                     webPreferences: {
-                        // preload only for dapps
-                        preload: preload,
                         devTools: true,
                         disableDialogs: true,
                         partition: "persist:" + payload.address,
                         // sandbox forbids the navigation
                         //sandbox: true,
-                        nodeIntegration: false,
+                        contextIsolation: true,
                     },
                 });
                 // cookies to start with (from storage)
@@ -16276,6 +16496,7 @@ var loadOrReloadBrowserView = function (action) {
                 });
                 // todo, avoid circular ref to "store" (see logs when "npm run build:main")
                 registerDappyProtocol(electron.session.fromPartition("persist:" + payload.address), store.getState);
+                registerInterProcessDappProtocol(electron.session.fromPartition("persist:" + payload.address), store, action.meta.dispatchFromMain);
                 overrideHttpProtocols(electron.session.fromPartition("persist:" + payload.address), store.getState, development, action.meta.dispatchFromMain, false);
                 if (payload.devMode) {
                     view.webContents.openDevTools();
@@ -16319,6 +16540,12 @@ var loadOrReloadBrowserView = function (action) {
                 view.webContents.addListener('new-window', function (e) {
                     e.preventDefault();
                 });
+                // contextMenu.ts
+                /*
+                  IP app will instantly execute window.initContextMenu();
+                  Dapp will wait for DAPP_INITIAL_SETUP and then execute window.initContextMenu();
+                */
+                view.webContents.executeJavaScript("\n  window.initContextMenu = () => { const paste=[\"Paste\",(e,t,o)=>{navigator.clipboard.readText().then(function(e){const t=o.value,n=o.selectionStart;o.value=t.slice(0,n)+e+t.slice(n)}),e.remove()}],copy=[\"Copy\",(e,t,o)=>{navigator.clipboard.writeText(t),e.remove()}];document.addEventListener(\"contextmenu\",e=>{let t=[];const o=window.getSelection()&&window.getSelection().toString();if(o&&(t=[copy]),\"TEXTAREA\"!==e.target.tagName&&\"INPUT\"!==e.target.tagName||(t=t.concat([paste])),0===t.length)return;const n=document.createElement(\"div\");n.className=\"context-menu\",n.style.width=\"160px\",n.style.color=\"#fff\",n.style.backgroundColor=\"rgba(04, 04, 04, 0.8)\",n.style.top=e.clientY-5+\"px\",n.style.left=e.clientX-5+\"px\",n.style.position=\"absolute\",n.style.zIndex=10,n.style.fontSize=\"16px\",n.style.borderRadius=\"2px\",n.style.fontFamily=\"fira\",n.addEventListener(\"mouseleave\",()=>{n.remove()}),t.forEach(t=>{const l=document.createElement(\"div\");l.style.padding=\"6px\",l.style.cursor=\"pointer\",l.style.borderBottom=\"1px solid #aaa\",l.addEventListener(\"mouseenter\",()=>{console.log(\"onmouseenter\"),l.style.backgroundColor=\"rgba(255, 255, 255, 0.1)\",l.style.color=\"#fff\"}),l.addEventListener(\"mouseleave\",()=>{console.log(\"onmouseleave\"),l.style.backgroundColor=\"transparent\",l.style.color=\"#fff\"}),l.innerText=t[0],l.addEventListener(\"click\",()=>t[1](n,o,e.target)),n.appendChild(l)}),document.body.appendChild(n)}); }; window.initContextMenu();\n  ");
                 view.webContents.addListener('page-favicon-updated', function (a, favicons) {
                     if (favicons && favicons[0] && typeof favicons[0] === 'string') {
                         if (favicons[0].startsWith('data:image')) {
@@ -16549,15 +16776,86 @@ var setBrowserViewMutedSaga = function () {
     });
 };
 
+var transferIdentifications = function (action) {
+    var payload, browserViews;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                payload = action.payload;
+                return [4 /*yield*/, select(getBrowserViewsMain)];
+            case 1:
+                browserViews = _a.sent();
+                if (browserViews[payload.dappId] && browserViews[payload.dappId].browserView) {
+                    try {
+                        browserViews[payload.dappId].browserView.webContents.executeJavaScript("\n      if (typeof dappyRChain !== 'undefined') { dappyRChain.requestIdentifications() };\n      ");
+                    }
+                    catch (e) {
+                        console.error('Could not execute javascript and trasfer identification');
+                    }
+                }
+                else {
+                    console.error('Did not find browserView, cannot transfer identification');
+                }
+                return [2 /*return*/, undefined];
+        }
+    });
+};
+var transferIdentificationsSaga = function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, takeEvery$1(TRANSFER_IDENTIFICATIONS, transferIdentifications)];
+            case 1:
+                _a.sent();
+                return [2 /*return*/];
+        }
+    });
+};
+
+var transferTransactions = function (action) {
+    var payload, dappId, browserViews;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                payload = action.payload;
+                dappId = payload.origin.dappId;
+                return [4 /*yield*/, select(getBrowserViewsMain)];
+            case 1:
+                browserViews = _a.sent();
+                if (browserViews[dappId] && browserViews[dappId].browserView) {
+                    try {
+                        browserViews[dappId].browserView.webContents.executeJavaScript("\n      if (typeof dappyRChain !== 'undefined') { dappyRChain.requestTransactions() };\n      ");
+                    }
+                    catch (e) {
+                        console.error('Could not execute javascript and trasfer transactions');
+                    }
+                }
+                else {
+                    console.error('Did not find browserView, cannot transfer transactions');
+                }
+                return [2 /*return*/, undefined];
+        }
+    });
+};
+var transferTransactionsSaga = function () {
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, takeEvery$1(TRANSFER_TRANSACTIONS, transferTransactions)];
+            case 1:
+                _a.sent();
+                return [2 /*return*/];
+        }
+    });
+};
+
 var sagas = function rootSaga() {
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, all([
-                    transferTransactionsToDappsSaga(),
-                    transferIdentificationtionsToDappsSaga(),
                     loadOrReloadBrowserViewSaga(),
                     displayOnlyBrowserViewXSaga(),
                     setBrowserViewMutedSaga(),
+                    transferTransactionsSaga(),
+                    transferIdentificationsSaga(),
                 ])];
             case 1:
                 _a.sent();
@@ -16578,8 +16876,8 @@ var rootSagas = function () {
 };
 var sagaMiddleware = sagaMiddlewareFactory();
 var store = createStore(combineReducers({
-    settings: reducer$2,
-    blockchains: reducer$1,
+    settings: reducer$1,
+    blockchains: reducer$2,
     ipApps: reducer$3,
     browserViews: reducer,
     transactions: reducer$4,
@@ -16587,6 +16885,7 @@ var store = createStore(combineReducers({
 }), applyMiddleware(sagaMiddleware));
 sagaMiddleware.run(rootSagas);
 
+// Modules to control application life and create native browser window
 electron.protocol.registerSchemesAsPrivileged([
     { scheme: 'dappy', privileges: { standard: true, secure: true, bypassCSP: true } },
 ]);
@@ -16594,7 +16893,6 @@ var development$1 = !!process.defaultApp;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 var browserWindow;
-var commEventToRenderer = undefined;
 /*
   MESSAGE FROM BROWSER VIEWS / TABS (dapps and IP apps)
   first message from dapps to get the initial payload
@@ -16636,239 +16934,23 @@ electron.ipcMain.on('hi-from-dapp-sandboxed', function (commEvent, userAgent) {
         return;
     }
 });
-electron.ipcMain.on('copy-to-clipboard', function (event, arg) {
-    electron.clipboard.writeText(arg);
-});
-/*
-  MESSAGE FROM BROWSER WINDOW
-  uniqueEphemeralToken is a token wich is only known by the renderer and
-  main process, the webviews don't know its value
-*/
-/* browser process - main process */
-var uniqueEphemeralToken;
-electron.ipcMain.on('ask-unique-ephemeral-token', function (event, arg) {
-    commEventToRenderer = event;
-    crypto.randomBytes(256, function (err, buf) {
-        uniqueEphemeralToken = buf.toString('hex');
-        commEventToRenderer.reply('ask-unique-ephemeral-token-reply', uniqueEphemeralToken);
-    });
-    // dappy has been openned with a URL
-    if (loadResourceWhenReady) {
-        commEventToRenderer.reply('dispatch-from-main', {
-            type: '[Main] Update load resource when ready',
-            payload: {
-                loadResource: loadResourceWhenReady,
-            },
-        });
-    }
-});
-/*
-  MESSAGE FROM BROWSER WINDOW
-  Dappy query handlers
-*/
-/* browser to node */
-/* browser process - main process */
-electron.ipcMain.on('single-dappy-call', function (event, arg) {
-    if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
-        commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, {
-            success: false,
-            error: { message: 'Wrong ephemeral unique token' },
-        });
-        return;
-    }
-    try {
-        performSingleRequest(arg.body, arg.node)
-            .then(function (a) {
-            commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, a);
-        })
-            .catch(function (err) {
-            commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, err);
-        });
-    }
-    catch (err) {
-        console.log(err);
-        commEventToRenderer.reply('single-dappy-call-reply-' + arg.requestId, { error: { message: err.message } });
-    }
-});
-/*
-  MESSAGE FROM BROWSER WINDOW
-  Dappy query handlers
-*/
-/* browser to network */
-/* browser process - main process */
-electron.ipcMain.on('multi-dappy-call', function (event, arg) {
-    if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
-        commEventToRenderer.reply('multi-dappy-call-reply-' + arg.requestId, {
-            success: false,
-            error: { message: 'Wrong ephemeral unique token' },
-        });
-        return;
-    }
-    var parameters = arg.parameters;
-    if (parameters.multiCallId === EXECUTE_RCHAIN_CRON_JOBS) {
-        parameters.comparer = function (res) {
-            var json = JSON.parse(res);
-            // do not include json.rnodeVersion that might differ
-            return json.data.rchainNetwork + "-" + json.data.lastFinalizedBlockNumber + "-" + json.data.rchainNamesRegistryUri;
-        };
-    }
-    else {
-        parameters.comparer = function (res) { return res; };
-    }
-    var blockchains = getBlockchains$1(store.getState());
-    performMultiRequest(arg.body, parameters, blockchains)
-        .then(function (result) {
-        commEventToRenderer.reply('multi-dappy-call-reply-' + arg.requestId, {
-            success: true,
-            data: result,
-        });
-    })
-        .catch(function (err) {
-        commEventToRenderer.reply('multi-dappy-call-reply-' + arg.requestId, err);
-    });
-});
-// Get predefined dapps
-/* browser process - main process */
-electron.ipcMain.on('get-dapps', function (event, arg) {
-    if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
-        commEventToRenderer.reply('get-dapps-reply-' + arg.requestId, {
-            success: false,
-            error: { message: 'Wrong ephemeral unique token' },
-        });
-        return;
-    }
-    try {
-        var dapps = getDapps$1(electron.app.getAppPath());
-        commEventToRenderer.reply('get-dapps-reply-' + arg.requestId, {
-            success: true,
-            data: JSON.stringify(dapps),
-        });
-    }
-    catch (err) {
-        commEventToRenderer.reply('get-dapps-reply-' + arg.requestId, {
-            success: false,
-            error: { message: err.message },
-        });
-    }
-});
-// Get IP address + cert from hostname
-/* browser process - main process */
-electron.ipcMain.on('get-ip-address-and-cert', function (event, arg) {
-    if (!arg.uniqueEphemeralToken || arg.uniqueEphemeralToken !== uniqueEphemeralToken) {
-        commEventToRenderer.reply('get-ip-address-and-cert-reply-' + arg.requestId, {
-            success: false,
-            error: { message: 'Wrong ephemeral unique token' },
-        });
-        return;
-    }
-    getIpAddressAndCert(arg.parameters.host)
-        .then(function (response) {
-        commEventToRenderer.reply('get-ip-address-and-cert-reply-' + arg.requestId, {
-            success: true,
-            data: response,
-        });
-        return;
-    })
-        .catch(function (err) {
-        commEventToRenderer.reply('get-ip-address-and-cert-reply-' + arg.requestId, {
-            success: false,
-            error: { message: err.message },
-        });
-    });
-});
-var dispatchFromMain = function (a) {
-    if (a.action.type === UPDATE_NODE_READY_STATE) {
-        var payload = a.action.payload;
-        commEventToRenderer.reply('dispatch-from-main', a.action);
-    }
-    else {
-        commEventToRenderer.reply('dispatch-from-main', a.action);
-    }
+var dispatchesFromMainAwaiting = [];
+var getDispatchesFromMainAwaiting = function () {
+    var t = [].concat(dispatchesFromMainAwaiting);
+    dispatchesFromMainAwaiting = [];
+    return t;
 };
-/*
-  Dispatches coming from browser window
-  to MAIN process store
-*/
-/* browser process - main process */
-var benchmarkCronRanOnce = false;
-electron.ipcMain.on('dispatch-in-main', function (event, a) {
-    if (a.uniqueEphemeralToken === uniqueEphemeralToken) {
-        if (a.action.type === LOAD_OR_RELOAD_BROWSER_VIEW) {
-            store.dispatch(__assign(__assign({}, a.action), { meta: { openExternal: openExternal, browserWindow: browserWindow, dispatchFromMain: dispatchFromMain } }));
-        }
-        else if (a.action.type === DESTROY_BROWSER_VIEW) {
-            store.dispatch(__assign(__assign({}, a.action), { meta: { browserWindow: browserWindow } }));
-        }
-        else if (a.action.type === SYNC_BLOCKCHAINS) {
-            store.dispatch(a.action);
-            /*
-              Do not wait the setInterval to run benchmarkCron
-              do it instantly after dispatch
-            */
-            if (benchmarkCronRanOnce === false) {
-                benchmarkCronRanOnce = true;
-                benchmarkCron(store.getState, dispatchFromMain);
-            }
-        }
-        else {
-            store.dispatch(a.action);
-        }
-    }
-});
-/*
-  Commands / jobs coming from browser window
-*/
-electron.ipcMain.on('trigger-command', function (event, arg) {
-    console.log('trigger-command', arg.command);
-    if (arg.uniqueEphemeralToken === uniqueEphemeralToken) {
-        if (arg.command === 'run-ws-cron') {
-            benchmarkCron(store.getState, dispatchFromMain);
-        }
-        if (arg.command === 'download-file') {
-            electron.dialog
-                .showOpenDialog({
-                title: 'Save file',
-                properties: ['openDirectory', 'createDirectory'],
-            })
-                .then(function (a) {
-                if (!a.canceled) {
-                    if (a.filePaths[0]) {
-                        fs.writeFile(path.join(a.filePaths[0], arg.payload.name || 'file'), arg.payload.data, { encoding: 'base64' }, function (b) { });
-                    }
-                    else {
-                        console.error('a.filePaths[0] is not defined ' + a.filePaths[0]);
-                    }
-                }
-            })
-                .catch(function (err) {
-                console.log(err);
-            });
-            /* dialog.showOpenDialogSync(browserWindow, {
-              properties: ['openDirectory'],
-            }); */
-            /* dialog
-              .showSaveDialog(browserWindow, {
-                title: 'Save file',
-              })
-              .then(result => {
-                console.log(result);
-                console.log(result);
-              }); */
-        }
-    }
-});
+var dispatchFromMain = function (a) {
+    dispatchesFromMainAwaiting.push(a.action);
+};
 /*
   Open external link
 */
 var openExternal = function (url) {
     electron.shell.openExternal(url);
 };
-electron.ipcMain.on('open-external', function (event, arg) {
-    if (arg.uniqueEphemeralToken === uniqueEphemeralToken) {
-        openExternal(arg.value);
-    }
-});
 var loadResourceWhenReady = undefined;
+var getLoadResourceWhenReady$1 = function () { return loadResourceWhenReady; };
 var validateAndProcessAddresses = function (addresses) {
     var validDappyAddress = addresses.find(function (a) {
         var withoutProtocol = a.replace('dappy://', '');
@@ -16881,17 +16963,7 @@ var validateAndProcessAddresses = function (addresses) {
             }
             browserWindow.focus();
         }
-        if (commEventToRenderer) {
-            commEventToRenderer.reply('dispatch-from-main', {
-                type: '[Dapps] Load resource',
-                payload: {
-                    address: validDappyAddress.replace('dappy://', ''),
-                },
-            });
-        }
-        else {
-            loadResourceWhenReady = validDappyAddress.replace('dappy://', '');
-        }
+        loadResourceWhenReady = validDappyAddress.replace('dappy://', '');
     }
 };
 validateAndProcessAddresses(process.argv);
@@ -16912,7 +16984,6 @@ function createWindow() {
     setInterval(function () {
         benchmarkCron(store.getState, dispatchFromMain);
     }, WS_RECONNECT_PERIOD);
-    browserViewsMiddleware(store, dispatchFromMain);
     /*
       CAREFUL
       Partition is the cold storage identifier on the OS where dappy is installed,
@@ -16928,14 +16999,12 @@ function createWindow() {
         webPreferences: {
             partition: partition,
             sandbox: true,
-            nodeIntegration: false,
-            preload: development$1
-                ? path.join(electron.app.getAppPath(), 'src/preload.js')
-                : path.join(electron.app.getAppPath(), 'dist/preload.js'),
+            contextIsolation: true,
         },
     });
     registerDappyProtocol(electron.session.fromPartition(partition), store.getState);
     overrideHttpProtocols(electron.session.fromPartition(partition), store.getState, development$1, dispatchFromMain, true);
+    registerInterProcessProtocol(electron.session.fromPartition(partition), store, getLoadResourceWhenReady$1, openExternal, browserWindow, dispatchFromMain, getDispatchesFromMainAwaiting);
     browserWindow.setMenuBarVisibility(false);
     // and load the index.html of the app.
     if (development$1) {
