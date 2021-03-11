@@ -63,6 +63,11 @@ export enum CallStatus {
 export interface TransactionOriginTransfer {
   origin: 'transfer';
 }
+export interface TransactionOriginRChainToken {
+  origin: 'rchain-token';
+  accountName: undefined | string;
+  operation: 'deploy-box' | 'deploy' | 'purchase' | 'update-purse-data';
+}
 export interface TransactionOriginDapp {
   origin: 'dapp';
   dappId: string;
@@ -84,7 +89,8 @@ export type TransactionOrigin =
   | TransactionOriginTransfer
   | TransactionOriginRecord
   | TransactionOriginDeploy
-  | TransactionOriginRholang;
+  | TransactionOriginRholang
+  | TransactionOriginRChainToken;
 
 export type TransactionValue = string | undefined | { address: string } | { message: string };
 export interface TransactionState {

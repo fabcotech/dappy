@@ -22,6 +22,19 @@
   font-weight: 700;
 }
 
+@font-face {
+  font-family: rc;
+  src: url("fonts/RobotoCondensed-BoldItalic.ttf");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: rc;
+  src: url("fonts/RobotoCondensed-Regular.ttf");
+  font-weight: 400;
+}
+
 body {
   font-family: fira;
   font-weight: 300;

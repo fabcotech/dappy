@@ -1,7 +1,7 @@
 import { takeEvery, put, select } from 'redux-saga/effects';
 import zlib from 'zlib';
 import * as rchainToolkit from 'rchain-toolkit';
-import { readBagOrTokenDataTerm, mainTerm, createTokensTerm } from 'rchain-token-files';
+import { readPursesDataTerm, mainTerm, createPursesTerm } from 'rchain-token';
 
 import { Blockchain, TransactionStatus, BlockchainNode, MultiCallResult, MultiCallError } from '../../../models';
 import * as fromBlockchain from '..';

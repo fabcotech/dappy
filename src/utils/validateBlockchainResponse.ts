@@ -12,17 +12,17 @@ const schema = {
       items: {
         type: 'object',
         properties: {
-          ExprString: {
+          ExprMap: {
             type: 'object',
             properties: {
               data: {
-                type: 'string',
+                type: 'object',
               },
             },
             required: ['data'],
           },
         },
-        required: ['ExprString'],
+        required: ['ExprMap'],
       },
     },
     block: {

@@ -20,7 +20,6 @@ export const recordFromNetworkSchema = yup
     name: yup.string().required(),
     publicKey: yup.string().required(),
     address: yup.string(),
-    nonce: yup.string().required(),
     servers: yup.array(recordServerSchema),
     badges: yup.object(),
   })
@@ -76,7 +75,6 @@ export const ipRecordSchema = yup
       .string()
       .matches(/blockchain|user/)
       .required(),
-    nonce: yup.string(),
   })
   .required()
   .noUnknown(true)
@@ -95,7 +93,6 @@ export const dappRecordSchema = yup
       .string()
       .matches(/blockchain|user/)
       .required(),
-    nonce: yup.string(),
   })
   .required()
   .noUnknown(true)
@@ -114,7 +111,6 @@ export const recordSchema = yup
       .string()
       .matches(/blockchain|user/)
       .required(),
-    nonce: yup.string(),
   })
   .required()
   .noUnknown(true)

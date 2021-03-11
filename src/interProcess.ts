@@ -11,9 +11,11 @@ export const interProcess = (store: Store) => {
     interProcess.open('POST', 'interprocess://get-dispatches-from-main-awaiting');
     interProcess.setRequestHeader(
       'Data',
-      JSON.stringify({
-        uniqueEphemeralToken: uniqueEphemeralToken,
-      })
+      encodeURI(
+        JSON.stringify({
+          uniqueEphemeralToken: uniqueEphemeralToken,
+        })
+      )
     );
     interProcess.send();
     interProcess.onload = (a) => {
@@ -59,10 +61,12 @@ export const interProcess = (store: Store) => {
     interProcess.open('POST', 'interprocess://copy-to-clipboard');
     interProcess.setRequestHeader(
       'Data',
-      JSON.stringify({
-        uniqueEphemeralToken: uniqueEphemeralToken,
-        value: a,
-      })
+      encodeURI(
+        JSON.stringify({
+          uniqueEphemeralToken: uniqueEphemeralToken,
+          value: a,
+        })
+      )
     );
     interProcess.send();
   };
@@ -76,10 +80,12 @@ export const interProcess = (store: Store) => {
     interProcess.open('POST', 'interprocess://dispatch-in-main');
     interProcess.setRequestHeader(
       'Data',
-      JSON.stringify({
-        uniqueEphemeralToken: uniqueEphemeralToken,
-        action: action,
-      })
+      encodeURI(
+        JSON.stringify({
+          uniqueEphemeralToken: uniqueEphemeralToken,
+          action: action,
+        })
+      )
     );
     interProcess.send();
   };
@@ -89,11 +95,13 @@ export const interProcess = (store: Store) => {
     interProcess.open('POST', 'interprocess://trigger-command');
     interProcess.setRequestHeader(
       'Data',
-      JSON.stringify({
-        uniqueEphemeralToken: uniqueEphemeralToken,
-        command: command,
-        payload: payload,
-      })
+      encodeURI(
+        JSON.stringify({
+          uniqueEphemeralToken: uniqueEphemeralToken,
+          command: command,
+          payload: payload,
+        })
+      )
     );
     interProcess.send();
   };
@@ -103,10 +111,12 @@ export const interProcess = (store: Store) => {
     interProcess.open('POST', 'interprocess://open-external');
     interProcess.setRequestHeader(
       'Data',
-      JSON.stringify({
-        uniqueEphemeralToken: uniqueEphemeralToken,
-        value: url,
-      })
+      encodeURI(
+        JSON.stringify({
+          uniqueEphemeralToken: uniqueEphemeralToken,
+          value: url,
+        })
+      )
     );
     interProcess.send();
   };
@@ -117,11 +127,13 @@ export const interProcess = (store: Store) => {
       interProcess.open('POST', 'interprocess://single-dappy-call');
       interProcess.setRequestHeader(
         'Data',
-        JSON.stringify({
-          uniqueEphemeralToken: uniqueEphemeralToken,
-          body: body,
-          node: node,
-        })
+        encodeURI(
+          JSON.stringify({
+            uniqueEphemeralToken: uniqueEphemeralToken,
+            body: body,
+            node: node,
+          })
+        )
       );
       interProcess.send();
       interProcess.onload = (a) => {
@@ -145,11 +157,13 @@ export const interProcess = (store: Store) => {
       interProcess.open('POST', 'interprocess://multi-dappy-call');
       interProcess.setRequestHeader(
         'Data',
-        JSON.stringify({
-          uniqueEphemeralToken: uniqueEphemeralToken,
-          parameters: parameters,
-          body: body,
-        })
+        encodeURI(
+          JSON.stringify({
+            uniqueEphemeralToken: uniqueEphemeralToken,
+            parameters: parameters,
+            body: body,
+          })
+        )
       );
       interProcess.send();
       interProcess.onload = (a) => {
@@ -173,10 +187,12 @@ export const interProcess = (store: Store) => {
       interProcess.open('POST', 'interprocess://get-ip-address-and-cert');
       interProcess.setRequestHeader(
         'Data',
-        JSON.stringify({
-          uniqueEphemeralToken: uniqueEphemeralToken,
-          parameters: parameters,
-        })
+        encodeURI(
+          JSON.stringify({
+            uniqueEphemeralToken: uniqueEphemeralToken,
+            parameters: parameters,
+          })
+        )
       );
       interProcess.send();
       interProcess.onload = (a) => {
@@ -200,9 +216,11 @@ export const interProcess = (store: Store) => {
       interProcess.open('POST', 'interprocess://get-dapps');
       interProcess.setRequestHeader(
         'Data',
-        JSON.stringify({
-          uniqueEphemeralToken: uniqueEphemeralToken,
-        })
+        encodeURI(
+          JSON.stringify({
+            uniqueEphemeralToken: uniqueEphemeralToken,
+          })
+        )
       );
       interProcess.send();
       interProcess.onload = (a) => {

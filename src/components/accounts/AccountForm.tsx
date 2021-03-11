@@ -109,6 +109,7 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
                 encrypted: encrypted,
                 main: false,
                 balance: 0,
+                boxes: [],
               });
               this.error = undefined;
             } catch (err) {

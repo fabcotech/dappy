@@ -1,5 +1,5 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
-import { readBagOrTokenDataTerm } from 'rchain-token-files';
+import { readPursesDataTerm } from 'rchain-token';
 
 import { multiCall } from '../../../utils/wsUtils';
 import { MultiCallResult } from '../../../models/WebSocket';
@@ -268,7 +268,6 @@ const loadResource = function* (action: Action) {
       );
       return;
     } catch (err) {
-      console.log(err);
       try {
         yield dappRecordSchema.validate(record);
       } catch (err2) {
@@ -310,11 +309,9 @@ const loadResource = function* (action: Action) {
       {
         type: 'api/explore-deploy',
         body: {
-          term: readBagOrTokenDataTerm(
-            registryUri.split('.')[0],
-            'bags',
-            searchSplitted.search.split('.')[1] || 'index'
-          ),
+          term: readPursesDataTerm(registryUri.split('.')[0], {
+            pursesIds: [searchSplitted.search.split('.')[1] || 'index'],
+          }),
         },
       },
       {
@@ -352,15 +349,20 @@ const loadResource = function* (action: Action) {
     return;
   }
 
-  const dataFromBlockchainParsed: { data: string } = JSON.parse(dataFromBlockchain);
   if (verifyError) {
     yield put(fromDapps.loadResourceFailedAction({ tabId: tabId, search: payload.address, error: verifyError }));
     return;
   }
 
+  const dataFromBlockchainParsed: { data: object } = JSON.parse(dataFromBlockchain);
   let verifiedDappyFile: DappyFile | undefined = undefined;
   try {
-    verifiedDappyFile = yield validateAndReturnFile(dataFromBlockchainParsed, publicKey, checkSignature);
+    verifiedDappyFile = yield validateAndReturnFile(
+      dataFromBlockchainParsed,
+      searchSplitted.search.split('.')[1] || 'index',
+      publicKey,
+      checkSignature
+    );
   } catch (e) {
     let error;
     try {

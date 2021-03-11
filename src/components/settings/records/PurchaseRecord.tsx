@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { purchaseTokensTerm } from 'rchain-token-files';
+import { purchaseTerm } from 'rchain-token';
 
 import './RecordsForm.scss';
 import {
@@ -30,6 +30,7 @@ interface PurchaseRecordProps {
 const defaultState = {
   privatekey: '',
   publickey: '',
+  box: '',
   phloLimit: 0,
   settingUpIpServers: false,
   partialRecord: undefined,
@@ -46,6 +47,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
   state: {
     privatekey: string;
     publickey: string;
+    box: string | undefined;
     phloLimit: number;
     settingUpIpServers: boolean;
     partialRecord: PartialRecord | undefined;
@@ -53,7 +55,12 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
 
   transactionId = '';
 
-  onFilledTransactionData = (t: { privatekey: string; publickey: string; phloLimit: number }) => {
+  onFilledTransactionData = (t: {
+    privatekey: string;
+    publickey: string;
+    phloLimit: number;
+    box: string | undefined;
+  }) => {
     this.setState(t);
     if (this.setTouched) this.setTouched();
   };
@@ -68,13 +75,13 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
     const id = blockchainUtils.getUniqueTransactionId();
     this.transactionId = id;
 
-    const term = purchaseTokensTerm((this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesRegistryUri, {
-      publicKey: this.state.publickey,
-      newBagId: partialRecord.name,
-      bagId: '0',
+    const term = purchaseTerm((this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesRegistryUri, {
+      toBoxRegistryUri: this.state.box,
+      newId: partialRecord.name,
+      purseId: '0',
       quantity: 1,
       price: (this.props.namesBlockchainInfos as RChainInfos).info.namePrice,
-      bagNonce: generateNonce(),
+      publicKey: this.state.publickey,
       data: Buffer.from(
         JSON.stringify({
           address: partialRecord.address,
@@ -162,7 +169,14 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
         <h3 className="subtitle is-4">{t('purchase a name')}</h3>
         <p className="smaller-text">{t('purchase name paragraph short')} </p>
         <br />
-        <TransactionForm accounts={this.props.accounts} filledTransactionData={this.onFilledTransactionData} />
+        <TransactionForm
+          chooseBox={true}
+          accounts={this.props.accounts}
+          filledTransactionData={this.onFilledTransactionData}
+        />
+        {this.state.privatekey && !this.state.box && (
+          <p className="text-danger pt10">You must have a token box to purchase a name (NFT)</p>
+        )}
         <br />
         <div className="message is-danger">
           <div className="message-body">{t('dappy beta warning')}</div>
@@ -182,7 +196,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
               <button
                 type="button"
                 className="button is-link"
-                disabled={!this.state.partialRecord || !this.state.privatekey}
+                disabled={!this.state.partialRecord || !this.state.privatekey || !this.state.box}
                 onClick={(a) => {
                   this.onSubmit();
                 }}>

@@ -8,7 +8,8 @@ import { validateDpy, validateFile } from '../store/decoders/Dpy';
 const ec = new elliptic.ec('secp256k1');
 
 export const validateAndReturnFile = async (
-  dataFromBlockchainParsed: { data: string },
+  dataFromBlockchainParsed: { data: object },
+  purseId: string,
   publicKeyFromRequest: string,
   checkSignature: boolean
 ): Promise<DappyFile> => {
@@ -32,7 +33,7 @@ export const validateAndReturnFile = async (
 
   try {
     // todo move this function verifyAndReturnFile in main process ?
-    const dataAtNameBuffer = Buffer.from(parsed.expr[0].ExprString.data, 'base64');
+    const dataAtNameBuffer = Buffer.from(parsed.expr[0].ExprMap.data[purseId].ExprString.data, 'base64');
     const unzippedBuffer = zlib.gunzipSync(dataAtNameBuffer);
     file = unzippedBuffer.toString('utf-8');
   } catch (err) {

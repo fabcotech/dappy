@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { updateBagDataTerm } from 'rchain-token-files';
+import { updatePurseDataTerm } from 'rchain-token';
 import * as rchainToolkit from 'rchain-toolkit';
 
 import { generateNonce } from '../../../utils/generateNonce';

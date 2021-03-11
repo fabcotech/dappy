@@ -30,6 +30,9 @@ export const UPDATE_ACCOUNTS_BALANCE = '[Settings] Update accounts balance';
 export const UPDATE_ACCOUNTS_BALANCE_FAILED = '[Settings] Update accounts balance failed';
 export const EXECUTE_ACCOUNTS_CRON_JOBS = '[Settings] Execute accounts cron jobs';
 
+export const SAVE_ACCOUNT_TOKEN_BOX = '[Settings] Save account token box';
+export const REMOVE_ACCOUNT_TOKEN_BOX = '[Settings] Remove account token box';
+
 export interface Action {
   type: string;
   payload?: any;
@@ -214,4 +217,18 @@ export const updateAccountBalanceFailedAction = (values: UpdateAccountBalanceFai
 
 export const executeAccountsCronJobsAction = () => ({
   type: EXECUTE_ACCOUNTS_CRON_JOBS,
+});
+
+export interface SaveAccountTokenBoxPayload {
+  accountName: string;
+  registryUri: string;
+}
+export const saveAccountTokenBoxAction = (values: SaveAccountTokenBoxPayload) => ({
+  type: SAVE_ACCOUNT_TOKEN_BOX,
+  payload: values,
+});
+
+export const removeAccountTokenBoxAction = (values: SaveAccountTokenBoxPayload) => ({
+  type: REMOVE_ACCOUNT_TOKEN_BOX,
+  payload: values,
 });

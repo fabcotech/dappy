@@ -54,7 +54,7 @@ const sendRChainTransaction = function* (action: Action) {
 
   const node = rchainBlockchains[payload.blockchainId].nodes.find((n) => n.readyState === 1);
 
-  let previewPrivateName = ['record', 'dapp'].includes(payload.origin.origin);
+  let previewPrivateName = ['record', 'dapp', 'rchain-token'].includes(payload.origin.origin);
   let unforgeableName = '';
   if (previewPrivateName) {
     try {
@@ -105,6 +105,8 @@ const sendRChainTransaction = function* (action: Action) {
       if (payload.origin.origin === 'transfer') {
         message =
           'The transaction has been successfully sent to the network. Your balance should update after few minutes.';
+      } else if (payload.origin.origin === 'rchain-token' && payload.origin.operation === 'deploy-box') {
+        message = 'Box has been deployed. Please do not quit, your account should update after few minutes.';
       }
       yield put(
         fromMain.openModalAction({
@@ -225,6 +227,32 @@ const sendRChainTransaction = function* (action: Action) {
             value: jsValue,
           })
         );
+      } else if (payload.origin.origin === 'rchain-token') {
+        if (jsValue.status === 'completed') {
+          if (payload.origin.accountName && payload.origin.operation === 'deploy-box') {
+            store.dispatch(
+              fromSettings.saveAccountTokenBoxAction({
+                accountName: payload.origin.accountName,
+                registryUri: jsValue.registryUri.replace('rho:id:', '') as string,
+              })
+            );
+          }
+          store.dispatch(
+            fromBlockchain.updateRChainTransactionStatusAction({
+              id: payload.id,
+              status: TransactionStatus.Completed,
+              value: { ...jsValue, registryUri: jsValue.registryUri.replace('rho:id:', '') },
+            })
+          );
+        } else {
+          store.dispatch(
+            fromBlockchain.updateRChainTransactionStatusAction({
+              id: payload.id,
+              status: TransactionStatus.Failed,
+              value: jsValue.message,
+            })
+          );
+        }
       }
     }
   } catch (err) {

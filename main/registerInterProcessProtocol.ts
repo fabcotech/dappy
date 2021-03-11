@@ -34,15 +34,14 @@ export const registerInterProcessProtocol = (
         uniqueEphemeralTokenAskedOnce = true;
         return crypto.randomBytes(64, (err, buf) => {
           uniqueEphemeralToken = buf.toString('hex');
-          console.log(uniqueEphemeralToken),
-            callback(
-              Buffer.from(
-                JSON.stringify({
-                  uniqueEphemeralToken: uniqueEphemeralToken,
-                  loadResourceWhenReady: getLoadResourceWhenReady(),
-                })
-              )
-            );
+          callback(
+            Buffer.from(
+              JSON.stringify({
+                uniqueEphemeralToken: uniqueEphemeralToken,
+                loadResourceWhenReady: getLoadResourceWhenReady(),
+              })
+            )
+          );
         });
       } else {
         callback(
@@ -58,7 +57,7 @@ export const registerInterProcessProtocol = (
 
     let uniqueEphemeralTokenFromrequest = '';
     try {
-      uniqueEphemeralTokenFromrequest = JSON.parse(request.headers['Data']).uniqueEphemeralToken;
+      uniqueEphemeralTokenFromrequest = JSON.parse(decodeURI(request.headers['Data'])).uniqueEphemeralToken;
       if (uniqueEphemeralToken !== uniqueEphemeralTokenFromrequest) {
         throw new Error();
       }
@@ -72,7 +71,7 @@ export const registerInterProcessProtocol = (
     if (request.url === 'interprocess://get-ip-address-and-cert') {
       let host = '';
       try {
-        host = JSON.parse(request.headers['Data']).parameters.host;
+        host = JSON.parse(decodeURI(request.headers['Data'])).parameters.host;
       } catch (e) {}
 
       getIpAddressAndCert(host)
@@ -102,7 +101,7 @@ export const registerInterProcessProtocol = (
     /* browser to node */
     if (request.url === 'interprocess://multi-dappy-call') {
       try {
-        const data = JSON.parse(request.headers['Data']);
+        const data = JSON.parse(decodeURI(request.headers['Data']));
         const parameters: MultiCallParameters = data.parameters;
         const body: MultiCallBody = data.body;
 
@@ -139,7 +138,7 @@ export const registerInterProcessProtocol = (
     /* browser to node */
     if (request.url === 'interprocess://single-dappy-call') {
       try {
-        const data = JSON.parse(request.headers['Data']);
+        const data = JSON.parse(decodeURI(request.headers['Data']));
         const node: BlockchainNode = data.node;
         const body: MultiCallBody = data.body;
         performSingleRequest(body, node)
@@ -157,7 +156,7 @@ export const registerInterProcessProtocol = (
 
     if (request.url === 'interprocess://dispatch-in-main') {
       try {
-        const data = JSON.parse(request.headers['Data']);
+        const data = JSON.parse(decodeURI(request.headers['Data']));
         const action: any = data.action;
         if (action.type === fromMainBrowserViews.LOAD_OR_RELOAD_BROWSER_VIEW) {
           store.dispatch({
@@ -187,7 +186,7 @@ export const registerInterProcessProtocol = (
 
     if (request.url === 'interprocess://open-external') {
       try {
-        const data = JSON.parse(request.headers['Data']);
+        const data = JSON.parse(decodeURI(request.headers['Data']));
         const value: any = data.value;
         openExternal(value);
       } catch (err) {
@@ -198,7 +197,7 @@ export const registerInterProcessProtocol = (
 
     if (request.url === 'interprocess://copy-to-clipboard') {
       try {
-        const data = JSON.parse(request.headers['Data']);
+        const data = JSON.parse(decodeURI(request.headers['Data']));
         const value: any = data.value;
         clipboard.writeText(value);
       } catch (err) {
@@ -232,7 +231,7 @@ export const registerInterProcessProtocol = (
 
     if (request.url === 'interprocess://trigger-command') {
       try {
-        const data = JSON.parse(request.headers['Data']);
+        const data = JSON.parse(decodeURI(request.headers['Data']));
         const command: any = data.command;
         const payload: any = data.payload;
 

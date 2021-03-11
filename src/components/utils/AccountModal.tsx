@@ -109,6 +109,13 @@ export class AccountModalComponent extends React.Component<AccountModalComponent
                       <label className="label">{t('address')}</label>
                       <div className="control">
                         <p className="private-or-public-key">{account.address}</p>
+                        <a
+                          type="button"
+                          className="button is-white is-small"
+                          onClick={() => window.copyToClipboard(account.address)}>
+                          copy address
+                          <i className="fa fa-copy fa-after"></i>
+                        </a>
                       </div>
                     </div>
 
@@ -116,6 +123,13 @@ export class AccountModalComponent extends React.Component<AccountModalComponent
                       <label className="label">{t('public key')}</label>
                       <div className="control">
                         <p className="private-or-public-key">{account.publicKey}</p>
+                        <a
+                          type="button"
+                          className="button is-white is-small"
+                          onClick={() => window.copyToClipboard(account.publicKey)}>
+                          copy public key
+                          <i className="fa fa-copy fa-after"></i>
+                        </a>
                       </div>
                     </div>
 

@@ -16,12 +16,14 @@ import { PrivateKeyWarning } from '.';
 // Account selection
 
 interface AccountSelectComponentProps {
+  chooseBox?: boolean;
   accounts: { [accountName: string]: Account };
-  updatePrivateKey: (t: { privatekey: string | undefined }) => void;
+  updatePrivateKey: (t: { privatekey: string | undefined; box: string | undefined }) => void;
   usePrivateKey: () => void;
 }
 interface AccountSelectComponentState {
   passwordError: string | undefined;
+  boxFound: string | undefined;
   passwordSuccess: boolean;
 }
 export class AccountSelectComponent extends React.Component<AccountSelectComponentProps, AccountSelectComponentState> {
@@ -30,6 +32,7 @@ export class AccountSelectComponent extends React.Component<AccountSelectCompone
     this.state = {
       passwordError: undefined,
       passwordSuccess: false,
+      boxFound: undefined,
     };
   }
 
@@ -47,16 +50,18 @@ export class AccountSelectComponent extends React.Component<AccountSelectCompone
           const password = accountUtils.passwordFromStringToBytes(data.password);
           const decrypted = accountUtils.decrypt(data.account.encrypted, password);
           this.setState({
+            boxFound: data.account.boxes[0],
             passwordSuccess: true,
             passwordError: undefined,
           });
-          this.props.updatePrivateKey({ privatekey: decrypted });
+          this.props.updatePrivateKey({ privatekey: decrypted, box: data.account.boxes[0] });
         } catch (err) {
           this.setState({
+            boxFound: undefined,
             passwordError: t('wrong password'),
             passwordSuccess: false,
           });
-          this.props.updatePrivateKey({ privatekey: undefined });
+          this.props.updatePrivateKey({ privatekey: undefined, box: undefined });
         }
       },
     });
@@ -129,6 +134,19 @@ export class AccountSelectComponent extends React.Component<AccountSelectCompone
                   </div>
                 </div>
               </div>
+              {this.state.passwordSuccess && this.props.chooseBox ? (
+                <div className="field is-horizontal">
+                  <label className="label">Box</label>
+
+                  {this.state.boxFound ? (
+                    <div className="control">
+                      <span className="tag is-light">{this.state.boxFound}</span>
+                    </div>
+                  ) : (
+                    <p className="">Box not found</p>
+                  )}
+                </div>
+              ) : undefined}
               {touched.account && errors.account && <p className="text-danger">{(errors as any).privatekey}</p>}
 
               {values.account ? (
@@ -163,10 +181,16 @@ export class AccountSelectComponent extends React.Component<AccountSelectCompone
 
 interface TransactionFormProps {
   accounts?: { [accountName: string]: Account };
+  chooseBox?: boolean;
   publicKey?: string;
   phloLimit?: number;
   address?: string;
-  filledTransactionData: (t: { privatekey: string; publickey: string; phloLimit: number }) => void;
+  filledTransactionData: (t: {
+    privatekey: string;
+    publickey: string;
+    phloLimit: number;
+    box: string | undefined;
+  }) => void;
 }
 interface TransactionFormState {
   atLeastOneAccount: boolean;
@@ -198,6 +222,7 @@ export class TransactionForm extends React.Component<TransactionFormProps, Trans
         onSubmit={() => undefined}
         initialValues={{
           privatekey: '',
+          box: '',
           phloLimit: this.props.phloLimit || DEFAULT_PHLO_LIMIT,
         }}
         validate={(values) => {
@@ -205,6 +230,7 @@ export class TransactionForm extends React.Component<TransactionFormProps, Trans
             name?: string;
             privatekey?: string;
             phloLimit?: string;
+            box?: string;
           } = {};
 
           if (!values.privatekey) {
@@ -244,12 +270,14 @@ export class TransactionForm extends React.Component<TransactionFormProps, Trans
               publickey: this.publickey,
               privatekey: values.privatekey,
               phloLimit: values.phloLimit,
+              box: values.box,
             });
           } else {
             this.props.filledTransactionData({
               publickey: '',
               privatekey: '',
               phloLimit: 0,
+              box: undefined,
             });
           }
 
@@ -286,13 +314,18 @@ export class TransactionForm extends React.Component<TransactionFormProps, Trans
               ) : undefined}
               {this.state.atLeastOneAccount && !this.state.usePrivateKey ? (
                 <AccountSelectComponent
+                  chooseBox={this.props.chooseBox}
                   usePrivateKey={() => {
                     setFieldValue('privatekey', '');
+                    setFieldValue('box', undefined);
                     this.setState({
                       usePrivateKey: true,
                     });
                   }}
-                  updatePrivateKey={(a) => setFieldValue('privatekey', a.privatekey)}
+                  updatePrivateKey={(a) => {
+                    setFieldValue('privatekey', a.privatekey);
+                    setFieldValue('box', a.box);
+                  }}
                   accounts={this.props.accounts as { [accountName: string]: Account }}
                 />
               ) : undefined}

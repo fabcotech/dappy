@@ -15,6 +15,7 @@ export const accountSchema = yup
       .string()
       .matches(/rchain|/)
       .required(),
+    boxes: yup.array().of(yup.string().required()),
   })
   .required()
   .noUnknown(true)
@@ -43,7 +44,7 @@ export const validateAccounts = (accounts: any): Promise<Account[]> => {
       .then(() => {
         resolve(accounts as Account[]);
       })
-      .catch(e => {
+      .catch((e) => {
         reject(e);
       });
   });

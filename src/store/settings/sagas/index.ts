@@ -9,6 +9,8 @@ import { updateAccountSaga } from './updateAccountSaga';
 import { updateBlockchainsCompletedSaga } from './updateBlockchainsCompleted';
 import { updateSettingsCompletedSaga } from './updateSettingsCompleted';
 import { executeAccountsCronJobsSaga } from './executeAccountsCronJobs';
+import { saveAccountTokenBoxSaga } from './saveAccountTokenBox';
+import { removeAccountTokenBoxSaga } from './removeAccountTokenBox';
 
 export const sagas = function* rootSaga() {
   yield all([
@@ -21,5 +23,7 @@ export const sagas = function* rootSaga() {
     updateBlockchainsCompletedSaga(),
     updateSettingsCompletedSaga(),
     executeAccountsCronJobsSaga(),
+    saveAccountTokenBoxSaga(),
+    removeAccountTokenBoxSaga(),
   ]);
 };

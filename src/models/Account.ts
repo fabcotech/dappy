@@ -6,4 +6,5 @@ export interface Account {
   encrypted: string;
   main: boolean;
   balance: number;
+  boxes: string[];
 }

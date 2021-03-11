@@ -4,9 +4,9 @@
   }
   .account {
     display: grid;
-    grid-template-columns: 160px 200px;
-    grid-template-rows: 70px 110px;
-    width: 380px;
+    grid-template-columns: 160px 220px;
+    grid-template-rows: 40px 130px auto;
+    width: 400px;
     padding: 10px;
     .left {
       grid-row: 1;
@@ -32,11 +32,8 @@
       flex-direction: column;
       justify-content: flex-end;
       align-items: flex-end;
-      .is-light {
-        margin-bottom: 5px;
-      }
       & > button {
-        margin-bottom: 5px;
+        margin-bottom: 10px;
         width: 130px;
       }
     }
@@ -70,6 +67,30 @@
       }
       .phlo {
         font-size: 0.8rem;
+      }
+    }
+    .boxes {
+      grid-row: 3;
+      grid-column-start: 1;
+      grid-column-end: 3;
+      span.token-boxes {
+        font-weight: 600;
+        display: block;
+      }
+      & > button {
+        display: block;
+      }
+      .check-box {
+        display: flex;
+        align-items: center;
+        .text {
+          max-width: 200px;
+          text-overflow: ellipsis;
+          overflow: hidden;
+        } 
+      }
+      .check-box:last-of-type {
+        margin-bottom: 10px;
       }
     }
   }

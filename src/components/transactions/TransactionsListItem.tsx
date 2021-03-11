@@ -26,6 +26,21 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
         </a>
       </span>
     );
+  } else if (
+    props.transactionState.origin.origin === 'rchain-token' &&
+    props.transactionState.origin.operation === 'deploy-box' &&
+    props.transactionState.status === 'completed' &&
+    props.transactionState.value &&
+    props.transactionState.value.hasOwnProperty('registryUri')
+  ) {
+    Value = (
+      <span>
+        {`Box address is ${props.transactionState.value.registryUri} `}
+        <a type="button" onClick={() => window.copyToClipboard(props.transactionState.value.registryUri)}>
+          copy address
+        </a>
+      </span>
+    );
   } else {
     Value = <span>{JSON.stringify(props.transactionState.value)}</span>;
   }
@@ -37,6 +52,9 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
       <th className="origin">
         {props.transactionState.origin.origin === 'deploy' ? 'deploy' : undefined}
         {props.transactionState.origin.origin === 'rholang' ? 'rholang' : undefined}
+        {props.transactionState.origin.origin === 'rchain-token'
+          ? `rchain-token ${props.transactionState.origin.operation}`
+          : undefined}
         {props.transactionState.origin.origin === 'dapp'
           ? 'dapp ' + (props.transactionState.origin as TransactionOriginDapp).dappTitle
           : undefined}

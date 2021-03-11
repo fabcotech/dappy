@@ -446,7 +446,15 @@ dbReq.onsuccess = event => {
   var recordsStore = recordsTx.objectStore('records');
   const requestRecords = recordsStore.getAll();
   requestRecords.onsuccess = e => {
-    const records = requestRecords.result;
+    let records = requestRecords.result;
+    records = records.map(r => {
+      if (r.nonce) {
+        const newR = { ...r };
+        delete newR.nonce;
+        return newR;
+      }
+      return r;
+    })
     validateRecords(records)
       .then(() => {
         asyncActionsOver += 1;
@@ -474,7 +482,13 @@ dbReq.onsuccess = event => {
   var accountsStore = accountsTx.objectStore('accounts');
   const requestAccounts = accountsStore.getAll();
   requestAccounts.onsuccess = e => {
-    const accounts = requestAccounts.result;
+    let accounts = requestAccounts.result;
+    accounts = accounts.map(a => {
+      return {
+        ...a,
+        boxes: a.boxes || []
+      }
+    });
 
     validateAccounts(accounts)
       .then(() => {
@@ -487,6 +501,7 @@ dbReq.onsuccess = event => {
         dispatchInitActions();
       })
       .catch(err => {
+        console.log(err);
         asyncActionsOver += 1;
         store.dispatch(
           fromMain.saveErrorAction({

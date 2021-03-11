@@ -25,7 +25,7 @@ export const httpBrowserToNode = (data: { [key: string]: any }, node: Blockchain
           // cert does not have to be signed by CA (self-signed)
           rejectUnauthorized: false,
           // only origin user can have invalid cert
-          cert: node.cert ? decodeURI(node.cert) : (node.origin === 'user' ? undefined : 'INVALIDCERT'),
+          cert: node.cert ? decodeURI(node.cert) : node.origin === 'user' ? undefined : 'INVALIDCERT',
           ca: [],
         },
         (res) => {

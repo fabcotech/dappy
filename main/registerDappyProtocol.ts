@@ -1,6 +1,6 @@
 import { Session } from 'electron';
 import zlib from 'zlib';
-import { readBagOrTokenDataTerm, read } from 'rchain-token-files';
+import { readPursesDataTerm, readTerm } from 'rchain-token';
 
 import { performMultiRequest } from './performMultiRequest';
 import * as fromSettings from './store/settings';
@@ -15,11 +15,11 @@ import { validateSearchWithProtocol, validateShortcutSearchWithProtocol } from '
 const readDataorBagData = (registryUri: string, fileId: string) => {
   // read bag data if fileId
   if (fileId) {
-    return readBagOrTokenDataTerm(registryUri, 'bags', fileId);
+    return readPursesDataTerm(registryUri, { pursesIds: [fileId] });
   }
 
   // read contract values { registryUri: ..., nonce: ...} if no file ID
-  return read(registryUri);
+  return readTerm(registryUri);
 };
 
 export const registerDappyProtocol = (session: Session, getState: () => void) => {

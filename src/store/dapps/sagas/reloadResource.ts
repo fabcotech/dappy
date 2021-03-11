@@ -1,5 +1,5 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
-import { readBagOrTokenDataTerm } from 'rchain-token-files';
+import { readPursesDataTerm } from 'rchain-token';
 
 import { multiCall } from '../../../utils/wsUtils';
 import * as fromMain from '../../main';
@@ -252,11 +252,9 @@ const reloadResource = function* (action: Action) {
       {
         type: 'api/explore-deploy',
         body: {
-          term: readBagOrTokenDataTerm(
-            registryUri.split('.')[0],
-            'bags',
-            searchSplitted.search.split('.')[1] || 'index'
-          ),
+          term: readPursesDataTerm(registryUri.split('.')[0], {
+            pursesIds: [searchSplitted.search.split('.')[1] || 'index'],
+          }),
         },
       },
       {
@@ -295,7 +293,7 @@ const reloadResource = function* (action: Action) {
     return;
   }
 
-  const dataFromBlockchainParsed: { data: string } = JSON.parse(dataFromBlockchain);
+  const dataFromBlockchainParsed: { data: object } = JSON.parse(dataFromBlockchain);
 
   if (verifyError) {
     yield put(fromDapps.reloadResourceFailedAction({ tabId: payload.tabId, search: search, error: verifyError }));
@@ -304,7 +302,12 @@ const reloadResource = function* (action: Action) {
 
   let verifiedDappyFile: DappyFile | null = null;
   try {
-    verifiedDappyFile = yield validateAndReturnFile(dataFromBlockchainParsed, publicKey, checkSignature);
+    verifiedDappyFile = yield validateAndReturnFile(
+      dataFromBlockchainParsed,
+      searchSplitted.search.split('.')[1] || 'index',
+      publicKey,
+      checkSignature
+    );
   } catch (e) {
     let error;
     try {
