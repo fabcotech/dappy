@@ -1,10 +1,7 @@
 import React, { Fragment } from 'react';
 import { updatePurseDataTerm } from 'rchain-token';
-import * as rchainToolkit from 'rchain-toolkit';
 
-import { generateNonce } from '../../../utils/generateNonce';
-import { generateSignature } from '../../../utils/generateSignature';
-import { Record, TransactionState, RChainInfos, Account, PartialRecord, TransactionStatus } from '../../../models';
+import { Record, TransactionState, RChainInfos, Account, PartialRecord } from '../../../models';
 import { blockchain as blockchainUtils } from '../../../utils';
 import * as fromBlockchain from '../../../store/blockchain';
 import { TransactionForm } from '../../utils';
@@ -22,6 +19,7 @@ interface UpdateRecordProps {
 
 const defaultState = {
   privatekey: '',
+  box: undefined,
   publickey: '',
   phloLimit: 0,
   name: '',
@@ -39,6 +37,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
 
   state: {
     privatekey: string;
+    box: undefined | string;
     publickey: string;
     phloLimit: number;
     name: string;
@@ -74,9 +73,8 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
     this.transactionId = id;
 
     const payload = {
-      nonce: (this.exists as Record).nonce,
-      newNonce: generateNonce(),
-      bagId: this.state.name,
+      fromBoxRegistryUri: this.state.box,
+      purseId: this.state.name,
       data: Buffer.from(
         JSON.stringify({
           address: this.state.newRecord.address,
@@ -87,12 +85,9 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
       ).toString('hex'),
     };
 
-    const ba = rchainToolkit.utils.toByteArray(payload);
-    const signature = generateSignature(ba, this.state.privatekey);
-    const term1 = updateBagDataTerm(
+    const term1 = updatePurseDataTerm(
       (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesRegistryUri,
-      payload,
-      signature
+      payload
     );
 
     let validAfterBlockNumber = 0;
@@ -172,7 +167,14 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
           making new updates.
         </p>
         <br />
-        <TransactionForm accounts={this.props.accounts} filledTransactionData={this.onFilledTransactionData} />
+        <TransactionForm
+          chooseBox={true}
+          accounts={this.props.accounts}
+          filledTransactionData={this.onFilledTransactionData}
+        />
+        {this.state.privatekey && !this.state.box && (
+          <p className="text-danger pt10">You must have a token box to purchase a name (NFT)</p>
+        )}
         <br />
         <div className="update-record-form">
           <div className="field is-horizontal">

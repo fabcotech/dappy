@@ -30,12 +30,14 @@ interface TransactionModalComponentProps {
 export class TransactionModalComponent extends React.Component<TransactionModalComponentProps, {}> {
   state: {
     privatekey: string;
+    box: undefined | string;
     publickey: string;
     phloLimit: number;
     seeCode: boolean;
     seeSignatures: boolean;
   } = {
     privatekey: '',
+    box: undefined,
     publickey: '',
     phloLimit: 1600,
     seeCode: false,
@@ -68,7 +70,12 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
     });
   };
 
-  onFilledTransactionData = (t: { privatekey: string; publickey: string; phloLimit: number }) => {
+  onFilledTransactionData = (t: {
+    privatekey: string;
+    publickey: string;
+    phloLimit: number;
+    box: undefined | string;
+  }) => {
     this.setState(t);
   };
 
@@ -86,6 +93,13 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
       while (term.indexOf('NONCE') !== -1) {
         const nonce = generateNonce();
         term = term.replace('NONCE', nonce);
+      }
+      console.log(1, term.indexOf('TO_BOX_REGISTRY_URI'));
+      while (term.indexOf('TO_BOX_REGISTRY_URI') !== -1) {
+        term = term.replace('TO_BOX_REGISTRY_URI', this.state.box || '');
+      }
+      while (term.indexOf('FROM_BOX_REGISTRY_URI') !== -1) {
+        term = term.replace('FROM_BOX_REGISTRY_URI', this.state.box || '');
       }
       term = term.replace(new RegExp('PUBLIC_KEY', 'g'), this.state.publickey);
     }
@@ -179,7 +193,11 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
             <i onClick={this.onCloseModal} className="fa fa-times" />
           </header>
           <section className="modal-card-body">
-            <TransactionForm accounts={this.props.accounts} filledTransactionData={this.onFilledTransactionData} />
+            <TransactionForm
+              chooseBox={true}
+              accounts={this.props.accounts}
+              filledTransactionData={this.onFilledTransactionData}
+            />
             <br />
             {signatures && Object.keys(signatures).length ? (
               <React.Fragment>

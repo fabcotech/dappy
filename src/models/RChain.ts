@@ -107,5 +107,6 @@ export interface TransactionState {
 
 export interface Identification {
   publicKey: undefined | string;
+  box: undefined | string;
   identified: boolean;
 }

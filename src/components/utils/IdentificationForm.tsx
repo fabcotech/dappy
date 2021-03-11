@@ -36,10 +36,10 @@ export class IdentificationForm extends React.Component<IdentificationFormProps,
     if (nextProps.accounts && Object.keys(nextProps.accounts).length) {
       if (nextProps.identification.publicKey && nextProps.accounts) {
         const okAccountNames = Object.keys(nextProps.accounts).filter(
-          id => nextProps.accounts && nextProps.accounts[id].publicKey === nextProps.identification.publicKey
+          (id) => nextProps.accounts && nextProps.accounts[id].publicKey === nextProps.identification.publicKey
         );
         const okAccounts: { [accountName: string]: Account } = {};
-        okAccountNames.forEach(n => {
+        okAccountNames.forEach((n) => {
           if (nextProps.accounts) okAccounts[n] = nextProps.accounts[n];
         });
 
@@ -59,8 +59,9 @@ export class IdentificationForm extends React.Component<IdentificationFormProps,
         onSubmit={() => undefined}
         initialValues={{
           privateKey: '',
+          box: '',
         }}
-        validate={values => {
+        validate={(values) => {
           let errors: {
             name?: string;
             privateKey?: string;
@@ -84,6 +85,7 @@ export class IdentificationForm extends React.Component<IdentificationFormProps,
           if (!Object.keys(errors).length) {
             this.props.identified({
               publicKey: this.publicKey,
+              box: values.box,
               identified: true,
             });
           } else {
@@ -103,9 +105,7 @@ export class IdentificationForm extends React.Component<IdentificationFormProps,
                     <span className="identify-public-key">{this.props.identification.publicKey}</span>
                   </div>
                 </div>
-              ) : (
-                undefined
-              )}
+              ) : undefined}
               {this.state.usePrivateKey && this.state.atLeastOneAccount ? (
                 <div className="field is-horizontal">
                   <label className="label" />
@@ -121,9 +121,7 @@ export class IdentificationForm extends React.Component<IdentificationFormProps,
                     </button>
                   </div>
                 </div>
-              ) : (
-                undefined
-              )}
+              ) : undefined}
               {!this.props.identification.publicKey && (!this.state.atLeastOneAccount || this.state.usePrivateKey) ? (
                 <div className="field is-horizontal">
                   <label className="label">{t('public key')}*</label>
@@ -138,24 +136,25 @@ export class IdentificationForm extends React.Component<IdentificationFormProps,
                     />
                   </div>
                 </div>
-              ) : (
-                undefined
-              )}
+              ) : undefined}
 
               {this.state.atLeastOneAccount && !this.state.usePrivateKey ? (
                 <AccountSelectComponent
+                  chooseBox={true}
                   usePrivateKey={() => {
                     setFieldValue('privateKey', '');
                     this.setState({
                       usePrivateKey: true,
                     });
                   }}
-                  updatePrivateKey={a => setFieldValue('privateKey', a.privatekey)}
+                  updatePrivateKey={(a) => {
+                    console.log(a);
+                    setFieldValue('privateKey', a.privatekey);
+                    setFieldValue('box', a.box);
+                  }}
                   accounts={this.state.okAccounts as { [accountName: string]: Account }}
                 />
-              ) : (
-                undefined
-              )}
+              ) : undefined}
 
               {!this.state.atLeastOneAccount || this.state.usePrivateKey ? (
                 <Fragment>
@@ -166,9 +165,7 @@ export class IdentificationForm extends React.Component<IdentificationFormProps,
                     </div>
                   </div>
                 </Fragment>
-              ) : (
-                undefined
-              )}
+              ) : undefined}
               {errors.privateKey && <p className="text-danger">{(errors as any).privateKey}</p>}
             </form>
           );

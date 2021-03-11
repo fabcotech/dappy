@@ -32,6 +32,7 @@ export class IdentificationModalComponent extends React.Component<Identification
       callId: payload.callId,
       identification: {
         publicKey: payload.parameters.publicKey,
+        box: undefined,
         identified: false,
       },
     });
@@ -83,6 +84,7 @@ export class IdentificationModalComponent extends React.Component<Identification
                   callId: payload.callId,
                   identification: {
                     publicKey: payload.parameters.publicKey,
+                    box: undefined,
                     identified: false,
                   },
                 })
@@ -110,12 +112,12 @@ export class IdentificationModalComponent extends React.Component<Identification
 }
 
 export const IdentificationModal = connect(
-  state => ({
+  (state) => ({
     isMobile: fromUi.getIsMobile(state),
     isTablet: fromUi.getIsTablet(state),
     accounts: fromSettings.getAccounts(state),
   }),
-  dispatch => ({
+  (dispatch) => ({
     saveIdentification: (a: fromDapps.SaveIdentificationPayload) => {
       dispatch(fromDapps.saveIdentificationAction(a));
       dispatch(fromMain.closeDappModalAction({ dappId: a.dappId }));
