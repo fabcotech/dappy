@@ -15,7 +15,6 @@ import { blockchain as blockchainUtils } from '../../../utils';
 import * as fromBlockchain from '../../../store/blockchain';
 import { TransactionForm } from '../../utils';
 import { RecordForm } from '.';
-import { generateNonce } from '../../../utils/generateNonce';
 
 interface PurchaseRecordProps {
   records: { [key: string]: Record };

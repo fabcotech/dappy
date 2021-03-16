@@ -88,7 +88,7 @@ export function AccountsComponent(props: AccountsProps) {
             {Object.keys(props.accounts).map((k) => {
               const a = props.accounts[k];
               return (
-                <div key={a.name} className="account box">
+                <div key={k} className="account box">
                   <div className="left">
                     <b className="name" onClick={() => props.showAccountModal(a)}>
                       {a.name} {a.main ? <span className="tag is-light">{t('main')}</span> : undefined}

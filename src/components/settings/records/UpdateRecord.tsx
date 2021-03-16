@@ -78,7 +78,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
       data: Buffer.from(
         JSON.stringify({
           address: this.state.newRecord.address,
-          badges: this.state.newRecord.badges || {} || {},
+          badges: this.state.newRecord.badges || {},
           servers: this.state.newRecord.servers || [],
         }),
         'utf8'

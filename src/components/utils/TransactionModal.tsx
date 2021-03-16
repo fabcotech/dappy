@@ -94,7 +94,6 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
         const nonce = generateNonce();
         term = term.replace('NONCE', nonce);
       }
-      console.log(1, term.indexOf('TO_BOX_REGISTRY_URI'));
       while (term.indexOf('TO_BOX_REGISTRY_URI') !== -1) {
         term = term.replace('TO_BOX_REGISTRY_URI', this.state.box || '');
       }
