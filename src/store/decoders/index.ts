@@ -12,3 +12,4 @@ export * from './RChain';
 export * from './Nodes';
 export * from './TransactionState';
 export * from './Cookie';
+export * from './RChainToken';

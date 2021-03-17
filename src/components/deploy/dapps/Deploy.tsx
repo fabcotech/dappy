@@ -1,13 +1,16 @@
 import * as React from 'react';
+import { mainTerm } from 'rchain-token';
 
+import * as fromUi from '../../../store/ui';
 import * as fromMain from '../../../store/main';
 import * as fromBlockchain from '../../../store/blockchain';
 import { Blockchain, TransactionState, Account, TransactionStatus, Variables, RChainInfos } from '../../../models';
 import './Deploy.scss';
+import { blockchain as blockchainUtils } from '../../../utils/blockchain';
 import { TransactionForm } from '../../utils';
 import { account as accountUtils } from '../../../utils/account';
 import { manifest as manifestUtils } from '../../../utils';
-import { ManifestForm, VariablesForm } from '.';
+import { RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '../../../CONSTANTS';
 
 interface DeployProps {
   transactions: { [id: string]: TransactionState };
@@ -15,7 +18,9 @@ interface DeployProps {
   accounts: { [accountName: string]: Account };
   rchainInfos: { [chainId: string]: RChainInfos };
   sendRChainTransactionWithFile: (t: fromBlockchain.SendRChainTransactionWithFilePayload) => void;
+  sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
   openModal: (t: fromMain.OpenModalPayload) => void;
+  navigate: (t: fromUi.NavigatePayload) => void;
 }
 
 export interface PartialManifest {
@@ -28,18 +33,24 @@ export class Deploy extends React.Component<DeployProps, {}> {
   transactionId = '';
 
   state: {
+    term: undefined | string;
+    selected: undefined | 'nft' | 'ft';
     manifest: undefined | PartialManifest; // step 1
     manifestWithVariables: undefined | PartialManifest; // step 2
     variables: undefined | Variables; // step 2
     privatekey: string; // step 3
+    box: string | undefined; // step 3
     publickey: string; // step 3
     phloLimit: number; // step 3
     step: number;
   } = {
+    term: undefined,
+    selected: undefined,
     manifest: undefined,
     manifestWithVariables: undefined,
     variables: undefined,
     privatekey: '',
+    box: undefined,
     publickey: '',
     phloLimit: 0,
     step: 1,
@@ -48,6 +59,10 @@ export class Deploy extends React.Component<DeployProps, {}> {
   onBackToStep1 = () => {
     this.setState({
       step: 1,
+      term: undefined,
+      privatekey: '',
+      publickey: '',
+      box: undefined,
     });
   };
 
@@ -64,6 +79,10 @@ export class Deploy extends React.Component<DeployProps, {}> {
         step: 1,
       });
     }
+  };
+
+  onChoseTerm = (term: string, selected: 'nft' | 'ft') => {
+    this.setState({ term: term, selected: selected });
   };
 
   onFilledManifestData = (t: { js: string; css: string; html: string; publickey: string }) => {
@@ -114,11 +133,49 @@ export class Deploy extends React.Component<DeployProps, {}> {
     });
   };
 
-  onFilledTransactionData = (t: { privatekey: string; publickey: string; phloLimit: number }) => {
+  onFilledTransactionData = (t: {
+    box: string | undefined;
+    privatekey: string;
+    publickey: string;
+    phloLimit: number;
+  }) => {
+    console.log(t);
     this.setState(t);
   };
 
-  onDeploy = () => {
+  onDeployContract = () => {
+    const id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
+    this.transactionId = id;
+    const timestamp = new Date().valueOf();
+
+    let validAfterBlockNumber = 0;
+    if (this.props.rchainInfos && this.props.rchainInfos[(this.props.namesBlockchain as Blockchain).chainId]) {
+      validAfterBlockNumber = this.props.rchainInfos[(this.props.namesBlockchain as Blockchain).chainId].info
+        .lastFinalizedBlockNumber;
+    }
+
+    const deployOptions = blockchainUtils.rchain.getDeployOptions(
+      timestamp,
+      this.state.term as string,
+      this.state.privatekey,
+      this.state.publickey,
+      1,
+      RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
+      validAfterBlockNumber
+    );
+
+    this.props.sendRChainTransaction({
+      transaction: deployOptions,
+      origin: { origin: 'rchain-token', operation: 'deploy', accountName: undefined },
+      platform: 'rchain',
+      blockchainId: (this.props.namesBlockchain as Blockchain).chainId,
+      id: id,
+      alert: false,
+      sentAt: new Date().toISOString(),
+    });
+  };
+
+  onDeployDapp = () => {
     const id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
     this.transactionId = id;
 
@@ -216,6 +273,16 @@ export class Deploy extends React.Component<DeployProps, {}> {
       );
     }
 
+    if (this.state.privatekey && !this.state.box) {
+      return (
+        <div>
+          <h3 className="subtitle is-4">Deploy</h3>
+          <p>No boxes is linked to your account, please deploy or link an existing box contract to your account.</p>
+          <a onClick={() => this.props.navigate({ navigationUrl: '/accounts' })}>Go to accounts</a>
+        </div>
+      );
+    }
+
     if (
       this.transactionId &&
       this.props.transactions[this.transactionId] &&
@@ -227,9 +294,9 @@ export class Deploy extends React.Component<DeployProps, {}> {
         step: 1,
       });
       this.props.openModal({
-        title: 'Dapp successfully deployed',
+        title: 'Contract successfully deployed',
         text:
-          'The transaction has been successfully sent to the network, you will be notified when the dapp has been added to the blockchain and is ready to be used',
+          'The transaction has been successfully sent to the network, check the transactions list, the address of the contract will be available soon.',
         buttons: [
           {
             classNames: 'is-link',
@@ -240,22 +307,29 @@ export class Deploy extends React.Component<DeployProps, {}> {
       });
     }
 
-    if (this.state.step === 3) {
+    if (this.state.step === 1) {
       return (
         <div>
-          <h3 className="subtitle is-4">{t('deploy (step 3)')}</h3>
-          <TransactionForm accounts={this.props.accounts} filledTransactionData={this.onFilledTransactionData} />
-          <button type="button" className="button is-light" onClick={this.onBackToStep2}>
-            {t('back')}
-          </button>{' '}
-          <button type="button" onClick={this.onDeploy} className="button is-link" disabled={!this.state.privatekey}>
-            {t('deploy dapp')}
+          <h3 className="subtitle is-4">{t('deploy (step 1)')}</h3>
+          <TransactionForm
+            chooseBox={true}
+            accounts={this.props.accounts}
+            filledTransactionData={this.onFilledTransactionData}
+          />
+          <button
+            type="button"
+            onClick={() => {
+              this.setState({ step: 2 });
+            }}
+            className="button is-link"
+            disabled={!this.state.privatekey || !this.state.box}>
+            Choose contract
           </button>
         </div>
       );
     }
 
-    if (this.state.step === 2) {
+    /* if (this.state.step === 2) {
       return (
         <div>
           <h3 className="subtitle is-4">{t('deploy (step 2)')}</h3>
@@ -266,19 +340,47 @@ export class Deploy extends React.Component<DeployProps, {}> {
           />
         </div>
       );
-    }
+    } */
 
     return (
-      <div>
-        <h3 className="subtitle is-4">{t('deploy (step 1)')}</h3>
+      <div className="deploy-contract-form">
+        <h3 className="subtitle is-4">{t('deploy (step 2)')}</h3>
         <div dangerouslySetInnerHTML={{ __html: t('deploy dapp note') }}></div>
         <br />
         <br />
-        <ManifestForm
-          openModal={this.props.openModal}
-          manifest={this.state.manifest}
-          filledManifestData={this.onFilledManifestData}
-        />
+        <div className="terms">
+          <div
+            className={`term rchain-token-fungible ${this.state.selected === 'ft' ? 'selected' : ''}`}
+            onClick={() => {
+              this.onChoseTerm(mainTerm(this.state.box, { fungible: true }), 'ft');
+            }}>
+            <span className="term-title">RChain token for fungibles tokens (FT)</span>
+            <p className="pt5">
+              Deploy a FT contract if the tokens that will be created, traded and exchanged are fungible, for example
+              they could represent shares in a company, gold tokens, ERC-20-like tokens etc.
+              <br />
+              <br />
+              If you want to use the tipboard, deploy a FT contract.
+            </p>
+          </div>
+          <div
+            className={`term rchain-token-non-fungible ${this.state.selected === 'nft' ? 'selected' : ''}`}
+            onClick={() => {
+              this.onChoseTerm(mainTerm(this.state.box, { fungible: false }), 'nft');
+            }}>
+            <span className="term-title">RChain token for non-fungibles tokens (NFT)</span>
+            <p className="pt5">
+              Deploy a NFT contract if the tokens represent unique objects, like a specific seat in a movie theatre, a
+              rare or unique item in a video game, or a unique name in a name system (like the dappy name system) etc.
+            </p>
+          </div>
+        </div>
+        <button type="button" className="button is-light" onClick={this.onBackToStep1}>
+          {t('back')}
+        </button>{' '}
+        <button type="button" disabled={!this.state.term} onClick={this.onDeployContract} className="button is-link">
+          Deploy contract
+        </button>
       </div>
     );
   }

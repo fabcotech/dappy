@@ -136,13 +136,13 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
         return;
       }
       this.couldNotAsynValidate = false;
-
-      const records = JSON.parse(a.result.data);
-      this.values.names.forEach((n: string) => {
+      console.log(new Date());
+      const result = JSON.parse(a.result.data);
+      this.values.names.forEach((n: string, i: number) => {
         this.setState({
           availables: {
             ...this.state.availables,
-            [n]: records[n] !== null,
+            [n]: result.records[i] === null,
           },
         });
       });

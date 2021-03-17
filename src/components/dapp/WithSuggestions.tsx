@@ -264,11 +264,6 @@ export class WithSuggestionsComponent extends React.Component<
             lastUpdateTriggeredByUserAction: true,
           });
 
-          console.log({
-            address: s as string,
-            tabId: this.props.tab ? this.props.tab.id : undefined,
-            url: undefined,
-          });
           this.props.loadResource({
             address: s as string,
             tabId: this.props.tab ? this.props.tab.id : undefined,

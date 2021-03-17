@@ -1,3 +1,31 @@
+.deploy-contract-form {
+  max-width: 800px;
+  .terms {
+    .term {
+      &.selected {
+        background: linear-gradient(45deg, #035863, #32639c);
+      }
+      border: 1px solid #222;
+      margin-bottom: 15px;
+      padding: 20px;
+      background: linear-gradient(45deg, #333, #555);
+      color: #fff;
+      border-radius: 2px;
+      cursor: pointer;
+      width: 500px;
+      &:hover:not(.selected) {
+        background: linear-gradient(45deg, #444, #555);
+      }
+      .term-title {
+        font-weight: 500;
+        font-size: 1.1rem;
+      }
+      p {
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
 .deploy-dapp-form {
   max-width: 800px;
   .label {
@@ -46,7 +74,6 @@
       background-size: cover;
     }
   }
-
   .predefined-dapps {
     display: grid;
     grid-template-columns: repeat(3, 120px);

@@ -41,6 +41,21 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
         </a>
       </span>
     );
+  } else if (
+    props.transactionState.origin.origin === 'rchain-token' &&
+    props.transactionState.origin.operation === 'deploy' &&
+    props.transactionState.status === 'completed' &&
+    props.transactionState.value &&
+    props.transactionState.value.hasOwnProperty('registryUri')
+  ) {
+    Value = (
+      <span>
+        {`Contract address is ${props.transactionState.value.registryUri} `}
+        <a type="button" onClick={() => window.copyToClipboard(props.transactionState.value.registryUri)}>
+          copy address
+        </a>
+      </span>
+    );
   } else {
     Value = <span>{JSON.stringify(props.transactionState.value)}</span>;
   }

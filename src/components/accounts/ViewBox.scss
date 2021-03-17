@@ -1,0 +1,53 @@
+.settings-view-box {
+  .is-4 {
+    font-weight: 300;
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+  }
+  .is-5 {
+    font-weight: 400;
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+  }
+  p {
+    margin-bottom: 10px;
+  }
+  & > button  {
+    margin-bottom: 20px;
+  }
+  .square {
+    width: 20px;
+    height: 20px;
+    border-radius: 2px;
+    margin-left: 5px;
+  }
+  .view-box{
+    margin-bottom: 20px;
+    .address-and-copy {
+      justify-content: flex-start;
+      span {
+        font-weight: 400;
+        font-size: 1.0rem;
+      }
+    }
+  }
+  .super-keys {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    .super-key {
+      .square {
+        margin-right: 5px;
+      }
+      padding: 5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 2px;
+      border: 1px solid #ccc;
+      background: linear-gradient(25deg, rgba(0,0,0,0.03), rgba(0,0,0,0.08));
+      margin-bottom: 10px;
+    }
+  }
+}

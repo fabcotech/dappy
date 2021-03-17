@@ -21,7 +21,7 @@ export class RootComponent extends React.Component<RootProps, {}> {
         <div className="tabs">
           <ul>
             <li className={this.props.navigationUrl === '/deploy/dapp' ? 'is-active' : ''}>
-              <a onClick={() => this.props.navigate('/deploy/dapp')}>{t('dapp (web application)')}</a>
+              <a onClick={() => this.props.navigate('/deploy/dapp')}>contract FT/NFT</a>
             </li>
             <li className={this.props.navigationUrl === '/deploy/file-upload' ? 'is-active' : ''}>
               <a onClick={() => this.props.navigate('/deploy/file-upload')}>{t('file')}</a>

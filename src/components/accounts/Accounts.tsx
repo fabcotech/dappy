@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
 import { boxTerm } from 'rchain-token';
 
@@ -13,6 +13,7 @@ import { AddAccount } from './AddAccount';
 import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '../../CONSTANTS';
 import { AccountPassword } from './AccountPassword';
 import { AccountBox } from './AccountBox';
+import { ViewBox } from './ViewBox';
 
 interface AccountsProps {
   accounts: { [name: string]: Account };
@@ -40,9 +41,19 @@ const formatter = new Intl.NumberFormat('en-US', {
 
 export function AccountsComponent(props: AccountsProps) {
   const [tab, setTab] = useState('accounts');
+  const [viewBox, setViewBox] = useState<undefined | string>(undefined);
   const [transactionAired, setTransactionAired] = useState<boolean>(false);
   const [askPasswordForBox, setAskPasswordForBox] = useState<{ [key: string]: boolean }>({});
   const [askBoxregistryUri, setAskBoxregistryUri] = useState<{ [key: string]: boolean }>({});
+
+  if (typeof viewBox === 'string') {
+    return (
+      <ViewBox
+        back={() => setViewBox(undefined)}
+        namesBlockchain={props.namesBlockchain}
+        boxRegistryUri={viewBox}></ViewBox>
+    );
+  }
 
   return (
     <div className="settings-accounts pb20">
@@ -108,8 +119,14 @@ export function AccountsComponent(props: AccountsProps) {
                     {a.boxes.length ? <b className="token-boxes">Token boxes</b> : undefined}
                     {a.boxes.map((b) => {
                       return (
-                        <>
-                          <button key={b} type="button" className="check-box button is-white is-small">
+                        <Fragment key={b}>
+                          <button
+                            onClick={() => {
+                              setViewBox(b);
+                            }}
+                            key={b}
+                            type="button"
+                            className="check-box button is-white is-small">
                             <div className="text">{b}</div>
                             <i className="fa fa-eye fa-after"></i>
                           </button>
@@ -131,7 +148,7 @@ export function AccountsComponent(props: AccountsProps) {
                             }>
                             remove box
                           </a>
-                        </>
+                        </Fragment>
                       );
                     })}
                     {a.boxes.length === 0 ? (
@@ -236,14 +253,12 @@ export function AccountsComponent(props: AccountsProps) {
                       <p className="text-danger">No network found, cannot send REVs</p>
                     )}
                   </div>
-                  <div className="remove">
-                    <button
-                      title="Remove the account forever"
-                      onClick={() => props.deleteAccount(a)}
-                      className="button is-danger is-small">
-                      {t('remove account')}
-                    </button>
-                  </div>
+                  <button
+                    title="Remove the account forever"
+                    onClick={() => props.deleteAccount(a)}
+                    className="remove-account button is-danger is-small">
+                    {t('remove account')}
+                  </button>
                 </div>
               );
             })}

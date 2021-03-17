@@ -19,7 +19,6 @@ interface AccountSelectComponentProps {
   chooseBox?: boolean;
   accounts: { [accountName: string]: Account };
   updatePrivateKey: (t: { privatekey: string | undefined; box: string | undefined }) => void;
-  usePrivateKey: () => void;
 }
 interface AccountSelectComponentState {
   passwordError: string | undefined;
@@ -94,19 +93,6 @@ export class AccountSelectComponent extends React.Component<AccountSelectCompone
         render={({ values, errors, touched, setFieldValue }) => {
           return (
             <div className="account-form">
-              <div className="field is-horizontal">
-                <label className="label" />
-                <div className="control">
-                  <button
-                    type="button"
-                    className="use-private-key is-light button"
-                    onClick={() => {
-                      this.props.usePrivateKey();
-                    }}>
-                    {t('use private key')}
-                  </button>
-                </div>
-              </div>
               <div className="field is-horizontal">
                 <label className="label">Account</label>
                 <div className="control">
@@ -194,7 +180,6 @@ interface TransactionFormProps {
 }
 interface TransactionFormState {
   atLeastOneAccount: boolean;
-  usePrivateKey: boolean;
 }
 
 export class TransactionForm extends React.Component<TransactionFormProps, TransactionFormState> {
@@ -202,7 +187,6 @@ export class TransactionForm extends React.Component<TransactionFormProps, Trans
     super(props);
     this.state = {
       atLeastOneAccount: false,
-      usePrivateKey: false,
     };
   }
 
@@ -217,6 +201,18 @@ export class TransactionForm extends React.Component<TransactionFormProps, Trans
   publickey = '';
 
   render() {
+    if (!this.state.atLeastOneAccount) {
+      return (
+        <form className="transaction-form">
+          <h5 className="is-6 title">{t('transaction')}</h5>
+          <p className="pt10 pb10">
+            You need at least one account, configure an account with your private key in the <b>{t('accounts')}</b>{' '}
+            section
+          </p>
+        </form>
+      );
+    }
+
     return (
       <Formik
         onSubmit={() => undefined}
@@ -296,41 +292,18 @@ export class TransactionForm extends React.Component<TransactionFormProps, Trans
                   </div>
                 </div>
               ) : undefined}
-              {this.state.usePrivateKey && this.state.atLeastOneAccount ? (
-                <div className="field is-horizontal">
-                  <label className="label" />
-                  <div className="control">
-                    <button
-                      type="button"
-                      className="use-private-key is-light button"
-                      onClick={() => {
-                        setFieldValue('privatekey', '');
-                        this.setState({ usePrivateKey: false });
-                      }}>
-                      Use account
-                    </button>
-                  </div>
-                </div>
-              ) : undefined}
-              {this.state.atLeastOneAccount && !this.state.usePrivateKey ? (
+              {this.state.atLeastOneAccount ? (
                 <AccountSelectComponent
                   chooseBox={this.props.chooseBox}
-                  usePrivateKey={() => {
-                    setFieldValue('privatekey', '');
-                    setFieldValue('box', undefined);
-                    this.setState({
-                      usePrivateKey: true,
-                    });
-                  }}
                   updatePrivateKey={(a) => {
-                    setFieldValue('privatekey', a.privatekey);
                     setFieldValue('box', a.box);
+                    setFieldValue('privatekey', a.privatekey);
                   }}
                   accounts={this.props.accounts as { [accountName: string]: Account }}
                 />
               ) : undefined}
 
-              {!this.state.atLeastOneAccount || this.state.usePrivateKey ? (
+              {!this.state.atLeastOneAccount ? (
                 <div className="field is-horizontal">
                   <label className="label">{t('public key')}*</label>
                   <div className="control">
@@ -346,7 +319,7 @@ export class TransactionForm extends React.Component<TransactionFormProps, Trans
                 </div>
               ) : undefined}
 
-              {!this.state.atLeastOneAccount || this.state.usePrivateKey ? (
+              {!this.state.atLeastOneAccount ? (
                 <Fragment>
                   <div className="field is-horizontal">
                     <label className="label">{t('private key')}*</label>

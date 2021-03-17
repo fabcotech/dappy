@@ -166,6 +166,10 @@ export const interProcess = (store: Store) => {
         )
       );
       interProcess.send();
+      interProcess.onerror = (e) => {
+        console.log(e);
+        reject('Unknown error');
+      };
       interProcess.onload = (a) => {
         try {
           const r = JSON.parse(a.target.responseText);

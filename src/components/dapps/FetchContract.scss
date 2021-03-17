@@ -12,6 +12,7 @@
     grid-column: 1;
   }
   .home-page {
+    overflow: hidden;
     grid-row: 2;
     grid-column: 1;
     display: grid;
@@ -82,8 +83,14 @@
     padding: 4px;
   }
   .dnetwork {
-    width: 460px;
-    height: 220px;
+    transform: scale(1.0);
+    transition: all ease-in-out 0.3s;
+    &:hover {
+      transform: scale(1.03);
+      background: linear-gradient(20deg, rgb(76, 18, 131), rgb(169, 88, 245));
+    }
+    width: 490px;
+    height: 230px;
     border: 2px solid rgb(90, 10, 165);
     border-radius: 3px;
     background: linear-gradient(20deg, rgb(56, 11, 99), rgb(146, 65, 223));
@@ -128,7 +135,7 @@
       height: 100px;
       display: grid;
       grid-template-rows: 100%;
-      grid-template-columns: 100px auto;
+      grid-template-columns: 100%;
       .img span {
         width: 80px;
         height: 80px;
@@ -140,6 +147,10 @@
         justify-content: center;
         p a {
           float: right;
+        }
+        button {
+          justify-content: flex-start;
+          margin-bottom: 15px;
         }
       }
       h4 {
