@@ -1,6 +1,5 @@
 import { takeEvery, select, put } from 'redux-saga/effects';
 import path from 'path';
-import url from 'url';
 import https from 'https';
 import { BrowserView, app, session } from 'electron';
 
@@ -103,26 +102,30 @@ const loadOrReloadBrowserView = function* (action: any) {
   );
 
   let previewId;
-  let currentPath = '';
+  let currentPathAndParameters = '';
 
   view.webContents.addListener('did-navigate', (a, currentUrl, httpResponseCode, httpStatusText) => {
     // todo handle httpResponseCode, httpStatusText
 
-    currentPath = '';
+    // if dapp
+    const url = new URL(currentUrl);
+    currentPathAndParameters = url.search;
+
     // todo handle path for dapps, and not only IP apps
+    // if IP apps
     if (!currentUrl.startsWith('file://')) {
       try {
-        currentPath = url.parse(currentUrl).path;
+        currentPathAndParameters = url.pathname + url.search;
       } catch (err) {
         console.error('Could not parse URL ' + currentUrl);
       }
     }
 
-    previewId = `${payload.address}${currentPath}`.replace(/\W/g, '');
+    previewId = `${payload.address}${currentPathAndParameters}`.replace(/\W/g, '');
     action.meta.dispatchFromMain({
       action: fromHistory.didNavigateInPageAction({
         previewId: previewId,
-        address: `${payload.address}${currentPath}`,
+        address: `${payload.address}${currentPathAndParameters}`,
         tabId: payload.tabId,
         title: view.webContents.getTitle(),
       }),
