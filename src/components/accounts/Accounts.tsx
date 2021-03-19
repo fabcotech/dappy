@@ -127,8 +127,10 @@ export function AccountsComponent(props: AccountsProps) {
                             key={b}
                             type="button"
                             className="check-box button is-white is-small">
-                            <div className="text">{b}</div>
-                            <i className="fa fa-eye fa-after"></i>
+                            <div className="text">
+                              <i className="fa fa-before fa-box"></i>
+                              {b}
+                            </div>
                           </button>
                           <a
                             type="button"

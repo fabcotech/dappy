@@ -46,10 +46,21 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
         );
         const chainId = browserViews[browserViewId].address.split('/')[0];
         url = url.replace('dappy://', 'dappy://' + chainId + '/');
-        if (validateSearchWithProtocol(url)) {
+        if (!validateSearchWithProtocol(url)) {
           valid = true;
         }
       } catch (e) {}
+    }
+    // todo if multi, limit to n unforgeable names
+
+    let multipleResources = false;
+    let exploreDeploys = false;
+    if (url.includes('explore-deploys')) {
+      valid = true;
+      exploreDeploys = true;
+    } else if (url.includes('%2C')) {
+      valid = true;
+      multipleResources = true;
     }
 
     if (!valid) {
@@ -57,19 +68,9 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
       callback();
       return;
     }
-    // todo if multi, limit to n unforgeable names
-
-    let multipleResources = false;
-    let exploreDeploys = false;
-    if (url.includes('explore-deploys')) {
-      exploreDeploys = true;
-    } else if (url.includes('%2C')) {
-      multipleResources = true;
-    }
 
     const split = url.replace('dappy://', '').split('/');
     const chainId = split[0];
-
     // todo
     // how to return errors ?
     const blockchains = fromBlockchains.getBlockchains(getState());

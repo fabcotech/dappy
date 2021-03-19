@@ -142,8 +142,8 @@ const sendRChainTransaction = function* (action: Action) {
             const state = store.getState();
             const settings: fromSettings.Settings = fromSettings.getSettings(state);
             i += 1;
-            if (i > 60) {
-              reject('15 minutes timeout exceeded');
+            if (i > 80) {
+              reject('20 minutes timeout exceeded');
               return;
             }
             try {

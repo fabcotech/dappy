@@ -247,6 +247,11 @@ export class FileUploadComponent extends React.Component<FileUploadProps, {}> {
 
     return (
       <div className="pb20 settings-file-upload">
+        <p>Temporarily disabled</p>
+      </div>
+    );
+    return (
+      <div className="pb20 settings-file-upload">
         <div>
           <h3 className="subtitle is-4">File upload (step {this.state.step})</h3>
           {this.state.step === 1 ? (

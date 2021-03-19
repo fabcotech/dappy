@@ -1,6 +1,21 @@
+
+.address-and-copy {
+  justify-content: flex-start;
+  margin-bottom: 5px;
+  span:not(.tag) {
+    font-weight: 400;
+    font-size: 1.0rem;
+  }
+  .tag.is-light {
+    font-weight: 800;
+    margin-right: 5px;
+    margin-left: 5px;
+    padding: 7px;
+  }
+}
 .view-purses {
-  display: flex;
   .view-purse {
+    display: inline-block;
     margin-right: 5px;
     margin-bottom: 5px;
     width: 210px;

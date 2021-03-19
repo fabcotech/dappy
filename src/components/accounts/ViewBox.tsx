@@ -24,7 +24,7 @@ interface BoxState {
   refreshing: boolean;
 }
 
-const toRGB = (s: string) => {
+export const toRGB = (s: string) => {
   var hash = 0;
   if (s.length === 0) return hash;
   for (var i = 0; i < s.length; i++) {
@@ -58,6 +58,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
       return;
     }
     this.setState({
+      error: undefined,
       readBox: undefined,
       refreshing: true,
     });
@@ -70,10 +71,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
       return;
     }
     try {
-      console.log(readBoxTerm(this.props.boxRegistryUri));
-
       const indexes = this.props.namesBlockchain.nodes.filter((n) => n.readyState === 1).map(getNodeIndex);
-      console.log(indexes);
       multiCallResult = await multiCall(
         {
           type: 'api/explore-deploy',
@@ -127,13 +125,32 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
   };
 
   render() {
+    const Refresh = () => (
+      <button
+        onClick={() => {
+          if (!this.state.refreshing) {
+            this.refresh();
+          }
+        }}
+        disabled={this.state.refreshing}
+        className={`button is-light ${this.state.refreshing && 'disabled'}`}>
+        {!this.state.refreshing && <i className="fa fa-before fa-redo"></i>}
+        {this.state.refreshing && <i className="fa fa-before fa-redo rotating"></i>}
+        Reload
+      </button>
+    );
     if (this.state.error) {
       return (
         <div className="settings-view-box pb20">
           <button onClick={this.props.back} className="button is-light">
             Back to accounts
           </button>
-          <h4 className="title is-4">Purses in box {this.props.boxRegistryUri}</h4>
+          <Refresh />
+          <h4 className="title is-4">
+            <i className="fa fa-before fa-box"></i>
+            box {this.props.boxRegistryUri}
+          </h4>
+
           <span className="text-danger">{this.state.error}</span>
         </div>
       );
@@ -142,42 +159,36 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
     if (this.state.refreshing) {
       return (
         <div className="settings-box pb20">
-          Loading
-          <i className="fa fa-after fa-redo rotating"></i>
+          <button onClick={this.props.back} className="button is-light">
+            Back to accounts
+          </button>
+          <Refresh />
         </div>
       );
     }
 
     if (this.state.readBox) {
-      console.log(this.state.readBox.superKeys);
       return (
         <div className="settings-view-box pb20">
           <button onClick={this.props.back} className="button is-light">
             Back to accounts
           </button>
-          <h4 className="title is-4">Box {this.props.boxRegistryUri}</h4>
+          <Refresh />
+          <h4 className="title is-4">
+            <i className="fa fa-before fa-box"></i>
+            box {this.props.boxRegistryUri}
+          </h4>
           <h4 className="title is-5">Purses</h4>
           <p>
-            A box can contains one or more purses from one or more contracts. A purse can be a NFT, or a represent
+            A box can contain one or more purses from one or more contracts. A purse can be a NFT, or a represent
             fungible tokens depending on the rchain-token contract it is linked to.
           </p>
           {Object.keys(this.state.readBox.purses).map((k) => {
             return (
               <div className="view-box" key={k}>
-                <div className="address-and-copy fc">
-                  <span className=""> Contract {k.replace('rho:id:', '')}</span>
-                  <span className="square ml5" style={{ background: toRGB(k.replace('rho:id:', '')) }}></span>
-                  <a
-                    type="button"
-                    className="button is-white is-small"
-                    onClick={() => window.copyToClipboard(k.replace('rho:id:', ''))}>
-                    copy contract address
-                    <i className="fa fa-copy fa-after"></i>
-                  </a>
-                </div>
                 <ViewPurses
                   namesBlockchain={this.props.namesBlockchain}
-                  contractRegistryUri={k}
+                  contractRegistryUri={k.replace('rho:id:', '')}
                   pursesIds={this.state.readBox.purses[k]}></ViewPurses>
               </div>
             );
