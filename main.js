@@ -10,7 +10,6 @@ var https = _interopDefault(require('https'));
 var fs = _interopDefault(require('fs'));
 var crypto = _interopDefault(require('crypto'));
 var dns = _interopDefault(require('dns'));
-var url = _interopDefault(require('url'));
 
 var DAPP_INITIAL_SETUP = '[Common] dapp initial setup';
 var SEND_RCHAIN_TRANSACTION_FROM_SANDBOX = '[Common] Send RChain transaction from sandbox';
@@ -292,393 +291,1051 @@ var getBrowserViewsPositionMain = lib_4(getBrowserViewsMainState, function (stat
 var WS_RECONNECT_PERIOD = 10000;
 var WS_PAYLOAD_PAX_SIZE = 256000; // bits
 
-var mainTerm_1 = (newNonce, publicKey) => {
-    return `new 
+var boxTerm_1 = (payload) => {
+  return `new 
   mainCh,
-
-  createCh,
-  purchaseCh,
-  sendCh,
-  changePriceCh,
   entryCh,
   entryUriCh,
-  setLockedCh,
-  updateTokenDataCh,
-  updateBagDataCh,
-  verifySignatureAndUpdateNonceCh,
-  justVerifySignatureCh,
-
-  bags,
-  bagsData,
-  tokensData,
-
-  insertArbitrary(\`rho:registry:insertArbitrary\`),
+  returnBagsWithoutKeys,
+  createKeyInBoxPurseIfNotExistCh,
+  superKeysCh,
+  readyCh,
+  readyCounterCh,
+  boxPursesCh,
+  deployerId(\`rho:rchain:deployerId\`),
   stdout(\`rho:io:stdout\`),
-  secpVerify(\`rho:crypto:secp256k1Verify\`),
-  blake2b256(\`rho:crypto:blake2b256Hash\`),
-  revAddress(\`rho:rev:address\`),
-  registryLookup(\`rho:registry:lookup\`)
+  insertArbitrary(\`rho:registry:insertArbitrary\`),
+  lookup(\`rho:registry:lookup\`)
 in {
 
+  // superKeys
+  // { [URI]: key }
+  superKeysCh!({}) |
 
-  /*
-    bags: {
-      [bagId: String (incremental id)]: {
-        publicKey: String (public key),
-        n: Nil \\/ String (token id),
-        price: Nil \\/ Int
-        quantity: Int
-      }
-    }
-  */
-  bags!({/*DEFAULT_BAGS*/}) |
+  // keys
+  // { [URI]: { [bagId: string]: key } }
+  boxPursesCh!({}) |
 
-  /*
-    bagsData: {
-      [bagId: String (bag id)]: Any
-    }
-  */
-  bagsData!({/*DEFAULT_BAGS_DATA*/}) |
-
-  /*
-    tokensData: {
-      [n: Strig (token id)]: String (registry URI)
-    }
-  */
-  tokensData!({/*DEFAULT_TOKENS_DATA*/}) |
-
-  for (@(payload, signature, returnCh) <= verifySignatureAndUpdateNonceCh) {
-    new hashCh, verifySignatureCh in {
-      for (@current <<- mainCh) {
-        blake2b256!(
-          payload.set("nonce", current.get("nonce")).toByteArray(),
-          *hashCh
-        ) |
-        for (@hash <- hashCh) {
-          secpVerify!(
-            hash,
-            signature.hexToBytes(),
-            current.get("publicKey").hexToBytes(),
-            *verifySignatureCh
-          )
-        } |
-        for (@result <- verifySignatureCh) {
-          match result {
-            true => {
-              @returnCh!(true) |
-              for (@c <- mainCh) {
-                mainCh!(c.set("nonce", payload.get("newNonce")))
-              }
+  // returns { [URI]: Set[BagId] }
+  contract returnBagsWithoutKeys(@(registryUris, keys, return)) = {
+    new tmpCh, itCh in {
+      for (@(tmpCh, registryUris) <= itCh) {
+        for (tmp <- @tmpCh) {
+          match registryUris {
+            Nil => {
+              @return!(*tmp)
             }
-            false => {
-              @returnCh!("error: Invalid signature, could not perform operation")
+            Set(last) => {
+              @return!(*tmp.set(last, keys.get(last).keys()))
+            }
+            Set(first ... rest) => {
+              @tmpCh!(*tmp.set(first, keys.get(first).keys())) |
+              itCh!((tmpCh, rest))
             }
           }
         }
-      }
-    }
-  } |
-
-  for (@(publicKey, signature, payload, nonce, returnCh) <= justVerifySignatureCh) {
-    stdout!("justVerifySignatureCh") |
-    new hashCh, verifySignatureCh in {
-      blake2b256!(
-        payload.set("nonce", nonce).toByteArray(),
-        *hashCh
-      ) |
-      for (@hash <- hashCh) {
-        secpVerify!(
-          hash,
-          signature.hexToBytes(),
-          publicKey.hexToBytes(),
-          *verifySignatureCh
-        )
       } |
-      for (@result <- verifySignatureCh) {
-        @returnCh!(result)
-      }
+      tmpCh!({}) |
+      itCh!((*tmpCh, registryUris))
     }
   } |
 
-  contract setLockedCh(payload, signature, return) = {
-    stdout!("setLockedCh") |
-
-    for (@current <<- mainCh) {
-      match current.get("locked") {
-        true => {
-          return!("error: contract is already locked")
-        }
-        false => {
-          new verifyCh in {
-            verifySignatureAndUpdateNonceCh!((
-              *payload,
-              *signature,
-              *verifyCh
-            )) |
-            for (@verified <- verifyCh) {
-              match verified {
-                true => {
-                  for (@c <- mainCh) {
-                    mainCh!(c.set("locked", true))
-                  } |
-                  return!(true)
-                }
-                err => {
-                  return!(err)
-                }
+  for (@(uri, return) <= createKeyInBoxPurseIfNotExistCh) {
+    match uri {
+      URI => {
+        for (keys <<- boxPursesCh) {
+          match *keys.get(uri) {
+            Nil => {
+              for (_ <- boxPursesCh) {
+                boxPursesCh!(*keys.set(uri, {})) | @return!({})
               }
+            }
+            _ => {
+              @return!(*keys.get(uri))
             }
           }
         }
       }
-    }
-  } |
-
-  contract updateTokenDataCh(payload, signature, return) = {
-    stdout!("updateTokenDataCh") |
-
-    for (@current <<- mainCh) {
-      match current.get("locked") {
-        true => {
-          return!("error: contract is locked, cannot update token data")
-        }
-        false => {
-          new verifyCh in {
-            verifySignatureAndUpdateNonceCh!((
-              *payload,
-              *signature,
-              *verifyCh
-            )) |
-            for (@verified <- verifyCh) {
-              match verified {
-                true => {
-                  for (@currentTokensData <- tokensData) {
-                    tokensData!(
-                      currentTokensData.set(*payload.get("n"), *payload.get("data"))
-                    )
-                  } |
-                  return!(true)
-                }
-                err => {
-                  return!(err)
-                }
-              }
-            }
-          }
-        }
+      _ => {
+        @return!("error: unknown type")
       }
     }
   } |
 
-  contract updateBagDataCh(payload, signature, return) = {
-    stdout!("updateBagDataCh") |
-    for (@currentBags <<- bags) {
-      match currentBags.get(*payload.get("bagId")) {
-        Nil => {
-          return!("error : token (bag ID) " ++ *payload.get("bagId") ++ " does not exist")
-        }
-        bag => {
-          new justVerifySignatureReturnCh in {
-            justVerifySignatureCh!((
-              bag.get("publicKey"),
-              *signature,
-              *payload,
-              bag.get("nonce"),
-              *justVerifySignatureReturnCh
-            )) |
-            for (@verified <- justVerifySignatureReturnCh) {
-              match verified {
-                true => {
-                  for (@currentBagsData <- bagsData) {
-                    bagsData!(
-                      currentBagsData.set(*payload.get("bagId"), *payload.get("data"))
-                    ) |
-                    return!(true)
+  // PUBLIC capabilities
+  /*
+    (payload: { registryUri: URI, purse: *purse }) => String | (true, Nil)
+    Receives a purse, checks it, find a purse with same type
+    if fungible
+      SWAP
+    if non-fungible
+      if a purse in box is found (same type AND price Nil): DEPOSIT
+      else: SWAP and save new purse
+  */
+  // todo, if this operation fails, remove empty key in boxPurses ?
+  for (@(payload, return) <= @(*entryCh, "PUBLIC_RECEIVE_PURSE")) {
+    new lookupReturnCh, checkReturnCh, readReturnCh, readPropertiesReturnCh, return1Ch,
+    itCh, doDepositOrSwapCh, decideToDepositOrSwpaCh in {
+
+      /*
+        1: check the purses received by asking
+        the contract at payload.get("registryUri")
+      */
+      lookup!(payload.get("registryUri"), *lookupReturnCh) |
+      for (contractEntry <- lookupReturnCh) {
+        @(*contractEntry, "PUBLIC_CHECK_PURSES")!(([payload.get("purse")], *checkReturnCh)) |
+        @(*contractEntry, "PUBLIC_READ")!((Nil, *readReturnCh)) |
+        @(payload.get("purse"), "READ")!((Nil, *readPropertiesReturnCh)) |
+        for (checkReturn <- checkReturnCh; current <- readReturnCh; receivedPurseProperties <- readPropertiesReturnCh) {
+          match *checkReturn {
+            String => {
+              @return!(*checkReturn)
+            }
+            (true, _) => {
+              /*
+                2: create key for registry URI in boxPurses if it does
+                nto exist
+              */
+              createKeyInBoxPurseIfNotExistCh!((payload.get("registryUri"), *return1Ch)) |
+
+              /*
+                3: find a purse to deposit into and
+                decide to DEPOSIT or SWAP
+                toto: if a purse is found check that it's not a purse
+                that already exists in box
+              */
+              for (@purses <- return1Ch) {
+                match purses {
+                  String => {
+                    @return!(purses)
                   }
-                }
-                err => {
-                  return!("error: Invalid signature, could not perform operation")
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  } |
-
-  // add a token (1 or more)
-  contract createCh(payload, signature, return) = {
-    stdout!("createCh") |
-
-    for (@current <<- mainCh) {
-      match current.get("locked") {
-        true => {
-          return!("error: contract is locked, cannot create token")
-        }
-        false => {
-          for (@currentBags <<- bags) {
-            new verifyCh in {
-              verifySignatureAndUpdateNonceCh!((
-                *payload,
-                *signature,
-                *verifyCh
-              )) |
-              for (@verified <- verifyCh) {
-                match verified {
-                  true => {
-                    new newBagIdCh in {
-                      match currentBags.get(*payload.get("newBagId")) {
-                        Nil => { newBagIdCh!(*payload.get("newBagId")) }
-                        _ => { return!("error: bagId, already exists") }
-                      } |
-
-                      for (@newBagId <- newBagIdCh) {
-                        for (_ <- bags) {
-                          bags!(
-                            currentBags.union(*payload.get("bags"))
-                          )
-                        } |
-
-                        match *payload.get("data") {
-                          Nil => {}
-                          data => {
-                            for (@currentBagsData <- bagsData) {
-                              bagsData!(
-                                currentBagsData.union(*payload.get("data"))
-                              )
-                            }
-                          }
-                        } |
-
-                        return!(true)
+                  _ => {
+                    match *current.get("fungible") {
+                      false => {
+                        doDepositOrSwapCh!((
+                          payload.get("purse"),
+                          payload.get("registryUri"),
+                          "swap",
+                          Nil
+                        ))
                       }
-                    }
-                  }
-                  err => {
-                    return!(err)
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  } |
-
-  // purchase token (1 or more)
-  contract purchaseCh(payload, return) = {
-    stdout!("purchaseCh") |
-    for (@currentBags <<- bags) {
-      match currentBags.get(*payload.get("bagId")) {
-        Nil => {
-          return!("error : token (bag ID) " ++ *payload.get("bagId") ++ " does not exist")
-        }
-        bag => {
-          match bag.get("quantity") - *payload.get("quantity") >= 0 {
-            false => {
-              return!("error : not enough tokens in bag (bag ID: " ++ *payload.get("bagId") ++ ") available")
-            }
-            true => {
-              new RevVaultCh, ownerRevAddressCh, purseVaultCh in {
-
-                registryLookup!(\`rho:rchain:revVault\`, *RevVaultCh) |
-                revAddress!("fromPublicKey", bag.get("publicKey").hexToBytes(), *ownerRevAddressCh) |
-
-                for (@(_, RevVault) <- RevVaultCh; @ownerRevAddress <- ownerRevAddressCh) {
-                  match (
-                    *payload.get("purseRevAddr"),
-                    ownerRevAddress,
-                    *payload.get("quantity") * bag.get("price")
-                  ) {
-                    (from, to, amount) => {
-                      @RevVault!("findOrCreate", from, *purseVaultCh) |
-                      for (@(true, purseVault) <- purseVaultCh) {
-                        new resultCh, newBagIdCh, performRefundCh in {
-                          // refund
-                          for (@message <- performRefundCh) {
-                            new refundPurseBalanceCh, refundRevAddressCh, refundResultCh in {
-                              @purseVault!("balance", *refundPurseBalanceCh) |
-                              revAddress!("fromPublicKey", *payload.get("publicKey").hexToBytes(), *refundRevAddressCh) |
-                              for (@balance <- refundPurseBalanceCh; @revAddress <- refundRevAddressCh) {
-                                @purseVault!("transfer", revAddress, balance, *payload.get("purseAuthKey"), *refundResultCh) |
-                                for (@refundResult <- refundResultCh) {
-                                  match refundResult {
-                                    (true, Nil) => {
-                                      stdout!("refund went well") |
-                                      return!(message ++ ", issuer was refunded")
+                      true => {
+                        new tmpCh, itCh in {
+                          for (pursesIds <= itCh) {
+                            match *pursesIds {
+                              Set() => {
+                                doDepositOrSwapCh!((
+                                  payload.get("purse"),
+                                  payload.get("registryUri"),
+                                  "swap",
+                                  Nil
+                                ))
+                              }
+                              Set(last) => {
+                                new readReturnCh in {
+                                  @(purses.get(last), "READ")!((Nil, *readReturnCh)) |
+                                  for (properties <- readReturnCh) {
+                                    match (
+                                      *properties.get("type") == *receivedPurseProperties.get("type"),
+                                      *properties.get("price") == Nil
+                                    ) {
+                                      (true, true) => {
+                                        doDepositOrSwapCh!((
+                                          payload.get("purse"),
+                                          payload.get("registryUri"),
+                                          "deposit",
+                                          purses.get(last)
+                                        ))
+                                      }
+                                      _ => {
+                                        doDepositOrSwapCh!((
+                                          payload.get("purse"),
+                                          payload.get("registryUri"),
+                                          "swap",
+                                          Nil
+                                        ))
+                                      }
                                     }
-                                    _ => {
-                                      stdout!("error: refund DID NOT go well") |
-                                      return!(message ++ ", issuer was NOT refunded")
+                                  }
+                                }
+                              }
+                              Set(first ... rest) => {
+                                new readReturnCh in {
+                                  @(purses.get(first), "READ")!((Nil, *readReturnCh)) |
+                                  for (properties <- readReturnCh) {
+                                    match (
+                                      *properties.get("type") == *receivedPurseProperties.get("type"),
+                                      *properties.get("price") == Nil
+                                    ) {
+                                      (true, true) => {
+                                        doDepositOrSwapCh!((
+                                          payload.get("purse"),
+                                          payload.get("registryUri"),
+                                          "deposit",
+                                          purses.get(first)
+                                        ))
+                                      }
+                                      _ => {
+                                        itCh!(rest)
+                                      }
                                     }
                                   }
                                 }
                               }
                             }
                           } |
-                          @purseVault!("transfer", to, amount, *payload.get("purseAuthKey"), *resultCh) |
-                          for (@result <- resultCh) {
-                            match result {
-                              (true, Nil) => {
-                                match currentBags.get(*payload.get("newBagId")) {
-                                  Nil => { newBagIdCh!(*payload.get("newBagId")) }
-                                  _ => { performRefundCh!("error: bagId, already exists") }
-                                } |
-                                for (@newBagId <- newBagIdCh) {
-                                  for (_ <- bags) {
-                                    match *payload.get("bagId") == "0" {
-                                      true => {
-                                        // purchase from bag "0"
-                                        // creating a bag with new bag ID is allowed
-                                        bags!(
-                                          currentBags.set(newBagId, {
-                                            "quantity": *payload.get("quantity"),
-                                            "publicKey": *payload.get("publicKey"),
-                                            "nonce": *payload.get("nonce"),
-                                            "n": bag.get("n"),
-                                            "price": Nil,
-                                          // Udate quantity in seller token ownership
-                                          }).set(
-                                            *payload.get("bagId"),
-                                            bag.set("quantity", bag.get("quantity") - *payload.get("quantity"))
+                          itCh!(purses.keys())
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      } |
+
+      /*
+        4: SWAP or DEPOSIT then save to boxPursesCh
+      */
+      for (@(purse, registryUri, operation, purseToDepositTo) <- doDepositOrSwapCh) {
+        match operation {
+          "swap" => {
+            new returnSwapCh, returnReadMainCh, returnPropertiesCh in {
+              for (main <<- mainCh) {
+                @(purse, "SWAP")!((*main.get("publicKey"), *returnSwapCh)) |
+                for (swappedPurse <- returnSwapCh) {
+                  @(*swappedPurse, "READ")!((Nil, *returnPropertiesCh)) |
+                  for (properties <- returnPropertiesCh) {
+                    for (boxPurses <- boxPursesCh) {
+                      boxPursesCh!(
+                        *boxPurses.set(
+                          registryUri,
+                          *boxPurses.get(registryUri).set(
+                            *properties.get("id"),
+                            *swappedPurse
+                          )
+                        )
+                      ) |
+                      @return!((true, Nil))
+                    }
+                  }
+                }
+              }
+            }
+          }
+          "deposit" => {
+            new returnDepositCh, returnPropertiesCh in {
+              @(purseToDepositTo, "DEPOSIT")!((purse, *returnDepositCh)) |
+              for (r <- returnDepositCh) {
+                match *r {
+                  String => {
+                    @return!(*r)
+                  }
+                  (true, Nil) => {
+                    @return!((true, Nil))
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  } |
+
+  for (@(Nil, return) <= @(*entryCh, "PUBLIC_READ")) {
+    for (main <<- mainCh) {
+      @return!(*main)
+    }
+  } |
+
+  for (@(payload, return) <= @(*entryCh, "PUBLIC_READ_SUPER_KEYS")) {
+    for (superKeys <<- superKeysCh) {
+      @return!(*superKeys.keys())
+    }
+  } |
+
+  for (@(payload, return) <= @(*entryCh, "PUBLIC_READ_PURSES")) {
+    for (purses <<- boxPursesCh) {
+      match *purses.keys().size() {
+        0 => {
+          @return!({})
+        }
+        _ => {
+          returnBagsWithoutKeys!((*purses.keys(), *purses, return))
+        }
+      }
+    }
+  } |
+
+  insertArbitrary!(*entryCh, *entryUriCh) |
+
+  for (entryUri <- entryUriCh) {
+
+    // OWNER / PRIVATE capabilities
+    for (@(action, return) <= @(*deployerId, "\${n}" %% { "n": *entryUri })) {
+      match action.get("type") {
+        "READ" => {
+          for (main <<- mainCh) {
+            @return!(*main)
+          }
+        }
+        "READ_SUPER_KEYS" => {
+          for (superKeys <<- superKeysCh) {
+            @return!(*superKeys)
+          }
+        }
+        "READ_PURSES" => {
+          for (purses <<- boxPursesCh) {
+            @return!(*purses)
+          }
+        }
+        "SAVE_PURSE_SEPARATELY" => {
+          match (
+            action.get("payload").get("registryUri"),
+            action.get("payload").get("purse"),
+          ) {
+            (URI, _) => {
+              new createKeyReturnCh, readReturnCh in {
+                createKeyInBoxPurseIfNotExistCh!((action.get("payload").get("registryUri"), *createKeyReturnCh)) |
+                for (purses <- createKeyReturnCh) {
+                  match *purses {
+                    String => {
+                      @return!("error: invalid payload")
+                    }
+                    _ => {
+                      @(action.get("payload").get("purse"), "READ")!((Nil, *readReturnCh)) |
+                      for (@properties <- readReturnCh) {
+                        for (boxPurses <- boxPursesCh) {
+                          boxPursesCh!(
+                            *boxPurses.set(
+                              action.get("payload").get("registryUri"),
+                              *purses.set(
+                                properties.get("id"),
+                                action.get("payload").get("purse")
+                              )
+                            )
+                          ) |
+                          @return!((true, Nil))
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            _ => {
+              @return!("error: invalid payload")
+            }
+          }
+        }
+        "DELETE_PURSE" => {
+          for (purses <<- boxPursesCh) {
+            match action.get("payload") {
+              payload => {
+                match (
+                  payload.get("registryUri"),
+                  payload.get("id"),
+                  *purses.get(payload.get("registryUri"))
+                ) {
+                  (URI, String, Map) => {
+                    for (boxPurses <- boxPursesCh) {
+                      boxPursesCh!(
+                        *boxPurses.set(
+                          payload.get("registryUri"),
+                          *boxPurses.get(payload.get("registryUri")).delete(payload.get("id"))
+                        )
+                      ) |
+                      @return!((true, Nil))
+                    }
+                  }
+                  _ => {
+                    @return!("error: invalid payload")
+                  }
+                }
+              }
+              _ => {
+                @return!("error: invalid payload")
+              }
+            }
+          }
+        }
+        "SAVE_SUPER_KEY" => {
+          match action.get("payload") {
+            { "superKey": _, "registryUri": URI } => {
+              for (keys <- superKeysCh) {
+                match *keys.keys().contains(action.get("payload").get("registryUri")) {
+                  true => {
+                    superKeysCh!(*keys) |
+                    @return!("error: super key for registryUri already exists in box")
+                  }
+                  false => {
+                    superKeysCh!(*keys.set(action.get("payload").get("registryUri"), action.get("payload").get("superKey"))) |
+                    @return!((true, Nil))
+                  }
+                }
+              }
+            }
+            _ => {
+              @return!("error: invalid payload, structure should be { superKey: _, registryUri: String }")
+            }
+          }
+        }
+        _ => {
+          @return!("error: unknown action")
+        }
+      }
+    } |
+
+    stdout!("box deployed, private channel is @(*deployerId, '\${n}')" %% { "n": *entryUri }  ) |
+    mainCh!({
+      "registryUri": *entryUri,
+      "publicKey": "${payload.publicKey}",
+      "version": "5.0.0",
+      "status": "completed"
+    })
+  }
+}
+`;
+};
+
+var boxTerm = {
+	boxTerm: boxTerm_1
+};
+
+var mainTerm_1 = (fromBoxRegistryUri, payload) => {
+    return `new 
+  mainCh,
+
+  entryCh,
+  entryUriCh,
+  iterateCh,
+  makePurseCh,
+  superKeyCh,
+
+  /*
+    vault stores the id for each purse unforgeable name, you
+    must have a purse to receive / peek from *vault:
+    // create purse "12"
+    @(*vault, *purse)!("12")
+
+    // peek and check purse
+    for (id <<- @(*vault, *purse)) {
+      out!(*purse) |
+      // "12"
+      for (purse <- @(*purses, "12")) {
+        out!(*purse)
+        // { "quantity": 100, "type": "GOLD", "publicKey": "aaa" }
+      }
+    }
+  */
+  vault,
+
+  /*
+    A purse's properties is a Map {"quantity", "type", "price", "publicKey"}
+    stored in the channel *purses. Anyone can read it through
+    "READ_PURSES" public channel.
+
+    // create purse "12" (it must not exist)
+    @(*purses, "12")!({ "publicKey": "aaa", etc... }) |
+
+    // receive purse "12"
+    for (purse <- @(*purses, "12")) {
+      out!(*purse)
+    }
+
+    // peek purse "12"
+    for (purse <<- @(*purses, "12")) {
+      out!(*purse)
+    }
+  */
+  purses,
+
+  /*
+    pursesIds is a Set with all ids of purses that have amount > 0
+    for (ids <- pursesIds) { ... }
+  */
+  pursesIds,
+
+  /*
+    pursesData contains the data associated to purses
+    for (data <- @(*pursesData, "12")) { ... }
+  */
+  pursesData,
+
+  counterCh,
+
+  insertArbitrary(\`rho:registry:insertArbitrary\`),
+  stdout(\`rho:io:stdout\`),
+  revAddress(\`rho:rev:address\`),
+  registryLookup(\`rho:registry:lookup\`),
+  deployerId(\`rho:rchain:deployerId\`)
+in {
+
+  counterCh!(0) |
+
+  pursesIds!(Set()) |
+
+  /*
+    MAKE PURSE
+    only place where new purses are created
+    "MINT", "SWAP", "CREATE_PURSES" call this channel
+
+    depending on if .fungible is true or false, it decides
+    which id to give to the new purse, then it instantiates
+    the purse with WITHDRAW, SWAP, BURN "instance channels"
+  */
+  for (@(properties, data, return) <= makePurseCh) {
+    new idAndQuantityCh in {
+      for (current <<- mainCh) {
+        match *current.get("fungible") {
+          true => {
+            for (counter <- counterCh) {
+              counterCh!(*counter + 1) |
+              idAndQuantityCh!({ "id": "\${n}" %% { "n": *counter }, "quantity": properties.get("quantity") })
+            }
+          }
+          false => {
+            for (ids <<- pursesIds) {
+              match *ids.contains(properties.get("id")) {
+                true => {
+                  match properties.get("id") {
+                    "0" => {
+                      match (properties.get("newId"), *ids.contains(properties.get("newId"))) {
+                        (String, false) => {
+                          idAndQuantityCh!({ "id": properties.get("newId"), "quantity": 1 })
+                        }
+                        _ => {
+                          @return!("error: no .newId in payload or .newId already exists")
+                        }
+                      }
+                    }
+                    _ => {
+                      @return!("error: purse ID already exists")
+                    }
+                  }
+                }
+                false => { idAndQuantityCh!({ "id": properties.get("id"), "quantity": properties.get("quantity") }) }
+              }
+            }
+          }
+        }
+      } |
+      for (idAndQuantity <- idAndQuantityCh) {
+        match properties
+          .set("id", *idAndQuantity.get("id"))
+          .set("quantity", *idAndQuantity.get("quantity"))
+          .delete("newId")
+        {
+          purseProperties => {
+            match purseProperties {
+              {
+                "quantity": Int,
+                // not used in main contract or box contract
+                // only useful for dumping data
+                "publicKey": String,
+                "type": String,
+                "id": String,
+                "price": Nil \\/ Int
+              } => {
+                for (ids <- pursesIds) {
+                  match *ids.contains(purseProperties.get("id")) {
+                    false => {
+                      pursesIds!(*ids.union(Set(purseProperties.get("id")))) |
+                      @(*purses, purseProperties.get("id"))!(purseProperties) |
+                      @(*pursesData, purseProperties.get("id"))!(data) |
+                      new purse in {
+                        @(*vault, *purse)!(purseProperties.get("id")) |
+                        @return!(*purse) |
+
+                        /*
+                          READ
+                          Returns prperties "id", "quantity", "type", "publicKey" and "price"(not implemented)
+                          (Nil) => propertie
+                        */
+                        for (@(Nil, returnRead) <= @(*purse, "READ")) {
+                          for (id <<- @(*vault, *purse)) {
+                            for (props <<- @(*purses, *id)) {
+                              @returnRead!(*props.set("id", *id))
+                            }
+                          }
+                        } |
+
+                        /*
+                          SWAP
+                          (Nil) => purse
+                          Useful when you receive purse from unknown source, swap it
+                          to make sure emitter did not keep a copy
+                        */
+                        for (@(publicKey, returnSwap) <= @(*purse, "SWAP")) {
+                          match publicKey {
+                            String => {
+                              for (id <- @(*vault, *purse)) {
+                                for (ids <- pursesIds) {
+                                  pursesIds!(*ids.delete(*id)) |
+                                  for (data <- @(*pursesData, *id)) {
+                                    for (props <- @(*purses, *id)) {
+                                      makePurseCh!((
+                                        *props.set("publicKey", publicKey), *data, returnSwap
+                                      ))
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                            _ => {
+                              @returnSwap!("error: public key must be a string")
+                            }
+                          }
+                        } |
+
+                        /*
+                          UPDATE_DATA
+                          (any) => string | (true, purse[])
+                        */
+                        for (@(payload, returnUpdateData) <= @(*purse, "UPDATE_DATA")) {
+                          new readReturnCh in {
+                            @(*purse, "READ")!((Nil, *readReturnCh)) |
+                            for (@properties <- readReturnCh) {
+                              for (_ <- @(*pursesData, properties.get("id"))) {
+                                @(*pursesData, properties.get("id"))!(payload) |
+                                @returnUpdateData!((true, Nil))
+                              }
+                            }
+                          }
+                        } |
+
+                        /*
+                          SET_PRICE
+                          (payload: Int or Nil) => string | (true, Nil)
+                        */
+                        for (@(payload, returnSetPrice) <= @(*purse, "SET_PRICE")) {
+                          match payload {
+                            Int \\/ Nil => {
+                              new boxEntryCh, receivePursesReturnCh, readReturnCh, makePurseReturnCh in {
+                                @(*purse, "READ")!((Nil, *readReturnCh)) |
+                                for (@properties1 <- readReturnCh) {
+                                  for (@properties2 <- @(*purses, properties1.get("id"))) {
+                                    @(*purses, properties1.get("id"))!(
+                                      properties2.set("price", payload)
+                                    ) |
+                                    @returnSetPrice!((true, Nil))
+                                  }
+                                }
+                              }
+                            }
+                            _ => {
+                              @returnSetPrice!("error: payload must be an integer or Nil")
+                            }
+                          }
+                        } |
+
+                        /*
+                          WITHDRAW
+                          (payload: Int) => string | (true, purse)
+                        */
+                        for (@(payload, returnWithdraw) <= @(*purse, "WITHDRAW")) {
+                          match payload {
+                            Int => {
+                              new boxEntryCh, receivePursesReturnCh, readReturnCh, makePurseReturnCh in {
+                                @(*purse, "READ")!((Nil, *readReturnCh)) |
+                                for (@properties1 <- readReturnCh) {
+                                  match (
+                                    /*
+                                      The remaining cannot be 0, if you want to send
+                                      the whole purse, just hand the *purse object to someone's box
+                                    */
+                                    properties1.get("quantity") > payload,
+                                    payload > 0
+                                  ) {
+                                    (true, true) => {
+                                      /*
+                                        change quantity in *purse, and create a new purse
+                                        with [payload] quantity
+                                      */
+                                      for (@properties2 <- @(*purses, properties1.get("id"))) {
+                                        @(*purses, properties1.get("id"))!(
+                                          properties2.set("quantity", properties2.get("quantity") - payload)
+                                        ) |
+                                        makePurseCh!((
+                                          properties2.set("quantity", payload).set("price", Nil), Nil, *makePurseReturnCh
+                                        )) |
+                                        for (newPurse <- makePurseReturnCh) {
+                                          @returnWithdraw!((true, *newPurse))
+                                        }
+                                      }
+                                    }
+                                    _ => {
+                                      @returnWithdraw!("error: quantity invalid, remaining cannot be zero")
+                                    }
+                                  }
+                                }
+                              }
+
+                            }
+                            _ => {
+                              @returnWithdraw!("error: payload must be an integer")
+                            }
+                          }
+                        } |
+
+                        /*
+                          DEPOSIT
+                          (payload: purse) => string | (true, Nil)
+                        */
+                        for (@(payload, returnDeposit) <= @(*purse, "DEPOSIT")) {
+                          new boxEntryCh, receivePursesReturnCh, readReturnCh in {
+                            @(*purse, "READ")!((Nil, *readReturnCh)) |
+                            for (@properties1 <- readReturnCh) {
+                              for (id <<- @(*vault, payload)) {
+                                for (@properties2 <<- @(*purses, *id)) {
+                                  match (
+                                    properties2.get("quantity"),
+                                    properties2.get("quantity") > 0,
+                                    properties1.get("type") == properties2.get("type"),
+                                    properties1.get("price")
+                                  ) {
+                                    (Int, true, true, Nil) => {
+                                      for (_ <- @(*vault, payload)) { Nil } |
+                                      for (ids <- pursesIds) {
+                                        pursesIds!(*ids.delete(*id))
+                                      } |
+                                      for (_ <- @(*pursesData, *id)) { Nil } |
+                                      for (_ <- @(*purses, *id)) { Nil } |
+                                      for (@properties <- @(*purses, properties1.get("id"))) {
+                                        @(*purses, properties1.get("id"))!(
+                                          properties.set(
+                                            "quantity",
+                                            properties.get("quantity") + properties2.get("quantity")
                                           )
                                         ) |
-                                        match *payload.get("data") {
-                                          Nil => {}
-                                          data => {
-                                            for (@currentBagsData <- bagsData) {
-                                              bagsData!(currentBagsData.set(newBagId, data))
-                                            }
+                                        @returnDeposit!((true, Nil))
+                                      }
+                                    }
+                                    _ => {
+                                      @returnDeposit!("error: cannot deposit to a purse with .price not Nil")
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    true => {
+                      pursesIds!(*ids) |
+                      @return!("error: purse ID already exists")
+                    }
+                  }
+                }
+              }
+              _ => {
+                @return!("error: invalid purse")
+              }
+            }
+          }
+        }
+      }
+    }
+  } |
+
+  // ====================================
+  // SUPER / ADMIN / OWNER capabilities (if not locked)
+  // You must have the superKeyCh to perform those operations
+  // ====================================
+
+  for (@(Nil, return) <= @(*superKeyCh, "LOCK")) {
+    for (@current <<- mainCh) {
+      match current.get("locked") {
+        true => {
+          @return!("error: contract is locked")
+        }
+        false => {
+          for (current <- mainCh) {
+            mainCh!(*current.set("locked", true)) |
+            @return!((true, Nil))
+          }
+        }
+      }
+    }
+  } |
+
+  for (@(payload, return) <= @(*superKeyCh, "CREATE_PURSES")) {
+    for (@current <<- mainCh) {
+      match current.get("locked") {
+        true => {
+          @return!("error: contract is locked")
+        }
+        false => {
+          new itCh, createdPursesesCh, saveKeyAndBagCh in {
+            createdPursesesCh!([]) |
+            itCh!((payload.get("purses").keys(), payload.get("purses"), payload.get("data"))) |
+            for(@(set, newPurses, newData) <= itCh) {
+              match set {
+                Nil => {}
+                Set(last) => {
+                  new retCh in {
+                    makePurseCh!((newPurses.get(last), newData.get(last), *retCh)) |
+                    for (purse <- retCh) {
+                      match *purse {
+                        String => {
+                          @return!(*purse)
+                        }
+                        _ => {
+                          for (createdPurses <- createdPursesesCh) {
+                            @return!((true, { "purses": *createdPurses ++ [*purse] }))
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                Set(first ... rest) => {
+                  new retCh in {
+                    makePurseCh!((newPurses.get(first), newData.get(first), *retCh)) |
+                    for (purse <- retCh) {
+                      match *purse {
+                        String => {
+                          @return!(*purse)
+                        }
+                        _ => {
+                          for (createdPurses <- createdPursesesCh) {
+                            createdPursesesCh!(*createdPurses ++ [*purse]) |
+                            itCh!((rest, newPurses, newData))
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  } |
+
+  /*
+    Returns values corresponding to ids, "PUBLIC_READ_PURSES"
+    and "PUBLIC_PUBLIC_READ_PURSES_DATA" call this channel
+
+    channelToReadFrom: *pursesData or *purses
+    ids: Set purse ids (they must all exist)
+    example iterateCh!((*pursesData, Set("1", "2", "18"), *return))
+  */
+  contract iterateCh(@(channelToReadFrom, ids, return)) = {
+    new tmpCh, itCh in {
+      for (@(tmpCh, ids) <= itCh) {
+        for (tmp <- @tmpCh) {
+          match ids {
+            Nil => {
+              @return!(*tmp)
+            }
+            Set(last) => {
+              for (val <<- @(channelToReadFrom, last)) {
+                @return!(*tmp.set(last, *val))
+              }
+            }
+            Set(first ... rest) => {
+              for (val <<- @(channelToReadFrom, first)) {
+                @tmpCh!(*tmp.set(first, *val)) |
+                itCh!((tmpCh, rest))
+              }
+            }
+          }
+        }
+      } |
+      tmpCh!({}) |
+      itCh!((*tmpCh, ids))
+    }
+  } |
+
+
+  // ====================================
+  // ===== ANY USER / PUBLIC capabilities
+  // ====================================
+
+  for (@(payload, return) <= @(*entryCh, "PUBLIC_READ_PURSES_IDS")) {
+    for (ids <<- pursesIds) {
+      @return!(*ids)
+    }
+  } |
+
+  for (@(payload, return) <= @(*entryCh, "PUBLIC_READ_PURSES")) {
+    match payload.size() < 101 {
+      true => {
+        iterateCh!((*purses, payload, return))
+      }
+      _ => {
+        @return!("error: payload must be a Set of strings with max size 100")
+      }
+    }
+  } |
+
+  for (@(payload, return) <= @(*entryCh, "PUBLIC_READ_PURSES_DATA")) {
+    match payload.size() < 101 {
+      true => {
+        iterateCh!((*pursesData, payload, return))
+      }
+      _ => {
+        @return!("error: payload must be a Set of strings with max size 100")
+      }
+    }
+  } |
+
+  for (@(payload, return) <= @(*entryCh, "PUBLIC_READ")) {
+    for (current <<- mainCh) {
+      @return!(*current)
+    }
+  } |
+
+  /*
+    (purse[]) => String | (true, id[])
+    receives a list of purse, check that (they exist + no duplicate)
+    and returns the corresponding list of ids
+  */
+  for (@(payload, return) <= @(*entryCh, "PUBLIC_CHECK_PURSES")) {
+    new tmpCh, itCh in {
+      for (@(tmpCh, keys) <= itCh) {
+        for (tmp <- @tmpCh) {
+          match keys {
+            Nil => {
+              @return!(*tmp)
+            }
+            [last] => {
+              for (id <<- @(*vault, last)) {
+                match *tmp.union(Set(*id)).size() == payload.length() {
+                  true => {
+                    @return!((true, *tmp.union(Set(*id))))
+
+                  }
+                  false => {
+                    @return!("error: duplicates")
+                  }
+                }
+              }
+            }
+            [first ... rest] => {
+              for (id <<- @(*vault, first)) {
+                @tmpCh!(*tmp.union(Set(*id))) |
+                itCh!((tmpCh, rest))
+              }
+            }
+          }
+        }
+      } |
+      tmpCh!(Set()) |
+      itCh!((*tmpCh, payload))
+    }
+  } |
+
+  /*
+    (payload) => String | (true, purse)
+    purchase with REV from a purse that has .price
+    property not Nil
+    see payload below
+  */
+  // todo limitation total payload size ??
+  for (@(payload, return) <= @(*entryCh, "PUBLIC_PURCHASE")) {
+    match payload {
+      { "quantity": Int, "purseId": String, "publicKey": String,
+      "newId": Nil \\/ String, "data": _, "purseRevAddr": _, "purseAuthKey": _ } => {
+        for (@properties <<- @(*purses, payload.get("purseId"))) {
+          match (
+            properties.get("price"),
+            properties.get("quantity") > 0,
+            payload.get("quantity") > 0,
+            properties.get("quantity") >= payload.get("quantity")
+          ) {
+            (Int, true, true, true) => {
+              new revVaultCh, ownerRevAddressCh, purseVaultCh in {
+
+                registryLookup!(\`rho:rchain:revVault\`, *revVaultCh) |
+                revAddress!("fromPublicKey", properties.get("publicKey").hexToBytes(), *ownerRevAddressCh) |
+
+                for (@(_, RevVault) <- revVaultCh; @ownerRevAddress <- ownerRevAddressCh) {
+                  match (
+                    payload.get("purseRevAddr"),
+                    ownerRevAddress,
+                    payload.get("quantity") * properties.get("price")
+                  ) {
+                    (from, to, amount) => {
+                      @RevVault!("findOrCreate", from, *purseVaultCh) |
+                      for (@(true, purseVault) <- purseVaultCh) {
+                        new makePurseReturnCh, transferReturnCh, performRefundCh in {                        
+                          // refund
+                          for (@message <- performRefundCh) {
+                            new refundPurseBalanceCh, refundRevAddressCh, refundResultCh in {
+                              @purseVault!("balance", *refundPurseBalanceCh) |
+                              revAddress!("fromPublicKey", payload.get("publicKey").hexToBytes(), *refundRevAddressCh) |
+                              for (@balance <- refundPurseBalanceCh; @revAddress <- refundRevAddressCh) {
+                                @purseVault!("transfer", revAddress, balance, payload.get("purseAuthKey"), *refundResultCh) |
+                                for (@refundResult <- refundResultCh) {
+                                  match refundResult {
+                                    (true, Nil) => {
+                                      stdout!(message ++ ", issuer was refunded") |
+                                      @return!(message ++ ", issuer was refunded")
+                                    }
+                                    _ => {
+                                      stdout!(message ++ ", issuer was NOT refunded") |
+                                      @return!(message ++ ", issuer was NOT refunded")
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          } |
+                          @purseVault!("transfer", to, amount, payload.get("purseAuthKey"), *transferReturnCh) |
+                          for (@result <- transferReturnCh) {
+                            match result {
+                              (true, Nil) => {
+                                for (@properties2 <- @(*purses, payload.get("purseId"))) {
+                                  /*
+                                    Check if the purse must be removed because quantity 0
+                                    if fungible: false, we always match 0
+                                  */
+                                  match properties2.get("quantity") - payload.get("quantity") {
+                                    0 => {
+                                      for (ids <- pursesIds) {
+                                        pursesIds!(*ids.delete(properties2.get("id"))) |
+                                        for (_ <- @(*pursesData, properties2.get("id"))) {
+                                          makePurseCh!((
+                                            properties2
+                                              .set("price", Nil)
+                                              .set("newId", payload.get("newId"))
+                                              .set("quantity", payload.get("quantity"))
+                                              .set("publicKey", payload.get("publicKey")),
+                                            payload.get("data"),
+                                            *makePurseReturnCh
+                                          )) |
+                                          for (newPurse <- makePurseReturnCh) {
+                                            @return!((true, *newPurse))
                                           }
                                         }
                                       }
-                                      false => {
-                                        // purchase from bag other than "0"
-                                        // creating a bag with new bag ID is NOT allowed
-                                        // buyer takes control of the bag
-                                        // todo, should we delete bag data for *payload.get("bagId") here ?
-                                        bags!(
-                                          currentBags.set(*payload.get("bagId"), {
-                                            "quantity": *payload.get("quantity"),
-                                            "publicKey": *payload.get("publicKey"),
-                                            "nonce": *payload.get("nonce"),
-                                            "n": bag.get("n"),
-                                            "price": Nil,
-                                          })
-                                        ) |
-                                        match *payload.get("data") {
-                                          Nil => {}
-                                          data => {
-                                            for (@currentBagsData <- bagsData) {
-                                              bagsData!(currentBagsData.set(*payload.get("bagId"), data))
-                                            }
-                                          }
-                                        }
+                                    }
+                                    _ => {
+                                      @(*purses, properties2.get("id"))!(
+                                        properties2.set("quantity", properties2.get("quantity") - payload.get("quantity"))
+                                      ) |
+                                      makePurseCh!((
+                                        properties2
+                                          .set("price", Nil)
+                                          .set("newId", payload.get("newId"))
+                                          .set("quantity", payload.get("quantity"))
+                                          .set("publicKey", payload.get("publicKey")),
+                                        payload.get("data"),
+                                        *makePurseReturnCh
+                                      )) |
+                                      for (newPurse <- makePurseReturnCh) {
+                                        stdout!(*newPurse) |
+                                        @return!((true, *newPurse))
                                       }
-                                    } |
-                                    return!(true)
+                                    }
                                   }
                                 }
                               }
@@ -694,302 +1351,83 @@ in {
                 }
               }
             }
-          }
-        }
-      }
-    }
-  } |
-
-  contract sendCh(payload, signature, return) = {
-    stdout!("sendCh") |
-    for (@currentBags <<- bags) {
-      match currentBags.get(*payload.get("bagId")) {
-        Nil => {
-          return!("error : token (bag ID) " ++ *payload.get("bagId") ++ " does not exist")
-        }
-        bag => {
-          match currentBags.get(*payload.get("newBagId")) {
-            Nil => {
-              match bag.get("quantity") - *payload.get("quantity") >= 0 {
-                true => {
-                  new justVerifySignatureReturnCh in {
-                    justVerifySignatureCh!((
-                      bag.get("publicKey"),
-                      *signature,
-                      *payload,
-                      bag.get("nonce"),
-                      *justVerifySignatureReturnCh
-                    )) |
-                    for (@r <- justVerifySignatureReturnCh) {
-                      match r {
-                        true => {
-                          // Add bag data if found in payload
-                          match *payload.get("data") {
-                            Nil => {}
-                            data => {
-                              for (@currentBagsData <- bagsData) {
-                                bagsData!(currentBagsData.set(*payload.get("newBagId"), data))
-                              }
-                            }
-                          } |
-                          for (_ <- bags) {
-                            match bag.get("quantity") - *payload.get("quantity") == 0 {
-                              true => {
-                                bags!(
-                                  // todo, should we delete bag data for *payload.get("bagId") here ?
-                                  currentBags.set(*payload.get("newBagId"), {
-                                    "quantity": *payload.get("quantity"),
-                                    "publicKey": *payload.get("publicKey"),
-                                    "nonce": *payload.get("bagNonce2"),
-                                    "n": bag.get("n"),
-                                    "price": Nil,
-                                  // Delete issuer bag
-                                  }).delete(*payload.get("bagId"))
-                                )
-                              }
-                              false => {
-                                bags!(
-                                  // New bag ID for new bag
-                                  currentBags.set(*payload.get("newBagId"), {
-                                    "quantity": *payload.get("quantity"),
-                                    "publicKey": *payload.get("publicKey"),
-                                    "nonce": *payload.get("bagNonce2"),
-                                    "n": bag.get("n"),
-                                    "price": Nil,
-                                  // Udate quantity in seller bag
-                                  }).set(
-                                    *payload.get("bagId"),
-                                    bag.set(
-                                      "quantity", bag.get("quantity") - *payload.get("quantity")
-                                    ).set(
-                                      "nonce",
-                                      *payload.get("bagNonce")
-                                    )
-                                  )
-                                )
-                              }
-                            } |
-                            return!(true)
-                          }
-                        }
-                        false => {
-                          return!("error: Invalid signature, could not perform operation")
-                        }
-                      }
-                    }
-                  }
-                }
-                false => {
-                  return!("error : not enough tokens in bag (bag ID) " ++ *payload.get("bagId") ++ " available")
-                }
-              }
+            _=> {
+              @return!("error: quantity not available or purse not for sale")
             }
-            _ => {
-              return!("error : new bag ID already exists")
-            }
-          }
-        }
-      }
-    }
-  } |
-
-  contract changePriceCh(payload, signature, return) = {
-    stdout!("changePriceCh") |
-    for (@currentBags <<- bags) {
-      match currentBags.get(*payload.get("bagId")) {
-        Nil => {
-          return!("error : token (bag ID) " ++ *payload.get("bagId") ++ " does not exist")
-        }
-        bag => {
-          new justVerifySignatureReturnCh in {
-            justVerifySignatureCh!((
-              bag.get("publicKey"),
-              *signature,
-              *payload,
-              bag.get("nonce"),
-              *justVerifySignatureReturnCh
-            )) |
-            for (@r <- justVerifySignatureReturnCh) {
-              match r {
-                true => {
-                  for (_ <- bags) {
-                    bags!(
-                      currentBags.set(
-                        *payload.get("bagId"),
-                        bag
-                          .set("price", *payload.get("price"))
-                          .set("nonce", *payload.get("bagNonce"))
-                      )
-                    ) |
-                    return!(true)
-                  }
-                }
-                false => {
-                  return!("error: Invalid signature, could not perform operation")
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  } |
-  
-  contract entryCh(action, return) = {
-    match *action.get("type") {
-      // Read capabilities
-      "READ_BAGS" => {
-        for (currentBags <<- bags) {
-          return!(*currentBags)
-        }
-      }
-      "READ_BAGS_DATA" => {
-        for (currentBagsData <<- bagsData) {
-          return!(*currentBagsData)
-        }
-      }
-      "READ_TOKENS_DATA" => {
-        for (@currentTokensData <<- tokensData) {
-          return!(currentTokensData)
-        }
-      }
-      "READ" => {
-        for (current <<- mainCh) {
-          return!(*current)
-        }
-      }
-      // Admin capabilities (require a signature of the nonce)
-      "SET_LOCKED" => {
-        match *action.get("payload") {
-          { "newNonce": String } => {
-            setLockedCh!(
-              *action.get("payload"),
-              *action.get("signature"),
-              *return
-            )
-          }
-          _ => {
-            return!("error: invalid payload, structure should be { 'newNonce': String, 'locked': Boolean }")
-          }
-        }
-      }
-      "UPDATE_TOKEN_DATA" => {
-        match *action.get("payload") {
-          { "newNonce": String, "n": String, "data": _ } => {
-            updateTokenDataCh!(*action.get("payload"), *action.get("signature"), *return)
-          }
-          _ => {
-            return!("error: invalid payload, structure should be { 'newNonce': String, 'n': String, 'data': _ }")
-          }
-        }
-      }
-      "UPDATE_BAG_DATA" => {
-        match *action.get("payload") {
-          { "newNonce": String, "bagId": String, "data": _ } => {
-            updateBagDataCh!(
-              *action.get("payload"),
-              *action.get("signature"),
-              *return
-            )
-          }
-          _ => {
-            return!("error: invalid payload, structure should be { 'newNonce': String, 'bagId': String, 'data': _ }")
-          }
-        }
-      }
-      "CREATE_TOKENS" => {
-        match *action.get("payload") {
-          {
-            "bags": _,
-            "data": _,
-/*             "bags": {
-              [String]: {
-                "nonce": String,
-                "quantity": Int,
-                "publicKey": String,
-                "n": String,
-                "price": Nil \\/ Int,
-              }
-            },
-            "data": {
-              [String]: _
-            }, */
-            "newNonce": String,
-          } => {
-            createCh!(
-              *action.get("payload"),
-              *action.get("signature"),
-              *return
-            )
-          }
-          _ => {
-            return!("error: invalid payload")
-          }
-        }
-      }
-      // Anyone capabilities
-      "PURCHASE_TOKENS" => {
-        match *action.get("payload") {
-          { "quantity": 1, "bagId": String, "newBagId": String, "publicKey": String, "nonce": String, "data": _, "purseRevAddr": _, "purseAuthKey": _ } => {
-            purchaseCh!(*action.get("payload"), *return)
-          }
-          _ => {
-            return!("error: invalid payload, structure should be { 'quantity': 1, 'bagId': String, 'newBagId': String, 'publicKey': String, 'nonce': String, 'data': Any, 'purseRevAddr': String, 'purseAuthKey': AuthKey }")
-          }
-        }
-      }
-      "SEND_TOKENS" => {
-        match *action.get("payload") {
-          { "quantity": Int, "bagId": "0", "newBagId": String, "publicKey": String, "bagNonce": String, "bagNonce2": String, "data": _, } => {
-            sendCh!(
-              *action.get("payload"),
-              *action.get("signature"),
-              *return
-            )
-          }
-          _ => {
-            return!("error: invalid payload, structure should be { 'quantity': Int, 'bagId': '0', 'newBagId': String 'publicKey': String, 'bagNonce': String, 'bagNonce2': String, 'data': Any }")
-          }
-        }
-      }
-      "CHANGE_PRICE" => {
-        match *action.get("payload") {
-          { "bagId": String, "price": Nil \\/ Int, "bagNonce": String } => {
-            changePriceCh!(
-              *action.get("payload"),
-              *action.get("signature"),
-              *return
-            )
-          }
-          _ => {
-            return!("error: invalid payload, structure should be { 'price': Nil or Int, 'bagId': String, 'bagNonce': String }")
           }
         }
       }
       _ => {
-        return!("error: unknown action")
+        @return!("error: invalid payloads")
       }
     }
   } |
 
-  insertArbitrary!(bundle+{*entryCh}, *entryUriCh) |
+
+  // ====================================
+  // ===================== INITIALIZATION
+  // save superKeyCh to a box
+  // ====================================
+
+  /*
+    todo: secure with bundle- (*entryCh -> bundle-{*entryCh}) , but we must
+    do it after all the listens are active
+  */
+  insertArbitrary!(*entryCh, *entryUriCh) |
 
   for (entryUri <- entryUriCh) {
-
-    mainCh!({
-      "registryUri": *entryUri,
-      "locked": false,
-      "publicKey": "${publicKey}",
-      "nonce": "${newNonce}",
-      "version": "4.0.0"
-    }) |
-    stdout!({
-      "registryUri": *entryUri,
-      "locked": false,
-      "publicKey": "${publicKey}",
-      "nonce": "${newNonce}",
-      "version": "4.0.0"
-    })
+    new boxDataCh, boxReturnCh in {
+      @(*deployerId, "rho:id:${fromBoxRegistryUri}")!(({ "type": "READ" }, *boxDataCh)) |
+      for (r <- boxDataCh) {
+      stdout!(*r) |
+        match (*r.get("version")) {
+          "5.0.0" => {
+            @(*deployerId, "rho:id:${fromBoxRegistryUri}")!((
+              {
+                "type": "SAVE_SUPER_KEY",
+                "payload": { "superKey": *superKeyCh, "registryUri": *entryUri }
+              },
+              *boxReturnCh
+            )) |
+            for (resp <- boxReturnCh) {
+              match *resp {
+                String => {
+                  mainCh!({ "status": "failed", "message": *resp }) |
+                  stdout!(("failed", *resp))
+                }
+                _ => {
+                  mainCh!({
+                    "status": "completed",
+                    "registryUri": *entryUri,
+                    "locked": false,
+                    "fungible": ${payload.fungible},
+                    "version": "5.0.0"
+                  }) |
+                  stdout!({
+                    "status": "completed",
+                    "registryUri": *entryUri,
+                    "locked": false,
+                    "fungible": ${payload.fungible},
+                    "version": "5.0.0"
+                  }) |
+                  stdout!("completed, contract deployed")
+                }
+              }
+            }
+          }
+          _ => {
+            mainCh!({
+              "status": "failed",
+              "message": "box has not the same version number 5.0.0",
+            }) |
+            stdout!({
+              "status": "failed",
+              "message": "box has not the same version number 5.0.0",
+            })
+          }
+        }
+      }
+    }
 
     /*OUTPUT_CHANNEL*/
   }
@@ -1001,50 +1439,102 @@ var mainTerm = {
 	mainTerm: mainTerm_1
 };
 
-var createTokensTerm_1 = (
+var createPursesTerm_1 = (
   registryUri,
-  payload,
-  signature,
+  payload
 ) => {
   return `new basket,
   returnCh,
-  entryCh,
-  lookup(\`rho:registry:lookup\`),
-  stdout(\`rho:io:stdout\`)
+  boxCh,
+  stdout(\`rho:io:stdout\`),
+  deployerId(\`rho:rchain:deployerId\`),
+  registryLookup(\`rho:registry:lookup\`)
 in {
 
-  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+  @(*deployerId, "rho:id:${payload.fromBoxRegistryUri}")!(({ "type": "READ_SUPER_KEYS" }, *boxCh)) |
 
-  for(entry <- entryCh) {
-    entry!(
-      {
-        "type": "CREATE_TOKENS",
-        // signature of the payload + contract nonce in it, with the private key of the owner (generateSignatureForNonce.js)
-        "signature": "${signature}",
-        "payload": {
-          // new nonce, must be different and random (generateNonce.js)
-          "newNonce": "${payload.newNonce}",
-          // example
-          // "bags": { "0": { "price": 2, "quantity": 3, "publicKey": "aaa", "nonce": "abcdefba", data: Nil }}
-          "bags": ${JSON.stringify(payload.bags).replace(new RegExp(': null|:null', 'g'), ': Nil')},
-          // example
-          // "data": { "0": "this bag is mine" }
-          "data": ${JSON.stringify(payload.data).replace(new RegExp(': null|:null', 'g'), ': Nil')},
-        }
-      },
-      *returnCh
-    )
+  for (superKeys <- boxCh) {
+    match *superKeys.get(\`rho:id:${registryUri}\`) {
+      ch => {
+        @(ch, "CREATE_PURSES")!((
+          {
+            // example
+            // "purses": { "0": { "publicKey": "abc", "type": "gold", "quantity": 3, "data": Nil }}
+            "purses": ${JSON.stringify(payload.purses).replace(new RegExp(': null|:null', 'g'), ': Nil')},
+            // example
+            // "data": { "0": "this bag is mine" }
+            "data": ${JSON.stringify(payload.data).replace(new RegExp(': null|:null', 'g'), ': Nil')},
+          },
+          *returnCh
+        ))
+      }
+    }
   } |
 
   for (resp <- returnCh) {
     match *resp {
-      true => {
-        basket!({ "status": "completed" }) |
-        stdout!("completed, tokens created")
-      }
-      _ => {
+      String => {
         basket!({ "status": "failed", "message": *resp }) |
         stdout!(("failed", *resp))
+      }
+      (true, payload) => {
+        new entryCh, return2Ch, itCh in {
+          registryLookup!(\`rho:id:${payload.fromBoxRegistryUri}\`, *entryCh) |
+          for (entry <- entryCh) {
+            for (purses <= itCh) {
+              match *purses {
+                Nil => {
+                  basket!({ "status": "failed", "message": "no purse" }) |
+                  stdout!(("failed", "no purse"))
+                }
+                [last] => {
+                  new readReturnCh, receivePurseReturnCh in {
+                    @(last, "READ")!((Nil, *readReturnCh)) |
+                    for (properties <- readReturnCh) {
+                      @(*entry, "PUBLIC_RECEIVE_PURSE")!(({
+                        "registryUri": \`rho:id:${registryUri}\`,
+                        "purse": last
+                      }, *receivePurseReturnCh))
+                    } |
+                    for (r <- receivePurseReturnCh) {
+                      match *r {
+                        String => {
+                          basket!({ "status": "failed", "message": *r }) |
+                          stdout!(("failed", *r))
+                        }
+                        _ => {
+                          stdout!("completed, purses created and saved to box") |
+                          basket!({ "status": "completed" })
+                        }
+                      }
+                    }
+                  }
+                }
+                [first ... rest] => {
+                  new readReturnCh, receivePurseReturnCh in {
+                    @(first, "READ")!((Nil, *readReturnCh)) |
+                    for (properties <- readReturnCh) {
+                      @(*entry, "PUBLIC_RECEIVE_PURSE")!(({
+                        "registryUri": \`rho:id:${registryUri}\`,
+                        "purse": first
+                      }, *receivePurseReturnCh))
+                    } |
+                    for (r <- receivePurseReturnCh) {
+                      match *r {
+                        String => {
+                          basket!({ "status": "failed", "message": *r }) |
+                          stdout!(("failed", *r))
+                        }
+                        _ => { itCh!(rest) }
+                      }
+                    }
+                  }
+                }
+              }
+            } |
+            itCh!(payload.get("purses"))
+          }
+        }
       }
     }
   }
@@ -1052,11 +1542,396 @@ in {
 `;
 };
 
-var createTokensTerm = {
-	createTokensTerm: createTokensTerm_1
+var createPursesTerm = {
+	createPursesTerm: createPursesTerm_1
 };
 
-var purchaseTokensTerm_1 = (
+var sendPurseTerm_1 = (
+    registryUri,
+  payload
+) => {
+  return `new basket,
+  sendReturnCh,
+  deletePurseReturnCh,
+  boxCh,
+  boxEntryCh,
+  boxEntry2Ch,
+  receivePursesReturnCh,
+  receivePursesReturn2Ch,
+  stdout(\`rho:io:stdout\`),
+  deployerId(\`rho:rchain:deployerId\`),
+  registryLookup(\`rho:registry:lookup\`)
+in {
+
+  @(*deployerId, "rho:id:${payload.fromBoxRegistryUri}")!(({ "type": "READ_PURSES" }, *boxCh)) |
+
+  for (purses <- boxCh) {
+    match *purses.get(\`rho:id:${registryUri}\`).get("${payload.purseId}") {
+      Nil => {
+        basket!({ "status": "failed", "message": "purse not found" }) |
+        stdout!(("failed", "purse not found"))
+      }
+      purse => {
+        registryLookup!(\`rho:id:${payload.toBoxRegistryUri}\`, *boxEntryCh) |
+        for (boxEntry <- boxEntryCh) {
+          @(*boxEntry, "PUBLIC_RECEIVE_PURSE")!((
+            {
+              "registryUri": \`rho:id:${registryUri}\`,
+              "purse": purse,
+            },
+            *receivePursesReturnCh
+          )) |
+          for (r <- receivePursesReturnCh) {
+            match *r {
+              (true, Nil) => {
+                match "rho:id:${payload.toBoxRegistryUri}" == "rho:id:${payload.fromBoxRegistryUri}" {
+                  true => {
+                    stdout!("completed, purse sent") |
+                    basket!({ "status": "completed" })
+                  }
+                  false => {
+                    /*
+                      Remove the purse from emitter's box now that it is worthless
+                    */
+                    @(*deployerId, "rho:id:${payload.fromBoxRegistryUri}")!((
+                      { "type": "DELETE_PURSE", "payload": { "registryUri": \`rho:id:${registryUri}\`, "id": "${payload.purseId}" } },
+                      *deletePurseReturnCh
+                    )) |
+                    for (r2 <- deletePurseReturnCh) {
+                      match *r2 {
+                        String => {
+                          stdout!("WARNING completed, purse sent but could not remove from box") |
+                          basket!({ "status": "completed" })
+                        }
+                        _ => {
+                          stdout!("completed, purse sent and removed from box") |
+                          basket!({ "status": "completed" })
+                        }
+                      }
+                    }
+
+                  }
+                }
+              }
+              _ => {
+                registryLookup!(\`rho:id:${payload.fromBoxRegistryUri}\`, *boxEntry2Ch) |
+                for (boxEntry2 <- boxEntry2Ch) {
+                  @(*boxEntry, "PUBLIC_RECEIVE_PURSE")!((
+                    {
+                      "registryUri": \`rho:id:${registryUri}\`,
+                      "purse": purse,
+                    },
+                    *receivePursesReturn2Ch
+                  ))
+                } |
+                for (r2 <- receivePursesReturn2Ch) {
+                  match *r2 {
+                    String => {
+                      stdout!("Failed to send, could not send back to emitter box, purse may be lost " ++ *r2 ++ *r) |
+                      basket!({ "status": "failed", "message": "Failed to send, could not send back to emitter box, purse may be lost " ++ *r2 ++ *r})
+                    }
+                    _ => {
+                      stdout!("Failed to send, could send back to emitter box" ++ *r2) |
+                      basket!({ "status": "failed", "message": "Failed to send, could send back to emitter box" ++ *r2 })
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`;
+};
+
+var sendPurseTerm = {
+	sendPurseTerm: sendPurseTerm_1
+};
+
+var readPursesTerm_1 = (
+  registryUri,
+  payload
+) => {
+  return `new return, entryCh, readCh, lookup(\`rho:registry:lookup\`) in {
+  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+  for(entry <- entryCh) {
+    new x in {
+      @(*entry, "PUBLIC_READ_PURSES")!((Set(${payload.pursesIds
+  .map((id) => '"' + id + '"')
+  .join(',')}), *x)) |
+      for (y <- x) {
+        return!(*y)
+      }
+    }
+  }
+}`;
+    };
+
+var readPursesTerm = {
+	readPursesTerm: readPursesTerm_1
+};
+
+var readPursesIdsTerm_1 = (
+  registryUri
+) => {
+  return `new return, entryCh, readCh, lookup(\`rho:registry:lookup\`) in {
+  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+  for(entry <- entryCh) {
+    new x in {
+      @(*entry, "PUBLIC_READ_PURSES_IDS")!((Nil, *x)) |
+      for (y <- x) {
+        return!(*y)
+      }
+    }
+  }
+}`;
+};
+
+var readPursesIdsTerm = {
+	readPursesIdsTerm: readPursesIdsTerm_1
+};
+
+var readBoxTerm_1 = (
+  boxRegistryUri
+) => {
+  return `new return, entryCh, lookup(\`rho:registry:lookup\`), stdout(\`rho:io:stdout\`) in {
+  lookup!(\`rho:id:${boxRegistryUri}\`, *entryCh) |
+  for(entry <- entryCh) {
+    stdout!(*entry) |
+    new a in {
+      @(*entry, "PUBLIC_READ")!((Nil, *a)) |
+      for (current <- a) {
+        new b in {
+          @(*entry, "PUBLIC_READ_SUPER_KEYS")!((Nil, *b)) |
+          for (superKeys <- b) {
+            new c in {
+              @(*entry, "PUBLIC_READ_PURSES")!((Nil, *c)) |
+              for (purses <- c) {
+                return!(
+                  *current
+                    .set("superKeys", *superKeys)
+                    .set("purses", *purses)
+                )
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}`;
+};
+
+var readBoxTerm = {
+	readBoxTerm: readBoxTerm_1
+};
+
+var readTerm_1 = (
+  registryUri
+) => {
+  return `new return, entryCh, readCh, lookup(\`rho:registry:lookup\`) in {
+  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+  for(entry <- entryCh) {
+    new x in {
+      @(*entry, "PUBLIC_READ")!((Nil, *x)) |
+      for (y <- x) {
+        return!(*y)
+      }
+    }
+  }
+}`;
+};
+
+var readTerm = {
+	readTerm: readTerm_1
+};
+
+var updatePurseDataTerm_1 = (
+    registryUri,
+  payload
+) => {
+  return `new basket,
+  returnCh,
+  deletePurseReturnCh,
+  boxCh,
+  stdout(\`rho:io:stdout\`),
+  deployerId(\`rho:rchain:deployerId\`),
+  registryLookup(\`rho:registry:lookup\`)
+in {
+
+  @(*deployerId, "rho:id:${payload.fromBoxRegistryUri}")!(({ "type": "READ_PURSES" }, *boxCh)) |
+
+  for (purses <- boxCh) {
+    match *purses.get(\`rho:id:${registryUri}\`).get("${payload.purseId}") {
+      Nil => {
+        basket!({ "status": "failed", "message": "purse not found" }) |
+        stdout!(("failed", "purse not found"))
+      }
+      purse => {
+        @(purse, "UPDATE_DATA")!(("${payload.data}", *returnCh)) |
+        for (r <- returnCh) {
+          match *r {
+            String => {
+              basket!({ "status": "failed", "message": *r }) |
+              stdout!(("failed", *r))
+            }
+            _ => {
+              stdout!("completed, purse data updated") |
+              basket!({ "status": "completed" })
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`;
+};
+
+var updatePurseDataTerm = {
+	updatePurseDataTerm: updatePurseDataTerm_1
+};
+
+var readPursesDataTerm_1 = (
+  registryUri,
+  payload
+) => {
+  return `new return, entryCh, readCh, lookup(\`rho:registry:lookup\`) in {
+  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+  for(entry <- entryCh) {
+    new x in {
+      @(*entry, "PUBLIC_READ_PURSES_DATA")!((Set(${payload.pursesIds
+  .map((id) => '"' + id + '"')
+  .join(',')}), *x)) |
+      for (y <- x) {
+        return!(*y)
+      }
+    }
+  }
+}`;
+    };
+
+var readPursesDataTerm = {
+	readPursesDataTerm: readPursesDataTerm_1
+};
+
+var splitPurseTerm_1 = (
+    registryUri,
+  payload
+) => {
+  return `new basket,
+  withdrawReturnCh,
+  savePurseReturnCh,
+  boxCh,
+  readReturnCh,
+  stdout(\`rho:io:stdout\`),
+  deployerId(\`rho:rchain:deployerId\`),
+  registryLookup(\`rho:registry:lookup\`)
+in {
+
+  @(*deployerId, "rho:id:${payload.fromBoxRegistryUri}")!(({ "type": "READ_PURSES" }, *boxCh)) |
+
+  for (purses <- boxCh) {
+    match *purses.get(\`rho:id:${registryUri}\`).get("${payload.purseId}") {
+      Nil => {
+        basket!({ "status": "failed", "message": "purse not found" }) |
+        stdout!(("failed", "purse not found"))
+      }
+      purse => {
+        @(purse, "WITHDRAW")!((${payload.quantityInNewPurse}, *withdrawReturnCh)) |
+        for (r <- withdrawReturnCh) {
+          match *r {
+            String => {
+              basket!({ "status": "failed", "message": *r }) |
+              stdout!(("failed", *r))
+            }
+            (true, newPurse) => {
+              @(newPurse, "READ")!((Nil, *readReturnCh)) |
+              for (@properties <- readReturnCh) {
+                /*
+                  Save new purse without joining it (DEPOSIT) to a purse with same type
+                */
+                @(*deployerId, "rho:id:${payload.fromBoxRegistryUri}")!((
+                  { "type": "SAVE_PURSE_SEPARATELY", "payload": { "registryUri": \`rho:id:${registryUri}\`, "purse": newPurse } },
+                  *savePurseReturnCh
+                )) |
+                for (r2 <- savePurseReturnCh) {
+                  match *r2 {
+                    String => {
+                      stdout!("DANGER completed, purse split but could not save to box") |
+                      basket!({ "status": "failed", "message": "DANGER completed, purse split but could not save to box" })
+                    }
+                    _ => {
+                      stdout!("completed, purse split and saved in box") |
+                      basket!({ "status": "completed" })
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`;
+};
+
+var splitPurseTerm = {
+	splitPurseTerm: splitPurseTerm_1
+};
+
+var setPriceTerm_1 = (
+  registryUri,
+  payload
+) => {
+  return `new basket,
+  sendReturnCh,
+  deletePurseReturnCh,
+  boxCh,
+  stdout(\`rho:io:stdout\`),
+  deployerId(\`rho:rchain:deployerId\`),
+  registryLookup(\`rho:registry:lookup\`)
+in {
+
+  @(*deployerId, "rho:id:${payload.fromBoxRegistryUri}")!(({ "type": "READ_PURSES" }, *boxCh)) |
+
+  for (purses <- boxCh) {
+    match *purses.get(\`rho:id:${registryUri}\`).get("${payload.purseId}") {
+      Nil => {
+        basket!({ "status": "failed", "message": "purse not found" }) |
+        stdout!(("failed", "purse not found"))
+      }
+      purse => {
+        @(purse, "SET_PRICE")!((${payload.price || "Nil"}, *sendReturnCh)) |
+        for (r <- sendReturnCh) {
+          match *r {
+            String => {
+              basket!({ "status": "failed", "message": *r }) |
+              stdout!(("failed", *r))
+            }
+            _ => {
+              stdout!("completed, price set") |
+              basket!({ "status": "completed" })
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`;
+};
+
+var setPriceTerm = {
+	setPriceTerm: setPriceTerm_1
+};
+
+var purchaseTerm_1 = (
   registryUri,
   payload
 ) => {
@@ -1067,11 +1942,10 @@ new
   priceCh,
   quantityCh,
   publicKeyCh,
-  nonceCh,
-  bagDataCh,
+  newIdCh,
+  dataCh,
   returnCh,
-  bagIdCh,
-  newBagIdCh,
+  purseIdCh,
   registryUriCh,
   revAddressCh,
   registryLookup(\`rho:registry:lookup\`),
@@ -1081,24 +1955,22 @@ in {
 
   /*
     The 5 following values must be filled with proper values
-  */ 
+  */
   // Registry URI of the contract
   registryUriCh!!(\`rho:id:${registryUri}\`) |
   // Unique ID of the token you want to purchase
-  bagIdCh!!("${payload.bagId}") |
-  // new bag ID (index, home, contact, document etc.)
-  newBagIdCh!!("${payload.newBagId}") |
+  purseIdCh!!("${payload.purseId}") |
+  // New ID only used if fungible = false
+  newIdCh!!("${payload.newId ? payload.newId : "Nil"}") |
   // Per token price, make sure it is accurate
   priceCh!!(${payload.price || "Nil"}) |
-  // Bag data: Any
-  bagDataCh!!(${payload.data ? '"' + payload.data + '"' : "Nil"}) |
   // Quantity you want to purchase, make sure enough are available
   quantityCh!!(${payload.quantity}) |
   // Your public key
   // If the transfer fails, refund will go to the corresponding REV address
   publicKeyCh!!("${payload.publicKey}") |
-  // A unique nonce to be changed on each operation
-  nonceCh!!("${payload.bagNonce}") |
+  // data
+  dataCh!("${payload.data}") |
 
   registryLookup!(\`rho:rchain:revVault\`, *revVaultPurseCh) |
 
@@ -1118,13 +1990,12 @@ in {
         for (
           @(true, *vault) <- vaultCh;
           @publicKey <- publicKeyCh;
-          @nonce <- nonceCh;
-          @bagId <- bagIdCh;
-          @newBagId <- newBagIdCh;
+          @purseId <- purseIdCh;
           @registryUri <- registryUriCh;
           @price <- priceCh;
-          @bagData <- bagDataCh;
-          @quantity <- quantityCh
+          @quantity <- quantityCh;
+          @newId <- newIdCh;
+          @data <- dataCh
         ) {
 
           revAddress!("fromPublicKey", publicKey.hexToBytes(), *revAddressCh) |
@@ -1164,30 +2035,56 @@ in {
                               registryLookup!(registryUri, *entryCh) |
 
                               for(entry <- entryCh) {
-                                stdout!(("GET ENTRY", *entry)) |
-                                entry!(
+                                stdout!("PUBLIC_PURCHASE") |
+                                stdout!(*entry) |
+                                @(*entry, "PUBLIC_PURCHASE")!((
                                   {
-                                    "type": "PURCHASE_TOKENS",
-                                    "payload": {
-                                      "quantity": quantity,
-                                      "bagId": bagId,
-                                      "newBagId": newBagId,
-                                      "data": bagData,
-                                      "nonce": nonce,
-                                      "publicKey": publicKey,
-                                      "purseRevAddr": purseRevAddr,
-                                      "purseAuthKey": purseAuthKey
-                                    }
+                                    "quantity": quantity,
+                                    "purseId": purseId,
+                                    "newId": newId,
+                                    "data": data,
+                                    "publicKey": publicKey,
+                                    "purseRevAddr": purseRevAddr,
+                                    "purseAuthKey": purseAuthKey
                                   },
                                   *returnCh
-                                ) |
+                                )) |
                                 for (resp <- returnCh) {
+                                  stdout!(*resp) |
                                   match *resp {
-                                    true => {
-                                      basket!({ "status": "completed" }) |
-                                      stdout!("completed, tokens purchased")
+                                    (true, purse) => {
+                                      stdout!("yep") |
+                                      new readReturnCh, boxEntryCh, receivePursesReturnCh in {
+                                        @(*entry, "PUBLIC_READ")!((Nil, *readReturnCh)) |
+                                        for (@current <- readReturnCh) {
+                                          stdout!(("current", current)) |
+                                          registryLookup!(\`rho:id:${payload.toBoxRegistryUri}\`, *boxEntryCh) |
+                                          for (boxEntry <- boxEntryCh) {
+                                            @(*boxEntry, "${payload.actionAfterPurchase || "PUBLIC_RECEIVE_PURSE"}")!((
+                                              {
+                                                "registryUri": current.get("registryUri"),
+                                                "purse": purse,
+                                              },
+                                              *receivePursesReturnCh
+                                            )) |
+                                            for (r <- receivePursesReturnCh) {
+                                              match *r {
+                                                String => {
+                                                  basket!({ "status": "failed", "message": *resp }) |
+                                                  stdout!(("failed", *resp))
+                                                }
+                                                _ => {
+                                                  basket!({ "status": "completed" }) |
+                                                  stdout!("purchase went well")
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
                                     }
                                     _ => {
+                                      stdout!(*resp) |
                                       basket!({ "status": "failed", "message": *resp }) |
                                       stdout!(("failed", *resp))
                                     }
@@ -1212,64 +2109,93 @@ in {
       }
     }
   }
-}
-`;
+}`;
 };
 
-var purchaseTokensTerm = {
-	purchaseTokensTerm: purchaseTokensTerm_1
+var purchaseTerm = {
+	purchaseTerm: purchaseTerm_1
 };
 
-var sendTokensTerm_1 = (
-  registryUri,
-  payload,
-  signature, 
+var withdrawTerm_1 = (
+    registryUri,
+  payload
 ) => {
   return `new basket,
-  returnCh,
-  entryCh,
-  lookup(\`rho:registry:lookup\`),
-  stdout(\`rho:io:stdout\`)
+  withdrawReturnCh,
+  savePurseReturnCh,
+  boxCh,
+  readReturnCh,
+  receivePursesReturnCh,
+  receivePursesReturn2Ch,
+  boxEntryCh,
+  boxEntry2Ch,
+  stdout(\`rho:io:stdout\`),
+  deployerId(\`rho:rchain:deployerId\`),
+  registryLookup(\`rho:registry:lookup\`)
 in {
 
-  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+  @(*deployerId, "rho:id:${payload.fromBoxRegistryUri}")!(({ "type": "READ_PURSES" }, *boxCh)) |
 
-  for(entry <- entryCh) {
-    entry!(
-      {
-        "type": "SEND_TOKENS",
-        // signature of the payload + bag nonce in it, with the private key of the bag owner (generateSignatureForNonce.js)
-        "signature": "${signature}",
-        "payload": {
-          // new nonce, must be different and random (generateNonce.js)
-          "bagNonce": "${payload.bagNonce}",
-          // new nonce for the new bag
-          "bagNonce2": "${payload.bagNonce2}",
-          // bag ID to send tokens from (ex: "0")
-          "bagId": "${payload.bagId}",
-          // new bag ID (index, home, contact, document etc.)
-          "newBagId": "${payload.newBagId}",
-          // quantity of tokens to send
-          "quantity": ${payload.quantity},
-          // publicKey this send those tokens to (can be the same just split a bag)
-          "publicKey": "${payload.publicKey}",
-          // data (optional) to be attached to the new bag (in bagsData)
-          "data": ${payload.data ? '"' + payload.data + '"' : "Nil"}
-        }
-      },
-      *returnCh
-    )
-  } |
-
-  for (resp <- returnCh) {
-    match *resp {
-      true => {
-        basket!({ "status": "completed" }) |
-        stdout!("completed, tokens send")
+  for (purses <- boxCh) {
+    match *purses.get(\`rho:id:${registryUri}\`).get("${payload.purseId}") {
+      Nil => {
+        basket!({ "status": "failed", "message": "purse not found" }) |
+        stdout!(("failed", "purse not found"))
       }
-      _ => {
-        basket!({ "status": "failed", "message": *resp }) |
-        stdout!(("failed", *resp))
+      purse => {
+        @(purse, "WITHDRAW")!((${payload.quantityToWithdraw}, *withdrawReturnCh)) |
+        for (r <- withdrawReturnCh) {
+          match *r {
+            String => {
+              basket!({ "status": "failed", "message": *r }) |
+              stdout!(("failed", *r))
+            }
+            (true, newPurse) => {
+              registryLookup!(\`rho:id:${payload.toBoxRegistryUri}\`, *boxEntryCh) |
+              for (boxEntry <- boxEntryCh) {
+                @(*boxEntry, "PUBLIC_RECEIVE_PURSE")!((
+                  {
+                    "registryUri": \`rho:id:${registryUri}\`,
+                    "purse": newPurse,
+                  },
+                  *receivePursesReturnCh
+                ))
+              } |
+              for (r <- receivePursesReturnCh) {
+                match *r {
+                  (true, Nil) => {
+                    stdout!("Purse withdrawn") |
+                    basket!({ "status": "completed", "message": "Purse withdrawn" })
+                  }
+                  _ => {
+                    registryLookup!(\`rho:id:${payload.fromBoxRegistryUri}\`, *boxEntry2Ch) |
+                    for (boxEntry2 <- boxEntry2Ch) {
+                      @(*boxEntry2, "PUBLIC_RECEIVE_PURSE")!((
+                        {
+                          "registryUri": \`rho:id:${registryUri}\`,
+                          "purse": newPurse,
+                        },
+                        *receivePursesReturnCh
+                      ))
+                    } |
+                    for (r2 <- receivePursesReturn2Ch) {
+                      match *r2 {
+                        String => {
+                          stdout!("Failed to withdraw to recipient box, could not withdrawn back to box " ++ *r2) |
+                          basket!({ "status": "failed", "message": "Failed to withdraw to recipient box, could not withdrawn back to box " ++ *r2 })
+                        }
+                        _ => {
+                          stdout!("Failed to withdraw to recipient box, withdrawn back to box") |
+                          basket!({ "status": "failed", "message": "Failed to withdraw to recipient box, withdrawn back to box"})
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -1277,327 +2203,44 @@ in {
 `;
 };
 
-var sendTokensTerm = {
-	sendTokensTerm: sendTokensTerm_1
+var withdrawTerm = {
+	withdrawTerm: withdrawTerm_1
 };
 
-var setLockedTerm_1 = (registryUri, payload, signature) => {
-  return `new basket,
-  entryCh,
-  returnCh,
-  lookup(\`rho:registry:lookup\`),
-  stdout(\`rho:io:stdout\`)
-in {
-
-  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
-
-  for(entry <- entryCh) {
-    entry!(
-      {
-        "type": "SET_LOCKED",
-        // signature of the payload + contract nonce in it, with the private key of the owner (generateSignatureForNonce.js)
-        "signature": "${signature}",
-        "payload": {
-          // new nonce, must be different and random (generateNonce.js)
-          "newNonce": "${payload.newNonce}",
-        }
-      },
-      *returnCh
-    )
-  } |
-
-  for (resp <- returnCh) {
-    match *resp {
-      true => {
-        basket!({ "status": "completed" }) |
-        stdout!("completed, contract locked")
-      }
-      _ => {
-        basket!({ "status": "failed", "message": *resp }) |
-        stdout!(("failed", *resp))
-      }
-    }
-  }
-}
-`;
-};
-
-var setLockedTerm = {
-	setLockedTerm: setLockedTerm_1
-};
-
-var updateTokenDataTerm_1 = (
-  registryUri,
-  payload,
-  signature, 
-) => {
-  return `new basket,
-  entryCh,
-  returnCh,
-  lookup(\`rho:registry:lookup\`),
-  stdout(\`rho:io:stdout\`)
-in {
-
-  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
-
-  for(entry <- entryCh) {
-    entry!(
-      {
-        "type": "UPDATE_TOKEN_DATA",
-        // signature of the payload + contract nonce in it, with the private key of the owner (generateSignatureForNonce.js)
-        "signature": "${signature}",
-        "payload": {
-          // new nonce, must be different and random (generateNonce.js)
-          "newNonce": "${payload.newNonce}",
-          // token ID you want to attach data to
-          "n": ${typeof payload.n == "string" ? '"' + payload.n + '"' : "Nil"},
-          // data is used only if new token ("n" : Nil)
-          "data": ${payload.data ? '"' + payload.data + '"' : "Nil"}
-        }
-      },
-      *returnCh
-    )
-  } |
-
-  for (resp <- returnCh) {
-    match *resp {
-      true => {
-        basket!({ "status": "completed" }) |
-        stdout!("completed, data updated")
-      }
-      _ => {
-        basket!({ "status": "failed", "message": *resp }) |
-        stdout!(("failed", *resp))
-      }
-    }
-  }
-}
-`;
-};
-
-var updateTokenDataTerm = {
-	updateTokenDataTerm: updateTokenDataTerm_1
-};
-
-var updateBagDataTerm_1 = (
-  registryUri,
-  payload,
-  signature,
-) => {
-  return `new basket,
-  entryCh,
-  returnCh,
-  lookup(\`rho:registry:lookup\`),
-  stdout(\`rho:io:stdout\`)
-in {
-
-  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
-
-  for(entry <- entryCh) {
-    entry!(
-      {
-        "type": "UPDATE_BAG_DATA",
-        // signature of the payload + bag nonce in it, with the private key of the bag owner (generateSignatureForNonce.js)
-        "signature": "${signature}",
-        "payload": {
-          // new nonce, must be different and random (generateNonce.js)
-          "newNonce": "${payload.newNonce}",
-          // bag ID you want to attach data to
-          "bagId": "${payload.bagId}",
-          // data is used only if new token ("n" : Nil)
-          "data": ${payload.data ? '"' + payload.data + '"' : "Nil"}
-        }
-      },
-      *returnCh
-    )
-  } |
-
-  for (resp <- returnCh) {
-    match *resp {
-      true => {
-        basket!({ "status": "completed" }) |
-        stdout!("completed, data updated")
-      }
-      _ => {
-        basket!({ "status": "failed", "message": *resp }) |
-        stdout!(("failed", *resp))
-      }
-    }
-  }
-}
-`;
-};
-
-var updateBagDataTerm = {
-	updateBagDataTerm: updateBagDataTerm_1
-};
-
-var readBagOrTokenDataTerm_1 = (
-  registryUri,
-  bagsOrTokens,
-  bagOrTokenId,
-) => {
-  return `new return, entryCh, readCh, lookup(\`rho:registry:lookup\`) in {
-    lookup!(\`rho:id:${registryUri}\`, *entryCh) |
-    for(entry <- entryCh) {
-      new x in {
-        entry!({ "type": "${bagsOrTokens === "tokens" ? "READ_TOKENS_DATA" : "READ_BAGS_DATA"}" }, *x) |
-        for (y <- x) {
-          return!(*y.get("${bagOrTokenId}"))
-        }
-      }
-    }
-  }`;
-};
-
-var readBagOrTokenDataTerm = {
-	readBagOrTokenDataTerm: readBagOrTokenDataTerm_1
-};
-
-var readBagsOrTokensDataTerm_1 = (
-  registryUri,
-  bagsOrTokens
-) => {
-  return `new return, entryCh, readCh, lookup(\`rho:registry:lookup\`) in {
-    lookup!(\`rho:id:${registryUri}\`, *entryCh) |
-    for(entry <- entryCh) {
-      new x in {
-        entry!({ "type": "${bagsOrTokens === "tokens" ? "READ_TOKENS_DATA" : "READ_BAGS_DATA"}" }, *x) |
-        for (y <- x) {
-          return!(*y)
-        }
-      }
-    }
-  }`;
-};
-
-var readBagsOrTokensDataTerm = {
-	readBagsOrTokensDataTerm: readBagsOrTokensDataTerm_1
-};
-
-var read_1 = (
-  registryUri,
-) => {
-  return `new return, entryCh, readCh, lookup(\`rho:registry:lookup\`) in {
-    lookup!(\`rho:id:${registryUri}\`, *entryCh) |
-    for(entry <- entryCh) {
-      new x in {
-        entry!({ "type": "READ" }, *x) |
-        for (y <- x) {
-          return!(*y)
-        }
-      }
-    }
-  }`;
-};
-
-var read = {
-	read: read_1
-};
-
-var readBagsTerm_1 = (
-  registryUri
-) => {
-  return `new return, entryCh, readCh, lookup(\`rho:registry:lookup\`) in {
-    lookup!(\`rho:id:${registryUri}\`, *entryCh) |
-    for(entry <- entryCh) {
-      new x in {
-        entry!({ "type": "READ_BAGS" }, *x) |
-        for (y <- x) {
-          return!(*y)
-        }
-      }
-    }
-  }`;
-};
-
-var readBagsTerm = {
-	readBagsTerm: readBagsTerm_1
-};
-
-var changePriceTerm_1 = (
-  registryUri,
-  payload,
-  signature,
-) => {
-  return `new basket,
-  returnCh,
-  entryCh,
-  lookup(\`rho:registry:lookup\`),
-  stdout(\`rho:io:stdout\`)
-in {
-
-  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
-
-  for(entry <- entryCh) {
-    entry!(
-      {
-        "type": "CHANGE_PRICE",
-        // signature of the payload + bag nonce in it, with the private key of the bag owner (generateSignatureForNonce.js)
-        "signature": "${signature}",
-        "payload": {
-          // new nonce, must be different and random (generateNonce.js)
-          "bagNonce": "${payload.bagNonce}",
-          // bag ID (ex: "0")
-          "bagId": "${payload.bagId}",
-          // quantity of tokens to send
-          "price": ${payload.price || "Nil"},
-        }
-      },
-      *returnCh
-    )
-  } |
-
-  for (resp <- returnCh) {
-    match *resp {
-      true => {
-        basket!({ "status": "completed" }) |
-        stdout!("completed, bag price changed")
-      }
-      _ => {
-        basket!({ "status": "failed", "message": *resp }) |
-        stdout!(("failed", *resp))
-      }
-    }
-  }
-}
-`;
-};
-
-var changePriceTerm = {
-	changePriceTerm: changePriceTerm_1
-};
-
+const { boxTerm: boxTerm$1 } = boxTerm;
 const { mainTerm: mainTerm$1 } = mainTerm;
-const { createTokensTerm: createTokensTerm$1 } = createTokensTerm;
-const { purchaseTokensTerm: purchaseTokensTerm$1 } = purchaseTokensTerm;
-const { sendTokensTerm: sendTokensTerm$1 } = sendTokensTerm;
-const { setLockedTerm: setLockedTerm$1 } = setLockedTerm;
-const { updateTokenDataTerm: updateTokenDataTerm$1 } = updateTokenDataTerm;
-const { updateBagDataTerm: updateBagDataTerm$1 } = updateBagDataTerm;
-const { readBagOrTokenDataTerm: readBagOrTokenDataTerm$1 } = readBagOrTokenDataTerm;
-const { readBagsOrTokensDataTerm: readBagsOrTokensDataTerm$1 } = readBagsOrTokensDataTerm;
-const { read: read$1 } = read;
-const { readBagsTerm: readBagsTerm$1 } = readBagsTerm;
-const { changePriceTerm: changePriceTerm$1 } = changePriceTerm;
+const { createPursesTerm: createPursesTerm$1 } = createPursesTerm;
+const { sendPurseTerm: sendPurseTerm$1 } = sendPurseTerm;
+const { readPursesTerm: readPursesTerm$1 } = readPursesTerm;
+const { readPursesIdsTerm: readPursesIdsTerm$1 } = readPursesIdsTerm;
+const { readBoxTerm: readBoxTerm$1 } = readBoxTerm;
+const { readTerm: readTerm$1 } = readTerm;
+const { updatePurseDataTerm: updatePurseDataTerm$1 } = updatePurseDataTerm;
+const { readPursesDataTerm: readPursesDataTerm$1 } = readPursesDataTerm;
+const { splitPurseTerm: splitPurseTerm$1 } = splitPurseTerm;
+const { setPriceTerm: setPriceTerm$1 } = setPriceTerm;
+const { purchaseTerm: purchaseTerm$1 } = purchaseTerm;
+const { withdrawTerm: withdrawTerm$1 } = withdrawTerm;
 
 var src = {
-  version: '4.0.0',
+  version: '5.0.0',
+  boxTerm: boxTerm$1,
   mainTerm: mainTerm$1,
-  createTokensTerm: createTokensTerm$1,
-  purchaseTokensTerm: purchaseTokensTerm$1,
-  sendTokensTerm: sendTokensTerm$1,
-  setLockedTerm: setLockedTerm$1,
-  updateTokenDataTerm: updateTokenDataTerm$1,
-  updateBagDataTerm: updateBagDataTerm$1,
-  readBagOrTokenDataTerm: readBagOrTokenDataTerm$1,
-  readBagsOrTokensDataTerm: readBagsOrTokensDataTerm$1,
-  read: read$1,
-  readBagsTerm: readBagsTerm$1,
-  changePriceTerm: changePriceTerm$1,
+  createPursesTerm: createPursesTerm$1,
+  sendPurseTerm: sendPurseTerm$1,
+  readPursesTerm: readPursesTerm$1,
+  readPursesIdsTerm: readPursesIdsTerm$1,
+  readBoxTerm: readBoxTerm$1,
+  readTerm: readTerm$1,
+  updatePurseDataTerm: updatePurseDataTerm$1,
+  readPursesDataTerm: readPursesDataTerm$1,
+  splitPurseTerm: splitPurseTerm$1,
+  setPriceTerm: setPriceTerm$1,
+  purchaseTerm: purchaseTerm$1,
+  withdrawTerm: withdrawTerm$1,
 };
-var src_9 = src.readBagOrTokenDataTerm;
-var src_11 = src.read;
+var src_9 = src.readTerm;
+var src_11 = src.readPursesDataTerm;
 
 var dist = createCommonjsModule(function (module, exports) {
 
@@ -3719,7 +4362,7 @@ var httpBrowserToNode = function (data, node, timeout) {
                 // cert does not have to be signed by CA (self-signed)
                 rejectUnauthorized: false,
                 // only origin user can have invalid cert
-                cert: node.cert ? decodeURI(node.cert) : (node.origin === 'user' ? undefined : 'INVALIDCERT'),
+                cert: node.cert ? decodeURI(node.cert) : node.origin === 'user' ? undefined : 'INVALIDCERT',
                 ca: [],
             }, function (res) {
                 var data = '';
@@ -12293,10 +12936,10 @@ var getNodeIndex = function (node) {
 var readDataorBagData = function (registryUri, fileId) {
     // read bag data if fileId
     if (fileId) {
-        return src_9(registryUri, 'bags', fileId);
+        return src_11(registryUri, { pursesIds: [fileId] });
     }
     // read contract values { registryUri: ..., nonce: ...} if no file ID
-    return src_11(registryUri);
+    return src_9(registryUri);
 };
 var registerDappyProtocol = function (session, getState) {
     session.protocol.registerBufferProtocol('dappy', function (request, callback) {
@@ -12319,25 +12962,27 @@ var registerDappyProtocol = function (session, getState) {
                 var browserViewId = Object.keys(browserViews_1).find(function (browserViewId) { return browserViews_1[browserViewId].randomId === randomId_1; });
                 var chainId_1 = browserViews_1[browserViewId].address.split('/')[0];
                 url = url.replace('dappy://', 'dappy://' + chainId_1 + '/');
-                if (validateSearchWithProtocol(url)) {
+                if (!validateSearchWithProtocol(url)) {
                     valid = true;
                 }
             }
             catch (e) { }
         }
-        if (!valid) {
-            console.error('Wrong dappy url, must be dappy://aaa/bbb or dappy://aaa/bbb.yy,ccc.aa,ddd');
-            callback();
-            return;
-        }
         // todo if multi, limit to n unforgeable names
         var multipleResources = false;
         var exploreDeploys = false;
         if (url.includes('explore-deploys')) {
+            valid = true;
             exploreDeploys = true;
         }
         else if (url.includes('%2C')) {
+            valid = true;
             multipleResources = true;
+        }
+        if (!valid) {
+            console.error('Wrong dappy url, must be dappy://aaa/bbb or dappy://aaa/bbb.yy,ccc.aa,ddd');
+            callback();
+            return;
         }
         var split = url.replace('dappy://', '').split('/');
         var chainId = split[0];
@@ -13395,11 +14040,10 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
                 uniqueEphemeralTokenAskedOnce = true;
                 return crypto.randomBytes(64, function (err, buf) {
                     uniqueEphemeralToken = buf.toString('hex');
-                    console.log(uniqueEphemeralToken),
-                        callback(Buffer.from(JSON.stringify({
-                            uniqueEphemeralToken: uniqueEphemeralToken,
-                            loadResourceWhenReady: getLoadResourceWhenReady(),
-                        })));
+                    callback(Buffer.from(JSON.stringify({
+                        uniqueEphemeralToken: uniqueEphemeralToken,
+                        loadResourceWhenReady: getLoadResourceWhenReady(),
+                    })));
                 });
             }
             else {
@@ -13411,7 +14055,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
         }
         var uniqueEphemeralTokenFromrequest = '';
         try {
-            uniqueEphemeralTokenFromrequest = JSON.parse(request.headers['Data']).uniqueEphemeralToken;
+            uniqueEphemeralTokenFromrequest = JSON.parse(decodeURI(request.headers['Data'])).uniqueEphemeralToken;
             if (uniqueEphemeralToken !== uniqueEphemeralTokenFromrequest) {
                 throw new Error();
             }
@@ -13425,7 +14069,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
         if (request.url === 'interprocess://get-ip-address-and-cert') {
             var host = '';
             try {
-                host = JSON.parse(request.headers['Data']).parameters.host;
+                host = JSON.parse(decodeURI(request.headers['Data'])).parameters.host;
             }
             catch (e) { }
             getIpAddressAndCert(host)
@@ -13446,7 +14090,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
         /* browser to node */
         if (request.url === 'interprocess://multi-dappy-call') {
             try {
-                var data = JSON.parse(request.headers['Data']);
+                var data = JSON.parse(decodeURI(request.headers['Data']));
                 var parameters = data.parameters;
                 var body = data.body;
                 if (parameters.multiCallId === EXECUTE_RCHAIN_CRON_JOBS) {
@@ -13478,7 +14122,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
         /* browser to node */
         if (request.url === 'interprocess://single-dappy-call') {
             try {
-                var data = JSON.parse(request.headers['Data']);
+                var data = JSON.parse(decodeURI(request.headers['Data']));
                 var node = data.node;
                 var body = data.body;
                 performSingleRequest(body, node)
@@ -13496,7 +14140,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
         }
         if (request.url === 'interprocess://dispatch-in-main') {
             try {
-                var data = JSON.parse(request.headers['Data']);
+                var data = JSON.parse(decodeURI(request.headers['Data']));
                 var action = data.action;
                 if (action.type === LOAD_OR_RELOAD_BROWSER_VIEW) {
                     store.dispatch(__assign(__assign({}, action), { meta: { openExternal: openExternal, browserWindow: browserWindow, dispatchFromMain: dispatchFromMain } }));
@@ -13526,7 +14170,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
         }
         if (request.url === 'interprocess://open-external') {
             try {
-                var data = JSON.parse(request.headers['Data']);
+                var data = JSON.parse(decodeURI(request.headers['Data']));
                 var value = data.value;
                 openExternal(value);
             }
@@ -13537,7 +14181,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
         }
         if (request.url === 'interprocess://copy-to-clipboard') {
             try {
-                var data = JSON.parse(request.headers['Data']);
+                var data = JSON.parse(decodeURI(request.headers['Data']));
                 var value = data.value;
                 electron.clipboard.writeText(value);
             }
@@ -13563,7 +14207,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
         }
         if (request.url === 'interprocess://trigger-command') {
             try {
-                var data = JSON.parse(request.headers['Data']);
+                var data = JSON.parse(decodeURI(request.headers['Data']));
                 var command = data.command;
                 var payload_1 = data.payload;
                 if (command === 'run-ws-cron') {
@@ -16456,7 +17100,7 @@ var searchToAddress = function (name, chainId) {
 
 var development = !!process.defaultApp;
 var loadOrReloadBrowserView = function (action) {
-    var payload, browserViews, position, view, ua, newUserAgent, previewId, currentPath, newBrowserViews;
+    var payload, browserViews, position, view, ua, newUserAgent, previewId, currentPathAndParameters, newBrowserViews;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -16514,24 +17158,27 @@ var loadOrReloadBrowserView = function (action) {
                 view.webContents.loadURL(payload.currentUrl === 'dist/dapp-sandboxed.html'
                     ? path.join('file://', electron.app.getAppPath(), 'dist/dapp-sandboxed.html') + payload.path
                     : payload.currentUrl);
-                currentPath = '';
+                currentPathAndParameters = '';
                 view.webContents.addListener('did-navigate', function (a, currentUrl, httpResponseCode, httpStatusText) {
                     // todo handle httpResponseCode, httpStatusText
-                    currentPath = '';
+                    // if dapp
+                    var url = new URL(currentUrl);
+                    currentPathAndParameters = url.search;
                     // todo handle path for dapps, and not only IP apps
+                    // if IP apps
                     if (!currentUrl.startsWith('file://')) {
                         try {
-                            currentPath = url.parse(currentUrl).path;
+                            currentPathAndParameters = url.pathname + url.search;
                         }
                         catch (err) {
                             console.error('Could not parse URL ' + currentUrl);
                         }
                     }
-                    previewId = ("" + payload.address + currentPath).replace(/\W/g, '');
+                    previewId = ("" + payload.address + currentPathAndParameters).replace(/\W/g, '');
                     action.meta.dispatchFromMain({
                         action: didNavigateInPageAction({
                             previewId: previewId,
-                            address: "" + payload.address + currentPath,
+                            address: "" + payload.address + currentPathAndParameters,
                             tabId: payload.tabId,
                             title: view.webContents.getTitle(),
                         }),

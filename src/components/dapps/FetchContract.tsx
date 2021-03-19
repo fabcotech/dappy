@@ -71,7 +71,7 @@ class FetchContractComponent extends React.Component<FetchContractProps, {}> {
             </div>
           </div>
           <div className="topright fc">
-            {!dNetwork ? (
+            {dNetwork ? (
               <div className="dnetwork">
                 <h4>d network is live</h4>
                 <p>

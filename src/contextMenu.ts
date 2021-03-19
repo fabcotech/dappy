@@ -76,7 +76,6 @@ export const contextMenu = (document: any) => {
       d.addEventListener('click', () => (o[1] as (a: any, b: any, c: any) => void)(div, selected, e.target));
       div.appendChild(d);
     });
-    console.log(div);
     document.body.appendChild(div);
   });
 };
