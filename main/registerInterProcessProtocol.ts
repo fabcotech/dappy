@@ -128,10 +128,11 @@ export const registerInterProcessProtocol = (
             );
           })
           .catch((err) => {
-            callback(err);
+            callback(Buffer.from(JSON.stringify(err)));
           });
-      } catch (e) {
-        callback(e);
+      } catch (err) {
+        console.log(err)
+        callback(Buffer.from(err));
       }
     }
 
@@ -146,7 +147,7 @@ export const registerInterProcessProtocol = (
             callback(Buffer.from(a));
           })
           .catch((err) => {
-            callback(err);
+            callback(Buffer.from(JSON.stringify(err)));
           });
       } catch (err) {
         console.log(err);

@@ -135,6 +135,11 @@ export const interProcess = (store: Store) => {
           })
         )
       );
+      // this should never happen
+      interProcess.onerror = (e) => {
+        console.log(e);
+        reject({ message: 'Unknown error' });
+      };
       interProcess.send();
       interProcess.onload = (a) => {
         try {
@@ -145,6 +150,8 @@ export const interProcess = (store: Store) => {
             reject(r.error || { message: 'Unknown error' });
           }
         } catch (e) {
+          console.log(a.target.responseText);
+          console.log(e);
           reject({ message: 'could not parse response' });
         }
       };
@@ -166,9 +173,10 @@ export const interProcess = (store: Store) => {
         )
       );
       interProcess.send();
+      // this should never happen
       interProcess.onerror = (e) => {
         console.log(e);
-        reject('Unknown error');
+        reject({ message: 'Unknown error' });
       };
       interProcess.onload = (a) => {
         try {
@@ -179,6 +187,8 @@ export const interProcess = (store: Store) => {
             reject(r);
           }
         } catch (e) {
+          console.log(a.target.responseText);
+          console.log(e);
           reject({ message: 'could not parse response' });
         }
       };
