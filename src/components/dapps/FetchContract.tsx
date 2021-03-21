@@ -87,18 +87,18 @@ class FetchContractComponent extends React.Component<FetchContractProps, {}> {
           <div className="botleft">
             <div className="deploy-dapp hexagons">
               <div className="dapp-right">
-                <button onClick={this.onNavigateToAccounts} className="button is-medium is-light mb5">
+                <span onClick={this.onNavigateToAccounts} className="link">
                   <i className="fa fa-money-check fa-before"></i>
                   Check your wallets / accounts
-                </button>
-                <button onClick={this.onNavigateToDeploy} className="button is-medium is-light mb5">
+                </span>
+                <span onClick={this.onNavigateToDeploy} className="link ">
                   <i className="fa fa-angle-double-up fa-before"></i>
                   Deploy a contract for fungibles (FT)
-                </button>
-                <button onClick={this.onNavigateToDeploy} className="button is-medium is-light mb5">
+                </span>
+                <span onClick={this.onNavigateToDeploy} className=" link">
                   <i className="fa fa-angle-double-up fa-before"></i>
                   Deploy a contract for non-fungibles (NFT)
-                </button>
+                </span>
               </div>
             </div>
           </div>

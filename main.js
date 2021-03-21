@@ -14112,11 +14112,12 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
                     })));
                 })
                     .catch(function (err) {
-                    callback(err);
+                    callback(Buffer.from(JSON.stringify(err)));
                 });
             }
-            catch (e) {
-                callback(e);
+            catch (err) {
+                console.log(err);
+                callback(Buffer.from(err));
             }
         }
         /* browser to node */
@@ -14130,7 +14131,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
                     callback(Buffer.from(a));
                 })
                     .catch(function (err) {
-                    callback(err);
+                    callback(Buffer.from(JSON.stringify(err)));
                 });
             }
             catch (err) {

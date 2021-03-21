@@ -277,7 +277,10 @@ export class Deploy extends React.Component<DeployProps, {}> {
       return (
         <div>
           <h3 className="subtitle is-4">Deploy</h3>
-          <p>No boxes is linked to your account, please deploy or link an existing box contract to your account.</p>
+          <p>
+            There is no token boxes linked to your account, please deploy or link an existing box contract to your
+            account.
+          </p>
           <a onClick={() => this.props.navigate({ navigationUrl: '/accounts' })}>Go to accounts</a>
         </div>
       );

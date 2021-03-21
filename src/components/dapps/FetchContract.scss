@@ -11,13 +11,27 @@
     grid-row: 1;
     grid-column: 1;
   }
+  @media screen and (max-width: 1200px) {
+    .home-page {
+      grid-template-columns: 100%;
+      grid-template-rows: 50% 50%;
+    }
+  }
+  @media screen and (min-width: 1201px) {
+    .home-page {
+      grid-template-columns: 500px auto;
+      grid-template-rows: 50% 50%;
+    }
+  }
   .home-page {
+    position: relative;
+    background-image: url('../../images/mountain03.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
     overflow: hidden;
     grid-row: 2;
     grid-column: 1;
     display: grid;
-    grid-template-columns: 50% 50%;
-    grid-template-rows: 50% 50%;
     .img {
       grid-row: 1;
       grid-column: 1;
@@ -25,106 +39,121 @@
       display: flex;
       align-items: center;
     }
-.froggy {
-  display: grid;
-  grid-template-columns: 50% 50%;
-  grid-template-rows: 100%;
-  .text {
-    grid-row: 1;
-    grid-column: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding-left: 10px;
+    .froggy {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 300px;
+      height: 95px;
+      display: grid;
+      grid-template-columns: 64px 140px;
+      grid-template-rows: 100%;
+      .text {
+        grid-row: 1;
+        grid-column: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding-left: 0px;
 
-    & > div {
-      width:100%;
-      height: 200px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      align-items: flex-start;
-      padding-bottom: 10px;
-      .title {
-        padding-left: 10px;
-        color: $primary;
-        margin-bottom: 0px;
+        & > div {
+          width:100%;
+          height: 200px;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
+          align-items: flex-start;
+          padding-bottom: 10px;
+          .title {
+            padding-left: 10px;
+            color: #fff;
+            margin-bottom: 0px;
+          }
+          .is-1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+          }
+          .is-2 {
+            font-size:1rem;
+          }
+        }
       }
-      .is-1 {
-        font-size: 2rem;
-        margin-bottom: 5px;
+      .froggy-01 {
+        width:45px;
+        height: 100px;
+        background-position: center;
+        background-size: contain;
+        background-repeat: no-repeat;
+        transform: translateY(7px);
       }
-      .is-2 {
-        font-size:1rem;
+    }
+    .topright {
+      grid-row-start: 1;
+      grid-row-end: 3;
+      grid-column: 2;
+      .around-dnetwork-1 {
+        border: 2px solid rgb(205, 170, 238);
+        padding: 6px;
+        transform: scale(1.0);
+        &:hover {
+          transition: all ease-in-out 0.3s;
+          transform: scale(1.03);
+        }
       }
-    }
-  }
-  .froggy-01 {
-    width:126px;
-    height: 200px;
-    background-position: center;
-    background-size: contain;
-    background-repeat: no-repeat;
-  }
-}
-.topright {
-  .around-dnetwork-1 {
-    border: 2px solid rgb(205, 170, 238);
-    padding: 6px;
-    transform: scale(1.0);
-    &:hover {
-      transition: all ease-in-out 0.3s;
-      transform: scale(1.03);
-    }
-  }
-  .around-dnetwork-2 {
-    border: 2px solid rgb(124, 68, 177);
-    padding: 4px;
-  }
-  .dnetwork {
-    transform: scale(1.0);
-    transition: all ease-in-out 0.3s;
-    &:hover {
-      transform: scale(1.03);
-      background: linear-gradient(20deg, rgb(76, 18, 131), rgb(169, 88, 245));
-    }
-    width: 490px;
-    height: 230px;
-    border: 2px solid rgb(90, 10, 165);
-    border-radius: 3px;
-    background: linear-gradient(20deg, rgb(56, 11, 99), rgb(146, 65, 223));
-    color: #fff;
-    padding: 20px 18px;
-    h4 {
-      font-size: 2.4rem;
-      font-family: rc;
-      font-style: italic;
-      font-weight: 700;
-    }
-    p {
-      font-size: 1.2rem;
-      font-weight: 400;
-      font-family: rc;
-      &.purchase {
-        margin-top: 5px;
-        a {
-          color: #fff;
-          font-size : 1.4rem;
-          text-decoration: underline;
+      .around-dnetwork-2 {
+        border: 2px solid rgb(124, 68, 177);
+        padding: 4px;
+      }
+      .dnetwork {
+        transform: scale(1.0);
+        transition: all ease-in-out 0.3s;
+        &:hover {
+          transform: scale(1.03);
+          background: linear-gradient(20deg, rgb(76, 18, 131), rgb(169, 88, 245));
+        }
+        width: 490px;
+        height: 230px;
+        border: 2px solid rgb(90, 10, 165);
+        border-radius: 3px;
+        background: linear-gradient(20deg, rgb(56, 11, 99), rgb(146, 65, 223));
+        color: #fff;
+        padding: 20px 18px;
+        h4 {
+          font-size: 2.4rem;
+          font-family: rc;
+          font-style: italic;
+          font-weight: 700;
+        }
+        p {
+          font-size: 1.2rem;
+          font-weight: 400;
+          font-family: rc;
+          &.purchase {
+            margin-top: 5px;
+            a {
+              color: #fff;
+              font-size : 1.4rem;
+              text-decoration: underline;
+            }
+          }
         }
       }
     }
-  }
-}
     .botleft {
       grid-row: 2;
       grid-column: 1;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
-      align-items: flex-end;
+      justify-content: flex-end;
+      align-items: flex-start;
     }
+    /* @media screen and (max-width: 1200px) {
+      .botleft {
+        justify-content: flex-start;
+        align-items: center;
+      }
+    } */
     .botright {
       grid-row: 2;
       grid-column: 2;
@@ -132,7 +161,6 @@
     .deploy-dapp {
       width: 460px;
       border-radius: 2px;
-      height: 100px;
       display: grid;
       grid-template-rows: 100%;
       grid-template-columns: 100%;
@@ -148,9 +176,33 @@
         p a {
           float: right;
         }
+        .link {
+          color: #fff;
+          text-decoration: underline;
+          font-weight: 400;
+          cursor: pointer;
+          margin-bottom: 10px;
+          font-size: 1.2rem;
+          &:hover {
+            font-weight: 600;
+          }
+          i {
+            min-width: 25px;
+          }
+          .fa-money-check {
+            transform: translateX(-5px);
+          }
+        }
         button {
           justify-content: flex-start;
           margin-bottom: 15px;
+          font-weight: 300;
+          font-size: 1.1rem;
+        }
+        .deploy {
+          background: linear-gradient(45deg, #035863, #32639c);
+          color: #fff;
+          
         }
       }
       h4 {
