@@ -98,6 +98,7 @@ This is the process you must respect to upgrade Dappy.
 
 ```
 # On linux (have fpm installed)
+sudo apt-get install --no-install-recommends -y rpm
 sudo apt-get install ruby-dev build-essential
 sudo gem install fpm
 fpm --version
