@@ -8,6 +8,7 @@ export const NAVIGATE = '[Ui] Navigate';
 export const SET_BODY_DIMENSIONS = '[Ui] Set body dimensions';
 export const UPDATE_NAVIGATION_SUGGESTIONS_DISPLAY = '[Ui] Update navigation suggestions display';
 export const UPDATE_LANGUAGE = '[Ui] Update language';
+export const UPDATE_GCU = '[Ui] Update gcu';
 
 export interface UpdateUiFromStoragePayload {
   uiState: fromReducer.State;
@@ -50,5 +51,13 @@ export interface UpdateLanguagePayload {
 }
 export const updateLanguageAction = (values: UpdateLanguagePayload) => ({
   type: UPDATE_LANGUAGE,
+  payload: values,
+});
+
+export interface UpdateGcuPayload {
+  gcu: string;
+}
+export const updateGcuAction = (values: UpdateGcuPayload) => ({
+  type: UPDATE_GCU,
   payload: values,
 });

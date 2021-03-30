@@ -6,19 +6,16 @@ export const uiSchema = yup
     menuCollapsed: yup.boolean().required(),
     dappsListDisplay: yup.number().required(),
     devMode: yup.boolean().required(),
+    gcu: yup.string(),
     // todo this does not work, navigationUrl can be anything
     navigationUrl: yup
       .string()
       .matches(
-        /\/settings\/blockchain|\/settings|\/|\/dapps|\/settings\/names|\/dev\/manifest|transactions|\/deploy\/dapps|\/deploy\/file-upload|\/deploy\/rholang|\/accounts/
+        /\/settings\/blockchain|\/settings|\/|\/dapps|\/settings\/names|\/settings\/gcu|\/dev\/manifest|transactions|\/deploy\/dapps|\/deploy\/file-upload|\/deploy\/rholang|\/accounts/
       )
       .required()
       .strict(true),
-    language: yup
-      .string()
-      .matches(/en|cn/)
-      .required()
-      .strict(true),
+    language: yup.string().matches(/en|cn/).required().strict(true),
   })
   .required()
   .noUnknown(true)
@@ -28,10 +25,10 @@ export const validateUi = (ui: any): Promise<boolean> =>
   new Promise((resolve, reject) => {
     uiSchema
       .validate(ui)
-      .then(a => {
+      .then((a) => {
         resolve();
       })
-      .catch(err => {
+      .catch((err) => {
         reject(err);
       });
   });

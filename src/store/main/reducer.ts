@@ -24,7 +24,6 @@ export interface Modal {
 export interface State {
   currentVersion: undefined | string;
   isBeta: boolean;
-  language: Language;
   versionAwaitingUpdate: undefined | string;
   errors: { errorCode: number; error: string; trace?: string }[];
   modals: Modal[];
@@ -38,8 +37,8 @@ export interface State {
 
 export const initialState: State = {
   currentVersion: VERSION,
+  gcu: undefined,
   isBeta: true,
-  language: 'en',
   versionAwaitingUpdate: undefined,
   errors: [],
   modals: [],

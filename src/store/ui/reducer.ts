@@ -5,6 +5,7 @@ import { Action } from '../';
 import { NavigationUrl, Language } from '../../models';
 
 export interface State {
+  gcu: undefined | string;
   language: Language;
   menuCollapsed: boolean;
   devMode: boolean;
@@ -15,6 +16,7 @@ export interface State {
 }
 
 export const initialState: State = {
+  gcu: undefined,
   language: 'en',
   menuCollapsed: false,
   devMode: false,
@@ -86,6 +88,15 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
+    case fromActions.UPDATE_GCU: {
+      const payload: fromActions.UpdateGcuPayload = action.payload;
+
+      return {
+        ...state,
+        gcu: payload.gcu,
+      };
+    }
+
     default:
       return state;
   }
@@ -94,7 +105,7 @@ export const reducer = (state = initialState, action: Action): State => {
 // SELECTORS
 
 export const getUiState = createSelector(
-  state => state,
+  (state) => state,
   (state: any) => state.ui
 );
 
@@ -108,6 +119,8 @@ export const getDevMode = createSelector(getUiState, (state: State) => state.dev
 
 export const getNavigationUrl = createSelector(getUiState, (state: State) => state.navigationUrl);
 
+export const getGcu = createSelector(getUiState, (state: State) => state.gcu);
+
 export const getBodyDimensions = createSelector(getUiState, (state: State) => state.windowDimensions);
 
 export const getNavigationSuggestionsDisplayed = createSelector(
@@ -115,27 +128,27 @@ export const getNavigationSuggestionsDisplayed = createSelector(
   (state: State) => state.navigationSuggestionsDisplayed
 );
 
-export const getIsMobile = createSelector(getBodyDimensions, dimensions => !!(dimensions && dimensions[0] <= 769));
+export const getIsMobile = createSelector(getBodyDimensions, (dimensions) => !!(dimensions && dimensions[0] <= 769));
 
-export const getIsTablet = createSelector(getBodyDimensions, dimensions => !!(dimensions && dimensions[0] <= 959));
+export const getIsTablet = createSelector(getBodyDimensions, (dimensions) => !!(dimensions && dimensions[0] <= 959));
 
-export const getIsNavigationInSettings = createSelector(getNavigationUrl, navigationUrl =>
+export const getIsNavigationInSettings = createSelector(getNavigationUrl, (navigationUrl) =>
   navigationUrl.startsWith('/settings')
 );
 
-export const getIsNavigationInAccounts = createSelector(getNavigationUrl, navigationUrl =>
+export const getIsNavigationInAccounts = createSelector(getNavigationUrl, (navigationUrl) =>
   navigationUrl.startsWith('/accounts')
 );
 
 export const getIsNavigationInDapps = createSelector(
   getNavigationUrl,
-  navigationUrl => navigationUrl === '/' || navigationUrl.startsWith('/dapps')
+  (navigationUrl) => navigationUrl === '/' || navigationUrl.startsWith('/dapps')
 );
 
-export const getIsNavigationInDeploy = createSelector(getNavigationUrl, navigationUrl =>
+export const getIsNavigationInDeploy = createSelector(getNavigationUrl, (navigationUrl) =>
   navigationUrl.startsWith('/deploy')
 );
 
-export const getIsNavigationInTransactions = createSelector(getNavigationUrl, navigationUrl =>
+export const getIsNavigationInTransactions = createSelector(getNavigationUrl, (navigationUrl) =>
   navigationUrl.startsWith('/transactions')
 );

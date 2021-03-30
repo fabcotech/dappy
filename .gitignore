@@ -10,3 +10,4 @@ output
 *.p12
 ipapps
 translations/getTranslationsDownloadLink.sh
+translations/translations.js

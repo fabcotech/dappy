@@ -1,0 +1,22 @@
+@import "../../style/variables.scss";
+
+
+.gcu {
+  padding: 20px;
+  padding-left: 40px;
+  height: 100%;
+  overflow: auto;
+  background:darken( $primary, 10%);
+  //background:#eee;
+  color: #fff;
+  .gcu-title {
+    font-size: 1.6em;
+    padding-bottom: 20px;
+  }
+  .gcu-text {
+    font-size: 0.9em;
+    white-space: break-spaces;
+    max-width: 800px;
+    padding-bottom: 20px;
+  }
+}

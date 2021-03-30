@@ -10,9 +10,10 @@ import { Root as SettingsRoot } from './settings';
 import { Root as AccountsRoot } from './accounts';
 import { Root as TransactionsRoot } from './transactions';
 import { Menu } from './Menu';
-import { Modal } from './utils';
+import { Modal, Gcu } from './utils';
 import { NavigationUrl, Language } from '../models';
 import { DEVELOPMENT } from '../CONSTANTS';
+import { GCU_TEXT, GCU_VERSION } from '../GCU';
 import { initTranslate } from '../utils/translate';
 
 interface RootComponentProps {
@@ -28,10 +29,12 @@ interface RootComponentProps {
   isNavigationInDeploy: boolean;
   isBeta: boolean;
   currentVersion: undefined | string;
+  gcu: undefined | string;
   isAwaitingUpdate: boolean;
   modal: fromMain.Modal | undefined;
   initializationOver: boolean;
   toggleMenuCollapsed: () => void;
+  updateGcu: () => void;
   navigate: (navigationUrl: NavigationUrl) => void;
 }
 
@@ -51,6 +54,10 @@ class RootComponent extends React.Component<RootComponentProps, {}> {
           <p>Loading</p>
         </div>
       );
+    }
+
+    if (this.props.gcu !== GCU_VERSION) {
+      return <Gcu version={GCU_VERSION} text={GCU_TEXT} continue={this.props.updateGcu}></Gcu>;
     }
 
     /*
@@ -90,19 +97,13 @@ class RootComponent extends React.Component<RootComponentProps, {}> {
         <div className="root-right">
           {this.props.isNavigationInSettings ? (
             <SettingsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
-          ) : (
-            undefined
-          )}
+          ) : undefined}
           {this.props.isNavigationInAccounts ? (
             <AccountsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
-          ) : (
-            undefined
-          )}
+          ) : undefined}
           {this.props.isNavigationInDeploy ? (
             <DeployRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
-          ) : (
-            undefined
-          )}
+          ) : undefined}
           <Dapps />
           {this.props.isNavigationInTransactions ? <TransactionsRoot /> : undefined}
         </div>
@@ -112,7 +113,7 @@ class RootComponent extends React.Component<RootComponentProps, {}> {
 }
 
 export const Root = connect(
-  state => ({
+  (state) => ({
     dappsListDisplay: fromUi.getDappsListDisplay(state),
     menuCollapsed: fromUi.getMenuCollapsed(state),
     isNavigationInDapps: fromUi.getIsNavigationInDapps(state),
@@ -124,13 +125,15 @@ export const Root = connect(
     isMobile: fromUi.getIsMobile(state),
     language: fromUi.getLanguage(state),
     currentVersion: fromMain.getCurrentVersion(state),
+    gcu: fromUi.getGcu(state),
     isAwaitingUpdate: false,
     isBeta: fromMain.getIsBeta(state),
     modal: fromMain.getModal(state),
     initializationOver: fromMain.getInitializationOver(state),
   }),
-  dispatch => ({
+  (dispatch) => ({
     navigate: (navigationUrl: NavigationUrl) => dispatch(fromUi.navigateAction({ navigationUrl: navigationUrl })),
     toggleMenuCollapsed: () => dispatch(fromUi.toggleMenuCollapsedAction()),
+    updateGcu: () => dispatch(fromUi.updateGcuAction({ gcu: GCU_VERSION })),
   })
 )(RootComponent);

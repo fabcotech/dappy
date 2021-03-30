@@ -11,4 +11,4 @@ Rename the created file translations.js
 
 Add `module.exports.translations = ` in the beginning of the file.
 
-Execute `node generateTransactionsObject.js`, enventually change the `lang =` in this file. Transaction file is added in `src`.
+Execute `node generateTransactionsObject.js`, enventually change the `lang =` (*en* or *cn* only !) in this file. Transaction file is added in `src`.

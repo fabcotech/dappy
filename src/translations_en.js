@@ -305,7 +305,7 @@ module.exports.translations = {
     "one": "Purchase a name"
   },
   "purchase name paragraph": {
-    "one": "The first step of owning and distributing a web application or file with Dappy is to own a name.\nSimply purchase a name that is available, and link it to a file or web application you have previously uploaded on the blockchain.\n\nThe RChain chain \"RCHAIN_NAMES_CHAINID\" has not been configured, it must be configured, and have at least one node to deploy dapps."
+    "one": "The first step of owning and distributing a web application or file with Dappy is to own a name.\nSimply purchase a name that is available, and link it to a file or web application you have previously uploaded on the blockchain.\n\nNo networks has been configured. A network must be configured, and have at least one node to purchase or update names."
   },
   "password for": {
     "one": "password for"
@@ -666,5 +666,14 @@ module.exports.translations = {
   },
   "menu browse": {
     "one": "Browse"
+  },
+  "update balances": {
+    "one": "Update balances"
+  },
+  "record regexp": {
+    "one": "Name must starts with a letter, and contain only letters and numbers (a-z, 0-9)"
+  },
+  "menu gcu": {
+    "one": "GCU"
   }
 }

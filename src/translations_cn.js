@@ -305,7 +305,7 @@ module.exports.translations = {
     "one": "购买域名"
   },
   "purchase name paragraph": {
-    "one": "使用Dappy来拥有和分发文件或Web应用程序的第一步是拥有一个域名。\n只需购买一个可用的名称，并将其链接到您先前已在区块链上上传的文件或Web应用程序。\n\n在RChain上“ RCHAIN_NAMES_CHAINID”尚未配置，则必须进行配置，并且至少具有一个节点来部署dapp。"
+    "one": "使用Dappy来拥有和分发文件或Web应用程序的第一步是拥有一个域名。\n只需购买一个可用的名称，并将其链接到您先前已在区块链上上传的文件或Web应用程序。\n\n尚未配置任何网络。 必须配置一个网络，并且至少有一个活动节点来购买或更新名称。"
   },
   "password for": {
     "one": "密码"
@@ -651,5 +651,14 @@ module.exports.translations = {
   },
   "menu browse": {
     "one": "浏览"
+  },
+  "update balances": {
+    "one": "更新金额"
+  },
+  "record regexp": {
+    "one": "Name must starts with a letter, and contain only letters and numbers (a-z, 0-9)"
+  },
+  "menu gcu": {
+    "one": "般使用条件 "
   }
 }

@@ -9,3 +9,4 @@ export * from './AccountModal';
 export * from './IdentificationModal';
 export * from './IdentificationForm';
 export * from './PrivateKeyWarning';
+export * from './Gcu';

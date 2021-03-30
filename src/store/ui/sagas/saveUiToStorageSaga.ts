@@ -7,8 +7,8 @@ import { Action } from '../../';
 
 const saveUiToStorage = function* (action: Action) {
   const uiState: fromUi.State = yield select(fromUi.getUiState);
-  const isTablet = yield select(fromUi.getIsTablet);
-  const isMobile = yield select(fromUi.getIsMobile);
+  const isTablet: boolean = yield select(fromUi.getIsTablet);
+  const isMobile: boolean = yield select(fromUi.getIsMobile);
 
   const uiStateToSave = {
     menuCollapsed: uiState.menuCollapsed,
@@ -16,6 +16,7 @@ const saveUiToStorage = function* (action: Action) {
     dappsListDisplay: uiState.dappsListDisplay,
     navigationUrl: uiState.navigationUrl,
     language: uiState.language,
+    gcu: uiState.gcu,
   };
 
   let dappsTabsWidth = 0;
@@ -72,4 +73,5 @@ export const saveUiToStorageSaga = function* () {
   yield takeEvery(fromUi.NAVIGATE, saveUiToStorage);
   yield takeEvery(fromUi.SET_BODY_DIMENSIONS, saveUiToStorage);
   yield takeEvery(fromUi.UPDATE_LANGUAGE, saveUiToStorage);
+  yield takeEvery(fromUi.UPDATE_GCU, saveUiToStorage);
 };
