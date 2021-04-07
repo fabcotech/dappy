@@ -1,5 +1,5 @@
 export const GCU_VERSION = '1.0';
-export const GCU_TEXT = `General conditions of use, last edited 2020/03/30
+export const GCU_TEXT = `General conditions of use, last edited 2021/03/30
 
 1. Scope
 

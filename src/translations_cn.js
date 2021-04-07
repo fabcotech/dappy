@@ -660,5 +660,9 @@ module.exports.translations = {
   },
   "menu gcu": {
     "one": "般使用条件 "
+  },
+  "token box": {
+    "one": "",
+    "other": ""
   }
 }

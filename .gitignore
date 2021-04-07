@@ -3,11 +3,9 @@ todo.txt
 .cache
 *.d.ts
 .directory
-_executables
-_installers
 env.js
 output
 *.p12
 ipapps
-translations/getTranslationsDownloadLink.sh
-translations/translations.js
+translations/env.js
+.parcel-cache

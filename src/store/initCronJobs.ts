@@ -6,6 +6,7 @@ import {
   CRON_JOBS_SUBSCRIPTION_PERIOD_INFOS,
   CRON_JOBS_SUBSCRIPTION_PERIOD_NODES,
   CRON_JOBS_SUBSCRIPTION_PERIOD_ACCOUNTS,
+  CRON_JOBS_SUBSCRIPTION_PERIOD_RECORDS_BY_PUBLIC_KEY,
 } from '../CONSTANTS';
 
 export const initCronJobs = (store: Redux.Store) => {
@@ -16,6 +17,10 @@ export const initCronJobs = (store: Redux.Store) => {
   const rchainStream: NodeJS.Timeout = setInterval(() => {
     store.dispatch(fromBlockchain.executeRChainCronJobsAction());
   }, CRON_JOBS_SUBSCRIPTION_PERIOD_INFOS);
+
+  const recordsByPublicKeyStream: NodeJS.Timeout = setInterval(() => {
+    store.dispatch(fromBlockchain.executeRecordsByPublicKeyCronJobsAction());
+  }, CRON_JOBS_SUBSCRIPTION_PERIOD_RECORDS_BY_PUBLIC_KEY);
 
   const accountsStream: NodeJS.Timeout = setInterval(() => {
     store.dispatch(fromSettings.executeAccountsCronJobsAction());

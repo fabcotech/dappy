@@ -116,7 +116,7 @@ export function AccountsComponent(props: AccountsProps) {
                     </div>
                   </div>
                   <div className="boxes">
-                    {a.boxes.length ? <b className="token-boxes">Token boxes</b> : undefined}
+                    {a.boxes.length ? <b className="token-boxes">{t('token box', 's')}</b> : undefined}
                     {a.boxes.map((b) => {
                       return (
                         <Fragment key={b}>
@@ -136,7 +136,7 @@ export function AccountsComponent(props: AccountsProps) {
                             type="button"
                             className="button is-white is-small"
                             onClick={() => window.copyToClipboard(b)}>
-                            copy box address
+                            {t('copy box address')}
                             <i className="fa fa-copy fa-after"></i>
                           </a>
                           <a
@@ -148,7 +148,7 @@ export function AccountsComponent(props: AccountsProps) {
                                 registryUri: b,
                               })
                             }>
-                            remove box
+                            {t('remove box')}
                           </a>
                         </Fragment>
                       );
@@ -170,7 +170,7 @@ export function AccountsComponent(props: AccountsProps) {
                             type="button"
                             className="button is-light is-small">
                             <i className="fa fa-plus fa-before"></i>
-                            Add an existing token box
+                            {t('add existing token box')}
                           </button>
                         )}
                         {askPasswordForBox[a.name] ? (
@@ -184,8 +184,8 @@ export function AccountsComponent(props: AccountsProps) {
                               const chainId = Object.keys(props.blockchains)[0];
                               if (!chainId) {
                                 props.openModal({
-                                  title: 'Failed to deploy box',
-                                  text: `You need to be connected to a blockchain with at least one endpoint available`,
+                                  title: t('failed to deploy box'),
+                                  text: t('at least one node network'),
                                   buttons: [
                                     {
                                       classNames: 'is-link',
@@ -228,7 +228,7 @@ export function AccountsComponent(props: AccountsProps) {
                             type="button"
                             className="button is-light is-small">
                             <i className="fa fa-box-open fa-before"></i>
-                            Deploy a new token box
+                            {t('deploy a new token box')}
                           </button>
                         )}
                       </>
@@ -237,7 +237,7 @@ export function AccountsComponent(props: AccountsProps) {
                   <div className="actions">
                     {a.main ? undefined : (
                       <button
-                        title="Set this account as the main account"
+                        title={t('set as main account')}
                         onClick={() => props.setAccountAsMain(a)}
                         className="button is-light is-small">
                         {t('set as main account')}
@@ -245,14 +245,14 @@ export function AccountsComponent(props: AccountsProps) {
                     )}
                     {!!props.namesBlockchain ? (
                       <button
-                        title="Send REVs"
+                        title={t('send revs')}
                         onClick={() => props.sendRChainPayment(a, (props.namesBlockchain as Blockchain).chainId)}
                         className="button is-info is-small">
                         <i title="Tipping unavailable" className="fa fa-before fa-money-bill-wave"></i>
                         {t('send revs')}
                       </button>
                     ) : (
-                      <p className="text-danger">No network found, cannot send REVs</p>
+                      <p className="text-danger">{t('no network cannot send revs')}</p>
                     )}
                   </div>
                   <button

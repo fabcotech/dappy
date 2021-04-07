@@ -8,7 +8,7 @@
   "main": "main.js",
   "scripts": {
     "lint": "tsc --pretty --jsx react --noEmit  src/index.tsx",
-    "start:parcel": "npx parcel -p 3033 src/index.html --target browser",
+    "start:parcel": "npx parcel serve src/index.html -p 3033 --target browser",
     "start:electron": "export NODE_ENV=development && electron .",
     "build": "export NODE_ENV=production && rm -rf dist/ && npx parcel build src/index.html src/dapp-sandboxed.html --public-url . && cp -r dapp-libs/* dist/",
     "build:dapp-sandboxed": "export NODE_ENV=production && npx parcel build src/dapp-sandboxed.html --public-url .",
@@ -52,8 +52,7 @@
     "formik": "^1.5.8",
     "luxon": "^1.3.3",
     "node-gyp-build": "^4.1.1",
-    "protobufjs": "^6.10.2",
-    "rchain-token": "fabcotech/rchain-token#bf37886de4a21134847639d2cac6b0ae335891be",
+    "rchain-token": "fabcotech/rchain-token#0888e71eb9ee12dfbb1bcaf8bccf4b25882aed24",
     "rchain-toolkit": "0.2.9",
     "react": "17.0.1",
     "react-autosuggest": "^9.4.3",
@@ -83,7 +82,7 @@
     "cssnano": "^4.1.10",
     "electron": "11.2.3",
     "jest": "^26.2.2",
-    "parcel": "1.12.4",
+    "parcel-bundler": "1.12.5",
     "react-devtools": "^4.2.0",
     "rollup": "1.26.0",
     "rollup-plugin-commonjs": "^10.1.0",
@@ -94,6 +93,6 @@
     "set-cookie-parser": "^2.4.6",
     "source-map-loader": "^0.2.3",
     "ts-jest": "^26.1.4",
-    "typescript": "^3.5.3"
+    "typescript": "4.2.3"
   }
 }

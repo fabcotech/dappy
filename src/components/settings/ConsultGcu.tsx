@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { GCU_VERSION, GCU_TEXT } from '../../GCU';
+import { GCU_TEXT } from '../../GCU';
 
 export class ConsultGcuComponent extends React.Component<RootProps, {}> {
   state = {};
@@ -8,7 +8,7 @@ export class ConsultGcuComponent extends React.Component<RootProps, {}> {
   render() {
     return (
       <div>
-        <p style={{ whiteSpace: 'break-spaces' }}>{GCU_TEXT}</p>
+        <p style={{ whiteSpace: 'break-spaces', maxWidth: '800px' }}>{GCU_TEXT}</p>
       </div>
     );
   }

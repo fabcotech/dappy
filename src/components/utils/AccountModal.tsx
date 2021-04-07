@@ -113,7 +113,7 @@ export class AccountModalComponent extends React.Component<AccountModalComponent
                           type="button"
                           className="button is-white is-small"
                           onClick={() => window.copyToClipboard(account.address)}>
-                          copy address
+                          {t('copy address')}
                           <i className="fa fa-copy fa-after"></i>
                         </a>
                       </div>

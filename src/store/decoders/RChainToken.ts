@@ -2,7 +2,7 @@ import Ajv from 'ajv';
 
 const ajv = new Ajv();
 const readBox500 = {
-  schemaId: 'read-box-5.0.0',
+  schemaId: 'read-box-5.0.1',
   type: 'object',
   properties: {
     version: { type: 'string' },
@@ -20,7 +20,7 @@ const readBox500 = {
   required: ['purses', 'superKeys', 'version', 'registryUri', 'publicKey', 'status'],
 };
 const purses500 = {
-  schemaId: 'purses-5.0.0',
+  schemaId: 'purses-5.0.1',
   type: 'array',
   items: {
     type: 'object',
@@ -37,7 +37,7 @@ const purses500 = {
 
 ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
 export const rchainTokenValidators = {
-  ['5.0.0']: {
+  ['5.0.1']: {
     readBox: readBox500,
     purses: purses500,
   },

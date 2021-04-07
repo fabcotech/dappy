@@ -33,7 +33,7 @@ export class AccountBox extends React.Component<AccountBoxProps, { registryUri: 
                 }
               }}
               className="button is-link is-small">
-              Save box
+              {t('save box')}
             </button>
           </div>
         </div>

@@ -37,9 +37,9 @@ export class AccountPassword extends React.Component<AccountPasswordProps, { pas
         <div className="field is-horizontal">
           <div className="control">
             <input
-              className={`input ${this.state.passwordError ? 'is-danger' : ''}`}
+              className={`input password-for-deploy-box ${this.state.passwordError ? 'is-danger' : ''}`}
               type="password"
-              placeholder="Password for account"
+              placeholder={t('password for account')}
               onChange={this.onTryPassword}></input>
           </div>
         </div>

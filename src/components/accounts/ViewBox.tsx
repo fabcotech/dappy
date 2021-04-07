@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { readBoxTerm } from 'rchain-token';
 import * as rchainToolkit from 'rchain-toolkit';
 import Ajv from 'ajv';
@@ -6,6 +6,7 @@ import Ajv from 'ajv';
 import * as fromBlockchain from '../../store/blockchain';
 import { Blockchain, MultiCallError, MultiCallResult } from '../../models';
 import { multiCall } from '../../utils/wsUtils';
+import { RCHAIN_TOKEN_SUPPORTED_VERSIONS } from '../../CONSTANTS';
 import { getNodeIndex } from '../../utils/getNodeIndex';
 import { rchainTokenValidators } from '../../store/decoders';
 import { ViewPurses } from './ViewPurses';
@@ -91,7 +92,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
     } catch (err) {
       this.setState({
         refreshing: false,
-        error: err,
+        error: err.error.error,
       });
       return;
     }
@@ -100,7 +101,17 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
       const dataFromBlockchain = (multiCallResult as MultiCallResult).result.data;
       const dataFromBlockchainParsed: { data: string } = JSON.parse(dataFromBlockchain);
       const val = rchainToolkit.utils.rhoValToJs(JSON.parse(dataFromBlockchainParsed.data).expr[0]);
-      const validate = ajv.compile(rchainTokenValidators['5.0.0'].readBox);
+      if (!RCHAIN_TOKEN_SUPPORTED_VERSIONS.includes(val.version)) {
+        this.setState({
+          refreshing: false,
+          error:
+            '[rchain-token error]: only boxes and contract on version ' +
+            RCHAIN_TOKEN_SUPPORTED_VERSIONS.join(',') +
+            ' are supported',
+        });
+        return;
+      }
+      const validate = ajv.compile(rchainTokenValidators[val.version].readBox);
       const valid = validate(val);
       if (!valid) {
         this.setState({
@@ -136,14 +147,14 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
         className={`button is-light ${this.state.refreshing && 'disabled'}`}>
         {!this.state.refreshing && <i className="fa fa-before fa-redo"></i>}
         {this.state.refreshing && <i className="fa fa-before fa-redo rotating"></i>}
-        Reload
+        {t('reload')}
       </button>
     );
     if (this.state.error) {
       return (
         <div className="settings-view-box pb20">
           <button onClick={this.props.back} className="button is-light">
-            Back to accounts
+            {t('back to accounts')}
           </button>
           <Refresh />
           <h4 className="title is-4">
@@ -160,7 +171,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
       return (
         <div className="settings-box pb20">
           <button onClick={this.props.back} className="button is-light">
-            Back to accounts
+            {t('back to accounts')}
           </button>
           <Refresh />
         </div>
@@ -171,22 +182,20 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
       return (
         <div className="settings-view-box pb20">
           <button onClick={this.props.back} className="button is-light">
-            Back to accounts
+            {t('back to accounts')}
           </button>
           <Refresh />
           <h4 className="title is-4">
             <i className="fa fa-before fa-box"></i>
-            box {this.props.boxRegistryUri}
+            {t('token box')} {this.props.boxRegistryUri}
           </h4>
           <h4 className="title is-5">Purses</h4>
-          <p>
-            A box can contain one or more purses from one or more contracts. A purse can be a NFT, or a represent
-            fungible tokens depending on the rchain-token contract it is linked to.
-          </p>
+          <p>{t('box definition')}</p>
           {Object.keys(this.state.readBox.purses).map((k) => {
             return (
               <div className="view-box" key={k}>
                 <ViewPurses
+                  version={this.state.readBox.version}
                   namesBlockchain={this.props.namesBlockchain}
                   contractRegistryUri={k.replace('rho:id:', '')}
                   pursesIds={this.state.readBox.purses[k]}></ViewPurses>
@@ -196,10 +205,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
           {this.state.readBox.superKeys && this.state.readBox.superKeys.length ? (
             <div className="super-keys">
               <h4 className="title is-5">Super keys</h4>
-              <p>
-                A box can store super keys. Usually you own a super key for a contract that you have deployed, this
-                capabability allows you to create purses, you can also lock the contract to loose this capability.
-              </p>
+              <p>{t('box super key definition')}</p>
               {this.state.readBox.superKeys.map((sk: string) => {
                 return (
                   <span key={sk} className="super-key">
@@ -210,7 +216,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
                       type="button"
                       className="button is-white is-small"
                       onClick={() => window.copyToClipboard(sk.replace('rho:id:', ''))}>
-                      copy contract address
+                      {t('copy contract address')}
                       <i className="fa fa-copy fa-after"></i>
                     </a>
                   </span>

@@ -675,5 +675,72 @@ module.exports.translations = {
   },
   "menu gcu": {
     "one": "GCU"
+  },
+  "save box": {
+    "one": "Save box"
+  },
+  "password for account": {
+    "one": "Password for account"
+  },
+  "copy box address": {
+    "one": "Copy box address"
+  },
+  "copy contract address": {
+    "one": "Copy contract address"
+  },
+  "remove box": {
+    "one": "Remove box"
+  },
+  "token box": {
+    "one": "Token box",
+    "other": "token boxes"
+  },
+  "add existing token box": {
+    "one": "Add an existing token box"
+  },
+  "failed to deploy box": {
+    "one": "Failed to deploy box"
+  },
+  "at least one node network": {
+    "one": "You need to be connected to a network with at least one endpoint available"
+  },
+  "deploy a new token box": {
+    "one": "Deploy a new token box"
+  },
+  "set main account": {
+    "one": "Set this account as the main account"
+  },
+  "no network cannot send revs": {
+    "one": "No network found, cannot send REVs"
+  },
+  "back to accounts": {
+    "one": "Back to accounts"
+  },
+  "box definition": {
+    "one": "A box can contain one or more purses from one or more contracts. A purse can be a NFT, or a represent fungible tokens depending on the rchain-token contract it is linked to."
+  },
+  "box super key definition": {
+    "one": "A box can store super keys. Usually you own a super key for a contract that you have deployed, this capabability allows you to create purses, you can also lock the contract to loose this capability."
+  },
+  "quantity": {
+    "one": "Quantity"
+  },
+  "check wallets": {
+    "one": "Check your wallets / accounts"
+  },
+  "deploy ft": {
+    "one": " Deploy a contract for fungibles (FT)"
+  },
+  "deploy nft": {
+    "one": "Deploy a contract for non-fungibles (NFT)"
+  },
+  "d network is live": {
+    "one": "d network is live"
+  },
+  "d network definition": {
+    "one": "d network is the main network of dappy. Join the future of the internet and get a name on dappy now !"
+  },
+  "copy address": {
+    "one": "copy address"
   }
 }

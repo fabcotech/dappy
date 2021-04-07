@@ -35,7 +35,7 @@ const loadResource = function* (action: Action) {
   const dapps: { [id: string]: Dapp } = yield select(fromDapps.getDapps);
   const rchainInfos: { [chainId: string]: RChainInfos } = yield select(fromBlockchain.getRChainInfos);
   const records: { [name: string]: Record } = yield select(fromBlockchain.getRecords);
-  const isNavigationInDapps = yield select(fromUi.getIsNavigationInDapps);
+  const isNavigationInDapps: boolean = yield select(fromUi.getIsNavigationInDapps);
 
   if (!isNavigationInDapps) {
     yield put(fromUi.navigateAction({ navigationUrl: '/dapps' }));

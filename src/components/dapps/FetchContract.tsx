@@ -73,9 +73,9 @@ class FetchContractComponent extends React.Component<FetchContractProps, {}> {
           <div className="topright fc">
             {dNetwork ? (
               <div className="dnetwork">
-                <h4>d network is live</h4>
+                <h4>{t('d network is live')}</h4>
                 <p>
-                  d network is the main network of dappy. Join the future of the internet and get a name on dappy now !
+                  {t('d network definition')}
                   <a></a>
                 </p>
                 <p className="purchase">
@@ -89,15 +89,15 @@ class FetchContractComponent extends React.Component<FetchContractProps, {}> {
               <div className="dapp-right">
                 <span onClick={this.onNavigateToAccounts} className="link">
                   <i className="fa fa-money-check fa-before"></i>
-                  Check your wallets / accounts
+                  {t('check wallets ')}
                 </span>
                 <span onClick={this.onNavigateToDeploy} className="link ">
                   <i className="fa fa-angle-double-up fa-before"></i>
-                  Deploy a contract for fungibles (FT)
+                  {t('deploy ft')}
                 </span>
                 <span onClick={this.onNavigateToDeploy} className=" link">
                   <i className="fa fa-angle-double-up fa-before"></i>
-                  Deploy a contract for non-fungibles (NFT)
+                  {t('deploy nft')}
                 </span>
               </div>
             </div>

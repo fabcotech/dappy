@@ -22,7 +22,7 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
       <span>
         {`Address is ${props.transactionState.value.address} `}
         <a type="button" onClick={() => window.copyToClipboard(props.transactionState.value.address)}>
-          copy address
+          {t('copy address')}
         </a>
       </span>
     );
@@ -37,7 +37,7 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
       <span>
         {`Box address is ${props.transactionState.value.registryUri} `}
         <a type="button" onClick={() => window.copyToClipboard(props.transactionState.value.registryUri)}>
-          copy address
+          {t('copy address')}
         </a>
       </span>
     );
@@ -52,7 +52,7 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
       <span>
         {`Contract address is ${props.transactionState.value.registryUri} `}
         <a type="button" onClick={() => window.copyToClipboard(props.transactionState.value.registryUri)}>
-          copy address
+          {t('copy address')}
         </a>
       </span>
     );

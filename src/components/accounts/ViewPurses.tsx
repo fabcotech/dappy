@@ -17,6 +17,7 @@ interface ViewPursesProps {
   namesBlockchain: Blockchain | undefined;
   contractRegistryUri: string;
   pursesIds: string[];
+  version: string;
 }
 interface ViewPursesState {
   fungible: boolean | undefined;
@@ -102,7 +103,7 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
         return;
       }
       const val = rchainToolkit.utils.rhoValToJs(JSON.parse(dataFromBlockchainParsed.data.results[0].data).expr[0]);
-      const validate = ajv.compile(rchainTokenValidators['5.0.0'].purses);
+      const validate = ajv.compile(rchainTokenValidators[this.props.version].purses);
       const valid = validate(Object.values(val));
       if (!valid) {
         this.setState({
@@ -157,19 +158,23 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
             type="button"
             className="button is-white is-small"
             onClick={() => window.copyToClipboard(this.props.contractRegistryUri)}>
-            copy contract address
+            {t('copy contract address')}
             <i className="fa fa-copy fa-after"></i>
           </a>
         </div>
         <div className="view-purses">
           {this.props.pursesIds.map((id) => {
             return (
-              <div className="view-purse">
+              <div key={id} className="view-purse">
                 <span className="id">{id}</span>
                 {this.state.purses && this.state.purses[id] ? (
                   <div className="values">
-                    <span>type: {this.state.purses[id].type}</span>
-                    <span>quantity: {this.state.purses[id].quantity}</span>
+                    <span>
+                      {t('type')}: {this.state.purses[id].type}
+                    </span>
+                    <span>
+                      {t('quantity')}: {this.state.purses[id].quantity}
+                    </span>
                     <span>
                       {this.state.purses[id].price ? <span>price: {this.state.purses[id].price} </span> : undefined}
                     </span>

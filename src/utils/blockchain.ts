@@ -1,4 +1,3 @@
-import { Writer } from 'protobufjs';
 import { blake2b } from 'blakejs';
 import * as rchainToolkit from 'rchain-toolkit';
 import * as elliptic from 'elliptic';
@@ -208,9 +207,5 @@ export const blockchain = {
       }
     }
   }`;
-  },
-  unforgeableWithId: (id: Buffer) => {
-    const bytes = Writer.create().bytes(id).finish().slice(1);
-    return Buffer.from(bytes).toString('hex');
   },
 };
