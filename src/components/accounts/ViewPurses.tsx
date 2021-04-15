@@ -21,6 +21,7 @@ interface ViewPursesProps {
 }
 interface ViewPursesState {
   fungible: boolean | undefined;
+  contractName: undefined | string;
   purses: any;
   refreshing: boolean;
   error: undefined | string;
@@ -31,8 +32,9 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
     super(props);
     this.state = {
       fungible: undefined,
+      contractName: undefined,
       error: undefined,
-      purses: undefined,
+      purses: {},
       refreshing: false,
     };
   }
@@ -48,7 +50,7 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
     this.setState({
       fungible: undefined,
       error: undefined,
-      purses: undefined,
+      purses: {},
       refreshing: true,
     });
     let multiCallResult;
@@ -79,13 +81,13 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
           resolverMode: 'absolute',
           resolverAccuracy: 100,
           resolverAbsolute: indexes.length,
-          multiCallId: fromBlockchain.EXECUTE_NODES_CRON_JOBS,
+          multiCallId: fromBlockchain.EXPLORE_DEPLOY_X,
         }
       );
     } catch (err) {
       this.setState({
         refreshing: false,
-        error: err,
+        error: err.error.error,
       });
       return;
     }
@@ -93,8 +95,9 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
     try {
       const dataFromBlockchain = (multiCallResult as MultiCallResult).result.data;
       const dataFromBlockchainParsed: { data: { results: { data: string }[] } } = JSON.parse(dataFromBlockchain);
-      const fungible = rchainToolkit.utils.rhoValToJs(JSON.parse(dataFromBlockchainParsed.data.results[1].data).expr[0])
-        .fungible;
+      const values = rchainToolkit.utils.rhoValToJs(JSON.parse(dataFromBlockchainParsed.data.results[1].data).expr[0]);
+      const fungible = values.fungible;
+      const contractName = values.name;
       if (fungible !== true && fungible !== false) {
         this.setState({
           refreshing: false,
@@ -118,6 +121,7 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
         refreshing: false,
         purses: val,
         fungible: fungible,
+        contractName: contractName,
       });
     } catch (err) {
       console.log(err);
@@ -138,9 +142,10 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
     }
     return (
       <Fragment>
+        <div className="view-purses-contract-name">{this.state.contractName}</div>
         <div className="address-and-copy fc">
           <span className="">
-            Contract
+            {t('contract') + ' '}
             {this.state.fungible === true && (
               <span title="Contract for fungible tokens" className="tag is-light">
                 FT
@@ -153,6 +158,7 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
             )}
             {this.props.contractRegistryUri}
           </span>
+
           <span className="square ml5" style={{ background: toRGB(this.props.contractRegistryUri) }}></span>
           <a
             type="button"
@@ -162,8 +168,11 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
             <i className="fa fa-copy fa-after"></i>
           </a>
         </div>
+        {this.props.pursesIds.length > 100 && (
+          <div className="x-by-100-purses">Purses 100 / {this.props.pursesIds.length}</div>
+        )}
         <div className="view-purses">
-          {this.props.pursesIds.map((id) => {
+          {this.props.pursesIds.slice(0, 100).map((id) => {
             return (
               <div key={id} className="view-purse">
                 <span className="id">{id}</span>
@@ -185,6 +194,7 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
               </div>
             );
           })}
+          {this.props.pursesIds.length > 100 && <div className="more-purses">...</div>}
         </div>
       </Fragment>
     );

@@ -19,6 +19,7 @@ export const recordFromNetworkSchema = yup
   .shape({
     name: yup.string().required(),
     publicKey: yup.string().required(),
+    box: yup.string().required(),
     address: yup.string(),
     servers: yup.array(recordServerSchema),
     badges: yup.object(),
@@ -68,6 +69,7 @@ export const ipRecordSchema = yup
   .shape({
     name: yup.string().required(),
     publicKey: yup.string().required(),
+    box: yup.string().required(),
     loadedAt: yup.string().required(),
     servers: yup.array(recordServerSchema),
     badges: yup.object(),
@@ -85,6 +87,7 @@ export const dappRecordSchema = yup
   .shape({
     name: yup.string().required(),
     publicKey: yup.string().required(),
+    box: yup.string().required(),
     address: yup.string().required(),
     loadedAt: yup.string().required(),
     servers: yup.array(recordServerSchema),
@@ -103,6 +106,7 @@ export const recordSchema = yup
   .shape({
     name: yup.string().required(),
     publicKey: yup.string().required(),
+    box: yup.string().required(),
     address: yup.string(),
     loadedAt: yup.string().required(),
     servers: yup.array(recordServerSchema),

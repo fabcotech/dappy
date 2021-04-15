@@ -71,6 +71,7 @@ export function RootComponent(props: RecordsRootProps) {
           records={props.records}
           rchainInfos={props.rchainInfos}
           accounts={props.accounts}
+          namesBlockchain={props.namesBlockchain}
           namesBlockchainInfos={props.namesBlockchainInfos}
           sendRChainTransaction={props.sendRChainTransaction}
         />

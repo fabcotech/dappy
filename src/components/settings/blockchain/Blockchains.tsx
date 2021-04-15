@@ -676,7 +676,7 @@ const TopTabs = (props: any) => (
     <ul>
       {Object.keys(props.blockchains).map((key) => (
         <li key={key}>
-          <a onClick={() => props.onSelectChain(key)}>
+          <a className={key === 'd' ? 'tab-d-network' : ''} onClick={() => props.onSelectChain(key)}>
             {props.blockchains[key].platform === 'rchain' && <i className="rchain20 fa-before" />}
             {props.blockchains[key].chainName}
           </a>

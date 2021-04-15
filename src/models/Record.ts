@@ -1,15 +1,21 @@
 import { LoadCompleted, LoadErrorWithArgs } from './Dapp';
 
+export interface RChainTokenPurse {
+  quantity: number;
+  price: number;
+  id: string;
+  box: string;
+  publicKey: string;
+}
+
 export interface RecordFromNetwork {
   name: string;
+  box: string;
   publicKey: string;
   address?: string;
   expiration?: string;
-  locked?: boolean;
   servers?: IPServer[];
   badges: { [key: string]: string };
-  nonce: string;
-  signature?: string;
 }
 
 export interface Record extends RecordFromNetwork {

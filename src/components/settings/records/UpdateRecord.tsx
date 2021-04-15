@@ -4,15 +4,19 @@ import { updatePurseDataTerm } from 'rchain-token';
 import { Record, TransactionState, RChainInfos, Account, PartialRecord } from '../../../models';
 import { blockchain as blockchainUtils } from '../../../utils';
 import * as fromBlockchain from '../../../store/blockchain';
+import { getNodeIndex } from '../../../utils/getNodeIndex';
 import { TransactionForm } from '../../utils';
+import { multiCall } from '../../../utils/wsUtils';
 import { RecordForm } from './RecordForm';
 import './UpdateRecord.scss';
+import { validateRecordFromNetwork } from '../../../store/decoders';
 
 interface UpdateRecordProps {
   records: { [key: string]: Record };
   transactions: { [id: string]: TransactionState };
   rchainInfos: { [chainId: string]: RChainInfos };
   namesBlockchainInfos: RChainInfos | undefined;
+  namesBlockchain: Blockchain;
   accounts: { [accountName: string]: Account };
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
 }
@@ -25,6 +29,9 @@ const defaultState = {
   name: '',
   record: undefined,
   newRecord: undefined,
+  loadRecordError: undefined,
+  loadedRecord: undefined,
+  loadingRecord: false,
 };
 
 export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
@@ -43,6 +50,9 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
     name: string;
     record: PartialRecord | undefined;
     newRecord: PartialRecord | undefined;
+    loadRecordError: undefined | string;
+    loadedRecord: undefined | Record;
+    loadingRecord: boolean;
   } = defaultState;
 
   transactionId = '';
@@ -51,6 +61,79 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
   onFilledTransactionData = (t: { privatekey: string; publickey: string; phloLimit: number }) => {
     this.setState(t);
     if (this.setTouched) this.setTouched();
+  };
+
+  onLookup = async () => {
+    this.setState({
+      loadingRecord: true,
+      loadedRecord: undefined,
+    });
+
+    const indexes = this.props.namesBlockchain.nodes.map(getNodeIndex);
+
+    // todo only ask for names that are not in this.state.availables
+    let multiCallResult;
+    try {
+      multiCallResult = await multiCall(
+        {
+          type: 'get-x-records',
+          body: {
+            names: [this.state.name],
+          },
+        },
+        {
+          chainId: this.props.namesBlockchain.chainId,
+          urls: indexes,
+          resolverMode: 'absolute',
+          resolverAccuracy: 100,
+          resolverAbsolute: indexes.length,
+          multiCallId: fromBlockchain.GET_X_RECORDS,
+        }
+      );
+    } catch (err) {
+      console.log(err);
+      this.setState({
+        loadedRecord: undefined,
+        loadingRecord: false,
+        loadRecordError: err.error.error,
+      });
+      return;
+    }
+
+    try {
+      const dataFromBlockchain = (multiCallResult as MultiCallResult).result.data;
+      const dataFromBlockchainParsed: { data: { results: { data: string }[] } } = JSON.parse(dataFromBlockchain);
+      const record = dataFromBlockchainParsed.records[0];
+
+      if (record) {
+        if (record && record.servers) {
+          const servers = JSON.parse(`{ "value": ${record.servers}}`).value;
+          record.servers = servers;
+        }
+        if (record.badges) {
+          record.badges = JSON.parse(record.badges);
+        }
+        await validateRecordFromNetwork(record);
+        this.setState({
+          loadingRecord: false,
+          loadedRecord: record,
+          loadRecordError: undefined,
+        });
+      } else {
+        this.setState({
+          loadingRecord: false,
+          loadedRecord: undefined,
+          loadRecordError: 'Name not found',
+        });
+      }
+    } catch (err) {
+      console.log(err);
+      this.setState({
+        loadingRecord: false,
+        loadedRecord: undefined,
+        loadRecordError: 'Error when parsing result',
+      });
+    }
   };
 
   setName = (name: string) => {
@@ -180,36 +263,33 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
           <div className="field is-horizontal">
             <label className="label">{t('name')}*</label>
             <div className="control inline-control">
-              <input className="input" onChange={(e) => this.setName(e.target.value)}></input>
-              {this.state.record ? undefined : (
+              <input
+                disabled={this.state.loadingRecord}
+                className="input"
+                onChange={(e) => this.setState({ name: e.target.value })}></input>
+              {this.state.loadedRecord ? undefined : (
                 <button
-                  onClick={() => {
-                    if (this.props.records[this.state.name]) {
-                      this.setState({ record: this.props.records[this.state.name] });
-                    }
-                  }}
+                  onClick={this.onLookup}
                   type="button"
                   className="button is-link"
-                  disabled={!this.state.name || !this.props.records[this.state.name]}>
-                  Load
+                  disabled={!this.state.name || !!this.state.loadedRecord || this.state.loadingRecord}>
+                  {this.state.loadingRecord && <i className="fa fa-before fa-redo rotating"></i>}
+                  {t('lookup name')}
                 </button>
               )}
-              {this.state.record ? (
+              {this.state.loadedRecord ? (
                 <button
                   onClick={() => {
-                    if (this.props.records[this.state.name]) {
-                      this.setState({ record: undefined, newRecord: undefined });
-                      setTimeout(() => {
-                        this.setState({ record: this.props.records[this.state.name] });
-                      }, 100);
-                    }
+                    this.setState({
+                      loadedRecord: undefined,
+                    });
                   }}
                   type="button"
                   className="button is-light">
-                  Reset
+                  {t('reset')}
                 </button>
               ) : undefined}
-              {this.state.record ? (
+              {this.state.loadedRecord ? (
                 <button
                   onClick={() => {
                     if (this.props.records[this.state.name]) {
@@ -218,17 +298,26 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
                   }}
                   type="button"
                   className="button is-light">
-                  Cancel
+                  {t('cancel')}
                 </button>
               ) : undefined}
             </div>
           </div>
-          {!!this.state.record && (
+          {this.state.loadRecordError && <p className="text-danger">{this.state.loadRecordError}</p>}
+          {!!this.state.loadedRecord && (
             <RecordForm
-              nameDisabled={true}
+              nameDisabledAndForced={this.state.loadedRecord.name}
               records={{}}
-              partialRecord={this.state.record}
+              partialRecord={this.state.loadedRecord}
               filledRecord={(a) => this.setState({ newRecord: a })}></RecordForm>
+          )}
+          {this.state.loadedRecord &&
+            this.state.publickey &&
+            this.state.publickey !== this.state.loadedRecord.publicKey && (
+              <p className="text-danger">{t('name public key and box public key different')}</p>
+            )}
+          {this.state.loadedRecord && this.state.box && this.state.box !== this.state.loadedRecord.box && (
+            <p className="text-danger">{t('name box address and box address different')}</p>
           )}
           <form>
             <div className="field is-horizontal is-grouped pt20">
@@ -236,7 +325,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
                 <button
                   onClick={this.onSubmit}
                   className="button is-link"
-                  disabled={!this.state.newRecord || !this.state.privatekey}>
+                  disabled={!this.state.newRecord || !this.state.privatekey || !this.state.box}>
                   {t('update name')}
                 </button>
               </div>

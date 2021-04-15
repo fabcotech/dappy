@@ -9,7 +9,7 @@ import { multiCall } from '../../../utils/wsUtils';
 import { Action, store } from '../../';
 import * as fromSettings from '../../settings';
 import { singleCall } from '../../../utils/wsUtils';
-import { validatePurchaseOrUpdateRecordResult } from '../../decoders';
+import { validateRchainTokenOperationResult } from '../../decoders';
 import { getNodeIndex } from '../../../utils/getNodeIndex';
 
 const sendRChainTransaction = function* (action: Action) {
@@ -74,7 +74,7 @@ const sendRChainTransaction = function* (action: Action) {
     } catch (err) {
       const p: fromBlockchain.RChainTransactionErrorPayload = {
         id: payload.id,
-        error: err.message,
+        value: err.message,
         alert: payload.alert,
       };
       if (payload.origin.origin === 'dapp') {
@@ -93,7 +93,7 @@ const sendRChainTransaction = function* (action: Action) {
       yield put(
         fromBlockchain.rChainTransactionErrorAction({
           id: payload.id,
-          error: deployResponse,
+          value: { status: 'failed', message: deployResponse },
           alert: payload.alert,
         })
       );
@@ -188,7 +188,7 @@ const sendRChainTransaction = function* (action: Action) {
         store.dispatch(
           fromBlockchain.rChainTransactionErrorAction({
             id: payload.id,
-            error: 'Deploy data could not be retreived ' + (err.message || err),
+            value: { status: 'failed', message: 'Deploy data could not be retreived ' + (err.message || err) },
             alert: payload.alert,
           })
         );
@@ -198,25 +198,31 @@ const sendRChainTransaction = function* (action: Action) {
       const jsValue = rhoValToJs(dataAtNameResponseExpr);
 
       if (payload.origin.origin === 'record') {
-        validatePurchaseOrUpdateRecordResult(jsValue)
+        validateRchainTokenOperationResult(jsValue)
           .then((a) => {
-            store.dispatch(
-              fromBlockchain.updateRChainTransactionStatusAction({
+            if (jsValue.status === 'completed') {
+              store.dispatch(
+                fromBlockchain.updateRChainTransactionStatusAction({
+                  id: payload.id,
+                  status: TransactionStatus.Completed,
+                  value: jsValue,
+                })
+              );
+            } else {
+              const p: fromBlockchain.RChainTransactionErrorPayload = {
                 id: payload.id,
-                status: TransactionStatus.Completed,
                 value: jsValue,
-              })
-            );
+                alert: payload.alert,
+              };
+              store.dispatch(fromBlockchain.rChainTransactionErrorAction(p));
+            }
           })
           .catch(() => {
             const p: fromBlockchain.RChainTransactionErrorPayload = {
               id: payload.id,
-              error: 'Could not parse deploy data',
+              value: { message: 'Could not parse deploy data', value: 'failed' },
               alert: payload.alert,
             };
-            if (payload.origin.origin === 'dapp') {
-              p.dappId = payload.origin.dappId;
-            }
             store.dispatch(fromBlockchain.rChainTransactionErrorAction(p));
           });
       } else if (payload.origin.origin === 'dapp') {
@@ -258,7 +264,7 @@ const sendRChainTransaction = function* (action: Action) {
   } catch (err) {
     const p: fromBlockchain.RChainTransactionErrorPayload = {
       id: payload.id,
-      error: err.message,
+      value: { status: 'failed', message: typeof err == 'string' ? err : err.message },
       alert: payload.alert,
     };
     if (payload.origin.origin === 'dapp') {

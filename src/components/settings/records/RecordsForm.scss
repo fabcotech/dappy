@@ -1,4 +1,4 @@
-@import "../../../style//variables.scss";
+@import "../../../style/variables.scss";
 
 .record-form, .ip-servers-form {
 /*    border: 1px solid #99D;
@@ -108,5 +108,42 @@
     textarea {
       min-height: 250px;
     }
+  }
+}
+
+.you-will-purchase-control {
+  margin-top: 10px;
+  .d-network {
+    //background: rgb(124, 68, 177);
+    background: linear-gradient( 20deg, $dNetwork, rgb(205, 170, 238));
+    border: 1px solid $dNetwork;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    color: #fff;
+    padding: 10px;
+    border-radius: 3px;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+}
+.you-will-purchase-purse {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+.current-price-existing-purse {
+  font-size: 1.6rem;
+  font-weight: bold;
+  .num {
+    font-size: 1.8rem;
+    font-weight: bold;
+    padding: 0px 10px;
+  }
+  .unit {
+    font-weight: bold;
+    font-size: 1rem;
+  }
+  .dust {
+    font-size: 1.4rem;
+    padding: 0px 10px;
   }
 }

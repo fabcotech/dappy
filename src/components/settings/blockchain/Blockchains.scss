@@ -1,9 +1,15 @@
 @import "node_modules/bulma/sass/utilities/initial-variables.sass";
+@import "../../../style/variables.scss";
 
 .blockchain-title {
   span {
     margin-right: 5px;
   }
+}
+.tab-d-network {
+  border-radius: 3px 3px 0px 0px;
+  background: $dNetwork;
+  color: #fff  !important;
 }
 .network-variables {
   white-space: pre;

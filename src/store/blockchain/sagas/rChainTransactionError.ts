@@ -5,7 +5,7 @@ import * as fromBlockchain from '..';
 import * as fromMain from '../../main';
 import { Action } from '../../';
 
-const rChainTransactionError = function*(action: Action) {
+const rChainTransactionError = function* (action: Action) {
   const payload: fromBlockchain.RChainTransactionErrorPayload = action.payload;
   const modals: { [dappId: string]: fromMain.Modal[] } = yield select(fromMain.getDappModals);
 
@@ -28,7 +28,7 @@ const rChainTransactionError = function*(action: Action) {
       fromMain.openDappModalAction({
         dappId: payload.dappId,
         title: 'Transaction failure',
-        text: 'Transaction has failed to be sent, error : ' + payload.error,
+        text: 'Transaction has failed to be sent, error : ' + (payload.value ? payload.value.message : 'unknown'),
         buttons: [
           {
             classNames: 'is-link',
@@ -42,7 +42,7 @@ const rChainTransactionError = function*(action: Action) {
     yield put(
       fromMain.openModalAction({
         title: 'Transaction failure',
-        text: 'Transaction has failed to be sent, error : ' + payload.error,
+        text: 'Transaction has failed to be sent, error : ' + (payload.value ? payload.value.message : 'unknown'),
         buttons: [
           {
             classNames: 'is-link',
@@ -58,12 +58,13 @@ const rChainTransactionError = function*(action: Action) {
     fromBlockchain.updateRChainTransactionStatusAction({
       id: payload.id,
       status: TransactionStatus.Failed,
+      value: payload.value,
     })
   );
 
   return true;
 };
 
-export const rChainTransactionErrorSaga = function*() {
+export const rChainTransactionErrorSaga = function* () {
   yield takeEvery(fromBlockchain.RCHAIN_TRANSACTION_ERROR, rChainTransactionError);
 };

@@ -256,7 +256,7 @@ export const saveFailedRChainTransactionAction = (values: SaveFailedRChainTransa
 export interface RChainTransactionErrorPayload {
   dappId?: string;
   id: string;
-  error: string;
+  value?: any;
   alert?: boolean;
 }
 export const rChainTransactionErrorAction = (values: RChainTransactionErrorPayload) => ({

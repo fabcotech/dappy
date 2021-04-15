@@ -1,11 +1,13 @@
 import * as yup from 'yup';
 
-const pushManifestResultSchema = yup.object().shape({
-  registry_uri: yup.string().required(),
-  unforgeable_name: yup.string().required(),
-})
-.required()
-.strict(true);
+const pushManifestResultSchema = yup
+  .object()
+  .shape({
+    registry_uri: yup.string().required(),
+    unforgeable_name: yup.string().required(),
+  })
+  .required()
+  .strict(true);
 
 export const validatePushManifestResult = (pushManifestResult: any) => {
   return new Promise((resolve, reject) => {
@@ -13,7 +15,7 @@ export const validatePushManifestResult = (pushManifestResult: any) => {
       reject();
       return;
     }
-    pushManifestResultSchema.isValid(pushManifestResult).then(valid => {
+    pushManifestResultSchema.isValid(pushManifestResult).then((valid) => {
       console.log(valid);
       if (valid) {
         resolve();
@@ -24,20 +26,21 @@ export const validatePushManifestResult = (pushManifestResult: any) => {
   });
 };
 
-const purchaseOrUpdateRecordSchema = yup.object().shape({
+const rchainTokenOperationSchema = yup.object().shape({
   status: yup
     .string()
-    .matches(/completed/)
+    .matches(/completed|failed/)
     .required(),
+  message: yup.string(),
 });
 
-export const validatePurchaseOrUpdateRecordResult = (pushManifestResult: any) => {
+export const validateRchainTokenOperationResult = (rchainTokenOperationResult: any) => {
   return new Promise((resolve, reject) => {
-    if (!pushManifestResult) {
+    if (!rchainTokenOperationResult) {
       reject();
       return;
     }
-    purchaseOrUpdateRecordSchema.isValid(pushManifestResult).then(valid => {
+    rchainTokenOperationSchema.isValid(rchainTokenOperationResult).then((valid) => {
       if (valid) {
         resolve();
       } else {

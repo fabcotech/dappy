@@ -1,4 +1,7 @@
-
+.view-purses-contract-name {
+  font-size: 2rem;
+  text-decoration: underline;
+}
 .address-and-copy {
   justify-content: flex-start;
   margin-bottom: 5px;
@@ -12,6 +15,14 @@
     margin-left: 5px;
     padding: 7px;
   }
+}
+.x-by-100-purses {
+  font-weight: 400;
+  font-size: 1rem;
+}
+.more-purses {
+  font-size: 2rem;
+  height: 70px;
 }
 .view-purses {
   .view-purse {
@@ -35,5 +46,8 @@
       font-size: 0.8rem;
       font-weight: 400;
     }
+  }
+  .more-purses {
+
   }
 }

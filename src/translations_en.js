@@ -742,5 +742,35 @@ module.exports.translations = {
   },
   "copy address": {
     "one": "copy address"
+  },
+  "record length": {
+    "one": "Name length must be between 1 and 24"
+  },
+  "name is available": {
+    "one": "Name is available !"
+  },
+  "at price": {
+    "one": "at price"
+  },
+  "name is for sale": {
+    "one": "Name is for sale !"
+  },
+  "name is not for sale": {
+    "one": "Name is already taken and not for sale"
+  },
+  "lookup name": {
+    "one": "Lookup name"
+  },
+  "reset": {
+    "one": "Reset"
+  },
+  "name public key and box public key different": {
+    "one": "Name public key differs from your account's public key, the transaction will likely fail"
+  },
+  "name box address and box address different": {
+    "one": "Name's box differs from your account's box address, the transaction will likely fail"
+  },
+  "contract": {
+    "one": "Contract"
   }
 }
