@@ -15,8 +15,8 @@ export const LOGREV_TO_REV_RATE = 100000000;
 
 export const VERSION = '0.3.9';
 
-export const RCHAIN_TOKEN_VERSION = '5.0.2';
-export const RCHAIN_TOKEN_SUPPORTED_VERSIONS = ['5.0.2'];
+export const RCHAIN_TOKEN_VERSION = '5.0.3';
+export const RCHAIN_TOKEN_SUPPORTED_VERSIONS = ['5.0.3'];
 
 export const MAIN_CHAIN_ID = 'd';
 export const CHAIN_IDS: { [chainId: string]: { name: string; platform: 'rchain' } } = {

@@ -206,7 +206,6 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
   };
 
   render() {
-    console.log(this.state.name);
     if (
       !this.props.namesBlockchainInfos ||
       !(this.props.namesBlockchainInfos as RChainInfos).info ||
@@ -319,7 +318,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
                 <span className="num">
                   {formatter.format(this.state.loadedPurse.price / LOGREV_TO_REV_RATE).substr(1)}
                 </span>
-                <span className="unit">{t('rev', true)}</span>
+                <span className="unit">{t('rev', true)} / </span>
                 <span className="dust">{this.state.loadedPurse.price} dust</span>
               </h5>
             </div>

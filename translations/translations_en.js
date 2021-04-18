@@ -2019,5 +2019,133 @@ module.exports.translations = [
     "term_plural": "",
     "reference": "",
     "comment": ""
+  },
+  {
+    "term": "record length",
+    "definition": "Name length must be between 1 and 24",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name is available",
+    "definition": "Name is available !",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "at price",
+    "definition": "at price",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name is for sale",
+    "definition": "Name is for sale !",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name is not for sale",
+    "definition": "Name is already taken and not for sale",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "lookup name",
+    "definition": "Lookup name",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "reset",
+    "definition": "Reset",
+    "context": "Settings > Names > Update name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name public key and box public key different",
+    "definition": "Name public key differs from your account's public key, the transaction will likely fail",
+    "context": "Settings > Names > Update name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name box address and box address different",
+    "definition": "Name's box differs from your account's box address, the transaction will likely fail",
+    "context": "Settings > Names > Update name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "contract",
+    "definition": "Contract",
+    "context": "Settings > Accounts > Boxes",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "deploy ft contract",
+    "definition": "Deploy a FT contract if the tokens that will be created, traded and exchanged are fungible, for example they could represent shares in a company, gold tokens, ERC-20-like tokens etc.",
+    "context": "Deploy > Dapps",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "ft contract for tipboard",
+    "definition": "If you want to use the tipboard, deploy a FT contract.",
+    "context": "Deploy > Dapps",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "deploy nft contract",
+    "definition": "Deploy a NFT contract if the tokens represent unique objects, like a specific seat in a movie theatre, a rare or unique item in a video game, or a unique name in a name system (like the dappy name system) etc.",
+    "context": "Deploy > Dapps",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "rchain token nft",
+    "definition": "RChain token for non-fungibles tokens (NFT)",
+    "context": "Deploy > Dapps",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "rchain token ft",
+    "definition": "RChain token for fungibles tokens (FT)",
+    "context": "Deploy > Dapps",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "deploy contract",
+    "definition": "Deploy contract",
+    "context": "Deploy > Dapps",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
   }
 ]

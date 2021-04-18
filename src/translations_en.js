@@ -772,5 +772,23 @@ module.exports.translations = {
   },
   "contract": {
     "one": "Contract"
+  },
+  "deploy ft contract": {
+    "one": "Deploy a FT contract if the tokens that will be created, traded and exchanged are fungible, for example they could represent shares in a company, gold tokens, ERC-20-like tokens etc."
+  },
+  "ft contract for tipboard": {
+    "one": "If you want to use the tipboard, deploy a FT contract."
+  },
+  "deploy nft contract": {
+    "one": "Deploy a NFT contract if the tokens represent unique objects, like a specific seat in a movie theatre, a rare or unique item in a video game, or a unique name in a name system (like the dappy name system) etc."
+  },
+  "rchain token nft": {
+    "one": "RChain token for non-fungibles tokens (NFT)"
+  },
+  "rchain token ft": {
+    "one": "RChain token for fungibles tokens (FT)"
+  },
+  "deploy contract": {
+    "one": "Deploy contract"
   }
 }

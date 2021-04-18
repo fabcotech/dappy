@@ -12,7 +12,6 @@ import { multiCall } from '../../../utils/wsUtils';
 import { getNodeIndex } from '../../../utils/getNodeIndex';
 
 const executeRecordsByPublicKeyCronJobs = function* (action: Action) {
-  console.log('----------------------');
   const namesBlockchain: Blockchain | undefined = yield select(fromSettings.getNamesBlockchain);
   const accounts: {
     [key: string]: Account;
@@ -71,7 +70,7 @@ const executeRecordsByPublicKeyCronJobs = function* (action: Action) {
             };
             store.dispatch(fromBlockchain.getOneRecordCompletedAction({ record: record }));
           } catch (err) {
-            console.log('Record could not be validated');
+            console.log('Records could not be validated');
             console.log(err);
             console.log(recordFromBlockchain);
             store.dispatch(
@@ -86,13 +85,8 @@ const executeRecordsByPublicKeyCronJobs = function* (action: Action) {
         return;
       })
       .catch((err: MultiCallError) => {
-        store.dispatch(
-          fromMain.saveErrorAction({
-            errorCode: 2052,
-            error: '[Blockchain] Failed to execute records by public key cron jobs (2)',
-            trace: err,
-          })
-        );
+        console.log('executeRecordsByPublicKeyCronJobs');
+        console.log(err);
       });
   } catch (e) {
     store.dispatch(

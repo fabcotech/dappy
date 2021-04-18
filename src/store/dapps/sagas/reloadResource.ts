@@ -123,9 +123,9 @@ const reloadResource = function* (action: Action) {
 
         multiCallResultRecordLookup = yield multiCall(
           {
-            type: 'get-one-record',
+            type: 'get-x-records',
             body: {
-              name: registryUri,
+              names: [registryUri],
             },
           },
           {
@@ -149,7 +149,7 @@ const reloadResource = function* (action: Action) {
       }
       const dataFromBlockchain = (multiCallResultRecordLookup as MultiCallResult).result.data;
       try {
-        let recordFromBlockchain = JSON.parse(dataFromBlockchain);
+        let recordFromBlockchain: any = JSON.parse(dataFromBlockchain).records[0];
         // .servers is always stringified
         if (recordFromBlockchain && recordFromBlockchain.servers) {
           const servers = JSON.parse(`{ "value": ${recordFromBlockchain.servers}}`).value;

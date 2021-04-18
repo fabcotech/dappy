@@ -108,14 +108,16 @@ class DappSandboxedComponent extends React.Component<DappSandboxedComponentProps
           </div>
         ) : undefined}
         {!this.props.lastLoadError && !this.props.dapp ? (
-          <div className="retry">
+          <div className={`retry ${transitoryState}`}>
             <div
-              onClick={(e) =>
-                this.props.loadResource(
-                  blockchainUtils.resourceIdToAddress(this.props.tab.resourceId),
-                  this.props.tab.id
-                )
-              }>
+              onClick={(e) => {
+                if (transitoryState !== 'loading') {
+                  this.props.loadResource(
+                    blockchainUtils.resourceIdToAddress(this.props.tab.resourceId),
+                    this.props.tab.id
+                  );
+                }
+              }}>
               <span>Retry</span>
               <i className={`${transitoryState === 'loading' ? 'rotating' : ''} fa fa-redo fa-before`} title="Retry" />
             </div>

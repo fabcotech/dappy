@@ -3,11 +3,11 @@ import { app, BrowserWindow, ipcMain, protocol, shell, session } from 'electron'
 import path from 'path';
 
 import * as fromCommon from '../src/common';
-import { UPDATE_NODE_READY_STATE, UpdateNodeReadyStatePayload } from '../src/store/settings';
 import { validateSearch } from '../src/utils/validateSearch';
 
 import * as fromMainBrowserViews from './store/browserViews';
 import { WS_RECONNECT_PERIOD } from '../src/CONSTANTS';
+import * as fromDapps from '../src/store/dapps';
 import { registerDappyProtocol } from './registerDappyProtocol';
 import { overrideHttpProtocols } from './overrideHttpProtocols';
 import { registerInterProcessProtocol } from './registerInterProcessProtocol';
@@ -109,6 +109,7 @@ const validateAndProcessAddresses = (addresses: string[]) => {
 
     loadResourceWhenReady = validDappyAddress.replace('dappy://', '');
   }
+  return loadResourceWhenReady;
 };
 validateAndProcessAddresses(process.argv);
 
@@ -120,12 +121,19 @@ app.on('open-url', function (event, data) {
 app.setAsDefaultProtocolClient('dappy');
 
 const isSingleInstance = app.requestSingleInstanceLock();
-
 if (!isSingleInstance) {
   app.quit();
 }
+
 app.on('second-instance', (event, argv, cwd) => {
-  validateAndProcessAddresses(argv);
+  const a = validateAndProcessAddresses(argv);
+  if (typeof a === 'string') {
+    dispatchFromMain({
+      action: fromDapps.loadResourceAction({
+        address: a,
+      }),
+    });
+  }
   return;
 });
 

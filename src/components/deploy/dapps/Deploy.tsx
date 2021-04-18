@@ -355,34 +355,30 @@ export class Deploy extends React.Component<DeployProps, {}> {
           <div
             className={`term rchain-token-fungible ${this.state.selected === 'ft' ? 'selected' : ''}`}
             onClick={() => {
-              this.onChoseTerm(mainTerm(this.state.box, { fungible: true }), 'ft');
+              this.onChoseTerm(mainTerm(this.state.box, { name: 'mytoken', fungible: true }), 'ft');
             }}>
-            <span className="term-title">RChain token for fungibles tokens (FT)</span>
+            <span className="term-title">{t('rchain token ft')}</span>
             <p className="pt5">
-              Deploy a FT contract if the tokens that will be created, traded and exchanged are fungible, for example
-              they could represent shares in a company, gold tokens, ERC-20-like tokens etc.
+              {t('deploy ft contract')}
               <br />
               <br />
-              If you want to use the tipboard, deploy a FT contract.
+              {t('ft contract for tipboard')}
             </p>
           </div>
           <div
             className={`term rchain-token-non-fungible ${this.state.selected === 'nft' ? 'selected' : ''}`}
             onClick={() => {
-              this.onChoseTerm(mainTerm(this.state.box, { fungible: false }), 'nft');
+              this.onChoseTerm(mainTerm(this.state.box, { name: 'mytoken', fungible: false }), 'nft');
             }}>
-            <span className="term-title">RChain token for non-fungibles tokens (NFT)</span>
-            <p className="pt5">
-              Deploy a NFT contract if the tokens represent unique objects, like a specific seat in a movie theatre, a
-              rare or unique item in a video game, or a unique name in a name system (like the dappy name system) etc.
-            </p>
+            <span className="term-title">{t('rchain token nft')}</span>
+            <p className="pt5">{t('deploy nft contract')}</p>
           </div>
         </div>
         <button type="button" className="button is-light" onClick={this.onBackToStep1}>
           {t('back')}
         </button>{' '}
         <button type="button" disabled={!this.state.term} onClick={this.onDeployContract} className="button is-link">
-          Deploy contract
+          {t('deploy contract')}
         </button>
       </div>
     );
