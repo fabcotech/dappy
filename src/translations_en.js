@@ -221,9 +221,6 @@ module.exports.translations = {
   "network id": {
     "one": "Network ID"
   },
-  "names paragraph": {
-    "one": "Names in Dappy are the equivalent of domain names in legacy web (DNS). When a resource is loaded, Dappy uses the following data to query the blockchain platform and check the integrity of the responses.\n\nA name is always associated with a public key, the public key allows Dappy to check that all the content received has been issued by the owner of the corresponding private key, like a SSL certificate.\n\nA name is also associated with a blockchain address, so Dappy can retreive the resource (file or other data) that is linked with the name.\n\nIf you have a dapp that is not referenced by the main dappy names record, you can ADD_ONE_LOCALLY. Of course it must not conflict with an existing name."
-  },
   "show only names my accounts": {
     "one": "Show only the names that belong to one of my accounts"
   },
@@ -245,12 +242,6 @@ module.exports.translations = {
   },
   "loaded at": {
     "one": "Loaded at"
-  },
-  "add local name": {
-    "one": "add local name"
-  },
-  "add a local name": {
-    "one": "Add a local name"
   },
   "add local name paragraph": {
     "one": "In addition to the names that are automatically loaded from the blockchain you can add your custom names that will only be used locally. You must know the public key that will be used to verify the data loaded, and the blockchain address."
@@ -304,9 +295,6 @@ module.exports.translations = {
   "purchase a name": {
     "one": "Purchase a name"
   },
-  "purchase name paragraph": {
-    "one": "The first step of owning and distributing a web application or file with Dappy is to own a name.\nSimply purchase a name that is available, and link it to a file or web application you have previously uploaded on the blockchain.\n\nNo networks has been configured. A network must be configured, and have at least one node to purchase or update names."
-  },
   "password for": {
     "one": "password for"
   },
@@ -321,9 +309,6 @@ module.exports.translations = {
   },
   "update a name": {
     "one": "Update a name"
-  },
-  "update name paragraph": {
-    "one": "After having purchased a name, you are free to edit it : the registry address can be changed, the locked attribute can be changed, and you can assign another public key to the name (give it to someone else)."
   },
   "name request successes": {
     "one": "Name request successes"
@@ -344,9 +329,6 @@ module.exports.translations = {
   "success": {
     "one": "Success",
     "other": "Successes"
-  },
-  "add one locally": {
-    "one": "Add a local name"
   },
   "names paragraph 3": {
     "one": "Of course it must not conflict with an existing name."
@@ -682,7 +664,7 @@ module.exports.translations = {
   "password for account": {
     "one": "Password for account"
   },
-  "copy box address": {
+  "Copy box address": {
     "one": "Copy box address"
   },
   "copy contract address": {
@@ -790,5 +772,50 @@ module.exports.translations = {
   },
   "deploy contract": {
     "one": "Deploy contract"
+  },
+  "dappy opensource warning": {
+    "one": "This program does not interact with any private server of FABCO / DAPPY. It does not rely on any centralized service or server. The private keys are stored on your computer, and encrypted with your password. Dappy browser is open soruce but largely unaudited software. We advise you to only use secondary REV/ETH addresses with small amounts.\n\nUSE DAPPY, TRANSFER FUNDS, REFERENCE PRIVATE KEYS AND PUBLIC KEYS AT YOUR OWN RISKS."
+  },
+  "purchase a name 2": {
+    "one": "Name is the core asset of the dappy ecosystem, you can use a name to reference your website on the internet network (IP application), you can point your name to a HTML file or any other file that you have uploaded on the blockchain (dapp), you can also use it to receive payments, or as a speculative asset."
+  },
+  "operation on name successful": {
+    "one": "✓ Transaction was successfully sent to the blockchain. Your name should appear or be updated in thirty or fourty minutes, after the transaction is processed, and the new name indexed by network members."
+  },
+  "warning wait for update": {
+    "one": "Do not try to update or purchase a name many times a day, just check the transaction status and wait."
+  },
+  "you need box": {
+    "one": "You must have an account with a token box deployed to purchase a name (NFT"
+  },
+  "add one locally 2": {
+    "one": "Add a local name for testing"
+  },
+  "update name paragraph 2": {
+    "one": "The data associated to a name can be updated anytime by the owner. It can point to another file on the blockchain, or be turned from dapp to IP app and vice versa."
+  },
+  "add local name dev": {
+    "one": "Add local name (development)"
+  },
+  "purchase name fee": {
+    "one": "As of now, every names purchased from the dappy name system is subjected to a 1% fee to help grow the team and secure the platform. 99% of the REV price will go to the current name owner, 1% to the owner of the name system contract."
+  },
+  "update name price": {
+    "one": "Update name price"
+  },
+  "name for sale": {
+    "one": "Name for sale"
+  },
+  "name not for sale": {
+    "one": "Name not for sale"
+  },
+  "name price (dust)": {
+    "one": "name price (dust)"
+  },
+  "update name properties": {
+    "one": "Update name properties"
+  },
+  "input your password": {
+    "one": "You need to input a valid password for your account"
   }
 }

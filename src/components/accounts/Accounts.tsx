@@ -14,6 +14,7 @@ import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '../../CON
 import { AccountPassword } from './AccountPassword';
 import { AccountBox } from './AccountBox';
 import { ViewBox } from './ViewBox';
+import { formatAmount } from '../../utils/formatAmount';
 
 interface AccountsProps {
   accounts: { [name: string]: Account };
@@ -33,11 +34,6 @@ interface AccountsProps {
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
   openModal: (t: fromMain.OpenModalPayload) => void;
 }
-
-const formatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-});
 
 export function AccountsComponent(props: AccountsProps) {
   const [tab, setTab] = useState('accounts');
@@ -108,7 +104,7 @@ export function AccountsComponent(props: AccountsProps) {
                   </div>
                   <div className="balance">
                     <span title={a.balance.toString()} className="num">
-                      {formatter.format(a.balance).substr(1)}
+                      {formatAmount(a.balance)}
                     </span>
                     <span className="unit">{t('rev', true)}</span>
                     <div>

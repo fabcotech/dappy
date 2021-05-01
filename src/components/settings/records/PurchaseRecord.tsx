@@ -217,7 +217,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
           <p
             className="smaller-text"
             dangerouslySetInnerHTML={{
-              __html: t('purchase name paragraph'),
+              __html: t('purchase a name 2'),
             }}></p>
         </Fragment>
       );
@@ -232,8 +232,8 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
         <Fragment>
           <h3 className="subtitle is-4">{t('purchase a name')}</h3>
           <p className="smaller-text">
-            ✓ Transaction was successfully sent to the blockchain. Your name should appear in ten or twenty minutes
-            after the transaction is processed, and the new name indexed by network members.
+            {t('operation on name successful')}
+            {t('warning wait for update')}
           </p>
           <br />
           <br />
@@ -254,22 +254,17 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
     return (
       <Fragment>
         <h3 className="subtitle is-4">{t('purchase a name')}</h3>
-        <p className="smaller-text">{t('purchase name paragraph short')} </p>
+        <p className="smaller-text">{t('purchase a name 2')} </p>
         <br />
         <TransactionForm
           chooseBox={true}
           accounts={this.props.accounts}
           filledTransactionData={this.onFilledTransactionData}
         />
-        {this.state.privatekey && !this.state.box && (
-          <p className="text-danger pt10">You must have a token box to purchase a name (NFT)</p>
-        )}
+        {this.state.privatekey && !this.state.box && <p className="text-danger pt10">{t('you need box')}</p>}
         <br />
-        <div className="message is-danger">
-          <div className="message-body">{t('dappy beta warning')}</div>
-        </div>
         <div className="field is-horizontal">
-          <label className="label">Name</label>
+          <label className="label">{t('name')}</label>
           <div className="control">
             <input
               disabled={this.state.loadingPurse}
@@ -373,6 +368,9 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
           />
         )}
         <form>
+          <div className="message is-info">
+            <div className="message-body">{t('purchase name fee')}</div>
+          </div>
           <div className="field is-horizontal is-grouped pt20">
             <div className="control">
               <button

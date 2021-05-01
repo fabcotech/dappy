@@ -61,6 +61,9 @@ const executeRecordsByPublicKeyCronJobs = function* (action: Action) {
           if (recordFromBlockchain.badges) {
             recordFromBlockchain.badges = JSON.parse(recordFromBlockchain.badges);
           }
+          if (typeof recordFromBlockchain.price === "string" && recordFromBlockchain.price.length) {
+            recordFromBlockchain.price = parseInt(recordFromBlockchain.price, 10);
+          }
           try {
             await validateRecordFromNetwork(recordFromBlockchain);
             const record = {

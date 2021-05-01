@@ -20,7 +20,7 @@ export const AddRecord = (props: AddRecordProps) => {
 
   return (
     <div>
-      <h3 className="subtitle is-4">{t('add local name')}</h3>
+      <h3 className="subtitle is-4">{t('add local name dev')}</h3>
 
       <p className="smaller-text">{t('add local name paragraph')}</p>
       <br />
@@ -31,7 +31,7 @@ export const AddRecord = (props: AddRecordProps) => {
         </div>
       </div>
       <RecordForm
-        nameDisabled={false}
+        nameDisabledAndForced={undefined}
         key={resetForm}
         filledRecord={(a: PartialRecord | undefined) => setPartialRecord(a)}
         partialRecord={partialRecord}
@@ -57,12 +57,13 @@ export const AddRecord = (props: AddRecordProps) => {
               props.addRecord({
                 ...r,
                 publicKey: publicKey,
-                nonce: 'nope',
+                box: 'box',
+                badges: {},
               });
             }}
             className="button is-link"
             disabled={!publicKey || !partialRecord}>
-            {t('add local name')}
+            {t('add local name dev')}
           </button>
         </div>
       </div>

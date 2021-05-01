@@ -1,15 +1,17 @@
 import React, { Fragment } from 'react';
-import { updatePurseDataTerm } from 'rchain-token';
+import { updatePurseDataTerm, setPriceTerm } from 'rchain-token';
 
 import { Record, TransactionState, RChainInfos, Account, PartialRecord } from '../../../models';
 import { blockchain as blockchainUtils } from '../../../utils';
 import * as fromBlockchain from '../../../store/blockchain';
 import { getNodeIndex } from '../../../utils/getNodeIndex';
+import { formatAmount, formatAmountNoDecimal } from '../../../utils/formatAmount';
 import { TransactionForm } from '../../utils';
 import { multiCall } from '../../../utils/wsUtils';
 import { RecordForm } from './RecordForm';
 import './UpdateRecord.scss';
 import { validateRecordFromNetwork } from '../../../store/decoders';
+import { LOGREV_TO_REV_RATE } from '../../../CONSTANTS';
 
 interface UpdateRecordProps {
   records: { [key: string]: Record };
@@ -31,6 +33,7 @@ const defaultState = {
   newRecord: undefined,
   loadRecordError: undefined,
   loadedRecord: undefined,
+  loadedRecordPrice: undefined,
   loadingRecord: false,
 };
 
@@ -52,6 +55,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
     newRecord: PartialRecord | undefined;
     loadRecordError: undefined | string;
     loadedRecord: undefined | Record;
+    loadedRecordPrice: undefined | number;
     loadingRecord: boolean;
   } = defaultState;
 
@@ -113,10 +117,14 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
         if (record.badges) {
           record.badges = JSON.parse(record.badges);
         }
+        if (typeof record.price === "string" && record.price.length) {
+          record.price = parseInt(record.price, 10);
+        }
         await validateRecordFromNetwork(record);
         this.setState({
           loadingRecord: false,
           loadedRecord: record,
+          loadedRecordPrice: record.price,
           loadRecordError: undefined,
         });
       } else {
@@ -147,31 +155,13 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
     });
   };
 
-  onSubmit = () => {
+  onSubmit = (term: string) => {
     if (!this.state.newRecord || !this.state.privatekey) {
       return;
     }
 
     const id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
     this.transactionId = id;
-
-    const payload = {
-      fromBoxRegistryUri: this.state.box,
-      purseId: this.state.name,
-      data: Buffer.from(
-        JSON.stringify({
-          address: this.state.newRecord.address,
-          badges: this.state.newRecord.badges || {},
-          servers: this.state.newRecord.servers || [],
-        }),
-        'utf8'
-      ).toString('hex'),
-    };
-
-    const term1 = updatePurseDataTerm(
-      (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesRegistryUri,
-      payload
-    );
 
     let validAfterBlockNumber = 0;
     if (this.props.namesBlockchainInfos) {
@@ -180,7 +170,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
 
     const deployOptions = blockchainUtils.rchain.getDeployOptions(
       new Date().valueOf(),
-      term1,
+      term,
       this.state.privatekey,
       this.state.publickey,
       1,
@@ -207,7 +197,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
           <p
             className="smaller-text"
             dangerouslySetInnerHTML={{
-              __html: t('purchase name paragraph'),
+              __html: t('purchase a name 2'),
             }}></p>
         </Fragment>
       );
@@ -222,8 +212,8 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
         <Fragment>
           <h3 className="subtitle is-4">{t('update a name')}</h3>
           <p className="smaller-text">
-            ✓ Transaction was successfully sent to the blockchain. Your name should update in ten or twenty minutes
-            after the transaction is processed, and the new name indexed by network members.
+            {t('operation on name successful')}
+            {t('warning wait for update')}
           </p>
           <br />
           <br />
@@ -240,26 +230,42 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
       );
     }
 
+
+    const BoxAndPublicKeyError = () => {
+      return (
+        <>
+          { !this.state.privatekey &&
+            <p className="text-danger">{t('input your password')}</p>
+          }
+          {this.state.loadedRecord &&
+            this.state.publickey &&
+            this.state.publickey !== this.state.loadedRecord.publicKey && (
+              <p className="text-danger">{t('name public key and box public key different')}</p>
+            )}
+          {this.state.loadedRecord &&
+            this.state.box &&
+            this.state.box !== this.state.loadedRecord.box.replace('rho:id:', '') && (
+              <p className="text-danger">{t('name box address and box address different')}</p>
+            )}
+        </>
+      )
+    }
+  
     return (
       <Fragment>
         <h3 className="subtitle is-4">{t('update a name')}</h3>
-        <p className="smaller-text">{t('update name paragraph')}</p>
+        <p className="smaller-text">{t('update name paragraph 2')}</p>
         <br />
-        <p className="smaller-text">
-          You can't update the same name many times in a short period of time, wait for each update to appear before
-          making new updates.
-        </p>
+        <p className="smaller-text">{t('warning wait for update')}</p>
         <br />
         <TransactionForm
           chooseBox={true}
           accounts={this.props.accounts}
           filledTransactionData={this.onFilledTransactionData}
         />
-        {this.state.privatekey && !this.state.box && (
-          <p className="text-danger pt10">You must have a token box to purchase a name (NFT)</p>
-        )}
+        {this.state.privatekey && !this.state.box && <p className="text-danger pt10">{t('you need box')}</p>}
         <br />
-        <div className="update-record-form">
+        <div className="update-record-properties-form">
           <div className="field is-horizontal">
             <label className="label">{t('name')}*</label>
             <div className="control inline-control">
@@ -293,7 +299,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
                 <button
                   onClick={() => {
                     if (this.props.records[this.state.name]) {
-                      this.setState({ record: undefined, newRecord: undefined });
+                      this.setState({ record: undefined, loadedRecordPrice: (this.state.loadedRecord as Record).price, newRecord: undefined });
                     }
                   }}
                   type="button"
@@ -305,32 +311,130 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
           </div>
           {this.state.loadRecordError && <p className="text-danger">{this.state.loadRecordError}</p>}
           {!!this.state.loadedRecord && (
-            <RecordForm
-              nameDisabledAndForced={this.state.loadedRecord.name}
-              records={{}}
-              partialRecord={this.state.loadedRecord}
-              filledRecord={(a) => this.setState({ newRecord: a })}></RecordForm>
+            <>
+              <h4 className="title is-4"><i className="fa fa-before fa-bars"></i> {t('update name properties')}</h4>
+              <RecordForm
+                nameDisabledAndForced={this.state.loadedRecord.name}
+                records={{}}
+                partialRecord={this.state.loadedRecord}
+                filledRecord={(a) => this.setState({ newRecord: a })}></RecordForm>
+            </>
           )}
-          {this.state.loadedRecord &&
-            this.state.publickey &&
-            this.state.publickey !== this.state.loadedRecord.publicKey && (
-              <p className="text-danger">{t('name public key and box public key different')}</p>
-            )}
-          {this.state.loadedRecord && this.state.box && this.state.box !== this.state.loadedRecord.box && (
-            <p className="text-danger">{t('name box address and box address different')}</p>
-          )}
+          { this.state.loadedRecord && <BoxAndPublicKeyError /> }
           <form>
             <div className="field is-horizontal is-grouped pt20">
               <div className="control">
                 <button
-                  onClick={this.onSubmit}
+                  onClick={() => {
+                    const payload = {
+                      fromBoxRegistryUri: this.state.box,
+                      purseId: this.state.name,
+                      data: Buffer.from(
+                        JSON.stringify({
+                          address: (this.state.newRecord as PartialRecord).address,
+                          badges: (this.state.newRecord as PartialRecord).badges || {},
+                          servers: (this.state.newRecord as PartialRecord).servers || [],
+                        }),
+                        'utf8'
+                      ).toString('hex'),
+                    };
+                    const term = updatePurseDataTerm(
+                      (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesRegistryUri,
+                      payload
+                    );
+                    this.onSubmit(term)
+                  }}
                   className="button is-link"
                   disabled={!this.state.newRecord || !this.state.privatekey || !this.state.box}>
-                  {t('update name')}
+                  {t('update name properties')}
                 </button>
               </div>
             </div>
           </form>
+          {
+            this.state.loadedRecord ?
+            <>
+              <h4 className="title is-4">
+                <i className="fa fa-before fa-money-bill-wave"></i>
+                {t('update name price')}</h4>
+              <div className="field is-horizontal">
+                <div className="control">
+                  <input
+                    className="radio is-checkradio is-link is-inverted"
+                    onChange={() => {}}
+                    type="radio"
+                    checked={this.state.loadedRecordPrice === undefined}
+                    name=""></input>
+                  <label
+                    onClick={() => {
+                      this.setState({ loadedRecordPrice: undefined })
+                    }}>
+                    {t('name not for sale')}
+                  </label>
+                  <input
+                    className="radio is-checkradio is-link is-inverted"
+                    onChange={() => {}}
+                    type="radio"
+                    checked={typeof this.state.loadedRecordPrice === 'number'}
+                    name=""></input>
+                  <label
+                    onClick={() => {
+                      this.setState({ loadedRecordPrice: 100000000 })
+                    }}>
+                    {t('name for sale')}
+                  </label>
+                </div>
+              </div>
+              {
+                typeof this.state.loadedRecordPrice === 'number' &&
+                <div className="field is-horizontal">
+                  <label className="label"></label>
+                  <div className="control">
+                    <input
+                      onChange={e => {
+                        const n = parseInt(e.currentTarget.value, 10)
+                        this.setState({
+                          loadedRecordPrice: typeof n === 'number' ? n : undefined
+                        })
+                      }}
+                      step={1}
+                      className="input"
+                      type="number"
+                      name="price"
+                      value={this.state.loadedRecordPrice}
+                      placeholder={t('name price (dust)')}
+                    />
+                    <span className="dust-price">{formatAmountNoDecimal(this.state.loadedRecordPrice)} dust</span>
+                    <span className="rev-price">{formatAmount(this.state.loadedRecordPrice / LOGREV_TO_REV_RATE)} REV</span>
+                  </div>
+                </div>
+              }
+              <BoxAndPublicKeyError />
+              <form>
+                <div className="field is-horizontal is-grouped pt20">
+                  <div className="control">
+                    <button
+                      onClick={() => {
+                        const payload = {
+                          fromBoxRegistryUri: this.state.box,
+                          price: this.state.loadedRecordPrice,
+                          purseId: (this.state.loadedRecord as Record).name,
+                        };
+                        const term = setPriceTerm(
+                          (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesRegistryUri
+                          , payload);
+                        this.onSubmit(term)
+                      }}
+                      className="button is-link"
+                      disabled={this.state.loadedRecordPrice === this.state.loadedRecord.price || !this.state.privatekey || !this.state.box}>
+                      {t('update name price')}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </>
+            : undefined
+          }
         </div>
       </Fragment>
     );

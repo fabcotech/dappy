@@ -18,7 +18,7 @@ const transferTransactions = function* (action: any) {
       if (typeof dappyRChain !== 'undefined') { dappyRChain.requestTransactions() };
       `);
     } catch (e) {
-      console.error('Could not execute javascript and trasfer transactions');
+      console.error('Could not execute javascript and transfer transactions');
     }
   } else {
     console.error('Did not find browserView, cannot transfer transactions');

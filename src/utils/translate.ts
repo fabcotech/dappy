@@ -23,7 +23,7 @@ export const initTranslate = (lang: string) => {
   } else if (lang === 'cn') {
     window.translations = require(`../translations_cn`).translations;
   } else {
-    console.warn('Unknown language ' + lang);
+    console.error('Unknown language ' + lang);
     window.translations = require(`../translations_en`).translations;
   }
 };

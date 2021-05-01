@@ -1,4 +1,4 @@
-.update-record-form {
+.update-record-properties-form {
   max-width: 700px;
   & > .field {
     display: grid;
@@ -25,5 +25,18 @@
     input {
       width: 200px;
     }
+  }
+  h4 {
+    margin-top: 50px;
+    font-weight: 300;
+  }
+  .dust-price {
+    margin-top: 4px;
+  }
+  .dust-price, .rev-price {
+    font-size: 1.1rem;
+    padding: 4px 0px;
+    display: block;
+    font-weight: 400;
   }
 }

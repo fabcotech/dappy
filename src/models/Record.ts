@@ -2,7 +2,7 @@ import { LoadCompleted, LoadErrorWithArgs } from './Dapp';
 
 export interface RChainTokenPurse {
   quantity: number;
-  price: number;
+  price: undefined | number;
   id: string;
   box: string;
   publicKey: string;
@@ -11,6 +11,7 @@ export interface RChainTokenPurse {
 export interface RecordFromNetwork {
   name: string;
   box: string;
+  price: undefined | number;
   publicKey: string;
   address?: string;
   expiration?: string;

@@ -221,14 +221,11 @@ module.exports.translations = {
   "network id": {
     "one": "网络ID"
   },
-  "names paragraph": {
-    "one": "Dappy中的名称与旧版Web（DNS）中的域名等效。加载资源后，Dappy使用以下数据查询区块链平台并检查响应的完整性。\n名称始终与公用密钥相关联，公用密钥允许Dappy检查接收到的所有内容是否已由相应的专用密钥的所有者发布，例如SSL证书。\n名称也与区块链地址相关联，因此Dappy可以检索与该名称链接的资源（文件或其他数据）。\n如果您的dapp没有被主dappy名称记录所引用，则可以通过“新增本地”来添加。当然，它一定不能与现有名称冲突。"
-  },
   "show only names my accounts": {
     "one": "仅显示属于我的一个帐户的名称"
   },
   "type": {
-    "one": "类别"
+    "one": "类型"
   },
   "owner": {
     "one": "所有者"
@@ -245,12 +242,6 @@ module.exports.translations = {
   },
   "loaded at": {
     "one": "读取至"
-  },
-  "add local name": {
-    "one": "新增本地域名"
-  },
-  "add a local name": {
-    "one": "新增一个本地域名"
   },
   "add local name paragraph": {
     "one": "除了从区块链自动加载的名称之外，您还可以添加仅在本地使用的自定义名称。您必须知道将用于验证加载的数据的公共密钥以及区块链地址。"
@@ -304,9 +295,6 @@ module.exports.translations = {
   "purchase a name": {
     "one": "购买域名"
   },
-  "purchase name paragraph": {
-    "one": "使用Dappy来拥有和分发文件或Web应用程序的第一步是拥有一个域名。\n只需购买一个可用的名称，并将其链接到您先前已在区块链上上传的文件或Web应用程序。\n\n尚未配置任何网络。 必须配置一个网络，并且至少有一个活动节点来购买或更新名称。"
-  },
   "password for": {
     "one": "密码"
   },
@@ -321,9 +309,6 @@ module.exports.translations = {
   },
   "update a name": {
     "one": "更新一个域名"
-  },
-  "update name paragraph": {
-    "one": "购买名称后，您可以自由对其进行编辑：可以更改注册表地址，可以更改lock属性，还可以为该名称分配另一个公共密钥（将其提供给其他人）。"
   },
   "name request successes": {
     "one": "域名请求成功"
@@ -344,9 +329,6 @@ module.exports.translations = {
   "success": {
     "one": "成功",
     "other": "成功"
-  },
-  "add one locally": {
-    "one": "新增本地"
   },
   "names paragraph 3": {
     "one": "当然，它一定不能与现有名称冲突。"
@@ -645,6 +627,21 @@ module.exports.translations = {
   "deploy": {
     "one": "部署"
   },
+  "save nodes": {
+    "one": "保存节点"
+  },
+  "deploy dapp": {
+    "one": "部署应用"
+  },
+  "remove tab": {
+    "one": "关闭选项卡"
+  },
+  "stop tab": {
+    "one": "停止选项卡"
+  },
+  "reputation badges": {
+    "one": "徽章"
+  },
   "result": {
     "one": "结果",
     "other": "结果"
@@ -653,16 +650,154 @@ module.exports.translations = {
     "one": "浏览"
   },
   "update balances": {
-    "one": "更新金额"
+    "one": "更新余额"
   },
   "record regexp": {
-    "one": "Name must starts with a letter, and contain only letters and numbers (a-z, 0-9)"
+    "one": "名称必须以字母开头，并且只包含字母和数字（a-z，0-9）。"
   },
   "menu gcu": {
     "one": "般使用条件 "
   },
+  "save box": {
+    "one": "安全盒"
+  },
+  "password for account": {
+    "one": "密码帐户"
+  },
+  "Copy box address": {
+    "one": "复制盒子地址"
+  },
+  "copy contract address": {
+    "one": "复制合约地址"
+  },
+  "remove box": {
+    "one": "移除盒子"
+  },
   "token box": {
-    "one": "",
-    "other": ""
+    "one": "代币盒子",
+    "other": "代币盒子"
+  },
+  "add existing token box": {
+    "one": "添加一个现有的代币盒"
+  },
+  "failed to deploy box": {
+    "one": "部署盒子失败"
+  },
+  "at least one node network": {
+    "one": "您需要连接到一个至少有一个端点可用的网络上"
+  },
+  "deploy a new token box": {
+    "one": "部署一个新的代币盒"
+  },
+  "set main account": {
+    "one": "将此账户设为主账户"
+  },
+  "no network cannot send revs": {
+    "one": "没有找到网络，不能发送REVs"
+  },
+  "back to accounts": {
+    "one": "返回账户"
+  },
+  "box definition": {
+    "one": "一个盒子可以包含来自一个或多个合约的一个或多个钱包。一个钱包可以是一个NFT，也可以是一个代表可替换的代币，这取决于它所链接的RChain-Token合约。"
+  },
+  "box super key definition": {
+    "one": "一个盒子可以储存超级钥匙。通常情况下，您为您部署的合约拥有一把超级钥匙，此功能使您能够创建钱包，您也可以锁定合约，使其失去这种能力。"
+  },
+  "quantity": {
+    "one": "数量"
+  },
+  "check wallets": {
+    "one": "检查您的钱包/账户"
+  },
+  "deploy ft": {
+    "one": "部署一份可替换物品的合约（FT）"
+  },
+  "deploy nft": {
+    "one": "部署非同质化（NFT）的合同"
+  },
+  "d network is live": {
+    "one": "d 网络是可用的"
+  },
+  "d network definition": {
+    "one": "d网络是dappy的主要网络。加入互联网的未来，现在就在dappy上获得一个域名吧！"
+  },
+  "copy address": {
+    "one": "复制地址"
+  },
+  "record length": {
+    "one": "名称长度必须在1到24之间"
+  },
+  "name is available": {
+    "one": "域名是可用的！"
+  },
+  "at price": {
+    "one": "根据价格"
+  },
+  "name is for sale": {
+    "one": "域名可以出售！"
+  },
+  "name is not for sale": {
+    "one": "域名已被占用，不出售"
+  },
+  "lookup name": {
+    "one": "查询域名"
+  },
+  "reset": {
+    "one": "重置"
+  },
+  "name public key and box public key different": {
+    "one": "域名的公钥与您的账户公钥不同，交易可能会失败"
+  },
+  "name box address and box address different": {
+    "one": "域名盒不同于您的帐户地址，交易可能会失败"
+  },
+  "contract": {
+    "one": "合约"
+  },
+  "deploy ft contract": {
+    "one": "如果将创建、交易和交换的代币是可替换的，例如它们可以代表公司的股份、黄金代币、类似ERC-20的代币等，则部署一个FT合约。"
+  },
+  "ft contract for tipboard": {
+    "one": "如果您想使用提示板，请部署一个FT合同。"
+  },
+  "deploy nft contract": {
+    "one": "如果代币代表稀缺的对象，如电影院中的特定座位、视频游戏中的稀缺物品，或域名系统（如dappy名字系统）中的稀缺域名等，则部署NFT合约。"
+  },
+  "rchain token nft": {
+    "one": "RChain代币，用于非同质代币（NFT）"
+  },
+  "rchain token ft": {
+    "one": "可替换代币的RChain代币"
+  },
+  "deploy contract": {
+    "one": "部署合同"
+  },
+  "dappy opensource warning": {
+    "one": "这个程序不与FABCO / DAPPY的任何私人服务器互动。它不依赖于任何中心化的服务或服务器。私钥存储在您的计算机上，并以您的密码加密。Dappy浏览器是开放的soruce，但基本上不受审计的软件。我们建议您只使用不重要的REV/ETH地址和小金额的账户。\n\n使用Dappy，转移资金，参考私钥和公钥，风险自负。"
+  },
+  "purchase a name 2": {
+    "one": "域名是dappy生态系统的核心资产，您可以用一个域名来引用您在互联网网络上的网站（IP应用），您可以把您的域名指向一个HTML文件或您在区块链（dapp）上上传的任何其他文件，您也可以用它来接收付款，或作为一种投机资产。"
+  },
+  "operation on name successful": {
+    "one": "✓ 交易已成功发送至区块链。在交易处理完毕后，您的域名应该在三十或四十分钟内出现或被更新，新的域名被网络成员索引。"
+  },
+  "warning wait for update": {
+    "one": "不要多次尝试更新或购买域名在同一天，只需检查交易状态并等待。"
+  },
+  "you need box": {
+    "one": "您必须有一个部署了代币盒的账户，才能购买一个域名（NFT"
+  },
+  "add one locally 2": {
+    "one": "添加一个用于测试的本地域名"
+  },
+  "update name paragraph 2": {
+    "one": "与一个域名相关的数据可以由所有者随时更新。它可以指向区块链上的另一个文件，或者从dapp变成IP应用，反之亦然。"
+  },
+  "add local name dev": {
+    "one": "添加本地域名（开发）"
+  },
+  "purchase name fee": {
+    "one": "截至目前，从dappy域名系统购买的每个域名都要收取1%的费用，以帮助团队发展和确保平台安全。REV价格的99%将归属于当前的域名所有者，1%归属于域名系统合约的所有者。"
   }
 }

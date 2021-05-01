@@ -200,6 +200,9 @@ const loadResource = function* (action: Action) {
         if (recordFromBlockchain.badges) {
           recordFromBlockchain.badges = JSON.parse(recordFromBlockchain.badges);
         }
+        if (typeof recordFromBlockchain.price === "string" && recordFromBlockchain.price.length) {
+          recordFromBlockchain.price = parseInt(recordFromBlockchain.price, 10);
+        }
         yield validateRecordFromNetwork(recordFromBlockchain);
         record = {
           ...recordFromBlockchain,

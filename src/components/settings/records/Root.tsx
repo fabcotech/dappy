@@ -35,7 +35,7 @@ export function RootComponent(props: RecordsRootProps) {
           </li>
           <li className={tab === 'add-name' ? 'is-active' : ''}>
             <a onClick={() => setTab('add-name')}>
-              {t('add local name')} <i className="fa fa-plus fa-after" />
+              {t('add local name dev')} <i className="fa fa-plus fa-after" />
             </a>
           </li>
           <li className={tab === 'purchase-name' ? 'is-active' : ''}>

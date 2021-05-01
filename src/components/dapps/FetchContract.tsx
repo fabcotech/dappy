@@ -65,7 +65,7 @@ class FetchContractComponent extends React.Component<FetchContractProps, {}> {
             </div>
             <div className="text">
               <div>
-                <h3 className="title is-1">Dappy</h3>
+                <h3 className="title is-1">dappy</h3>
                 <h4 className="title is-2">release {VERSION}</h4>
               </div>
             </div>

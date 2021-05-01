@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Formik } from 'formik';
 import { connect } from 'react-redux';
-import xs from 'xstream';
 
 import './Resolver.scss';
 import * as fromSettings from '../../../store/settings';
@@ -38,18 +37,10 @@ export class DevelopmentComponent extends React.Component<DevelopmentProps, {}> 
       <div className="pb20 settings-resolver">
         <Formik
           initialValues={{ devMode: this.props.settings.devMode }}
-          onSubmit={(values, { setSubmitting }) => {
-            console.log(values);
-            this.props.updateDevMode(values.devMode);
-            xs.periodic(500)
-              .endWhen(xs.periodic(600).take(1))
-              .subscribe({
-                complete: () => setSubmitting(false),
-              });
-          }}
-          render={({ setFieldValue, values, handleSubmit, isSubmitting }) => {
+          onSubmit={(values) => {}}
+          render={({ setFieldValue, values }) => {
             return (
-              <form onSubmit={handleSubmit}>
+              <form>
                 <h3 className="subtitle is-4">{t('development')}</h3>
                 <p className="smaller-text">
                   {t('settings development paragraph')}
@@ -57,17 +48,10 @@ export class DevelopmentComponent extends React.Component<DevelopmentProps, {}> 
                   <br />
                 </p>
                 <br />
-                <CheckBoxComponent setFieldValue={setFieldValue} values={values} name="devMode"></CheckBoxComponent>
-
-                <div className="field is-horizontal is-grouped pt20">
-                  <div className="control">
-                    <button type="submit" className="button is-link" disabled={isSubmitting}>
-                      {!isSubmitting && t('submit')}
-                      {isSubmitting && t('submitting')}
-                      {isSubmitting && <i className="fa fa-spin fa-spinner fa-after" />}
-                    </button>
-                  </div>
-                </div>
+                <CheckBoxComponent setFieldValue={(key: string, value: boolean) => {
+                  setFieldValue(key, value);
+                  this.props.updateDevMode(value);
+                }} values={values} name="devMode"></CheckBoxComponent>
               </form>
             );
           }}

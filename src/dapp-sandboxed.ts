@@ -14,6 +14,8 @@ import { generateNonce } from './utils/generateNonce';
 
 const blockchainUtils = {
   rhoValToJs: rchainToolkit.utils.rhoValToJs,
+  rhoExprToVar: rchainToolkit.utils.rhoExprToVar,
+  decodePar: rchainToolkit.utils.decodePar,
   revAddressFromPublicKey: rchainToolkit.utils.revAddressFromPublicKey,
   toByteArray: rchainToolkit.utils.toByteArray,
   buildUnforgeableNameQuery: buildUnforgeableNameQuery,

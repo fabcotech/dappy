@@ -17,7 +17,7 @@ const transferIdentifications = function* (action: any) {
       if (typeof dappyRChain !== 'undefined') { dappyRChain.requestIdentifications() };
       `);
     } catch (e) {
-      console.error('Could not execute javascript and trasfer identification');
+      console.error('Could not execute javascript and transfer identification');
     }
   } else {
     console.error('Did not find browserView, cannot transfer identification');

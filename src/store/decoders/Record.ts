@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { Record, RecordFromNetwork } from '../../models';
+import { Record } from '../../models';
 
 export const recordServerSchema = yup
   .object()
@@ -20,6 +20,7 @@ export const recordFromNetworkSchema = yup
     name: yup.string().required(),
     publicKey: yup.string().required(),
     box: yup.string().required(),
+    price: yup.number(),
     address: yup.string(),
     servers: yup.array(recordServerSchema),
     badges: yup.object(),
@@ -40,36 +41,13 @@ export const validateRecordFromNetwork = (record: any): Promise<boolean> =>
       });
   });
 
-export const validateRecordsFromNetwork = (records: any): Promise<RecordFromNetwork[]> => {
-  return new Promise((resolve, reject) => {
-    if (!records || !Array.isArray(records)) {
-      reject('Must be an array');
-      return;
-    }
-
-    const recordsParsed = records.map((r) => {
-      if (r.servers) {
-        r.servers = JSON.parse(`{ "value": ${r.servers}}`).value;
-      }
-      return r;
-    });
-
-    return Promise.all(recordsParsed.map(validateRecordFromNetwork))
-      .then(() => {
-        resolve(recordsParsed as RecordFromNetwork[]);
-      })
-      .catch((e) => {
-        reject(e);
-      });
-  });
-};
-
 export const ipRecordSchema = yup
   .object()
   .shape({
     name: yup.string().required(),
     publicKey: yup.string().required(),
     box: yup.string().required(),
+    price: yup.number(),
     loadedAt: yup.string().required(),
     servers: yup.array(recordServerSchema),
     badges: yup.object(),
@@ -88,6 +66,7 @@ export const dappRecordSchema = yup
     name: yup.string().required(),
     publicKey: yup.string().required(),
     box: yup.string().required(),
+    price: yup.number(),
     address: yup.string().required(),
     loadedAt: yup.string().required(),
     servers: yup.array(recordServerSchema),
@@ -107,6 +86,7 @@ export const recordSchema = yup
     name: yup.string().required(),
     publicKey: yup.string().required(),
     box: yup.string().required(),
+    price: yup.number(),
     address: yup.string(),
     loadedAt: yup.string().required(),
     servers: yup.array(recordServerSchema),
