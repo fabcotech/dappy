@@ -69,7 +69,6 @@ export interface WithSuggestionsComponentProps {
   showLoadInfos: (resourceId: string, parameters: any) => void;
   isDisplayed?: (a: boolean) => void;
   stopTab: (tabId: string) => void;
-  reloadResource: (tabId: string) => void;
   loadResource: (a: fromDapps.LoadResourcePayload) => void;
   updateTabSearch: (a: fromDapps.UpdateTabSearchPayload) => void;
   goForward: (tabId: string) => void;

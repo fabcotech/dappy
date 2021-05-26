@@ -5,7 +5,7 @@ import { Cookie } from '../../models';
 export const cookieSchema = yup
   .object()
   .shape({
-    address: yup.string().required(),
+    dappyDomain: yup.string().required(),
     cookies: yup.array().of(
       yup
         .object()
@@ -36,7 +36,7 @@ export const validateCookie = (c: any): Promise<boolean> =>
       });
   });
 
-export const validateCookies = (cookies: any): Promise<{ address: string; cookies: Cookie[] }[]> => {
+export const validateCookies = (cookies: any): Promise<{ dappyDomain: string; cookies: Cookie[] }[]> => {
   return new Promise((resolve, reject) => {
     if (!cookies || !Array.isArray(cookies)) {
       reject('Must be an array');
@@ -45,7 +45,7 @@ export const validateCookies = (cookies: any): Promise<{ address: string; cookie
 
     return Promise.all(cookies.map(validateCookie))
       .then(() => {
-        resolve(cookies as { address: string; cookies: Cookie[] }[]);
+        resolve(cookies as { dappyDomain: string; cookies: Cookie[] }[]);
       })
       .catch((e) => {
         reject(e);

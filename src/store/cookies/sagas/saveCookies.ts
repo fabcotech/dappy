@@ -8,9 +8,13 @@ import { browserUtils } from '../../browser-utils';
 const saveCookies = function* (action: Action) {
   const payload: fromCookies.SaveCookiesForDomainPayload = action.payload;
 
+  if (!payload.cookies || payload.cookies.length === 0) {
+    return;
+  }
+
   const cookiesToSave = {
-    [payload.address]: {
-      address: payload.address,
+    [payload.dappyDomain]: {
+      dappyDomain: payload.dappyDomain,
       cookies: payload.cookies,
     }
   };

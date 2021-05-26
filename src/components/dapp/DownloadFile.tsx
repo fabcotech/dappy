@@ -1,22 +1,14 @@
 import * as React from 'react';
 
-import { TransitoryState, Tab, LastLoadError, LoadedFile } from '../../models';
-import { LoadErrorHtml } from '../utils';
-import { blockchain as blockchainUtils } from '../../utils/';
-import './DappSandboxed.scss';
+import { Tab, LoadedFile } from '../../models';
+import './DownloadFile.scss';
 
 const fileIconImg = require('../../images/file-icon.png');
 
 interface DownloadFileComponentProps {
   loadedFile: undefined | LoadedFile;
-  transitoryStates: { [dappId: string]: TransitoryState };
   zIndex: number;
-  devMode: boolean;
   tab: Tab;
-  lastLoadError: undefined | LastLoadError;
-  clearSearchAndLoadError: (tabId: string, clearSearch: boolean) => void;
-  stopTab: (tabId: string) => void;
-  reloadResource: (tabId: string) => void;
   loadResource: (search: string, tabId: string) => void;
 }
 
@@ -39,10 +31,6 @@ class DownloadFileComponent extends React.Component<DownloadFileComponentProps> 
 
     return {};
   }
-
-  onClearSearchAndLoadError = () => {
-    this.props.clearSearchAndLoadError(this.props.tab.id, true);
-  };
 
   componentDidMount() {
     if (this.el) {
@@ -77,38 +65,11 @@ class DownloadFileComponent extends React.Component<DownloadFileComponentProps> 
   };
 
   render() {
-    const transitoryState = this.props.tab ? this.props.transitoryStates[this.props.tab.resourceId] : undefined;
     return (
       <div
         ref={this.setMainEl}
-        className={`dapp-sandboxed ${this.props.tab.id} ${this.props.lastLoadError ? 'with-error' : ''}`}>
-        {this.props.lastLoadError ? (
-          <div className="load-error">
-            <div className="message is-danger">
-              <div className="message-body scaling-and-appearing-once">
-                <LoadErrorHtml
-                  loadError={this.props.lastLoadError.error}
-                  clearSearchAndLoadError={this.onClearSearchAndLoadError}
-                />
-              </div>
-            </div>
-          </div>
-        ) : undefined}
-        {!this.props.lastLoadError && !this.props.loadedFile ? (
-          <div className="retry">
-            <div
-              onClick={(e) =>
-                this.props.loadResource(
-                  blockchainUtils.resourceIdToAddress(this.props.tab.resourceId),
-                  this.props.tab.id
-                )
-              }>
-              <span>Retry</span>
-              <i className={`${transitoryState === 'loading' ? 'rotating' : ''} fa fa-redo fa-before`} title="Retry" />
-            </div>
-          </div>
-        ) : undefined}
-        {!this.props.lastLoadError && !!this.props.loadedFile ? (
+        className={`loaded-file ${this.props.tab.id} ${this.props.lastLoadError ? 'with-error' : ''}`}>
+        {!!this.props.loadedFile ? (
           <div className="download-file">
             <div>
               <div className="left">

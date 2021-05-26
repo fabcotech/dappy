@@ -87,7 +87,6 @@ export const NavigationBarHome = connect(
       goForward: () => null,
       goBackward: () => null,
       stopTab: () => null,
-      reloadResource: () => null,
       showLoadInfos: () => null,
       updateTabSearch: (a: fromDapps.UpdateTabSearchPayload) => dispatch(fromDapps.updateTabSearchAction(a)),
       loadResource: (a: fromDapps.LoadResourcePayload) => dispatch(fromDapps.loadResourceAction(a)),

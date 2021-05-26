@@ -45,6 +45,7 @@ export enum LoadError {
   InvalidSignature = 'Invalid signature',
   InvalidRecords = 'Invalid records', // for records
   InvalidNodes = 'Invalid nodes', // for nodes
+  InvalidServers = 'Invalid servers', // for nodes
 }
 
 export interface LoadErrorWithArgs {

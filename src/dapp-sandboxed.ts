@@ -351,7 +351,7 @@ window.messageFromMain = (action) => {
     dappId = payload.dappId;
     randomId = payload.randomId;
     window.dappy = {
-      address: payload.address,
+      dappyDomain: payload.dappyDomain,
       path: payload.path,
       randomId: payload.randomId,
       dappId: payload.dappId,

@@ -8,6 +8,7 @@ import {
   LoadedFile,
   IpApp,
   TransitoryState,
+  SplitSearch,
 } from '../../models';
 
 export const UPDATE_TABS_FROM_STORAGE = '[Dapps] Update tabs from storage';
@@ -15,12 +16,9 @@ export const UPDATE_TABS_FROM_STORAGE = '[Dapps] Update tabs from storage';
 export const UPDATE_SEARCH = '[Dapps] Update search';
 export const CLEAR_SEARCH_AND_LOAD_ERROR = '[Dapps] Clear search and load error';
 export const LOAD_RESOURCE = '[Dapps] Load resource';
-export const RELOAD_RESOURCE = '[Dapps] Reload resource';
 export const INIT_TRANSITORY_STATE_AND_RESET_LOAD_ERROR = '[Dapps] Init transitory state and reset load error';
 export const UPDATE_LOAD_STATE = '[Dapps] Update load state';
 export const LOAD_RESOURCE_FAILED = '[Dapps] Load resource failed';
-export const RELOAD_RESOURCE_FAILED = '[Dapps] Reload resource failed';
-export const RELOAD_DAPP_COMPLETED = '[Dapps] Reload dapp completed';
 
 export const FOCUS_SEARCH_DAPP = '[Dapps] Focus search dapp';
 
@@ -30,9 +28,9 @@ export const CREATE_TAB = '[Dapps] Create tab';
 export const UPDATE_TAB_SEARCH = '[Dapps] Update tab search';
 export const LAUNCH_DAPP_COMPLETED = '[Dapps] Launch dapp completed';
 export const LAUNCH_FILE_COMPLETED = '[Dapps] Launch file completed';
-export const RELOAD_FILE_COMPLETED = '[Dapps] Reload file completed';
 export const LAUNCH_IP_APP_COMPLETED = '[Dapps] Launch IP app completed';
 export const UPDATE_TRANSITORY_STATE = '[Dapps] Update transitory state';
+export const UPDATE_RESOURCE_ADDRESS = '[Dapps] Update resource address';
 export const REMOVE_TAB = '[Dapps] Remove tab';
 export const REMOVE_TAB_COMPLETED = '[Dapps] Remove tab completed';
 export const STOP_TAB = '[Dapps] Stop tab';
@@ -81,28 +79,12 @@ export const loadResourceAction = (payload: LoadResourcePayload) => ({
   payload: payload,
 });
 
-export interface ReloadResourcePayload {
-  tabId: string;
-}
-export const reloadResourceAction = (payload: ReloadResourcePayload) => ({
-  type: RELOAD_RESOURCE,
-  payload: payload,
-});
-
 export interface UpdateLoadStatePayload {
   resourceId: string;
   loadState: { completed: LoadCompleted; errors: LoadErrors; pending: string[] };
 }
 export const updateLoadStateAction = (values: UpdateLoadStatePayload) => ({
   type: UPDATE_LOAD_STATE,
-  payload: values,
-});
-
-export interface ReloadDappCompletedPayload {
-  dapp: Dapp;
-}
-export const reloadDappCompletedAction = (values: ReloadDappCompletedPayload) => ({
-  type: RELOAD_DAPP_COMPLETED,
   payload: values,
 });
 
@@ -113,10 +95,6 @@ export interface LoadResourceFailedPayload {
 }
 export const loadResourceFailedAction = (values: LoadResourceFailedPayload) => ({
   type: LOAD_RESOURCE_FAILED,
-  payload: values,
-});
-export const reloadResourceFailedAction = (values: LoadResourceFailedPayload) => ({
-  type: RELOAD_RESOURCE_FAILED,
   payload: values,
 });
 
@@ -203,15 +181,6 @@ export const launchFileCompletedAction = (values: LaunchFileCompletedPayload) =>
   payload: values,
 });
 
-export interface ReloadFileCompletedPayload {
-  loadedFile: LoadedFile;
-  tabId: string;
-}
-export const reloadFileCompletedAction = (values: ReloadFileCompletedPayload) => ({
-  type: RELOAD_FILE_COMPLETED,
-  payload: values,
-});
-
 export interface SaveIdentificationPayload {
   dappId: string;
   callId: string;
@@ -224,7 +193,6 @@ export const saveIdentificationAction = (values: SaveIdentificationPayload) => (
 
 export interface LaunchIpAppCompletedPayload {
   ipApp: IpApp;
-  tabId: string;
 }
 export const launchIpAppCompletedAction = (values: LaunchIpAppCompletedPayload) => ({
   type: LAUNCH_IP_APP_COMPLETED,
@@ -237,6 +205,15 @@ export interface UpdateTransitoryStatePayload {
 }
 export const updateTransitoryStateAction = (values: UpdateTransitoryStatePayload) => ({
   type: UPDATE_TRANSITORY_STATE,
+  payload: values,
+});
+
+export interface UpdateResourceAddressPayload {
+  tabId: string;
+  searchSplitted: SplitSearch;
+}
+export const updateResourceAction = (values: UpdateResourceAddressPayload) => ({
+  type: UPDATE_RESOURCE_ADDRESS,
   payload: values,
 });
 

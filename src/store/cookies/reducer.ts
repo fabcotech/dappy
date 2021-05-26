@@ -21,7 +21,7 @@ export const reducer = (state = initialState, action: Action): State => {
 
       let newCookies: { [address: string]: Cookie[] } = {};
       payload.cookiesFromStorage.forEach(c => {
-        newCookies[c.address] = c.cookies; 
+        newCookies[c.domain] = c.cookies;
       })
       return {
         ...state,

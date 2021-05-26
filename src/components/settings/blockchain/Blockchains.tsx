@@ -395,17 +395,20 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                   {selectedBlockchain.chainName}
                 </h3>
                 <p className="network-variables">
-                  {t('rchain network')} :{'                       '}
+                  {t('rchain network').padEnd(50, ' ')} :
                   {rchainInfo ? rchainInfo.rchainNetwork : 'unknown'}
                   <br />
-                  {t('name price')} :{'                              '}
-                  {rchainInfo ? `${rchainInfo.namePrice / 100000000} REVs` : 'unknown'}
-                  <br />
-                  {t('last known block height')} :{'         '}
+                  {t('last known block height').padEnd(50, ' ')} :
                   {rchainInfo ? rchainInfo.lastFinalizedBlockNumber : 'unknown'}
                   <br />
-                  {t('names registry uri')} :{'                  '}
-                  {rchainInfo ? rchainInfo.rchainNamesRegistryUri : 'unknown'}
+                  {t('name price').padEnd(50, ' ')} :
+                  {rchainInfo ? `${rchainInfo.namePrice / 100000000} REVs` : 'unknown'}
+                  <br />
+                  {t('name system master registry uri').padEnd(50, ' ')} :
+                  {rchainInfo ? rchainInfo.rchainNamesMasterRegistryUri : 'unknown'}
+                  <br />
+                  {t('name system contract id').padEnd(50, ' ')} :
+                  {rchainInfo ? rchainInfo.rchainNamesContractId : 'unknown'}
                   <br />
                 </p>
 

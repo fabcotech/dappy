@@ -77,7 +77,7 @@ class NavigationBarComponent extends WithSuggestions {
           </div>
           {this.props.resourceLoaded && !loadingOrReloading ? (
             <div>
-              <i onClick={(e) => this.props.reloadResource(tab.id)} className={`fa fa-redo `} title="Reload" />
+              <i onClick={(e) => this.props.loadResource({ tabId: tab.id, url: '', address: ''})} className={`fa fa-redo `} title="Reload" />
             </div>
           ) : (
             <div className={`${loadingOrReloading ? 'disabled' : ''}`}>
@@ -246,7 +246,6 @@ export const NavigationBar = connect(
             dappId: resourceId,
           })
         ),
-      reloadResource: (tabId: string) => dispatch(fromDapps.reloadResourceAction({ tabId: tabId })),
       loadResource: (a: fromDapps.LoadResourcePayload) => dispatch(fromDapps.loadResourceAction(a)),
       updateTabSearch: (a: fromDapps.UpdateTabSearchPayload) => dispatch(fromDapps.updateTabSearchAction(a)),
       goForward: (tabId: string) => dispatch(fromHistory.goForwardAction({ tabId: tabId })),

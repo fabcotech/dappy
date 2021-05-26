@@ -31,7 +31,7 @@ const rchainTokenOperationSchema = yup.object().shape({
     .string()
     .matches(/completed|failed/)
     .required(),
-  message: yup.string(),
+  message: yup.object(),
 });
 
 export const validateRchainTokenOperationResult = (rchainTokenOperationResult: any) => {

@@ -5,7 +5,8 @@ const dappyNodeInfoSchema = yup
   .shape({
     lastFinalizedBlockNumber: yup.number().required(),
     dappyNodeVersion: yup.string().required(),
-    rchainNamesRegistryUri: yup.string().required(),
+    rchainNamesMasterRegistryUri: yup.string().required(),
+    rchainNamesContractId: yup.string().required(),
     rnodeVersion: yup.string().required(),
     rchainNetwork: yup.string().required(),
     namePrice: yup.number().required(),

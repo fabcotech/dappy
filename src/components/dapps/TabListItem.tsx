@@ -14,8 +14,7 @@ interface TabListItemProps {
   focused: boolean;
   onlyIcons: boolean;
   focusTab: (tabId: string) => void;
-  launchDapp: (address: string, tabId: string) => void;
-  reloadResource: (tabId: string) => void;
+  loadResource: (address: string, tabId: string) => void;
   onSetMuteResource: (tabId: string, a: boolean) => void;
   removeTab: (tabId: string) => void;
   stopTab: (tabId: string) => void;
@@ -41,14 +40,10 @@ export class TabListItem extends React.Component<TabListItemProps, {}> {
   onLaunchOrFocusDapp = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!this.props.transitoryState && !this.props.tab.active) {
       e.preventDefault();
-      this.props.launchDapp(this.props.tab.address, this.props.tab.id);
+      this.props.loadResource(this.props.tab.address, this.props.tab.id);
     } else if (this.props.tab.active) {
       this.props.focusTab(this.props.tab.id);
     }
-  };
-
-  onReloadResource = () => {
-    this.props.reloadResource(this.props.tab.id);
   };
 
   onRemoveTab = (e?: React.MouseEvent<HTMLElement>) => {
@@ -113,7 +108,7 @@ export class TabListItem extends React.Component<TabListItemProps, {}> {
             <ActionsComponent
               dapp={this.props.dapp}
               tab={this.props.tab}
-              reloadResource={this.onReloadResource}
+              loadResource={() => this.props.loadResource('', this.props.tab.id)}
               onSetMuteResource={this.props.onSetMuteResource}
               removeTab={this.onRemoveTab}
               stopTab={this.onStopTab}

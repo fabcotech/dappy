@@ -221,7 +221,7 @@ export const executeAccountsCronJobsAction = () => ({
 
 export interface SaveAccountTokenBoxPayload {
   accountName: string;
-  registryUri: string;
+  boxId: string;
 }
 export const saveAccountTokenBoxAction = (values: SaveAccountTokenBoxPayload) => ({
   type: SAVE_ACCOUNT_TOKEN_BOX,

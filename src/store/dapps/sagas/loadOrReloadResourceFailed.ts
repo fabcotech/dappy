@@ -29,5 +29,4 @@ const loadOrReloadResourceFailed = function* (action: Action) {
 
 export const loadOrReloadResourceFailedSaga = function* () {
   yield takeEvery(fromDapps.LOAD_RESOURCE_FAILED, loadOrReloadResourceFailed);
-  yield takeEvery(fromDapps.RELOAD_RESOURCE_FAILED, loadOrReloadResourceFailed);
 };

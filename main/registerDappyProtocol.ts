@@ -1,6 +1,6 @@
 import { Session } from 'electron';
 import zlib from 'zlib';
-import { readPursesDataTerm, readTerm } from 'rchain-token';
+import { readPursesDataTerm, readConfigTerm } from 'rchain-token';
 
 import { performMultiRequest } from './performMultiRequest';
 import * as fromSettings from './store/settings';
@@ -12,14 +12,14 @@ import { validateFile } from '../src/store/decoders/Dpy';
 import { getNodeIndex } from '../src/utils/getNodeIndex';
 import { validateSearchWithProtocol, validateShortcutSearchWithProtocol } from '../src/utils/validateSearch';
 
-const readDataorBagData = (registryUri: string, fileId: string) => {
-  // read bag data if fileId
-  if (fileId) {
-    return readPursesDataTerm(registryUri, { pursesIds: [fileId] });
+const readPursesDataOrContractConfig = (masterRegistryUri: string, contractId: string, purseId) => {
+  // read purse data if purseId
+  if (contractId && purseId) {
+    return readPursesDataTerm({ masterRegistryUri, contractId, pursesIds: [purseId] });
   }
 
-  // read contract values { registryUri: ..., nonce: ...} if no file ID
-  return readTerm(registryUri);
+  // read config values { fungible: ..., fee: ...} if no contract id AND purse id
+  return readConfigTerm({ masterRegistryUri, contractId });
 };
 
 export const registerDappyProtocol = (session: Session, getState: () => void) => {
@@ -28,11 +28,15 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
     let url = request.url;
     if (validateSearchWithProtocol(url)) {
       valid = true;
+      // dappy://aaa.bbb.ccc -> dappy://aaa.bbb.ccc,
+      if (!url.includes('%2C')) {
+        url += "%2C";
+      }
     }
 
     /*
         Shortcut notation
-        change dappy://aaa?page=123 to dappy://betanetwork/aaa?page=123
+        change dappy://aaa.bbb?page=123 to dappy://betanetwork/aaa.bbb?page=123
       */
     if (!valid && validateShortcutSearchWithProtocol(url)) {
       try {
@@ -44,15 +48,19 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
         const browserViewId = Object.keys(browserViews).find(
           (browserViewId) => browserViews[browserViewId].randomId === randomId
         );
-        const chainId = browserViews[browserViewId].address.split('/')[0];
+        const chainId = browserViews[browserViewId].dappyDomain.split('/')[0];
         url = url.replace('dappy://', 'dappy://' + chainId + '/');
         if (!validateSearchWithProtocol(url)) {
           valid = true;
         }
-      } catch (e) {}
+      } catch (e) {
+        console.log('could not replace shortcut notation');
+        console.log(e);
+        callback();
+        return;
+      }
     }
-    // todo if multi, limit to n unforgeable names
-
+    // todo if multi, limit to n
     let multipleResources = false;
     let exploreDeploys = false;
     if (url.includes('explore-deploys')) {
@@ -96,18 +104,22 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
         return;
       }
     } else if (multipleResources) {
+      // if address is dappy://d/aaa.bbb.ccc,ddd.eee.fff
+      // the two
       type = 'explore-deploy-x';
       query = {
         terms: split[1]
           .split('%2C')
           // filter in the case of only one unf : dappy://aaa/bbb,
           .filter((a) => !!a)
-          .map((u) => readDataorBagData(u.split('.')[0], u.split('.')[1])),
+          .map((u) => {
+            return readPursesDataOrContractConfig(u.split('.')[0], u.split('.')[1], u.split('.')[2])
+          }),
       };
     } else {
       type = 'api/explore-deploy';
       query = {
-        term: readDataorBagData(split[1].split('.')[0], split[1].split('.')[1]),
+        term: readPursesDataOrContractConfig(split[1].split('.')[0], split[1].split('.')[1], split[1].split('.')[2]),
       };
     }
 

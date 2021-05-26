@@ -17,10 +17,9 @@ interface TabsListProps {
   isSearchFocused: boolean;
   onlyIcons: boolean;
   focusTab: (tabId: string) => void;
-  launchDapp: (address: string, tabId: string) => void;
+  loadResource: (address: string, tabId: string) => void;
   removeTab: (tabId: string) => void;
   stopTab: (tabId: string) => void;
-  reloadResource: (tabId: string) => void;
   onSetMuteResource: (tabId: string, a: boolean) => void;
   focusSearchDapp: () => void;
 }
@@ -45,10 +44,9 @@ class TabsListComponent extends React.Component<TabsListProps, {}> {
               focused={!this.props.isSearchFocused && focusedTabId === tab.id}
               onlyIcons={this.props.onlyIcons}
               focusTab={this.props.focusTab}
-              launchDapp={this.props.launchDapp}
+              loadResource={this.props.loadResource}
               removeTab={this.props.removeTab}
               stopTab={this.props.stopTab}
-              reloadResource={this.props.reloadResource}
               onSetMuteResource={this.props.onSetMuteResource}
             />
           );
@@ -86,7 +84,7 @@ export const TabsList = connect(
   },
   (dispatch) => ({
     focusTab: (tabId: string) => dispatch(fromDapps.focusTabAction({ tabId: tabId })),
-    launchDapp: (address: string, tabId: string) =>
+    loadResource: (address: string, tabId: string) =>
       dispatch(
         fromDapps.loadResourceAction({
           address: address,
@@ -95,7 +93,6 @@ export const TabsList = connect(
       ),
     removeTab: (tabId: string) => dispatch(fromDapps.removeTabAction({ tabId: tabId })),
     stopTab: (tabId: string) => dispatch(fromDapps.stopTabAction({ tabId: tabId })),
-    reloadResource: (tabId: string) => dispatch(fromDapps.reloadResourceAction({ tabId: tabId })),
     focusSearchDapp: () => dispatch(fromDapps.focusSearchDappAction()),
     onSetMuteResource: (tabId: string, a: boolean) => {
       dispatch(

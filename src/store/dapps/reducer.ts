@@ -14,6 +14,8 @@ import {
 import * as fromActions from './actions';
 import * as fromHistory from '../history';
 import { Action } from '../';
+import { splitSearch } from '../../utils/splitSearch';
+import { searchToAddress } from '../../utils/searchToAddress';
 
 export interface State {
   search: string;
@@ -155,77 +157,6 @@ export const reducer = (state = initialState, action: Action): State => {
         transitoryStates: newTransitoryStates,
         errors: state.errors.concat(action.payload),
         dapps: newDapps,
-      };
-    }
-
-    case fromActions.RELOAD_RESOURCE: {
-      const payload: fromActions.ReloadResourcePayload = action.payload;
-
-      const tab = state.tabs.find((t) => t.id === payload.tabId);
-      if (!tab) {
-        console.error('tab ' + payload.tabId + ' should exist');
-        return state;
-      }
-
-      const newTransitoryStates = { ...state.transitoryStates };
-      delete newTransitoryStates[tab.resourceId];
-
-      return {
-        ...state,
-        transitoryStates: {
-          [tab.resourceId]: 'reloading',
-        },
-      };
-    }
-
-    case fromActions.RELOAD_RESOURCE_FAILED: {
-      const payload: fromActions.LoadResourceFailedPayload = action.payload;
-
-      const tab = state.tabs.find((t) => t.id === payload.tabId);
-      // tab has been closed
-      if (!tab) {
-        return {
-          ...state,
-          lastLoadErrors: {
-            ...state.lastLoadErrors,
-            [payload.tabId]: { search: payload.search, error: payload.error },
-          },
-          errors: state.errors.concat(action.payload),
-        };
-      }
-
-      const newTransitoryStates = { ...state.transitoryStates };
-      delete newTransitoryStates[tab.resourceId];
-
-      const newDapps = { ...state.dapps };
-      delete newDapps[tab.resourceId];
-
-      return {
-        ...state,
-        lastLoadErrors: {
-          ...state.lastLoadErrors,
-          [payload.tabId]: { search: payload.search, error: payload.error },
-        },
-        transitoryStates: newTransitoryStates,
-        errors: state.errors.concat(action.payload),
-        dapps: newDapps,
-      };
-    }
-
-    case fromActions.RELOAD_DAPP_COMPLETED: {
-      const payload: fromActions.ReloadDappCompletedPayload = action.payload;
-      const dapp: Dapp = payload.dapp;
-
-      const newTransitoryStates = { ...state.transitoryStates };
-      delete newTransitoryStates[dapp.id];
-
-      return {
-        ...state,
-        dapps: {
-          ...state.dapps,
-          [dapp.id]: dapp,
-        },
-        transitoryStates: newTransitoryStates,
       };
     }
 
@@ -390,22 +321,6 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
-    case fromActions.RELOAD_FILE_COMPLETED: {
-      const payload: fromActions.ReloadFileCompletedPayload = action.payload;
-
-      const newTransitoryStates = { ...state.transitoryStates };
-      delete newTransitoryStates[payload.loadedFile.id];
-
-      return {
-        ...state,
-        loadedFiles: {
-          ...state.loadedFiles,
-          [payload.loadedFile.id]: payload.loadedFile,
-        },
-        transitoryStates: newTransitoryStates,
-      };
-    }
-
     case fromActions.STOP_TAB: {
       const payload = action.payload as fromActions.StopTabPayload;
 
@@ -462,6 +377,48 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
+    case fromActions.UPDATE_RESOURCE_ADDRESS: {
+      const payload: fromActions.UpdateResourceAddressPayload = action.payload;
+      const tab = state.tabs.find(t => t.id === payload.tabId);
+      if (!tab) {
+        console.log('did not find tab ')
+        return state;
+      }
+      if (state.dapps[tab.resourceId]) {
+        const dapp = state.dapps[tab.resourceId];
+        const newDapps = {
+          ...state.dapps,
+          [dapp.id]: {
+            ...dapp,
+            search: payload.searchSplitted.search,
+            chainId: payload.searchSplitted.chainId,
+            path: payload.searchSplitted.path,
+          }
+        }
+        return {
+          ...state,
+          dapps: newDapps
+        }
+      } else if (state.ipApps[tab.resourceId]) {
+        const ipApp = state.ipApps[tab.resourceId];
+        const newIpApps = {
+          ...state.ipApps,
+          [ipApp.id]: {
+            ...ipApp,
+            search: payload.searchSplitted.search,
+            chainId: payload.searchSplitted.chainId,
+            path: payload.searchSplitted.path,
+          }
+        }
+        return {
+          ...state,
+          ipApps: newIpApps
+        }
+      } else {
+        // ignore loadedFiles
+        return state;
+      }
+    }
     case fromActions.REMOVE_TAB_COMPLETED: {
       const payload: fromActions.RemoveTabCompletedPayload = action.payload;
       const resourceId = payload.resourceId;
@@ -535,7 +492,7 @@ export const reducer = (state = initialState, action: Action): State => {
         },
         lastLoadErrors: newLastLoadErrors,
         tabs: state.tabs.map((tab, i) => {
-          if (tab.id === payload.tabId) {
+          if (tab.id === payload.ipApp.tabId) {
             return {
               ...tab,
               active: tab.active,

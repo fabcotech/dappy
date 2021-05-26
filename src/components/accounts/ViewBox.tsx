@@ -4,7 +4,7 @@ import * as rchainToolkit from 'rchain-toolkit';
 import Ajv from 'ajv';
 
 import * as fromBlockchain from '../../store/blockchain';
-import { Blockchain, MultiCallError, MultiCallResult } from '../../models';
+import { Blockchain, MultiCallResult, RChainInfos } from '../../models';
 import { multiCall } from '../../utils/wsUtils';
 import { RCHAIN_TOKEN_SUPPORTED_VERSIONS } from '../../CONSTANTS';
 import { getNodeIndex } from '../../utils/getNodeIndex';
@@ -16,7 +16,8 @@ const ajv = new Ajv();
 
 interface BoxProps {
   back: () => void;
-  boxRegistryUri: string;
+  boxId: string;
+  rchainInfos: RChainInfos;
   namesBlockchain: Blockchain | undefined;
 }
 interface BoxState {
@@ -77,7 +78,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
         {
           type: 'api/explore-deploy',
           body: {
-            term: readBoxTerm(this.props.boxRegistryUri),
+            term: readBoxTerm({ masterRegistryUri: this.props.rchainInfos.info.rchainNamesMasterRegistryUri, boxId: this.props.boxId}),
           },
         },
         {
@@ -90,6 +91,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
         }
       );
     } catch (err) {
+      console.log(err);
       this.setState({
         refreshing: false,
         error: err.error.error,
@@ -159,7 +161,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
           <Refresh />
           <h4 className="title is-4">
             <i className="fa fa-before fa-box"></i>
-            box {this.props.boxRegistryUri}
+            box {this.props.boxId}
           </h4>
 
           <span className="text-danger">{this.state.error}</span>
@@ -187,7 +189,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
           <Refresh />
           <h4 className="title is-4">
             <i className="fa fa-before fa-box"></i>
-            {t('token box')} {this.props.boxRegistryUri}
+            {t('token box')} {this.props.boxId}
           </h4>
           <h4 className="title is-5">Purses</h4>
           <p>{t('box definition')}</p>
@@ -197,7 +199,8 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
                 <ViewPurses
                   version={this.state.readBox.version}
                   namesBlockchain={this.props.namesBlockchain}
-                  contractRegistryUri={k.replace('rho:id:', '')}
+                  rchainInfos={this.props.rchainInfos}
+                  contractId={k}
                   pursesIds={this.state.readBox.purses[k]}></ViewPurses>
               </div>
             );

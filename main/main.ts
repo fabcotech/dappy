@@ -45,7 +45,7 @@ ipcMain.on('hi-from-dapp-sandboxed', (commEvent, userAgent) => {
       type: fromCommon.DAPP_INITIAL_SETUP,
       payload: {
         html: browserViews[id].html,
-        address: browserViews[id].address,
+        dappyDomain: browserViews[id].dappyDomain,
         path: browserViews[id].path,
         title: browserViews[id].title,
         dappId: browserViews[id].resourceId,

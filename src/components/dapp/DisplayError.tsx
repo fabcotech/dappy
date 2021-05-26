@@ -1,33 +1,23 @@
 import * as React from 'react';
 
-import './DappSandboxed.scss';
-import { Dapp, TransitoryState, Tab, LastLoadError, Cookie } from '../../models';
+import './DisplayError.scss';
+import { TransitoryState, Tab, LastLoadError, Cookie } from '../../models';
 import { LoadErrorHtml } from '../utils';
-import { blockchain as blockchainUtils } from '../../utils/';
+import { blockchain as blockchainUtils } from '../../utils';
 
-interface DappSandboxedComponentProps {
-  dapp: undefined | Dapp;
+interface DisplayErrorComponentProps {
   transitoryStates: { [resourceId: string]: TransitoryState };
   zIndex: number;
-  devMode: boolean;
   tab: Tab;
   lastLoadError: undefined | LastLoadError;
-  cookies: Cookie[];
-  address: string;
   clearSearchAndLoadError: (tabId: string, clearSearch: boolean) => void;
   loadResource: (address: string, tabId: string) => void;
 }
 
-interface DappSandboxedComponentState {
-  notInElectronError: undefined | string;
-}
-
-class DappSandboxedComponent extends React.Component<DappSandboxedComponentProps, DappSandboxedComponentState> {
+class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps, DisplayErrorComponentState> {
   el: null | HTMLIFrameElement = null;
-  currentlyRenderingRandomId: undefined | string;
-  state = { notInElectronError: undefined };
 
-  shouldComponentUpdate(nextProps: DappSandboxedComponentProps, nextState: DappSandboxedComponentState) {
+  shouldComponentUpdate(nextProps: DisplayErrorComponentProps, nextState: DisplayErrorComponentState) {
     if (this.el) {
       this.el.style.zIndex = nextProps.zIndex.toString();
     }
@@ -37,14 +27,7 @@ class DappSandboxedComponent extends React.Component<DappSandboxedComponentProps
     ) {
       return true;
     }
-    if (nextState.notInElectronError && !this.state.notInElectronError) {
-      return true;
-    }
 
-    if (nextProps.dapp && nextProps.dapp.randomId !== this.currentlyRenderingRandomId) {
-      this.currentlyRenderingRandomId = nextProps.dapp.randomId;
-      return true;
-    }
     return false;
   }
 
@@ -66,36 +49,11 @@ class DappSandboxedComponent extends React.Component<DappSandboxedComponentProps
   render() {
     const transitoryState = this.props.tab ? this.props.transitoryStates[this.props.tab.resourceId] : undefined;
 
-    if (!this.props.lastLoadError && !!this.props.dapp) {
-      window.dispatchInMain({
-        type: '[MAIN] Load or reload browser view',
-        payload: {
-          currentUrl: `dist/dapp-sandboxed.html`,
-          resourceId: this.props.dapp.id,
-          tabId: this.props.tab.id,
-          muted: this.props.tab.muted,
-          randomId: this.props.dapp.randomId,
-          path: this.props.dapp.path,
-          title: this.props.dapp.title,
-          address: this.props.address,
-          devMode: this.props.devMode,
-          servers: [],
-          html: this.props.dapp.html,
-          cookies: this.props.cookies,
-        },
-      });
-    }
-
     return (
       <div
         ref={this.setMainEl}
-        className={`dapp-sandboxed ${this.props.tab.id} ${this.props.lastLoadError ? 'with-error' : ''}`}>
-        {this.state.notInElectronError ? (
-          <div className="not-in-electron-error">
-            <p>{this.state.notInElectronError}</p>
-          </div>
-        ) : undefined}
-        {this.props.lastLoadError ? (
+        className={`display-error ${this.props.tab.id} ${this.props.lastLoadError ? 'with-error' : ''}`}>
+        {!!this.props.lastLoadError ? (
           <div className="load-error">
             <div className="message is-danger">
               <div className="message-body scaling-and-appearing-once">
@@ -107,7 +65,7 @@ class DappSandboxedComponent extends React.Component<DappSandboxedComponentProps
             </div>
           </div>
         ) : undefined}
-        {!this.props.lastLoadError && !this.props.dapp ? (
+        {!this.props.lastLoadError ? (
           <div className={`retry ${transitoryState}`}>
             <div
               onClick={(e) => {
@@ -128,4 +86,4 @@ class DappSandboxedComponent extends React.Component<DappSandboxedComponentProps
   }
 }
 
-export const DappSandboxed = DappSandboxedComponent;
+export const DisplayError = DisplayErrorComponent;

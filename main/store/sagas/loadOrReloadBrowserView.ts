@@ -30,7 +30,7 @@ const loadOrReloadBrowserView = function* (action: any) {
 
   // reload
   if (browserViews[payload.resourceId]) {
-    session.fromPartition(`persist:${payload.address}`).protocol.unregisterProtocol('dappy');
+    session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('dappy');
     if (browserViews[payload.resourceId].browserView.webContents.isDevToolsOpened()) {
       browserViews[payload.resourceId].browserView.webContents.closeDevTools();
       browserViews[payload.resourceId].browserView.webContents.forcefullyCrashRenderer();
@@ -48,7 +48,7 @@ const loadOrReloadBrowserView = function* (action: any) {
     webPreferences: {
       devTools: true,
       disableDialogs: true,
-      partition: `persist:${payload.address}`,
+      partition: `persist:${payload.dappyDomain}`,
       // sandbox forbids the navigation
       //sandbox: true,
       contextIsolation: true,
@@ -66,14 +66,14 @@ const loadOrReloadBrowserView = function* (action: any) {
   });
 
   // todo, avoid circular ref to "store" (see logs when "npm run build:main")
-  registerDappyProtocol(session.fromPartition(`persist:${payload.address}`), store.getState);
+  registerDappyProtocol(session.fromPartition(`persist:${payload.dappyDomain}`), store.getState);
   registerInterProcessDappProtocol(
-    session.fromPartition(`persist:${payload.address}`),
+    session.fromPartition(`persist:${payload.dappyDomain}`),
     store,
     action.meta.dispatchFromMain
   );
   overrideHttpProtocols(
-    session.fromPartition(`persist:${payload.address}`),
+    session.fromPartition(`persist:${payload.dappyDomain}`),
     store.getState,
     development,
     action.meta.dispatchFromMain,
@@ -121,11 +121,11 @@ const loadOrReloadBrowserView = function* (action: any) {
       }
     }
 
-    previewId = `${payload.address}${currentPathAndParameters}`.replace(/\W/g, '');
+    previewId = `${payload.dappyDomain}${currentPathAndParameters}`.replace(/\W/g, '');
     action.meta.dispatchFromMain({
       action: fromHistory.didNavigateInPageAction({
         previewId: previewId,
-        address: `${payload.address}${currentPathAndParameters}`,
+        address: `${payload.dappyDomain}${currentPathAndParameters}`,
         tabId: payload.tabId,
         title: view.webContents.getTitle(),
       }),
@@ -181,7 +181,7 @@ const loadOrReloadBrowserView = function* (action: any) {
             },
             (res) => {
               if (res.statusCode !== 200) {
-                console.error(`Could not get favicon (status !== 200) for ${payload.address}${currentPath}`);
+                console.error(`Could not get favicon (status !== 200) for ${payload.dappyDomain}${currentPath}`);
                 console.log(favicons[0]);
                 return;
               }
@@ -234,7 +234,7 @@ const loadOrReloadBrowserView = function* (action: any) {
       if (validateSearch(`${urlDecomposed.host}${urlDecomposed.path}`)) {
         s = `${urlDecomposed.host}${urlDecomposed.path}`;
       } else {
-        s = searchToAddress(urlDecomposed.path, payload.address.split('/')[0]);
+        s = searchToAddress(urlDecomposed.path, payload.dappyDomain.split('/')[0]);
       }
       a.preventDefault();
       action.meta.dispatchFromMain({

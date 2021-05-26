@@ -12,6 +12,7 @@ import { blockchain as blockchainUtils } from '../../../utils/blockchain';
 import { splitSearch } from '../../../utils/splitSearch';
 import { validateSearch } from '../../../utils/validateSearch';
 import { getNodeIndex } from '../../../utils/getNodeIndex';
+import { searchToAddress } from '../../../utils/searchToAddress';
 import { validateBlockchainResponse } from '../../../utils/validateBlockchainResponse';
 import { validateAndReturnFile } from '../../../utils/validateAndReturnFile';
 import {
@@ -24,15 +25,23 @@ import {
   DappyFile,
   Dapp,
   IPServer,
+  RChainInfo,
+  LoadedFile,
+  Tab,
 } from '../../../models';
 import { Action } from '../../';
 import { ipRecordSchema, dappRecordSchema, validateRecordFromNetwork } from '../../decoders';
+import { MAIN_CHAIN_ID } from '../../../CONSTANTS';
 
 const loadResource = function* (action: Action) {
   const payload: fromDapps.LoadResourcePayload = action.payload;
   const settings: fromSettings.Settings = yield select(fromSettings.getSettings);
   const blockchains: { [chainId: string]: Blockchain } = yield select(fromSettings.getOkBlockchains);
+  const namesBlockchain: undefined | Blockchain = yield select(fromSettings.getNamesBlockchain);
   const dapps: { [id: string]: Dapp } = yield select(fromDapps.getDapps);
+  const tabs: Tab[] = yield select(fromDapps.getTabs);
+  const ipApps: { [id: string]: IpApp } = yield select(fromDapps.getIpApps);
+  const loadedFiles: { [id: string]: LoadedFile } = yield select(fromDapps.getLoadedFiles);
   const rchainInfos: { [chainId: string]: RChainInfos } = yield select(fromBlockchain.getRChainInfos);
   const records: { [name: string]: Record } = yield select(fromBlockchain.getRecords);
   const isNavigationInDapps: boolean = yield select(fromUi.getIsNavigationInDapps);
@@ -41,14 +50,66 @@ const loadResource = function* (action: Action) {
     yield put(fromUi.navigateAction({ navigationUrl: '/dapps' }));
   }
 
-  let resourceId = payload.address;
+  let resourceId = '';
+  let address = '';
+  let url = payload.url;
 
   let tabId = payload.tabId as string;
   if (tabId) {
+    const tab = tabs.find(t => t.id === tabId) as Tab;
+    if (!tab) {
+      console.log('did not find tab from payload', tabId)
+      yield put(
+        fromDapps.loadResourceFailedAction({
+          tabId: tabId,
+          search: address,
+          error: {
+            error: LoadError.IncompleteAddress,
+            args: {
+              search: '',
+            },
+          },
+        })
+      );
+      return;
+    }
+
+    // if dappId is found, it is a reload and not a load
     // Close all modals if a dapp is openned in tab payload.tabId
-    const dappId = Object.keys(dapps).find((k) => dapps[k].tabId === payload.tabId);
-    if (dappId) {
+    const dappId = Object.keys(dapps).find((k) => k === tab.resourceId);
+    if (dappId && !payload.address) {
+      console.log('reloading dapp', dappId);
       yield put(fromMain.closeAllDappModalsAction({ dappId: dappId as string }));
+      const a = searchToAddress(dapps[dappId].search, dapps[dappId].chainId, dapps[dappId].path);
+      address = a
+      resourceId = a + '_' + tabId;
+    }
+
+    // if ipAppId is found, it is a reload and not a load
+    const ipAppId = Object.keys(ipApps).find((k) => k === tab.resourceId);
+    if (ipAppId && !payload.address) {
+      console.log('reloading ipApp', ipAppId);
+      const a = searchToAddress(ipApps[ipAppId].search, ipApps[ipAppId].chainId, ipApps[ipAppId].path);
+      address = a
+      resourceId = a + '_' + tabId;
+      url = ipApps[ipAppId].url;
+      yield put(fromMain.closeAllDappModalsAction({ dappId: ipAppId as string }));
+    }
+    
+    // if loadedFileId is found, it is a reload and not a load
+    const loadedFileId = Object.keys(loadedFiles).find((k) => k === tab.resourceId);
+    if (loadedFileId && !payload.address) {
+      console.log('reloading loadedFile', loadedFileId);
+      const a = searchToAddress(loadedFiles[loadedFileId].search, loadedFiles[loadedFileId].chainId, '');
+      address = a
+      resourceId = a + '_' + tabId;
+    }
+
+    // loading/navigating and not reloading
+    if (!!payload.address || (!dappId && !ipAppId && !loadedFileId)) {
+      console.log('loading or navigating', payload.address);
+      resourceId = payload.address + '_' + tabId;
+      address = payload.address;
     }
 
     resourceId += '_' + tabId;
@@ -56,20 +117,36 @@ const loadResource = function* (action: Action) {
       fromDapps.focusAndActivateTabAction({
         tabId: tabId,
         resourceId: resourceId,
-        address: payload.address,
+        address: address,
       })
     );
   } else {
     tabId = window.crypto.getRandomValues(new Uint32Array(4)).join('-');
-    resourceId += '_' + tabId;
+    address = payload.address;
+    resourceId = payload.address + '_' + tabId;
     yield put(
       fromDapps.createTabAction({
         tabId: tabId,
         resourceId: resourceId,
-        search: payload.address,
+        search: address,
       })
     );
   }
+
+  if (!namesBlockchain || !rchainInfos[namesBlockchain.chainId]) {
+    yield put(
+      fromDapps.loadResourceFailedAction({
+        tabId: tabId,
+        search: address,
+        error: {
+          error: LoadError.MissingBlockchainData,
+          args: { chainId: 'unknown' },
+        },
+      })
+    );
+    return;
+  }
+  const info: RChainInfo = rchainInfos[namesBlockchain.chainId].info;
 
   yield put(
     fromDapps.initTransitoryStateAndResetLoadErrorAction({
@@ -78,15 +155,15 @@ const loadResource = function* (action: Action) {
     })
   );
 
-  if (!validateSearch(payload.address)) {
+  if (!validateSearch(address)) {
     yield put(
       fromDapps.loadResourceFailedAction({
         tabId: tabId,
-        search: payload.address,
+        search: address,
         error: {
           error: LoadError.IncompleteAddress,
           args: {
-            search: payload.address,
+            search: address,
           },
         },
       })
@@ -94,28 +171,16 @@ const loadResource = function* (action: Action) {
     return;
   }
 
-  // Should never happen
-  // - wether a dapp is reloaded
-  // - wether another dapp (event if it points to the same resource) is loaded in another tab (!= dappId)
-  if (dapps[resourceId]) {
-    yield put(
-      fromDapps.launchDappCompletedAction({
-        dapp: dapps[resourceId],
-      })
-    );
-    return;
-  }
-
-  const searchSplitted = splitSearch(payload.address);
+  const searchSplitted = splitSearch(address);
   if (!searchSplitted.chainId || !searchSplitted.search) {
     yield put(
       fromDapps.loadResourceFailedAction({
         tabId: tabId,
-        search: payload.address,
+        search: address,
         error: {
           error: LoadError.IncompleteAddress,
           args: {
-            search: payload.address,
+            search: address,
           },
         },
       })
@@ -127,7 +192,7 @@ const loadResource = function* (action: Action) {
     yield put(
       fromDapps.loadResourceFailedAction({
         tabId: tabId,
-        search: payload.address,
+        search: address,
         error: {
           error: LoadError.ChainNotFound,
           args: { chainId: searchSplitted.chainId },
@@ -137,21 +202,77 @@ const loadResource = function* (action: Action) {
     return;
   }
 
-  /*
-    If the search (before .) is a 54 characters long string,
-    it is probably a direct reference to an registryUri
-  */
-  let registryUri = searchSplitted.search.split('.')[0];
-  let publicKey = '';
-  let checkSignature = false;
-  /*
-    If the search is not a 54 characters long string (before .),
-    we must look for the corresponding record, registryUri is in fact a record name
-  */
-  if (registryUri.length !== 54) {
-    let record = records[registryUri];
-    checkSignature = true;
+  let masterRegistryUri = '';
+  let contractId = '';
+  let purseId = '';
+  if (namesBlockchain.chainId === MAIN_CHAIN_ID) {
+    if (searchSplitted.search.includes('.')) {
+      yield put(
+        fromDapps.loadResourceFailedAction({
+          tabId: tabId,
+          search: address,
+          error: {
+            error: LoadError.IncompleteAddress,
+            args: {
+              search: address,
+              plus: `on network "${MAIN_CHAIN_ID}" only the purse id must be referenced`
+            },
+          },
+        })
+      );
+      return;
+    } else {
+      masterRegistryUri = info.rchainNamesMasterRegistryUri;
+      contractId = info.rchainNamesContractId;
+      purseId = searchSplitted.search;
+    }
+  } else {
+    const s = searchSplitted.search.split(".");
+    if (s.length === 1) {
+      masterRegistryUri = info.rchainNamesMasterRegistryUri;
+      contractId = info.rchainNamesContractId;
+      purseId = s[0];
+    } else if (s.length === 2) {
+      masterRegistryUri = info.rchainNamesMasterRegistryUri;
+      contractId = s[0];
+      purseId = s[1];
+    } else if (s.length === 3) {
+      masterRegistryUri = s[0];
+      contractId = s[1];
+      purseId = s[2];
+    }
+  }
 
+  if (masterRegistryUri.length !== 54) {
+    yield put(
+      fromDapps.loadResourceFailedAction({
+        tabId: tabId,
+        search: address,
+        error: {
+          error: LoadError.IncompleteAddress,
+          args: {
+            search: address,
+            plus: `master registry uri must be of length 54`
+          },
+        },
+      })
+    );
+    return;
+  }
+
+  // look for record first, then do
+  // explore-deploy to get file
+  let checkSignature = false;
+
+  // If it is a dapp, the html file will probably
+  // be in another contract, same for purse id
+  // example dappynamesystem.amazoon -> (resolves to) myrchaintoken.index
+  let fileContractId = contractId;
+  let filePurseId = purseId;
+  let publicKey = undefined;
+  if (masterRegistryUri === info.rchainNamesMasterRegistryUri && contractId === info.rchainNamesContractId) {
+    let record = records[purseId];
+    checkSignature = false;
     // ===================
     // NAME/RECORD LOOKUP
     // ===================
@@ -167,7 +288,7 @@ const loadResource = function* (action: Action) {
           {
             type: 'get-x-records',
             body: {
-              names: [registryUri],
+              names: [purseId],
             },
           },
           {
@@ -183,7 +304,7 @@ const loadResource = function* (action: Action) {
         yield put(
           fromDapps.loadResourceFailedAction({
             tabId: tabId,
-            search: payload.address,
+            search: address,
             error: { error: LoadError.RecordNotFound, args: { name: searchSplitted.search } },
           })
         );
@@ -215,7 +336,7 @@ const loadResource = function* (action: Action) {
         yield put(
           fromDapps.loadResourceFailedAction({
             tabId: tabId,
-            search: payload.address,
+            search: address,
             error: { error: LoadError.RecordNotFound, args: { name: searchSplitted.search } },
           })
         );
@@ -227,40 +348,55 @@ const loadResource = function* (action: Action) {
       yield put(
         fromDapps.loadResourceFailedAction({
           tabId: tabId,
-          search: payload.address,
+          search: address,
           error: { error: LoadError.RecordNotFound, args: { name: searchSplitted.search } },
         })
       );
       return;
     }
 
+    publicKey = record.publicKey;
+
     // Check for IP app record
     try {
       yield ipRecordSchema.validate(record);
       const randomId = window.crypto.getRandomValues(new Uint32Array(12)).join('-');
-      let url: string | undefined = undefined;
+      let urlOk: string | undefined = undefined;
       /*
       Verify payload.url, to eventually have a different landing
       page than https://${ipApp.servers[0].host}
-      See IpAppSandboxed.ts
+      See launchIpAppCompleted.ts
       */
-      if (payload.url && record.servers) {
+      if (url && record.servers) {
         record.servers.forEach((s) => {
-          if ((payload.url as string).startsWith(`https://${s.host}`)) {
-            url = payload.url;
+          if ((url as string).startsWith(`https://${s.host}`)) {
+            urlOk = url;
           }
         });
       }
+
+      const serverIndex = (record.servers || []).findIndex((s) => s.primary);
+      if (serverIndex === -1) {
+        // todo handled better: dispatch error
+        yield put(
+          fromDapps.loadResourceFailedAction({
+            tabId: tabId,
+            search: address,
+            error: { error: LoadError.InvalidServers, args: { search: searchSplitted.search } },
+          })
+        );
+        return;
+      }
+
       yield put(
         fromDapps.launchIpAppCompletedAction({
-          tabId: tabId,
           ipApp: {
             tabId: tabId,
             id: resourceId,
             chainId: searchSplitted.chainId,
             search: searchSplitted.search,
             path: searchSplitted.path,
-            url: url,
+            url: urlOk,
             publicKey: record.publicKey,
             name: record.name,
             servers: record.servers as IPServer[],
@@ -279,22 +415,24 @@ const loadResource = function* (action: Action) {
         yield put(
           fromDapps.loadResourceFailedAction({
             tabId: tabId,
-            search: payload.address,
-            error: { error: LoadError.InvalidRecords, args: { name: registryUri, message: err.message } },
+            search: address,
+            error: { error: LoadError.InvalidRecords, args: { name: purseId, message: err.message } },
           })
         );
         return;
       }
     }
-    registryUri = record.address as string;
-    publicKey = record.publicKey;
+    const s = (record.address || '').split('.');
+    console.log('address resolved by name system ' + record.address)
+    fileContractId = s[0];
+    filePurseId = s[1] || 'index';
   }
 
   if (!rchainInfos[searchSplitted.chainId]) {
     yield put(
       fromDapps.loadResourceFailedAction({
         tabId: tabId,
-        search: payload.address,
+        search: address,
         error: { error: LoadError.MissingBlockchainData, args: { chainId: searchSplitted.chainId } },
       })
     );
@@ -312,8 +450,10 @@ const loadResource = function* (action: Action) {
       {
         type: 'api/explore-deploy',
         body: {
-          term: readPursesDataTerm(registryUri.split('.')[0], {
-            pursesIds: [searchSplitted.search.split('.')[1] || 'index'],
+          term: readPursesDataTerm({
+            masterRegistryUri: masterRegistryUri,
+            contractId: fileContractId,
+            pursesIds: [filePurseId],
           }),
         },
       },
@@ -330,7 +470,7 @@ const loadResource = function* (action: Action) {
     yield put(
       fromDapps.loadResourceFailedAction({
         tabId: tabId,
-        search: payload.address,
+        search: address,
         error: err.error,
       })
     );
@@ -345,7 +485,7 @@ const loadResource = function* (action: Action) {
     yield put(
       fromDapps.loadResourceFailedAction({
         tabId: tabId,
-        search: payload.address,
+        search: address,
         error: { error: LoadError.FailedToParseResponse, args: { message: 'Invalid response' } },
       })
     );
@@ -353,7 +493,7 @@ const loadResource = function* (action: Action) {
   }
 
   if (verifyError) {
-    yield put(fromDapps.loadResourceFailedAction({ tabId: tabId, search: payload.address, error: verifyError }));
+    yield put(fromDapps.loadResourceFailedAction({ tabId: tabId, search: address, error: verifyError }));
     return;
   }
 
@@ -362,8 +502,8 @@ const loadResource = function* (action: Action) {
   try {
     verifiedDappyFile = yield validateAndReturnFile(
       dataFromBlockchainParsed,
-      searchSplitted.search.split('.')[1] || 'index',
-      publicKey,
+      filePurseId,
+      '',
       checkSignature
     );
   } catch (e) {
@@ -379,7 +519,7 @@ const loadResource = function* (action: Action) {
       };
     }
 
-    yield put(fromDapps.loadResourceFailedAction({ tabId: tabId, search: payload.address, error: error }));
+    yield put(fromDapps.loadResourceFailedAction({ tabId: tabId, search: address, error: error }));
     return;
   }
 
@@ -394,8 +534,8 @@ const loadResource = function* (action: Action) {
           search: searchSplitted.search,
           id: resourceId,
           chainId: searchSplitted.chainId,
-          resourceId: registryUri,
-          publicKey: checkSignature ? publicKey : undefined,
+          resourceId: resourceId,
+          publicKey: publicKey,
           size: encodeURI(dappyFile.data).split(/%..|./).length - 1,
           name: dappyFile.name,
           mimeType: dappyFile.mimeType,
@@ -423,7 +563,7 @@ const loadResource = function* (action: Action) {
     yield put(
       fromDapps.loadResourceFailedAction({
         tabId: tabId,
-        search: payload.address,
+        search: address,
         error: { error: LoadError.FailedToParseResponse, args: { message: 'could not get html from response' } },
       })
     );
@@ -433,7 +573,7 @@ const loadResource = function* (action: Action) {
   const randomId = window.crypto.getRandomValues(new Uint32Array(12)).join('-');
   const dappFromNetwork: DappFromNetwork = {
     html: dappHtml,
-    title: payload.address,
+    title: address,
     description: '',
     author: '',
     img: '',
@@ -450,8 +590,8 @@ const loadResource = function* (action: Action) {
     chainId: searchSplitted.chainId,
     search: searchSplitted.search,
     path: searchSplitted.path,
-    resourceId: registryUri,
-    publicKey: checkSignature ? publicKey : undefined,
+    resourceId: resourceId,
+    publicKey: publicKey,
     loadState: {
       completed: (multiCallResult as MultiCallResult).loadState,
       errors: (multiCallResult as MultiCallResult).loadErrors,

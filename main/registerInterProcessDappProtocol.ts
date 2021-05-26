@@ -108,7 +108,7 @@ export const registerInterProcessDappProtocol = (session: Session, store: Store,
               type: fromCommon.DAPP_INITIAL_SETUP,
               payload: {
                 html: browserView.html,
-                address: browserView.address,
+                dappyDomain: browserView.dappyDomain,
                 path: browserView.path,
                 title: browserView.title,
                 dappId: browserView.resourceId,

@@ -31,12 +31,12 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
     props.transactionState.origin.operation === 'deploy-box' &&
     props.transactionState.status === 'completed' &&
     props.transactionState.value &&
-    props.transactionState.value.hasOwnProperty('registryUri')
+    props.transactionState.value.hasOwnProperty('boxId')
   ) {
     Value = (
       <span>
-        {`Box address is ${props.transactionState.value.registryUri} `}
-        <a type="button" onClick={() => window.copyToClipboard(props.transactionState.value.registryUri)}>
+        {`Box address is ${props.transactionState.value.boxId} `}
+        <a type="button" onClick={() => window.copyToClipboard(props.transactionState.value.boxId)}>
           {t('copy address')}
         </a>
       </span>
@@ -46,13 +46,18 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
     props.transactionState.origin.operation === 'deploy' &&
     props.transactionState.status === 'completed' &&
     props.transactionState.value &&
-    props.transactionState.value.hasOwnProperty('registryUri')
+    props.transactionState.value.hasOwnProperty('masterRegistryUri') &&
+    props.transactionState.value.hasOwnProperty('contractId')
   ) {
     Value = (
       <span>
-        {`Contract address is ${props.transactionState.value.registryUri} `}
-        <a type="button" onClick={() => window.copyToClipboard(props.transactionState.value.registryUri)}>
+        {`Contract address is ${props.transactionState.value.masterRegistryUri}.${props.transactionState.value.contractId} `}
+        <a type="button" onClick={() => window.copyToClipboard(props.transactionState.value.masterRegistryUri + "." + props.transactionState.value.contractId)}>
           {t('copy address')}
+        </a>
+        {' or '}
+        <a type="button" onClick={() => window.copyToClipboard(props.transactionState.value.contractId)}>
+          {t('copy contract id')}
         </a>
       </span>
     );

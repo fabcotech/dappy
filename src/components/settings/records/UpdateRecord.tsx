@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { updatePurseDataTerm, setPriceTerm } from 'rchain-token';
+import { updatePurseDataTerm, updatePursePriceTerm } from 'rchain-token';
 
 import { Record, TransactionState, RChainInfos, Account, PartialRecord } from '../../../models';
 import { blockchain as blockchainUtils } from '../../../utils';
@@ -238,11 +238,6 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
             <p className="text-danger">{t('input your password')}</p>
           }
           {this.state.loadedRecord &&
-            this.state.publickey &&
-            this.state.publickey !== this.state.loadedRecord.publicKey && (
-              <p className="text-danger">{t('name public key and box public key different')}</p>
-            )}
-          {this.state.loadedRecord &&
             this.state.box &&
             this.state.box !== this.state.loadedRecord.box.replace('rho:id:', '') && (
               <p className="text-danger">{t('name box address and box address different')}</p>
@@ -327,8 +322,10 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
                 <button
                   onClick={() => {
                     const payload = {
-                      fromBoxRegistryUri: this.state.box,
+                      masterRegistryUri: (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesMasterRegistryUri,
+                      contractId: (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesContractId,
                       purseId: this.state.name,
+                      boxId: this.state.box,
                       data: Buffer.from(
                         JSON.stringify({
                           address: (this.state.newRecord as PartialRecord).address,
@@ -338,10 +335,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
                         'utf8'
                       ).toString('hex'),
                     };
-                    const term = updatePurseDataTerm(
-                      (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesRegistryUri,
-                      payload
-                    );
+                    const term = updatePurseDataTerm(payload);
                     this.onSubmit(term)
                   }}
                   className="button is-link"
@@ -416,13 +410,13 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
                     <button
                       onClick={() => {
                         const payload = {
-                          fromBoxRegistryUri: this.state.box,
-                          price: this.state.loadedRecordPrice,
+                          masterRegistryUri: (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesMasterRegistryUri,
+                          contractId: (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesContractId,
                           purseId: (this.state.loadedRecord as Record).name,
+                          boxId: this.state.box,
+                          price: this.state.loadedRecordPrice,
                         };
-                        const term = setPriceTerm(
-                          (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesRegistryUri
-                          , payload);
+                        const term = updatePursePriceTerm(payload);
                         this.onSubmit(term)
                       }}
                       className="button is-link"

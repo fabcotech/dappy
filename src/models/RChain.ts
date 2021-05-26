@@ -7,7 +7,8 @@ export interface RChainInfo {
   dappyNodeVersion: string;
   lastFinalizedBlockNumber: number;
   rnodeVersion: string;
-  rchainNamesRegistryUri: string;
+  rchainNamesMasterRegistryUri: string;
+  rchainNamesContractId: string;
   rchainNetwork: string;
   namePrice: number;
   special?: {

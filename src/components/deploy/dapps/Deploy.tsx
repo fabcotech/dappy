@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { mainTerm } from 'rchain-token';
+import { deployTerm } from 'rchain-token';
 
 import * as fromUi from '../../../store/ui';
 import * as fromMain from '../../../store/main';
@@ -355,7 +355,13 @@ export class Deploy extends React.Component<DeployProps, {}> {
           <div
             className={`term rchain-token-fungible ${this.state.selected === 'ft' ? 'selected' : ''}`}
             onClick={() => {
-              this.onChoseTerm(mainTerm(this.state.box, { name: 'mytoken', fungible: true }), 'ft');
+              this.onChoseTerm(deployTerm({ 
+                masterRegistryUri: this.props.rchainInfos[(this.props.namesBlockchain as Blockchain).chainId].info.rchainNamesMasterRegistryUri,
+                boxId: this.state.box,
+                fungible: true,
+                contractId: 'contract' + new Date().getTime().toString().slice(7),
+                fee: null,
+              }), 'ft')
             }}>
             <span className="term-title">{t('rchain token ft')}</span>
             <p className="pt5">
@@ -368,7 +374,13 @@ export class Deploy extends React.Component<DeployProps, {}> {
           <div
             className={`term rchain-token-non-fungible ${this.state.selected === 'nft' ? 'selected' : ''}`}
             onClick={() => {
-              this.onChoseTerm(mainTerm(this.state.box, { name: 'mytoken', fungible: false }), 'nft');
+              this.onChoseTerm(deployTerm({ 
+                masterRegistryUri: this.props.rchainInfos[(this.props.namesBlockchain as Blockchain).chainId].info.rchainNamesMasterRegistryUri,
+                boxId: this.state.box,
+                fungible: false,
+                contractId: 'contract' + new Date().getTime().toString().slice(7),
+                fee: null,
+              }), 'nft')
             }}>
             <span className="term-title">{t('rchain token nft')}</span>
             <p className="pt5">{t('deploy nft contract')}</p>

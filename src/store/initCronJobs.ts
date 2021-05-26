@@ -10,6 +10,7 @@ import {
 } from '../CONSTANTS';
 
 export const initCronJobs = (store: Redux.Store) => {
+  console.log('initCronJobs');
   const nodesStream: NodeJS.Timeout = setInterval(() => {
     store.dispatch(fromBlockchain.executeNodesCronJobsAction());
   }, CRON_JOBS_SUBSCRIPTION_PERIOD_NODES);

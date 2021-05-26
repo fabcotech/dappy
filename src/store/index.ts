@@ -33,7 +33,7 @@ import {
   validateCookies,
 } from './decoders';
 import fromEvent from 'xstream/extra/fromEvent';
-import { DEVELOPMENT, RELOAD_INDEXEDDB_PERIOD } from '../CONSTANTS';
+import { DEVELOPMENT, RELOAD_INDEXEDDB_PERIOD, VERSION } from '../CONSTANTS';
 import { validateAccounts } from './decoders/Account';
 import { loggerSaga } from './utils';
 import { validatePreviews } from './decoders/Preview';
@@ -41,6 +41,7 @@ import { PREDEFINED_BLOCKCHAINS } from '../BLOCKCHAINS';
 import { PREDEFINED_TABS } from '../TABS';
 import { initCronJobs } from './initCronJobs';
 import { interProcess } from '../interProcess';
+import { browserUtils } from './browser-utils';
 // import { upgrades } from './upgrades';
 
 export interface Action {
@@ -143,7 +144,7 @@ const dispatchInitActions = () => {
   }
 };
 
-const DB_MIGRATION_NUMBER = 19;
+const DB_MIGRATION_NUMBER = 20;
 export const dbReq: IDBOpenDBRequest = window.indexedDB.open('dappy', DB_MIGRATION_NUMBER);
 export let db: undefined | IDBDatabase;
 
@@ -186,8 +187,19 @@ dbReq.onupgradeneeded = event => {
   if (!db.objectStoreNames.contains('accounts')) {
     db.createObjectStore('accounts', { keyPath: 'name' });
   }
-  if (!db.objectStoreNames.contains('cookies')) {
-    db.createObjectStore('cookies', { keyPath: 'address' });
+
+  if (db.objectStoreNames.contains('cookies')) {
+    // change keyPath from address to dappyDomain
+    const store = event.target.transaction.objectStore('cookies');
+    if (store.keyPath !== 'dappyDomain') {
+      const a = db.deleteObjectStore('cookies');
+      const b = db.createObjectStore('cookies', { keyPath: 'dappyDomain' });
+      console.log(a);
+      console.log(b);
+      console.log('Migration from cookies.address to cookies.dappyDomain ok')
+    }
+  } else {
+    db.createObjectStore('cookies', { keyPath: 'dappyDomain' });
   }
 };
 
@@ -372,14 +384,20 @@ dbReq.onsuccess = event => {
       })
       .catch(e => {
         asyncActionsOver += 1;
-        store.dispatch(
-          fromMain.saveErrorAction({
-            errorCode: 2053,
-            error: 'Unable to read cookies from storage',
-            trace: e,
-          })
-        );
-        dispatchInitActions();
+        if (VERSION === "0.4.0") {
+          console.log('ignoring failed to load cookies from storage')
+          console.log(cookiesToCheck.map(c => c.address))
+          browserUtils.deleteStorageIndexed("cookies", cookiesToCheck.map(c => c.address))
+        } else {
+          store.dispatch(
+            fromMain.saveErrorAction({
+              errorCode: 2053,
+              error: 'Unable to read cookies from storage',
+              trace: e,
+            })
+          );
+          dispatchInitActions();
+        }
       });
   };
 
@@ -571,14 +589,22 @@ dbReq.onsuccess = event => {
       })
       .catch(err => {
         asyncActionsOver += 1;
-        store.dispatch(
-          fromMain.saveErrorAction({
-            errorCode: 2016,
-            error: 'Unable to read RChain infos from storage',
-            trace: err,
+        if (VERSION === "0.4.0") {
+          console.log('Ignoring failed validation of RChain infos from storage, version 0.4.0');
+          rchainInfos.forEach(ri => {
+            browserUtils.removeInStorage("rchainInfos", ri.chainId)
           })
-        );
-        dispatchInitActions();
+          dispatchInitActions();
+        } else {
+          store.dispatch(
+            fromMain.saveErrorAction({
+              errorCode: 2016,
+              error: 'Unable to read RChain infos from storage',
+              trace: err,
+            })
+          );
+          dispatchInitActions();
+        }
       });
   };
 

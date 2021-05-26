@@ -1,39 +1,15 @@
 import { getDb } from './index';
 
 export const browserUtils = {
-  sendMessageToTab: (tabId: number, message: any) => {
-    return new Promise((resolve, reject) => {
-      if (typeof chrome !== 'undefined' && chrome.tabs) {
-        return chrome.tabs.sendMessage(tabId, message, {}, () => {
-          resolve();
-        });
-      } else {
-        reject('Unsuported browser');
-      }
-    });
-  },
-
-  removeTab: (tabId: number) => {
-    return new Promise((resolve, reject) => {
-      if (typeof chrome !== 'undefined' && chrome.tabs) {
-        return chrome.tabs.remove(tabId, () => {
-          resolve();
-        });
-      } else {
-        reject('Unsuported browser');
-      }
-    });
-  },
-
   deleteStorageIndexed: (
-    key: 'previews' | 'tabs' | 'transactions' | 'blockchains' | 'records' | 'accounts',
+    key: 'previews' | 'tabs' | 'transactions' | 'blockchains' | 'records' | 'accounts' | 'cookies',
     value: string[]
   ) => {
     return new Promise((resolve, reject) => {
       let i = 0;
       const doOperation = () => {
         try {
-          if (!['previews', 'tabs', 'blockchains', 'records', 'accounts', 'transactions'].find((k) => k === key)) {
+          if (!['previews', 'tabs', 'blockchains', 'records', 'accounts', 'transactions', 'cookies'].find((k) => k === key)) {
             i = 3;
             reject('Unknown db key ' + key);
           }

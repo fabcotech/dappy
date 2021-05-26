@@ -4,10 +4,11 @@ import { browserUtils } from '../../browser-utils';
 import * as fromSettings from '..';
 import { Action } from '../..';
 import * as fromMain from '../../main';
+import { Account } from '../../../models/'
 
 const saveAccountTokenBox = function* (action: Action) {
   const payload: fromSettings.SaveAccountTokenBoxPayload = action.payload;
-  const accounts = yield select(fromSettings.getAccounts);
+  const accounts: { [key: string]: Account } = yield select(fromSettings.getAccounts);
 
   if (!accounts[payload.accountName]) {
     yield put(
@@ -17,14 +18,14 @@ const saveAccountTokenBox = function* (action: Action) {
       })
     );
   }
-  const account = accounts[payload.accountName];
+  const account = accounts[payload.accountName] as Account;
   const accountsToUpdate = {
     [payload.accountName]: account,
   };
-  if (!account.boxes.includes(payload.registryUri)) {
+  if (!account.boxes.includes(payload.boxId)) {
     accountsToUpdate[payload.accountName] = {
       ...account,
-      boxes: account.boxes.concat(payload.registryUri),
+      boxes: account.boxes.concat(payload.boxId),
     };
   }
   console.log(accountsToUpdate);

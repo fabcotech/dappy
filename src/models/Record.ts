@@ -5,7 +5,6 @@ export interface RChainTokenPurse {
   price: undefined | number;
   id: string;
   box: string;
-  publicKey: string;
 }
 
 export interface RecordFromNetwork {

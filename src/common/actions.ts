@@ -23,7 +23,7 @@ export interface DappInitialSetupPayload {
   html: string;
   title: string;
   appPath: string; // path to load the resources from, will be "file://...." in dev , and "/" in prod
-  address: string;
+  dappyDomain: string;
   path: string;
   dappId: string;
   randomId: string;

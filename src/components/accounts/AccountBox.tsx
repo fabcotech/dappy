@@ -3,20 +3,20 @@ import React from 'react';
 import './AccountBox.scss';
 
 interface AccountBoxProps {
-  saveBoxRegistryUri: (regstryUri: string) => void;
+  saveBoxId: (boxId: string) => void;
 }
 
-export class AccountBox extends React.Component<AccountBoxProps, { registryUri: string }> {
+export class AccountBox extends React.Component<AccountBoxProps, { boxId: string }> {
   constructor(props: AccountBoxProps) {
     super(props);
     this.state = {
-      registryUri: '',
+      boxId: '',
     };
   }
 
   onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({
-      registryUri: e.target.value,
+      boxId: e.target.value,
     });
   };
 
@@ -28,8 +28,8 @@ export class AccountBox extends React.Component<AccountBoxProps, { registryUri: 
             <input className={`input`} type="password" placeholder="Box registry URI" onChange={this.onChange}></input>
             <button
               onClick={() => {
-                if (this.state.registryUri.length > 0) {
-                  this.props.saveBoxRegistryUri(this.state.registryUri);
+                if (this.state.boxId.length > 0) {
+                  this.props.saveBoxId(this.state.boxId);
                 }
               }}
               className="button is-link is-small">

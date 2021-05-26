@@ -28,7 +28,7 @@ const TITLES: { [key: string]: string } = {
 
 const DESCRIPTIONS: { [key: string]: (args: { [key: string]: any }) => string } = {
   [LoadError.IncompleteAddress]: (args) =>
-    `The address ${args.search} is incomplete or invalid. It must have the following structure : network/xxx`,
+    `The address ${args.search} is incomplete or invalid. It must have the following structure : network/xxx ${args.plus || ''}`,
   [LoadError.ChainNotFound]: (args) => `Could not find a network to query for network ID ${args.chainId}`,
   [LoadError.ResourceNotFound]: (args) =>
     `The resource on the blockchain was not found, make sure that the following resource exists : ${args.search}`,
@@ -47,6 +47,8 @@ const DESCRIPTIONS: { [key: string]: (args: { [key: string]: any }) => string } 
       .join(', ')}`,
   [LoadError.MissingBlockchainData]: (args) =>
     `Data is missing from the blockchain, please run the benchmaks for blockchain ${args.chainId}`,
+  [LoadError.InvalidServers]: (args) =>
+    `Did not find a primary server to address the request to : ${args.search}`,
   [LoadError.FailedToParseResponse]: (args) =>
     `Response received from the blockchain could not be parsed : ${args.message}`,
   [LoadError.InvalidManifest]: (args) =>

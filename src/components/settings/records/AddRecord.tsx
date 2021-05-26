@@ -56,9 +56,10 @@ export const AddRecord = (props: AddRecordProps) => {
               }
               props.addRecord({
                 ...r,
-                publicKey: publicKey,
                 box: 'box',
                 badges: {},
+                publicKey: 'abc',
+                price: 1,
               });
             }}
             className="button is-link"

@@ -19,12 +19,12 @@ export const Records = (props: RecordsProps) => {
   const [page, setPage] = useState<number>(1);
   const [serversEl, setServersEl] = useState<string>('');
 
-  const accountsPublickeys = Object.keys(props.accounts).map((k) => props.accounts[k].publicKey);
+  const accountsBoxes = Object.keys(props.accounts).map((k) => props.accounts[k].boxes[0]);
 
   let recordsNamesFiltered: string[] = props.recordNamesInAlphaOrder;
   if (showOnlyOwnNames) {
     recordsNamesFiltered = recordsNamesFiltered.filter((n) => {
-      return accountsPublickeys.includes(props.records[n].publicKey);
+      return accountsBoxes.includes(props.records[n].box);
     });
   }
 
@@ -79,8 +79,8 @@ export const Records = (props: RecordsProps) => {
           {recordsNamesFiltered.map((n) => {
             const record = props.records[n];
             let foundAccount;
-            if (accountsPublickeys.includes(record.publicKey)) {
-              foundAccount = Object.values(props.accounts).find((a) => a.publicKey === record.publicKey);
+            if (accountsBoxes.includes(record.box)) {
+              foundAccount = Object.values(props.accounts).find((a) => a.boxes[0] === record.box);
             }
 
             let RecordType = () => <span>?</span>;
@@ -135,7 +135,7 @@ export const Records = (props: RecordsProps) => {
             return (
               <tr
                 key={record.name}
-                className={`${accountsPublickeys.includes(record.publicKey) ? 'belongs-to-an-account' : ''}`}>
+                className={`${accountsBoxes.includes(record.box) ? 'belongs-to-an-account' : ''}`}>
                 <th>
                   {!!foundAccount ? <span className="tag is-light">{foundAccount.name}</span> : undefined}
                   {record.name}

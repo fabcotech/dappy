@@ -5,7 +5,7 @@ import { IPServer } from '../../src/models';
 export interface DappyBrowserView {
   visible: boolean;
   resourceId: string;
-  address: string;
+  dappyDomain: string;
   path: string;
   tabId: string;
   randomId: string;

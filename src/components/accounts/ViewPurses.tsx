@@ -1,10 +1,10 @@
-import React, { Fragment, useState } from 'react';
-import { readPursesTerm, readTerm } from 'rchain-token';
+import React, { Fragment } from 'react';
+import { readPursesTerm, readConfigTerm } from 'rchain-token';
 import * as rchainToolkit from 'rchain-toolkit';
 import Ajv from 'ajv';
 
 import * as fromBlockchain from '../../store/blockchain';
-import { Blockchain, MultiCallError, MultiCallResult } from '../../models';
+import { Blockchain,  MultiCallResult, RChainInfos } from '../../models';
 import { multiCall } from '../../utils/wsUtils';
 import { getNodeIndex } from '../../utils/getNodeIndex';
 import { rchainTokenValidators } from '../../store/decoders';
@@ -15,7 +15,8 @@ const ajv = new Ajv();
 
 interface ViewPursesProps {
   namesBlockchain: Blockchain | undefined;
-  contractRegistryUri: string;
+  contractId: string;
+  rchainInfos: RChainInfos;
   pursesIds: string[];
   version: string;
 }
@@ -68,10 +69,15 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
           type: 'explore-deploy-x',
           body: {
             terms: [
-              readPursesTerm(this.props.contractRegistryUri, {
+              readPursesTerm({
+                masterRegistryUri: this.props.rchainInfos.info.rchainNamesMasterRegistryUri,
+                contractId: this.props.contractId,
                 pursesIds: this.props.pursesIds.slice(0, 100),
               }),
-              readTerm(this.props.contractRegistryUri),
+              readConfigTerm({
+                masterRegistryUri: this.props.rchainInfos.info.rchainNamesMasterRegistryUri,
+                contractId: this.props.contractId,
+              }),
             ],
           },
         },
@@ -156,14 +162,14 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
                 NFT
               </span>
             )}
-            {this.props.contractRegistryUri}
+            {this.props.contractId}
           </span>
 
-          <span className="square ml5" style={{ background: toRGB(this.props.contractRegistryUri) }}></span>
+          <span className="square ml5" style={{ background: toRGB(this.props.contractId) }}></span>
           <a
             type="button"
             className="button is-white is-small"
-            onClick={() => window.copyToClipboard(this.props.contractRegistryUri)}>
+            onClick={() => window.copyToClipboard(this.props.contractId)}>
             {t('copy contract address')}
             <i className="fa fa-copy fa-after"></i>
           </a>

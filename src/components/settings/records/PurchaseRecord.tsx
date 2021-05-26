@@ -100,7 +100,9 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
           type: 'explore-deploy-x',
           body: {
             terms: [
-              readPursesTerm((this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesRegistryUri, {
+              readPursesTerm({
+                masterRegistryUri: (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesMasterRegistryUri,
+                contractId: (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesContractId,
                 pursesIds: [this.state.name, '0'],
               }),
             ],
@@ -157,10 +159,13 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
     const id = blockchainUtils.getUniqueTransactionId();
     this.transactionId = id;
 
-    const term = purchaseTerm((this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesRegistryUri, {
-      toBoxRegistryUri: this.state.box,
-      newId: this.state.name,
+    const term = purchaseTerm({
+      masterRegistryUri: (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesMasterRegistryUri,
+      contractId: (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesContractId,
       purseId: (this.state.loadedPurse as RChainTokenPurse).id,
+      boxId: this.state.box,
+      newId: this.state.name,
+      merge: false,
       quantity: 1,
       price: (this.props.namesBlockchainInfos as RChainInfos).info.namePrice,
       publicKey: this.state.publickey,
@@ -209,7 +214,8 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
     if (
       !this.props.namesBlockchainInfos ||
       !(this.props.namesBlockchainInfos as RChainInfos).info ||
-      !(this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesRegistryUri
+      !(this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesMasterRegistryUri ||
+      !(this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesContractId
     ) {
       return (
         <Fragment>

@@ -6,7 +6,7 @@ interface ActionsProps {
   tab: Tab;
   stopTab: () => void;
   removeTab: () => void;
-  reloadResource: () => void;
+  loadResource: () => void;
   onSetMuteResource: (tabId: string, a: boolean) => void;
 }
 
@@ -28,7 +28,7 @@ export class ActionsComponent extends React.Component<ActionsProps, {}> {
   onReloadResource = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    this.props.reloadResource();
+    this.props.loadResource();
     this.onToggle();
   };
 

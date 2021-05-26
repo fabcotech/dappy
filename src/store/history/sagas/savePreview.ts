@@ -5,6 +5,7 @@ import * as fromMain from '../../main';
 import * as fromDapps from '../../dapps';
 import { Action } from '../../';
 import { browserUtils } from '../../browser-utils';
+import { splitSearch } from '../../../utils/splitSearch';
 import { Preview, Dapp, IpApp, LoadedFile, Tab } from '../../../models';
 
 const savePreview = function* (action: Action) {
@@ -20,7 +21,7 @@ const savePreview = function* (action: Action) {
   if (action.type === fromHistory.DID_CHANGE_FAVICON) {
     const payload: fromHistory.DidChangeFaviconPayload = action.payload;
     const tab: undefined | Tab = tabs.find((t) => t.id === payload.tabId);
-    const previews = yield select(fromHistory.getPreviews);
+    const previews: { [search: string]: Preview } = yield select(fromHistory.getPreviews);
 
     if (!tab || !activeResource) {
       yield put(
@@ -57,6 +58,12 @@ const savePreview = function* (action: Action) {
       );
       return;
     }
+    yield put(
+      fromDapps.updateResourceAction({
+        tabId: payload.tabId,
+        searchSplitted: splitSearch(payload.address),
+      })
+    );
     previewTitle = payload.title;
     previewImg = tab.img; // most of the time favicon is not loaded yet
     previewSearch = payload.address;

@@ -53,14 +53,14 @@ const executeRChainCronJobsInfo = function* (action: Action) {
       }
     )
       .then((a) => {
-        const resultFromBlockchain = JSON.parse(a.result.data);
-        validateDappyNodeInfo(resultFromBlockchain.data)
+        const resultFromDappyNode = JSON.parse(a.result.data);
+        validateDappyNodeInfo(resultFromDappyNode.data)
           .then((valid) => {
             store.dispatch(
               fromBlockchain.updateRChainBlockchainInfoCompletedAction({
                 chainId: blockchain.chainId,
                 date: new Date().toISOString(),
-                info: resultFromBlockchain.data as RChainInfo,
+                info: resultFromDappyNode.data as RChainInfo,
               })
             );
           })

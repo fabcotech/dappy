@@ -1,9 +1,9 @@
 import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
-import { boxTerm } from 'rchain-token';
+import { deployBoxTerm } from 'rchain-token';
 
 import './Accounts.scss';
-import { Account, Blockchain, RChainInfos } from '../../models';
+import { Account, Blockchain, RChainInfo, RChainInfos } from '../../models';
 import * as fromSettings from '../../store/settings';
 import * as fromBlockchain from '../../store/blockchain';
 import * as fromMain from '../../store/main';
@@ -38,16 +38,17 @@ interface AccountsProps {
 export function AccountsComponent(props: AccountsProps) {
   const [tab, setTab] = useState('accounts');
   const [viewBox, setViewBox] = useState<undefined | string>(undefined);
-  const [transactionAired, setTransactionAired] = useState<boolean>(false);
   const [askPasswordForBox, setAskPasswordForBox] = useState<{ [key: string]: boolean }>({});
   const [askBoxregistryUri, setAskBoxregistryUri] = useState<{ [key: string]: boolean }>({});
 
   if (typeof viewBox === 'string') {
+    // todo make sure rchaininfo exists
     return (
       <ViewBox
         back={() => setViewBox(undefined)}
         namesBlockchain={props.namesBlockchain}
-        boxRegistryUri={viewBox}></ViewBox>
+        rchainInfos={(props.rchainInfos[(props.namesBlockchain as Blockchain).chainId]) as RChainInfos}
+        boxId={viewBox}></ViewBox>
     );
   }
 
@@ -153,10 +154,10 @@ export function AccountsComponent(props: AccountsProps) {
                       <>
                         {askBoxregistryUri[a.name] ? (
                           <AccountBox
-                            saveBoxRegistryUri={(registryUri) => {
+                            saveBoxId={(boxId: string) => {
                               props.saveAccountTokenBox({
                                 accountName: k,
-                                registryUri: registryUri,
+                                boxId: boxId,
                               });
                               setAskBoxregistryUri({ ...askBoxregistryUri, [a.name]: false });
                             }}></AccountBox>
@@ -197,7 +198,7 @@ export function AccountsComponent(props: AccountsProps) {
                               if (props.rchainInfos && props.rchainInfos[chainId]) {
                                 validAfterBlockNumber = props.rchainInfos[chainId].info.lastFinalizedBlockNumber;
                               }
-                              const term = boxTerm({ publicKey: a.publicKey });
+                              const term = deployBoxTerm({ boxId: 'box' + new Date().getTime().toString().slice(7), masterRegistryUri: props.rchainInfos[chainId].info.rchainNamesMasterRegistryUri, publicKey: a.publicKey });
                               const deployOptions = blockchainUtils.rchain.getDeployOptions(
                                 timestamp,
                                 term,

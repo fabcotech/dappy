@@ -1,0 +1,50 @@
+@import "../../style/variables.scss";
+
+.display-error {
+  background: #fff;
+  .retry {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &.loading {
+      & > div {
+        cursor: default;
+      }
+    }
+    & > div {
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      color: #555;
+      cursor: pointer;
+      &:hover {
+        color: #111;
+      }
+    }
+  }
+  .load-error {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .message {
+      max-width: 80%;
+      min-width: 500px;
+      max-height: 300px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      .message-body {
+        .is-4 {
+          color: #cd0930;
+        }
+      }
+
+    }
+  }
+}

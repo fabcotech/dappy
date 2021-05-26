@@ -196,7 +196,7 @@ const sendRChainTransaction = function* (action: Action) {
       }
 
       const jsValue = rhoValToJs(dataAtNameResponseExpr);
-
+      console.log(jsValue);
       if (payload.origin.origin === 'record') {
         validateRchainTokenOperationResult(jsValue)
           .then((a) => {
@@ -235,19 +235,24 @@ const sendRChainTransaction = function* (action: Action) {
         );
       } else if (payload.origin.origin === 'rchain-token') {
         if (jsValue.status === 'completed') {
+          let value: { [key: string]: string } = { status: jsValue.status };
           if (payload.origin.accountName && payload.origin.operation === 'deploy-box') {
             store.dispatch(
               fromSettings.saveAccountTokenBoxAction({
                 accountName: payload.origin.accountName,
-                registryUri: jsValue.registryUri.replace('rho:id:', '') as string,
+                boxId: jsValue.boxId as string,
               })
             );
+            value.boxId = jsValue.boxId;
+          } else if (payload.origin.operation === 'deploy') {
+            value.contractId = jsValue.contractId;
+            value.masterRegistryUri = jsValue.masterRegistryUri;
           }
           store.dispatch(
             fromBlockchain.updateRChainTransactionStatusAction({
               id: payload.id,
               status: TransactionStatus.Completed,
-              value: { ...jsValue, registryUri: jsValue.registryUri.replace('rho:id:', '') },
+              value: value,
             })
           );
         } else {
@@ -255,7 +260,7 @@ const sendRChainTransaction = function* (action: Action) {
             fromBlockchain.updateRChainTransactionStatusAction({
               id: payload.id,
               status: TransactionStatus.Failed,
-              value: jsValue.message,
+              value: jsValue,
             })
           );
         }

@@ -84,19 +84,22 @@ export const overrideHttpProtocols = (
       return;
     }
     const cookies = await browserView.browserView.webContents.session.cookies.get({ url: `https://${c.domain}` });
-    dispatchFromMain({
-      action: fromCookies.saveCookiesForDomainAction({
-        address: browserView.address,
-        cookies: cookies
-          .filter((c) => typeof c.expirationDate === 'number')
-          .map((cook) => ({
-            domain: cook.domain,
-            name: cook.name,
-            value: cook.value,
-            expirationDate: cook.expirationDate,
-          })),
-      }),
-    });
+    const cookiesToBeStored = cookies
+      .filter((c) => typeof c.expirationDate === 'number')
+      .map((cook) => ({
+        domain: cook.domain,
+        name: cook.name,
+        value: cook.value,
+        expirationDate: cook.expirationDate,
+      }));
+    if (cookiesToBeStored.length) {
+      dispatchFromMain({
+        action: fromCookies.saveCookiesForDomainAction({
+          dappyDomain: browserView.dappyDomain,
+          cookies: cookiesToBeStored
+        }),
+      });
+    }
   });
 
   session.protocol.interceptStreamProtocol('https', async (request, callback) => {

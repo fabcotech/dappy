@@ -89,6 +89,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
             if (this.props.records[a.to]) {
               this.setState({
                 foundRecord: this.props.records[a.to],
+                // todo box -> publicKey
                 to: rchainToolkit.utils.revAddressFromPublicKey(this.props.records[a.to].publicKey),
                 foundRecordError: '',
               });
