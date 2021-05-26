@@ -90,15 +90,8 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
     let term = payload.parameters.term;
 
     if (term) {
-      while (term.indexOf('NONCE') !== -1) {
-        const nonce = generateNonce();
-        term = term.replace('NONCE', nonce);
-      }
-      while (term.indexOf('TO_BOX_REGISTRY_URI') !== -1) {
-        term = term.replace('TO_BOX_REGISTRY_URI', this.state.box || '');
-      }
-      while (term.indexOf('FROM_BOX_REGISTRY_URI') !== -1) {
-        term = term.replace('FROM_BOX_REGISTRY_URI', this.state.box || '');
+      while (term.indexOf('BOX_ID') !== -1) {
+        term = term.replace('BOX_ID', this.state.box || '');
       }
       term = term.replace(new RegExp('PUBLIC_KEY', 'g'), this.state.publickey);
     }
