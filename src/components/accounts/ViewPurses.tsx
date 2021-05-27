@@ -187,9 +187,12 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
                     <span>
                       {t('type')}: {this.state.purses[id].type}
                     </span>
-                    <span>
-                      {t('quantity')}: {this.state.purses[id].quantity}
-                    </span>
+                    {
+                      this.state.fungible &&
+                      <span>
+                        {t('quantity')}: {this.state.purses[id].quantity}
+                      </span>
+                    }
                     <span>
                       {this.state.purses[id].price ? <span>price: {this.state.purses[id].price} </span> : undefined}
                     </span>
