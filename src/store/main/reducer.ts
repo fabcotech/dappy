@@ -209,9 +209,15 @@ export const getShouldBrowserViewsBeDisplayed = createSelector(
   fromUi.getIsNavigationInDapps,
   fromUi.getNavigationSuggestionsDisplayed,
   getDappModals,
+  getModal,
   fromDapps.getTabsFocusOrder,
   fromDapps.getTabs,
-  (isNavigationInDapps, navigationSuggestionsDisplayed, dappModals, tabsFocusOrder, tabs) => {
+  (isNavigationInDapps, navigationSuggestionsDisplayed, dappModals, modal, tabsFocusOrder, tabs) => {
+    // return undefined : no browser views displayed
+    // return resourceId: string : the browser view corresponding to this resourceId should be displayed
+    if (!!modal) {
+      return undefined;
+    }
     if (!navigationSuggestionsDisplayed && isNavigationInDapps && tabsFocusOrder.length > 0) {
       const tab = tabs.find((t) => t.id === tabsFocusOrder[tabsFocusOrder.length - 1]);
       // should always be true

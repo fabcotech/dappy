@@ -170,6 +170,7 @@ export const blockchain = {
   },
   transferFundsTerm: (from: string, to: string, amount: number) => {
     return `new
+      basket,
       rl(\`rho:registry:lookup\`),
       RevVaultCh,
       stdout(\`rho:io:stdout\`)
@@ -177,9 +178,7 @@ export const blockchain = {
 
     rl!(\`rho:rchain:revVault\`, *RevVaultCh) |
     for (@(_, RevVault) <- RevVaultCh) {
-
-      stdout!(("3.transfer_funds.rho")) |
-
+      stdout!(("Started transfer")) |
       match (
         "${from}",
         "${to}",
@@ -191,14 +190,31 @@ export const blockchain = {
             @RevVault!("findOrCreate", from, *vaultCh) |
             @RevVault!("findOrCreate", to, *vaultTo) |
             @RevVault!("deployerAuthKey", *deployerId, *revVaultkeyCh) |
-            for (@(true, vault) <- vaultCh; key <- revVaultkeyCh; _ <- vaultTo) {
-
-              stdout!(("Beginning transfer of ", amount, "REV from", from, "to", to)) |
-
-              new resultCh in {
-                @vault!("transfer", to, amount, *key, *resultCh) |
-                for (@result <- resultCh) {
-                  stdout!(("Finished transfer of ", amount, "REV to", to, "result was:", result))
+            for (@result <- vaultCh; key <- revVaultkeyCh; _ <- vaultTo) {
+              stdout!(result) |
+              match result {
+                (true, vault) => {
+                  stdout!(("Beginning transfer of " , amount , " dust from " , from , " to " , to)) |
+                  new resultCh in {
+                    @vault!("transfer", to, amount, *key, *resultCh) |
+                    for (@result2 <- resultCh) {
+                      stdout!(result2) |
+                      match result2 {
+                        (true, Nil) => {
+                          stdout!(("Finished transfer of " , amount , " dusts to " , to)) |
+                          basket!({ "status": "completed" })
+                        }
+                        _ => {
+                          stdout!("Failed to transfer REV (vault transfer)") |
+                          basket!({ "status": "failed", "message": "Failed to transfer REV (vault transfer)" })
+                        }
+                      }
+                    }
+                  }
+                }
+                _ => {
+                  stdout!("Failed to transfer REV (vault not found)") |
+                  basket!({ "status": "failed", "message": "Failed to transfer REV (vault not found)" })
                 }
               }
             }

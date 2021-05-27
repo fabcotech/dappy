@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { DateTime } from 'luxon';
 
-import { TransactionState, TransactionOriginDapp, TransactionOriginRecord, Blockchain } from '../../models';
+import { TransactionState, TransactionOriginDapp, TransactionOriginRecord, Blockchain, TransactionStatus } from '../../models';
 
 interface TransactionListItemProps {
   transactionState: TransactionState;
@@ -70,6 +70,7 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
       <th>{props.id}</th>
       <th>{blockchain ? blockchain.chainName : props.transactionState.blockchainId}</th>
       <th className="origin">
+        {props.transactionState.origin.origin === 'transfer' ? 'transfer' : undefined}
         {props.transactionState.origin.origin === 'deploy' ? 'deploy' : undefined}
         {props.transactionState.origin.origin === 'rholang' ? 'rholang' : undefined}
         {props.transactionState.origin.origin === 'rchain-token'
@@ -84,7 +85,7 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
       </th>
       <th className="value">{Value}</th>
       <th>
-        <span className={`tag ${props.transactionState.status}`}>{props.transactionState.status}</span>
+        <span className={`tag ${props.transactionState.status}`}>{props.transactionState.status === TransactionStatus.Completed ? "recorded in the blockchain" : props.transactionState.status }</span>
       </th>
     </tr>
   );

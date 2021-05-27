@@ -4,6 +4,7 @@
   display: grid;
   grid-template-rows: 50px calc(100% - 50px);
   grid-template-columns: 100%;
+  background: #fff;
   .navigation-bar {
     grid-column: 1;
     grid-row: 1;

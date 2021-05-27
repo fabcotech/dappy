@@ -11,7 +11,7 @@ interface IPServersComponentProps {
 }
 
 const REGEXP_IP = /^(?!\.)^[a-z0-9.-]*$/;
-const REGEXP_HOST = /^(?!\.)^[a-z0-9.]*$/;
+const REGEXP_HOST = /^(?!\.)^[a-z0-9.-]*$/;
 
 export class IPServersComponent extends React.Component<IPServersComponentProps> {
   state: { retrieveError: { [n: number]: string } } = {

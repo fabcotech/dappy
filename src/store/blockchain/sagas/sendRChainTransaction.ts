@@ -54,7 +54,7 @@ const sendRChainTransaction = function* (action: Action) {
 
   const node = rchainBlockchains[payload.blockchainId].nodes.find((n) => n.readyState === 1);
 
-  let previewPrivateName = ['record', 'dapp', 'rchain-token'].includes(payload.origin.origin);
+  let previewPrivateName = ['record', 'dapp', 'rchain-token', 'transfer'].includes(payload.origin.origin);
   let unforgeableName = '';
   if (previewPrivateName) {
     try {
@@ -134,7 +134,7 @@ const sendRChainTransaction = function* (action: Action) {
     if (previewPrivateName) {
       const unforgeableNameQuery = buildUnforgeableNameQuery(unforgeableName);
       let interval: NodeJS.Timeout;
-      let dataAtNameResponseExpr;
+      let dataAtNameResponseExpr: { [key: string]: any } | undefined;
       try {
         dataAtNameResponseExpr = yield new Promise((resolve, reject) => {
           let i = 0;
@@ -196,7 +196,6 @@ const sendRChainTransaction = function* (action: Action) {
       }
 
       const jsValue = rhoValToJs(dataAtNameResponseExpr);
-      console.log(jsValue);
       if (payload.origin.origin === 'record') {
         validateRchainTokenOperationResult(jsValue)
           .then((a) => {
@@ -226,6 +225,14 @@ const sendRChainTransaction = function* (action: Action) {
             store.dispatch(fromBlockchain.rChainTransactionErrorAction(p));
           });
       } else if (payload.origin.origin === 'dapp') {
+        store.dispatch(
+          fromBlockchain.updateRChainTransactionStatusAction({
+            id: payload.id,
+            status: TransactionStatus.Completed,
+            value: jsValue,
+          })
+        );
+      } else if (payload.origin.origin === 'transfer') {
         store.dispatch(
           fromBlockchain.updateRChainTransactionStatusAction({
             id: payload.id,
