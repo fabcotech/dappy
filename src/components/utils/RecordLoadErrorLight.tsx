@@ -1,5 +1,7 @@
-import React, { useState, Fragment } from 'react';
-import { LoadRecordsError, LoadError } from '../../models';
+import React from 'react';
+import { BeesLoadError } from 'beesjs';
+
+import { LoadRecordsError } from '../../models';
 
 export function RecordLoadErrorLight(props: { loadError: LoadRecordsError; instance: string }) {
   const loadStatesNumber = Object.keys(props.loadError.loadState).length;
@@ -19,11 +21,11 @@ export function RecordLoadErrorLight(props: { loadError: LoadRecordsError; insta
     );
   }
 
-  if (props.loadError.error.error === LoadError.InvalidRecords) {
+  if (props.loadError.error.error === BeesLoadError.InvalidRecords) {
     return <span>Records received could not be parsed</span>;
   }
 
-  if (props.loadError.error.error === LoadError.OutOfNodes) {
+  if (props.loadError.error.error === BeesLoadError.OutOfNodes) {
     return (
       <span>
         Not enough available nodes to query, needed {props.loadError.error.args.resolverAbsolute} but only got{' '}

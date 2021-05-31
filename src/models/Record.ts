@@ -1,4 +1,4 @@
-import { LoadCompleted, LoadErrorWithArgs } from './Dapp';
+import { BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
 
 export interface RChainTokenPurse {
   quantity: number;
@@ -35,8 +35,8 @@ export interface LoadRecordsError {
   chainId: string;
   date: string;
   time: number;
-  loadState: LoadCompleted;
-  error: LoadErrorWithArgs;
+  loadState: BeesLoadCompleted;
+  error: BeesLoadErrorWithArgs;
 }
 
 export interface PartialRecord {

@@ -1,5 +1,6 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
 import { readPursesDataTerm } from 'rchain-token';
+import { BeesLoadError } from 'beesjs';
 
 import { multiCall } from '../../../utils/wsUtils';
 import { MultiCallResult } from '../../../models/WebSocket';
@@ -20,8 +21,6 @@ import {
   Blockchain,
   DappFromNetwork,
   RChainInfos,
-  LoadError,
-  LoadErrorWithArgs,
   DappyFile,
   Dapp,
   IPServer,
@@ -64,7 +63,7 @@ const loadResource = function* (action: Action) {
           tabId: tabId,
           search: address,
           error: {
-            error: LoadError.IncompleteAddress,
+            error: BeesLoadError.IncompleteAddress,
             args: {
               search: '',
             },
@@ -139,7 +138,7 @@ const loadResource = function* (action: Action) {
         tabId: tabId,
         search: address,
         error: {
-          error: LoadError.MissingBlockchainData,
+          error: BeesLoadError.MissingBlockchainData,
           args: { chainId: 'unknown' },
         },
       })
@@ -149,7 +148,7 @@ const loadResource = function* (action: Action) {
   const info: RChainInfo = rchainInfos[namesBlockchain.chainId].info;
 
   yield put(
-    fromDapps.initTransitoryStateAndResetLoadErrorAction({
+    fromDapps.initTransitoryStateAndResetBeesAction({
       tabId: tabId,
       resourceId: resourceId,
     })
@@ -161,7 +160,7 @@ const loadResource = function* (action: Action) {
         tabId: tabId,
         search: address,
         error: {
-          error: LoadError.IncompleteAddress,
+          error: BeesLoadError.IncompleteAddress,
           args: {
             search: address,
           },
@@ -178,7 +177,7 @@ const loadResource = function* (action: Action) {
         tabId: tabId,
         search: address,
         error: {
-          error: LoadError.IncompleteAddress,
+          error: BeesLoadError.IncompleteAddress,
           args: {
             search: address,
           },
@@ -194,7 +193,7 @@ const loadResource = function* (action: Action) {
         tabId: tabId,
         search: address,
         error: {
-          error: LoadError.ChainNotFound,
+          error: BeesLoadError.ChainNotFound,
           args: { chainId: searchSplitted.chainId },
         },
       })
@@ -212,7 +211,7 @@ const loadResource = function* (action: Action) {
           tabId: tabId,
           search: address,
           error: {
-            error: LoadError.IncompleteAddress,
+            error: BeesLoadError.IncompleteAddress,
             args: {
               search: address,
               plus: `on network "${MAIN_CHAIN_ID}" only the purse id must be referenced`
@@ -249,7 +248,7 @@ const loadResource = function* (action: Action) {
         tabId: tabId,
         search: address,
         error: {
-          error: LoadError.IncompleteAddress,
+          error: BeesLoadError.IncompleteAddress,
           args: {
             search: address,
             plus: `master registry uri must be of length 54`
@@ -305,7 +304,7 @@ const loadResource = function* (action: Action) {
           fromDapps.loadResourceFailedAction({
             tabId: tabId,
             search: address,
-            error: { error: LoadError.RecordNotFound, args: { name: searchSplitted.search } },
+            error: { error: BeesLoadError.RecordNotFound, args: { name: searchSplitted.search } },
           })
         );
         return;
@@ -337,7 +336,7 @@ const loadResource = function* (action: Action) {
           fromDapps.loadResourceFailedAction({
             tabId: tabId,
             search: address,
-            error: { error: LoadError.RecordNotFound, args: { name: searchSplitted.search } },
+            error: { error: BeesLoadError.RecordNotFound, args: { name: searchSplitted.search } },
           })
         );
         return;
@@ -349,7 +348,7 @@ const loadResource = function* (action: Action) {
         fromDapps.loadResourceFailedAction({
           tabId: tabId,
           search: address,
-          error: { error: LoadError.RecordNotFound, args: { name: searchSplitted.search } },
+          error: { error: BeesLoadError.RecordNotFound, args: { name: searchSplitted.search } },
         })
       );
       return;
@@ -382,7 +381,7 @@ const loadResource = function* (action: Action) {
           fromDapps.loadResourceFailedAction({
             tabId: tabId,
             search: address,
-            error: { error: LoadError.InvalidServers, args: { search: searchSplitted.search } },
+            error: { error: BeesLoadError.InvalidServers, args: { search: searchSplitted.search } },
           })
         );
         return;
@@ -416,7 +415,7 @@ const loadResource = function* (action: Action) {
           fromDapps.loadResourceFailedAction({
             tabId: tabId,
             search: address,
-            error: { error: LoadError.InvalidRecords, args: { name: purseId, message: err.message } },
+            error: { error: BeesLoadError.InvalidRecords, args: { name: purseId, message: err.message } },
           })
         );
         return;
@@ -433,7 +432,7 @@ const loadResource = function* (action: Action) {
       fromDapps.loadResourceFailedAction({
         tabId: tabId,
         search: address,
-        error: { error: LoadError.MissingBlockchainData, args: { chainId: searchSplitted.chainId } },
+        error: { error: BeesLoadError.MissingBlockchainData, args: { chainId: searchSplitted.chainId } },
       })
     );
     return;
@@ -478,7 +477,7 @@ const loadResource = function* (action: Action) {
   }
 
   const dataFromBlockchain = (multiCallResult as MultiCallResult).result.data;
-  let verifyError: LoadErrorWithArgs | null = null;
+  let verifyError: BeesLoadErrorWithArgs | null = null;
   try {
     verifyError = validateBlockchainResponse(dataFromBlockchain, `Address "${searchSplitted.search}"`);
   } catch (e) {
@@ -486,7 +485,7 @@ const loadResource = function* (action: Action) {
       fromDapps.loadResourceFailedAction({
         tabId: tabId,
         search: address,
-        error: { error: LoadError.FailedToParseResponse, args: { message: 'Invalid response' } },
+        error: { error: BeesLoadError.FailedToParseResponse, args: { message: 'Invalid response' } },
       })
     );
     return;
@@ -512,7 +511,7 @@ const loadResource = function* (action: Action) {
       error = JSON.parse(e.message);
     } catch (e2) {
       error = {
-        error: LoadError.FailedToParseResponse,
+        error: BeesLoadError.FailedToParseResponse,
         args: {
           message: 'Unknown parsing error',
         },
@@ -564,7 +563,7 @@ const loadResource = function* (action: Action) {
       fromDapps.loadResourceFailedAction({
         tabId: tabId,
         search: address,
-        error: { error: LoadError.FailedToParseResponse, args: { message: 'could not get html from response' } },
+        error: { error: BeesLoadError.FailedToParseResponse, args: { message: 'could not get html from response' } },
       })
     );
     return;

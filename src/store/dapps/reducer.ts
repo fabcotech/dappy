@@ -1,10 +1,8 @@
 import { createSelector } from 'reselect';
-
+import { BeesLoadErrors, BeesLoadCompleted } from 'beesjs';
 import {
   Dapp,
   TransitoryState,
-  LoadCompleted,
-  LoadErrors,
   Tab,
   LastLoadError,
   Identification,
@@ -14,8 +12,6 @@ import {
 import * as fromActions from './actions';
 import * as fromHistory from '../history';
 import { Action } from '../';
-import { splitSearch } from '../../utils/splitSearch';
-import { searchToAddress } from '../../utils/searchToAddress';
 
 export interface State {
   search: string;
@@ -24,8 +20,8 @@ export interface State {
   lastLoadErrors: { [tabId: string]: LastLoadError };
   loadStates: {
     [dappId: string]: {
-      completed: LoadCompleted;
-      errors: LoadErrors;
+      completed: BeesLoadCompleted;
+      errors: BeesLoadErrors;
       pending: string[];
     };
   };
@@ -630,7 +626,7 @@ export const getSearchTransitoryState = createSelector(
 
 export const getSearchLoadStates = createSelector(getSearch, getLoadStates, (search, loadStates):
   | undefined
-  | { completed: LoadCompleted; errors: LoadErrors; pending: string[] } => (search ? loadStates[search] : undefined));
+  | { completed: BeesLoadCompleted; errors: BeesLoadErrors; pending: string[] } => (search ? loadStates[search] : undefined));
 
 export const getActiveTabs = createSelector(getTabs, (tabs) => {
   const activeTabs: { [tabId: string]: Tab } = {};

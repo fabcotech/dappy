@@ -1,4 +1,5 @@
 import { takeEvery, select, put } from 'redux-saga/effects';
+import { BeesLoadCompleted, BeesLoadErrorWithArgs, BeesLoadError } from 'beesjs';
 import Ajv from 'ajv';
 
 import * as fromSettings from '..';
@@ -7,7 +8,7 @@ import * as fromBlockchain from '../../blockchain/';
 import { LOGREV_TO_REV_RATE } from '../../../CONSTANTS';
 import { blockchain as blockchainUtils } from '../../../utils/blockchain';
 import { getNodeIndex } from '../../../utils/getNodeIndex';
-import { Account, Blockchain, LoadErrorWithArgs, LoadCompleted, LoadError, MultiCallResult } from '../../../models';
+import { Account, Blockchain, MultiCallResult } from '../../../models';
 import { Action } from '../actions';
 import { multiCall } from '../../../utils/wsUtils';
 
@@ -74,8 +75,8 @@ const executeAccountsCronJobs = function* (action: Action) {
     yield put(
       fromSettings.updateAccountBalanceFailedAction({
         date: new Date().toISOString(),
-        error: e.error as LoadErrorWithArgs,
-        loadState: e.loadState as LoadCompleted,
+        error: e.error as BeesLoadErrorWithArgs,
+        loadState: e.loadState as BeesLoadCompleted,
       })
     );
     return;
@@ -89,7 +90,7 @@ const executeAccountsCronJobs = function* (action: Action) {
       fromSettings.updateAccountBalanceFailedAction({
         date: new Date().toISOString(),
         error: {
-          error: LoadError.FailedToParseResponse,
+          error: BeesLoadError.FailedToParseResponse,
           args: { message: e.message || e },
         },
         loadState: (multiCallResult as MultiCallResult).loadState,
@@ -111,7 +112,7 @@ const executeAccountsCronJobs = function* (action: Action) {
       fromSettings.updateAccountBalanceFailedAction({
         date: new Date().toISOString(),
         error: {
-          error: LoadError.FailedToParseResponse,
+          error: BeesLoadError.FailedToParseResponse,
           args: { message: err.message || err },
         },
         loadState: (multiCallResult as MultiCallResult).loadState,
@@ -138,8 +139,8 @@ const executeAccountsCronJobs = function* (action: Action) {
     yield put(
       fromSettings.updateAccountBalanceFailedAction({
         date: new Date().toISOString(),
-        error: { error: LoadError.FailedToParseResponse } as LoadErrorWithArgs,
-        loadState: multiCallResult.loadState as LoadCompleted,
+        error: { error: BeesLoadError.FailedToParseResponse } as BeesLoadErrorWithArgs,
+        loadState: (multiCallResult as MultiCallResult).loadState as BeesLoadCompleted,
       })
     );
     return;

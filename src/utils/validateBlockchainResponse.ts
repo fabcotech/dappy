@@ -1,6 +1,6 @@
 import Ajv from 'ajv';
 
-import { LoadErrorWithArgs, LoadError } from '../models';
+import { BeesLoadErrorWithArgs, BeesLoadError } from 'beesjs';
 
 const ajv = new Ajv();
 const schema = {
@@ -48,11 +48,11 @@ export const validateBlockchainResponse = (
   response: any,
   searchedFor: string,
   atLeastOneExpr = false
-): LoadErrorWithArgs | null => {
+): BeesLoadErrorWithArgs | null => {
   const parsedResponse = JSON.parse(response);
   if (!parsedResponse.success) {
     return {
-      error: LoadError.ResourceNotFound,
+      error: BeesLoadError.ResourceNotFound,
       args: {
         search: searchedFor,
       },
@@ -61,7 +61,7 @@ export const validateBlockchainResponse = (
 
   if (['"Computation ran out of phlogistons."'].includes(parsedResponse.data)) {
     return {
-      error: LoadError.FailedToParseResponse,
+      error: BeesLoadError.FailedToParseResponse,
       args: {
         message: parsedResponse.data,
       },
@@ -72,7 +72,7 @@ export const validateBlockchainResponse = (
   const valid = validate(parsedData);
   if (!valid) {
     return {
-      error: LoadError.FailedToParseResponse,
+      error: BeesLoadError.FailedToParseResponse,
       args: {
         message: '[data] must be an object and have string at path ".expr[0].ExprString.data"',
       },
@@ -81,7 +81,7 @@ export const validateBlockchainResponse = (
 
   if (atLeastOneExpr && !parsedData.expr[0]) {
     return {
-      error: LoadError.FailedToParseResponse,
+      error: BeesLoadError.FailedToParseResponse,
       args: {
         message: '[data] must be an object and have string at path ".expr[0].ExprString.data"',
       },

@@ -1,8 +1,9 @@
 import { blake2b } from 'blakejs';
 import * as zlib from 'zlib';
 import * as elliptic from 'elliptic';
+import { BeesLoadError } from 'beesjs';
 
-import { LoadError, DappyFile } from '../models';
+import { DappyFile } from '../models';
 import { validateDpy, validateFile } from '../store/decoders/Dpy';
 
 const ec = new elliptic.ec('secp256k1');
@@ -23,7 +24,7 @@ export const validateAndReturnFile = async (
   } catch (err) {
     throw new Error(
       JSON.stringify({
-        error: LoadError.FailedToParseResponse,
+        error: BeesLoadError.FailedToParseResponse,
         args: {
           message: 'File does not exist',
         },
@@ -40,7 +41,7 @@ export const validateAndReturnFile = async (
     console.log(err);
     throw new Error(
       JSON.stringify({
-        error: LoadError.InvalidManifest,
+        error: BeesLoadError.InvalidManifest,
         args: {
           message: 'Failed to validate file, string is not valid base64 + gzipped',
         },
@@ -60,7 +61,7 @@ export const validateAndReturnFile = async (
       console.log(err);
       throw new Error(
         JSON.stringify({
-          error: LoadError.InvalidManifest,
+          error: BeesLoadError.InvalidManifest,
           args: {
             message: 'Failed to validate file' + err,
           },
@@ -96,7 +97,7 @@ export const validateAndReturnFile = async (
   } catch (err) {
     throw new Error(
       JSON.stringify({
-        error: LoadError.InvalidSignature,
+        error: BeesLoadError.InvalidSignature,
         args: {},
       })
     );
@@ -105,7 +106,7 @@ export const validateAndReturnFile = async (
   if (!verify) {
     throw new Error(
       JSON.stringify({
-        error: LoadError.InvalidSignature,
+        error: BeesLoadError.InvalidSignature,
         args: {},
       })
     );

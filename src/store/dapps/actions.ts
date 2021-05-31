@@ -1,9 +1,7 @@
+import { BeesLoadErrors, BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
 import {
   Dapp,
-  LoadCompleted,
-  LoadErrors,
   Tab,
-  LoadErrorWithArgs,
   Identification,
   LoadedFile,
   IpApp,
@@ -81,7 +79,7 @@ export const loadResourceAction = (payload: LoadResourcePayload) => ({
 
 export interface UpdateLoadStatePayload {
   resourceId: string;
-  loadState: { completed: LoadCompleted; errors: LoadErrors; pending: string[] };
+  loadState: { completed: BeesLoadCompleted; errors: BeesLoadErrors; pending: string[] };
 }
 export const updateLoadStateAction = (values: UpdateLoadStatePayload) => ({
   type: UPDATE_LOAD_STATE,
@@ -91,7 +89,7 @@ export const updateLoadStateAction = (values: UpdateLoadStatePayload) => ({
 export interface LoadResourceFailedPayload {
   search: string;
   tabId: string;
-  error: LoadErrorWithArgs;
+  error: BeesLoadErrorWithArgs;
 }
 export const loadResourceFailedAction = (values: LoadResourceFailedPayload) => ({
   type: LOAD_RESOURCE_FAILED,

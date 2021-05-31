@@ -1,4 +1,4 @@
-import { LoadErrors, LoadCompleted } from './Dapp';
+import { BeesLoadErrors, BeesLoadCompleted } from 'beesjs';
 
 export interface LoadedFile {
   id: string;
@@ -15,8 +15,8 @@ export interface LoadedFile {
   blockNumber: number;
   blockTime: string;
   loadState: {
-    completed: LoadCompleted;
-    errors: LoadErrors;
+    completed: BeesLoadCompleted;
+    errors: BeesLoadErrors;
     pending: string[];
   };
 }

@@ -1,4 +1,4 @@
-import { LoadCompleted, LoadErrorWithArgs } from './Dapp';
+import { BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
 
 export interface NodeFromNetwork {
   ip: string;
@@ -34,6 +34,6 @@ export interface LoadNodesError {
   chainId: string;
   date: string;
   time: number;
-  loadState: LoadCompleted;
-  error: LoadErrorWithArgs;
+  loadState: BeesLoadCompleted;
+  error: BeesLoadErrorWithArgs;
 }

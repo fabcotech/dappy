@@ -1,6 +1,7 @@
+import { BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
 import * as fromReducer from './reducer';
 
-import { Blockchain, Account, BlockchainNode, LoadCompleted, LoadErrorWithArgs, Language } from '../../models';
+import { Blockchain, Account, BlockchainNode  } from '../../models';
 
 export const UPDATE_RESOLVER_SETTINGS = '[Settings] Update resolvers settings';
 export const UPDATE_DEV_MODE = '[Settings] Update dev mode';
@@ -206,9 +207,9 @@ export const updateAccountBalanceAction = (values: UpdateAccountsBalancePayload)
 });
 
 export interface UpdateAccountBalanceFailedPayload {
-  loadState: LoadCompleted;
+  loadState: BeesLoadCompleted;
   date: string;
-  error: LoadErrorWithArgs;
+  error: BeesLoadErrorWithArgs;
 }
 export const updateAccountBalanceFailedAction = (values: UpdateAccountBalanceFailedPayload) => ({
   type: UPDATE_ACCOUNTS_BALANCE_FAILED,

@@ -1,3 +1,4 @@
+import { BeesLoadErrors, BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
 import {
   Record,
   Benchmark,
@@ -5,10 +6,7 @@ import {
   DeployOptions,
   TransactionStatus,
   TransactionOrigin,
-  LoadCompleted,
   LoadRecordsError,
-  LoadErrors,
-  LoadErrorWithArgs,
   LoadNodesError,
   NodeFromNetwork,
   RChainInfo,
@@ -101,7 +99,7 @@ export const updateRChainBlockchainInfoCompletedAction = (values: UpdateRChainBl
 export interface UpdateRChainBlockchainInfoFailedPayload {
   chainId: string;
   date: string;
-  error: LoadErrorWithArgs;
+  error: BeesLoadErrorWithArgs;
 }
 export const updateRChainBlockchainInfoFailedAction = (values: UpdateRChainBlockchainInfoFailedPayload) => ({
   type: UPDATE_RCHAIN_BLOCKCHAIN_INFO_FAILED,
@@ -138,8 +136,8 @@ export interface GetAllRecordsCompletedPayload {
   records: Record[];
   date: string;
   time: number;
-  loadState: LoadCompleted;
-  loadErrors: LoadErrors;
+  loadState: BeesLoadCompleted;
+  loadErrors: BeesLoadErrors;
 }
 export const getAllRecordsCompletedAction = (values: GetAllRecordsCompletedPayload) => ({
   type: GET_ALL_RECORDS_COMPLETED,

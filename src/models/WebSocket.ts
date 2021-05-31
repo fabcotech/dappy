@@ -1,7 +1,5 @@
-import { LoadCompleted, LoadErrors } from 'beesjs';
-
+import { BeesLoadErrors, BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
 import { ResolverMode } from './Settings';
-import { LoadErrorWithArgs } from './Dapp';
 
 export interface MultiCallParameters {
   chainId: string;
@@ -22,11 +20,11 @@ export interface MultiCallResult {
     data: any;
     nodeUrlsLength: number;
   };
-  loadState: LoadCompleted;
-  loadErrors: LoadErrors;
+  loadState: BeesLoadCompleted;
+  loadErrors: BeesLoadErrors;
 }
 
 export interface MultiCallError {
-  error: LoadErrorWithArgs;
-  loadState: LoadCompleted;
+  error: BeesLoadErrorWithArgs;
+  loadState: BeesLoadCompleted;
 }

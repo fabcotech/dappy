@@ -1,10 +1,11 @@
 import { takeEvery, select, put } from 'redux-saga/effects';
+import { BeesLoadError } from 'beesjs';
 
 import { store } from '../..';
 import * as fromBlockchain from '..';
 import * as fromSettings from '../../settings';
 import * as fromMain from '../../main';
-import { Blockchain, LoadError, RChainInfos, RChainInfo } from '../../../models';
+import { Blockchain, RChainInfos, RChainInfo } from '../../../models';
 import { Action } from '../../';
 import { validateDappyNodeInfo } from '../../../store/decoders';
 import { multiCall } from '../../../utils/wsUtils';
@@ -70,7 +71,7 @@ const executeRChainCronJobsInfo = function* (action: Action) {
                 chainId: blockchain.chainId,
                 date: new Date().toISOString(),
                 error: {
-                  error: LoadError.FailedToParseResponse,
+                  error: BeesLoadError.FailedToParseResponse,
                   args: {},
                 },
               })

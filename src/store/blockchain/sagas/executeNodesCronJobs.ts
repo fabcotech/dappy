@@ -1,10 +1,11 @@
 import { takeEvery, select } from 'redux-saga/effects';
+import { BeesLoadError } from 'beesjs';
 
 import { store } from '../..';
 import * as fromBlockchain from '..';
 import * as fromSettings from '../../settings';
 import * as fromMain from '../../main';
-import { Blockchain, LoadError, NodeFromNetwork } from '../../../models';
+import { Blockchain, NodeFromNetwork } from '../../../models';
 import { Action } from '../../';
 import { validateNodesFromNetwork } from '../../decoders';
 import { MultiCallError } from '../../../models/WebSocket';
@@ -80,7 +81,7 @@ const executeNodesCronJobs = function* (action: Action) {
                   time: u,
                   loadState: a.loadState,
                   error: {
-                    error: LoadError.InvalidNodes,
+                    error: BeesLoadError.InvalidNodes,
                     args: {
                       message: 'Failed to parse nodes : ' + err.message,
                     },
@@ -96,7 +97,7 @@ const executeNodesCronJobs = function* (action: Action) {
               time: u,
               loadState: a.loadState,
               error: {
-                error: LoadError.InvalidNodes,
+                error: BeesLoadError.InvalidNodes,
                 args: {
                   message: 'Failed to parse nodes : ' + err.message,
                 },
