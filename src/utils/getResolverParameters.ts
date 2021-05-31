@@ -9,11 +9,13 @@ export type ResolutionLevel = "1" | "2";
 
   level 1 prioritizes speed over accuracy, asking only few network members
   and expecting the same answer
-  used for get-balance, explore-deploys by dapps
+  used for get-balance, get-data-at-name, explore-deploys by dapps (tipboard,
+  personal pages etc)
 
-  level 2 prioritizes accuracy over speed, ultra accurate multirequest that
-  allows just one different response over the whole network (1-20), or two
-  different responses over the whole networj (21-n)
+  level 2 prioritizes accuracy over speed, it is an ultra accurate
+  multirequest level that allows
+  - just one different response over the whole network (1-20 network members)
+  - two different responses over the whole networj (21-n network members)
   used for name system (= DNS lookups)
 
   examples:
@@ -49,14 +51,14 @@ const LEVELS = {
     "2": { resolverAccuracy: 100, resolverAbsolute: 2 },
     "3": { resolverAccuracy: 100, resolverAbsolute: 3 },
     "4": { resolverAccuracy: 100, resolverAbsolute: 4 },
-    "5": { resolverAccuracy: 61, resolverAbsolute: 5 }, // 61% = at least   4/5 =     aaaa/b
-    "6": { resolverAccuracy: 67, resolverAbsolute: 6 }, // 67% = at least   5/6 =     aaaaa/b
-    "7": { resolverAccuracy: 72, resolverAbsolute: 7 }, // 72% = at least   6/7 =     aaaaaa/b
-    "8": { resolverAccuracy: 76, resolverAbsolute: 8 }, // 76% = at least   7/8 =     aaaaaaa/b
-    "9": { resolverAccuracy: 78, resolverAbsolute: 9 },  // 78% = at least  8/9 =     aaaaaaaa/b
-    "10": { resolverAccuracy: 81, resolverAbsolute: 10 }, // 81% = at least 9/10 =   aaaaaaaaa/b
-    "11": { resolverAccuracy: 82, resolverAbsolute: 11 }, // 82% = at least 10/11 =  aaaaaaaaaa/b
-    "12": { resolverAccuracy: 84, resolverAbsolute: 12 }, // 84% = at least 11/12 =  aaaaaaaaaaa/b
+    "5": { resolverAccuracy: 61, resolverAbsolute: 5 }, //  61% = at least      4/5 =   aaaa/b
+    "6": { resolverAccuracy: 67, resolverAbsolute: 6 }, //  67% = at least      5/6 =   aaaaa/b
+    "7": { resolverAccuracy: 72, resolverAbsolute: 7 }, //  72% = at least      6/7 =   aaaaaa/b
+    "8": { resolverAccuracy: 76, resolverAbsolute: 8 }, //  76% = at least      7/8 =   aaaaaaa/b
+    "9": { resolverAccuracy: 78, resolverAbsolute: 9 }, //  78% = at least      8/9 =   aaaaaaaa/b
+    "10": { resolverAccuracy: 81, resolverAbsolute: 10 }, // 81% = at least    9/10 =   aaaaaaaaa/b
+    "11": { resolverAccuracy: 82, resolverAbsolute: 11 }, // 82% = at least    10/11 =  aaaaaaaaaa/b
+    "12": { resolverAccuracy: 84, resolverAbsolute: 12 }, // 84% = at least    11/12 =  aaaaaaaaaaa/b
   }
 }
 
@@ -78,10 +80,10 @@ export const getResolverParamters = (level: ResolutionLevel, networkSize: number
     if (p === undefined) {
       if (networkSize < 20) {
         // tolerates 1 different answer aaaaaaaa.../b
-        p = { resolverAccuracy: 100 - Math.ceil((100/networkSize)) - 0.1, resolverAbsolute: networkSize };
+        p = { resolverAccuracy: 100 - Math.ceil((100/networkSize)) - 0.001, resolverAbsolute: networkSize };
       } else {
         // tolerates 2 different answers aaaaaaaa.../bb
-        p = { resolverAccuracy:  100 - Math.ceil((100/(networkSize / 2))), resolverAbsolute: Math.floor(networkSize / 5) };
+        p = { resolverAccuracy:  100 - Math.ceil((100/(networkSize / 2))) - 0.001, resolverAbsolute: Math.floor(networkSize / 5) };
       }
     }
   } else {
