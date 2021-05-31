@@ -10,7 +10,7 @@ export type ResolutionLevel = "1" | "2";
   and expecting the same answer
   used for get-balance, explore-deploys by dapps
 
-  level 2 prioritizes accuracy over speed, ultra accurate multirequest that allowq
+  level 2 prioritizes accuracy over speed, ultra accurate multirequest that allows
   just one different response over the whole network (1-20), or two different responses
   over the whole networj (21-n)
   used for name system (= DNS lookups)

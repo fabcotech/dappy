@@ -1,13 +1,14 @@
 import { Session } from 'electron';
 import zlib from 'zlib';
 import { readPursesDataTerm, readConfigTerm } from 'rchain-token';
+import { BeesLoadError } from 'beesjs';
 
 import { performMultiRequest } from './performMultiRequest';
 import * as fromSettings from './store/settings';
 import * as fromBlockchains from './store/blockchains';
 import * as fromMainBrowserViews from './store/browserViews';
 
-import { LoadError, DappyFile } from '../src/models';
+import { DappyFile } from '../src/models';
 import { validateFile } from '../src/store/decoders/Dpy';
 import { getNodeIndex } from '../src/utils/getNodeIndex';
 import { validateSearchWithProtocol, validateShortcutSearchWithProtocol } from '../src/utils/validateSearch';
@@ -183,7 +184,7 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
               } catch (err) {
                 throw new Error(
                   JSON.stringify({
-                    error: LoadError.InvalidManifest,
+                    error: BeesLoadError.InvalidManifest,
                     args: {
                       message: 'Failed to validate file, string is not valid base64 + gzipped',
                     },
@@ -198,7 +199,7 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
               } catch (err) {
                 throw new Error(
                   JSON.stringify({
-                    error: LoadError.InvalidManifest,
+                    error: BeesLoadError.InvalidManifest,
                     args: {
                       message: 'Failed to parse file ' + err,
                     },

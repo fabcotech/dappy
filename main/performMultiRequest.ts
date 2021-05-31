@@ -1,5 +1,5 @@
 import http from 'http';
-import resolver, { LoadError } from 'beesjs';
+import { resolver,  BeesLoadError } from 'beesjs';
 
 import { getNodeFromIndex } from '../src/utils/getNodeFromIndex';
 import { MultiCallBody, MultiCallParameters, MultiCallResult, MultiCallError } from '../src/models/WebSocket';
@@ -134,7 +134,7 @@ export const performMultiRequest = (
         console.log(e);
         reject({
           error: {
-            error: LoadError.UnknownError,
+            error: BeesLoadError.UnknownError,
             args: {},
           },
           loadState: {},
