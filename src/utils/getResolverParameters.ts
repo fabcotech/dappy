@@ -3,8 +3,9 @@ export type ResolutionLevel = "1" | "2";
 
 /*
   Based on level "1" or "2", this file contains the logic of how
-  the multi-request should be made, and what synchrony constraint
-  we apply to the anwsers (= does the multirequest fail or succeed)
+  the multirequests should be made to the nodes/members of a dappy
+  network, and what synchrony constraint we should apply to the
+  anwsers received (= does the multirequest fail or succeed)
 
   level 1 prioritizes speed over accuracy, asking only few network members
   and expecting the same answer
@@ -48,9 +49,9 @@ const LEVELS = {
     "7": { resolverAccuracy: 72, resolverAbsolute: 7 }, // 72% = at least   6/7 =     aaaaaa/b
     "8": { resolverAccuracy: 76, resolverAbsolute: 8 }, // 76% = at least   7/8 =     aaaaaaa/b
     "9": { resolverAccuracy: 78, resolverAbsolute: 9 },  // 78% = at least  8/9 =     aaaaaaaa/b
-    "10": { resolverAccuracy: 100, resolverAbsolute: 10 }, // 81% = at least 9/10 =   aaaaaaaaa/b
-    "11": { resolverAccuracy: 100, resolverAbsolute: 11 }, // 82% = at least 10/11 =  aaaaaaaaaa/b
-    "12": { resolverAccuracy: 100, resolverAbsolute: 12 }, // 84% = at least 11/12 =  aaaaaaaaaaa/b
+    "10": { resolverAccuracy: 81, resolverAbsolute: 10 }, // 81% = at least 9/10 =   aaaaaaaaa/b
+    "11": { resolverAccuracy: 82, resolverAbsolute: 11 }, // 82% = at least 10/11 =  aaaaaaaaaa/b
+    "12": { resolverAccuracy: 84, resolverAbsolute: 12 }, // 84% = at least 11/12 =  aaaaaaaaaaa/b
   }
 }
 
