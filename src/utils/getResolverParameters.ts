@@ -2,23 +2,28 @@
 export type ResolutionLevel = "1" | "2";
 
 /*
-  Based on level "1" or "2", this file contains the logic of how
-  the multirequests should be made to the nodes/members of a dappy
-  network, and what synchrony constraint we should apply to the
-  anwsers received (= does the multirequest fail or succeed)
+  This file contains the logic of how the multirequests should be made
+  to the nodes/members of a dappy network, and what synchrony constraint
+  we should apply to the anwsers received (= does the multirequest fail
+  or succeed)
 
   level 1 prioritizes speed over accuracy, asking only few network members
   and expecting the same answer
   used for get-balance, explore-deploys by dapps
 
-  level 2 prioritizes accuracy over speed, ultra accurate multirequest that allows
-  just one different response over the whole network (1-20), or two different responses
-  over the whole networj (21-n)
+  level 2 prioritizes accuracy over speed, ultra accurate multirequest that
+  allows just one different response over the whole network (1-20), or two
+  different responses over the whole networj (21-n)
   used for name system (= DNS lookups)
 
-  example: a network of 4 members:
+  examples:
+  (1) network of 4 members:
     level 1: we only query 2 members, and expect 100% (2) of identical answers
     level 2: we only query 4 members, and expect 100% (4) of identical answers
+
+  (2) network of 8 members:
+    level 1: we only query 3 members, and expect 100% (3) of identical answers
+    level 2: we only query 8 members, and expect at least 76% (7/8) of identical answers
 
 */
 
