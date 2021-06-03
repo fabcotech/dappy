@@ -90,9 +90,7 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
     let term = payload.parameters.term;
 
     if (term) {
-      while (term.indexOf('BOX_ID') !== -1) {
-        term = term.replace('BOX_ID', this.state.box || '');
-      }
+      term = term.replace(new RegExp('BOX_ID', 'g'), this.state.box || '');
       term = term.replace(new RegExp('PUBLIC_KEY', 'g'), this.state.publickey);
     }
 

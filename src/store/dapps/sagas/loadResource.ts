@@ -148,7 +148,7 @@ const loadResource = function* (action: Action) {
   const info: RChainInfo = rchainInfos[namesBlockchain.chainId].info;
 
   yield put(
-    fromDapps.initTransitoryStateAndResetBeesAction({
+    fromDapps.initTransitoryStateAndResetLoadErrorAction({
       tabId: tabId,
       resourceId: resourceId,
     })

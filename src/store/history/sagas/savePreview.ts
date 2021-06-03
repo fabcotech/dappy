@@ -24,12 +24,7 @@ const savePreview = function* (action: Action) {
     const previews: { [search: string]: Preview } = yield select(fromHistory.getPreviews);
 
     if (!tab || !activeResource) {
-      yield put(
-        fromMain.saveErrorAction({
-          errorCode: 2049,
-          error: 'Unable to save previews to storage, did not find tab',
-        })
-      );
+      console.error('Unable to save previews to storage, did not find tab');
       return;
     }
     if (!previews[payload.previewId]) {
@@ -50,7 +45,7 @@ const savePreview = function* (action: Action) {
     const payload: fromHistory.DidNavigateInPagePayload = action.payload;
     const tab: undefined | Tab = tabs.find((t) => t.id === payload.tabId);
     if (!tab || !activeResource) {
-      console.log('Unable to save previews to storage, did not find tab');
+      console.error('Unable to save previews to storage, did not find tab');
       return;
     }
     yield put(
@@ -71,7 +66,7 @@ const savePreview = function* (action: Action) {
     const payload: fromHistory.UpdatePreviewPayload = action.payload;
     const tab: undefined | Tab = tabs.find((t) => t.id === payload.tabId);
     if (!tab || !activeResource) {
-      console.log('Unable to save previews to storage, did not find tab');
+      console.error('Unable to save previews to storage, did not find tab');
       return;
     }
 

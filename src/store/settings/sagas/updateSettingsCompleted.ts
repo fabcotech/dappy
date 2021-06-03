@@ -1,6 +1,5 @@
-import { put, takeEvery, select } from 'redux-saga/effects';
+import { takeEvery, select } from 'redux-saga/effects';
 
-import { browserUtils } from '../../browser-utils';
 import * as fromSettings from '..';
 import { Action } from '../..';
 

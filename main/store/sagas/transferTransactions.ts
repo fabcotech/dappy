@@ -19,6 +19,7 @@ const transferTransactions = function* (action: any) {
       `);
     } catch (e) {
       console.error('Could not execute javascript and transfer transactions');
+      console.log(e);
     }
   } else {
     console.error('Did not find browserView, cannot transfer transactions');

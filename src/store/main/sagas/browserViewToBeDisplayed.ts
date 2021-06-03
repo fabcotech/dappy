@@ -24,6 +24,9 @@ export const browserViewToBeDisplayedSaga = function* () {
   yield takeEvery(fromDapps.FOCUS_SEARCH_DAPP, browserViewToBeDisplayed);
   yield takeEvery(fromDapps.FOCUS_AND_ACTIVATE_TAB, browserViewToBeDisplayed);
   yield takeEvery(fromDapps.STOP_TAB, browserViewToBeDisplayed);
+  yield takeEvery(fromDapps.LAUNCH_DAPP_COMPLETED, browserViewToBeDisplayed);
+  yield takeEvery(fromDapps.LAUNCH_IP_APP_COMPLETED, browserViewToBeDisplayed);
+  yield takeEvery(fromDapps.LAUNCH_FILE_COMPLETED, browserViewToBeDisplayed);
   yield takeEvery(fromMain.UPDATE_INITIALIZATION_OVER, browserViewToBeDisplayed);
   yield takeEvery(fromMain.OPEN_DAPP_MODAL, browserViewToBeDisplayed);
   yield takeEvery(fromMain.OPEN_MODAL, browserViewToBeDisplayed);

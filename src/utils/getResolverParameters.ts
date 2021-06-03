@@ -20,12 +20,19 @@ export type ResolutionLevel = "1" | "2";
 
   examples:
   (1) network of 4 members:
-    level 1: we only query 2 members, and expect 100% (2) of identical answers
-    level 2: we only query 4 members, and expect 100% (4) of identical answers
+    level 1: query only 2 members, and expect 100% (2) of identical answers
+    level 2: query 4 members, and expect 100% (4) of identical answers
 
   (2) network of 8 members:
-    level 1: we only query 3 members, and expect 100% (3) of identical answers
-    level 2: we only query 8 members, and expect at least 76% (7/8) of identical answers
+    level 1: query only 3 members, and expect 100% (3) of identical answers
+    level 2: query 8 members, and expect at least 76% (7/8) of identical answers
+
+  resolverAbsolute = number of successful nodes/network members requests to receive,
+    requests will continue being made until this number is reached
+
+  resolverAccuracy = synchronization constraints / percentage of identical
+    answers required among successful answers. When [resolverAbsolute] is reached,
+    answers are checked against [resolverAccuracy]
 
 */
 
@@ -57,8 +64,8 @@ const LEVELS = {
     "8": { resolverAccuracy: 76, resolverAbsolute: 8 }, //  76% = at least      7/8 =   aaaaaaa/b
     "9": { resolverAccuracy: 78, resolverAbsolute: 9 }, //  78% = at least      8/9 =   aaaaaaaa/b
     "10": { resolverAccuracy: 81, resolverAbsolute: 10 }, // 81% = at least    9/10 =   aaaaaaaaa/b
-    "11": { resolverAccuracy: 82, resolverAbsolute: 11 }, // 82% = at least    10/11 =  aaaaaaaaaa/b
-    "12": { resolverAccuracy: 84, resolverAbsolute: 12 }, // 84% = at least    11/12 =  aaaaaaaaaaa/b
+    "11": { resolverAccuracy: 82, resolverAbsolute: 11 }, // 82% = at least   10/11 =   aaaaaaaaaa/b
+    "12": { resolverAccuracy: 84, resolverAbsolute: 12 }, // 84% = at least   11/12 =   aaaaaaaaaaa/b
   }
 }
 

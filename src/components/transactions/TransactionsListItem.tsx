@@ -37,7 +37,7 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
       <span>
         {`Box address is ${props.transactionState.value.boxId} `}
         <a type="button" onClick={() => window.copyToClipboard(props.transactionState.value.boxId)}>
-          {t('copy address')}
+          {t('copy box id')}
         </a>
       </span>
     );

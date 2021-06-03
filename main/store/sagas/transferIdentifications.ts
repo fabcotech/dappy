@@ -17,10 +17,11 @@ const transferIdentifications = function* (action: any) {
       if (typeof dappyRChain !== 'undefined') { dappyRChain.requestIdentifications() };
       `);
     } catch (e) {
-      console.error('Could not execute javascript and transfer identification');
+      console.error('Could not execute javascript and transfer identifications');
+      console.log(e);
     }
   } else {
-    console.error('Did not find browserView, cannot transfer identification');
+    console.error('Did not find browserView, cannot transfer identifications');
   }
 
   return undefined;
