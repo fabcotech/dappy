@@ -5,7 +5,6 @@ export const LOAD_OR_RELOAD_BROWSER_VIEW = '[MAIN] Load or reload browser view';
 export const LOAD_OR_RELOAD_BROWSER_VIEW_COMPLETED = '[MAIN] Load or reload browser view completed';
 export const DESTROY_BROWSER_VIEW = '[MAIN] Destroy browser view';
 export const UPDATE_BROWSER_VIEWS_POSITION = '[MAIN] Update browser views position';
-export const SAVE_BROWSER_VIEW_COMM_EVENT = '[MAIN] Save browser view comm event';
 export const DISPLAY_ONLY_BROWSER_VIEW_X = '[MAIN] Display only browser view x';
 export const DISPLAY_ONLY_BROWSER_VIEW_X_COMPLETED = '[MAIN] Display only browser view x completed';
 export const SET_BROWSER_VIEW_MUTED = '[MAIN] Set browser view muted';
@@ -62,19 +61,6 @@ export const reducer = (state = initialState, action: any): State => {
       return {
         ...state,
         position: action.payload,
-      };
-    }
-
-    case SAVE_BROWSER_VIEW_COMM_EVENT: {
-      return {
-        ...state,
-        browserViews: {
-          ...state.browserViews,
-          [action.payload.id]: {
-            ...state.browserViews[action.payload.id],
-            commEvent: action.payload.commEvent,
-          },
-        },
       };
     }
 

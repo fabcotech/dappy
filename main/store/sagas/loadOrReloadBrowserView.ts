@@ -28,14 +28,42 @@ const loadOrReloadBrowserView = function* (action: any) {
     fromBrowserViews.getBrowserViewsPositionMain
   );
 
-  // reload
+  /* reload
+    a browser view with same id (payload.reosurceId) is
+    already running
+  */
   if (browserViews[payload.resourceId]) {
+    if (development) {
+      console.log('reload or self navigation, closing browserView with same id');
+    }
     session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('dappy');
     if (browserViews[payload.resourceId].browserView.webContents.isDevToolsOpened()) {
       browserViews[payload.resourceId].browserView.webContents.closeDevTools();
       browserViews[payload.resourceId].browserView.webContents.forcefullyCrashRenderer();
     }
     action.meta.browserWindow.removeBrowserView(browserViews[payload.resourceId].browserView);
+  }
+
+  /* navigation in a tab
+    a running browser view has the same
+    .tabId property
+
+  */
+  const sameTabIdBrowserViewId = Object.keys(browserViews).find(id => {
+    return browserViews[id].resourceId !== payload.resourceId && // already removed line 35
+      browserViews[id].tabId === payload.tabId;
+  });
+  if (sameTabIdBrowserViewId) {
+    if (development) {
+      console.log('navigation ina tab, closing browserView with same tabId');
+    }
+    const bv = browserViews[sameTabIdBrowserViewId];
+    session.fromPartition(`persist:${bv.dappyDomain}`).protocol.unregisterProtocol('dappy');
+    if (browserViews[sameTabIdBrowserViewId].browserView.webContents.isDevToolsOpened()) {
+      browserViews[sameTabIdBrowserViewId].browserView.webContents.closeDevTools();
+      browserViews[sameTabIdBrowserViewId].browserView.webContents.forcefullyCrashRenderer();
+    }
+    action.meta.browserWindow.removeBrowserView(browserViews[sameTabIdBrowserViewId].browserView);
   }
 
   if (!position) {
@@ -46,12 +74,12 @@ const loadOrReloadBrowserView = function* (action: any) {
   // todo partition ?
   const view = new BrowserView({
     webPreferences: {
+      nodeIntegration: false,
+      sandbox: true,
+      contextIsolation: true,
       devTools: true,
       disableDialogs: true,
       partition: `persist:${payload.dappyDomain}`,
-      // sandbox forbids the navigation
-      //sandbox: true,
-      contextIsolation: true,
     },
   });
 
@@ -273,10 +301,12 @@ const loadOrReloadBrowserView = function* (action: any) {
   newBrowserViews[payload.resourceId] = {
     ...payload,
     browserView: view,
-    commEvent: undefined,
     visible: true,
   };
 
+  /*
+    Hide all other browser views
+  */
   Object.keys(browserViews).forEach((id) => {
     if (id !== payload.resourceId && browserViews[id].visible) {
       browserViews[id].browserView.setBounds({ x: 0, y: 0, width: 0, height: 0 });

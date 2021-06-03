@@ -12,6 +12,7 @@ import { DappyFile } from '../src/models';
 import { validateFile } from '../src/store/decoders/Dpy';
 import { getNodeIndex } from '../src/utils/getNodeIndex';
 import { validateSearchWithProtocol, validateShortcutSearchWithProtocol } from '../src/utils/validateSearch';
+import { DappyBrowserView } from './models';
 
 const readPursesDataOrContractConfig = (masterRegistryUri: string, contractId: string, purseId) => {
   // read purse data if purseId
@@ -35,27 +36,41 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
       }
     }
 
+    let randomId = '';
+    let browserView: DappyBrowserView | undefined = undefined;
+    try {
+      const userAgent = request.headers['User-Agent'];
+      const io = userAgent.indexOf('randomId=');
+      randomId = userAgent.substring(io + 'randomId='.length);
+      const browserViews = fromMainBrowserViews.getBrowserViewsMain(getState());
+      const browserViewId = Object.keys(browserViews).find(
+        (browserViewId) => browserViews[browserViewId].randomId === randomId
+      );
+      if (!browserViewId || !browserViews[browserViewId]) {
+        console.error('[dappy://] browserView not found, unauthorized request');
+        callback();
+        return;
+      }
+      browserView = browserViews[browserViewId];
+    } catch (err) {
+      console.error('[dappy://] could not get browserView, unauthorized request');
+      console.log(err);
+      callback();
+      return;
+    }
     /*
         Shortcut notation
         change dappy://aaa.bbb?page=123 to dappy://betanetwork/aaa.bbb?page=123
       */
     if (!valid && validateShortcutSearchWithProtocol(url)) {
       try {
-        let randomId = '';
-        const userAgent = request.headers['User-Agent'];
-        const io = userAgent.indexOf('randomId=');
-        randomId = userAgent.substring(io + 'randomId='.length);
-        const browserViews = fromMainBrowserViews.getBrowserViewsMain(getState());
-        const browserViewId = Object.keys(browserViews).find(
-          (browserViewId) => browserViews[browserViewId].randomId === randomId
-        );
-        const chainId = browserViews[browserViewId].dappyDomain.split('/')[0];
+        const chainId = browserView.dappyDomain.split('/')[0];
         url = url.replace('dappy://', 'dappy://' + chainId + '/');
         if (!validateSearchWithProtocol(url)) {
           valid = true;
         }
       } catch (e) {
-        console.log('could not replace shortcut notation');
+        console.log('[dappy://] could not replace shortcut notation');
         console.log(e);
         callback();
         return;
@@ -86,7 +101,7 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
     const blockchain = blockchains[chainId];
 
     if (!blockchain) {
-      console.error('[dapp] blockchain not found');
+      console.error('[dappy://] blockchain not found');
       callback();
       return;
     }
@@ -100,7 +115,8 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
       try {
         query = { terms: JSON.parse(request.headers['Explore-Deploys']).data };
       } catch (err) {
-        console.error('[dapp] could not parse explore-deploys haders');
+        console.log('[dappy://] could not parse explore-deploys haders');
+        console.log(err);
         callback();
         return;
       }
@@ -211,6 +227,7 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
                 data: Buffer.from(parsedFile.data, 'base64'),
               });
             } catch (err) {
+              console.log('[dappy://] error when parsing file as base64(gzip)');
               console.log(err);
               callback();
             }
@@ -218,6 +235,7 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
             callback();
           }
         } catch (err) {
+          console.log('[dappy://] error when handling multiCall result');
           console.log(err);
           callback();
         }

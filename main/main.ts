@@ -53,13 +53,6 @@ ipcMain.on('hi-from-dapp-sandboxed', (commEvent, userAgent) => {
         appPath: path.join(app.getAppPath(), 'dist/'),
       },
     });
-    store.dispatch({
-      type: fromMainBrowserViews.SAVE_BROWSER_VIEW_COMM_EVENT,
-      payload: {
-        id: id,
-        commEvent: commEvent,
-      },
-    });
   } catch (err) {
     console.error('Could not get randomId from hi-from-dapp-sandboxed message');
     return;
@@ -156,9 +149,10 @@ function createWindow() {
     height: 800,
     // frame: false,
     webPreferences: {
-      partition: partition,
+      nodeIntegration: false,
       sandbox: true,
       contextIsolation: true,
+      partition: partition,
     },
   });
   registerDappyProtocol(session.fromPartition(partition), store.getState);

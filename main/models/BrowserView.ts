@@ -18,5 +18,4 @@ export interface DappyBrowserView {
   search: string;
   // undefined for ip apps | string for dapps
   html: undefined | string;
-  commEvent: any;
 }

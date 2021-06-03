@@ -136,8 +136,8 @@ export const overrideHttpProtocols = (
     }
 
     let randomId = '';
-    const userAgent = request.headers['User-Agent'];
     try {
+      const userAgent = request.headers['User-Agent'];
       const io = userAgent.indexOf('randomId=');
       randomId = userAgent.substring(io + 'randomId='.length);
     } catch (err) {
