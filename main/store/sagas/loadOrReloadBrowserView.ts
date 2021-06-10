@@ -49,9 +49,11 @@ const loadOrReloadBrowserView = function* (action: any) {
     .tabId property
 
   */
-  const sameTabIdBrowserViewId = Object.keys(browserViews).find(id => {
-    return browserViews[id].resourceId !== payload.resourceId && // already removed line 35
-      browserViews[id].tabId === payload.tabId;
+  const sameTabIdBrowserViewId = Object.keys(browserViews).find((id) => {
+    return (
+      browserViews[id].resourceId !== payload.resourceId && // already removed line 35
+      browserViews[id].tabId === payload.tabId
+    );
   });
   if (sameTabIdBrowserViewId) {
     if (development) {
@@ -112,7 +114,7 @@ const loadOrReloadBrowserView = function* (action: any) {
     view.webContents.openDevTools();
   }
   if (payload.muted) {
-    browserViews[payload.resourceId].browserView.webContents.setAudioMuted(payload.muted);
+    view.webContents.setAudioMuted(payload.muted);
   }
 
   const ua = view.webContents.getUserAgent();

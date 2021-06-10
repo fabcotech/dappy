@@ -237,14 +237,12 @@ var LOAD_OR_RELOAD_BROWSER_VIEW = '[MAIN] Load or reload browser view';
 var LOAD_OR_RELOAD_BROWSER_VIEW_COMPLETED = '[MAIN] Load or reload browser view completed';
 var DESTROY_BROWSER_VIEW = '[MAIN] Destroy browser view';
 var UPDATE_BROWSER_VIEWS_POSITION = '[MAIN] Update browser views position';
-var SAVE_BROWSER_VIEW_COMM_EVENT = '[MAIN] Save browser view comm event';
 var DISPLAY_ONLY_BROWSER_VIEW_X = '[MAIN] Display only browser view x';
 var DISPLAY_ONLY_BROWSER_VIEW_X_COMPLETED = '[MAIN] Display only browser view x completed';
 var SET_BROWSER_VIEW_MUTED = '[MAIN] Set browser view muted';
 var initialState = { browserViews: {}, position: undefined };
 // todo DO a saga
 var reducer = function (state, action) {
-    var _a;
     if (state === void 0) { state = initialState; }
     switch (action.type) {
         case LOAD_OR_RELOAD_BROWSER_VIEW_COMPLETED: {
@@ -274,9 +272,6 @@ var reducer = function (state, action) {
             });
             return __assign(__assign({}, state), { position: action.payload });
         }
-        case SAVE_BROWSER_VIEW_COMM_EVENT: {
-            return __assign(__assign({}, state), { browserViews: __assign(__assign({}, state.browserViews), (_a = {}, _a[action.payload.id] = __assign(__assign({}, state.browserViews[action.payload.id]), { commEvent: action.payload.commEvent }), _a)) });
-        }
         case DISPLAY_ONLY_BROWSER_VIEW_X_COMPLETED: {
             return __assign(__assign({}, state), { browserViews: __assign(__assign({}, state.browserViews), action.payload) });
         }
@@ -291,481 +286,179 @@ var getBrowserViewsPositionMain = lib_4(getBrowserViewsMainState, function (stat
 var WS_RECONNECT_PERIOD = 10000;
 var WS_PAYLOAD_PAX_SIZE = 256000; // bits
 
-var boxTerm_1 = (payload) => {
-  return `new 
-  mainCh,
-  entryCh,
-  entryUriCh,
-  returnBagsWithoutKeys,
-  createKeyInBoxPurseIfNotExistCh,
-  superKeysCh,
-  readyCh,
-  readyCounterCh,
-  boxPursesCh,
-  deployerId(\`rho:rchain:deployerId\`),
+var LOAD_RESOURCE = '[Dapps] Load resource';
+var UPDATE_TRANSITORY_STATE = '[Dapps] Update transitory state';
+var loadResourceAction = function (payload) { return ({
+    type: LOAD_RESOURCE,
+    payload: payload,
+}); };
+var updateTransitoryStateAction = function (values) { return ({
+    type: UPDATE_TRANSITORY_STATE,
+    payload: values,
+}); };
+
+// SELECTORS
+var getDappsState = lib_4(function (state) { return state; }, function (state) { return state.dapps; });
+var getSearch = lib_4(getDappsState, function (state) { return state.search; });
+var getSearchError = lib_4(getDappsState, function (state) { return state.searchError; });
+var getSearching = lib_4(getDappsState, function (state) { return state.searching; });
+var getLastLoadErrors = lib_4(getDappsState, function (state) { return state.lastLoadErrors; });
+var getLoadStates = lib_4(getDappsState, function (state) { return state.loadStates; });
+var getDapps = lib_4(getDappsState, function (state) { return state.dapps; });
+var getTabsFocusOrder = lib_4(getDappsState, function (state) { return state.tabsFocusOrder; });
+var getTabs = lib_4(getDappsState, function (state) { return state.tabs; });
+var getDappsTransitoryStates = lib_4(getDappsState, function (state) { return state.transitoryStates; });
+var getIdentifications = lib_4(getDappsState, function (state) { return state.identifications; });
+var getLoadedFiles = lib_4(getDappsState, function (state) { return state.loadedFiles; });
+var getIpApps = lib_4(getDappsState, function (state) { return state.ipApps; });
+// COMBINED SELECTORS
+var getIsSearchFocused = lib_4(getTabsFocusOrder, function (tabsFocusOrder) { return tabsFocusOrder[tabsFocusOrder.length - 1] === 'search'; });
+var getTabsFocusOrderWithoutSearch = lib_4(getTabsFocusOrder, function (tabsFocusOrder) {
+    return tabsFocusOrder.filter(function (d) { return d !== 'search'; });
+});
+var getFocusedTabId = lib_4(getTabsFocusOrderWithoutSearch, function (tabsFocusOrder) { return tabsFocusOrder[tabsFocusOrder.length - 1]; });
+var getSearchTransitoryState = lib_4(getSearch, getDappsTransitoryStates, function (search, transitoryStates) { return transitoryStates[search]; });
+var getSearchLoadStates = lib_4(getSearch, getLoadStates, function (search, loadStates) { return (search ? loadStates[search] : undefined); });
+var getActiveTabs = lib_4(getTabs, function (tabs) {
+    var activeTabs = {};
+    tabs.forEach(function (t) {
+        if (t.active) {
+            activeTabs[t.id] = t;
+        }
+    });
+    return activeTabs;
+});
+var getActiveResource = lib_4(getFocusedTabId, getTabs, getDapps, getIpApps, getLoadedFiles, function (focusedTabId, tabs, dapps, ipApps, loadedFiles) {
+    var tab = tabs.find(function (t) { return t.id === focusedTabId; });
+    if (!tab) {
+        return undefined;
+    }
+    if (dapps[tab.resourceId]) {
+        return dapps[tab.resourceId];
+    }
+    else if (ipApps[tab.resourceId]) {
+        return ipApps[tab.resourceId];
+    }
+    else if (loadedFiles[tab.resourceId]) {
+        return loadedFiles[tab.resourceId];
+    }
+    return undefined;
+});
+
+/* GENERATED CODE, only edit rholang/*.rho files*/
+var deployBoxTerm_1 = (
+  payload
+) => {
+  return `new basket,
+  masterEntryCh,
+  registerBoxReturnCh,
+  sendReturnCh,
+  deletePurseReturnCh,
+  boxCh,
   stdout(\`rho:io:stdout\`),
-  insertArbitrary(\`rho:registry:insertArbitrary\`),
-  lookup(\`rho:registry:lookup\`)
+  deployerId(\`rho:rchain:deployerId\`),
+  registryLookup(\`rho:registry:lookup\`)
 in {
 
-  // superKeys
-  // { [URI]: key }
-  superKeysCh!({}) |
+  registryLookup!(\`rho:id:${payload.masterRegistryUri}\`, *masterEntryCh) |
 
-  // keys
-  // { [URI]: { [bagId: string]: key } }
-  boxPursesCh!({}) |
-
-  // returns { [URI]: Set[BagId] }
-  contract returnBagsWithoutKeys(@(registryUris, keys, return)) = {
-    new tmpCh, itCh in {
-      for (@(tmpCh, registryUris) <= itCh) {
-        for (tmp <- @tmpCh) {
-          match registryUris {
-            Nil => {
-              @return!(*tmp)
-            }
-            Set(last) => {
-              @return!(*tmp.set(last, keys.get(last).keys()))
-            }
-            Set(first ... rest) => {
-              @tmpCh!(*tmp.set(first, keys.get(first).keys())) |
-              itCh!((tmpCh, rest))
-            }
-          }
+  for (masterEntry <- masterEntryCh) {
+    masterEntry!(("PUBLIC_REGISTER_BOX", { "boxId": "${payload.boxId}", "publicKey": "${payload.publicKey}" }, *registerBoxReturnCh)) |
+    for (@r <- registerBoxReturnCh) {
+      match r {
+        String => {
+          basket!({ "status": "failed", "message": r }) |
+          stdout!(("failed", r))
         }
-      } |
-      tmpCh!({}) |
-      itCh!((*tmpCh, registryUris))
-    }
-  } |
-
-  for (@(uri, return) <= createKeyInBoxPurseIfNotExistCh) {
-    match uri {
-      URI => {
-        for (keys <<- boxPursesCh) {
-          match *keys.get(uri) {
-            Nil => {
-              for (_ <- boxPursesCh) {
-                boxPursesCh!(*keys.set(uri, {})) | @return!({})
-              }
-            }
-            _ => {
-              @return!(*keys.get(uri))
-            }
-          }
-        }
-      }
-      _ => {
-        @return!("error: unknown type")
-      }
-    }
-  } |
-
-  // PUBLIC capabilities
-  /*
-    (payload: { registryUri: URI, purse: *purse }) => String | (true, Nil)
-    Receives a purse, checks it, find a purse with same type
-    if fungible
-      SWAP
-    if non-fungible
-      if a purse in box is found (same type AND price Nil): DEPOSIT
-      else: SWAP and save new purse
-  */
-  // todo, if this operation fails, remove empty key in boxPurses ?
-  for (@(payload, return) <= @(*entryCh, "PUBLIC_RECEIVE_PURSE")) {
-    new lookupReturnCh, checkReturnCh, readReturnCh, readPropertiesReturnCh, return1Ch,
-    itCh, doDepositOrSwapCh, decideToDepositOrSwpaCh in {
-
-      /*
-        1: check the purses received by asking
-        the contract at payload.get("registryUri")
-      */
-      lookup!(payload.get("registryUri"), *lookupReturnCh) |
-      for (contractEntry <- lookupReturnCh) {
-        @(*contractEntry, "PUBLIC_CHECK_PURSES")!(([payload.get("purse")], *checkReturnCh)) |
-        @(*contractEntry, "PUBLIC_READ")!((Nil, *readReturnCh)) |
-        @(payload.get("purse"), "READ")!((Nil, *readPropertiesReturnCh)) |
-        for (checkReturn <- checkReturnCh; current <- readReturnCh; receivedPurseProperties <- readPropertiesReturnCh) {
-          match *checkReturn {
-            String => {
-              @return!(*checkReturn)
-            }
-            (true, _) => {
-              /*
-                2: create key for registry URI in boxPurses if it does
-                nto exist
-              */
-              createKeyInBoxPurseIfNotExistCh!((payload.get("registryUri"), *return1Ch)) |
-
-              /*
-                3: find a purse to deposit into and
-                decide to DEPOSIT or SWAP
-                toto: if a purse is found check that it's not a purse
-                that already exists in box
-              */
-              for (@purses <- return1Ch) {
-                match purses {
-                  String => {
-                    @return!(purses)
-                  }
-                  _ => {
-                    match *current.get("fungible") {
-                      false => {
-                        doDepositOrSwapCh!((
-                          payload.get("purse"),
-                          payload.get("registryUri"),
-                          "swap",
-                          Nil
-                        ))
-                      }
-                      true => {
-                        new tmpCh, itCh in {
-                          for (pursesIds <= itCh) {
-                            match *pursesIds {
-                              Set() => {
-                                doDepositOrSwapCh!((
-                                  payload.get("purse"),
-                                  payload.get("registryUri"),
-                                  "swap",
-                                  Nil
-                                ))
-                              }
-                              Set(last) => {
-                                new readReturnCh in {
-                                  @(purses.get(last), "READ")!((Nil, *readReturnCh)) |
-                                  for (properties <- readReturnCh) {
-                                    match (
-                                      *properties.get("type") == *receivedPurseProperties.get("type"),
-                                      *properties.get("price") == Nil
-                                    ) {
-                                      (true, true) => {
-                                        doDepositOrSwapCh!((
-                                          payload.get("purse"),
-                                          payload.get("registryUri"),
-                                          "deposit",
-                                          purses.get(last)
-                                        ))
-                                      }
-                                      _ => {
-                                        doDepositOrSwapCh!((
-                                          payload.get("purse"),
-                                          payload.get("registryUri"),
-                                          "swap",
-                                          Nil
-                                        ))
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                              Set(first ... rest) => {
-                                new readReturnCh in {
-                                  @(purses.get(first), "READ")!((Nil, *readReturnCh)) |
-                                  for (properties <- readReturnCh) {
-                                    match (
-                                      *properties.get("type") == *receivedPurseProperties.get("type"),
-                                      *properties.get("price") == Nil
-                                    ) {
-                                      (true, true) => {
-                                        doDepositOrSwapCh!((
-                                          payload.get("purse"),
-                                          payload.get("registryUri"),
-                                          "deposit",
-                                          purses.get(first)
-                                        ))
-                                      }
-                                      _ => {
-                                        itCh!(rest)
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          } |
-                          itCh!(purses.keys())
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      } |
-
-      /*
-        4: SWAP or DEPOSIT then save to boxPursesCh
-      */
-      for (@(purse, registryUri, operation, purseToDepositTo) <- doDepositOrSwapCh) {
-        match operation {
-          "swap" => {
-            new returnSwapCh, returnReadMainCh, returnPropertiesCh in {
-              for (main <<- mainCh) {
-                @(purse, "SWAP")!((*main.get("publicKey"), *returnSwapCh)) |
-                for (swappedPurse <- returnSwapCh) {
-                  @(*swappedPurse, "READ")!((Nil, *returnPropertiesCh)) |
-                  for (properties <- returnPropertiesCh) {
-                    for (boxPurses <- boxPursesCh) {
-                      boxPursesCh!(
-                        *boxPurses.set(
-                          registryUri,
-                          *boxPurses.get(registryUri).set(
-                            *properties.get("id"),
-                            *swappedPurse
-                          )
-                        )
-                      ) |
-                      @return!((true, Nil))
-                    }
-                  }
-                }
-              }
-            }
-          }
-          "deposit" => {
-            new returnDepositCh, returnPropertiesCh in {
-              @(purseToDepositTo, "DEPOSIT")!((purse, *returnDepositCh)) |
-              for (r <- returnDepositCh) {
-                match *r {
-                  String => {
-                    @return!(*r)
-                  }
-                  (true, Nil) => {
-                    @return!((true, Nil))
-                  }
-                }
-              }
-            }
-          }
+        (true, box) => {
+          @(*deployerId, "rchain-token-box", "${payload.masterRegistryUri}", "${payload.boxId}")!(box) |
+          basket!({ "status": "completed", "boxId": "${payload.boxId}" }) |
+          stdout!("completed, box registered")
         }
       }
     }
-  } |
-
-  for (@(Nil, return) <= @(*entryCh, "PUBLIC_READ")) {
-    for (main <<- mainCh) {
-      @return!(*main)
-    }
-  } |
-
-  for (@(payload, return) <= @(*entryCh, "PUBLIC_READ_SUPER_KEYS")) {
-    for (superKeys <<- superKeysCh) {
-      @return!(*superKeys.keys())
-    }
-  } |
-
-  for (@(payload, return) <= @(*entryCh, "PUBLIC_READ_PURSES")) {
-    for (purses <<- boxPursesCh) {
-      match *purses.keys().size() {
-        0 => {
-          @return!({})
-        }
-        _ => {
-          returnBagsWithoutKeys!((*purses.keys(), *purses, return))
-        }
-      }
-    }
-  } |
-
-  insertArbitrary!(*entryCh, *entryUriCh) |
-
-  for (entryUri <- entryUriCh) {
-
-    // OWNER / PRIVATE capabilities
-    for (@(action, return) <= @(*deployerId, "\${n}" %% { "n": *entryUri })) {
-      match action.get("type") {
-        "READ" => {
-          for (main <<- mainCh) {
-            @return!(*main)
-          }
-        }
-        "READ_SUPER_KEYS" => {
-          for (superKeys <<- superKeysCh) {
-            @return!(*superKeys)
-          }
-        }
-        "READ_PURSES" => {
-          for (purses <<- boxPursesCh) {
-            @return!(*purses)
-          }
-        }
-        "SAVE_PURSE_SEPARATELY" => {
-          match (
-            action.get("payload").get("registryUri"),
-            action.get("payload").get("purse"),
-          ) {
-            (URI, _) => {
-              new createKeyReturnCh, readReturnCh in {
-                createKeyInBoxPurseIfNotExistCh!((action.get("payload").get("registryUri"), *createKeyReturnCh)) |
-                for (purses <- createKeyReturnCh) {
-                  match *purses {
-                    String => {
-                      @return!("error: invalid payload")
-                    }
-                    _ => {
-                      @(action.get("payload").get("purse"), "READ")!((Nil, *readReturnCh)) |
-                      for (@properties <- readReturnCh) {
-                        for (boxPurses <- boxPursesCh) {
-                          boxPursesCh!(
-                            *boxPurses.set(
-                              action.get("payload").get("registryUri"),
-                              *purses.set(
-                                properties.get("id"),
-                                action.get("payload").get("purse")
-                              )
-                            )
-                          ) |
-                          @return!((true, Nil))
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-            _ => {
-              @return!("error: invalid payload")
-            }
-          }
-        }
-        "DELETE_PURSE" => {
-          for (purses <<- boxPursesCh) {
-            match action.get("payload") {
-              payload => {
-                match (
-                  payload.get("registryUri"),
-                  payload.get("id"),
-                  *purses.get(payload.get("registryUri"))
-                ) {
-                  (URI, String, Map) => {
-                    for (boxPurses <- boxPursesCh) {
-                      boxPursesCh!(
-                        *boxPurses.set(
-                          payload.get("registryUri"),
-                          *boxPurses.get(payload.get("registryUri")).delete(payload.get("id"))
-                        )
-                      ) |
-                      @return!((true, Nil))
-                    }
-                  }
-                  _ => {
-                    @return!("error: invalid payload")
-                  }
-                }
-              }
-              _ => {
-                @return!("error: invalid payload")
-              }
-            }
-          }
-        }
-        "SAVE_SUPER_KEY" => {
-          match action.get("payload") {
-            { "superKey": _, "registryUri": URI } => {
-              for (keys <- superKeysCh) {
-                match *keys.keys().contains(action.get("payload").get("registryUri")) {
-                  true => {
-                    superKeysCh!(*keys) |
-                    @return!("error: super key for registryUri already exists in box")
-                  }
-                  false => {
-                    superKeysCh!(*keys.set(action.get("payload").get("registryUri"), action.get("payload").get("superKey"))) |
-                    @return!((true, Nil))
-                  }
-                }
-              }
-            }
-            _ => {
-              @return!("error: invalid payload, structure should be { superKey: _, registryUri: String }")
-            }
-          }
-        }
-        _ => {
-          @return!("error: unknown action")
-        }
-      }
-    } |
-
-    stdout!("box deployed, private channel is @(*deployerId, '\${n}')" %% { "n": *entryUri }  ) |
-    mainCh!({
-      "registryUri": *entryUri,
-      "publicKey": "${payload.publicKey}",
-      "version": "5.0.0",
-      "status": "completed"
-    })
   }
 }
 `;
 };
 
-var boxTerm = {
-	boxTerm: boxTerm_1
+var deployBoxTerm = {
+	deployBoxTerm: deployBoxTerm_1
 };
 
-var mainTerm_1 = (fromBoxRegistryUri, payload) => {
+/* GENERATED CODE, only edit rholang/*.rho files*/
+var masterTerm_1 = (payload) => {
     return `new 
-  mainCh,
+  basket,
 
   entryCh,
   entryUriCh,
-  iterateCh,
+
+  byteArraySafeToStoreCh,
+  iterateOnThmKeysCh,
+  createPursesCh,
   makePurseCh,
-  superKeyCh,
+  calculateFeeCh,
+  pursesTreeHashMapCh,
+  pursesForSaleTreeHashMapCh,
+  initializeOCAPOnBoxCh,
 
   /*
-    vault stores the id for each purse unforgeable name, you
-    must have a purse to receive / peek from *vault:
-    // create purse "12"
-    @(*vault, *purse)!("12")
+    vault is the ultimate accessibility unforgeable in
+    master contract, every data is stored in channels that
+    derives from *vault unforgeable name
 
-    // peek and check purse
-    for (id <<- @(*vault, *purse)) {
-      out!(*purse) |
-      // "12"
-      for (purse <- @(*purses, "12")) {
-        out!(*purse)
-        // { "quantity": 100, "type": "GOLD", "publicKey": "aaa" }
-      }
-    }
+    // tree hash map of purses :
+    thm <- @(*vault, "purses", "contract03")
+
+    // tree hash map of purses data :
+    thm <- @(*vault, "pursesData", "contract03")
+
+    // contract's configs
+    config <- @(*vault, "contractConfig", "contract03")
+
+    // box's configs
+    config <- @(*vault, "boxConfig", "box01")
+
+    // boxes
+    box <- @(*vault, "boxes", "box01")
+
+    // super keys of a given box
+    superKeys <- @(*vault, "boxesSuperKeys", "box01")
   */
   vault,
 
   /*
-    A purse's properties is a Map {"quantity", "type", "price", "publicKey"}
-    stored in the channel *purses. Anyone can read it through
-    "READ_PURSES" public channel.
+    boxesThm and contractsThm only store the list
+    of existing contracts / boxes, ex:
+    boxesThm:
+    { "box1": "exists", "mycoolbox": "exists" }
 
-    // create purse "12" (it must not exist)
-    @(*purses, "12")!({ "publicKey": "aaa", etc... }) |
-
-    // receive purse "12"
-    for (purse <- @(*purses, "12")) {
-      out!(*purse)
+    Then each box is a Map stored at a unique channel
+    (see above) and has the following structure:
+    {
+      [contractId: string]: Set(purseId: string)
     }
 
-    // peek purse "12"
-    for (purse <<- @(*purses, "12")) {
-      out!(*purse)
+    Each contract has its own tree hash map, and
+    have the following structure:
+    pursesThm:
+    {
+      "1": { quantity: 2, type: "0", box: "box1", price: Nil},
+      "2": { quantity: 12, type: "0", box: "box1", price: 2},
     }
   */
-  purses,
+  boxesReadyCh,
+  contractsReadyCh,
 
-  /*
-    pursesIds is a Set with all ids of purses that have amount > 0
-    for (ids <- pursesIds) { ... }
-  */
-  pursesIds,
+  TreeHashMap,
 
-  /*
-    pursesData contains the data associated to purses
-    for (data <- @(*pursesData, "12")) { ... }
-  */
-  pursesData,
-
-  counterCh,
+  savePurseInBoxCh,
+  removePurseInBoxCh,
+  getBoxCh,
+  getPurseCh,
+  getContractPursesThmCh,
+  getContractPursesDataThmCh,
 
   insertArbitrary(\`rho:registry:insertArbitrary\`),
   stdout(\`rho:io:stdout\`),
@@ -774,37 +467,928 @@ var mainTerm_1 = (fromBoxRegistryUri, payload) => {
   deployerId(\`rho:rchain:deployerId\`)
 in {
 
-  counterCh!(0) |
+  // reimplementation of TreeHashMap
 
-  pursesIds!(Set()) |
+/*
+  Communications between channels have generally been reduced to reduce amount of
+  serialization / deserialization
 
-  /*
-    MAKE PURSE
-    only place where new purses are created
-    "MINT", "SWAP", "CREATE_PURSES" call this channel
+  when you "init" you can choose that the processes are also stored as bytes, instead of storing a map for each node, it stores a map at channel @map, and bytes at channel @(map, "bytes), this will make the "getAllValues" 10x, 20x, 30x faster depending on the process you are storing
 
-    depending on if .fungible is true or false, it decides
-    which id to give to the new purse, then it instantiates
-    the purse with WITHDRAW, SWAP, BURN "instance channels"
-  */
-  for (@(properties, data, return) <= makePurseCh) {
-    new idAndQuantityCh in {
-      for (current <<- mainCh) {
-        match *current.get("fungible") {
-          true => {
-            for (counter <- counterCh) {
-              counterCh!(*counter + 1) |
-              idAndQuantityCh!({ "id": "\${n}" %% { "n": *counter }, "quantity": properties.get("quantity") })
+  !!! make sure your processes do not contain the string "£$£$", or the bytes c2a324c2a324, those are used as delimiters
+*/
+
+new MakeNode, ByteArrayToNybbleList,
+    TreeHashMapSetter, TreeHashMapSetterBytes, TreeHashMapGetter, TreeHashMapContains, TreeHashMapUpdater, HowManyPrefixes, NybbleListForI, RemoveBytesSectionIfExistsCh, keccak256Hash(\`rho:crypto:keccak256Hash\`),
+    powersCh, storeToken, nodeGet in {
+  match ([1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,655256], ["00","01","02","03","04","05","06","07","08","09","0a","0b","0c","0d","0e","0f","10","11","12","13","14","15","16","17","18","19","1a","1b","1c","1d","1e","1f","20","21","22","23","24","25","26","27","28","29","2a","2b","2c","2d","2e","2f","30","31","32","33","34","35","36","37","38","39","3a","3b","3c","3d","3e","3f","40","41","42","43","44","45","46","47","48","49","4a","4b","4c","4d","4e","4f","50","51","52","53","54","55","56","57","58","59","5a","5b","5c","5d","5e","5f","60","61","62","63","64","65","66","67","68","69","6a","6b","6c","6d","6e","6f","70","71","72","73","74","75","76","77","78","79","7a","7b","7c","7d","7e","7f","80","81","82","83","84","85","86","87","88","89","8a","8b","8c","8d","8e","8f","90","91","92","93","94","95","96","97","98","99","9a","9b","9c","9d","9e","9f","a0","a1","a2","a3","a4","a5","a6","a7","a8","a9","aa","ab","ac","ad","ae","af","b0","b1","b2","b3","b4","b5","b6","b7","b8","b9","ba","bb","bc","bd","be","bf","c0","c1","c2","c3","c4","c5","c6","c7","c8","c9","ca","cb","cc","cd","ce","cf","d0","d1","d2","d3","d4","d5","d6","d7","d8","d9","da","db","dc","dd","de","df","e0","e1","e2","e3","e4","e5","e6","e7","e8","e9","ea","eb","ec","ed","ee","ef","f0","f1","f2","f3","f4","f5","f6","f7","f8","f9","fa","fb","fc","fd","fe","ff"], 12, "£$£$£$£$".toByteArray().slice(4, 16), "£$£$£$£$".toByteArray().slice(4, 10)) {
+    (powers, hexas, base, delimiter, insideDelimiter) => {
+      contract MakeNode(@initVal, @node) = {
+        @[node, *storeToken]!(initVal)
+      } |
+
+
+      /*
+        delimiter between sections is £$£$£$£$ , length of delimiter is 12
+        the hex representation of delimiter is c2a324c2a324c2a324c2a324
+        "£$£$£$£$".toByteArray().slice(4, 16) == c2a324c2a324c2a324c2a324
+        
+        inside delimiter is £$£$ = c2a324c2a324
+
+        The byte array has the following format (without bracket):
+        c2a324c2a324c2a324c2a324[suffix]c2a324c2a324[value as byte array]c2a324c2a324c2a324c2a324[suffix2]c2a324c2a324[value 2 as byte array] etc.
+      */
+      contract RemoveBytesSectionIfExistsCh(@suffix, @ba, @ret) = {
+        new itCh1, itCh2, removeSectionCh, indexesCh in {
+          if (ba == Nil) {
+            @ret!(Nil)
+          } else {
+            itCh1!(0) |
+            indexesCh!([])
+          } |
+          for (@i <= itCh1) {
+            if (ba.slice(i, i + 12) == delimiter) {
+              if (i == ba.length() - 12) {
+                for (@indexes <- indexesCh) {
+                  removeSectionCh!(indexes ++ [i])
+                }
+              } else {
+                for (@indexes <- indexesCh) {
+                  indexesCh!(indexes ++ [i]) |
+                  itCh1!(i + 1)
+                }
+              }
+            } else {
+              if (i == ba.length() - 12) {
+                for (@indexes <- indexesCh) {
+                  removeSectionCh!(indexes)
+                }
+              } else {
+                itCh1!(i + 1)
+              }
+            }
+          } |
+          for (@indexes <- removeSectionCh) {
+            for (@i <= itCh2) {
+              // check if there is an index for i
+              if (indexes.length() == i) {
+                @ret!(ba)
+              } else {
+                if (ba.length() > indexes.nth(i) + suffix.length() + 12) {
+                  if (ba.slice(indexes.nth(i) + 12, indexes.nth(i) + 12 + suffix.length()) == suffix) {
+                    if (indexes.length() - 1 == i) {
+                      // only one entry in ba, cannot slice(0,0), send Nil
+                      if (indexes.length() > 1) {
+                        @ret!(ba.slice(0, indexes.nth(i)))
+                      } else {
+                        @ret!(Nil)
+                      }
+                    } else {
+                      @ret!(ba.slice(0, indexes.nth(i)) ++ ba.slice(indexes.nth(i + 1), ba.length()))
+                    }
+                  } else {
+                    itCh2!(i + 1)
+                  }
+                } else {
+                  @ret!(ba)
+                }
+              }
+            } |
+            itCh2!(0)
+          }
+        }
+      } |
+
+      contract nodeGet(@node, ret) = {
+        for (@val <<- @[node, *storeToken]) {
+          ret!(val)
+        }
+      } |
+
+      contract HowManyPrefixes(@map, ret) = {
+        for (@depth <<- @(map, "depth")) {
+          match depth {
+            1 => ret!(base)
+            2 => ret!(base * base)
+            3 => ret!(base * base * base)
+            4 => ret!(base * base * base * base)
+          }
+        }
+      } |
+
+      contract NybbleListForI(@map, @i, @depth, ret) = {
+        match depth {
+          1 => {
+            match hexas.nth(i % base) {
+              str => {
+                ByteArrayToNybbleList!(str.hexToBytes(), 0, depth, [], *ret)
+              }
             }
           }
-          false => {
-            for (ids <<- pursesIds) {
-              match *ids.contains(properties.get("id")) {
-                true => {
-                  match properties.get("id") {
-                    "0" => {
-                      match (properties.get("newId"), *ids.contains(properties.get("newId"))) {
-                        (String, false) => {
+          2 => {
+            match hexas.nth(i / base) ++ hexas.nth(i % base) {
+              str => {
+                ByteArrayToNybbleList!(str.hexToBytes(), 0, depth, [], *ret)
+              }
+            }
+          }
+          3 => {
+            match hexas.nth(i / base / base) ++ hexas.nth(i / base) ++ hexas.nth(i % base) {
+              str => {
+                ByteArrayToNybbleList!(str.hexToBytes(), 0, depth, [], *ret)
+              }
+            }
+          }
+          4 => {
+            match hexas.nth(i / base / base / base) ++ hexas.nth(i / base / base) ++ hexas.nth(i / base) ++ hexas.nth(i % base) {
+              str => {
+                ByteArrayToNybbleList!(str.hexToBytes(), 0, depth, [], *ret)
+              }
+            }
+          }
+        }
+      } |
+
+      contract ByteArrayToNybbleList(@ba, @n, @len, @acc, ret) = {
+        if (n == len) {
+          ret!(acc)
+        } else {
+          ByteArrayToNybbleList!(ba, n+1, len, acc ++ [ ba.nth(n) % base ], *ret)
+        }
+      } |
+
+      contract TreeHashMap(@"init", @depth, @alsoStoreAsBytes, ret) = {
+        new map in {
+          MakeNode!(0, (*map, [])) |
+          if (alsoStoreAsBytes == true) {
+            MakeNode!(0, ((*map, "bytes"), []))
+          } |
+          @(*map, "depth")!!(depth) |
+          @(*map, "alsoStoreAsBytes")!!(alsoStoreAsBytes) |
+          ret!(*map)
+        }
+      } |
+
+      contract TreeHashMapGetter(@map, @nybList, @n, @len, @suffix, ret) = {
+        // Look up the value of the node at (map, nybList.slice(0, n + 1))
+        for (@val <<- @[(map, nybList.slice(0, n)), *storeToken]) {
+          if (n == len) {
+            ret!(val.get(suffix))
+          } else {
+            // Otherwise check if the rest of the path exists.
+            // Bit k set means node k exists.
+            // nybList.nth(n) is the node number
+            // val & powers.nth(nybList.nth(n)) is nonzero if the node exists
+            // (val / powers.nth(nybList.nth(n))) % 2 is 1 if the node exists
+            if ((val / powers.nth(nybList.nth(n))) % 2 == 0) {
+              ret!(Nil)
+            } else {
+              TreeHashMapGetter!(map, nybList, n + 1, len, suffix, *ret)
+            }
+          }
+        }
+      } |
+
+      contract TreeHashMap(@"get", @map, @key, ret) = {
+        new hashCh, nybListCh in {
+          // Hash the key to get a 256-bit array
+          keccak256Hash!(key.toByteArray(), *hashCh) |
+          for (@hash <- hashCh) {
+            for (@depth <<- @(map, "depth")) {
+              // Get the bit list
+              ByteArrayToNybbleList!(hash, 0, depth, [], *nybListCh) |
+              for (@nybList <- nybListCh) {
+                TreeHashMapGetter!(map, nybList, 0,  depth, hash.slice(depth, 32), *ret)
+              }
+            }
+          }
+        }
+      } |
+  
+      contract TreeHashMap(@"remove", @map, @key, ret) = {
+        new hashCh, nybListCh in {
+          // Hash the key to get a 256-bit array
+          keccak256Hash!(key.toByteArray(), *hashCh) |
+          for (@hash <- hashCh) {
+            for (@depth <<- @(map, "depth")) {
+              // Get the bit list
+              ByteArrayToNybbleList!(hash, 0, depth, [], *nybListCh) |
+              for (@nybList <- nybListCh) {
+                TreeHashMapGetter!(map, nybList, 0,  depth, hash.slice(depth, 32), *ret)
+              }
+            }
+          }
+        }
+      } |
+
+      contract TreeHashMap(@"getAllValues", @map, ret) = {
+        new hashCh, resultCh, howManyPrefixesCh, iterateOnPrefixesCh, nybListCh in {
+          HowManyPrefixes!(map, *howManyPrefixesCh) |
+          for (@depth <<- @(map, "depth")) {
+            for (@alsoStoreAsBytes <<- @(map, "alsoStoreAsBytes")) {
+              for (@howManyPrefixes <- howManyPrefixesCh ) {
+                contract iterateOnPrefixesCh() = {
+                  new itCh, bytesOrMapCh, TreeHashMapGetterValues in {
+                    // do not move it up, the goal is reduce the number of serializatin / dezerialization
+                    contract TreeHashMapGetterValues(@channel, @nybList, @n, @len, @i) = {
+                      // channel is either map or (map, "bytes")
+                      // Look up the value of the node at (channel, nybList.slice(0, n + 1))
+                      for (@val <<- @[(channel, nybList.slice(0, n)), *storeToken]) {
+                        if (n == len) {
+                          if (val == Nil) {
+                            itCh!(i + 1)
+                          } else {
+                            if (alsoStoreAsBytes == true) {
+                              for (@bytes <- bytesOrMapCh) {
+                                itCh!(i + 1) |
+                                // store-as-bytes-map
+                                bytesOrMapCh!(bytes.union(val))
+                                // store-as-bytes-array
+                                /* if (bytes == Nil) {
+                                  bytesOrMapCh!(bytes)
+                                } else {
+                                  bytesOrMapCh!(bytes ++ val)
+                                } */
+                              }
+                            } else {
+                              for (@map <- bytesOrMapCh) {
+                                bytesOrMapCh!(map.union(val)) |
+                                itCh!(i + 1)
+                              }
+                            }
+                          }
+                        } else {
+                          // Otherwise check if the rest of the path exists.
+                          // Bit k set means node k exists.
+                          // nybList.nth(n) is the node number
+                          // val & powers.nth(nybList.nth(n)) is nonzero if the node exists
+                          // (val / powers.nth(nybList.nth(n))) % 2 is 1 if the node exists
+                          if ((val / powers.nth(nybList.nth(n))) % 2 == 0) {
+                            itCh!(i + 1)
+                          } else {
+                            TreeHashMapGetterValues!(channel, nybList, n + 1, len, i)
+                          }
+                        }
+                      }
+                    } |
+
+                    for (@i <= itCh) {
+                      match i <= howManyPrefixes - 1 {
+                        false => {
+                          for (@a <- bytesOrMapCh) {
+                            ret!(a)
+                          }
+                        }
+                        true => {
+                          NybbleListForI!(map, i, depth, *nybListCh) |
+                          for (@nybList <- nybListCh) {
+                            if (alsoStoreAsBytes == true) {
+                              TreeHashMapGetterValues!((map, "bytes"), nybList, 0, depth, i)
+                            } else {
+                              TreeHashMapGetterValues!(map, nybList, 0, depth, i)
+                            }
+                          }
+                        }
+                      }
+                    } |
+                    if (alsoStoreAsBytes == true) {
+                      // store-as-bytes-map
+                       bytesOrMapCh!({})
+                      // store-as-bytes-array
+                      /* bytesOrMapCh!(Nil) */
+                    } else {
+                      bytesOrMapCh!({})
+                    } |
+                    itCh!(0)
+                  }
+                } |
+
+                iterateOnPrefixesCh!()
+              }
+            }
+          }
+        }
+      } |
+
+      // Doesn't walk the path, just tries to fetch it directly.
+      // Will hang if there's no key with that 64-bit prefix.
+      // Returns Nil like "get" does if there is some other key with
+      // the same prefix but no value there.
+      contract TreeHashMap(@"fastUnsafeGet", @map, @key, ret) = {
+        new hashCh, nybListCh in {
+          // Hash the key to get a 256-bit array
+          keccak256Hash!(key.toByteArray(), *hashCh) |
+          for (@hash <- hashCh) {
+            for(@depth <<- @(map, "depth")) {
+              // Get the bit list
+              ByteArrayToNybbleList!(hash, 0, depth, [], *nybListCh) |
+              for (@nybList <- nybListCh) {
+                new restCh, valCh in {
+                  nodeGet!((map, nybList), *restCh) |
+                  for (@rest <- restCh) {
+                    ret!(rest.get(hash.slice(depth, 32)))
+                  }
+                }
+              }
+            }
+          }
+        }
+      } |
+
+      contract TreeHashMapSetterBytes(@channel, @nybList, @n, @len, @newVal, @suffix, ret) = {
+        // channel is either map or (map, "bytes")
+        // Look up the value of the node at (channel, nybList.slice(0, n + 1))
+        new valCh, restCh, retRemoveCh in {
+          match (channel, nybList.slice(0, n)) {
+            node => {
+              for (@val <<- @[node, *storeToken]) {
+                if (n == len) {
+                  // Acquire the lock on this node
+                  for (@val <- @[node, *storeToken]) {
+                    // If we're at the end of the path, set the node to newVal.
+                    if (val == 0) {
+                      // Release the lock
+                      @[node, *storeToken]!(delimiter ++ suffix ++ insideDelimiter ++ newVal.toByteArray()) |
+                      // Return
+                      ret!(Nil)
+                    }
+                    else {
+                      // Release the lock
+                      if (newVal == Nil) {
+                        RemoveBytesSectionIfExistsCh!(suffix, val, *retRemoveCh) |
+                        for (@bytes <- retRemoveCh) {
+                          @[node, *storeToken]!(bytes) |
+                          ret!(Nil)
+                        }
+                        // Return
+                      } else {
+                        RemoveBytesSectionIfExistsCh!(suffix, val, *retRemoveCh) |
+                        for (@bytes <- retRemoveCh) {
+                          // check if empty
+                          if (bytes == Nil) {
+                            @[node, *storeToken]!(delimiter ++ suffix ++ insideDelimiter ++ newVal.toByteArray()) |
+                            ret!(Nil)
+                          } else {
+                            @[node, *storeToken]!(bytes ++ delimiter ++ suffix ++ insideDelimiter ++ newVal.toByteArray()) |
+                            ret!(Nil)
+                          }
+                        }
+                      }
+                    }
+                  }
+                } else {
+                  // Otherwise make the rest of the path exist.
+                  // Bit k set means child node k exists.
+                  if ((val/powers.nth(nybList.nth(n))) % 2 == 0) {
+                    // Child node missing
+                    // Acquire the lock
+                    for (@val <- @[node, *storeToken]) {
+                      // Re-test value
+                      if ((val/powers.nth(nybList.nth(n))) % 2 == 0) {
+                        // Child node still missing
+                        // Create node, set node to 0
+                        MakeNode!(0, (channel, nybList.slice(0, n + 1))) |
+                        // Update current node to val | (1 << nybList.nth(n))
+                        match nybList.nth(n) {
+                          bit => {
+                            // val | (1 << bit)
+                            // Bitwise operators would be really nice to have!
+                            // Release the lock
+                            @[node, *storeToken]!((val % powers.nth(bit)) +
+                              (val / powers.nth(bit + 1)) * powers.nth(bit + 1) +
+                              powers.nth(bit))
+                          }
+                        } |
+                        // Child node now exists, loop
+                        TreeHashMapSetterBytes!(channel, nybList, n + 1, len, newVal, suffix, *ret)
+                      } else {
+                        // Child node created between reads
+                        // Release lock
+                        @[node, *storeToken]!(val) |
+                        // Loop
+                        TreeHashMapSetterBytes!(channel, nybList, n + 1, len, newVal, suffix, *ret)
+                      }
+                    }
+                  } else {
+                    // Child node exists, loop
+                    TreeHashMapSetterBytes!(channel, nybList, n + 1, len, newVal, suffix, *ret)
+                  }
+                }
+              }
+            }
+          }
+        }
+      } |
+
+      contract TreeHashMapSetter(@channel, @nybList, @n, @len, @newVal, @suffix, ret) = {
+        // channel is either map or (map, "bytes")
+        // Look up the value of the node at (channel, nybList.slice(0, n + 1))
+        new valCh, restCh in {
+          match (channel, nybList.slice(0, n)) {
+            node => {
+              for (@val <<- @[node, *storeToken]) {
+                if (n == len) {
+                  // Acquire the lock on this node
+                  for (@val <- @[node, *storeToken]) {
+                    // If we're at the end of the path, set the node to newVal.
+                    if (val == 0) {
+                      // Release the lock
+                      @[node, *storeToken]!({suffix: newVal}) |
+                      // Return
+                      ret!(Nil)
+                    }
+                    else {
+                      // Release the lock
+                      if (newVal == Nil) {
+                        @[node, *storeToken]!(val.delete(suffix)) |
+                        // Return
+                        ret!(Nil)
+                      } else {
+                        @[node, *storeToken]!(val.set(suffix, newVal)) |
+                        // Return
+                        ret!(Nil)
+                      }
+                    }
+                  }
+                } else {
+                  // Otherwise make the rest of the path exist.
+                  // Bit k set means child node k exists.
+                  if ((val/powers.nth(nybList.nth(n))) % 2 == 0) {
+                    // Child node missing
+                    // Acquire the lock
+                    for (@val <- @[node, *storeToken]) {
+                      // Re-test value
+                      if ((val/powers.nth(nybList.nth(n))) % 2 == 0) {
+                        // Child node still missing
+                        // Create node, set node to 0
+                        MakeNode!(0, (channel, nybList.slice(0, n + 1))) |
+                        // Update current node to val | (1 << nybList.nth(n))
+                        match nybList.nth(n) {
+                          bit => {
+                            // val | (1 << bit)
+                            // Bitwise operators would be really nice to have!
+                            // Release the lock
+                            @[node, *storeToken]!((val % powers.nth(bit)) +
+                              (val / powers.nth(bit + 1)) * powers.nth(bit + 1) +
+                              powers.nth(bit))
+                          }
+                        } |
+                        // Child node now exists, loop
+                        TreeHashMapSetter!(channel, nybList, n + 1, len, newVal, suffix, *ret)
+                      } else {
+                        // Child node created between reads
+                        // Release lock
+                        @[node, *storeToken]!(val) |
+                        // Loop
+                        TreeHashMapSetter!(channel, nybList, n + 1, len, newVal, suffix, *ret)
+                      }
+                    }
+                  } else {
+                    // Child node exists, loop
+                    TreeHashMapSetter!(channel, nybList, n + 1, len, newVal, suffix, *ret)
+                  }
+                }
+              }
+            }
+          }
+        }
+      } |
+
+      contract TreeHashMap(@"set", @map, @key, @newVal, ret) = {
+        new hashCh, nybListCh in {
+          // Hash the key to get a 256-bit array
+          keccak256Hash!(key.toByteArray(), *hashCh) |
+          for (@hash <- hashCh) {
+            for (@depth <<- @(map, "depth")) {
+              for (@alsoStoreAsBytes <<- @(map, "alsoStoreAsBytes")) {
+                ByteArrayToNybbleList!(hash, 0, depth, [], *nybListCh) |
+                // Get the bit list
+                for (@nybList <- nybListCh) {
+                  if (alsoStoreAsBytes == true) {
+                    new ret1, ret2 in {
+                      if (newVal == Nil) {
+                        // store-as-bytes-map
+                        TreeHashMapSetter!((map, "bytes"), nybList, 0,  depth, Nil, hash.slice(depth, 32), *ret2)
+                        // store-as-bytes-array
+                        /* TreeHashMapSetterBytes!((map, "bytes"), nybList, 0,  depth, Nil, hash.slice(depth, 32), *ret2) */
+                      } else {
+                        // store-as-bytes-map
+                        TreeHashMapSetter!((map, "bytes"), nybList, 0,  depth, newVal.toByteArray(), hash.slice(depth, 32), *ret2)
+                        // store-as-bytes-array
+                        /* TreeHashMapSetterBytes!((map, "bytes"), nybList, 0,  depth, newVal, hash.slice(depth, 32), *ret2) */
+                      } |
+                      TreeHashMapSetter!(map, nybList, 0, depth, newVal, hash.slice(depth, 32), *ret1) |
+                      for (_ <- ret1; _ <- ret2) {
+                        ret!(Nil)
+                      }
+                    }
+                  } else {
+                    TreeHashMapSetter!(map, nybList, 0,  depth, newVal, hash.slice(depth, 32), *ret)
+                  }
+                }
+              }
+            }
+          }
+        }
+      } |
+
+      contract TreeHashMapContains(@map, @nybList, @n, @len, @suffix, ret) = {
+        // Look up the value of the node at [map, nybList.slice(0, n + 1)]
+        new valCh in {
+          nodeGet!((map, nybList.slice(0, n)), *valCh) |
+          for (@val <- valCh) {
+            if (n == len) {
+              ret!(val.contains(suffix))
+            } else {
+              // See getter for explanation of formula
+              if ((val/powers.nth(nybList.nth(n))) % 2 == 0) {
+                ret!(false)
+              } else {
+                TreeHashMapContains!(map, nybList, n + 1, len, suffix, *ret)
+              }
+            }
+          }
+        }
+      } |
+
+      contract TreeHashMap(@"contains", @map, @key, ret) = {
+        new hashCh, nybListCh in {
+          // Hash the key to get a 256-bit array
+          keccak256Hash!(key.toByteArray(), *hashCh) |
+          for (@hash <- hashCh) {
+            for (@depth <<- @(map, "depth")) {
+              // Get the bit list
+              ByteArrayToNybbleList!(hash, 0, depth, [], *nybListCh) |
+              for (@nybList <- nybListCh) {
+                TreeHashMapContains!(map, nybList, 0,  depth, hash.slice(depth, 32), *ret)
+              }
+            }
+          }
+        }
+      } |
+
+      contract TreeHashMapUpdater(@map, @nybList, @n, @len, update, @suffix, ret) = {
+        // Look up the value of the node at [map, nybList.slice(0, n + 1)
+        new valCh in {
+          match (map, nybList.slice(0, n)) {
+            node => {
+              for (@val <<- @[node, *storeToken]) {
+                if (n == len) {
+                  // We're at the end of the path.
+                  if (val == 0) {
+                    // There's nothing here.
+                    // Return
+                    ret!(Nil)
+                  } else {
+                    new resultCh in {
+                      // Acquire the lock on this node
+                      for (@val <- @[node, *storeToken]) {
+                        // Update the current value
+                        update!(val.get(suffix), *resultCh) |
+                        for (@newVal <- resultCh) {
+                          // Release the lock
+                          @[node, *storeToken]!(val.set(suffix, newVal)) |
+                          // Return
+                          ret!(Nil)
+                        }
+                      }
+                    }
+                  }
+                } else {
+                  // Otherwise try to reach the end of the path.
+                  // Bit k set means child node k exists.
+                  if ((val/powers.nth(nybList.nth(n))) % 2 == 0) {
+                    // If the path doesn't exist, there's no value to update.
+                    // Return
+                    ret!(Nil)
+                  } else {
+                    // Child node exists, loop
+                    TreeHashMapUpdater!(map, nybList, n + 1, len, *update, suffix, *ret)
+                  }
+                }
+              }
+            }
+          }
+        }
+      } |
+      contract TreeHashMap(@"update", @map, @key, update, ret) = {
+        new hashCh, nybListCh in {
+          // Hash the key to get a 256-bit array
+          keccak256Hash!(key.toByteArray(), *hashCh) |
+          for (@hash <- hashCh) {
+            for (@depth <<- @(map, "depth")) {
+              // Get the bit list
+              ByteArrayToNybbleList!(hash, 0, depth, [], *nybListCh) |
+              for (@nybList <- nybListCh) {
+                TreeHashMapUpdater!(map, nybList, 0,  depth, *update, hash.slice(depth, 32), *ret)
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+} |
+
+  // depth 1 = 12 maps in tree hash map
+  // depth 2 = 12 * 12 = 144 maps in tree hash map
+  // etc...
+
+  TreeHashMap!("init", ${payload.depth || 3}, true, *boxesReadyCh) |
+  TreeHashMap!("init", ${payload.depth || 3}, false, *contractsReadyCh) |
+
+  for (@boxesThm <- boxesReadyCh; @contractsThm <- contractsReadyCh) {
+
+    // returns the box if exists
+    for (@(boxId, return) <= getBoxCh) {
+      new ch1 in {
+        TreeHashMap!("get", boxesThm, boxId, *ch1) |
+        for (@exists <- ch1) {
+          if (exists == "exists") {
+            for (@box <<- @(*vault, "boxes", boxId)) {
+              @return!(box)
+            }
+          } else {
+            @return!(Nil)
+          }
+        }
+      }
+    } |
+
+    // returns the purse if exists AND is associated with box
+    for (@(box, contractId, purseId, return) <= getPurseCh) {
+      new ch1 in {
+        if (box.get(contractId) == Nil) {
+          @return!(Nil)
+        } else {
+          if (box.get(contractId).contains(purseId) == true) {
+            getContractPursesThmCh!((contractId, *ch1)) |
+            for (@pursesThm <- ch1) {
+              TreeHashMap!("get", pursesThm, purseId, return)
+            }
+          } else {
+            @return!(Nil)
+          }
+        }
+      }
+    } |
+
+    // returns the tree hash map of the contract's purses if exists
+    for (@(contractId, return) <= getContractPursesThmCh) {
+      new ch1 in {
+        TreeHashMap!("get", contractsThm, contractId, *ch1) |
+        for (@exists <- ch1) {
+          if (exists == "exists") {
+            for (@pursesThm <<- @(*vault, "purses", contractId)) {
+              @return!(pursesThm)
+            }
+          } else {
+            @return!(Nil)
+          }
+        }
+      }
+    } |
+
+    // returns the tree hash map of the contract's purses data if exists
+    for (@(contractId, return) <= getContractPursesDataThmCh) {
+      new ch1 in {
+        TreeHashMap!("get", contractsThm, contractId, *ch1) |
+        for (@exists <- ch1) {
+          if (exists == "exists") {
+            for (@pursesDataThm <<- @(*vault, "pursesData", contractId)) {
+              @return!(pursesDataThm)
+            }
+          } else {
+            @return!(Nil)
+          }
+        }
+      }
+    } |
+  
+    // remove purse in box, if found
+    for (@(boxId, contractId, purseId, return) <= removePurseInBoxCh) {
+      new ch1 in {
+        getBoxCh!((boxId, *ch1)) |
+        for (@box <- ch1) {
+          if (box == Nil) {
+            @return!("error: CRITICAL box not found")
+          } else {
+            if (box.get(contractId) == Nil) {
+              @return!("error: CRITICAL purse not found")
+            } else {
+              if (box.get(contractId).contains(purseId) == false) {
+                @return!("error: CRITICAL purse not found")
+              } else {
+                for (_ <- @(*vault, "boxes", boxId)) {
+                  stdout!(contractId ++ "/" ++ boxId ++ " purse " ++ purseId ++ " removed from box") |
+                  @(*vault, "boxes", boxId)!(box.set(contractId, box.get(contractId).delete(purseId))) |
+                  @return!((true, Nil))
+                }
+              }
+            }
+          }
+        }
+      }
+    } |
+
+    // save purse id in box
+    for (@(contractId, boxId, purseId, merge, return) <= savePurseInBoxCh) {
+      new ch1, ch2, ch3, iterateAndMergePursesCh in {
+
+        getBoxCh!((boxId, *ch1)) |
+        getContractPursesThmCh!((contractId, *ch2)) |
+
+        for (@box <- ch1; @pursesThm <- ch2) {
+          match (box != Nil, pursesThm != Nil) {
+            (true, true) => {
+              if (box.get(contractId) == Nil) {
+                for (_ <- @(*vault, "boxes", boxId)) {
+                  stdout!(contractId ++ "/" ++ boxId ++ " purse " ++ purseId ++ " saved to box") |
+                  @(*vault, "boxes", boxId)!(box.set(contractId, Set(purseId))) |
+                  @return!((true, Nil))
+                }
+              } else {
+                if (box.get(contractId).contains(purseId) == false) {
+                  for (@contractConfig <<- @(*vault, "contractConfig", contractId)) {
+                    match (contractConfig.get("fungible") == true, merge) {
+                      (true, true) => {
+                        for (@pursesThm <<- @(*vault, "purses", contractId)) {
+                          TreeHashMap!("get", pursesThm, purseId, *ch3) |
+                          for (@purse <- ch3) {
+                            iterateAndMergePursesCh!((box, purse, pursesThm))
+                          }
+                        }
+                      }
+                      _ => {
+                        for (_ <- @(*vault, "boxes", boxId)) {
+                          stdout!(contractId ++ "/" ++ boxId ++ " purse " ++ purseId ++ " saved to box") |
+                          @(*vault, "boxes", boxId)!(box.set(
+                            contractId,
+                            box.get(contractId).union(Set(purseId))
+                          )) |
+                          @return!((true, Nil))
+                        }
+                      }
+                    }
+                  }
+                } else {
+                  @return!("error: CRITICAL, purse already exists in box")
+                }
+              }
+            }
+          }
+        } |
+        // if contract is fungible, we may find a
+        // purse with same .price and .type property
+        // if found, then merge and delete current purse
+        for (@(box, purse, pursesThm) <- iterateAndMergePursesCh) {
+          new tmpCh, itCh in {
+            for (ids <= itCh) {
+              match *ids {
+                Set() => {
+                  stdout!(contractId ++ "/" ++ boxId ++ " purse " ++ purse.get("id") ++ " saved to box") |
+                  for (_ <- @(*vault, "boxes", boxId)) {
+                     @(*vault, "boxes", boxId)!(box.set(contractId, Set(purseId))) |
+                     @return!((true, Nil))
+                  }
+                }
+                Set(last) => {
+                  new ch4, ch5, ch6, ch7 in {
+                    TreeHashMap!("get", pursesThm, last, *ch4) |
+                    for (@purse2 <- ch4) {
+                      match (purse2.get("type") == purse.get("type"), purse2.get("price") == purse.get("price")) {
+                        (true, true) => {
+                          TreeHashMap!(
+                            "set",
+                            pursesThm,
+                            last,
+                            purse2.set("quantity", purse2.get("quantity") + purse.get("quantity")),
+                            *ch5
+                          ) |
+                          TreeHashMap!(
+                            "set",
+                            pursesThm,
+                            purse.get("id"),
+                            Nil,
+                            *ch6
+                          ) |
+                          for (@pursesDataThm <<- @(*vault, "pursesData", contractId)) {
+                            TreeHashMap!(
+                              "set",
+                              pursesDataThm,
+                              purse.get("id"),
+                              Nil,
+                              *ch7
+                            )
+                          } |
+                          for (_ <- ch5; _ <- ch6; _ <- ch7) {
+                            stdout!(contractId ++ "/" ++ boxId ++ " purse " ++ purse.get("id") ++ " merged into purse " ++ purse2.get("id")) |
+                            @return!((true, Nil))
+                          }
+                        }
+                        _ => {
+                          stdout!(contractId ++ "/" ++ boxId ++ " purse " ++ purse.get("id") ++ " saved to box") |
+                          for (_ <- @(*vault, "boxes", boxId)) {
+                            @(*vault, "boxes", boxId)!(box.set(
+                              contractId,
+                              box.get(contractId).union(Set(purse.get("id")))
+                            )) |
+                            @return!((true, Nil))
+                          }
+                        }
+                      }
+                    }
+
+                  }
+                }
+                Set(first ... rest) => {
+                  new ch4, ch5, ch6, ch7 in {
+                    TreeHashMap!("get", pursesThm, first, *ch4) |
+                    for (@purse2 <- ch4) {
+                      match (purse2.get("type") == purse.get("type"), purse2.get("price") == purse.get("price")) {
+                        (true, true) => {
+                          TreeHashMap!(
+                            "set",
+                            pursesThm,
+                            first,
+                            purse2.set("quantity", purse2.get("quantity") + purse.get("quantity")),
+                            *ch5
+                          ) |
+                          TreeHashMap!(
+                            "set",
+                            pursesThm,
+                            purse.get("id"),
+                            Nil,
+                            *ch6
+                          ) |
+                          for (@pursesDataThm <<- @(*vault, "pursesData", contractId)) {
+                            TreeHashMap!(
+                              "set",
+                              pursesDataThm,
+                              purse.get("id"),
+                              Nil,
+                              *ch7
+                            )
+                          } |
+                          for (_ <- ch5; _ <- ch6; _ <- ch7) {
+                            stdout!(contractId ++ "/" ++ boxId ++ " purse " ++ purse.get("id") ++ " merged into purse " ++ purse2.get("id")) |
+                            @return!((true, Nil))
+                          }
+                        }
+                        _ => {
+                          itCh!(rest)
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            } |
+            itCh!(box.get(contractId))
+          }
+        }
+      }
+    } |
+
+    /*
+      makePurseCh
+      only place where new purses are created:
+      PURCHASE, WITHDRAW, and CREATE_PURSES may call this channel
+
+      depending on if .fungible is true or false, it decides
+      which id to give to the new purse, then it creates the
+      purse and saves to box
+    */
+    for (@(contractId, properties, data, merge, return) <= makePurseCh) {
+      new ch1, ch2, ch3, ch4, idAndQuantityCh in {
+        for (@contractConfig <<- @(*vault, "contractConfig", contractId)) {
+          if (contractConfig.get("fungible") == true) {
+            for (_ <- @(*vault, "contractConfig", contractId)) {
+              @(*vault, "contractConfig", contractId)!(contractConfig.set("counter", contractConfig.get("counter") + 1))
+            } |
+            idAndQuantityCh!({ "id": "\${n}" %% { "n": contractConfig.get("counter") }, "quantity": properties.get("quantity") })
+          } else {
+            for (@pursesThm <<- @(*vault, "purses", contractId)) {
+              TreeHashMap!("get", pursesThm, properties.get("id"), *ch1) |
+              for (@existingPurse <- ch1) {
+
+                // check that nft does not exist
+                if (existingPurse == Nil) {
+                  if (properties.get("id") == "0") {
+                    idAndQuantityCh!({ "id": properties.get("id"), "quantity": properties.get("quantity") })
+                  } else {
+                    idAndQuantityCh!({ "id": properties.get("id"), "quantity": 1 })
+                  }
+                } else {
+
+                  // nft with id: "0" is a special nft from which
+                  // anyone can mint a nft that does not exist yet
+                  // used by dappy name system for example
+                  if (properties.get("id") == "0") {
+                    TreeHashMap!("get", pursesThm, properties.get("newId"), *ch2) |
+                    for (@purseWithNewId <- ch2) {
+                      match (properties.get("newId"), purseWithNewId) {
+                        (String, Nil) => {
                           idAndQuantityCh!({ "id": properties.get("newId"), "quantity": 1 })
                         }
                         _ => {
@@ -812,535 +1396,664 @@ in {
                         }
                       }
                     }
-                    _ => {
-                      @return!("error: purse ID already exists")
-                    }
+                  } else {
+                    @return!("error: purse id already exists")
                   }
                 }
-                false => { idAndQuantityCh!({ "id": properties.get("id"), "quantity": properties.get("quantity") }) }
+              }
+            }
+          }
+        } |
+        for (@idAndQuantity <- idAndQuantityCh) {
+          match properties
+            .set("id", idAndQuantity.get("id"))
+            .set("quantity", idAndQuantity.get("quantity"))
+            .delete("newId")
+          {
+            purse => {
+              match (purse, purse.get("id").length() > 0, purse.get("id").length() < 25) {
+                ({
+                  "quantity": Int,
+                  "type": String,
+                  "boxId": String,
+                  "id": String,
+                  "price": Nil \\/ Int
+                }, true, true) => {
+                  for (@pursesDataThm <<- @(*vault, "pursesData", contractId)) {
+                    for (@pursesThm <<- @(*vault, "purses", contractId)) {
+                      TreeHashMap!("set", pursesThm, purse.get("id"), purse, *ch3) |
+                      TreeHashMap!("set", pursesDataThm, purse.get("id"), data, *ch4)
+                    }
+                  } |
+
+                  for (_ <- ch3; _ <- ch4) {
+                    savePurseInBoxCh!((contractId, purse.get("boxId"), purse.get("id"), merge, return))
+                  }
+                }
+                _ => {
+                  @return!("error: invalid purse, one of the following errors: id length must be between length 1 and 24")
+                }
               }
             }
           }
         }
-      } |
-      for (idAndQuantity <- idAndQuantityCh) {
-        match properties
-          .set("id", *idAndQuantity.get("id"))
-          .set("quantity", *idAndQuantity.get("quantity"))
-          .delete("newId")
-        {
-          purseProperties => {
-            match purseProperties {
-              {
-                "quantity": Int,
-                // not used in main contract or box contract
-                // only useful for dumping data
-                "publicKey": String,
-                "type": String,
-                "id": String,
-                "price": Nil \\/ Int
-              } => {
-                for (ids <- pursesIds) {
-                  match *ids.contains(purseProperties.get("id")) {
-                    false => {
-                      pursesIds!(*ids.union(Set(purseProperties.get("id")))) |
-                      @(*purses, purseProperties.get("id"))!(purseProperties) |
-                      @(*pursesData, purseProperties.get("id"))!(data) |
-                      new purse in {
-                        @(*vault, *purse)!(purseProperties.get("id")) |
-                        @return!(*purse) |
+      }
+    } |
 
-                        /*
-                          READ
-                          Returns prperties "id", "quantity", "type", "publicKey" and "price"(not implemented)
-                          (Nil) => propertie
-                        */
-                        for (@(Nil, returnRead) <= @(*purse, "READ")) {
-                          for (id <<- @(*vault, *purse)) {
-                            for (props <<- @(*purses, *id)) {
-                              @returnRead!(*props.set("id", *id))
-                            }
+    for (@(payload, contractId, return) <= createPursesCh) {
+      new itCh, sizeCh, createdPursesesCh, saveKeyAndBagCh in {
+        createdPursesesCh!([]) |
+        sizeCh!(payload.get("purses").keys().size()) |
+        for (@size <- sizeCh) {
+          itCh!(payload.get("purses").keys()) |
+          for(@set <= itCh) {
+            match set {
+              Nil => {}
+              Set(last) => {
+                new retCh in {
+                  match payload.get("purses").get(last) {
+                    {
+                      "quantity": Int,
+                      "type": String,
+                      "id": String,
+                      "price": Nil \\/ Int,
+                      "boxId": String
+                    } => {
+                      makePurseCh!((
+                        contractId,
+                        payload.get("purses").get(last),
+                        payload.get("data").get(last),
+                        true,
+                        *retCh
+                      )) |
+                      for (@r <- retCh) {
+                        match r {
+                          String => {
+                            @return!("error: some purses may have been created until one failed " ++ r)
                           }
+                          _ => {
+                            @return!((true, Nil))
+                          }
+                        }
+                      }
+                    }
+                    _ => {
+                      @return!("error: invalid purse payload, some purses may have been successfuly created")
+                    }
+                  }
+                }
+              }
+              Set(first ... rest) => {
+                new retCh in {
+                  match payload.get("purses").get(first) {
+                    {
+                      "quantity": Int,
+                      "type": String,
+                      "id": String,
+                      "price": Nil \\/ Int,
+                      "boxId": String
+                    } => {
+                      makePurseCh!((
+                        contractId,
+                        payload.get("purses").get(first),
+                        payload.get("data").get(first),
+                        true,
+                        *retCh
+                      )) |
+                      for (@r <- retCh) {
+                        match r {
+                          String => {
+                            @return!("error: some purses may have been created until one failed " ++ r)
+                          }
+                          _ => {
+                            itCh!(rest)
+                          }
+                        }
+                      }
+                    }
+                    _ => {
+                      @return!("error: invalid purse payload, some purses may have been successfuly created")
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    } |
+
+    contract iterateOnThmKeysCh(@(ids, thm, return)) = {
+      new tmpCh, itCh in {
+        for (@(tmpCh, ids) <= itCh) {
+          for (tmp <- @tmpCh) {
+            match ids {
+              Nil => {
+                @return!(*tmp)
+              }
+              Set(last) => {
+                new ch1 in {
+                  TreeHashMap!("get", thm, last, *ch1) |
+                  for (@p <- ch1) {
+                    @return!(*tmp.set(last, p))
+                  }
+                }
+              }
+              Set(first ... rest) => {
+                new ch1 in {
+                  TreeHashMap!("get", thm, first, *ch1) |
+                  for (@p <- ch1) {
+                    @tmpCh!(*tmp.set(first, p)) |
+                    itCh!((tmpCh, rest))
+                  }
+                }
+              }
+            }
+          }
+        } |
+        tmpCh!({}) |
+        itCh!((*tmpCh, ids))
+      }
+    } |
+
+    // ====================================
+    // ===== ANY USER / PUBLIC capabilities
+    // ====================================
+
+    for (@("PUBLIC_READ_ALL_PURSES", contractId, return) <= entryCh) {
+      new ch1 in {
+        getContractPursesThmCh!((contractId, *ch1)) |
+        for (@pursesThm <- ch1) {
+          if (pursesThm == Nil) {
+            @return!("error: contract not found")
+          } else {
+            TreeHashMap!("getAllValues", pursesThm, return)
+          }
+        }
+      }
+    } |
+
+    for (@("PUBLIC_READ_BOX", boxId, return) <= entryCh) {
+      new ch1 in {
+        getBoxCh!((boxId, *ch1)) |
+        for (@box <- ch1) {
+          if (box == Nil) {
+            @return!("error: box not found")
+          } else {
+            for (@superKeys <<- @(*vault, "boxesSuperKeys", boxId)) {
+              for (@config <<- @(*vault, "boxConfig", boxId)) {
+                @return!(config.union({ "superKeys": superKeys, "purses": box, "version": "6.0.0" }))
+              }
+            }
+          }
+        }
+      }
+    } |
+
+    for (@("PUBLIC_READ_PURSES", payload, return) <= entryCh) {
+      new ch1 in {
+        getContractPursesThmCh!((payload.get("contractId"), *ch1)) |
+        for (@pursesThm <- ch1) {
+          if (pursesThm == Nil) {
+            @return!("error: contract not found")
+          } else {
+            match payload.get("purseIds").size() < 101 {
+              true => {
+                iterateOnThmKeysCh!((payload.get("purseIds"), pursesThm, return))
+              }
+              _ => {
+                @return!("error: payload.purseIds must be a Set of strings with max size 100")
+              }
+            }
+          }
+        }
+      }
+    } |
+
+    for (@("PUBLIC_READ_PURSES_DATA", payload, return) <= entryCh) {
+      new ch1 in {
+        getContractPursesDataThmCh!((payload.get("contractId"), *ch1)) |
+        for (@pursesDataThm <- ch1) {
+          if (pursesDataThm == Nil) {
+            @return!("error: contract not found")
+          } else {
+            match payload.get("purseIds").size() < 101 {
+              true => {
+                iterateOnThmKeysCh!((payload.get("purseIds"), pursesDataThm, return))
+              }
+              _ => {
+                @return!("error: payload.purseIds must be a Set of strings with max size 100")
+              }
+            }
+          }
+        }
+      }
+    } |
+
+    for (@("PUBLIC_READ_CONFIG", contractId, return) <= entryCh) {
+      for (@config <<- @(*vault, "contractConfig", contractId)) {
+        @return!(config)
+      }
+    } |
+
+    for (@("PUBLIC_REGISTER_BOX", payload, return) <= entryCh) {
+      match (payload.get("boxId"), payload.get("publicKey"), payload.get("boxId").length() > 1, payload.get("boxId").length() < 25) {
+        (String, String, true, true) => {
+          new ch1, ch2, ch3, ch4, ch5, ch6 in {
+            registryLookup!(\`rho:rchain:revVault\`, *ch3) |
+            for (@(_, RevVault) <- ch3) {
+              revAddress!("fromPublicKey", payload.get("publicKey").hexToBytes(), *ch4) |
+              for (@a <- ch4) {
+                @RevVault!("findOrCreate", a, *ch5) |
+                for (@b <- ch5) {
+                  match b {
+                    (true, vaultFromPublicKey) => {
+                      ch6!(true)
+                    }
+                    _ => {
+                      @return!("error: invalid public key, could not get vault")
+                    }
+                  }
+                }
+              }
+            } |
+
+            TreeHashMap!("get", boxesThm, payload.get("boxId"), *ch1) |
+            for (@existingBox <- ch1; _ <- ch6) {
+              if (existingBox == Nil) {
+                new boxCh in {
+                  TreeHashMap!("set", boxesThm, payload.get("boxId"), "exists", *ch2) |
+                  for (_ <- ch2) {
+                    @(*vault, "boxes", payload.get("boxId"))!({}) |
+                    @(*vault, "boxesSuperKeys", payload.get("boxId"))!(Set()) |
+                    @(*vault, "boxConfig", payload.get("boxId"))!({ "publicKey": payload.get("publicKey") }) |
+                    @return!((true, bundle+{*boxCh})) |
+                    initializeOCAPOnBoxCh!((*boxCh, payload.get("boxId")))
+                  }
+                }
+              } else {
+                @return!("error: box already exists")
+              }
+            }
+          }
+        }
+      }
+    } |
+
+    for (@(boxCh, boxId) <= initializeOCAPOnBoxCh) {
+
+      for (@("PUBLIC_REGISTER_CONTRACT", payload, return) <= @boxCh) {
+        match payload {
+          { "contractId": String, "fungible": Bool, "fee": Nil \\/ (String, Int) } => {
+            match (payload.get("contractId").length() > 1, payload.get("contractId").length() < 25) {
+              (true, true) => {
+                new ch1, ch2, ch3, ch4, ch5 in {
+                  TreeHashMap!("get", contractsThm, payload.get("contractId"), *ch1) |
+                  for (@exists <- ch1) {
+                    if (exists == Nil) {
+                      TreeHashMap!("init", ${payload.contractDepth || 2}, true, *ch2) |
+                      TreeHashMap!("init", ${payload.contractDepth || 2}, true, *ch4) |
+                      TreeHashMap!("set", contractsThm, payload.get("contractId"), "exists", *ch3) |
+                      for (@pursesThm <- ch2; @pursesDataThm <- ch4; _ <- ch3) {
+
+                        for (@superKeys <- @(*vault, "boxesSuperKeys", boxId)) {
+                          @(*vault, "boxesSuperKeys", boxId)!(
+                            superKeys.union(Set(payload.get("contractId")))
+                          )
                         } |
 
-                        /*
-                          SWAP
-                          (Nil) => purse
-                          Useful when you receive purse from unknown source, swap it
-                          to make sure emitter did not keep a copy
-                        */
-                        for (@(publicKey, returnSwap) <= @(*purse, "SWAP")) {
-                          match publicKey {
-                            String => {
-                              for (id <- @(*vault, *purse)) {
-                                for (ids <- pursesIds) {
-                                  pursesIds!(*ids.delete(*id)) |
-                                  for (data <- @(*pursesData, *id)) {
-                                    for (props <- @(*purses, *id)) {
-                                      makePurseCh!((
-                                        *props.set("publicKey", publicKey), *data, returnSwap
-                                      ))
-                                    }
-                                  }
+                        // purses tree hash map
+                        @(*vault, "purses", payload.get("contractId"))!(pursesThm) |
+
+                        // purses data tree hash map
+                        @(*vault, "pursesData", payload.get("contractId"))!(pursesDataThm) |
+
+                        // config
+                        @(*vault, "contractConfig", payload.get("contractId"))!(
+                          payload.set("locked", false).set("counter", 1).set("version", "6.0.0").set("fee", payload.get("fee"))
+                        ) |
+
+                        new superKeyCh in {
+                          // return the bundle+ super key
+                          @return!((true, bundle+{*superKeyCh})) |
+
+                          for (@("LOCK", return2) <= superKeyCh) {
+                            for (@contractConfig <<- @(*vault, "contractConfig", payload.get("contractId"))) {
+                              if (contractConfig.get("locked") == true) {
+                                @return2!("error: contract is already locked")
+                              } else {
+                                for (_ <- @(*vault, "contractConfig", payload.get("contractId"))) {
+                                  @(*vault, "contractConfig", payload.get("contractId"))!(contractConfig.set("locked", true)) |
+                                  @return2!((true, Nil))
                                 }
                               }
                             }
-                            _ => {
-                              @returnSwap!("error: public key must be a string")
-                            }
-                          }
-                        } |
+                          } |
 
-                        /*
-                          UPDATE_DATA
-                          (any) => string | (true, purse[])
-                        */
-                        for (@(payload, returnUpdateData) <= @(*purse, "UPDATE_DATA")) {
-                          new readReturnCh in {
-                            @(*purse, "READ")!((Nil, *readReturnCh)) |
-                            for (@properties <- readReturnCh) {
-                              for (_ <- @(*pursesData, properties.get("id"))) {
-                                @(*pursesData, properties.get("id"))!(payload) |
-                                @returnUpdateData!((true, Nil))
-                              }
-                            }
-                          }
-                        } |
-
-                        /*
-                          SET_PRICE
-                          (payload: Int or Nil) => string | (true, Nil)
-                        */
-                        for (@(payload, returnSetPrice) <= @(*purse, "SET_PRICE")) {
-                          match payload {
-                            Int \\/ Nil => {
-                              new boxEntryCh, receivePursesReturnCh, readReturnCh, makePurseReturnCh in {
-                                @(*purse, "READ")!((Nil, *readReturnCh)) |
-                                for (@properties1 <- readReturnCh) {
-                                  for (@properties2 <- @(*purses, properties1.get("id"))) {
-                                    @(*purses, properties1.get("id"))!(
-                                      properties2.set("price", payload)
-                                    ) |
-                                    @returnSetPrice!((true, Nil))
-                                  }
-                                }
-                              }
-                            }
-                            _ => {
-                              @returnSetPrice!("error: payload must be an integer or Nil")
-                            }
-                          }
-                        } |
-
-                        /*
-                          WITHDRAW
-                          (payload: Int) => string | (true, purse)
-                        */
-                        for (@(payload, returnWithdraw) <= @(*purse, "WITHDRAW")) {
-                          match payload {
-                            Int => {
-                              new boxEntryCh, receivePursesReturnCh, readReturnCh, makePurseReturnCh in {
-                                @(*purse, "READ")!((Nil, *readReturnCh)) |
-                                for (@properties1 <- readReturnCh) {
-                                  match (
-                                    /*
-                                      The remaining cannot be 0, if you want to send
-                                      the whole purse, just hand the *purse object to someone's box
-                                    */
-                                    properties1.get("quantity") > payload,
-                                    payload > 0
-                                  ) {
-                                    (true, true) => {
-                                      /*
-                                        change quantity in *purse, and create a new purse
-                                        with [payload] quantity
-                                      */
-                                      for (@properties2 <- @(*purses, properties1.get("id"))) {
-                                        @(*purses, properties1.get("id"))!(
-                                          properties2.set("quantity", properties2.get("quantity") - payload)
-                                        ) |
-                                        makePurseCh!((
-                                          properties2.set("quantity", payload).set("price", Nil), Nil, *makePurseReturnCh
-                                        )) |
-                                        for (newPurse <- makePurseReturnCh) {
-                                          @returnWithdraw!((true, *newPurse))
-                                        }
-                                      }
-                                    }
-                                    _ => {
-                                      @returnWithdraw!("error: quantity invalid, remaining cannot be zero")
-                                    }
-                                  }
-                                }
-                              }
-
-                            }
-                            _ => {
-                              @returnWithdraw!("error: payload must be an integer")
-                            }
-                          }
-                        } |
-
-                        /*
-                          DEPOSIT
-                          (payload: purse) => string | (true, Nil)
-                        */
-                        for (@(payload, returnDeposit) <= @(*purse, "DEPOSIT")) {
-                          new boxEntryCh, receivePursesReturnCh, readReturnCh in {
-                            @(*purse, "READ")!((Nil, *readReturnCh)) |
-                            for (@properties1 <- readReturnCh) {
-                              for (id <<- @(*vault, payload)) {
-                                for (@properties2 <<- @(*purses, *id)) {
-                                  match (
-                                    properties2.get("quantity"),
-                                    properties2.get("quantity") > 0,
-                                    properties1.get("type") == properties2.get("type"),
-                                    properties1.get("price")
-                                  ) {
-                                    (Int, true, true, Nil) => {
-                                      for (_ <- @(*vault, payload)) { Nil } |
-                                      for (ids <- pursesIds) {
-                                        pursesIds!(*ids.delete(*id))
-                                      } |
-                                      for (_ <- @(*pursesData, *id)) { Nil } |
-                                      for (_ <- @(*purses, *id)) { Nil } |
-                                      for (@properties <- @(*purses, properties1.get("id"))) {
-                                        @(*purses, properties1.get("id"))!(
-                                          properties.set(
-                                            "quantity",
-                                            properties.get("quantity") + properties2.get("quantity")
-                                          )
-                                        ) |
-                                        @returnDeposit!((true, Nil))
-                                      }
-                                    }
-                                    _ => {
-                                      @returnDeposit!("error: cannot deposit to a purse with .price not Nil")
-                                    }
-                                  }
-                                }
+                          for (@("CREATE_PURSES", createPursesPayload, return2) <= superKeyCh) {
+                            for (@contractConfig <<- @(*vault, "contractConfig", payload.get("contractId"))) {
+                              if (contractConfig.get("locked") == true) {
+                                @return2!("error: contract is locked")
+                              } else {
+                                createPursesCh!((createPursesPayload, payload.get("contractId"), return2))
                               }
                             }
                           }
                         }
                       }
-                    }
-                    true => {
-                      pursesIds!(*ids) |
-                      @return!("error: purse ID already exists")
+                    } else {
+                      @return!("error: contract id already exists")
                     }
                   }
                 }
               }
               _ => {
-                @return!("error: invalid purse")
+                @return!("error: invalid contract id")
               }
             }
           }
-        }
-      }
-    }
-  } |
-
-  // ====================================
-  // SUPER / ADMIN / OWNER capabilities (if not locked)
-  // You must have the superKeyCh to perform those operations
-  // ====================================
-
-  for (@(Nil, return) <= @(*superKeyCh, "LOCK")) {
-    for (@current <<- mainCh) {
-      match current.get("locked") {
-        true => {
-          @return!("error: contract is locked")
-        }
-        false => {
-          for (current <- mainCh) {
-            mainCh!(*current.set("locked", true)) |
-            @return!((true, Nil))
+          _ => {
+            @return!("error: invalid payload")
           }
         }
-      }
-    }
-  } |
+      } |
 
-  for (@(payload, return) <= @(*superKeyCh, "CREATE_PURSES")) {
-    for (@current <<- mainCh) {
-      match current.get("locked") {
-        true => {
-          @return!("error: contract is locked")
-        }
-        false => {
-          new itCh, createdPursesesCh, saveKeyAndBagCh in {
-            createdPursesesCh!([]) |
-            itCh!((payload.get("purses").keys(), payload.get("purses"), payload.get("data"))) |
-            for(@(set, newPurses, newData) <= itCh) {
-              match set {
-                Nil => {}
-                Set(last) => {
-                  new retCh in {
-                    makePurseCh!((newPurses.get(last), newData.get(last), *retCh)) |
-                    for (purse <- retCh) {
-                      match *purse {
-                        String => {
-                          @return!(*purse)
-                        }
-                        _ => {
-                          for (createdPurses <- createdPursesesCh) {
-                            @return!((true, { "purses": *createdPurses ++ [*purse] }))
-                          }
+
+      for (@("UPDATE_PURSE_PRICE", payload2, return2) <= @boxCh) {
+        new ch3, ch4, ch5 in {
+          match payload2 {
+            { "price": Int \\/ Nil, "contractId": String, "purseId": String } => {
+              getBoxCh!((boxId, *ch3)) |
+              for (@box <- ch3) {
+                if (box != Nil) {
+                  getPurseCh!((box, payload2.get("contractId"), payload2.get("purseId"), *ch4)) |
+                  for (@purse <- ch4) {
+                    if (purse != Nil) {
+                      for (@pursesThm <<- @(*vault, "purses", payload2.get("contractId"))) {
+                        TreeHashMap!("set", pursesThm, payload2.get("purseId"), purse.set("price", payload2.get("price")), *ch5) |
+                        for (_ <- ch5) {
+                          @return2!((true, Nil))
                         }
                       }
+                    } else {
+                      @return2!("error: purse not found")
                     }
                   }
-                }
-                Set(first ... rest) => {
-                  new retCh in {
-                    makePurseCh!((newPurses.get(first), newData.get(first), *retCh)) |
-                    for (purse <- retCh) {
-                      match *purse {
-                        String => {
-                          @return!(*purse)
-                        }
-                        _ => {
-                          for (createdPurses <- createdPursesesCh) {
-                            createdPursesesCh!(*createdPurses ++ [*purse]) |
-                            itCh!((rest, newPurses, newData))
-                          }
-                        }
-                      }
-                    }
-                  }
+                } else {
+                  @return2!("error: CRITICAL box not found")
                 }
               }
             }
-          }
-        }
-      }
-    }
-  } |
-
-  /*
-    Returns values corresponding to ids, "PUBLIC_READ_PURSES"
-    and "PUBLIC_PUBLIC_READ_PURSES_DATA" call this channel
-
-    channelToReadFrom: *pursesData or *purses
-    ids: Set purse ids (they must all exist)
-    example iterateCh!((*pursesData, Set("1", "2", "18"), *return))
-  */
-  contract iterateCh(@(channelToReadFrom, ids, return)) = {
-    new tmpCh, itCh in {
-      for (@(tmpCh, ids) <= itCh) {
-        for (tmp <- @tmpCh) {
-          match ids {
-            Nil => {
-              @return!(*tmp)
-            }
-            Set(last) => {
-              for (val <<- @(channelToReadFrom, last)) {
-                @return!(*tmp.set(last, *val))
-              }
-            }
-            Set(first ... rest) => {
-              for (val <<- @(channelToReadFrom, first)) {
-                @tmpCh!(*tmp.set(first, *val)) |
-                itCh!((tmpCh, rest))
-              }
+            _ => {
+              @return2!("error: invalid payload for update price")
             }
           }
         }
       } |
-      tmpCh!({}) |
-      itCh!((*tmpCh, ids))
-    }
-  } |
 
-
-  // ====================================
-  // ===== ANY USER / PUBLIC capabilities
-  // ====================================
-
-  for (@(payload, return) <= @(*entryCh, "PUBLIC_READ_PURSES_IDS")) {
-    for (ids <<- pursesIds) {
-      @return!(*ids)
-    }
-  } |
-
-  for (@(payload, return) <= @(*entryCh, "PUBLIC_READ_PURSES")) {
-    match payload.size() < 101 {
-      true => {
-        iterateCh!((*purses, payload, return))
-      }
-      _ => {
-        @return!("error: payload must be a Set of strings with max size 100")
-      }
-    }
-  } |
-
-  for (@(payload, return) <= @(*entryCh, "PUBLIC_READ_PURSES_DATA")) {
-    match payload.size() < 101 {
-      true => {
-        iterateCh!((*pursesData, payload, return))
-      }
-      _ => {
-        @return!("error: payload must be a Set of strings with max size 100")
-      }
-    }
-  } |
-
-  for (@(payload, return) <= @(*entryCh, "PUBLIC_READ")) {
-    for (current <<- mainCh) {
-      @return!(*current)
-    }
-  } |
-
-  /*
-    (purse[]) => String | (true, id[])
-    receives a list of purse, check that (they exist + no duplicate)
-    and returns the corresponding list of ids
-  */
-  for (@(payload, return) <= @(*entryCh, "PUBLIC_CHECK_PURSES")) {
-    new tmpCh, itCh in {
-      for (@(tmpCh, keys) <= itCh) {
-        for (tmp <- @tmpCh) {
-          match keys {
-            Nil => {
-              @return!(*tmp)
-            }
-            [last] => {
-              for (id <<- @(*vault, last)) {
-                match *tmp.union(Set(*id)).size() == payload.length() {
-                  true => {
-                    @return!((true, *tmp.union(Set(*id))))
-
+      for (@("UPDATE_PURSE_DATA", payload2, return2) <= @boxCh) {
+        new ch3, ch4, ch5 in {
+          match payload2 {
+            { "data": _, "contractId": String, "purseId": String } => {
+              getBoxCh!((boxId, *ch3)) |
+              for (@box <- ch3) {
+                if (box != Nil) {
+                  getPurseCh!((box, payload2.get("contractId"), payload2.get("purseId"), *ch4)) |
+                  for (@purse <- ch4) {
+                    if (box != Nil) {
+                      for (@pursesDataThm <<- @(*vault, "pursesData", payload2.get("contractId"))) {
+                        TreeHashMap!("set", pursesDataThm, payload2.get("purseId"), payload2.get("data"), *ch5) |
+                        for (_ <- ch5) {
+                          @return2!((true, Nil))
+                        }
+                      }
+                    } else {
+                       @return2!("error: purse not found")
+                    }
                   }
-                  false => {
-                    @return!("error: duplicates")
-                  }
+                } else {
+                  @return2!("error: CRITICAL box not found")
                 }
               }
             }
-            [first ... rest] => {
-              for (id <<- @(*vault, first)) {
-                @tmpCh!(*tmp.union(Set(*id))) |
-                itCh!((tmpCh, rest))
-              }
+            _ => {
+              @return2!("error: invalid payload for update data")
             }
           }
         }
       } |
-      tmpCh!(Set()) |
-      itCh!((*tmpCh, payload))
-    }
-  } |
 
-  /*
-    (payload) => String | (true, purse)
-    purchase with REV from a purse that has .price
-    property not Nil
-    see payload below
-  */
-  // todo limitation total payload size ??
-  for (@(payload, return) <= @(*entryCh, "PUBLIC_PURCHASE")) {
-    match payload {
-      { "quantity": Int, "purseId": String, "publicKey": String,
-      "newId": Nil \\/ String, "data": _, "purseRevAddr": _, "purseAuthKey": _ } => {
-        for (@properties <<- @(*purses, payload.get("purseId"))) {
-          match (
-            properties.get("price"),
-            properties.get("quantity") > 0,
-            payload.get("quantity") > 0,
-            properties.get("quantity") >= payload.get("quantity")
-          ) {
-            (Int, true, true, true) => {
-              new revVaultCh, ownerRevAddressCh, purseVaultCh in {
+      for (@("WITHDRAW", payload2, return2) <= @boxCh) {
+        new ch3, ch4, ch5, ch6, ch7, ch8, ch9, ch10, ch11, proceedWithdrawCh, mergeCh, mergeOkCh in {
+          match payload2 {
+            { "quantity": Int, "contractId": String, "purseId": String, "toBoxId": String, "merge": Bool } => {
+              getContractPursesThmCh!((payload2.get("contractId"), *ch4)) |
+              getBoxCh!((payload2.get("toBoxId"), *ch6)) |
+              getBoxCh!((boxId, *ch10)) |
+              for (@pursesThm <- ch4; @toBox <- ch6; @box <- ch10) {
+                match (pursesThm != Nil, toBox != Nil, box != Nil) {
+                  (true, true, true) => {
+                    getPurseCh!((box, payload2.get("contractId"), payload2.get("purseId"), *ch9)) |
+                    for (@purse <- ch9) {
+                      if (purse == Nil) {
+                        @return2!("error: purse does not exist")
+                      } else {
+                        if (purse.get("id") != "0") {
+                          proceedWithdrawCh!((pursesThm, purse))
+                        } else {
+                          @return2!("error: withdraw from special nft 0 is forbidden")
+                        }
+                      }
+                    }
+                  }
+                  _ => {
+                    @return2!("error: contract or recipient box does not exist")
+                  }
+                }
+              }
+            }
+            _ => {
+              @return2!("error: invalid payload for withdraw")
+            }
+          } |
 
-                registryLookup!(\`rho:rchain:revVault\`, *revVaultCh) |
-                revAddress!("fromPublicKey", properties.get("publicKey").hexToBytes(), *ownerRevAddressCh) |
+          for (@(pursesThm, purse) <- proceedWithdrawCh) {
 
-                for (@(_, RevVault) <- revVaultCh; @ownerRevAddress <- ownerRevAddressCh) {
-                  match (
-                    payload.get("purseRevAddr"),
-                    ownerRevAddress,
-                    payload.get("quantity") * properties.get("price")
-                  ) {
-                    (from, to, amount) => {
-                      @RevVault!("findOrCreate", from, *purseVaultCh) |
-                      for (@(true, purseVault) <- purseVaultCh) {
-                        new makePurseReturnCh, transferReturnCh, performRefundCh in {                        
-                          // refund
-                          for (@message <- performRefundCh) {
-                            new refundPurseBalanceCh, refundRevAddressCh, refundResultCh in {
-                              @purseVault!("balance", *refundPurseBalanceCh) |
-                              revAddress!("fromPublicKey", payload.get("publicKey").hexToBytes(), *refundRevAddressCh) |
-                              for (@balance <- refundPurseBalanceCh; @revAddress <- refundRevAddressCh) {
-                                @purseVault!("transfer", revAddress, balance, payload.get("purseAuthKey"), *refundResultCh) |
-                                for (@refundResult <- refundResultCh) {
-                                  match refundResult {
-                                    (true, Nil) => {
-                                      stdout!(message ++ ", issuer was refunded") |
-                                      @return!(message ++ ", issuer was refunded")
-                                    }
-                                    _ => {
-                                      stdout!(message ++ ", issuer was NOT refunded") |
-                                      @return!(message ++ ", issuer was NOT refunded")
-                                    }
-                                  }
-                                }
-                              }
+            // the withdrawer should not be able to choose if
+            // tokens in recipient box will or will not be 
+            // merged, except if he withdraws to himself
+            mergeCh!(payload2.get("merge")) |
+            if (payload2.get("toBoxId") != boxId) {
+              for (_ <- mergeCh) {
+                mergeOkCh!(true)
+              }
+            } else {
+              for (@m <- mergeCh) {
+                mergeOkCh!(m)
+              }
+            } |
+
+            for (@merge <- mergeOkCh) {
+              match (
+                purse.get("quantity") - payload2.get("quantity") >= 0,
+                purse.get("quantity") > 0,
+                purse.get("quantity") - payload2.get("quantity") > 0
+              ) {
+
+                // ajust quantity in first purse, create a second purse
+                // associated with toBoxId
+                (true, true, true) => {
+                  TreeHashMap!("set", pursesThm, payload2.get("purseId"), purse.set("quantity", purse.get("quantity") - payload2.get("quantity")),  *ch5) |
+                  for (_ <- ch5) {
+                    makePurseCh!((
+                      payload2.get("contractId"),
+                      purse
+                        .set("price", Nil)
+                        .set("quantity", payload2.get("quantity"))
+                        .set("boxId", payload2.get("toBoxId")),
+                      Nil,
+                      merge,
+                      return2
+                    ))
+                  }
+                }
+
+                // remove first purse, create a second purse
+                // associated with toBoxId
+                (true, true, false) => {
+                  TreeHashMap!("set", pursesThm, payload2.get("purseId"), Nil,  *ch5) |
+                  for (@pursesDataThm <<- @(*vault, "pursesData", payload2.get("contractId"))) {
+                    TreeHashMap!(
+                      "get",
+                      pursesDataThm,
+                      payload2.get("purseId"),
+                      *ch7
+                    ) |
+                    for (_ <- ch5; @data <- ch7) {
+                      TreeHashMap!(
+                        "set",
+                        pursesDataThm,
+                        payload2.get("purseId"),
+                        Nil,
+                        *ch11
+                      ) |
+                      for (_ <- ch11) {
+                        removePurseInBoxCh!((boxId, payload2.get("contractId"), payload2.get("purseId"), *ch8)) |
+                        for (@r <- ch8) {
+                          match r {
+                            String => {
+                              @return2!(r)
                             }
-                          } |
-                          @purseVault!("transfer", to, amount, payload.get("purseAuthKey"), *transferReturnCh) |
-                          for (@result <- transferReturnCh) {
-                            match result {
-                              (true, Nil) => {
-                                for (@properties2 <- @(*purses, payload.get("purseId"))) {
-                                  /*
-                                    Check if the purse must be removed because quantity 0
-                                    if fungible: false, we always match 0
-                                  */
-                                  match properties2.get("quantity") - payload.get("quantity") {
-                                    0 => {
-                                      for (ids <- pursesIds) {
-                                        pursesIds!(*ids.delete(properties2.get("id"))) |
-                                        for (_ <- @(*pursesData, properties2.get("id"))) {
-                                          makePurseCh!((
-                                            properties2
-                                              .set("price", Nil)
-                                              .set("newId", payload.get("newId"))
-                                              .set("quantity", payload.get("quantity"))
-                                              .set("publicKey", payload.get("publicKey")),
-                                            payload.get("data"),
-                                            *makePurseReturnCh
-                                          )) |
-                                          for (newPurse <- makePurseReturnCh) {
-                                            @return!((true, *newPurse))
+                            _ => {
+                              makePurseCh!((
+                                payload2.get("contractId"),
+                                purse
+                                  .set("price", Nil)
+                                  .set("boxId", payload2.get("toBoxId")),
+                                data,
+                                merge,
+                                return2
+                              )) 
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                _ => {
+                  @return2!("error: cannot withdraw, quantity in payload is superior to existing purse quantity")
+                }
+              }
+            }
+          }
+        }
+      } |
+
+      for (@(amount, contractConfig, return2) <= calculateFeeCh) {
+        if (contractConfig.get("fee") == Nil) {
+          @return2!((amount, 0, Nil))
+        } else {
+          match amount * contractConfig.get("fee").nth(1) / 100000 {
+            feeAmount => {
+              @return2!((amount - feeAmount, feeAmount, contractConfig.get("fee").nth(0)))
+            }
+          }
+        }
+      } |
+
+      for (@("PURCHASE", payload2, return2) <= @boxCh) {
+        match payload2 {
+          { "quantity": Int, "contractId": String, "merge": Bool, "purseId": String, "newId": Nil \\/ String, "data": _, "purseRevAddr": _, "purseAuthKey": _ } => {
+            new ch3, ch4, ch5, ch6, ch7, step2Ch, ch20, ch21, ch22, ch23, ch24, ch25, ch26, ch27, ch28, step3Ch, rollbackCh, ch30, ch31, ch32, ch33, ch34, ch35, ch36, ch37, step4Ch, ch40, ch41, ch42, ch43, ch44, ch45, ch46, ch47, ch48, step5Ch, ch50, ch51, ch52, ch53 in {
+
+              // STEP 1
+              // check box, purse
+              getBoxCh!((boxId, *ch3)) |
+              for (@box <- ch3) {
+                if (box != Nil) {
+                  getContractPursesThmCh!((payload2.get("contractId"), *ch4)) |
+                  getContractPursesDataThmCh!((payload2.get("contractId"), *ch5)) |
+                  for (@pursesThm <- ch4; @pursesDataThm <- ch5) {
+                    if (pursesThm != Nil) {
+                      TreeHashMap!("get", pursesThm, payload2.get("purseId"), *ch6) |
+                      TreeHashMap!("get", pursesDataThm, payload2.get("purseId"), *ch7)
+                    } else {
+                      @return2!("error: contract not found")
+                    } |
+                    for (@purse <- ch6; @purseData <- ch7) {
+                      if (purse != Nil) {
+                        step2Ch!((pursesThm, pursesDataThm, purse, purseData))
+                      } else {
+                        @return2!("error: purse not found")
+                      }
+                    }
+                  }
+                } else {
+                  @return2!("error: CRITICAL box not found")
+                }
+              } |
+
+              // STEP 2
+              // transfer total amount to temporary escrow purse
+              // check that both emitter and recipient vault exist
+              for (@(pursesThm, pursesDataThm, purse, purseData) <- step2Ch) {
+                match (
+                  purse.get("price"),
+                  purse.get("quantity") > 0,
+                  payload2.get("quantity") > 0,
+                  purse.get("quantity") >= payload2.get("quantity")
+                ) {
+                  (Int, true, true, true) => {
+                    registryLookup!(\`rho:rchain:revVault\`, *ch20) |
+
+                    for (@boxConfig <<- @(*vault, "boxConfig", purse.get("boxId"))) {
+                      revAddress!("fromPublicKey", boxConfig.get("publicKey").hexToBytes(), *ch21)
+                    } |
+
+                    for (@contractConfig <<- @(*vault, "contractConfig", payload2.get("contractId"))) {
+                      calculateFeeCh!((payload2.get("quantity") * purse.get("price"), contractConfig, *ch22))
+                    } |
+
+                    for (@(_, RevVault) <- ch20; @ownerRevAddress <- ch21; @amountAndFeeAmount <- ch22) {
+                      match (
+                        payload2.get("purseRevAddr"),
+                        ownerRevAddress,
+                        amountAndFeeAmount.nth(0),
+                        amountAndFeeAmount.nth(1),
+                        amountAndFeeAmount.nth(2)
+                      ) {
+                        (emitterRevAddress, recipientRevAddress, amount, feeAmount, feePublicKey) => {
+                          @RevVault!("findOrCreate", emitterRevAddress, *ch23) |
+                          @RevVault!("findOrCreate", recipientRevAddress, *ch24) |
+                          for (@a <- ch23; @b <- ch24) {
+                            match (a, b) {
+                              ((true, purseVaultEmitter),  (true, purseVaultRecipient)) => {
+                                new unf in {
+                                  @RevVault!("unforgeableAuthKey", *unf, *ch25) |
+                                  revAddress!("fromUnforgeable", *unf, *ch26) |
+                                  for (@escrowPurseAuthKey <- ch25; @escrowPurseRevAddr <- ch26) {
+                                    @RevVault!("findOrCreate", escrowPurseRevAddr, *ch27) |
+                                    for (@(true, escrowPurseVault) <- ch27) {
+                                      @purseVaultEmitter!("transfer", escrowPurseRevAddr, amount + feeAmount, payload2.get("purseAuthKey"), *ch28) |
+                                      for (@escrowTransferResult <- ch28) {
+                                        match escrowTransferResult {
+                                          (true, Nil) => {
+                                            stdout!("transfer to escrow purse successful") |
+                                            step3Ch!((pursesThm, pursesDataThm, purse, purseData, RevVault, escrowPurseRevAddr, escrowPurseAuthKey, emitterRevAddress, recipientRevAddress, amount, feeAmount, feePublicKey))
+                                          }
+                                          _ => {
+                                            stdout!(escrowTransferResult) |
+                                            @return2!("error: escrow transfer went wrong, invalid rev purse in payload")
                                           }
                                         }
-                                      }
-                                    }
-                                    _ => {
-                                      @(*purses, properties2.get("id"))!(
-                                        properties2.set("quantity", properties2.get("quantity") - payload.get("quantity"))
-                                      ) |
-                                      makePurseCh!((
-                                        properties2
-                                          .set("price", Nil)
-                                          .set("newId", payload.get("newId"))
-                                          .set("quantity", payload.get("quantity"))
-                                          .set("publicKey", payload.get("publicKey")),
-                                        payload.get("data"),
-                                        *makePurseReturnCh
-                                      )) |
-                                      for (newPurse <- makePurseReturnCh) {
-                                        stdout!(*newPurse) |
-                                        @return!((true, *newPurse))
                                       }
                                     }
                                   }
                                 }
                               }
                               _ => {
-                                performRefundCh!("error: REV transfer went wrong")
+                                @return2!("error: could not find or create vaults")
                               }
                             }
                           }
@@ -1348,192 +2061,256 @@ in {
                       }
                     }
                   }
+                  _ => {
+                    @return2!("error: quantity not available or purse not for sale")
+                  }
                 }
-              }
-            }
-            _=> {
-              @return!("error: quantity not available or purse not for sale")
-            }
-          }
-        }
-      }
-      _ => {
-        @return!("error: invalid payloads")
-      }
-    }
-  } |
+              } |
 
+              // STEP 3
+              // listen on rollbackCh and prepare to reset state to original
+              // if step 4 or 5 fails
+              // 
+              for (@(pursesThm, pursesDataThm, purse, purseData, RevVault, escrowPurseRevAddr, escrowPurseAuthKey, emitterRevAddress, recipientRevAddress, amount, feeAmount, feePublicKey) <- step3Ch) {
+                for (@message <- rollbackCh) {
+                  TreeHashMap!("set", pursesThm, purse.get("id"), purse,  *ch30) |
+                  TreeHashMap!("set", pursesDataThm, purse.get("id"), purseData,  *ch31) |
+                  if (purse.get("quantity") - payload2.get("quantity") == 0) {
+                    savePurseInBoxCh!((payload2.get("contractId"), purse.get("boxId"), purse.get("id"), true, *ch32))
+                  } else {
+                    // the purse has not been removed from box
+                    ch32!((true, Nil))
+                  } |
+                  for (_ <- ch30; _ <- ch31; @a <- ch32) {
+                    match a {
+                      String => {
+                        stdout!("error: CRITICAL could not rollback after makePurse error") |
+                        @return2!("error: CRITICAL could not rollback after makePurse error")
+                      }
+                      _ => {
+                        @RevVault!("findOrCreate", escrowPurseRevAddr, *ch33) |
+                        for (@(true, purseVaultEscrow) <- ch33) {
+                          @purseVaultEscrow!("transfer", emitterRevAddress, amount + feeAmount, escrowPurseAuthKey, *ch34) |
+                          for (@r <- ch34) {
+                            match r {
+                              (true, Nil) => {
+                                @return2!("error: rollback successful, makePurse error, transaction was rolled backed, emitter purse was reimbursed " ++ message)
+                              }
+                              _ => {
+                                stdout!(r) |
+                                stdout!("error: CRITICAL, makePurse error, could rollback but could not reimburse after makePurse error" ++ message) |
+                                @return2!("error: CRITICAL, makePurse error, could rollback but could not reimburse after makePurse error" ++ message)
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                } |
+                step4Ch!((pursesThm, pursesDataThm, purse, purseData, RevVault, escrowPurseRevAddr, escrowPurseAuthKey, emitterRevAddress, recipientRevAddress, amount, feeAmount, feePublicKey))
+              } |
 
-  // ====================================
-  // ===================== INITIALIZATION
-  // save superKeyCh to a box
-  // ====================================
+              // STEP 4
+              // try to makePurse
+              for (@(pursesThm, pursesDataThm, purse, purseData, RevVault, escrowPurseRevAddr, escrowPurseAuthKey, emitterRevAddress, recipientRevAddress, amount, feeAmount, feePublicKey) <- step4Ch) {
+                for (@makePurseResult <- ch43) {
+                  match makePurseResult {
+                    String => {
+                      rollbackCh!(makePurseResult)
+                    }
+                    _ => {
+                      step5Ch!((pursesThm, pursesDataThm, purse, purseData, RevVault, escrowPurseRevAddr, escrowPurseAuthKey, emitterRevAddress, recipientRevAddress, amount, feeAmount, feePublicKey))
+                    }
+                  }
+                } |
 
-  /*
-    todo: secure with bundle- (*entryCh -> bundle-{*entryCh}) , but we must
-    do it after all the listens are active
-  */
-  insertArbitrary!(*entryCh, *entryUriCh) |
+                // remove completely purse and create a new one
+                // with same id, id may be changed by makePurse
+                // depending on fungible or not
+                if (purse.get("quantity") - payload2.get("quantity") == 0) {
+                  TreeHashMap!("set", pursesThm, purse.get("id"), Nil,  *ch40) |
+                  TreeHashMap!("set", pursesDataThm, purse.get("id"), Nil,  *ch41) |
+                  removePurseInBoxCh!((purse.get("boxId"), payload2.get("contractId"), purse.get("id"), *ch42)) |
 
-  for (entryUri <- entryUriCh) {
-    new boxDataCh, boxReturnCh in {
-      @(*deployerId, "rho:id:${fromBoxRegistryUri}")!(({ "type": "READ" }, *boxDataCh)) |
-      for (r <- boxDataCh) {
-      stdout!(*r) |
-        match (*r.get("version")) {
-          "5.0.0" => {
-            @(*deployerId, "rho:id:${fromBoxRegistryUri}")!((
-              {
-                "type": "SAVE_SUPER_KEY",
-                "payload": { "superKey": *superKeyCh, "registryUri": *entryUri }
-              },
-              *boxReturnCh
-            )) |
-            for (resp <- boxReturnCh) {
-              match *resp {
-                String => {
-                  mainCh!({ "status": "failed", "message": *resp }) |
-                  stdout!(("failed", *resp))
+                  for (_ <- ch40; _ <- ch41; _ <- ch42) {
+                    makePurseCh!((
+                      payload2.get("contractId"),
+                      // keep quantity and type of existing purse
+                      purse
+                        .set("boxId", boxId)
+                        .set("price", Nil)
+                        // will only considered for nft, purchase from purse "0"
+                        .set("newId", payload2.get("newId")),
+                      payload2.get("data"),
+                      payload2.get("merge"),
+                      *ch43
+                    ))
+                  }
+                } else {
+                  // just update quantity of current purse, and
+                  //  create another one with right quantity
+                  TreeHashMap!("set", pursesThm, purse.get("id"), purse.set("quantity", purse.get("quantity") - payload2.get("quantity")),  *ch40) |
+
+                  for (_ <- ch40) {
+                    makePurseCh!((
+                      payload2.get("contractId"),
+                      purse
+                        .set("boxId", boxId)
+                        .set("quantity", payload2.get("quantity"))
+                        .set("price", Nil)
+                        // will only considered for nft, purchase from purse "0"
+                        .set("newId", payload2.get("newId")),
+                      payload2.get("data"),
+                      payload2.get("merge"),
+                      *ch43
+                    ))
+                  }
                 }
-                _ => {
-                  mainCh!({
-                    "status": "completed",
-                    "registryUri": *entryUri,
-                    "locked": false,
-                    "fungible": ${payload.fungible},
-                    "version": "5.0.0"
-                  }) |
-                  stdout!({
-                    "status": "completed",
-                    "registryUri": *entryUri,
-                    "locked": false,
-                    "fungible": ${payload.fungible},
-                    "version": "5.0.0"
-                  }) |
-                  stdout!("completed, contract deployed")
+              } |
+
+              // STEP 5
+              // everything went ok, do final payment
+              for (@(pursesThm, pursesDataThm, purse, purseData, RevVault, escrowPurseRevAddr, escrowPurseAuthKey, emitterRevAddress, recipientRevAddress, amount, feeAmount, feePublicKey) <- step5Ch) {
+                @RevVault!("findOrCreate", escrowPurseRevAddr, *ch50) |
+                for (@(true, purseVaultEscrow) <- ch50) {
+                  @purseVaultEscrow!("transfer", recipientRevAddress, amount, escrowPurseAuthKey, *ch51) |
+                  for (@r <- ch51) {
+                    match r {
+                      (true, Nil) => {
+                        if (feeAmount != 0) {
+                          revAddress!("fromPublicKey", feePublicKey.hexToBytes(), *ch52) |
+                          for (@feeRevAddress <- ch52) {
+                            @purseVaultEscrow!("transfer", feeRevAddress, feeAmount, escrowPurseAuthKey, *ch53)
+                          } |
+                          for (@transferFeeReturn <- ch53) {
+                            match transferFeeReturn {
+                              (true, Nil) => {
+                                stdout!("fee transfer successful")
+                              }
+                              _ => {
+                                stdout!("error: CRITICAL could not transfer fee")
+                              }
+                            }
+                          }
+                        } |
+                        @return2!((true, Nil))
+                      }
+                      _ => {
+                        stdout!("error: CRITICAL, makePurse went fine, but could not do final transfer") |
+                        rollbackCh!("error: CRITICAL, makePurse went fine, but could not do final transfer")
+                      }
+                    }
+                  }
                 }
               }
             }
           }
           _ => {
-            mainCh!({
-              "status": "failed",
-              "message": "box has not the same version number 5.0.0",
-            }) |
-            stdout!({
-              "status": "failed",
-              "message": "box has not the same version number 5.0.0",
-            })
+            @return2!("error: invalid payload")
           }
         }
       }
-    }
+    } |
 
-    /*OUTPUT_CHANNEL*/
+    insertArbitrary!(bundle+{*entryCh}, *entryUriCh) |
+
+    for (entryUri <- entryUriCh) {
+      basket!({
+        "status": "completed",
+        "registryUri": *entryUri
+      }) |
+      stdout!(("rchain-token master registered at", *entryUri))
+    }
   }
 }
 `;
 };
 
-var mainTerm = {
-	mainTerm: mainTerm_1
+var masterTerm = {
+	masterTerm: masterTerm_1
 };
 
-var createPursesTerm_1 = (
-  registryUri,
-  payload
-) => {
-  return `new basket,
-  returnCh,
+/* GENERATED CODE, only edit rholang/*.rho files*/
+var deployTerm_1 = (payload) => {
+    return `new basket,
+  masterEntryCh,
+  registerContractReturnCh,
+  sendReturnCh,
+  deletePurseReturnCh,
   boxCh,
   stdout(\`rho:io:stdout\`),
   deployerId(\`rho:rchain:deployerId\`),
   registryLookup(\`rho:registry:lookup\`)
 in {
 
-  @(*deployerId, "rho:id:${payload.fromBoxRegistryUri}")!(({ "type": "READ_SUPER_KEYS" }, *boxCh)) |
+  registryLookup!(\`rho:id:${payload.masterRegistryUri}\`, *masterEntryCh) |
 
-  for (superKeys <- boxCh) {
-    match *superKeys.get(\`rho:id:${registryUri}\`) {
-      ch => {
-        @(ch, "CREATE_PURSES")!((
-          {
-            // example
-            // "purses": { "0": { "publicKey": "abc", "type": "gold", "quantity": 3, "data": Nil }}
-            "purses": ${JSON.stringify(payload.purses).replace(new RegExp(': null|:null', 'g'), ': Nil')},
-            // example
-            // "data": { "0": "this bag is mine" }
-            "data": ${JSON.stringify(payload.data).replace(new RegExp(': null|:null', 'g'), ': Nil')},
-          },
-          *returnCh
-        ))
+  for (boxCh <<- @(*deployerId, "rchain-token-box", "${payload.masterRegistryUri}", "${payload.boxId}")) {
+    boxCh!(("PUBLIC_REGISTER_CONTRACT", { "contractId": "${payload.contractId}", "fungible": ${payload.fungible}, "fee": ${payload.fee ? `("${payload.fee[0]}", ${payload.fee[1]})` : "Nil"} }, *registerContractReturnCh)) |
+    for (@r <- registerContractReturnCh) {
+      match r {
+        String => {
+          basket!({ "status": "failed", "message": r }) |
+          stdout!(("failed", r))
+        }
+        (true, superKey) => {
+          @(*deployerId, "rchain-token-contract", "${payload.masterRegistryUri}", "${payload.contractId}")!(superKey) |
+          basket!({
+            "status": "completed",
+            "masterRegistryUri": "${payload.masterRegistryUri}",
+            "contractId": "${payload.contractId}",
+          }) |
+          stdout!("completed, contract registered")
+        }
       }
     }
-  } |
+  }
+}
+`;
+};
 
-  for (resp <- returnCh) {
-    match *resp {
-      String => {
-        basket!({ "status": "failed", "message": *resp }) |
-        stdout!(("failed", *resp))
-      }
-      (true, payload) => {
-        new entryCh, return2Ch, itCh in {
-          registryLookup!(\`rho:id:${payload.fromBoxRegistryUri}\`, *entryCh) |
-          for (entry <- entryCh) {
-            for (purses <= itCh) {
-              match *purses {
-                Nil => {
-                  basket!({ "status": "failed", "message": "no purse" }) |
-                  stdout!(("failed", "no purse"))
-                }
-                [last] => {
-                  new readReturnCh, receivePurseReturnCh in {
-                    @(last, "READ")!((Nil, *readReturnCh)) |
-                    for (properties <- readReturnCh) {
-                      @(*entry, "PUBLIC_RECEIVE_PURSE")!(({
-                        "registryUri": \`rho:id:${registryUri}\`,
-                        "purse": last
-                      }, *receivePurseReturnCh))
-                    } |
-                    for (r <- receivePurseReturnCh) {
-                      match *r {
-                        String => {
-                          basket!({ "status": "failed", "message": *r }) |
-                          stdout!(("failed", *r))
-                        }
-                        _ => {
-                          stdout!("completed, purses created and saved to box") |
-                          basket!({ "status": "completed" })
-                        }
-                      }
-                    }
-                  }
-                }
-                [first ... rest] => {
-                  new readReturnCh, receivePurseReturnCh in {
-                    @(first, "READ")!((Nil, *readReturnCh)) |
-                    for (properties <- readReturnCh) {
-                      @(*entry, "PUBLIC_RECEIVE_PURSE")!(({
-                        "registryUri": \`rho:id:${registryUri}\`,
-                        "purse": first
-                      }, *receivePurseReturnCh))
-                    } |
-                    for (r <- receivePurseReturnCh) {
-                      match *r {
-                        String => {
-                          basket!({ "status": "failed", "message": *r }) |
-                          stdout!(("failed", *r))
-                        }
-                        _ => { itCh!(rest) }
-                      }
-                    }
-                  }
-                }
-              }
-            } |
-            itCh!(payload.get("purses"))
-          }
+var deployTerm = {
+	deployTerm: deployTerm_1
+};
+
+/* GENERATED CODE, only edit rholang/*.rho files*/
+var createPursesTerm_1 = (
+  payload
+) => {
+  return `new basket,
+  returnCh,
+  listenAgainOnReturnCh,
+  processPurseCh,
+  listenManyTimesCh,
+  boxCh,
+  stdout(\`rho:io:stdout\`),
+  deployerId(\`rho:rchain:deployerId\`),
+  registryLookup(\`rho:registry:lookup\`)
+in {
+
+  for (superKey <<- @(*deployerId, "rchain-token-contract", "${payload.masterRegistryUri}", "${payload.contractId}")) {
+    superKey!((
+      "CREATE_PURSES",
+      {
+        // example
+        // "purses": { "0": { "box": "abc", "type": "gold", "quantity": 3, "data": Nil }}
+        "purses": ${JSON.stringify(payload.purses).replace(new RegExp(': null|:null', 'g'), ': Nil')},
+        // example
+        // "data": { "0": "this bag is mine" }
+        "data": ${JSON.stringify(payload.data).replace(new RegExp(': null|:null', 'g'), ': Nil')},
+      },
+      *returnCh
+    )) |
+    for (@r <- returnCh) {
+      match r {
+        String => {
+          basket!({ "status": "failed", "message": r }) |
+          stdout!(("failed", r))
+        }
+        _ => {
+          stdout!("completed, purses created and saved to box") |
+          basket!({ "status": "completed" })
         }
       }
     }
@@ -1546,122 +2323,16 @@ var createPursesTerm = {
 	createPursesTerm: createPursesTerm_1
 };
 
-var sendPurseTerm_1 = (
-    registryUri,
-  payload
-) => {
-  return `new basket,
-  sendReturnCh,
-  deletePurseReturnCh,
-  boxCh,
-  boxEntryCh,
-  boxEntry2Ch,
-  receivePursesReturnCh,
-  receivePursesReturn2Ch,
-  stdout(\`rho:io:stdout\`),
-  deployerId(\`rho:rchain:deployerId\`),
-  registryLookup(\`rho:registry:lookup\`)
-in {
-
-  @(*deployerId, "rho:id:${payload.fromBoxRegistryUri}")!(({ "type": "READ_PURSES" }, *boxCh)) |
-
-  for (purses <- boxCh) {
-    match *purses.get(\`rho:id:${registryUri}\`).get("${payload.purseId}") {
-      Nil => {
-        basket!({ "status": "failed", "message": "purse not found" }) |
-        stdout!(("failed", "purse not found"))
-      }
-      purse => {
-        registryLookup!(\`rho:id:${payload.toBoxRegistryUri}\`, *boxEntryCh) |
-        for (boxEntry <- boxEntryCh) {
-          @(*boxEntry, "PUBLIC_RECEIVE_PURSE")!((
-            {
-              "registryUri": \`rho:id:${registryUri}\`,
-              "purse": purse,
-            },
-            *receivePursesReturnCh
-          )) |
-          for (r <- receivePursesReturnCh) {
-            match *r {
-              (true, Nil) => {
-                match "rho:id:${payload.toBoxRegistryUri}" == "rho:id:${payload.fromBoxRegistryUri}" {
-                  true => {
-                    stdout!("completed, purse sent") |
-                    basket!({ "status": "completed" })
-                  }
-                  false => {
-                    /*
-                      Remove the purse from emitter's box now that it is worthless
-                    */
-                    @(*deployerId, "rho:id:${payload.fromBoxRegistryUri}")!((
-                      { "type": "DELETE_PURSE", "payload": { "registryUri": \`rho:id:${registryUri}\`, "id": "${payload.purseId}" } },
-                      *deletePurseReturnCh
-                    )) |
-                    for (r2 <- deletePurseReturnCh) {
-                      match *r2 {
-                        String => {
-                          stdout!("WARNING completed, purse sent but could not remove from box") |
-                          basket!({ "status": "completed" })
-                        }
-                        _ => {
-                          stdout!("completed, purse sent and removed from box") |
-                          basket!({ "status": "completed" })
-                        }
-                      }
-                    }
-
-                  }
-                }
-              }
-              _ => {
-                registryLookup!(\`rho:id:${payload.fromBoxRegistryUri}\`, *boxEntry2Ch) |
-                for (boxEntry2 <- boxEntry2Ch) {
-                  @(*boxEntry, "PUBLIC_RECEIVE_PURSE")!((
-                    {
-                      "registryUri": \`rho:id:${registryUri}\`,
-                      "purse": purse,
-                    },
-                    *receivePursesReturn2Ch
-                  ))
-                } |
-                for (r2 <- receivePursesReturn2Ch) {
-                  match *r2 {
-                    String => {
-                      stdout!("Failed to send, could not send back to emitter box, purse may be lost " ++ *r2 ++ *r) |
-                      basket!({ "status": "failed", "message": "Failed to send, could not send back to emitter box, purse may be lost " ++ *r2 ++ *r})
-                    }
-                    _ => {
-                      stdout!("Failed to send, could send back to emitter box" ++ *r2) |
-                      basket!({ "status": "failed", "message": "Failed to send, could send back to emitter box" ++ *r2 })
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-`;
-};
-
-var sendPurseTerm = {
-	sendPurseTerm: sendPurseTerm_1
-};
-
 var readPursesTerm_1 = (
-  registryUri,
   payload
 ) => {
   return `new return, entryCh, readCh, lookup(\`rho:registry:lookup\`) in {
-  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+  lookup!(\`rho:id:${payload.masterRegistryUri}\`, *entryCh) |
   for(entry <- entryCh) {
     new x in {
-      @(*entry, "PUBLIC_READ_PURSES")!((Set(${payload.pursesIds
+      entry!(("PUBLIC_READ_PURSES", { "contractId": "${payload.contractId}", "purseIds": Set(${payload.pursesIds
   .map((id) => '"' + id + '"')
-  .join(',')}), *x)) |
+  .join(',')}) }, *x)) |
       for (y <- x) {
         return!(*y)
       }
@@ -1674,51 +2345,36 @@ var readPursesTerm = {
 	readPursesTerm: readPursesTerm_1
 };
 
-var readPursesIdsTerm_1 = (
-  registryUri
+var readAllPursesTerm_1 = (
+  payload
 ) => {
   return `new return, entryCh, readCh, lookup(\`rho:registry:lookup\`) in {
-  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+  lookup!(\`rho:id:${payload.masterRegistryUri}\`, *entryCh) |
   for(entry <- entryCh) {
     new x in {
-      @(*entry, "PUBLIC_READ_PURSES_IDS")!((Nil, *x)) |
+      entry!(("PUBLIC_READ_ALL_PURSES", "${payload.contractId}", *x)) |
       for (y <- x) {
         return!(*y)
       }
     }
   }
 }`;
-};
+    };
 
-var readPursesIdsTerm = {
-	readPursesIdsTerm: readPursesIdsTerm_1
+var readAllPursesTerm = {
+	readAllPursesTerm: readAllPursesTerm_1
 };
 
 var readBoxTerm_1 = (
-  boxRegistryUri
+  payload
 ) => {
   return `new return, entryCh, lookup(\`rho:registry:lookup\`), stdout(\`rho:io:stdout\`) in {
-  lookup!(\`rho:id:${boxRegistryUri}\`, *entryCh) |
+  lookup!(\`rho:id:${payload.masterRegistryUri}\`, *entryCh) |
   for(entry <- entryCh) {
-    stdout!(*entry) |
     new a in {
-      @(*entry, "PUBLIC_READ")!((Nil, *a)) |
-      for (current <- a) {
-        new b in {
-          @(*entry, "PUBLIC_READ_SUPER_KEYS")!((Nil, *b)) |
-          for (superKeys <- b) {
-            new c in {
-              @(*entry, "PUBLIC_READ_PURSES")!((Nil, *c)) |
-              for (purses <- c) {
-                return!(
-                  *current
-                    .set("superKeys", *superKeys)
-                    .set("purses", *purses)
-                )
-              }
-            }
-          }
-        }
+      entry!(("PUBLIC_READ_BOX", "${payload.boxId}", *a)) |
+      for (@box <- a) {
+        return!(box)
       }
     }
   }
@@ -1729,14 +2385,14 @@ var readBoxTerm = {
 	readBoxTerm: readBoxTerm_1
 };
 
-var readTerm_1 = (
-  registryUri
+var readConfigTerm_1 = (
+  payload
 ) => {
   return `new return, entryCh, readCh, lookup(\`rho:registry:lookup\`) in {
-  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+  lookup!(\`rho:id:${payload.masterRegistryUri}\`, *entryCh) |
   for(entry <- entryCh) {
     new x in {
-      @(*entry, "PUBLIC_READ")!((Nil, *x)) |
+      entry!(("PUBLIC_READ_CONFIG", "${payload.contractId}", *x)) |
       for (y <- x) {
         return!(*y)
       }
@@ -1745,44 +2401,33 @@ var readTerm_1 = (
 }`;
 };
 
-var readTerm = {
-	readTerm: readTerm_1
+var readConfigTerm = {
+	readConfigTerm: readConfigTerm_1
 };
 
+/* GENERATED CODE, only edit rholang/*.rho files*/
 var updatePurseDataTerm_1 = (
-    registryUri,
   payload
 ) => {
   return `new basket,
   returnCh,
-  deletePurseReturnCh,
   boxCh,
   stdout(\`rho:io:stdout\`),
   deployerId(\`rho:rchain:deployerId\`),
   registryLookup(\`rho:registry:lookup\`)
 in {
 
-  @(*deployerId, "rho:id:${payload.fromBoxRegistryUri}")!(({ "type": "READ_PURSES" }, *boxCh)) |
-
-  for (purses <- boxCh) {
-    match *purses.get(\`rho:id:${registryUri}\`).get("${payload.purseId}") {
-      Nil => {
-        basket!({ "status": "failed", "message": "purse not found" }) |
-        stdout!(("failed", "purse not found"))
-      }
-      purse => {
-        @(purse, "UPDATE_DATA")!(("${payload.data}", *returnCh)) |
-        for (r <- returnCh) {
-          match *r {
-            String => {
-              basket!({ "status": "failed", "message": *r }) |
-              stdout!(("failed", *r))
-            }
-            _ => {
-              stdout!("completed, purse data updated") |
-              basket!({ "status": "completed" })
-            }
-          }
+  for (boxCh <<- @(*deployerId, "rchain-token-box", "${payload.masterRegistryUri}", "${payload.boxId}")) {
+    boxCh!(("UPDATE_PURSE_DATA", { "contractId": "${payload.contractId}", "data": "${payload.data}", "purseId": "${payload.purseId}" }, *returnCh)) |
+    for (@r <- returnCh) {
+      match r {
+        String => {
+          basket!({ "status": "failed", "message": r }) |
+          stdout!(("failed", r))
+        }
+        _ => {
+          basket!({ "status": "completed" }) |
+          stdout!("completed, data updated")
         }
       }
     }
@@ -1796,16 +2441,15 @@ var updatePurseDataTerm = {
 };
 
 var readPursesDataTerm_1 = (
-  registryUri,
   payload
 ) => {
   return `new return, entryCh, readCh, lookup(\`rho:registry:lookup\`) in {
-  lookup!(\`rho:id:${registryUri}\`, *entryCh) |
+  lookup!(\`rho:id:${payload.masterRegistryUri}\`, *entryCh) |
   for(entry <- entryCh) {
     new x in {
-      @(*entry, "PUBLIC_READ_PURSES_DATA")!((Set(${payload.pursesIds
+      entry!(("PUBLIC_READ_PURSES_DATA", { "contractId": "${payload.contractId}", "purseIds": Set(${payload.pursesIds
   .map((id) => '"' + id + '"')
-  .join(',')}), *x)) |
+  .join(',')}) }, *x)) |
       for (y <- x) {
         return!(*y)
       }
@@ -1818,61 +2462,29 @@ var readPursesDataTerm = {
 	readPursesDataTerm: readPursesDataTerm_1
 };
 
-var splitPurseTerm_1 = (
-    registryUri,
+/* GENERATED CODE, only edit rholang/*.rho files*/
+var updatePursePriceTerm_1 = (
   payload
 ) => {
   return `new basket,
-  withdrawReturnCh,
-  savePurseReturnCh,
+  returnCh,
   boxCh,
-  readReturnCh,
   stdout(\`rho:io:stdout\`),
   deployerId(\`rho:rchain:deployerId\`),
   registryLookup(\`rho:registry:lookup\`)
 in {
 
-  @(*deployerId, "rho:id:${payload.fromBoxRegistryUri}")!(({ "type": "READ_PURSES" }, *boxCh)) |
-
-  for (purses <- boxCh) {
-    match *purses.get(\`rho:id:${registryUri}\`).get("${payload.purseId}") {
-      Nil => {
-        basket!({ "status": "failed", "message": "purse not found" }) |
-        stdout!(("failed", "purse not found"))
-      }
-      purse => {
-        @(purse, "WITHDRAW")!((${payload.quantityInNewPurse}, *withdrawReturnCh)) |
-        for (r <- withdrawReturnCh) {
-          match *r {
-            String => {
-              basket!({ "status": "failed", "message": *r }) |
-              stdout!(("failed", *r))
-            }
-            (true, newPurse) => {
-              @(newPurse, "READ")!((Nil, *readReturnCh)) |
-              for (@properties <- readReturnCh) {
-                /*
-                  Save new purse without joining it (DEPOSIT) to a purse with same type
-                */
-                @(*deployerId, "rho:id:${payload.fromBoxRegistryUri}")!((
-                  { "type": "SAVE_PURSE_SEPARATELY", "payload": { "registryUri": \`rho:id:${registryUri}\`, "purse": newPurse } },
-                  *savePurseReturnCh
-                )) |
-                for (r2 <- savePurseReturnCh) {
-                  match *r2 {
-                    String => {
-                      stdout!("DANGER completed, purse split but could not save to box") |
-                      basket!({ "status": "failed", "message": "DANGER completed, purse split but could not save to box" })
-                    }
-                    _ => {
-                      stdout!("completed, purse split and saved in box") |
-                      basket!({ "status": "completed" })
-                    }
-                  }
-                }
-              }
-            }
-          }
+  for (boxCh <<- @(*deployerId, "rchain-token-box", "${payload.masterRegistryUri}", "${payload.boxId}")) {
+    boxCh!(("UPDATE_PURSE_PRICE", { "contractId": "${payload.contractId}", "price": ${payload.price || "Nil"}, "purseId": "${payload.purseId}" }, *returnCh)) |
+    for (@r <- returnCh) {
+      match r {
+        String => {
+          basket!({ "status": "failed", "message": r }) |
+          stdout!(("failed", r))
+        }
+        _ => {
+          basket!({ "status": "completed" }) |
+          stdout!("completed, price updated")
         }
       }
     }
@@ -1881,222 +2493,194 @@ in {
 `;
 };
 
-var splitPurseTerm = {
-	splitPurseTerm: splitPurseTerm_1
+var updatePursePriceTerm = {
+	updatePursePriceTerm: updatePursePriceTerm_1
 };
 
-var setPriceTerm_1 = (
-  registryUri,
-  payload
-) => {
-  return `new basket,
-  sendReturnCh,
-  deletePurseReturnCh,
-  boxCh,
-  stdout(\`rho:io:stdout\`),
-  deployerId(\`rho:rchain:deployerId\`),
-  registryLookup(\`rho:registry:lookup\`)
-in {
-
-  @(*deployerId, "rho:id:${payload.fromBoxRegistryUri}")!(({ "type": "READ_PURSES" }, *boxCh)) |
-
-  for (purses <- boxCh) {
-    match *purses.get(\`rho:id:${registryUri}\`).get("${payload.purseId}") {
-      Nil => {
-        basket!({ "status": "failed", "message": "purse not found" }) |
-        stdout!(("failed", "purse not found"))
-      }
-      purse => {
-        @(purse, "SET_PRICE")!((${payload.price || "Nil"}, *sendReturnCh)) |
-        for (r <- sendReturnCh) {
-          match *r {
-            String => {
-              basket!({ "status": "failed", "message": *r }) |
-              stdout!(("failed", *r))
-            }
-            _ => {
-              stdout!("completed, price set") |
-              basket!({ "status": "completed" })
-            }
-          }
-        }
-      }
-    }
-  }
-}
-`;
-};
-
-var setPriceTerm = {
-	setPriceTerm: setPriceTerm_1
-};
-
+/* GENERATED CODE, only edit rholang/*.rho files*/
 var purchaseTerm_1 = (
-  registryUri,
   payload
 ) => {
   return `
 new
   basket,
-  revVaultPurseCh,
-  priceCh,
+  revVaultCh,
+  boxCh,
+
+  returnCh,
   quantityCh,
+  mergeCh,
   publicKeyCh,
+  priceCh,
   newIdCh,
   dataCh,
-  returnCh,
   purseIdCh,
-  registryUriCh,
+  contractIdCh,
+
   revAddressCh,
+  contractExistsCh,
+  proceed1Ch,
+  proceed2Ch,
   registryLookup(\`rho:registry:lookup\`),
+  deployerId(\`rho:rchain:deployerId\`),
   stdout(\`rho:io:stdout\`),
   revAddress(\`rho:rev:address\`)
 in {
 
-  /*
-    The 5 following values must be filled with proper values
-  */
-  // Registry URI of the contract
-  registryUriCh!!(\`rho:id:${registryUri}\`) |
-  // Unique ID of the token you want to purchase
   purseIdCh!!("${payload.purseId}") |
-  // New ID only used if fungible = false
-  newIdCh!!("${payload.newId ? payload.newId : "Nil"}") |
-  // Per token price, make sure it is accurate
+  contractIdCh!!("${payload.contractId}") |
+  newIdCh!!("${payload.newId ? payload.newId : ""}") |
   priceCh!!(${payload.price || "Nil"}) |
-  // Quantity you want to purchase, make sure enough are available
+  mergeCh!!(${payload.merge}) |
   quantityCh!!(${payload.quantity}) |
-  // Your public key
-  // If the transfer fails, refund will go to the corresponding REV address
   publicKeyCh!!("${payload.publicKey}") |
-  // data
-  dataCh!("${payload.data}") |
+  dataCh!!("${payload.data}") |
 
-  registryLookup!(\`rho:rchain:revVault\`, *revVaultPurseCh) |
+  for (boxCh <<- @(*deployerId, "rchain-token-box", "${payload.masterRegistryUri}", "${payload.boxId}")) {
 
-  /*
-    Create a vault/purse that is just used once (purse)
-  */
-  for(@(_, *RevVaultPurse) <- revVaultPurseCh) {
-    new unf, purseRevAddrCh, purseAuthKeyCh, vaultCh, revAddressCh in {
-      revAddress!("fromUnforgeable", *unf, *purseRevAddrCh) |
-      RevVaultPurse!("unforgeableAuthKey", *unf, *purseAuthKeyCh) |
-      for (@purseAuthKey <- purseAuthKeyCh; @purseRevAddr <- purseRevAddrCh) {
+    registryLookup!(\`rho:id:${payload.masterRegistryUri}\`, *contractExistsCh) |
+    for (_ <- contractExistsCh) {
+      proceed1Ch!(Nil)
+    } |
 
-        stdout!({"new purse rev addr": purseRevAddr, "purse authKey": purseAuthKey}) |
+    registryLookup!(\`rho:rchain:revVault\`, *revVaultCh) |
 
-        RevVaultPurse!("findOrCreate", purseRevAddr, *vaultCh) |
+    /*
+      Create a vault/purse that is just used once (purse)
+    */
+    for(@(_, *RevVault) <- revVaultCh; _ <- proceed1Ch) {
+      new unf, purseRevAddrCh, purseAuthKeyCh, purseVaultCh, deployerRevAddressCh, RevVaultCh, deployerVaultCh, deployerAuthKeyCh in {
+        revAddress!("fromUnforgeable", *unf, *purseRevAddrCh) |
+        RevVault!("unforgeableAuthKey", *unf, *purseAuthKeyCh) |
+        for (@purseAuthKey <- purseAuthKeyCh; @purseRevAddr <- purseRevAddrCh) {
 
-        for (
-          @(true, *vault) <- vaultCh;
-          @publicKey <- publicKeyCh;
-          @purseId <- purseIdCh;
-          @registryUri <- registryUriCh;
-          @price <- priceCh;
-          @quantity <- quantityCh;
-          @newId <- newIdCh;
-          @data <- dataCh
-        ) {
+          RevVault!("findOrCreate", purseRevAddr, *purseVaultCh) |
 
-          revAddress!("fromPublicKey", publicKey.hexToBytes(), *revAddressCh) |
+          for (
+            @(true, purseVault) <- purseVaultCh;
+            @publicKey <- publicKeyCh;
+            @purseId <- purseIdCh;
+            @merge <- mergeCh;
+            @contractId <- contractIdCh;
+            @price <- priceCh;
+            @quantity <- quantityCh;
+            @newId <- newIdCh;
+            @data <- dataCh
+          ) {
 
-          new RevVaultCh in {
+            stdout!({
+              "publicKey": publicKey,
+              "price": price,
+              "merge": merge,
+              "quantity": quantity,
+              "purseId": purseId,
+              "contractId": contractId,
+              "newId": newId,
+            }) |
+            match {
+              "publicKey": publicKey,
+              "price": price,
+              "merge": merge,
+              "quantity": quantity,
+              "purseId": purseId,
+              "contractId": contractId,
+              "newId": newId,
+            } {
+              {
+                "publicKey": String,
+                "price": Int,
+                "merge": Bool,
+                "quantity": Int,
+                "purseId": String,
+                "contractId": String,
+                "newId": String,
+              } => {
+                proceed2Ch!(Nil)
+              }
+              _ => {
+                basket!({ "status": "failed", "message": "error: invalid payload, cancelled purchase and payment" }) |
+                stdout!(("failed", "error: invalid payload, cancelled purchase and payment"))
+              }
+            } |
 
-            registryLookup!(\`rho:rchain:revVault\`, *RevVaultCh) |
-            for (@(_, RevVault) <- RevVaultCh; deployerRevAddress <- revAddressCh) {
+            for (_ <- proceed2Ch) {
 
-              stdout!(("3.transfer_funds.rho")) |
+              revAddress!("fromPublicKey", publicKey.hexToBytes(), *deployerRevAddressCh) |
+              registryLookup!(\`rho:rchain:revVault\`, *RevVaultCh) |
+              for (@(_, RevVault) <- RevVaultCh; @deployerRevAddress <- deployerRevAddressCh) {
+                
+                // send price * quantity dust in purse
+                @RevVault!("findOrCreate", deployerRevAddress, *deployerVaultCh) |
+                @RevVault!("deployerAuthKey", *deployerId, *deployerAuthKeyCh) |
+                for (@(true, deployerVault) <- deployerVaultCh; @deployerAuthKey <- deployerAuthKeyCh) {
 
-              /*
-                Put price * quantity REV in the purse
-              */
-              match (
-                *deployerRevAddress,
-                purseRevAddr,
-                price * quantity
-              ) {
-                (from, to, amount) => {
+                  stdout!(("Beginning transfer of ", price * quantity, "REV from", deployerRevAddress, "to", purseRevAddr)) |
 
-                  new vaultCh, revVaultkeyCh, deployerId(\`rho:rchain:deployerId\`) in {
-                    @RevVault!("findOrCreate", from, *vaultCh) |
-                    @RevVault!("deployerAuthKey", *deployerId, *revVaultkeyCh) |
-                    for (@(true, vault) <- vaultCh; key <- revVaultkeyCh) {
+                  new resultCh, entryCh in {
+                    @deployerVault!("transfer", purseRevAddr, price * quantity, deployerAuthKey, *resultCh) |
+                    for (@result <- resultCh) {
 
-                      stdout!(("Beginning transfer of ", amount, "REV from", from, "to", to)) |
-
-                      new resultCh, entryCh in {
-                        @vault!("transfer", to, amount, *key, *resultCh) |
-                        for (@result <- resultCh) {
-
-                          stdout!(("Finished transfer of ", amount, "REV to", to, "result was:", result)) |
-                          match result {
-                            (true, Nil) => {
-                              stdout!("yes") |
-                              registryLookup!(registryUri, *entryCh) |
-
-                              for(entry <- entryCh) {
-                                stdout!("PUBLIC_PURCHASE") |
-                                stdout!(*entry) |
-                                @(*entry, "PUBLIC_PURCHASE")!((
-                                  {
-                                    "quantity": quantity,
-                                    "purseId": purseId,
-                                    "newId": newId,
-                                    "data": data,
-                                    "publicKey": publicKey,
-                                    "purseRevAddr": purseRevAddr,
-                                    "purseAuthKey": purseAuthKey
-                                  },
-                                  *returnCh
-                                )) |
-                                for (resp <- returnCh) {
-                                  stdout!(*resp) |
-                                  match *resp {
-                                    (true, purse) => {
-                                      stdout!("yep") |
-                                      new readReturnCh, boxEntryCh, receivePursesReturnCh in {
-                                        @(*entry, "PUBLIC_READ")!((Nil, *readReturnCh)) |
-                                        for (@current <- readReturnCh) {
-                                          stdout!(("current", current)) |
-                                          registryLookup!(\`rho:id:${payload.toBoxRegistryUri}\`, *boxEntryCh) |
-                                          for (boxEntry <- boxEntryCh) {
-                                            @(*boxEntry, "${payload.actionAfterPurchase || "PUBLIC_RECEIVE_PURSE"}")!((
-                                              {
-                                                "registryUri": current.get("registryUri"),
-                                                "purse": purse,
-                                              },
-                                              *receivePursesReturnCh
-                                            )) |
-                                            for (r <- receivePursesReturnCh) {
-                                              match *r {
-                                                String => {
-                                                  basket!({ "status": "failed", "message": *resp }) |
-                                                  stdout!(("failed", *resp))
-                                                }
-                                                _ => {
-                                                  basket!({ "status": "completed" }) |
-                                                  stdout!("purchase went well")
-                                                }
-                                              }
+                      stdout!(("Finished transfer of ", price * quantity, "REV to", purseRevAddr, "result was:", result)) |
+                      match result {
+                        (true, Nil) => {
+                          boxCh!((
+                            "PURCHASE",
+                            {
+                              "contractId": contractId,
+                              "purseId": purseId,
+                              "data": data,
+                              "quantity": quantity,
+                              "merge": merge,
+                              "newId": newId,
+                              "purseRevAddr": purseRevAddr,
+                              "purseAuthKey": purseAuthKey
+                            },
+                            *returnCh
+                          )) |
+                          for (@r <- returnCh) {
+                            match r {
+                              String => {
+                                new refundPurseBalanceCh, refundResultCh in {
+                                  @purseVault!("balance", *refundPurseBalanceCh) |
+                                  for (@balance <- refundPurseBalanceCh) {
+                                    if (balance != price * quantity) {
+                                      stdout!("error: CRITICAL, purchase was not successful and balance of purse is now different from price * quantity")
+                                    } |
+                                    @purseVault!("transfer", deployerRevAddress, balance, purseAuthKey, *refundResultCh) |
+                                    for (@result <- refundResultCh)  {
+                                      match result {
+                                        (true, Nil) => {
+                                          match "error: purchase failed but was able to refund \${balance} " %% { "balance": balance } ++ r {
+                                            s => {
+                                              basket!({ "status": "failed", "message": s }) |
+                                              stdout!(s)
+                                            }
+                                          }
+                                        }
+                                        _ => {
+                                          stdout!(result) |
+                                          match "error: CRITICAL purchase failed and was NOT ABLE to refund \${balance} " %% { "balance": balance } ++ r {
+                                            s => {
+                                              basket!({ "status": "failed", "message": s }) |
+                                              stdout!(s)
                                             }
                                           }
                                         }
                                       }
                                     }
-                                    _ => {
-                                      stdout!(*resp) |
-                                      basket!({ "status": "failed", "message": *resp }) |
-                                      stdout!(("failed", *resp))
-                                    }
                                   }
                                 }
                               }
-                            }
-                            _ => {
-                              basket!({ "status": "failed", "message": result }) |
-                              stdout!(("failed", result))
+                              _ => {
+                                basket!({ "status": "completed" }) |
+                                stdout!("completed, purchase successful")
+                              }
                             }
                           }
+                        }
+                        _ => {
+                          basket!({ "status": "failed", "message": result }) |
+                          stdout!(("failed", result))
                         }
                       }
                     }
@@ -2116,85 +2700,29 @@ var purchaseTerm = {
 	purchaseTerm: purchaseTerm_1
 };
 
+/* GENERATED CODE, only edit rholang/*.rho files*/
 var withdrawTerm_1 = (
-    registryUri,
   payload
 ) => {
   return `new basket,
   withdrawReturnCh,
-  savePurseReturnCh,
   boxCh,
-  readReturnCh,
-  receivePursesReturnCh,
-  receivePursesReturn2Ch,
-  boxEntryCh,
-  boxEntry2Ch,
   stdout(\`rho:io:stdout\`),
   deployerId(\`rho:rchain:deployerId\`),
   registryLookup(\`rho:registry:lookup\`)
 in {
 
-  @(*deployerId, "rho:id:${payload.fromBoxRegistryUri}")!(({ "type": "READ_PURSES" }, *boxCh)) |
-
-  for (purses <- boxCh) {
-    match *purses.get(\`rho:id:${registryUri}\`).get("${payload.purseId}") {
-      Nil => {
-        basket!({ "status": "failed", "message": "purse not found" }) |
-        stdout!(("failed", "purse not found"))
-      }
-      purse => {
-        @(purse, "WITHDRAW")!((${payload.quantityToWithdraw}, *withdrawReturnCh)) |
-        for (r <- withdrawReturnCh) {
-          match *r {
-            String => {
-              basket!({ "status": "failed", "message": *r }) |
-              stdout!(("failed", *r))
-            }
-            (true, newPurse) => {
-              registryLookup!(\`rho:id:${payload.toBoxRegistryUri}\`, *boxEntryCh) |
-              for (boxEntry <- boxEntryCh) {
-                @(*boxEntry, "PUBLIC_RECEIVE_PURSE")!((
-                  {
-                    "registryUri": \`rho:id:${registryUri}\`,
-                    "purse": newPurse,
-                  },
-                  *receivePursesReturnCh
-                ))
-              } |
-              for (r <- receivePursesReturnCh) {
-                match *r {
-                  (true, Nil) => {
-                    stdout!("Purse withdrawn") |
-                    basket!({ "status": "completed", "message": "Purse withdrawn" })
-                  }
-                  _ => {
-                    registryLookup!(\`rho:id:${payload.fromBoxRegistryUri}\`, *boxEntry2Ch) |
-                    for (boxEntry2 <- boxEntry2Ch) {
-                      @(*boxEntry2, "PUBLIC_RECEIVE_PURSE")!((
-                        {
-                          "registryUri": \`rho:id:${registryUri}\`,
-                          "purse": newPurse,
-                        },
-                        *receivePursesReturnCh
-                      ))
-                    } |
-                    for (r2 <- receivePursesReturn2Ch) {
-                      match *r2 {
-                        String => {
-                          stdout!("Failed to withdraw to recipient box, could not withdrawn back to box " ++ *r2) |
-                          basket!({ "status": "failed", "message": "Failed to withdraw to recipient box, could not withdrawn back to box " ++ *r2 })
-                        }
-                        _ => {
-                          stdout!("Failed to withdraw to recipient box, withdrawn back to box") |
-                          basket!({ "status": "failed", "message": "Failed to withdraw to recipient box, withdrawn back to box"})
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+  for (boxCh <<- @(*deployerId, "rchain-token-box", "${payload.masterRegistryUri}", "${payload.boxId}")) {
+    boxCh!(("WITHDRAW", { "contractId": "${payload.contractId}", "quantity": ${payload.withdrawQuantity}, "toBoxId": "${payload.toBoxId}", "purseId": "${payload.purseId}", "merge": ${payload.merge} }, *withdrawReturnCh)) |
+    for (@r <- withdrawReturnCh) {
+      match r {
+        String => {
+          basket!({ "status": "failed", "message": r }) |
+          stdout!(("failed", r))
+        }
+        _ => {
+          basket!({ "status": "completed" }) |
+          stdout!("completed, withdraw successful")
         }
       }
     }
@@ -2207,80 +2735,102 @@ var withdrawTerm = {
 	withdrawTerm: withdrawTerm_1
 };
 
-const { boxTerm: boxTerm$1 } = boxTerm;
-const { mainTerm: mainTerm$1 } = mainTerm;
+// store-as-bytes-map
+var decodePurses_1 = (expr, rhoExprToVar, decodePar) => {
+  const purses = {};
+
+  Object.keys(expr.ExprMap.data).forEach((k) => {
+    const a = expr.ExprMap.data[k];
+    if (a && a.ExprBytes && a.ExprBytes.data) {
+      const b = Buffer.from(a.ExprBytes.data, 'hex');
+      try {
+        const valJs = rhoExprToVar(decodePar(b).exprs[0]);
+        purses[valJs.id] = valJs;
+      } catch (err) {
+        throw err;
+      }
+    }
+  });
+  return purses;
+};
+
+// store-as-bytes-array
+/*
+const DELIMITER = 'c2a324c2a324c2a324c2a324'; // '£$£$£$£$' represented has hex
+const INSIDE_DELIMITER = 'c2a324c2a324'; // '£$£$' represented has hex
+module.exports.decodePurses = (expr, rhoExprToVar, decodePar) => {
+  const purses = {};
+  if (expr && expr.ExprBytes && expr.ExprBytes.data) {
+    expr.ExprBytes.data
+      .split(DELIMITER)
+      // remove empty string at first index
+      .filter((section) => !!section)
+      .forEach((section) => {
+        const b = Buffer.from(section.split(INSIDE_DELIMITER)[1], 'hex');
+        try {
+          const par = decodePar(b).exprs[0];
+          const valJs = rhoExprToVar(par);
+          purses[valJs.id] = valJs;
+        } catch (err) {
+          throw err;
+        }
+      });
+  }
+  return purses;
+}; */
+
+var decodePurses = {
+	decodePurses: decodePurses_1
+};
+
+var VERSION = "6.0.0";
+
+var constants = {
+	VERSION: VERSION
+};
+
+// rholang terms
+const { deployBoxTerm: deployBoxTerm$1 } = deployBoxTerm;
+const { masterTerm: masterTerm$1 } = masterTerm;
+const { deployTerm: deployTerm$1 } = deployTerm;
 const { createPursesTerm: createPursesTerm$1 } = createPursesTerm;
-const { sendPurseTerm: sendPurseTerm$1 } = sendPurseTerm;
 const { readPursesTerm: readPursesTerm$1 } = readPursesTerm;
-const { readPursesIdsTerm: readPursesIdsTerm$1 } = readPursesIdsTerm;
+const { readAllPursesTerm: readAllPursesTerm$1 } = readAllPursesTerm;
 const { readBoxTerm: readBoxTerm$1 } = readBoxTerm;
-const { readTerm: readTerm$1 } = readTerm;
+const { readConfigTerm: readConfigTerm$1 } = readConfigTerm;
 const { updatePurseDataTerm: updatePurseDataTerm$1 } = updatePurseDataTerm;
 const { readPursesDataTerm: readPursesDataTerm$1 } = readPursesDataTerm;
-const { splitPurseTerm: splitPurseTerm$1 } = splitPurseTerm;
-const { setPriceTerm: setPriceTerm$1 } = setPriceTerm;
+const { updatePursePriceTerm: updatePursePriceTerm$1 } = updatePursePriceTerm;
 const { purchaseTerm: purchaseTerm$1 } = purchaseTerm;
 const { withdrawTerm: withdrawTerm$1 } = withdrawTerm;
 
+// utils
+const { decodePurses: decodePurses$1 } = decodePurses;
+
+const { VERSION: VERSION$1 } = constants;
 var src = {
-  version: '5.0.0',
-  boxTerm: boxTerm$1,
-  mainTerm: mainTerm$1,
+  version: VERSION$1,
+
+  masterTerm: masterTerm$1,
+  deployBoxTerm: deployBoxTerm$1,
+  deployTerm: deployTerm$1,
   createPursesTerm: createPursesTerm$1,
-  sendPurseTerm: sendPurseTerm$1,
-  readPursesTerm: readPursesTerm$1,
-  readPursesIdsTerm: readPursesIdsTerm$1,
-  readBoxTerm: readBoxTerm$1,
-  readTerm: readTerm$1,
   updatePurseDataTerm: updatePurseDataTerm$1,
-  readPursesDataTerm: readPursesDataTerm$1,
-  splitPurseTerm: splitPurseTerm$1,
-  setPriceTerm: setPriceTerm$1,
+  updatePursePriceTerm: updatePursePriceTerm$1,
   purchaseTerm: purchaseTerm$1,
   withdrawTerm: withdrawTerm$1,
+
+  readPursesTerm: readPursesTerm$1,
+  readAllPursesTerm: readAllPursesTerm$1,
+  readBoxTerm: readBoxTerm$1,
+  readConfigTerm: readConfigTerm$1,
+  readPursesDataTerm: readPursesDataTerm$1,
+
+  // utils
+  decodePurses: decodePurses$1,
 };
-var src_9 = src.readTerm;
-var src_11 = src.readPursesDataTerm;
-
-var dist = createCommonjsModule(function (module, exports) {
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-/*! *****************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-
-var __assign = function() {
-    __assign = Object.assign || function __assign(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-
-var commonjsGlobal$1 = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof commonjsGlobal !== 'undefined' ? commonjsGlobal : typeof self !== 'undefined' ? self : {};
-
-function unwrapExports (x) {
-	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
-}
-
-function createCommonjsModule(fn, module) {
-	return module = { exports: {} }, fn(module, module.exports), module.exports;
-}
+var src_13 = src.readConfigTerm;
+var src_14 = src.readPursesDataTerm;
 
 function symbolObservablePonyfill(root) {
 	var result;
@@ -2308,16 +2858,18 @@ if (typeof self !== 'undefined') {
   root = self;
 } else if (typeof window !== 'undefined') {
   root = window;
-} else if (typeof commonjsGlobal !== 'undefined') {
-  root = commonjsGlobal;
-} else {
+} else if (typeof global !== 'undefined') {
+  root = global;
+} else if (typeof module !== 'undefined') {
   root = module;
+} else {
+  root = Function('return this')();
 }
 
 var result = symbolObservablePonyfill(root);
 
 var xstream = createCommonjsModule(function (module, exports) {
-var __extends = (commonjsGlobal$1 && commonjsGlobal$1.__extends) || (function () {
+var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
         function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
@@ -4070,35 +4622,36 @@ var xstream_2 = xstream.NO_IL;
 var xstream_3 = xstream.Stream;
 var xstream_4 = xstream.MemoryStream;
 
-(function (LoadStatus) {
-    LoadStatus["Loading"] = "loading";
-    LoadStatus["Failed"] = "failed";
-    LoadStatus["Completed"] = "completed";
-})(exports.LoadStatus || (exports.LoadStatus = {}));
-(function (LoadError) {
+var BeesLoadStatus;
+(function (BeesLoadStatus) {
+    BeesLoadStatus["Loading"] = "loading";
+    BeesLoadStatus["Failed"] = "failed";
+    BeesLoadStatus["Completed"] = "completed";
+})(BeesLoadStatus || (BeesLoadStatus = {}));
+var BeesLoadError;
+(function (BeesLoadError) {
     // request
-    LoadError["IncompleteAddress"] = "The address is incomplete";
-    LoadError["ChainNotFound"] = "Blockchain not found";
-    LoadError["MissingBlockchainData"] = "Missing data from the blockchain";
-    LoadError["RecordNotFound"] = "Record not found";
+    BeesLoadError["IncompleteAddress"] = "The address is incomplete";
+    BeesLoadError["ChainNotFound"] = "Blockchain not found";
+    BeesLoadError["MissingBlockchainData"] = "Missing data from the blockchain";
+    BeesLoadError["RecordNotFound"] = "Record not found";
     // not found
-    LoadError["ResourceNotFound"] = "Contract not found";
+    BeesLoadError["ResourceNotFound"] = "Contract not found";
     // server error
-    LoadError["ServerError"] = "Server error";
+    BeesLoadError["ServerError"] = "Server error";
     // resolver
-    LoadError["InsufficientNumberOfNodes"] = "Insufficient number of nodes";
-    LoadError["OutOfNodes"] = "Out of nodes";
-    LoadError["UnstableState"] = "Unstable state";
-    LoadError["UnaccurateState"] = "Unaccurate state";
+    BeesLoadError["InsufficientNumberOfNodes"] = "Insufficient number of nodes";
+    BeesLoadError["OutOfNodes"] = "Out of nodes";
+    BeesLoadError["UnstableState"] = "Unstable state";
+    BeesLoadError["UnaccurateState"] = "Unaccurate state";
     // parsing
-    LoadError["FailedToParseResponse"] = "Failed to parse response";
-    LoadError["InvalidManifest"] = "Invalid manifest";
-    LoadError["InvalidSignature"] = "Invalid signature";
-    LoadError["InvalidRecords"] = "Invalid records";
-    LoadError["InvalidNodes"] = "Invalid nodes";
-    // unknown
-    LoadError["UnknownError"] = "Unknown error";
-})(exports.LoadError || (exports.LoadError = {}));
+    BeesLoadError["FailedToParseResponse"] = "Failed to parse response";
+    BeesLoadError["InvalidManifest"] = "Invalid manifest";
+    BeesLoadError["InvalidSignature"] = "Invalid signature";
+    BeesLoadError["InvalidRecords"] = "Invalid records";
+    BeesLoadError["InvalidNodes"] = "Invalid nodes";
+    BeesLoadError["InvalidServers"] = "Invalid servers";
+})(BeesLoadError || (BeesLoadError = {}));
 var indexData = function (data, existingData, comparer) {
     var _a;
     var found = false;
@@ -4115,11 +4668,11 @@ var indexData = function (data, existingData, comparer) {
         var _a;
         if (stringToCompare === existingData[key].stringToCompare) {
             found = true;
-            existingData = __assign({}, existingData, (_a = {}, _a[key] = __assign({}, existingData[key], { nodeUrls: existingData[key].nodeUrls.concat(data.nodeUrl) }), _a));
+            existingData = __assign(__assign({}, existingData), (_a = {}, _a[key] = __assign(__assign({}, existingData[key]), { nodeUrls: existingData[key].nodeUrls.concat(data.nodeUrl) }), _a));
         }
     });
     if (!found) {
-        existingData = __assign({}, existingData, (_a = {}, _a[Object.keys(existingData).length + 1] = {
+        existingData = __assign(__assign({}, existingData), (_a = {}, _a[Object.keys(existingData).length + 1] = {
             nodeUrls: [data.nodeUrl],
             data: data.data,
             stringToCompare: stringToCompare
@@ -4142,7 +4695,7 @@ var createStream = function (queryHandler, urlsToQuery) {
     });
     return xs.merge.apply(xs, streams);
 };
-var index = (function (queryHandler, nodeUrls, resolverMode, resolverAccuracy, resolverAbsolute, comparer) {
+var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy, resolverAbsolute, comparer) {
     var loadErrors = {};
     var loadState = {};
     var loadPending = [];
@@ -4152,7 +4705,7 @@ var index = (function (queryHandler, nodeUrls, resolverMode, resolverAccuracy, r
                 loadErrors: loadErrors,
                 loadState: loadState,
                 loadPending: loadPending,
-                status: exports.LoadStatus.Loading
+                status: BeesLoadStatus.Loading
             });
             if (resolverMode === "absolute") {
                 if (resolverAbsolute > nodeUrls.length) {
@@ -4161,13 +4714,13 @@ var index = (function (queryHandler, nodeUrls, resolverMode, resolverAccuracy, r
                         loadState: loadState,
                         loadPending: loadPending,
                         loadError: {
-                            error: exports.LoadError.InsufficientNumberOfNodes,
+                            error: BeesLoadError.InsufficientNumberOfNodes,
                             args: {
                                 expected: resolverAbsolute,
                                 got: nodeUrls.length
                             }
                         },
-                        status: exports.LoadStatus.Failed
+                        status: BeesLoadStatus.Failed
                     });
                     listener.complete();
                     return;
@@ -4181,13 +4734,13 @@ var index = (function (queryHandler, nodeUrls, resolverMode, resolverAccuracy, r
                             loadState: loadState,
                             loadPending: loadPending,
                             loadError: {
-                                error: exports.LoadError.OutOfNodes,
+                                error: BeesLoadError.OutOfNodes,
                                 args: {
                                     alreadyQueried: i - Object.keys(loadErrors).length,
                                     resolverAbsolute: resolverAbsolute
                                 }
                             },
-                            status: exports.LoadStatus.Failed
+                            status: BeesLoadStatus.Failed
                         });
                         listener.complete();
                         return;
@@ -4198,7 +4751,7 @@ var index = (function (queryHandler, nodeUrls, resolverMode, resolverAccuracy, r
                         loadErrors: loadErrors,
                         loadState: loadState,
                         loadPending: loadPending,
-                        status: exports.LoadStatus.Loading
+                        status: BeesLoadStatus.Loading
                     });
                     var stream = createStream(queryHandler, urlsToQuery);
                     stream.take(urlsToQuery.length).subscribe({
@@ -4211,14 +4764,14 @@ var index = (function (queryHandler, nodeUrls, resolverMode, resolverAccuracy, r
                                     loadState = newLoadState;
                                 }
                                 catch (err) {
-                                    loadErrors = __assign({}, loadErrors, (_a = {}, _a[data.nodeUrl] = {
+                                    loadErrors = __assign(__assign({}, loadErrors), (_a = {}, _a[data.nodeUrl] = {
                                         nodeUrl: data.nodeUrl,
                                         status: err.message ? parseInt(err.message, 10) : 400
                                     }, _a));
                                 }
                             }
                             else {
-                                loadErrors = __assign({}, loadErrors, (_b = {}, _b[data.nodeUrl] = {
+                                loadErrors = __assign(__assign({}, loadErrors), (_b = {}, _b[data.nodeUrl] = {
                                     nodeUrl: data.nodeUrl,
                                     status: data.status
                                 }, _b));
@@ -4227,7 +4780,7 @@ var index = (function (queryHandler, nodeUrls, resolverMode, resolverAccuracy, r
                                 loadErrors: loadErrors,
                                 loadState: loadState,
                                 loadPending: loadPending,
-                                status: exports.LoadStatus.Loading
+                                status: BeesLoadStatus.Loading
                             });
                         },
                         error: function (e) {
@@ -4242,12 +4795,12 @@ var index = (function (queryHandler, nodeUrls, resolverMode, resolverAccuracy, r
                                     loadState: loadState,
                                     loadPending: loadPending,
                                     loadError: {
-                                        error: exports.LoadError.ServerError,
+                                        error: BeesLoadError.ServerError,
                                         args: {
                                             numberOfLoadErrors: Object.keys(loadErrors).length
                                         }
                                     },
-                                    status: exports.LoadStatus.Failed
+                                    status: BeesLoadStatus.Failed
                                 });
                                 listener.complete();
                                 return;
@@ -4259,12 +4812,12 @@ var index = (function (queryHandler, nodeUrls, resolverMode, resolverAccuracy, r
                                     loadState: loadState,
                                     loadPending: loadPending,
                                     loadError: {
-                                        error: exports.LoadError.UnstableState,
+                                        error: BeesLoadError.UnstableState,
                                         args: {
                                             numberOfLoadStates: Object.keys(loadState).length
                                         }
                                     },
-                                    status: exports.LoadStatus.Failed
+                                    status: BeesLoadStatus.Failed
                                 });
                                 listener.complete();
                                 return;
@@ -4286,7 +4839,7 @@ var index = (function (queryHandler, nodeUrls, resolverMode, resolverAccuracy, r
                                                 loadState: loadState,
                                                 loadPending: loadPending,
                                                 loadError: {
-                                                    error: exports.LoadError.UnaccurateState,
+                                                    error: BeesLoadError.UnaccurateState,
                                                     args: {
                                                         totalOkResponses: totalOkResponses_1,
                                                         loadStates: Object.keys(loadState).map(function (k) {
@@ -4300,7 +4853,7 @@ var index = (function (queryHandler, nodeUrls, resolverMode, resolverAccuracy, r
                                                         })
                                                     }
                                                 },
-                                                status: exports.LoadStatus.Failed
+                                                status: BeesLoadStatus.Failed
                                             });
                                             listener.complete();
                                             return;
@@ -4309,7 +4862,7 @@ var index = (function (queryHandler, nodeUrls, resolverMode, resolverAccuracy, r
                                             loadErrors: loadErrors,
                                             loadState: loadState,
                                             loadPending: loadPending,
-                                            status: exports.LoadStatus.Completed
+                                            status: BeesLoadStatus.Completed
                                         });
                                         listener.complete();
                                         return;
@@ -4325,14 +4878,7 @@ var index = (function (queryHandler, nodeUrls, resolverMode, resolverAccuracy, r
         },
         stop: function () { }
     });
-});
-
-exports.default = index;
-});
-
-var resolver = unwrapExports(dist);
-var dist_1 = dist.LoadStatus;
-var dist_2 = dist.LoadError;
+};
 
 var getNodeFromIndex = function (index) {
     return {
@@ -4515,7 +5061,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
                 console.log(e);
                 reject({
                     error: {
-                        error: dist_2.UnknownError,
+                        error: BeesLoadError.UnknownError,
                         args: {},
                     },
                     loadState: {},
@@ -4637,77 +5183,180 @@ var getOkBlockchainsMain = lib_4(getBlockchainsMainState, function (blockchains)
     return okBlockchains;
 });
 
-var LoadError;
-(function (LoadError) {
-    // request
-    LoadError["IncompleteAddress"] = "The address is incomplete";
-    LoadError["ChainNotFound"] = "Blockchain not found";
-    LoadError["MissingBlockchainData"] = "Missing data from the blockchain";
-    LoadError["RecordNotFound"] = "Record not found";
-    // not found
-    LoadError["ResourceNotFound"] = "Contract not found";
-    // server error
-    LoadError["ServerError"] = "Server error";
-    // resolver
-    LoadError["InsufficientNumberOfNodes"] = "Insufficient number of nodes";
-    LoadError["OutOfNodes"] = "Out of nodes";
-    LoadError["UnstableState"] = "Unstable state";
-    LoadError["UnaccurateState"] = "Unaccurate state";
-    // parsing
-    LoadError["FailedToParseResponse"] = "Failed to parse response";
-    LoadError["InvalidManifest"] = "Invalid manifest";
-    LoadError["InvalidSignature"] = "Invalid signature";
-    LoadError["InvalidRecords"] = "Invalid records";
-    LoadError["InvalidNodes"] = "Invalid nodes";
-})(LoadError || (LoadError = {}));
+// ES6 Map
+var map;
+try {
+  map = Map;
+} catch (_) { }
+var set;
 
-var TransactionStatus;
-(function (TransactionStatus) {
-    TransactionStatus["Pending"] = "pending";
-    TransactionStatus["Aired"] = "aired";
-    TransactionStatus["Failed"] = "failed";
-    TransactionStatus["Abandonned"] = "abandonned";
-    TransactionStatus["Completed"] = "completed";
-})(TransactionStatus || (TransactionStatus = {}));
-var CallStatus;
-(function (CallStatus) {
-    CallStatus["Pending"] = "pending";
-    CallStatus["Failed"] = "failed";
-    CallStatus["Completed"] = "completed";
-})(CallStatus || (CallStatus = {}));
+// ES6 Set
+try {
+  set = Set;
+} catch (_) { }
 
-var interopRequireDefault = createCommonjsModule(function (module) {
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : {
-    default: obj
-  };
+function baseClone (src, circulars, clones) {
+  // Null/undefined/functions/etc
+  if (!src || typeof src !== 'object' || typeof src === 'function') {
+    return src
+  }
+
+  // DOM Node
+  if (src.nodeType && 'cloneNode' in src) {
+    return src.cloneNode(true)
+  }
+
+  // Date
+  if (src instanceof Date) {
+    return new Date(src.getTime())
+  }
+
+  // RegExp
+  if (src instanceof RegExp) {
+    return new RegExp(src)
+  }
+
+  // Arrays
+  if (Array.isArray(src)) {
+    return src.map(clone)
+  }
+
+  // ES6 Maps
+  if (map && src instanceof map) {
+    return new Map(Array.from(src.entries()))
+  }
+
+  // ES6 Sets
+  if (set && src instanceof set) {
+    return new Set(Array.from(src.values()))
+  }
+
+  // Object
+  if (src instanceof Object) {
+    circulars.push(src);
+    var obj = Object.create(src);
+    clones.push(obj);
+    for (var key in src) {
+      var idx = circulars.findIndex(function (i) {
+        return i === src[key]
+      });
+      obj[key] = idx > -1 ? clones[idx] : baseClone(src[key], circulars, clones);
+    }
+    return obj
+  }
+
+  // ???
+  return src
 }
 
-module.exports = _interopRequireDefault;
-});
+function clone (src) {
+  return baseClone(src, [], [])
+}
 
-unwrapExports(interopRequireDefault);
+var nanoclone = clone;
 
-var _extends_1 = createCommonjsModule(function (module) {
-function _extends() {
-  module.exports = _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
+const toString = Object.prototype.toString;
+const errorToString = Error.prototype.toString;
+const regExpToString = RegExp.prototype.toString;
+const symbolToString = typeof Symbol !== 'undefined' ? Symbol.prototype.toString : () => '';
+const SYMBOL_REGEXP = /^Symbol\((.*)\)(.*)$/;
 
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
+function printNumber(val) {
+  if (val != +val) return 'NaN';
+  const isNegativeZero = val === 0 && 1 / val < 0;
+  return isNegativeZero ? '-0' : '' + val;
+}
+
+function printSimpleValue(val, quoteStrings = false) {
+  if (val == null || val === true || val === false) return '' + val;
+  const typeOf = typeof val;
+  if (typeOf === 'number') return printNumber(val);
+  if (typeOf === 'string') return quoteStrings ? `"${val}"` : val;
+  if (typeOf === 'function') return '[Function ' + (val.name || 'anonymous') + ']';
+  if (typeOf === 'symbol') return symbolToString.call(val).replace(SYMBOL_REGEXP, 'Symbol($1)');
+  const tag = toString.call(val).slice(8, -1);
+  if (tag === 'Date') return isNaN(val.getTime()) ? '' + val : val.toISOString(val);
+  if (tag === 'Error' || val instanceof Error) return '[' + errorToString.call(val) + ']';
+  if (tag === 'RegExp') return regExpToString.call(val);
+  return null;
+}
+
+function printValue(value, quoteStrings) {
+  let result = printSimpleValue(value, quoteStrings);
+  if (result !== null) return result;
+  return JSON.stringify(value, function (key, value) {
+    let result = printSimpleValue(this[key], quoteStrings);
+    if (result !== null) return result;
+    return value;
+  }, 2);
+}
+
+let mixed = {
+  default: '${path} is invalid',
+  required: '${path} is a required field',
+  oneOf: '${path} must be one of the following values: ${values}',
+  notOneOf: '${path} must not be one of the following values: ${values}',
+  notType: ({
+    path,
+    type,
+    value,
+    originalValue
+  }) => {
+    let isCast = originalValue != null && originalValue !== value;
+    let msg = `${path} must be a \`${type}\` type, ` + `but the final value was: \`${printValue(value, true)}\`` + (isCast ? ` (cast from the value \`${printValue(originalValue, true)}\`).` : '.');
+
+    if (value === null) {
+      msg += `\n If "null" is intended as an empty value be sure to mark the schema as \`.nullable()\``;
     }
 
-    return target;
-  };
-
-  return _extends.apply(this, arguments);
-}
-
-module.exports = _extends;
+    return msg;
+  },
+  defined: '${path} must be defined'
+};
+let string = {
+  length: '${path} must be exactly ${length} characters',
+  min: '${path} must be at least ${min} characters',
+  max: '${path} must be at most ${max} characters',
+  matches: '${path} must match the following: "${regex}"',
+  email: '${path} must be a valid email',
+  url: '${path} must be a valid URL',
+  uuid: '${path} must be a valid UUID',
+  trim: '${path} must be a trimmed string',
+  lowercase: '${path} must be a lowercase string',
+  uppercase: '${path} must be a upper case string'
+};
+let number = {
+  min: '${path} must be greater than or equal to ${min}',
+  max: '${path} must be less than or equal to ${max}',
+  lessThan: '${path} must be less than ${less}',
+  moreThan: '${path} must be greater than ${more}',
+  positive: '${path} must be a positive number',
+  negative: '${path} must be a negative number',
+  integer: '${path} must be an integer'
+};
+let date = {
+  min: '${path} field must be later than ${min}',
+  max: '${path} field must be at earlier than ${max}'
+};
+let boolean = {
+  isValue: '${path} field must be ${value}'
+};
+let object = {
+  noUnknown: '${path} field has unspecified keys: ${unknown}'
+};
+let array = {
+  min: '${path} field must have at least ${min} items',
+  max: '${path} field must have less than or equal to ${max} items',
+  length: '${path} must be have ${length} items'
+};
+Object.assign(Object.create(null), {
+  mixed,
+  string,
+  number,
+  date,
+  object,
+  array,
+  boolean
 });
 
 /** Used for built-in method references. */
@@ -4766,9 +5415,9 @@ var _freeGlobal = freeGlobal;
 var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
 
 /** Used as a reference to the global object. */
-var root = _freeGlobal || freeSelf || Function('return this')();
+var root$1 = _freeGlobal || freeSelf || Function('return this')();
 
-var _root = root;
+var _root = root$1;
 
 /** Built-in value references. */
 var Symbol$1 = _root.Symbol;
@@ -5771,7 +6420,7 @@ var INFINITY = 1 / 0;
 
 /** Used to convert symbols to primitives and strings. */
 var symbolProto = _Symbol ? _Symbol.prototype : undefined,
-    symbolToString = symbolProto ? symbolProto.toString : undefined;
+    symbolToString$1 = symbolProto ? symbolProto.toString : undefined;
 
 /**
  * The base implementation of `_.toString` which doesn't convert nullish
@@ -5791,7 +6440,7 @@ function baseToString(value) {
     return _arrayMap(value, baseToString) + '';
   }
   if (isSymbol_1(value)) {
-    return symbolToString ? symbolToString.call(value) : '';
+    return symbolToString$1 ? symbolToString$1.call(value) : '';
   }
   var result = (value + '');
   return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
@@ -5820,11 +6469,11 @@ var _baseToString = baseToString;
  * _.toString([1, 2, 3]);
  * // => '1,2,3'
  */
-function toString(value) {
+function toString$1(value) {
   return value == null ? '' : _baseToString(value);
 }
 
-var toString_1 = toString;
+var toString_1 = toString$1;
 
 /**
  * Casts `value` to a path array if it's not one.
@@ -6041,143 +6690,150 @@ function has(object, path) {
 
 var has_1 = has;
 
-/**
- * Removes all key-value entries from the stack.
- *
- * @private
- * @name clear
- * @memberOf Stack
- */
-function stackClear() {
-  this.__data__ = new _ListCache;
-  this.size = 0;
-}
+var isSchema = (obj => obj && obj.__isYupSchema__);
 
-var _stackClear = stackClear;
+class Condition {
+  constructor(refs, options) {
+    this.refs = refs;
+    this.refs = refs;
 
-/**
- * Removes `key` and its value from the stack.
- *
- * @private
- * @name delete
- * @memberOf Stack
- * @param {string} key The key of the value to remove.
- * @returns {boolean} Returns `true` if the entry was removed, else `false`.
- */
-function stackDelete(key) {
-  var data = this.__data__,
-      result = data['delete'](key);
-
-  this.size = data.size;
-  return result;
-}
-
-var _stackDelete = stackDelete;
-
-/**
- * Gets the stack value for `key`.
- *
- * @private
- * @name get
- * @memberOf Stack
- * @param {string} key The key of the value to get.
- * @returns {*} Returns the entry value.
- */
-function stackGet(key) {
-  return this.__data__.get(key);
-}
-
-var _stackGet = stackGet;
-
-/**
- * Checks if a stack value for `key` exists.
- *
- * @private
- * @name has
- * @memberOf Stack
- * @param {string} key The key of the entry to check.
- * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
- */
-function stackHas(key) {
-  return this.__data__.has(key);
-}
-
-var _stackHas = stackHas;
-
-/** Used as the size to enable large array optimizations. */
-var LARGE_ARRAY_SIZE = 200;
-
-/**
- * Sets the stack `key` to `value`.
- *
- * @private
- * @name set
- * @memberOf Stack
- * @param {string} key The key of the value to set.
- * @param {*} value The value to set.
- * @returns {Object} Returns the stack cache instance.
- */
-function stackSet(key, value) {
-  var data = this.__data__;
-  if (data instanceof _ListCache) {
-    var pairs = data.__data__;
-    if (!_Map || (pairs.length < LARGE_ARRAY_SIZE - 1)) {
-      pairs.push([key, value]);
-      this.size = ++data.size;
-      return this;
+    if (typeof options === 'function') {
+      this.fn = options;
+      return;
     }
-    data = this.__data__ = new _MapCache(pairs);
+
+    if (!has_1(options, 'is')) throw new TypeError('`is:` is required for `when()` conditions');
+    if (!options.then && !options.otherwise) throw new TypeError('either `then:` or `otherwise:` is required for `when()` conditions');
+    let {
+      is,
+      then,
+      otherwise
+    } = options;
+    let check = typeof is === 'function' ? is : (...values) => values.every(value => value === is);
+
+    this.fn = function (...args) {
+      let options = args.pop();
+      let schema = args.pop();
+      let branch = check(...args) ? then : otherwise;
+      if (!branch) return undefined;
+      if (typeof branch === 'function') return branch(schema);
+      return schema.concat(branch.resolve(options));
+    };
   }
-  data.set(key, value);
-  this.size = data.size;
-  return this;
-}
 
-var _stackSet = stackSet;
-
-/**
- * Creates a stack cache object to store key-value pairs.
- *
- * @private
- * @constructor
- * @param {Array} [entries] The key-value pairs to cache.
- */
-function Stack(entries) {
-  var data = this.__data__ = new _ListCache(entries);
-  this.size = data.size;
-}
-
-// Add methods to `Stack`.
-Stack.prototype.clear = _stackClear;
-Stack.prototype['delete'] = _stackDelete;
-Stack.prototype.get = _stackGet;
-Stack.prototype.has = _stackHas;
-Stack.prototype.set = _stackSet;
-
-var _Stack = Stack;
-
-/**
- * A specialized version of `_.forEach` for arrays without support for
- * iteratee shorthands.
- *
- * @private
- * @param {Array} [array] The array to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Array} Returns `array`.
- */
-function arrayEach(array, iteratee) {
-  var index = -1,
-      length = array == null ? 0 : array.length;
-
-  while (++index < length) {
-    if (iteratee(array[index], index, array) === false) {
-      break;
-    }
+  resolve(base, options) {
+    let values = this.refs.map(ref => ref.getValue(options == null ? void 0 : options.value, options == null ? void 0 : options.parent, options == null ? void 0 : options.context));
+    let schema = this.fn.apply(base, values.concat(base, options));
+    if (schema === undefined || schema === base) return base;
+    if (!isSchema(schema)) throw new TypeError('conditions must return a schema object');
+    return schema.resolve(options);
   }
-  return array;
+
 }
 
-var _arrayEach = arrayEach;
+function toArray(value) {
+  return value == null ? [] : [].concat(value);
+}
+
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+let strReg = /\$\{\s*(\w+)\s*\}/g;
+class ValidationError extends Error {
+  static formatError(message, params) {
+    const path = params.label || params.path || 'this';
+    if (path !== params.path) params = _extends({}, params, {
+      path
+    });
+    if (typeof message === 'string') return message.replace(strReg, (_, key) => printValue(params[key]));
+    if (typeof message === 'function') return message(params);
+    return message;
+  }
+
+  static isError(err) {
+    return err && err.name === 'ValidationError';
+  }
+
+  constructor(errorOrErrors, value, field, type) {
+    super();
+    this.name = 'ValidationError';
+    this.value = value;
+    this.path = field;
+    this.type = type;
+    this.errors = [];
+    this.inner = [];
+    toArray(errorOrErrors).forEach(err => {
+      if (ValidationError.isError(err)) {
+        this.errors.push(...err.errors);
+        this.inner = this.inner.concat(err.inner.length ? err.inner : err);
+      } else {
+        this.errors.push(err);
+      }
+    });
+    this.message = this.errors.length > 1 ? `${this.errors.length} errors occurred` : this.errors[0];
+    if (Error.captureStackTrace) Error.captureStackTrace(this, ValidationError);
+  }
+
+}
+
+const once = cb => {
+  let fired = false;
+  return (...args) => {
+    if (fired) return;
+    fired = true;
+    cb(...args);
+  };
+};
+
+function runTests(options, cb) {
+  let {
+    endEarly,
+    tests,
+    args,
+    value,
+    errors,
+    sort,
+    path
+  } = options;
+  let callback = once(cb);
+  let count = tests.length;
+  const nestedErrors = [];
+  errors = errors ? errors : [];
+  if (!count) return errors.length ? callback(new ValidationError(errors, value, path)) : callback(null, value);
+
+  for (let i = 0; i < tests.length; i++) {
+    const test = tests[i];
+    test(args, function finishTestRun(err) {
+      if (err) {
+        // always return early for non validation errors
+        if (!ValidationError.isError(err)) {
+          return callback(err, value);
+        }
+
+        if (endEarly) {
+          err.value = value;
+          return callback(err, value);
+        }
+
+        nestedErrors.push(err);
+      }
+
+      if (--count <= 0) {
+        if (nestedErrors.length) {
+          if (sort) nestedErrors.sort(sort); //show parent errors after the nested ones: name.first, name
+
+          if (errors.length) nestedErrors.push(...errors);
+          errors = nestedErrors;
+        }
+
+        if (errors.length) {
+          callback(new ValidationError(errors, value, path), value);
+          return;
+        }
+
+        callback(null, value);
+      }
+    });
+  }
+}
 
 var defineProperty = (function() {
   try {
@@ -6213,69 +6869,46 @@ function baseAssignValue(object, key, value) {
 
 var _baseAssignValue = baseAssignValue;
 
-/** Used for built-in method references. */
-var objectProto$7 = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty$6 = objectProto$7.hasOwnProperty;
-
 /**
- * Assigns `value` to `key` of `object` if the existing value is not equivalent
- * using [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
- * for equality comparisons.
+ * Creates a base function for methods like `_.forIn` and `_.forOwn`.
  *
  * @private
- * @param {Object} object The object to modify.
- * @param {string} key The key of the property to assign.
- * @param {*} value The value to assign.
+ * @param {boolean} [fromRight] Specify iterating from right to left.
+ * @returns {Function} Returns the new base function.
  */
-function assignValue(object, key, value) {
-  var objValue = object[key];
-  if (!(hasOwnProperty$6.call(object, key) && eq_1(objValue, value)) ||
-      (value === undefined && !(key in object))) {
-    _baseAssignValue(object, key, value);
-  }
+function createBaseFor(fromRight) {
+  return function(object, iteratee, keysFunc) {
+    var index = -1,
+        iterable = Object(object),
+        props = keysFunc(object),
+        length = props.length;
+
+    while (length--) {
+      var key = props[fromRight ? length : ++index];
+      if (iteratee(iterable[key], key, iterable) === false) {
+        break;
+      }
+    }
+    return object;
+  };
 }
 
-var _assignValue = assignValue;
+var _createBaseFor = createBaseFor;
 
 /**
- * Copies properties of `source` to `object`.
+ * The base implementation of `baseForOwn` which iterates over `object`
+ * properties returned by `keysFunc` and invokes `iteratee` for each property.
+ * Iteratee functions may exit iteration early by explicitly returning `false`.
  *
  * @private
- * @param {Object} source The object to copy properties from.
- * @param {Array} props The property identifiers to copy.
- * @param {Object} [object={}] The object to copy properties to.
- * @param {Function} [customizer] The function to customize copied values.
+ * @param {Object} object The object to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @param {Function} keysFunc The function to get the keys of `object`.
  * @returns {Object} Returns `object`.
  */
-function copyObject(source, props, object, customizer) {
-  var isNew = !object;
-  object || (object = {});
+var baseFor = _createBaseFor();
 
-  var index = -1,
-      length = props.length;
-
-  while (++index < length) {
-    var key = props[index];
-
-    var newValue = customizer
-      ? customizer(object[key], source[key], key, object, source)
-      : undefined;
-
-    if (newValue === undefined) {
-      newValue = source[key];
-    }
-    if (isNew) {
-      _baseAssignValue(object, key, newValue);
-    } else {
-      _assignValue(object, key, newValue);
-    }
-  }
-  return object;
-}
-
-var _copyObject = copyObject;
+var _baseFor = baseFor;
 
 /**
  * The base implementation of `_.times` without support for iteratee shorthands
@@ -6483,10 +7116,10 @@ var isTypedArray = nodeIsTypedArray ? _baseUnary(nodeIsTypedArray) : _baseIsType
 var isTypedArray_1 = isTypedArray;
 
 /** Used for built-in method references. */
-var objectProto$8 = Object.prototype;
+var objectProto$7 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$7 = objectProto$8.hasOwnProperty;
+var hasOwnProperty$6 = objectProto$7.hasOwnProperty;
 
 /**
  * Creates an array of the enumerable property names of the array-like `value`.
@@ -6506,7 +7139,7 @@ function arrayLikeKeys(value, inherited) {
       length = result.length;
 
   for (var key in value) {
-    if ((inherited || hasOwnProperty$7.call(value, key)) &&
+    if ((inherited || hasOwnProperty$6.call(value, key)) &&
         !(skipIndexes && (
            // Safari 9 has enumerable `arguments.length` in strict mode.
            key == 'length' ||
@@ -6526,7 +7159,7 @@ function arrayLikeKeys(value, inherited) {
 var _arrayLikeKeys = arrayLikeKeys;
 
 /** Used for built-in method references. */
-var objectProto$9 = Object.prototype;
+var objectProto$8 = Object.prototype;
 
 /**
  * Checks if `value` is likely a prototype object.
@@ -6537,7 +7170,7 @@ var objectProto$9 = Object.prototype;
  */
 function isPrototype(value) {
   var Ctor = value && value.constructor,
-      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto$9;
+      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto$8;
 
   return value === proto;
 }
@@ -6566,10 +7199,10 @@ var nativeKeys = _overArg(Object.keys, Object);
 var _nativeKeys = nativeKeys;
 
 /** Used for built-in method references. */
-var objectProto$a = Object.prototype;
+var objectProto$9 = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$8 = objectProto$a.hasOwnProperty;
+var hasOwnProperty$7 = objectProto$9.hasOwnProperty;
 
 /**
  * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
@@ -6584,7 +7217,7 @@ function baseKeys(object) {
   }
   var result = [];
   for (var key in Object(object)) {
-    if (hasOwnProperty$8.call(object, key) && key != 'constructor') {
+    if (hasOwnProperty$7.call(object, key) && key != 'constructor') {
       result.push(key);
     }
   }
@@ -6659,2203 +7292,6 @@ function keys(object) {
 var keys_1 = keys;
 
 /**
- * The base implementation of `_.assign` without support for multiple sources
- * or `customizer` functions.
- *
- * @private
- * @param {Object} object The destination object.
- * @param {Object} source The source object.
- * @returns {Object} Returns `object`.
- */
-function baseAssign(object, source) {
-  return object && _copyObject(source, keys_1(source), object);
-}
-
-var _baseAssign = baseAssign;
-
-/**
- * This function is like
- * [`Object.keys`](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
- * except that it includes inherited enumerable properties.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- */
-function nativeKeysIn(object) {
-  var result = [];
-  if (object != null) {
-    for (var key in Object(object)) {
-      result.push(key);
-    }
-  }
-  return result;
-}
-
-var _nativeKeysIn = nativeKeysIn;
-
-/** Used for built-in method references. */
-var objectProto$b = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty$9 = objectProto$b.hasOwnProperty;
-
-/**
- * The base implementation of `_.keysIn` which doesn't treat sparse arrays as dense.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- */
-function baseKeysIn(object) {
-  if (!isObject_1(object)) {
-    return _nativeKeysIn(object);
-  }
-  var isProto = _isPrototype(object),
-      result = [];
-
-  for (var key in object) {
-    if (!(key == 'constructor' && (isProto || !hasOwnProperty$9.call(object, key)))) {
-      result.push(key);
-    }
-  }
-  return result;
-}
-
-var _baseKeysIn = baseKeysIn;
-
-/**
- * Creates an array of the own and inherited enumerable property names of `object`.
- *
- * **Note:** Non-object values are coerced to objects.
- *
- * @static
- * @memberOf _
- * @since 3.0.0
- * @category Object
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- * @example
- *
- * function Foo() {
- *   this.a = 1;
- *   this.b = 2;
- * }
- *
- * Foo.prototype.c = 3;
- *
- * _.keysIn(new Foo);
- * // => ['a', 'b', 'c'] (iteration order is not guaranteed)
- */
-function keysIn(object) {
-  return isArrayLike_1(object) ? _arrayLikeKeys(object, true) : _baseKeysIn(object);
-}
-
-var keysIn_1 = keysIn;
-
-/**
- * The base implementation of `_.assignIn` without support for multiple sources
- * or `customizer` functions.
- *
- * @private
- * @param {Object} object The destination object.
- * @param {Object} source The source object.
- * @returns {Object} Returns `object`.
- */
-function baseAssignIn(object, source) {
-  return object && _copyObject(source, keysIn_1(source), object);
-}
-
-var _baseAssignIn = baseAssignIn;
-
-var _cloneBuffer = createCommonjsModule(function (module, exports) {
-/** Detect free variable `exports`. */
-var freeExports =  exports && !exports.nodeType && exports;
-
-/** Detect free variable `module`. */
-var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
-
-/** Detect the popular CommonJS extension `module.exports`. */
-var moduleExports = freeModule && freeModule.exports === freeExports;
-
-/** Built-in value references. */
-var Buffer = moduleExports ? _root.Buffer : undefined,
-    allocUnsafe = Buffer ? Buffer.allocUnsafe : undefined;
-
-/**
- * Creates a clone of  `buffer`.
- *
- * @private
- * @param {Buffer} buffer The buffer to clone.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Buffer} Returns the cloned buffer.
- */
-function cloneBuffer(buffer, isDeep) {
-  if (isDeep) {
-    return buffer.slice();
-  }
-  var length = buffer.length,
-      result = allocUnsafe ? allocUnsafe(length) : new buffer.constructor(length);
-
-  buffer.copy(result);
-  return result;
-}
-
-module.exports = cloneBuffer;
-});
-
-/**
- * Copies the values of `source` to `array`.
- *
- * @private
- * @param {Array} source The array to copy values from.
- * @param {Array} [array=[]] The array to copy values to.
- * @returns {Array} Returns `array`.
- */
-function copyArray(source, array) {
-  var index = -1,
-      length = source.length;
-
-  array || (array = Array(length));
-  while (++index < length) {
-    array[index] = source[index];
-  }
-  return array;
-}
-
-var _copyArray = copyArray;
-
-/**
- * A specialized version of `_.filter` for arrays without support for
- * iteratee shorthands.
- *
- * @private
- * @param {Array} [array] The array to iterate over.
- * @param {Function} predicate The function invoked per iteration.
- * @returns {Array} Returns the new filtered array.
- */
-function arrayFilter(array, predicate) {
-  var index = -1,
-      length = array == null ? 0 : array.length,
-      resIndex = 0,
-      result = [];
-
-  while (++index < length) {
-    var value = array[index];
-    if (predicate(value, index, array)) {
-      result[resIndex++] = value;
-    }
-  }
-  return result;
-}
-
-var _arrayFilter = arrayFilter;
-
-/**
- * This method returns a new empty array.
- *
- * @static
- * @memberOf _
- * @since 4.13.0
- * @category Util
- * @returns {Array} Returns the new empty array.
- * @example
- *
- * var arrays = _.times(2, _.stubArray);
- *
- * console.log(arrays);
- * // => [[], []]
- *
- * console.log(arrays[0] === arrays[1]);
- * // => false
- */
-function stubArray() {
-  return [];
-}
-
-var stubArray_1 = stubArray;
-
-/** Used for built-in method references. */
-var objectProto$c = Object.prototype;
-
-/** Built-in value references. */
-var propertyIsEnumerable$1 = objectProto$c.propertyIsEnumerable;
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeGetSymbols = Object.getOwnPropertySymbols;
-
-/**
- * Creates an array of the own enumerable symbols of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of symbols.
- */
-var getSymbols = !nativeGetSymbols ? stubArray_1 : function(object) {
-  if (object == null) {
-    return [];
-  }
-  object = Object(object);
-  return _arrayFilter(nativeGetSymbols(object), function(symbol) {
-    return propertyIsEnumerable$1.call(object, symbol);
-  });
-};
-
-var _getSymbols = getSymbols;
-
-/**
- * Copies own symbols of `source` to `object`.
- *
- * @private
- * @param {Object} source The object to copy symbols from.
- * @param {Object} [object={}] The object to copy symbols to.
- * @returns {Object} Returns `object`.
- */
-function copySymbols(source, object) {
-  return _copyObject(source, _getSymbols(source), object);
-}
-
-var _copySymbols = copySymbols;
-
-/**
- * Appends the elements of `values` to `array`.
- *
- * @private
- * @param {Array} array The array to modify.
- * @param {Array} values The values to append.
- * @returns {Array} Returns `array`.
- */
-function arrayPush(array, values) {
-  var index = -1,
-      length = values.length,
-      offset = array.length;
-
-  while (++index < length) {
-    array[offset + index] = values[index];
-  }
-  return array;
-}
-
-var _arrayPush = arrayPush;
-
-/** Built-in value references. */
-var getPrototype = _overArg(Object.getPrototypeOf, Object);
-
-var _getPrototype = getPrototype;
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeGetSymbols$1 = Object.getOwnPropertySymbols;
-
-/**
- * Creates an array of the own and inherited enumerable symbols of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of symbols.
- */
-var getSymbolsIn = !nativeGetSymbols$1 ? stubArray_1 : function(object) {
-  var result = [];
-  while (object) {
-    _arrayPush(result, _getSymbols(object));
-    object = _getPrototype(object);
-  }
-  return result;
-};
-
-var _getSymbolsIn = getSymbolsIn;
-
-/**
- * Copies own and inherited symbols of `source` to `object`.
- *
- * @private
- * @param {Object} source The object to copy symbols from.
- * @param {Object} [object={}] The object to copy symbols to.
- * @returns {Object} Returns `object`.
- */
-function copySymbolsIn(source, object) {
-  return _copyObject(source, _getSymbolsIn(source), object);
-}
-
-var _copySymbolsIn = copySymbolsIn;
-
-/**
- * The base implementation of `getAllKeys` and `getAllKeysIn` which uses
- * `keysFunc` and `symbolsFunc` to get the enumerable property names and
- * symbols of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {Function} keysFunc The function to get the keys of `object`.
- * @param {Function} symbolsFunc The function to get the symbols of `object`.
- * @returns {Array} Returns the array of property names and symbols.
- */
-function baseGetAllKeys(object, keysFunc, symbolsFunc) {
-  var result = keysFunc(object);
-  return isArray_1(object) ? result : _arrayPush(result, symbolsFunc(object));
-}
-
-var _baseGetAllKeys = baseGetAllKeys;
-
-/**
- * Creates an array of own enumerable property names and symbols of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names and symbols.
- */
-function getAllKeys(object) {
-  return _baseGetAllKeys(object, keys_1, _getSymbols);
-}
-
-var _getAllKeys = getAllKeys;
-
-/**
- * Creates an array of own and inherited enumerable property names and
- * symbols of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names and symbols.
- */
-function getAllKeysIn(object) {
-  return _baseGetAllKeys(object, keysIn_1, _getSymbolsIn);
-}
-
-var _getAllKeysIn = getAllKeysIn;
-
-/* Built-in method references that are verified to be native. */
-var DataView = _getNative(_root, 'DataView');
-
-var _DataView = DataView;
-
-/* Built-in method references that are verified to be native. */
-var Promise$1 = _getNative(_root, 'Promise');
-
-var _Promise = Promise$1;
-
-/* Built-in method references that are verified to be native. */
-var Set$1 = _getNative(_root, 'Set');
-
-var _Set = Set$1;
-
-/* Built-in method references that are verified to be native. */
-var WeakMap = _getNative(_root, 'WeakMap');
-
-var _WeakMap = WeakMap;
-
-/** `Object#toString` result references. */
-var mapTag$1 = '[object Map]',
-    objectTag$1 = '[object Object]',
-    promiseTag = '[object Promise]',
-    setTag$1 = '[object Set]',
-    weakMapTag$1 = '[object WeakMap]';
-
-var dataViewTag$1 = '[object DataView]';
-
-/** Used to detect maps, sets, and weakmaps. */
-var dataViewCtorString = _toSource(_DataView),
-    mapCtorString = _toSource(_Map),
-    promiseCtorString = _toSource(_Promise),
-    setCtorString = _toSource(_Set),
-    weakMapCtorString = _toSource(_WeakMap);
-
-/**
- * Gets the `toStringTag` of `value`.
- *
- * @private
- * @param {*} value The value to query.
- * @returns {string} Returns the `toStringTag`.
- */
-var getTag = _baseGetTag;
-
-// Fallback for data views, maps, sets, and weak maps in IE 11 and promises in Node.js < 6.
-if ((_DataView && getTag(new _DataView(new ArrayBuffer(1))) != dataViewTag$1) ||
-    (_Map && getTag(new _Map) != mapTag$1) ||
-    (_Promise && getTag(_Promise.resolve()) != promiseTag) ||
-    (_Set && getTag(new _Set) != setTag$1) ||
-    (_WeakMap && getTag(new _WeakMap) != weakMapTag$1)) {
-  getTag = function(value) {
-    var result = _baseGetTag(value),
-        Ctor = result == objectTag$1 ? value.constructor : undefined,
-        ctorString = Ctor ? _toSource(Ctor) : '';
-
-    if (ctorString) {
-      switch (ctorString) {
-        case dataViewCtorString: return dataViewTag$1;
-        case mapCtorString: return mapTag$1;
-        case promiseCtorString: return promiseTag;
-        case setCtorString: return setTag$1;
-        case weakMapCtorString: return weakMapTag$1;
-      }
-    }
-    return result;
-  };
-}
-
-var _getTag = getTag;
-
-/** Used for built-in method references. */
-var objectProto$d = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty$a = objectProto$d.hasOwnProperty;
-
-/**
- * Initializes an array clone.
- *
- * @private
- * @param {Array} array The array to clone.
- * @returns {Array} Returns the initialized clone.
- */
-function initCloneArray(array) {
-  var length = array.length,
-      result = new array.constructor(length);
-
-  // Add properties assigned by `RegExp#exec`.
-  if (length && typeof array[0] == 'string' && hasOwnProperty$a.call(array, 'index')) {
-    result.index = array.index;
-    result.input = array.input;
-  }
-  return result;
-}
-
-var _initCloneArray = initCloneArray;
-
-/** Built-in value references. */
-var Uint8Array = _root.Uint8Array;
-
-var _Uint8Array = Uint8Array;
-
-/**
- * Creates a clone of `arrayBuffer`.
- *
- * @private
- * @param {ArrayBuffer} arrayBuffer The array buffer to clone.
- * @returns {ArrayBuffer} Returns the cloned array buffer.
- */
-function cloneArrayBuffer(arrayBuffer) {
-  var result = new arrayBuffer.constructor(arrayBuffer.byteLength);
-  new _Uint8Array(result).set(new _Uint8Array(arrayBuffer));
-  return result;
-}
-
-var _cloneArrayBuffer = cloneArrayBuffer;
-
-/**
- * Creates a clone of `dataView`.
- *
- * @private
- * @param {Object} dataView The data view to clone.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Object} Returns the cloned data view.
- */
-function cloneDataView(dataView, isDeep) {
-  var buffer = isDeep ? _cloneArrayBuffer(dataView.buffer) : dataView.buffer;
-  return new dataView.constructor(buffer, dataView.byteOffset, dataView.byteLength);
-}
-
-var _cloneDataView = cloneDataView;
-
-/** Used to match `RegExp` flags from their coerced string values. */
-var reFlags = /\w*$/;
-
-/**
- * Creates a clone of `regexp`.
- *
- * @private
- * @param {Object} regexp The regexp to clone.
- * @returns {Object} Returns the cloned regexp.
- */
-function cloneRegExp(regexp) {
-  var result = new regexp.constructor(regexp.source, reFlags.exec(regexp));
-  result.lastIndex = regexp.lastIndex;
-  return result;
-}
-
-var _cloneRegExp = cloneRegExp;
-
-/** Used to convert symbols to primitives and strings. */
-var symbolProto$1 = _Symbol ? _Symbol.prototype : undefined,
-    symbolValueOf = symbolProto$1 ? symbolProto$1.valueOf : undefined;
-
-/**
- * Creates a clone of the `symbol` object.
- *
- * @private
- * @param {Object} symbol The symbol object to clone.
- * @returns {Object} Returns the cloned symbol object.
- */
-function cloneSymbol(symbol) {
-  return symbolValueOf ? Object(symbolValueOf.call(symbol)) : {};
-}
-
-var _cloneSymbol = cloneSymbol;
-
-/**
- * Creates a clone of `typedArray`.
- *
- * @private
- * @param {Object} typedArray The typed array to clone.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Object} Returns the cloned typed array.
- */
-function cloneTypedArray(typedArray, isDeep) {
-  var buffer = isDeep ? _cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
-  return new typedArray.constructor(buffer, typedArray.byteOffset, typedArray.length);
-}
-
-var _cloneTypedArray = cloneTypedArray;
-
-/** `Object#toString` result references. */
-var boolTag$1 = '[object Boolean]',
-    dateTag$1 = '[object Date]',
-    mapTag$2 = '[object Map]',
-    numberTag$1 = '[object Number]',
-    regexpTag$1 = '[object RegExp]',
-    setTag$2 = '[object Set]',
-    stringTag$1 = '[object String]',
-    symbolTag$1 = '[object Symbol]';
-
-var arrayBufferTag$1 = '[object ArrayBuffer]',
-    dataViewTag$2 = '[object DataView]',
-    float32Tag$1 = '[object Float32Array]',
-    float64Tag$1 = '[object Float64Array]',
-    int8Tag$1 = '[object Int8Array]',
-    int16Tag$1 = '[object Int16Array]',
-    int32Tag$1 = '[object Int32Array]',
-    uint8Tag$1 = '[object Uint8Array]',
-    uint8ClampedTag$1 = '[object Uint8ClampedArray]',
-    uint16Tag$1 = '[object Uint16Array]',
-    uint32Tag$1 = '[object Uint32Array]';
-
-/**
- * Initializes an object clone based on its `toStringTag`.
- *
- * **Note:** This function only supports cloning values with tags of
- * `Boolean`, `Date`, `Error`, `Map`, `Number`, `RegExp`, `Set`, or `String`.
- *
- * @private
- * @param {Object} object The object to clone.
- * @param {string} tag The `toStringTag` of the object to clone.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Object} Returns the initialized clone.
- */
-function initCloneByTag(object, tag, isDeep) {
-  var Ctor = object.constructor;
-  switch (tag) {
-    case arrayBufferTag$1:
-      return _cloneArrayBuffer(object);
-
-    case boolTag$1:
-    case dateTag$1:
-      return new Ctor(+object);
-
-    case dataViewTag$2:
-      return _cloneDataView(object, isDeep);
-
-    case float32Tag$1: case float64Tag$1:
-    case int8Tag$1: case int16Tag$1: case int32Tag$1:
-    case uint8Tag$1: case uint8ClampedTag$1: case uint16Tag$1: case uint32Tag$1:
-      return _cloneTypedArray(object, isDeep);
-
-    case mapTag$2:
-      return new Ctor;
-
-    case numberTag$1:
-    case stringTag$1:
-      return new Ctor(object);
-
-    case regexpTag$1:
-      return _cloneRegExp(object);
-
-    case setTag$2:
-      return new Ctor;
-
-    case symbolTag$1:
-      return _cloneSymbol(object);
-  }
-}
-
-var _initCloneByTag = initCloneByTag;
-
-/** Built-in value references. */
-var objectCreate = Object.create;
-
-/**
- * The base implementation of `_.create` without support for assigning
- * properties to the created object.
- *
- * @private
- * @param {Object} proto The object to inherit from.
- * @returns {Object} Returns the new object.
- */
-var baseCreate = (function() {
-  function object() {}
-  return function(proto) {
-    if (!isObject_1(proto)) {
-      return {};
-    }
-    if (objectCreate) {
-      return objectCreate(proto);
-    }
-    object.prototype = proto;
-    var result = new object;
-    object.prototype = undefined;
-    return result;
-  };
-}());
-
-var _baseCreate = baseCreate;
-
-/**
- * Initializes an object clone.
- *
- * @private
- * @param {Object} object The object to clone.
- * @returns {Object} Returns the initialized clone.
- */
-function initCloneObject(object) {
-  return (typeof object.constructor == 'function' && !_isPrototype(object))
-    ? _baseCreate(_getPrototype(object))
-    : {};
-}
-
-var _initCloneObject = initCloneObject;
-
-/** `Object#toString` result references. */
-var mapTag$3 = '[object Map]';
-
-/**
- * The base implementation of `_.isMap` without Node.js optimizations.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a map, else `false`.
- */
-function baseIsMap(value) {
-  return isObjectLike_1(value) && _getTag(value) == mapTag$3;
-}
-
-var _baseIsMap = baseIsMap;
-
-/* Node.js helper references. */
-var nodeIsMap = _nodeUtil && _nodeUtil.isMap;
-
-/**
- * Checks if `value` is classified as a `Map` object.
- *
- * @static
- * @memberOf _
- * @since 4.3.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a map, else `false`.
- * @example
- *
- * _.isMap(new Map);
- * // => true
- *
- * _.isMap(new WeakMap);
- * // => false
- */
-var isMap = nodeIsMap ? _baseUnary(nodeIsMap) : _baseIsMap;
-
-var isMap_1 = isMap;
-
-/** `Object#toString` result references. */
-var setTag$3 = '[object Set]';
-
-/**
- * The base implementation of `_.isSet` without Node.js optimizations.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a set, else `false`.
- */
-function baseIsSet(value) {
-  return isObjectLike_1(value) && _getTag(value) == setTag$3;
-}
-
-var _baseIsSet = baseIsSet;
-
-/* Node.js helper references. */
-var nodeIsSet = _nodeUtil && _nodeUtil.isSet;
-
-/**
- * Checks if `value` is classified as a `Set` object.
- *
- * @static
- * @memberOf _
- * @since 4.3.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a set, else `false`.
- * @example
- *
- * _.isSet(new Set);
- * // => true
- *
- * _.isSet(new WeakSet);
- * // => false
- */
-var isSet = nodeIsSet ? _baseUnary(nodeIsSet) : _baseIsSet;
-
-var isSet_1 = isSet;
-
-/** Used to compose bitmasks for cloning. */
-var CLONE_DEEP_FLAG = 1,
-    CLONE_FLAT_FLAG = 2,
-    CLONE_SYMBOLS_FLAG = 4;
-
-/** `Object#toString` result references. */
-var argsTag$2 = '[object Arguments]',
-    arrayTag$1 = '[object Array]',
-    boolTag$2 = '[object Boolean]',
-    dateTag$2 = '[object Date]',
-    errorTag$1 = '[object Error]',
-    funcTag$2 = '[object Function]',
-    genTag$1 = '[object GeneratorFunction]',
-    mapTag$4 = '[object Map]',
-    numberTag$2 = '[object Number]',
-    objectTag$2 = '[object Object]',
-    regexpTag$2 = '[object RegExp]',
-    setTag$4 = '[object Set]',
-    stringTag$2 = '[object String]',
-    symbolTag$2 = '[object Symbol]',
-    weakMapTag$2 = '[object WeakMap]';
-
-var arrayBufferTag$2 = '[object ArrayBuffer]',
-    dataViewTag$3 = '[object DataView]',
-    float32Tag$2 = '[object Float32Array]',
-    float64Tag$2 = '[object Float64Array]',
-    int8Tag$2 = '[object Int8Array]',
-    int16Tag$2 = '[object Int16Array]',
-    int32Tag$2 = '[object Int32Array]',
-    uint8Tag$2 = '[object Uint8Array]',
-    uint8ClampedTag$2 = '[object Uint8ClampedArray]',
-    uint16Tag$2 = '[object Uint16Array]',
-    uint32Tag$2 = '[object Uint32Array]';
-
-/** Used to identify `toStringTag` values supported by `_.clone`. */
-var cloneableTags = {};
-cloneableTags[argsTag$2] = cloneableTags[arrayTag$1] =
-cloneableTags[arrayBufferTag$2] = cloneableTags[dataViewTag$3] =
-cloneableTags[boolTag$2] = cloneableTags[dateTag$2] =
-cloneableTags[float32Tag$2] = cloneableTags[float64Tag$2] =
-cloneableTags[int8Tag$2] = cloneableTags[int16Tag$2] =
-cloneableTags[int32Tag$2] = cloneableTags[mapTag$4] =
-cloneableTags[numberTag$2] = cloneableTags[objectTag$2] =
-cloneableTags[regexpTag$2] = cloneableTags[setTag$4] =
-cloneableTags[stringTag$2] = cloneableTags[symbolTag$2] =
-cloneableTags[uint8Tag$2] = cloneableTags[uint8ClampedTag$2] =
-cloneableTags[uint16Tag$2] = cloneableTags[uint32Tag$2] = true;
-cloneableTags[errorTag$1] = cloneableTags[funcTag$2] =
-cloneableTags[weakMapTag$2] = false;
-
-/**
- * The base implementation of `_.clone` and `_.cloneDeep` which tracks
- * traversed objects.
- *
- * @private
- * @param {*} value The value to clone.
- * @param {boolean} bitmask The bitmask flags.
- *  1 - Deep clone
- *  2 - Flatten inherited properties
- *  4 - Clone symbols
- * @param {Function} [customizer] The function to customize cloning.
- * @param {string} [key] The key of `value`.
- * @param {Object} [object] The parent object of `value`.
- * @param {Object} [stack] Tracks traversed objects and their clone counterparts.
- * @returns {*} Returns the cloned value.
- */
-function baseClone(value, bitmask, customizer, key, object, stack) {
-  var result,
-      isDeep = bitmask & CLONE_DEEP_FLAG,
-      isFlat = bitmask & CLONE_FLAT_FLAG,
-      isFull = bitmask & CLONE_SYMBOLS_FLAG;
-
-  if (customizer) {
-    result = object ? customizer(value, key, object, stack) : customizer(value);
-  }
-  if (result !== undefined) {
-    return result;
-  }
-  if (!isObject_1(value)) {
-    return value;
-  }
-  var isArr = isArray_1(value);
-  if (isArr) {
-    result = _initCloneArray(value);
-    if (!isDeep) {
-      return _copyArray(value, result);
-    }
-  } else {
-    var tag = _getTag(value),
-        isFunc = tag == funcTag$2 || tag == genTag$1;
-
-    if (isBuffer_1(value)) {
-      return _cloneBuffer(value, isDeep);
-    }
-    if (tag == objectTag$2 || tag == argsTag$2 || (isFunc && !object)) {
-      result = (isFlat || isFunc) ? {} : _initCloneObject(value);
-      if (!isDeep) {
-        return isFlat
-          ? _copySymbolsIn(value, _baseAssignIn(result, value))
-          : _copySymbols(value, _baseAssign(result, value));
-      }
-    } else {
-      if (!cloneableTags[tag]) {
-        return object ? value : {};
-      }
-      result = _initCloneByTag(value, tag, isDeep);
-    }
-  }
-  // Check for circular references and return its corresponding clone.
-  stack || (stack = new _Stack);
-  var stacked = stack.get(value);
-  if (stacked) {
-    return stacked;
-  }
-  stack.set(value, result);
-
-  if (isSet_1(value)) {
-    value.forEach(function(subValue) {
-      result.add(baseClone(subValue, bitmask, customizer, subValue, value, stack));
-    });
-  } else if (isMap_1(value)) {
-    value.forEach(function(subValue, key) {
-      result.set(key, baseClone(subValue, bitmask, customizer, key, value, stack));
-    });
-  }
-
-  var keysFunc = isFull
-    ? (isFlat ? _getAllKeysIn : _getAllKeys)
-    : (isFlat ? keysIn_1 : keys_1);
-
-  var props = isArr ? undefined : keysFunc(value);
-  _arrayEach(props || value, function(subValue, key) {
-    if (props) {
-      key = subValue;
-      subValue = value[key];
-    }
-    // Recursively populate clone (susceptible to call stack limits).
-    _assignValue(result, key, baseClone(subValue, bitmask, customizer, key, value, stack));
-  });
-  return result;
-}
-
-var _baseClone = baseClone;
-
-/** Used to compose bitmasks for cloning. */
-var CLONE_DEEP_FLAG$1 = 1,
-    CLONE_SYMBOLS_FLAG$1 = 4;
-
-/**
- * This method is like `_.cloneWith` except that it recursively clones `value`.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to recursively clone.
- * @param {Function} [customizer] The function to customize cloning.
- * @returns {*} Returns the deep cloned value.
- * @see _.cloneWith
- * @example
- *
- * function customizer(value) {
- *   if (_.isElement(value)) {
- *     return value.cloneNode(true);
- *   }
- * }
- *
- * var el = _.cloneDeepWith(document.body, customizer);
- *
- * console.log(el === document.body);
- * // => false
- * console.log(el.nodeName);
- * // => 'BODY'
- * console.log(el.childNodes.length);
- * // => 20
- */
-function cloneDeepWith(value, customizer) {
-  customizer = typeof customizer == 'function' ? customizer : undefined;
-  return _baseClone(value, CLONE_DEEP_FLAG$1 | CLONE_SYMBOLS_FLAG$1, customizer);
-}
-
-var cloneDeepWith_1 = cloneDeepWith;
-
-/** `Object#toString` result references. */
-var stringTag$3 = '[object String]';
-
-/**
- * Checks if `value` is classified as a `String` primitive or object.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a string, else `false`.
- * @example
- *
- * _.isString('abc');
- * // => true
- *
- * _.isString(1);
- * // => false
- */
-function isString(value) {
-  return typeof value == 'string' ||
-    (!isArray_1(value) && isObjectLike_1(value) && _baseGetTag(value) == stringTag$3);
-}
-
-var isString_1 = isString;
-
-/**
- * Converts `iterator` to an array.
- *
- * @private
- * @param {Object} iterator The iterator to convert.
- * @returns {Array} Returns the converted array.
- */
-function iteratorToArray(iterator) {
-  var data,
-      result = [];
-
-  while (!(data = iterator.next()).done) {
-    result.push(data.value);
-  }
-  return result;
-}
-
-var _iteratorToArray = iteratorToArray;
-
-/**
- * Converts `map` to its key-value pairs.
- *
- * @private
- * @param {Object} map The map to convert.
- * @returns {Array} Returns the key-value pairs.
- */
-function mapToArray(map) {
-  var index = -1,
-      result = Array(map.size);
-
-  map.forEach(function(value, key) {
-    result[++index] = [key, value];
-  });
-  return result;
-}
-
-var _mapToArray = mapToArray;
-
-/**
- * Converts `set` to an array of its values.
- *
- * @private
- * @param {Object} set The set to convert.
- * @returns {Array} Returns the values.
- */
-function setToArray(set) {
-  var index = -1,
-      result = Array(set.size);
-
-  set.forEach(function(value) {
-    result[++index] = value;
-  });
-  return result;
-}
-
-var _setToArray = setToArray;
-
-/**
- * Converts an ASCII `string` to an array.
- *
- * @private
- * @param {string} string The string to convert.
- * @returns {Array} Returns the converted array.
- */
-function asciiToArray(string) {
-  return string.split('');
-}
-
-var _asciiToArray = asciiToArray;
-
-/** Used to compose unicode character classes. */
-var rsAstralRange = '\\ud800-\\udfff',
-    rsComboMarksRange = '\\u0300-\\u036f',
-    reComboHalfMarksRange = '\\ufe20-\\ufe2f',
-    rsComboSymbolsRange = '\\u20d0-\\u20ff',
-    rsComboRange = rsComboMarksRange + reComboHalfMarksRange + rsComboSymbolsRange,
-    rsVarRange = '\\ufe0e\\ufe0f';
-
-/** Used to compose unicode capture groups. */
-var rsZWJ = '\\u200d';
-
-/** Used to detect strings with [zero-width joiners or code points from the astral planes](http://eev.ee/blog/2015/09/12/dark-corners-of-unicode/). */
-var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange  + rsComboRange + rsVarRange + ']');
-
-/**
- * Checks if `string` contains Unicode symbols.
- *
- * @private
- * @param {string} string The string to inspect.
- * @returns {boolean} Returns `true` if a symbol is found, else `false`.
- */
-function hasUnicode(string) {
-  return reHasUnicode.test(string);
-}
-
-var _hasUnicode = hasUnicode;
-
-/** Used to compose unicode character classes. */
-var rsAstralRange$1 = '\\ud800-\\udfff',
-    rsComboMarksRange$1 = '\\u0300-\\u036f',
-    reComboHalfMarksRange$1 = '\\ufe20-\\ufe2f',
-    rsComboSymbolsRange$1 = '\\u20d0-\\u20ff',
-    rsComboRange$1 = rsComboMarksRange$1 + reComboHalfMarksRange$1 + rsComboSymbolsRange$1,
-    rsVarRange$1 = '\\ufe0e\\ufe0f';
-
-/** Used to compose unicode capture groups. */
-var rsAstral = '[' + rsAstralRange$1 + ']',
-    rsCombo = '[' + rsComboRange$1 + ']',
-    rsFitz = '\\ud83c[\\udffb-\\udfff]',
-    rsModifier = '(?:' + rsCombo + '|' + rsFitz + ')',
-    rsNonAstral = '[^' + rsAstralRange$1 + ']',
-    rsRegional = '(?:\\ud83c[\\udde6-\\uddff]){2}',
-    rsSurrPair = '[\\ud800-\\udbff][\\udc00-\\udfff]',
-    rsZWJ$1 = '\\u200d';
-
-/** Used to compose unicode regexes. */
-var reOptMod = rsModifier + '?',
-    rsOptVar = '[' + rsVarRange$1 + ']?',
-    rsOptJoin = '(?:' + rsZWJ$1 + '(?:' + [rsNonAstral, rsRegional, rsSurrPair].join('|') + ')' + rsOptVar + reOptMod + ')*',
-    rsSeq = rsOptVar + reOptMod + rsOptJoin,
-    rsSymbol = '(?:' + [rsNonAstral + rsCombo + '?', rsCombo, rsRegional, rsSurrPair, rsAstral].join('|') + ')';
-
-/** Used to match [string symbols](https://mathiasbynens.be/notes/javascript-unicode). */
-var reUnicode = RegExp(rsFitz + '(?=' + rsFitz + ')|' + rsSymbol + rsSeq, 'g');
-
-/**
- * Converts a Unicode `string` to an array.
- *
- * @private
- * @param {string} string The string to convert.
- * @returns {Array} Returns the converted array.
- */
-function unicodeToArray(string) {
-  return string.match(reUnicode) || [];
-}
-
-var _unicodeToArray = unicodeToArray;
-
-/**
- * Converts `string` to an array.
- *
- * @private
- * @param {string} string The string to convert.
- * @returns {Array} Returns the converted array.
- */
-function stringToArray(string) {
-  return _hasUnicode(string)
-    ? _unicodeToArray(string)
-    : _asciiToArray(string);
-}
-
-var _stringToArray = stringToArray;
-
-/**
- * The base implementation of `_.values` and `_.valuesIn` which creates an
- * array of `object` property values corresponding to the property names
- * of `props`.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {Array} props The property names to get values for.
- * @returns {Object} Returns the array of property values.
- */
-function baseValues(object, props) {
-  return _arrayMap(props, function(key) {
-    return object[key];
-  });
-}
-
-var _baseValues = baseValues;
-
-/**
- * Creates an array of the own enumerable string keyed property values of `object`.
- *
- * **Note:** Non-object values are coerced to objects.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Object
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property values.
- * @example
- *
- * function Foo() {
- *   this.a = 1;
- *   this.b = 2;
- * }
- *
- * Foo.prototype.c = 3;
- *
- * _.values(new Foo);
- * // => [1, 2] (iteration order is not guaranteed)
- *
- * _.values('hi');
- * // => ['h', 'i']
- */
-function values(object) {
-  return object == null ? [] : _baseValues(object, keys_1(object));
-}
-
-var values_1 = values;
-
-/** `Object#toString` result references. */
-var mapTag$5 = '[object Map]',
-    setTag$5 = '[object Set]';
-
-/** Built-in value references. */
-var symIterator = _Symbol ? _Symbol.iterator : undefined;
-
-/**
- * Converts `value` to an array.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Lang
- * @param {*} value The value to convert.
- * @returns {Array} Returns the converted array.
- * @example
- *
- * _.toArray({ 'a': 1, 'b': 2 });
- * // => [1, 2]
- *
- * _.toArray('abc');
- * // => ['a', 'b', 'c']
- *
- * _.toArray(1);
- * // => []
- *
- * _.toArray(null);
- * // => []
- */
-function toArray(value) {
-  if (!value) {
-    return [];
-  }
-  if (isArrayLike_1(value)) {
-    return isString_1(value) ? _stringToArray(value) : _copyArray(value);
-  }
-  if (symIterator && value[symIterator]) {
-    return _iteratorToArray(value[symIterator]());
-  }
-  var tag = _getTag(value),
-      func = tag == mapTag$5 ? _mapToArray : (tag == setTag$5 ? _setToArray : values_1);
-
-  return func(value);
-}
-
-var toArray_1 = toArray;
-
-var printValue_1 = createCommonjsModule(function (module, exports) {
-
-exports.__esModule = true;
-exports.default = printValue;
-var toString = Object.prototype.toString;
-var errorToString = Error.prototype.toString;
-var regExpToString = RegExp.prototype.toString;
-var symbolToString = typeof Symbol !== 'undefined' ? Symbol.prototype.toString : function () {
-  return '';
-};
-var SYMBOL_REGEXP = /^Symbol\((.*)\)(.*)$/;
-
-function printNumber(val) {
-  if (val != +val) return 'NaN';
-  var isNegativeZero = val === 0 && 1 / val < 0;
-  return isNegativeZero ? '-0' : '' + val;
-}
-
-function printSimpleValue(val, quoteStrings) {
-  if (quoteStrings === void 0) {
-    quoteStrings = false;
-  }
-
-  if (val == null || val === true || val === false) return '' + val;
-  var typeOf = typeof val;
-  if (typeOf === 'number') return printNumber(val);
-  if (typeOf === 'string') return quoteStrings ? "\"" + val + "\"" : val;
-  if (typeOf === 'function') return '[Function ' + (val.name || 'anonymous') + ']';
-  if (typeOf === 'symbol') return symbolToString.call(val).replace(SYMBOL_REGEXP, 'Symbol($1)');
-  var tag = toString.call(val).slice(8, -1);
-  if (tag === 'Date') return isNaN(val.getTime()) ? '' + val : val.toISOString(val);
-  if (tag === 'Error' || val instanceof Error) return '[' + errorToString.call(val) + ']';
-  if (tag === 'RegExp') return regExpToString.call(val);
-  return null;
-}
-
-function printValue(value, quoteStrings) {
-  var result = printSimpleValue(value, quoteStrings);
-  if (result !== null) return result;
-  return JSON.stringify(value, function (key, value) {
-    var result = printSimpleValue(this[key], quoteStrings);
-    if (result !== null) return result;
-    return value;
-  }, 2);
-}
-
-module.exports = exports["default"];
-});
-
-unwrapExports(printValue_1);
-
-var locale = createCommonjsModule(function (module, exports) {
-
-
-
-exports.__esModule = true;
-exports.default = exports.array = exports.object = exports.boolean = exports.date = exports.number = exports.string = exports.mixed = void 0;
-
-var _printValue = interopRequireDefault(printValue_1);
-
-var mixed = {
-  default: '${path} is invalid',
-  required: '${path} is a required field',
-  oneOf: '${path} must be one of the following values: ${values}',
-  notOneOf: '${path} must not be one of the following values: ${values}',
-  notType: function notType(_ref) {
-    var path = _ref.path,
-        type = _ref.type,
-        value = _ref.value,
-        originalValue = _ref.originalValue;
-    var isCast = originalValue != null && originalValue !== value;
-    var msg = path + " must be a `" + type + "` type, " + ("but the final value was: `" + (0, _printValue.default)(value, true) + "`") + (isCast ? " (cast from the value `" + (0, _printValue.default)(originalValue, true) + "`)." : '.');
-
-    if (value === null) {
-      msg += "\n If \"null\" is intended as an empty value be sure to mark the schema as `.nullable()`";
-    }
-
-    return msg;
-  }
-};
-exports.mixed = mixed;
-var string = {
-  length: '${path} must be exactly ${length} characters',
-  min: '${path} must be at least ${min} characters',
-  max: '${path} must be at most ${max} characters',
-  matches: '${path} must match the following: "${regex}"',
-  email: '${path} must be a valid email',
-  url: '${path} must be a valid URL',
-  trim: '${path} must be a trimmed string',
-  lowercase: '${path} must be a lowercase string',
-  uppercase: '${path} must be a upper case string'
-};
-exports.string = string;
-var number = {
-  min: '${path} must be greater than or equal to ${min}',
-  max: '${path} must be less than or equal to ${max}',
-  lessThan: '${path} must be less than ${less}',
-  moreThan: '${path} must be greater than ${more}',
-  notEqual: '${path} must be not equal to ${notEqual}',
-  positive: '${path} must be a positive number',
-  negative: '${path} must be a negative number',
-  integer: '${path} must be an integer'
-};
-exports.number = number;
-var date = {
-  min: '${path} field must be later than ${min}',
-  max: '${path} field must be at earlier than ${max}'
-};
-exports.date = date;
-var boolean = {};
-exports.boolean = boolean;
-var object = {
-  noUnknown: '${path} field cannot have keys not specified in the object shape'
-};
-exports.object = object;
-var array = {
-  min: '${path} field must have at least ${min} items',
-  max: '${path} field must have less than or equal to ${max} items'
-};
-exports.array = array;
-var _default = {
-  mixed: mixed,
-  string: string,
-  number: number,
-  date: date,
-  object: object,
-  array: array,
-  boolean: boolean
-};
-exports.default = _default;
-});
-
-unwrapExports(locale);
-var locale_1 = locale.array;
-var locale_2 = locale.object;
-var locale_3 = locale.date;
-var locale_4 = locale.number;
-var locale_5 = locale.string;
-var locale_6 = locale.mixed;
-
-var isSchema = createCommonjsModule(function (module, exports) {
-
-exports.__esModule = true;
-exports.default = void 0;
-
-var _default = function _default(obj) {
-  return obj && obj.__isYupSchema__;
-};
-
-exports.default = _default;
-module.exports = exports["default"];
-});
-
-unwrapExports(isSchema);
-
-var Condition = createCommonjsModule(function (module, exports) {
-
-
-
-exports.__esModule = true;
-exports.default = void 0;
-
-var _has = interopRequireDefault(has_1);
-
-var _isSchema = interopRequireDefault(isSchema);
-
-function callOrConcat(schema) {
-  if (typeof schema === 'function') return schema;
-  return function (base) {
-    return base.concat(schema);
-  };
-}
-
-var Conditional =
-/*#__PURE__*/
-function () {
-  function Conditional(refs, options) {
-    var is = options.is,
-        then = options.then,
-        otherwise = options.otherwise;
-    this.refs = [].concat(refs);
-    then = callOrConcat(then);
-    otherwise = callOrConcat(otherwise);
-    if (typeof options === 'function') this.fn = options;else {
-      if (!(0, _has.default)(options, 'is')) throw new TypeError('`is:` is required for `when()` conditions');
-      if (!options.then && !options.otherwise) throw new TypeError('either `then:` or `otherwise:` is required for `when()` conditions');
-      var isFn = typeof is === 'function' ? is : function () {
-        for (var _len = arguments.length, values = new Array(_len), _key = 0; _key < _len; _key++) {
-          values[_key] = arguments[_key];
-        }
-
-        return values.every(function (value) {
-          return value === is;
-        });
-      };
-
-      this.fn = function () {
-        for (var _len2 = arguments.length, values = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-          values[_key2] = arguments[_key2];
-        }
-
-        var currentSchema = values.pop();
-        var option = isFn.apply(void 0, values) ? then : otherwise;
-        return option(currentSchema);
-      };
-    }
-  }
-
-  var _proto = Conditional.prototype;
-
-  _proto.getValue = function getValue(parent, context) {
-    var values = this.refs.map(function (r) {
-      return r.getValue(parent, context);
-    });
-    return values;
-  };
-
-  _proto.resolve = function resolve(ctx, values) {
-    var schema = this.fn.apply(ctx, values.concat(ctx));
-    if (schema !== undefined && !(0, _isSchema.default)(schema)) throw new TypeError('conditions must return a schema object');
-    return schema || ctx;
-  };
-
-  return Conditional;
-}();
-
-var _default = Conditional;
-exports.default = _default;
-module.exports = exports["default"];
-});
-
-unwrapExports(Condition);
-
-function _objectWithoutPropertiesLoose(source, excluded) {
-  if (source == null) return {};
-  var target = {};
-  var sourceKeys = Object.keys(source);
-  var key, i;
-
-  for (i = 0; i < sourceKeys.length; i++) {
-    key = sourceKeys[i];
-    if (excluded.indexOf(key) >= 0) continue;
-    target[key] = source[key];
-  }
-
-  return target;
-}
-
-var objectWithoutPropertiesLoose = _objectWithoutPropertiesLoose;
-
-/* jshint node: true */
-
-function makeArrayFrom(obj) {
-  return Array.prototype.slice.apply(obj);
-}
-
-var
-  PENDING = "pending",
-  RESOLVED = "resolved",
-  REJECTED = "rejected";
-
-function SynchronousPromise(handler) {
-  this.status = PENDING;
-  this._continuations = [];
-  this._parent = null;
-  this._paused = false;
-  if (handler) {
-    handler.call(
-      this,
-      this._continueWith.bind(this),
-      this._failWith.bind(this)
-    );
-  }
-}
-
-function looksLikeAPromise(obj) {
-  return obj && typeof (obj.then) === "function";
-}
-
-function passThrough(value) {
-  return value;
-}
-
-SynchronousPromise.prototype = {
-  then: function (nextFn, catchFn) {
-    var next = SynchronousPromise.unresolved()._setParent(this);
-    if (this._isRejected()) {
-      if (this._paused) {
-        this._continuations.push({
-          promise: next,
-          nextFn: nextFn,
-          catchFn: catchFn
-        });
-        return next;
-      }
-      if (catchFn) {
-        try {
-          var catchResult = catchFn(this._error);
-          if (looksLikeAPromise(catchResult)) {
-            this._chainPromiseData(catchResult, next);
-            return next;
-          } else {
-            return SynchronousPromise.resolve(catchResult)._setParent(this);
-          }
-        } catch (e) {
-          return SynchronousPromise.reject(e)._setParent(this);
-        }
-      }
-      return SynchronousPromise.reject(this._error)._setParent(this);
-    }
-    this._continuations.push({
-      promise: next,
-      nextFn: nextFn,
-      catchFn: catchFn
-    });
-    this._runResolutions();
-    return next;
-  },
-  catch: function (handler) {
-    if (this._isResolved()) {
-      return SynchronousPromise.resolve(this._data)._setParent(this);
-    }
-    var next = SynchronousPromise.unresolved()._setParent(this);
-    this._continuations.push({
-      promise: next,
-      catchFn: handler
-    });
-    this._runRejections();
-    return next;
-  },
-  finally: function (callback) {
-    var ran = false;
-
-    function runFinally(result, err) {
-      if (!ran) {
-        ran = true;
-        if (!callback) {
-          callback = passThrough;
-        }
-        var callbackResult = callback(result);
-        if (looksLikeAPromise(callbackResult)) {
-          return callbackResult.then(function () {
-            if (err) {
-              throw err;
-            }
-            return result;
-          });
-        } else {
-          return result;
-        }
-      }
-    }
-
-    return this
-      .then(function (result) {
-        return runFinally(result);
-      })
-      .catch(function (err) {
-        return runFinally(null, err);
-      });
-  },
-  pause: function () {
-    this._paused = true;
-    return this;
-  },
-  resume: function () {
-    var firstPaused = this._findFirstPaused();
-    if (firstPaused) {
-      firstPaused._paused = false;
-      firstPaused._runResolutions();
-      firstPaused._runRejections();
-    }
-    return this;
-  },
-  _findAncestry: function () {
-    return this._continuations.reduce(function (acc, cur) {
-      if (cur.promise) {
-        var node = {
-          promise: cur.promise,
-          children: cur.promise._findAncestry()
-        };
-        acc.push(node);
-      }
-      return acc;
-    }, []);
-  },
-  _setParent: function (parent) {
-    if (this._parent) {
-      throw new Error("parent already set");
-    }
-    this._parent = parent;
-    return this;
-  },
-  _continueWith: function (data) {
-    var firstPending = this._findFirstPending();
-    if (firstPending) {
-      firstPending._data = data;
-      firstPending._setResolved();
-    }
-  },
-  _findFirstPending: function () {
-    return this._findFirstAncestor(function (test) {
-      return test._isPending && test._isPending();
-    });
-  },
-  _findFirstPaused: function () {
-    return this._findFirstAncestor(function (test) {
-      return test._paused;
-    });
-  },
-  _findFirstAncestor: function (matching) {
-    var test = this;
-    var result;
-    while (test) {
-      if (matching(test)) {
-        result = test;
-      }
-      test = test._parent;
-    }
-    return result;
-  },
-  _failWith: function (error) {
-    var firstRejected = this._findFirstPending();
-    if (firstRejected) {
-      firstRejected._error = error;
-      firstRejected._setRejected();
-    }
-  },
-  _takeContinuations: function () {
-    return this._continuations.splice(0, this._continuations.length);
-  },
-  _runRejections: function () {
-    if (this._paused || !this._isRejected()) {
-      return;
-    }
-    var
-      error = this._error,
-      continuations = this._takeContinuations(),
-      self = this;
-    continuations.forEach(function (cont) {
-      if (cont.catchFn) {
-        try {
-          var catchResult = cont.catchFn(error);
-          self._handleUserFunctionResult(catchResult, cont.promise);
-        } catch (e) {
-          cont.promise.reject(e);
-        }
-      } else {
-        cont.promise.reject(error);
-      }
-    });
-  },
-  _runResolutions: function () {
-    if (this._paused || !this._isResolved() || this._isPending()) {
-      return;
-    }
-    var continuations = this._takeContinuations();
-    if (looksLikeAPromise(this._data)) {
-      return this._handleWhenResolvedDataIsPromise(this._data);
-    }
-    var data = this._data;
-    var self = this;
-    continuations.forEach(function (cont) {
-      if (cont.nextFn) {
-        try {
-          var result = cont.nextFn(data);
-          self._handleUserFunctionResult(result, cont.promise);
-        } catch (e) {
-          self._handleResolutionError(e, cont);
-        }
-      } else if (cont.promise) {
-        cont.promise.resolve(data);
-      }
-    });
-  },
-  _handleResolutionError: function (e, continuation) {
-    this._setRejected();
-    if (continuation.catchFn) {
-      try {
-        continuation.catchFn(e);
-        return;
-      } catch (e2) {
-        e = e2;
-      }
-    }
-    if (continuation.promise) {
-      continuation.promise.reject(e);
-    }
-  },
-  _handleWhenResolvedDataIsPromise: function (data) {
-    var self = this;
-    return data.then(function (result) {
-      self._data = result;
-      self._runResolutions();
-    }).catch(function (error) {
-      self._error = error;
-      self._setRejected();
-      self._runRejections();
-    });
-  },
-  _handleUserFunctionResult: function (data, nextSynchronousPromise) {
-    if (looksLikeAPromise(data)) {
-      this._chainPromiseData(data, nextSynchronousPromise);
-    } else {
-      nextSynchronousPromise.resolve(data);
-    }
-  },
-  _chainPromiseData: function (promiseData, nextSynchronousPromise) {
-    promiseData.then(function (newData) {
-      nextSynchronousPromise.resolve(newData);
-    }).catch(function (newError) {
-      nextSynchronousPromise.reject(newError);
-    });
-  },
-  _setResolved: function () {
-    this.status = RESOLVED;
-    if (!this._paused) {
-      this._runResolutions();
-    }
-  },
-  _setRejected: function () {
-    this.status = REJECTED;
-    if (!this._paused) {
-      this._runRejections();
-    }
-  },
-  _isPending: function () {
-    return this.status === PENDING;
-  },
-  _isResolved: function () {
-    return this.status === RESOLVED;
-  },
-  _isRejected: function () {
-    return this.status === REJECTED;
-  }
-};
-
-SynchronousPromise.resolve = function (result) {
-  return new SynchronousPromise(function (resolve, reject) {
-    if (looksLikeAPromise(result)) {
-      result.then(function (newResult) {
-        resolve(newResult);
-      }).catch(function (error) {
-        reject(error);
-      });
-    } else {
-      resolve(result);
-    }
-  });
-};
-
-SynchronousPromise.reject = function (result) {
-  return new SynchronousPromise(function (resolve, reject) {
-    reject(result);
-  });
-};
-
-SynchronousPromise.unresolved = function () {
-  return new SynchronousPromise(function (resolve, reject) {
-    this.resolve = resolve;
-    this.reject = reject;
-  });
-};
-
-SynchronousPromise.all = function () {
-  var args = makeArrayFrom(arguments);
-  if (Array.isArray(args[0])) {
-    args = args[0];
-  }
-  if (!args.length) {
-    return SynchronousPromise.resolve([]);
-  }
-  return new SynchronousPromise(function (resolve, reject) {
-    var
-      allData = [],
-      numResolved = 0,
-      doResolve = function () {
-        if (numResolved === args.length) {
-          resolve(allData);
-        }
-      },
-      rejected = false,
-      doReject = function (err) {
-        if (rejected) {
-          return;
-        }
-        rejected = true;
-        reject(err);
-      };
-    args.forEach(function (arg, idx) {
-      SynchronousPromise.resolve(arg).then(function (thisResult) {
-        allData[idx] = thisResult;
-        numResolved += 1;
-        doResolve();
-      }).catch(function (err) {
-        doReject(err);
-      });
-    });
-  });
-};
-
-function createAggregateErrorFrom(errors) {
-  /* jshint ignore:start */
-  if (typeof window !== "undefined" && "AggregateError" in window) {
-    return new window.AggregateError(errors);
-  }
-  /* jshint ignore:end */
-
-  return { errors: errors };
-}
-
-SynchronousPromise.any = function () {
-  var args = makeArrayFrom(arguments);
-  if (Array.isArray(args[0])) {
-    args = args[0];
-  }
-  if (!args.length) {
-    return SynchronousPromise.reject(createAggregateErrorFrom([]));
-  }
-  return new SynchronousPromise(function (resolve, reject) {
-    var
-      allErrors = [],
-      numRejected = 0,
-      doReject = function () {
-        if (numRejected === args.length) {
-          reject(createAggregateErrorFrom(allErrors));
-        }
-      },
-      resolved = false,
-      doResolve = function (result) {
-        if (resolved) {
-          return;
-        }
-        resolved = true;
-        resolve(result);
-      };
-    args.forEach(function (arg, idx) {
-      SynchronousPromise.resolve(arg).then(function (thisResult) {
-        doResolve(thisResult);
-      }).catch(function (err) {
-        allErrors[idx] = err;
-        numRejected += 1;
-        doReject();
-      });
-    });
-  });
-};
-
-SynchronousPromise.allSettled = function () {
-  var args = makeArrayFrom(arguments);
-  if (Array.isArray(args[0])) {
-    args = args[0];
-  }
-  if (!args.length) {
-    return SynchronousPromise.resolve([]);
-  }
-  return new SynchronousPromise(function (resolve) {
-    var
-      allData = [],
-      numSettled = 0,
-      doSettled = function () {
-        numSettled += 1;
-        if (numSettled === args.length) {
-          resolve(allData);
-        }
-      };
-    args.forEach(function (arg, idx) {
-      SynchronousPromise.resolve(arg).then(function (thisResult) {
-        allData[idx] = {
-          status: "fulfilled",
-          value: thisResult
-        };
-        doSettled();
-      }).catch(function (err) {
-        allData[idx] = {
-          status: "rejected",
-          reason: err
-        };
-        doSettled();
-      });
-    });
-  });
-};
-
-/* jshint ignore:start */
-if (Promise === SynchronousPromise) {
-  throw new Error("Please use SynchronousPromise.installGlobally() to install globally");
-}
-var RealPromise = Promise;
-SynchronousPromise.installGlobally = function (__awaiter) {
-  if (Promise === SynchronousPromise) {
-    return __awaiter;
-  }
-  var result = patchAwaiterIfRequired(__awaiter);
-  Promise = SynchronousPromise;
-  return result;
-};
-
-SynchronousPromise.uninstallGlobally = function () {
-  if (Promise === SynchronousPromise) {
-    Promise = RealPromise;
-  }
-};
-
-function patchAwaiterIfRequired(__awaiter) {
-  if (typeof (__awaiter) === "undefined" || __awaiter.__patched) {
-    return __awaiter;
-  }
-  var originalAwaiter = __awaiter;
-  __awaiter = function () {
-    originalAwaiter.apply(this, makeArrayFrom(arguments));
-  };
-  __awaiter.__patched = true;
-  return __awaiter;
-}
-
-/* jshint ignore:end */
-
-var synchronousPromise = {
-  SynchronousPromise: SynchronousPromise
-};
-
-var ValidationError_1 = createCommonjsModule(function (module, exports) {
-
-
-
-exports.__esModule = true;
-exports.default = ValidationError;
-
-var _printValue = interopRequireDefault(printValue_1);
-
-var strReg = /\$\{\s*(\w+)\s*\}/g;
-
-var replace = function replace(str) {
-  return function (params) {
-    return str.replace(strReg, function (_, key) {
-      return (0, _printValue.default)(params[key]);
-    });
-  };
-};
-
-function ValidationError(errors, value, field, type) {
-  var _this = this;
-
-  this.name = 'ValidationError';
-  this.value = value;
-  this.path = field;
-  this.type = type;
-  this.errors = [];
-  this.inner = [];
-  if (errors) [].concat(errors).forEach(function (err) {
-    _this.errors = _this.errors.concat(err.errors || err);
-    if (err.inner) _this.inner = _this.inner.concat(err.inner.length ? err.inner : err);
-  });
-  this.message = this.errors.length > 1 ? this.errors.length + " errors occurred" : this.errors[0];
-  if (Error.captureStackTrace) Error.captureStackTrace(this, ValidationError);
-}
-
-ValidationError.prototype = Object.create(Error.prototype);
-ValidationError.prototype.constructor = ValidationError;
-
-ValidationError.isError = function (err) {
-  return err && err.name === 'ValidationError';
-};
-
-ValidationError.formatError = function (message, params) {
-  if (typeof message === 'string') message = replace(message);
-
-  var fn = function fn(params) {
-    params.path = params.label || params.path || 'this';
-    return typeof message === 'function' ? message(params) : message;
-  };
-
-  return arguments.length === 1 ? fn : fn(params);
-};
-
-module.exports = exports["default"];
-});
-
-unwrapExports(ValidationError_1);
-
-var runValidations_1 = createCommonjsModule(function (module, exports) {
-
-
-
-exports.__esModule = true;
-exports.propagateErrors = propagateErrors;
-exports.settled = settled;
-exports.collectErrors = collectErrors;
-exports.default = runValidations;
-
-var _objectWithoutPropertiesLoose2 = interopRequireDefault(objectWithoutPropertiesLoose);
-
-
-
-var _ValidationError = interopRequireDefault(ValidationError_1);
-
-var promise = function promise(sync) {
-  return sync ? synchronousPromise.SynchronousPromise : Promise;
-};
-
-var unwrapError = function unwrapError(errors) {
-  if (errors === void 0) {
-    errors = [];
-  }
-
-  return errors.inner && errors.inner.length ? errors.inner : [].concat(errors);
-};
-
-function scopeToValue(promises, value, sync) {
-  //console.log('scopeToValue', promises, value)
-  var p = promise(sync).all(promises); //console.log('scopeToValue B', p)
-
-  var b = p.catch(function (err) {
-    if (err.name === 'ValidationError') err.value = value;
-    throw err;
-  }); //console.log('scopeToValue c', b)
-
-  var c = b.then(function () {
-    return value;
-  }); //console.log('scopeToValue d', c)
-
-  return c;
-}
-/**
- * If not failing on the first error, catch the errors
- * and collect them in an array
- */
-
-
-function propagateErrors(endEarly, errors) {
-  return endEarly ? null : function (err) {
-    errors.push(err);
-    return err.value;
-  };
-}
-
-function settled(promises, sync) {
-  var Promise = promise(sync);
-  return Promise.all(promises.map(function (p) {
-    return Promise.resolve(p).then(function (value) {
-      return {
-        fulfilled: true,
-        value: value
-      };
-    }, function (value) {
-      return {
-        fulfilled: false,
-        value: value
-      };
-    });
-  }));
-}
-
-function collectErrors(_ref) {
-  var validations = _ref.validations,
-      value = _ref.value,
-      path = _ref.path,
-      sync = _ref.sync,
-      errors = _ref.errors,
-      sort = _ref.sort;
-  errors = unwrapError(errors);
-  return settled(validations, sync).then(function (results) {
-    var nestedErrors = results.filter(function (r) {
-      return !r.fulfilled;
-    }).reduce(function (arr, _ref2) {
-      var error = _ref2.value;
-
-      // we are only collecting validation errors
-      if (!_ValidationError.default.isError(error)) {
-        throw error;
-      }
-
-      return arr.concat(error);
-    }, []);
-    if (sort) nestedErrors.sort(sort); //show parent errors after the nested ones: name.first, name
-
-    errors = nestedErrors.concat(errors);
-    if (errors.length) throw new _ValidationError.default(errors, value, path);
-    return value;
-  });
-}
-
-function runValidations(_ref3) {
-  var endEarly = _ref3.endEarly,
-      options = (0, _objectWithoutPropertiesLoose2.default)(_ref3, ["endEarly"]);
-  if (endEarly) return scopeToValue(options.validations, options.value, options.sync);
-  return collectErrors(options);
-}
-});
-
-unwrapExports(runValidations_1);
-var runValidations_2 = runValidations_1.propagateErrors;
-var runValidations_3 = runValidations_1.settled;
-var runValidations_4 = runValidations_1.collectErrors;
-
-var merge_1 = createCommonjsModule(function (module, exports) {
-
-
-
-exports.__esModule = true;
-exports.default = merge;
-
-var _has = interopRequireDefault(has_1);
-
-var _isSchema = interopRequireDefault(isSchema);
-
-var isObject = function isObject(obj) {
-  return Object.prototype.toString.call(obj) === '[object Object]';
-};
-
-function merge(target, source) {
-  for (var key in source) {
-    if ((0, _has.default)(source, key)) {
-      var targetVal = target[key],
-          sourceVal = source[key];
-      if (sourceVal === undefined) continue;
-
-      if ((0, _isSchema.default)(sourceVal)) {
-        target[key] = (0, _isSchema.default)(targetVal) ? targetVal.concat(sourceVal) : sourceVal;
-      } else if (isObject(sourceVal)) {
-        target[key] = isObject(targetVal) ? merge(targetVal, sourceVal) : sourceVal;
-      } else if (Array.isArray(sourceVal)) {
-        target[key] = Array.isArray(targetVal) ? targetVal.concat(sourceVal) : sourceVal;
-      } else target[key] = source[key];
-    }
-  }
-
-  return target;
-}
-
-module.exports = exports["default"];
-});
-
-unwrapExports(merge_1);
-
-var isAbsent = createCommonjsModule(function (module, exports) {
-
-exports.__esModule = true;
-exports.default = void 0;
-
-var _default = function _default(value) {
-  return value == null;
-};
-
-exports.default = _default;
-module.exports = exports["default"];
-});
-
-unwrapExports(isAbsent);
-
-/**
- * Creates a base function for methods like `_.forIn` and `_.forOwn`.
- *
- * @private
- * @param {boolean} [fromRight] Specify iterating from right to left.
- * @returns {Function} Returns the new base function.
- */
-function createBaseFor(fromRight) {
-  return function(object, iteratee, keysFunc) {
-    var index = -1,
-        iterable = Object(object),
-        props = keysFunc(object),
-        length = props.length;
-
-    while (length--) {
-      var key = props[fromRight ? length : ++index];
-      if (iteratee(iterable[key], key, iterable) === false) {
-        break;
-      }
-    }
-    return object;
-  };
-}
-
-var _createBaseFor = createBaseFor;
-
-/**
- * The base implementation of `baseForOwn` which iterates over `object`
- * properties returned by `keysFunc` and invokes `iteratee` for each property.
- * Iteratee functions may exit iteration early by explicitly returning `false`.
- *
- * @private
- * @param {Object} object The object to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @param {Function} keysFunc The function to get the keys of `object`.
- * @returns {Object} Returns `object`.
- */
-var baseFor = _createBaseFor();
-
-var _baseFor = baseFor;
-
-/**
  * The base implementation of `_.forOwn` without support for iteratee shorthands.
  *
  * @private
@@ -8868,6 +7304,121 @@ function baseForOwn(object, iteratee) {
 }
 
 var _baseForOwn = baseForOwn;
+
+/**
+ * Removes all key-value entries from the stack.
+ *
+ * @private
+ * @name clear
+ * @memberOf Stack
+ */
+function stackClear() {
+  this.__data__ = new _ListCache;
+  this.size = 0;
+}
+
+var _stackClear = stackClear;
+
+/**
+ * Removes `key` and its value from the stack.
+ *
+ * @private
+ * @name delete
+ * @memberOf Stack
+ * @param {string} key The key of the value to remove.
+ * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+ */
+function stackDelete(key) {
+  var data = this.__data__,
+      result = data['delete'](key);
+
+  this.size = data.size;
+  return result;
+}
+
+var _stackDelete = stackDelete;
+
+/**
+ * Gets the stack value for `key`.
+ *
+ * @private
+ * @name get
+ * @memberOf Stack
+ * @param {string} key The key of the value to get.
+ * @returns {*} Returns the entry value.
+ */
+function stackGet(key) {
+  return this.__data__.get(key);
+}
+
+var _stackGet = stackGet;
+
+/**
+ * Checks if a stack value for `key` exists.
+ *
+ * @private
+ * @name has
+ * @memberOf Stack
+ * @param {string} key The key of the entry to check.
+ * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+ */
+function stackHas(key) {
+  return this.__data__.has(key);
+}
+
+var _stackHas = stackHas;
+
+/** Used as the size to enable large array optimizations. */
+var LARGE_ARRAY_SIZE = 200;
+
+/**
+ * Sets the stack `key` to `value`.
+ *
+ * @private
+ * @name set
+ * @memberOf Stack
+ * @param {string} key The key of the value to set.
+ * @param {*} value The value to set.
+ * @returns {Object} Returns the stack cache instance.
+ */
+function stackSet(key, value) {
+  var data = this.__data__;
+  if (data instanceof _ListCache) {
+    var pairs = data.__data__;
+    if (!_Map || (pairs.length < LARGE_ARRAY_SIZE - 1)) {
+      pairs.push([key, value]);
+      this.size = ++data.size;
+      return this;
+    }
+    data = this.__data__ = new _MapCache(pairs);
+  }
+  data.set(key, value);
+  this.size = data.size;
+  return this;
+}
+
+var _stackSet = stackSet;
+
+/**
+ * Creates a stack cache object to store key-value pairs.
+ *
+ * @private
+ * @constructor
+ * @param {Array} [entries] The key-value pairs to cache.
+ */
+function Stack(entries) {
+  var data = this.__data__ = new _ListCache(entries);
+  this.size = data.size;
+}
+
+// Add methods to `Stack`.
+Stack.prototype.clear = _stackClear;
+Stack.prototype['delete'] = _stackDelete;
+Stack.prototype.get = _stackGet;
+Stack.prototype.has = _stackHas;
+Stack.prototype.set = _stackSet;
+
+var _Stack = Stack;
 
 /** Used to stand-in for `undefined` hash values. */
 var HASH_UNDEFINED$2 = '__lodash_hash_undefined__';
@@ -9047,27 +7598,70 @@ function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
 
 var _equalArrays = equalArrays;
 
+/** Built-in value references. */
+var Uint8Array = _root.Uint8Array;
+
+var _Uint8Array = Uint8Array;
+
+/**
+ * Converts `map` to its key-value pairs.
+ *
+ * @private
+ * @param {Object} map The map to convert.
+ * @returns {Array} Returns the key-value pairs.
+ */
+function mapToArray(map) {
+  var index = -1,
+      result = Array(map.size);
+
+  map.forEach(function(value, key) {
+    result[++index] = [key, value];
+  });
+  return result;
+}
+
+var _mapToArray = mapToArray;
+
+/**
+ * Converts `set` to an array of its values.
+ *
+ * @private
+ * @param {Object} set The set to convert.
+ * @returns {Array} Returns the values.
+ */
+function setToArray(set) {
+  var index = -1,
+      result = Array(set.size);
+
+  set.forEach(function(value) {
+    result[++index] = value;
+  });
+  return result;
+}
+
+var _setToArray = setToArray;
+
 /** Used to compose bitmasks for value comparisons. */
 var COMPARE_PARTIAL_FLAG$1 = 1,
     COMPARE_UNORDERED_FLAG$1 = 2;
 
 /** `Object#toString` result references. */
-var boolTag$3 = '[object Boolean]',
-    dateTag$3 = '[object Date]',
-    errorTag$2 = '[object Error]',
-    mapTag$6 = '[object Map]',
-    numberTag$3 = '[object Number]',
-    regexpTag$3 = '[object RegExp]',
-    setTag$6 = '[object Set]',
-    stringTag$4 = '[object String]',
-    symbolTag$3 = '[object Symbol]';
+var boolTag$1 = '[object Boolean]',
+    dateTag$1 = '[object Date]',
+    errorTag$1 = '[object Error]',
+    mapTag$1 = '[object Map]',
+    numberTag$1 = '[object Number]',
+    regexpTag$1 = '[object RegExp]',
+    setTag$1 = '[object Set]',
+    stringTag$1 = '[object String]',
+    symbolTag$1 = '[object Symbol]';
 
-var arrayBufferTag$3 = '[object ArrayBuffer]',
-    dataViewTag$4 = '[object DataView]';
+var arrayBufferTag$1 = '[object ArrayBuffer]',
+    dataViewTag$1 = '[object DataView]';
 
 /** Used to convert symbols to primitives and strings. */
-var symbolProto$2 = _Symbol ? _Symbol.prototype : undefined,
-    symbolValueOf$1 = symbolProto$2 ? symbolProto$2.valueOf : undefined;
+var symbolProto$1 = _Symbol ? _Symbol.prototype : undefined,
+    symbolValueOf = symbolProto$1 ? symbolProto$1.valueOf : undefined;
 
 /**
  * A specialized version of `baseIsEqualDeep` for comparing objects of
@@ -9088,7 +7682,7 @@ var symbolProto$2 = _Symbol ? _Symbol.prototype : undefined,
  */
 function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
   switch (tag) {
-    case dataViewTag$4:
+    case dataViewTag$1:
       if ((object.byteLength != other.byteLength) ||
           (object.byteOffset != other.byteOffset)) {
         return false;
@@ -9096,34 +7690,34 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
       object = object.buffer;
       other = other.buffer;
 
-    case arrayBufferTag$3:
+    case arrayBufferTag$1:
       if ((object.byteLength != other.byteLength) ||
           !equalFunc(new _Uint8Array(object), new _Uint8Array(other))) {
         return false;
       }
       return true;
 
-    case boolTag$3:
-    case dateTag$3:
-    case numberTag$3:
+    case boolTag$1:
+    case dateTag$1:
+    case numberTag$1:
       // Coerce booleans to `1` or `0` and dates to milliseconds.
       // Invalid dates are coerced to `NaN`.
       return eq_1(+object, +other);
 
-    case errorTag$2:
+    case errorTag$1:
       return object.name == other.name && object.message == other.message;
 
-    case regexpTag$3:
-    case stringTag$4:
+    case regexpTag$1:
+    case stringTag$1:
       // Coerce regexes to strings and treat strings, primitives and objects,
       // as equal. See http://www.ecma-international.org/ecma-262/7.0/#sec-regexp.prototype.tostring
       // for more details.
       return object == (other + '');
 
-    case mapTag$6:
+    case mapTag$1:
       var convert = _mapToArray;
 
-    case setTag$6:
+    case setTag$1:
       var isPartial = bitmask & COMPARE_PARTIAL_FLAG$1;
       convert || (convert = _setToArray);
 
@@ -9143,9 +7737,9 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
       stack['delete'](object);
       return result;
 
-    case symbolTag$3:
-      if (symbolValueOf$1) {
-        return symbolValueOf$1.call(object) == symbolValueOf$1.call(other);
+    case symbolTag$1:
+      if (symbolValueOf) {
+        return symbolValueOf.call(object) == symbolValueOf.call(other);
       }
   }
   return false;
@@ -9153,14 +7747,144 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
 
 var _equalByTag = equalByTag;
 
+/**
+ * Appends the elements of `values` to `array`.
+ *
+ * @private
+ * @param {Array} array The array to modify.
+ * @param {Array} values The values to append.
+ * @returns {Array} Returns `array`.
+ */
+function arrayPush(array, values) {
+  var index = -1,
+      length = values.length,
+      offset = array.length;
+
+  while (++index < length) {
+    array[offset + index] = values[index];
+  }
+  return array;
+}
+
+var _arrayPush = arrayPush;
+
+/**
+ * The base implementation of `getAllKeys` and `getAllKeysIn` which uses
+ * `keysFunc` and `symbolsFunc` to get the enumerable property names and
+ * symbols of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Function} keysFunc The function to get the keys of `object`.
+ * @param {Function} symbolsFunc The function to get the symbols of `object`.
+ * @returns {Array} Returns the array of property names and symbols.
+ */
+function baseGetAllKeys(object, keysFunc, symbolsFunc) {
+  var result = keysFunc(object);
+  return isArray_1(object) ? result : _arrayPush(result, symbolsFunc(object));
+}
+
+var _baseGetAllKeys = baseGetAllKeys;
+
+/**
+ * A specialized version of `_.filter` for arrays without support for
+ * iteratee shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} predicate The function invoked per iteration.
+ * @returns {Array} Returns the new filtered array.
+ */
+function arrayFilter(array, predicate) {
+  var index = -1,
+      length = array == null ? 0 : array.length,
+      resIndex = 0,
+      result = [];
+
+  while (++index < length) {
+    var value = array[index];
+    if (predicate(value, index, array)) {
+      result[resIndex++] = value;
+    }
+  }
+  return result;
+}
+
+var _arrayFilter = arrayFilter;
+
+/**
+ * This method returns a new empty array.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.13.0
+ * @category Util
+ * @returns {Array} Returns the new empty array.
+ * @example
+ *
+ * var arrays = _.times(2, _.stubArray);
+ *
+ * console.log(arrays);
+ * // => [[], []]
+ *
+ * console.log(arrays[0] === arrays[1]);
+ * // => false
+ */
+function stubArray() {
+  return [];
+}
+
+var stubArray_1 = stubArray;
+
+/** Used for built-in method references. */
+var objectProto$a = Object.prototype;
+
+/** Built-in value references. */
+var propertyIsEnumerable$1 = objectProto$a.propertyIsEnumerable;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeGetSymbols = Object.getOwnPropertySymbols;
+
+/**
+ * Creates an array of the own enumerable symbols of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of symbols.
+ */
+var getSymbols = !nativeGetSymbols ? stubArray_1 : function(object) {
+  if (object == null) {
+    return [];
+  }
+  object = Object(object);
+  return _arrayFilter(nativeGetSymbols(object), function(symbol) {
+    return propertyIsEnumerable$1.call(object, symbol);
+  });
+};
+
+var _getSymbols = getSymbols;
+
+/**
+ * Creates an array of own enumerable property names and symbols of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names and symbols.
+ */
+function getAllKeys(object) {
+  return _baseGetAllKeys(object, keys_1, _getSymbols);
+}
+
+var _getAllKeys = getAllKeys;
+
 /** Used to compose bitmasks for value comparisons. */
 var COMPARE_PARTIAL_FLAG$2 = 1;
 
 /** Used for built-in method references. */
-var objectProto$e = Object.prototype;
+var objectProto$b = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$b = objectProto$e.hasOwnProperty;
+var hasOwnProperty$8 = objectProto$b.hasOwnProperty;
 
 /**
  * A specialized version of `baseIsEqualDeep` for objects with support for
@@ -9188,7 +7912,7 @@ function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
   var index = objLength;
   while (index--) {
     var key = objProps[index];
-    if (!(isPartial ? key in other : hasOwnProperty$b.call(other, key))) {
+    if (!(isPartial ? key in other : hasOwnProperty$8.call(other, key))) {
       return false;
     }
   }
@@ -9242,19 +7966,90 @@ function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
 
 var _equalObjects = equalObjects;
 
+/* Built-in method references that are verified to be native. */
+var DataView = _getNative(_root, 'DataView');
+
+var _DataView = DataView;
+
+/* Built-in method references that are verified to be native. */
+var Promise$1 = _getNative(_root, 'Promise');
+
+var _Promise = Promise$1;
+
+/* Built-in method references that are verified to be native. */
+var Set$1 = _getNative(_root, 'Set');
+
+var _Set = Set$1;
+
+/* Built-in method references that are verified to be native. */
+var WeakMap = _getNative(_root, 'WeakMap');
+
+var _WeakMap = WeakMap;
+
+/** `Object#toString` result references. */
+var mapTag$2 = '[object Map]',
+    objectTag$1 = '[object Object]',
+    promiseTag = '[object Promise]',
+    setTag$2 = '[object Set]',
+    weakMapTag$1 = '[object WeakMap]';
+
+var dataViewTag$2 = '[object DataView]';
+
+/** Used to detect maps, sets, and weakmaps. */
+var dataViewCtorString = _toSource(_DataView),
+    mapCtorString = _toSource(_Map),
+    promiseCtorString = _toSource(_Promise),
+    setCtorString = _toSource(_Set),
+    weakMapCtorString = _toSource(_WeakMap);
+
+/**
+ * Gets the `toStringTag` of `value`.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the `toStringTag`.
+ */
+var getTag = _baseGetTag;
+
+// Fallback for data views, maps, sets, and weak maps in IE 11 and promises in Node.js < 6.
+if ((_DataView && getTag(new _DataView(new ArrayBuffer(1))) != dataViewTag$2) ||
+    (_Map && getTag(new _Map) != mapTag$2) ||
+    (_Promise && getTag(_Promise.resolve()) != promiseTag) ||
+    (_Set && getTag(new _Set) != setTag$2) ||
+    (_WeakMap && getTag(new _WeakMap) != weakMapTag$1)) {
+  getTag = function(value) {
+    var result = _baseGetTag(value),
+        Ctor = result == objectTag$1 ? value.constructor : undefined,
+        ctorString = Ctor ? _toSource(Ctor) : '';
+
+    if (ctorString) {
+      switch (ctorString) {
+        case dataViewCtorString: return dataViewTag$2;
+        case mapCtorString: return mapTag$2;
+        case promiseCtorString: return promiseTag;
+        case setCtorString: return setTag$2;
+        case weakMapCtorString: return weakMapTag$1;
+      }
+    }
+    return result;
+  };
+}
+
+var _getTag = getTag;
+
 /** Used to compose bitmasks for value comparisons. */
 var COMPARE_PARTIAL_FLAG$3 = 1;
 
 /** `Object#toString` result references. */
-var argsTag$3 = '[object Arguments]',
-    arrayTag$2 = '[object Array]',
-    objectTag$3 = '[object Object]';
+var argsTag$2 = '[object Arguments]',
+    arrayTag$1 = '[object Array]',
+    objectTag$2 = '[object Object]';
 
 /** Used for built-in method references. */
-var objectProto$f = Object.prototype;
+var objectProto$c = Object.prototype;
 
 /** Used to check objects for own properties. */
-var hasOwnProperty$c = objectProto$f.hasOwnProperty;
+var hasOwnProperty$9 = objectProto$c.hasOwnProperty;
 
 /**
  * A specialized version of `baseIsEqual` for arrays and objects which performs
@@ -9273,14 +8068,14 @@ var hasOwnProperty$c = objectProto$f.hasOwnProperty;
 function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
   var objIsArr = isArray_1(object),
       othIsArr = isArray_1(other),
-      objTag = objIsArr ? arrayTag$2 : _getTag(object),
-      othTag = othIsArr ? arrayTag$2 : _getTag(other);
+      objTag = objIsArr ? arrayTag$1 : _getTag(object),
+      othTag = othIsArr ? arrayTag$1 : _getTag(other);
 
-  objTag = objTag == argsTag$3 ? objectTag$3 : objTag;
-  othTag = othTag == argsTag$3 ? objectTag$3 : othTag;
+  objTag = objTag == argsTag$2 ? objectTag$2 : objTag;
+  othTag = othTag == argsTag$2 ? objectTag$2 : othTag;
 
-  var objIsObj = objTag == objectTag$3,
-      othIsObj = othTag == objectTag$3,
+  var objIsObj = objTag == objectTag$2,
+      othIsObj = othTag == objectTag$2,
       isSameTag = objTag == othTag;
 
   if (isSameTag && isBuffer_1(object)) {
@@ -9297,8 +8092,8 @@ function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
       : _equalByTag(object, other, objTag, bitmask, customizer, equalFunc, stack);
   }
   if (!(bitmask & COMPARE_PARTIAL_FLAG$3)) {
-    var objIsWrapped = objIsObj && hasOwnProperty$c.call(object, '__wrapped__'),
-        othIsWrapped = othIsObj && hasOwnProperty$c.call(other, '__wrapped__');
+    var objIsWrapped = objIsObj && hasOwnProperty$9.call(object, '__wrapped__'),
+        othIsWrapped = othIsObj && hasOwnProperty$9.call(other, '__wrapped__');
 
     if (objIsWrapped || othIsWrapped) {
       var objUnwrapped = objIsWrapped ? object.value() : object,
@@ -9759,19 +8554,18 @@ function Cache(maxSize) {
   this._maxSize = maxSize;
   this.clear();
 }
-Cache.prototype.clear = function() {
+Cache.prototype.clear = function () {
   this._size = 0;
-  this._values = {};
+  this._values = Object.create(null);
 };
-Cache.prototype.get = function(key) {
+Cache.prototype.get = function (key) {
   return this._values[key]
 };
-Cache.prototype.set = function(key, value) {
+Cache.prototype.set = function (key, value) {
   this._size >= this._maxSize && this.clear();
-  if (!this._values.hasOwnProperty(key)) {
-    this._size++;
-  }
-  return this._values[key] = value
+  if (!(key in this._values)) this._size++;
+
+  return (this._values[key] = value)
 };
 
 var SPLIT_REGEX = /[^.^\]^[]+|(?=\[\]|\.\.)/g,
@@ -9781,60 +8575,62 @@ var SPLIT_REGEX = /[^.^\]^[]+|(?=\[\]|\.\.)/g,
   CLEAN_QUOTES_REGEX = /^\s*(['"]?)(.*?)(\1)\s*$/,
   MAX_CACHE_SIZE = 512;
 
-var contentSecurityPolicy = false,
-  pathCache = new Cache(MAX_CACHE_SIZE),
+var pathCache = new Cache(MAX_CACHE_SIZE),
   setCache = new Cache(MAX_CACHE_SIZE),
   getCache = new Cache(MAX_CACHE_SIZE);
 
-try {
-  new Function('');
-} catch (error) {
-  contentSecurityPolicy = true;
-}
-
 var propertyExpr = {
   Cache: Cache,
-
-  expr: expr,
 
   split: split,
 
   normalizePath: normalizePath,
 
-  setter: contentSecurityPolicy
-    ? function(path) {
-      var parts = normalizePath(path);
-      return function(data, value) {
-        return setterFallback(parts, data, value)
-      }
-    }
-    : function(path) {
-      return setCache.get(path) || setCache.set(
-        path,
-        new Function(
-          'data, value',
-          expr(path, 'data') + ' = value'
-        )
-      )
-    },
+  setter: function (path) {
+    var parts = normalizePath(path);
 
-  getter: contentSecurityPolicy
-    ? function(path, safe) {
-      var parts = normalizePath(path);
-      return function(data) {
-        return getterFallback(parts, safe, data)
-      }
-    }
-    : function(path, safe) {
-      var key = path + '_' + safe;
-      return getCache.get(key) || getCache.set(
-        key,
-        new Function('data', 'return ' + expr(path, safe, 'data'))
-      )
-    },
+    return (
+      setCache.get(path) ||
+      setCache.set(path, function setter(obj, value) {
+        var index = 0;
+        var len = parts.length;
+        var data = obj;
 
-  join: function(segments) {
-    return segments.reduce(function(path, part) {
+        while (index < len - 1) {
+          var part = parts[index];
+          if (
+            part === '__proto__' ||
+            part === 'constructor' ||
+            part === 'prototype'
+          ) {
+            return obj
+          }
+
+          data = data[parts[index++]];
+        }
+        data[parts[index]] = value;
+      })
+    )
+  },
+
+  getter: function (path, safe) {
+    var parts = normalizePath(path);
+    return (
+      getCache.get(path) ||
+      getCache.set(path, function getter(data) {
+        var index = 0,
+          len = parts.length;
+        while (index < len) {
+          if (data != null || !safe) data = data[parts[index++]];
+          else return
+        }
+        return data
+      })
+    )
+  },
+
+  join: function (segments) {
+    return segments.reduce(function (path, part) {
       return (
         path +
         (isQuoted(part) || DIGIT_REGEX.test(part)
@@ -9844,59 +8640,25 @@ var propertyExpr = {
     }, '')
   },
 
-  forEach: function(path, cb, thisArg) {
-    forEach(split(path), cb, thisArg);
-  }
+  forEach: function (path, cb, thisArg) {
+    forEach(Array.isArray(path) ? path : split(path), cb, thisArg);
+  },
 };
 
-function setterFallback(parts, data, value) {
-  var index = 0,
-    len = parts.length;
-  while (index < len - 1) {
-    data = data[parts[index++]];
-  }
-  data[parts[index]] = value;
-}
-
-function getterFallback(parts, safe, data) {
-  var index = 0,
-    len = parts.length;
-  while (index < len) {
-    if (data != null || !safe) {
-      data = data[parts[index++]];
-    } else {
-      return
-    }
-  }
-  return data
-}
-
 function normalizePath(path) {
-  return pathCache.get(path) || pathCache.set(
-    path,
-    split(path).map(function(part) {
-      return part.replace(CLEAN_QUOTES_REGEX, '$2')
-    })
+  return (
+    pathCache.get(path) ||
+    pathCache.set(
+      path,
+      split(path).map(function (part) {
+        return part.replace(CLEAN_QUOTES_REGEX, '$2')
+      })
+    )
   )
 }
 
 function split(path) {
   return path.match(SPLIT_REGEX)
-}
-
-function expr(expression, safe, param) {
-  expression = expression || '';
-
-  if (typeof safe === 'string') {
-    param = safe;
-    safe = false;
-  }
-
-  param = param || 'data';
-
-  if (expression && expression.charAt(0) !== '[') expression = '.' + expression;
-
-  return safe ? makeSafe(expression, param) : param + expression
 }
 
 function forEach(parts, iter, thisArg) {
@@ -9928,22 +8690,6 @@ function isQuoted(str) {
   )
 }
 
-function makeSafe(path, param) {
-  var result = param,
-    parts = split(path),
-    isLast;
-
-  forEach(parts, function(part, isBracket, isArray, idx, parts) {
-    isLast = idx === parts.length - 1;
-
-    part = isBracket || isArray ? '[' + part + ']' : '.' + part;
-
-    result += part + (!isLast ? ' || {})' : ')');
-  });
-
-  return new Array(parts.length + 1).join('(') + result
-}
-
 function hasLeadingNumber(part) {
   return part.match(LEAD_DIGIT_REGEX) && !part.match(DIGIT_REGEX)
 }
@@ -9955,641 +8701,620 @@ function hasSpecialChars(part) {
 function shouldBeQuoted(part) {
   return !isQuoted(part) && (hasLeadingNumber(part) || hasSpecialChars(part))
 }
+var propertyExpr_2 = propertyExpr.split;
+var propertyExpr_5 = propertyExpr.getter;
+var propertyExpr_7 = propertyExpr.forEach;
 
-var Reference_1 = createCommonjsModule(function (module, exports) {
-
-exports.__esModule = true;
-exports.default = void 0;
-
-
-
-var validateName = function validateName(d) {
-  if (typeof d !== 'string') throw new TypeError("ref's must be strings, got: " + d);
+const prefixes = {
+  context: '$',
+  value: '.'
 };
-
-var Reference =
-/*#__PURE__*/
-function () {
-  Reference.isRef = function isRef(value) {
-    return !!(value && (value.__isYupRef || value instanceof Reference));
-  };
-
-  var _proto = Reference.prototype;
-
-  _proto.toString = function toString() {
-    return "Ref(" + this.key + ")";
-  };
-
-  function Reference(key, mapFn, options) {
-    if (options === void 0) {
-      options = {};
-    }
-
-    validateName(key);
-    var prefix = options.contextPrefix || '$';
-
-    if (typeof key === 'function') {
-      key = '.';
-    }
-
+class Reference {
+  constructor(key, options = {}) {
+    if (typeof key !== 'string') throw new TypeError('ref must be a string, got: ' + key);
     this.key = key.trim();
-    this.prefix = prefix;
-    this.isContext = this.key.indexOf(prefix) === 0;
-    this.isSelf = this.key === '.';
-    this.path = this.isContext ? this.key.slice(this.prefix.length) : this.key;
-    this._get = (0, propertyExpr.getter)(this.path, true);
-
-    this.map = mapFn || function (value) {
-      return value;
-    };
+    if (key === '') throw new TypeError('ref must be a non-empty string');
+    this.isContext = this.key[0] === prefixes.context;
+    this.isValue = this.key[0] === prefixes.value;
+    this.isSibling = !this.isContext && !this.isValue;
+    let prefix = this.isContext ? prefixes.context : this.isValue ? prefixes.value : '';
+    this.path = this.key.slice(prefix.length);
+    this.getter = this.path && propertyExpr_5(this.path, true);
+    this.map = options.map;
   }
 
-  _proto.resolve = function resolve() {
+  getValue(value, parent, context) {
+    let result = this.isContext ? context : this.isValue ? value : parent;
+    if (this.getter) result = this.getter(result || {});
+    if (this.map) result = this.map(result);
+    return result;
+  }
+  /**
+   *
+   * @param {*} value
+   * @param {Object} options
+   * @param {Object=} options.context
+   * @param {Object=} options.parent
+   */
+
+
+  cast(value, options) {
+    return this.getValue(value, options == null ? void 0 : options.parent, options == null ? void 0 : options.context);
+  }
+
+  resolve() {
     return this;
-  };
-
-  _proto.cast = function cast(value, _ref) {
-    var parent = _ref.parent,
-        context = _ref.context;
-    return this.getValue(parent, context);
-  };
-
-  _proto.getValue = function getValue(parent, context) {
-    var isContext = this.isContext;
-
-    var value = this._get(isContext ? context : parent || context || {});
-
-    return this.map(value);
-  };
-
-  return Reference;
-}();
-
-exports.default = Reference;
-Reference.prototype.__isYupRef = true;
-module.exports = exports["default"];
-});
-
-unwrapExports(Reference_1);
-
-var createValidation_1 = createCommonjsModule(function (module, exports) {
-
-
-
-exports.__esModule = true;
-exports.createErrorFactory = createErrorFactory;
-exports.default = createValidation;
-
-var _objectWithoutPropertiesLoose2 = interopRequireDefault(objectWithoutPropertiesLoose);
-
-var _extends2 = interopRequireDefault(_extends_1);
-
-var _mapValues = interopRequireDefault(mapValues_1);
-
-var _ValidationError = interopRequireDefault(ValidationError_1);
-
-var _Reference = interopRequireDefault(Reference_1);
-
-
-
-var formatError = _ValidationError.default.formatError;
-
-var thenable = function thenable(p) {
-  return p && typeof p.then === 'function' && typeof p.catch === 'function';
-};
-
-function runTest(testFn, ctx, value, sync) {
-  var result = testFn.call(ctx, value);
-  if (!sync) return Promise.resolve(result);
-
-  if (thenable(result)) {
-    throw new Error("Validation test of type: \"" + ctx.type + "\" returned a Promise during a synchronous validate. " + "This test will finish after the validate call has returned");
   }
 
-  return synchronousPromise.SynchronousPromise.resolve(result);
-}
-
-function resolveParams(oldParams, newParams, resolve) {
-  return (0, _mapValues.default)((0, _extends2.default)({}, oldParams, newParams), resolve);
-}
-
-function createErrorFactory(_ref) {
-  var value = _ref.value,
-      label = _ref.label,
-      resolve = _ref.resolve,
-      originalValue = _ref.originalValue,
-      opts = (0, _objectWithoutPropertiesLoose2.default)(_ref, ["value", "label", "resolve", "originalValue"]);
-  return function createError(_temp) {
-    var _ref2 = _temp === void 0 ? {} : _temp,
-        _ref2$path = _ref2.path,
-        path = _ref2$path === void 0 ? opts.path : _ref2$path,
-        _ref2$message = _ref2.message,
-        message = _ref2$message === void 0 ? opts.message : _ref2$message,
-        _ref2$type = _ref2.type,
-        type = _ref2$type === void 0 ? opts.name : _ref2$type,
-        params = _ref2.params;
-
-    params = (0, _extends2.default)({
-      path: path,
-      value: value,
-      originalValue: originalValue,
-      label: label
-    }, resolveParams(opts.params, params, resolve));
-    return (0, _extends2.default)(new _ValidationError.default(formatError(message, params), value, path, type), {
-      params: params
-    });
-  };
-}
-
-function createValidation(options) {
-  var name = options.name,
-      message = options.message,
-      test = options.test,
-      params = options.params;
-
-  function validate(_ref3) {
-    var value = _ref3.value,
-        path = _ref3.path,
-        label = _ref3.label,
-        options = _ref3.options,
-        originalValue = _ref3.originalValue,
-        sync = _ref3.sync,
-        rest = (0, _objectWithoutPropertiesLoose2.default)(_ref3, ["value", "path", "label", "options", "originalValue", "sync"]);
-    var parent = options.parent;
-
-    var resolve = function resolve(value) {
-      return _Reference.default.isRef(value) ? value.getValue(parent, options.context) : value;
+  describe() {
+    return {
+      type: 'ref',
+      key: this.key
     };
-
-    var createError = createErrorFactory({
-      message: message,
-      path: path,
-      value: value,
-      originalValue: originalValue,
-      params: params,
-      label: label,
-      resolve: resolve,
-      name: name
-    });
-    var ctx = (0, _extends2.default)({
-      path: path,
-      parent: parent,
-      type: name,
-      createError: createError,
-      resolve: resolve,
-      options: options
-    }, rest);
-    return runTest(test, ctx, value, sync).then(function (validOrError) {
-      if (_ValidationError.default.isError(validOrError)) throw validOrError;else if (!validOrError) throw createError();
-    });
   }
 
-  validate.OPTIONS = options;
+  toString() {
+    return `Ref(${this.key})`;
+  }
+
+  static isRef(value) {
+    return value && value.__isYupRef;
+  }
+
+} // @ts-ignore
+
+Reference.prototype.__isYupRef = true;
+
+function _extends$1() { _extends$1 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$1.apply(this, arguments); }
+
+function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; var sourceKeys = Object.keys(source); var key, i; for (i = 0; i < sourceKeys.length; i++) { key = sourceKeys[i]; if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } return target; }
+function createValidation(config) {
+  function validate(_ref, cb) {
+    let {
+      value,
+      path = '',
+      label,
+      options,
+      originalValue,
+      sync
+    } = _ref,
+        rest = _objectWithoutPropertiesLoose(_ref, ["value", "path", "label", "options", "originalValue", "sync"]);
+
+    const {
+      name,
+      test,
+      params,
+      message
+    } = config;
+    let {
+      parent,
+      context
+    } = options;
+
+    function resolve(item) {
+      return Reference.isRef(item) ? item.getValue(value, parent, context) : item;
+    }
+
+    function createError(overrides = {}) {
+      const nextParams = mapValues_1(_extends$1({
+        value,
+        originalValue,
+        label,
+        path: overrides.path || path
+      }, params, overrides.params), resolve);
+      const error = new ValidationError(ValidationError.formatError(overrides.message || message, nextParams), value, nextParams.path, overrides.type || name);
+      error.params = nextParams;
+      return error;
+    }
+
+    let ctx = _extends$1({
+      path,
+      parent,
+      type: name,
+      createError,
+      resolve,
+      options,
+      originalValue
+    }, rest);
+
+    if (!sync) {
+      try {
+        Promise.resolve(test.call(ctx, value, ctx)).then(validOrError => {
+          if (ValidationError.isError(validOrError)) cb(validOrError);else if (!validOrError) cb(createError());else cb(null, validOrError);
+        });
+      } catch (err) {
+        cb(err);
+      }
+
+      return;
+    }
+
+    let result;
+
+    try {
+      var _ref2;
+
+      result = test.call(ctx, value, ctx);
+
+      if (typeof ((_ref2 = result) == null ? void 0 : _ref2.then) === 'function') {
+        throw new Error(`Validation test of type: "${ctx.type}" returned a Promise during a synchronous validate. ` + `This test will finish after the validate call has returned`);
+      }
+    } catch (err) {
+      cb(err);
+      return;
+    }
+
+    if (ValidationError.isError(result)) cb(result);else if (!result) cb(createError());else cb(null, result);
+  }
+
+  validate.OPTIONS = config;
   return validate;
 }
-});
 
-unwrapExports(createValidation_1);
-var createValidation_2 = createValidation_1.createErrorFactory;
+let trim = part => part.substr(0, part.length - 1).substr(1);
 
-var reach_1 = createCommonjsModule(function (module, exports) {
+function getIn(schema, path, value, context = value) {
+  let parent, lastPart, lastPartDebug; // root path: ''
 
-
-
-exports.__esModule = true;
-exports.getIn = getIn;
-exports.default = void 0;
-
-
-
-var _has = interopRequireDefault(has_1);
-
-var trim = function trim(part) {
-  return part.substr(0, part.length - 1).substr(1);
-};
-
-function getIn(schema, path, value, context) {
-  var parent, lastPart, lastPartDebug; // if only one "value" arg then use it for both
-
-  context = context || value;
   if (!path) return {
-    parent: parent,
+    parent,
     parentPath: path,
-    schema: schema.resolve({
-      context: context,
-      parent: parent,
-      value: value
-    })
+    schema
   };
-  (0, propertyExpr.forEach)(path, function (_part, isBracket, isArray) {
-    var part = isBracket ? trim(_part) : _part;
+  propertyExpr_7(path, (_part, isBracket, isArray) => {
+    let part = isBracket ? trim(_part) : _part;
+    schema = schema.resolve({
+      context,
+      parent,
+      value
+    });
 
-    if (isArray || (0, _has.default)(schema, '_subType')) {
-      // we skipped an array: foo[].bar
-      var idx = isArray ? parseInt(part, 10) : 0;
-      schema = schema.resolve({
-        context: context,
-        parent: parent,
-        value: value
-      })._subType;
+    if (schema.innerType) {
+      let idx = isArray ? parseInt(part, 10) : 0;
 
-      if (value) {
-        if (isArray && idx >= value.length) {
-          throw new Error("Yup.reach cannot resolve an array item at index: " + _part + ", in the path: " + path + ". " + "because there is no value at that index. ");
-        }
-
-        value = value[idx];
+      if (value && idx >= value.length) {
+        throw new Error(`Yup.reach cannot resolve an array item at index: ${_part}, in the path: ${path}. ` + `because there is no value at that index. `);
       }
-    }
+
+      parent = value;
+      value = value && value[idx];
+      schema = schema.innerType;
+    } // sometimes the array index part of a path doesn't exist: "nested.arr.child"
+    // in these cases the current part is the next schema and should be processed
+    // in this iteration. For cases where the index signature is included this
+    // check will fail and we'll handle the `child` part on the next iteration like normal
+
 
     if (!isArray) {
-      schema = schema.resolve({
-        context: context,
-        parent: parent,
-        value: value
-      });
-      if (!(0, _has.default)(schema, 'fields') || !(0, _has.default)(schema.fields, part)) throw new Error("The schema does not contain the path: " + path + ". " + ("(failed at: " + lastPartDebug + " which is a type: \"" + schema._type + "\") "));
-      schema = schema.fields[part];
+      if (!schema.fields || !schema.fields[part]) throw new Error(`The schema does not contain the path: ${path}. ` + `(failed at: ${lastPartDebug} which is a type: "${schema._type}")`);
       parent = value;
       value = value && value[part];
-      lastPart = part;
-      lastPartDebug = isBracket ? '[' + _part + ']' : '.' + _part;
+      schema = schema.fields[part];
     }
+
+    lastPart = part;
+    lastPartDebug = isBracket ? '[' + _part + ']' : '.' + _part;
   });
-
-  if (schema) {
-    schema = schema.resolve({
-      context: context,
-      parent: parent,
-      value: value
-    });
-  }
-
   return {
-    schema: schema,
-    parent: parent,
+    schema,
+    parent,
     parentPath: lastPart
   };
 }
 
-var reach = function reach(obj, path, value, context) {
-  return getIn(obj, path, value, context).schema;
-};
-
-var _default = reach;
-exports.default = _default;
-});
-
-unwrapExports(reach_1);
-var reach_2 = reach_1.getIn;
-
-var mixed = createCommonjsModule(function (module, exports) {
-
-
-
-exports.__esModule = true;
-exports.default = SchemaType;
-
-var _extends2 = interopRequireDefault(_extends_1);
-
-var _has = interopRequireDefault(has_1);
-
-var _cloneDeepWith = interopRequireDefault(cloneDeepWith_1);
-
-var _toArray2 = interopRequireDefault(toArray_1);
-
-
-
-var _Condition = interopRequireDefault(Condition);
-
-var _runValidations = interopRequireDefault(runValidations_1);
-
-var _merge = interopRequireDefault(merge_1);
-
-var _isSchema = interopRequireDefault(isSchema);
-
-var _isAbsent = interopRequireDefault(isAbsent);
-
-var _createValidation = interopRequireDefault(createValidation_1);
-
-var _printValue = interopRequireDefault(printValue_1);
-
-var _Reference = interopRequireDefault(Reference_1);
-
-
-
-var notEmpty = function notEmpty(value) {
-  return !(0, _isAbsent.default)(value);
-};
-
-var RefSet =
-/*#__PURE__*/
-function () {
-  function RefSet() {
+class ReferenceSet {
+  constructor() {
     this.list = new Set();
     this.refs = new Map();
   }
 
-  var _proto = RefSet.prototype;
-
-  _proto.toArray = function toArray() {
-    return (0, _toArray2.default)(this.list).concat((0, _toArray2.default)(this.refs.values()));
-  };
-
-  _proto.add = function add(value) {
-    _Reference.default.isRef(value) ? this.refs.set(value.key, value) : this.list.add(value);
-  };
-
-  _proto.delete = function _delete(value) {
-    _Reference.default.isRef(value) ? this.refs.delete(value.key, value) : this.list.delete(value);
-  };
-
-  _proto.has = function has(value, resolve) {
-    if (this.list.has(value)) return true;
-    var item,
-        values = this.refs.values();
-
-    while (item = values.next(), !item.done) {
-      if (resolve(item.value) === value) return true;
-    }
-
-    return false;
-  };
-
-  return RefSet;
-}();
-
-function SchemaType(options) {
-  var _this = this;
-
-  if (options === void 0) {
-    options = {};
+  get size() {
+    return this.list.size + this.refs.size;
   }
 
-  if (!(this instanceof SchemaType)) return new SchemaType();
-  this._deps = [];
-  this._conditions = [];
-  this._options = {
-    abortEarly: true,
-    recursive: true
-  };
-  this._exclusive = Object.create(null);
-  this._whitelist = new RefSet();
-  this._blacklist = new RefSet();
-  this.tests = [];
-  this.transforms = [];
-  this.withMutation(function () {
-    _this.typeError(locale.mixed.notType);
-  });
-  if ((0, _has.default)(options, 'default')) this._defaultDefault = options.default;
-  this._type = options.type || 'mixed';
+  describe() {
+    const description = [];
+
+    for (const item of this.list) description.push(item);
+
+    for (const [, ref] of this.refs) description.push(ref.describe());
+
+    return description;
+  }
+
+  toArray() {
+    return Array.from(this.list).concat(Array.from(this.refs.values()));
+  }
+
+  add(value) {
+    Reference.isRef(value) ? this.refs.set(value.key, value) : this.list.add(value);
+  }
+
+  delete(value) {
+    Reference.isRef(value) ? this.refs.delete(value.key) : this.list.delete(value);
+  }
+
+  has(value, resolve) {
+    if (this.list.has(value)) return true;
+    let item,
+        values = this.refs.values();
+
+    while (item = values.next(), !item.done) if (resolve(item.value) === value) return true;
+
+    return false;
+  }
+
+  clone() {
+    const next = new ReferenceSet();
+    next.list = new Set(this.list);
+    next.refs = new Map(this.refs);
+    return next;
+  }
+
+  merge(newItems, removeItems) {
+    const next = this.clone();
+    newItems.list.forEach(value => next.add(value));
+    newItems.refs.forEach(value => next.add(value));
+    removeItems.list.forEach(value => next.delete(value));
+    removeItems.refs.forEach(value => next.delete(value));
+    return next;
+  }
+
 }
 
-var proto = SchemaType.prototype = {
-  __isYupSchema__: true,
-  constructor: SchemaType,
-  clone: function clone() {
-    var _this2 = this;
+function _extends$2() { _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$2.apply(this, arguments); }
+class BaseSchema {
+  constructor(options) {
+    this.deps = [];
+    this.conditions = [];
+    this._whitelist = new ReferenceSet();
+    this._blacklist = new ReferenceSet();
+    this.exclusiveTests = Object.create(null);
+    this.tests = [];
+    this.transforms = [];
+    this.withMutation(() => {
+      this.typeError(mixed.notType);
+    });
+    this.type = (options == null ? void 0 : options.type) || 'mixed';
+    this.spec = _extends$2({
+      strip: false,
+      strict: false,
+      abortEarly: true,
+      recursive: true,
+      nullable: false,
+      presence: 'optional'
+    }, options == null ? void 0 : options.spec);
+  } // TODO: remove
 
-    if (this._mutate) return this; // if the nested value is a schema we can skip cloning, since
+
+  get _type() {
+    return this.type;
+  }
+
+  _typeCheck(_value) {
+    return true;
+  }
+
+  clone(spec) {
+    if (this._mutate) {
+      if (spec) Object.assign(this.spec, spec);
+      return this;
+    } // if the nested value is a schema we can skip cloning, since
     // they are already immutable
 
-    return (0, _cloneDeepWith.default)(this, function (value) {
-      if ((0, _isSchema.default)(value) && value !== _this2) return value;
-    });
-  },
-  label: function label(_label) {
-    var next = this.clone();
-    next._label = _label;
-    return next;
-  },
-  meta: function meta(obj) {
-    if (arguments.length === 0) return this._meta;
-    var next = this.clone();
-    next._meta = (0, _extends2.default)(next._meta || {}, obj);
-    return next;
-  },
-  withMutation: function withMutation(fn) {
-    this._mutate = true;
-    var result = fn(this);
-    this._mutate = false;
-    return result;
-  },
-  concat: function concat(schema) {
-    if (!schema) return this;
-    if (schema._type !== this._type && this._type !== 'mixed') throw new TypeError("You cannot `concat()` schema's of different types: " + this._type + " and " + schema._type);
-    var cloned = this.clone();
-    var next = (0, _merge.default)(this.clone(), schema.clone()); // undefined isn't merged over, but is a valid value for default
 
-    if ((0, _has.default)(schema, '_default')) next._default = schema._default;
-    next.tests = cloned.tests;
-    next._exclusive = cloned._exclusive; // manually add the new tests to ensure
+    const next = Object.create(Object.getPrototypeOf(this)); // @ts-expect-error this is readonly
+
+    next.type = this.type;
+    next._typeError = this._typeError;
+    next._whitelistError = this._whitelistError;
+    next._blacklistError = this._blacklistError;
+    next._whitelist = this._whitelist.clone();
+    next._blacklist = this._blacklist.clone();
+    next.exclusiveTests = _extends$2({}, this.exclusiveTests); // @ts-expect-error this is readonly
+
+    next.deps = [...this.deps];
+    next.conditions = [...this.conditions];
+    next.tests = [...this.tests];
+    next.transforms = [...this.transforms];
+    next.spec = nanoclone(_extends$2({}, this.spec, spec));
+    return next;
+  }
+
+  label(label) {
+    var next = this.clone();
+    next.spec.label = label;
+    return next;
+  }
+
+  meta(...args) {
+    if (args.length === 0) return this.spec.meta;
+    let next = this.clone();
+    next.spec.meta = Object.assign(next.spec.meta || {}, args[0]);
+    return next;
+  } // withContext<TContext extends AnyObject>(): BaseSchema<
+  //   TCast,
+  //   TContext,
+  //   TOutput
+  // > {
+  //   return this as any;
+  // }
+
+
+  withMutation(fn) {
+    let before = this._mutate;
+    this._mutate = true;
+    let result = fn(this);
+    this._mutate = before;
+    return result;
+  }
+
+  concat(schema) {
+    if (!schema || schema === this) return this;
+    if (schema.type !== this.type && this.type !== 'mixed') throw new TypeError(`You cannot \`concat()\` schema's of different types: ${this.type} and ${schema.type}`);
+    let base = this;
+    let combined = schema.clone();
+
+    const mergedSpec = _extends$2({}, base.spec, combined.spec); // if (combined.spec.nullable === UNSET)
+    //   mergedSpec.nullable = base.spec.nullable;
+    // if (combined.spec.presence === UNSET)
+    //   mergedSpec.presence = base.spec.presence;
+
+
+    combined.spec = mergedSpec;
+    combined._typeError || (combined._typeError = base._typeError);
+    combined._whitelistError || (combined._whitelistError = base._whitelistError);
+    combined._blacklistError || (combined._blacklistError = base._blacklistError); // manually merge the blacklist/whitelist (the other `schema` takes
+    // precedence in case of conflicts)
+
+    combined._whitelist = base._whitelist.merge(schema._whitelist, schema._blacklist);
+    combined._blacklist = base._blacklist.merge(schema._blacklist, schema._whitelist); // start with the current tests
+
+    combined.tests = base.tests;
+    combined.exclusiveTests = base.exclusiveTests; // manually add the new tests to ensure
     // the deduping logic is consistent
 
-    schema.tests.forEach(function (fn) {
-      next = next.test(fn.OPTIONS);
+    combined.withMutation(next => {
+      schema.tests.forEach(fn => {
+        next.test(fn.OPTIONS);
+      });
     });
-    next._type = schema._type;
-    return next;
-  },
-  isType: function isType(v) {
-    if (this._nullable && v === null) return true;
-    return !this._typeCheck || this._typeCheck(v);
-  },
-  resolve: function resolve(_ref) {
-    var context = _ref.context,
-        parent = _ref.parent;
+    return combined;
+  }
 
-    if (this._conditions.length) {
-      return this._conditions.reduce(function (schema, match) {
-        return match.resolve(schema, match.getValue(parent, context));
-      }, this);
+  isType(v) {
+    if (this.spec.nullable && v === null) return true;
+    return this._typeCheck(v);
+  }
+
+  resolve(options) {
+    let schema = this;
+
+    if (schema.conditions.length) {
+      let conditions = schema.conditions;
+      schema = schema.clone();
+      schema.conditions = [];
+      schema = conditions.reduce((schema, condition) => condition.resolve(schema, options), schema);
+      schema = schema.resolve(options);
     }
 
-    return this;
-  },
-  cast: function cast(value, options) {
-    if (options === void 0) {
-      options = {};
-    }
+    return schema;
+  }
+  /**
+   *
+   * @param {*} value
+   * @param {Object} options
+   * @param {*=} options.parent
+   * @param {*=} options.context
+   */
 
-    var resolvedSchema = this.resolve(options);
 
-    var result = resolvedSchema._cast(value, options);
+  cast(value, options = {}) {
+    let resolvedSchema = this.resolve(_extends$2({
+      value
+    }, options));
+
+    let result = resolvedSchema._cast(value, options);
 
     if (value !== undefined && options.assert !== false && resolvedSchema.isType(result) !== true) {
-      var formattedValue = (0, _printValue.default)(value);
-      var formattedResult = (0, _printValue.default)(result);
-      throw new TypeError("The value of " + (options.path || 'field') + " could not be cast to a value " + ("that satisfies the schema type: \"" + resolvedSchema._type + "\". \n\n") + ("attempted value: " + formattedValue + " \n") + (formattedResult !== formattedValue ? "result of cast: " + formattedResult : ''));
+      let formattedValue = printValue(value);
+      let formattedResult = printValue(result);
+      throw new TypeError(`The value of ${options.path || 'field'} could not be cast to a value ` + `that satisfies the schema type: "${resolvedSchema._type}". \n\n` + `attempted value: ${formattedValue} \n` + (formattedResult !== formattedValue ? `result of cast: ${formattedResult}` : ''));
     }
 
     return result;
-  },
-  _cast: function _cast(rawValue) {
-    var _this3 = this;
+  }
 
-    var value = rawValue === undefined ? rawValue : this.transforms.reduce(function (value, fn) {
-      return fn.call(_this3, value, rawValue);
-    }, rawValue);
+  _cast(rawValue, _options) {
+    let value = rawValue === undefined ? rawValue : this.transforms.reduce((value, fn) => fn.call(this, value, rawValue, this), rawValue);
 
-    if (value === undefined && (0, _has.default)(this, '_default')) {
-      value = this.default();
+    if (value === undefined) {
+      value = this.getDefault();
     }
 
     return value;
-  },
-  _validate: function _validate(_value, options) {
-    var _this4 = this;
+  }
 
-    if (options === void 0) {
-      options = {};
-    }
+  _validate(_value, options = {}, cb) {
+    let {
+      sync,
+      path,
+      from = [],
+      originalValue = _value,
+      strict = this.spec.strict,
+      abortEarly = this.spec.abortEarly
+    } = options;
+    let value = _value;
 
-    var value = _value;
-    var originalValue = options.originalValue != null ? options.originalValue : _value;
-
-    var isStrict = this._option('strict', options);
-
-    var endEarly = this._option('abortEarly', options);
-
-    var sync = options.sync;
-    var path = options.path;
-    var label = this._label;
-
-    if (!isStrict) {
-      value = this._cast(value, (0, _extends2.default)({
+    if (!strict) {
+      // this._validating = true;
+      value = this._cast(value, _extends$2({
         assert: false
-      }, options));
+      }, options)); // this._validating = false;
     } // value is cast, we can check if it meets type requirements
 
 
-    var validationParams = {
-      value: value,
-      path: path,
+    let args = {
+      value,
+      path,
+      options,
+      originalValue,
       schema: this,
-      options: options,
-      label: label,
-      originalValue: originalValue,
-      sync: sync
+      label: this.spec.label,
+      sync,
+      from
     };
-    var initialTests = [];
-    if (this._typeError) initialTests.push(this._typeError(validationParams));
-    if (this._whitelistError) initialTests.push(this._whitelistError(validationParams));
-    if (this._blacklistError) initialTests.push(this._blacklistError(validationParams));
-    return (0, _runValidations.default)({
-      validations: initialTests,
-      endEarly: endEarly,
-      value: value,
-      path: path,
-      sync: sync
-    }).then(function (value) {
-      return (0, _runValidations.default)({
-        path: path,
-        sync: sync,
-        value: value,
-        endEarly: endEarly,
-        validations: _this4.tests.map(function (fn) {
-          return fn(validationParams);
-        })
-      });
+    let initialTests = [];
+    if (this._typeError) initialTests.push(this._typeError);
+    if (this._whitelistError) initialTests.push(this._whitelistError);
+    if (this._blacklistError) initialTests.push(this._blacklistError);
+    runTests({
+      args,
+      value,
+      path,
+      sync,
+      tests: initialTests,
+      endEarly: abortEarly
+    }, err => {
+      if (err) return void cb(err, value);
+      runTests({
+        tests: this.tests,
+        args,
+        path,
+        sync,
+        value,
+        endEarly: abortEarly
+      }, cb);
     });
-  },
-  validate: function validate(value, options) {
-    if (options === void 0) {
-      options = {};
-    }
+  }
 
-    var schema = this.resolve(options);
-    return schema._validate(value, options);
-  },
-  validateSync: function validateSync(value, options) {
-    if (options === void 0) {
-      options = {};
-    }
+  validate(value, options, maybeCb) {
+    let schema = this.resolve(_extends$2({}, options, {
+      value
+    })); // callback case is for nested validations
 
-    var schema = this.resolve(options);
-    var result, err;
+    return typeof maybeCb === 'function' ? schema._validate(value, options, maybeCb) : new Promise((resolve, reject) => schema._validate(value, options, (err, value) => {
+      if (err) reject(err);else resolve(value);
+    }));
+  }
 
-    schema._validate(value, (0, _extends2.default)({}, options, {
+  validateSync(value, options) {
+    let schema = this.resolve(_extends$2({}, options, {
+      value
+    }));
+    let result;
+
+    schema._validate(value, _extends$2({}, options, {
       sync: true
-    })).then(function (r) {
-      return result = r;
-    }).catch(function (e) {
-      return err = e;
+    }), (err, value) => {
+      if (err) throw err;
+      result = value;
     });
 
-    if (err) throw err;
     return result;
-  },
-  isValid: function isValid(value, options) {
-    return this.validate(value, options).then(function () {
-      return true;
-    }).catch(function (err) {
-      if (err.name === 'ValidationError') return false;
+  }
+
+  isValid(value, options) {
+    return this.validate(value, options).then(() => true, err => {
+      if (ValidationError.isError(err)) return false;
       throw err;
     });
-  },
-  isValidSync: function isValidSync(value, options) {
+  }
+
+  isValidSync(value, options) {
     try {
-      this.validateSync(value, (0, _extends2.default)({}, options));
+      this.validateSync(value, options);
       return true;
     } catch (err) {
-      if (err.name === 'ValidationError') return false;
+      if (ValidationError.isError(err)) return false;
       throw err;
     }
-  },
-  getDefault: function getDefault(options) {
-    if (options === void 0) {
-      options = {};
+  }
+
+  _getDefault() {
+    let defaultValue = this.spec.default;
+
+    if (defaultValue == null) {
+      return defaultValue;
     }
 
-    var schema = this.resolve(options);
-    return schema.default();
-  },
-  default: function _default(def) {
+    return typeof defaultValue === 'function' ? defaultValue.call(this) : nanoclone(defaultValue);
+  }
+
+  getDefault(options) {
+    let schema = this.resolve(options || {});
+    return schema._getDefault();
+  }
+
+  default(def) {
     if (arguments.length === 0) {
-      var defaultValue = (0, _has.default)(this, '_default') ? this._default : this._defaultDefault;
-      return typeof defaultValue === 'function' ? defaultValue.call(this) : (0, _cloneDeepWith.default)(defaultValue);
+      return this._getDefault();
     }
 
-    var next = this.clone();
-    next._default = def;
+    let next = this.clone({
+      default: def
+    });
     return next;
-  },
-  strict: function strict() {
-    var next = this.clone();
-    next._options.strict = true;
-    return next;
-  },
-  required: function required(message) {
-    if (message === void 0) {
-      message = locale.mixed.required;
-    }
+  }
 
+  strict(isStrict = true) {
+    var next = this.clone();
+    next.spec.strict = isStrict;
+    return next;
+  }
+
+  _isPresent(value) {
+    return value != null;
+  }
+
+  defined(message = mixed.defined) {
     return this.test({
-      message: message,
+      message,
+      name: 'defined',
+      exclusive: true,
+
+      test(value) {
+        return value !== undefined;
+      }
+
+    });
+  }
+
+  required(message = mixed.required) {
+    return this.clone({
+      presence: 'required'
+    }).withMutation(s => s.test({
+      message,
       name: 'required',
-      test: notEmpty
+      exclusive: true,
+
+      test(value) {
+        return this.schema._isPresent(value);
+      }
+
+    }));
+  }
+
+  notRequired() {
+    var next = this.clone({
+      presence: 'optional'
     });
-  },
-  notRequired: function notRequired() {
-    var next = this.clone();
-    next.tests = next.tests.filter(function (test) {
-      return test.OPTIONS.name !== 'required';
+    next.tests = next.tests.filter(test => test.OPTIONS.name !== 'required');
+    return next;
+  }
+
+  nullable(isNullable = true) {
+    var next = this.clone({
+      nullable: isNullable !== false
     });
     return next;
-  },
-  nullable: function nullable(value) {
-    var next = this.clone();
-    next._nullable = value === false ? false : true;
-    return next;
-  },
-  transform: function transform(fn) {
+  }
+
+  transform(fn) {
     var next = this.clone();
     next.transforms.push(fn);
     return next;
-  },
-
+  }
   /**
    * Adds a test function to the schema's queue of tests.
    * tests can be exclusive or non-exclusive.
@@ -10603,42 +9328,44 @@ var proto = SchemaType.prototype = {
    * If an exclusive test is added to a schema with non-exclusive tests of the same name
    * the previous tests are removed and further tests of the same name will replace each other.
    */
-  test: function test() {
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
 
-    var opts = args[0];
 
-    if (args.length > 1) {
-      var name = args[0],
-          message = args[1],
-          test = args[2];
+  test(...args) {
+    let opts;
 
-      if (test == null) {
-        test = message;
-        message = locale.mixed.default;
+    if (args.length === 1) {
+      if (typeof args[0] === 'function') {
+        opts = {
+          test: args[0]
+        };
+      } else {
+        opts = args[0];
       }
-
+    } else if (args.length === 2) {
       opts = {
-        name: name,
-        test: test,
-        message: message,
-        exclusive: false
+        name: args[0],
+        test: args[1]
+      };
+    } else {
+      opts = {
+        name: args[0],
+        message: args[1],
+        test: args[2]
       };
     }
 
+    if (opts.message === undefined) opts.message = mixed.default;
     if (typeof opts.test !== 'function') throw new TypeError('`test` is a required parameters');
-    var next = this.clone();
-    var validate = (0, _createValidation.default)(opts);
-    var isExclusive = opts.exclusive || opts.name && next._exclusive[opts.name] === true;
+    let next = this.clone();
+    let validate = createValidation(opts);
+    let isExclusive = opts.exclusive || opts.name && next.exclusiveTests[opts.name] === true;
 
-    if (opts.exclusive && !opts.name) {
-      throw new TypeError('Exclusive tests must provide a unique `name` identifying the test');
+    if (opts.exclusive) {
+      if (!opts.name) throw new TypeError('Exclusive tests must provide a unique `name` identifying the test');
     }
 
-    next._exclusive[opts.name] = !!opts.exclusive;
-    next.tests = next.tests.filter(function (fn) {
+    if (opts.name) next.exclusiveTests[opts.name] = !!opts.exclusive;
+    next.tests = next.tests.filter(fn => {
       if (fn.OPTIONS.name === opts.name) {
         if (isExclusive) return false;
         if (fn.OPTIONS.test === validate.OPTIONS.test) return false;
@@ -10648,26 +9375,31 @@ var proto = SchemaType.prototype = {
     });
     next.tests.push(validate);
     return next;
-  },
-  when: function when(keys, options) {
-    var next = this.clone(),
-        deps = [].concat(keys).map(function (key) {
-      return new _Reference.default(key);
-    });
-    deps.forEach(function (dep) {
-      if (!dep.isContext) next._deps.push(dep.key);
-    });
+  }
 
-    next._conditions.push(new _Condition.default(deps, options));
+  when(keys, options) {
+    if (!Array.isArray(keys) && typeof keys !== 'string') {
+      options = keys;
+      keys = '.';
+    }
 
+    let next = this.clone();
+    let deps = toArray(keys).map(key => new Reference(key));
+    deps.forEach(dep => {
+      // @ts-ignore
+      if (dep.isSibling) next.deps.push(dep.key);
+    });
+    next.conditions.push(new Condition(deps, options));
     return next;
-  },
-  typeError: function typeError(message) {
+  }
+
+  typeError(message) {
     var next = this.clone();
-    next._typeError = (0, _createValidation.default)({
-      message: message,
+    next._typeError = createValidation({
+      message,
       name: 'typeError',
-      test: function test(value) {
+
+      test(value) {
         if (value !== undefined && !this.schema.isType(value)) return this.createError({
           params: {
             type: this.schema._type
@@ -10675,51 +9407,49 @@ var proto = SchemaType.prototype = {
         });
         return true;
       }
+
     });
     return next;
-  },
-  oneOf: function oneOf(enums, message) {
-    if (message === void 0) {
-      message = locale.mixed.oneOf;
-    }
+  }
 
+  oneOf(enums, message = mixed.oneOf) {
     var next = this.clone();
-    enums.forEach(function (val) {
+    enums.forEach(val => {
       next._whitelist.add(val);
 
       next._blacklist.delete(val);
     });
-    next._whitelistError = (0, _createValidation.default)({
-      message: message,
+    next._whitelistError = createValidation({
+      message,
       name: 'oneOf',
-      test: function test(value) {
+
+      test(value) {
         if (value === undefined) return true;
-        var valids = this.schema._whitelist;
+        let valids = this.schema._whitelist;
         return valids.has(value, this.resolve) ? true : this.createError({
           params: {
             values: valids.toArray().join(', ')
           }
         });
       }
+
     });
     return next;
-  },
-  notOneOf: function notOneOf(enums, message) {
-    if (message === void 0) {
-      message = locale.mixed.notOneOf;
-    }
+  }
 
+  notOneOf(enums, message = mixed.notOneOf) {
     var next = this.clone();
-    enums.forEach(function (val) {
+    enums.forEach(val => {
       next._blacklist.add(val);
 
       next._whitelist.delete(val);
     });
-    next._blacklistError = (0, _createValidation.default)({
-      message: message,
+    next._blacklistError = createValidation({
+      message,
       name: 'notOneOf',
-      test: function test(value) {
-        var invalids = this.schema._blacklist;
+
+      test(value) {
+        let invalids = this.schema._blacklist;
         if (invalids.has(value, this.resolve)) return this.createError({
           params: {
             values: invalids.toArray().join(', ')
@@ -10727,735 +9457,364 @@ var proto = SchemaType.prototype = {
         });
         return true;
       }
+
     });
     return next;
-  },
-  strip: function strip(_strip) {
-    if (_strip === void 0) {
-      _strip = true;
-    }
+  }
 
-    var next = this.clone();
-    next._strip = _strip;
+  strip(strip = true) {
+    let next = this.clone();
+    next.spec.strip = strip;
     return next;
-  },
-  _option: function _option(key, overrides) {
-    return (0, _has.default)(overrides, key) ? overrides[key] : this._options[key];
-  },
-  describe: function describe() {
-    var next = this.clone();
-    return {
-      type: next._type,
-      meta: next._meta,
-      label: next._label,
-      tests: next.tests.map(function (fn) {
-        return {
-          name: fn.OPTIONS.name,
-          params: fn.OPTIONS.params
-        };
-      }).filter(function (n, idx, list) {
-        return list.findIndex(function (c) {
-          return c.name === n.name;
-        }) === idx;
-      })
+  }
+
+  describe() {
+    const next = this.clone();
+    const {
+      label,
+      meta
+    } = next.spec;
+    const description = {
+      meta,
+      label,
+      type: next.type,
+      oneOf: next._whitelist.describe(),
+      notOneOf: next._blacklist.describe(),
+      tests: next.tests.map(fn => ({
+        name: fn.OPTIONS.name,
+        params: fn.OPTIONS.params
+      })).filter((n, idx, list) => list.findIndex(c => c.name === n.name) === idx)
     };
+    return description;
   }
-};
-var _arr = ['validate', 'validateSync'];
 
-var _loop = function _loop() {
-  var method = _arr[_i];
+}
+// @ts-expect-error
+BaseSchema.prototype.__isYupSchema__ = true;
 
-  proto[method + "At"] = function (path, value, options) {
-    if (options === void 0) {
-      options = {};
-    }
-
-    var _getIn = (0, reach_1.getIn)(this, path, value, options.context),
-        parent = _getIn.parent,
-        parentPath = _getIn.parentPath,
-        schema = _getIn.schema;
-
-    return schema[method](parent && parent[parentPath], (0, _extends2.default)({}, options, {
-      parent: parent,
-      path: path
-    }));
-  };
+for (const method of ['validate', 'validateSync']) BaseSchema.prototype[`${method}At`] = function (path, value, options = {}) {
+  const {
+    parent,
+    parentPath,
+    schema
+  } = getIn(this, path, value, options.context);
+  return schema[method](parent && parent[parentPath], _extends$2({}, options, {
+    parent,
+    path
+  }));
 };
 
-for (var _i = 0; _i < _arr.length; _i++) {
-  _loop();
+for (const alias of ['equals', 'is']) BaseSchema.prototype[alias] = BaseSchema.prototype.oneOf;
+
+for (const alias of ['not', 'nope']) BaseSchema.prototype[alias] = BaseSchema.prototype.notOneOf;
+
+BaseSchema.prototype.optional = BaseSchema.prototype.notRequired;
+
+var isAbsent = (value => value == null);
+
+let rEmail = /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i; // eslint-disable-next-line
+
+let rUrl = /^((https?|ftp):)?\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i; // eslint-disable-next-line
+
+let rUUID = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i;
+
+let isTrimmed = value => isAbsent(value) || value === value.trim();
+
+let objStringTag = {}.toString();
+function create() {
+  return new StringSchema();
 }
-
-var _arr2 = ['equals', 'is'];
-
-for (var _i2 = 0; _i2 < _arr2.length; _i2++) {
-  var alias = _arr2[_i2];
-  proto[alias] = proto.oneOf;
-}
-
-var _arr3 = ['not', 'nope'];
-
-for (var _i3 = 0; _i3 < _arr3.length; _i3++) {
-  var _alias = _arr3[_i3];
-  proto[_alias] = proto.notOneOf;
-}
-
-module.exports = exports["default"];
-});
-
-unwrapExports(mixed);
-
-var inherits_1 = createCommonjsModule(function (module, exports) {
-
-
-
-exports.__esModule = true;
-exports.default = inherits;
-
-var _extends2 = interopRequireDefault(_extends_1);
-
-function inherits(ctor, superCtor, spec) {
-  ctor.prototype = Object.create(superCtor.prototype, {
-    constructor: {
-      value: ctor,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  });
-  (0, _extends2.default)(ctor.prototype, spec);
-}
-
-module.exports = exports["default"];
-});
-
-unwrapExports(inherits_1);
-
-var boolean_1 = createCommonjsModule(function (module, exports) {
-
-
-
-exports.__esModule = true;
-exports.default = void 0;
-
-var _inherits = interopRequireDefault(inherits_1);
-
-var _mixed = interopRequireDefault(mixed);
-
-var _default = BooleanSchema;
-exports.default = _default;
-
-function BooleanSchema() {
-  var _this = this;
-
-  if (!(this instanceof BooleanSchema)) return new BooleanSchema();
-
-  _mixed.default.call(this, {
-    type: 'boolean'
-  });
-
-  this.withMutation(function () {
-    _this.transform(function (value) {
-      if (!this.isType(value)) {
-        if (/^(true|1)$/i.test(value)) return true;
-        if (/^(false|0)$/i.test(value)) return false;
-      }
-
-      return value;
+class StringSchema extends BaseSchema {
+  constructor() {
+    super({
+      type: 'string'
     });
-  });
-}
-
-(0, _inherits.default)(BooleanSchema, _mixed.default, {
-  _typeCheck: function _typeCheck(v) {
-    if (v instanceof Boolean) v = v.valueOf();
-    return typeof v === 'boolean';
+    this.withMutation(() => {
+      this.transform(function (value) {
+        if (this.isType(value)) return value;
+        if (Array.isArray(value)) return value;
+        const strValue = value != null && value.toString ? value.toString() : value;
+        if (strValue === objStringTag) return value;
+        return strValue;
+      });
+    });
   }
-});
-module.exports = exports["default"];
-});
 
-unwrapExports(boolean_1);
-
-var string = createCommonjsModule(function (module, exports) {
-
-
-
-exports.__esModule = true;
-exports.default = StringSchema;
-
-var _inherits = interopRequireDefault(inherits_1);
-
-var _mixed = interopRequireDefault(mixed);
-
-
-
-var _isAbsent = interopRequireDefault(isAbsent);
-
-// eslint-disable-next-line
-var rEmail = /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i; // eslint-disable-next-line
-
-var rUrl = /^((https?|ftp):)?\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i;
-
-var hasLength = function hasLength(value) {
-  return (0, _isAbsent.default)(value) || value.length > 0;
-};
-
-var isTrimmed = function isTrimmed(value) {
-  return (0, _isAbsent.default)(value) || value === value.trim();
-};
-
-function StringSchema() {
-  var _this = this;
-
-  if (!(this instanceof StringSchema)) return new StringSchema();
-
-  _mixed.default.call(this, {
-    type: 'string'
-  });
-
-  this.withMutation(function () {
-    _this.transform(function (value) {
-      if (this.isType(value)) return value;
-      return value != null && value.toString ? value.toString() : value;
-    });
-  });
-}
-
-(0, _inherits.default)(StringSchema, _mixed.default, {
-  _typeCheck: function _typeCheck(value) {
+  _typeCheck(value) {
     if (value instanceof String) value = value.valueOf();
     return typeof value === 'string';
-  },
-  required: function required(message) {
-    if (message === void 0) {
-      message = locale.mixed.required;
-    }
+  }
 
-    var next = _mixed.default.prototype.required.call(this, message);
+  _isPresent(value) {
+    return super._isPresent(value) && !!value.length;
+  }
 
-    return next.test({
-      message: message,
-      name: 'required',
-      test: hasLength
-    });
-  },
-  length: function length(_length, message) {
-    if (message === void 0) {
-      message = locale.string.length;
-    }
-
+  length(length, message = string.length) {
     return this.test({
-      message: message,
+      message,
       name: 'length',
       exclusive: true,
       params: {
-        length: _length
+        length
       },
-      test: function test(value) {
-        return (0, _isAbsent.default)(value) || value.length === this.resolve(_length);
-      }
-    });
-  },
-  min: function min(_min, message) {
-    if (message === void 0) {
-      message = locale.string.min;
-    }
 
+      test(value) {
+        return isAbsent(value) || value.length === this.resolve(length);
+      }
+
+    });
+  }
+
+  min(min, message = string.min) {
     return this.test({
-      message: message,
+      message,
       name: 'min',
       exclusive: true,
       params: {
-        min: _min
+        min
       },
-      test: function test(value) {
-        return (0, _isAbsent.default)(value) || value.length >= this.resolve(_min);
-      }
-    });
-  },
-  max: function max(_max, message) {
-    if (message === void 0) {
-      message = locale.string.max;
-    }
 
+      test(value) {
+        return isAbsent(value) || value.length >= this.resolve(min);
+      }
+
+    });
+  }
+
+  max(max, message = string.max) {
     return this.test({
       name: 'max',
       exclusive: true,
-      message: message,
+      message,
       params: {
-        max: _max
+        max
       },
-      test: function test(value) {
-        return (0, _isAbsent.default)(value) || value.length <= this.resolve(_max);
+
+      test(value) {
+        return isAbsent(value) || value.length <= this.resolve(max);
       }
+
     });
-  },
-  matches: function matches(regex, options) {
-    var excludeEmptyString = false;
-    var message;
+  }
+
+  matches(regex, options) {
+    let excludeEmptyString = false;
+    let message;
+    let name;
 
     if (options) {
-      if (options.message || options.hasOwnProperty('excludeEmptyString')) {
-        excludeEmptyString = options.excludeEmptyString;
-        message = options.message;
-      } else message = options;
+      if (typeof options === 'object') {
+        ({
+          excludeEmptyString = false,
+          message,
+          name
+        } = options);
+      } else {
+        message = options;
+      }
     }
 
     return this.test({
-      message: message || locale.string.matches,
+      name: name || 'matches',
+      message: message || string.matches,
       params: {
-        regex: regex
+        regex
       },
-      test: function test(value) {
-        return (0, _isAbsent.default)(value) || value === '' && excludeEmptyString || regex.test(value);
-      }
+      test: value => isAbsent(value) || value === '' && excludeEmptyString || value.search(regex) !== -1
     });
-  },
-  email: function email(message) {
-    if (message === void 0) {
-      message = locale.string.email;
-    }
+  }
 
+  email(message = string.email) {
     return this.matches(rEmail, {
-      message: message,
+      name: 'email',
+      message,
       excludeEmptyString: true
     });
-  },
-  url: function url(message) {
-    if (message === void 0) {
-      message = locale.string.url;
-    }
+  }
 
+  url(message = string.url) {
     return this.matches(rUrl, {
-      message: message,
+      name: 'url',
+      message,
       excludeEmptyString: true
     });
-  },
-  //-- transforms --
-  ensure: function ensure() {
-    return this.default('').transform(function (val) {
-      return val === null ? '' : val;
-    });
-  },
-  trim: function trim(message) {
-    if (message === void 0) {
-      message = locale.string.trim;
-    }
+  }
 
-    return this.transform(function (val) {
-      return val != null ? val.trim() : val;
-    }).test({
-      message: message,
+  uuid(message = string.uuid) {
+    return this.matches(rUUID, {
+      name: 'uuid',
+      message,
+      excludeEmptyString: false
+    });
+  } //-- transforms --
+
+
+  ensure() {
+    return this.default('').transform(val => val === null ? '' : val);
+  }
+
+  trim(message = string.trim) {
+    return this.transform(val => val != null ? val.trim() : val).test({
+      message,
       name: 'trim',
       test: isTrimmed
     });
-  },
-  lowercase: function lowercase(message) {
-    if (message === void 0) {
-      message = locale.string.lowercase;
-    }
+  }
 
-    return this.transform(function (value) {
-      return !(0, _isAbsent.default)(value) ? value.toLowerCase() : value;
-    }).test({
-      message: message,
+  lowercase(message = string.lowercase) {
+    return this.transform(value => !isAbsent(value) ? value.toLowerCase() : value).test({
+      message,
       name: 'string_case',
       exclusive: true,
-      test: function test(value) {
-        return (0, _isAbsent.default)(value) || value === value.toLowerCase();
-      }
-    });
-  },
-  uppercase: function uppercase(message) {
-    if (message === void 0) {
-      message = locale.string.uppercase;
-    }
-
-    return this.transform(function (value) {
-      return !(0, _isAbsent.default)(value) ? value.toUpperCase() : value;
-    }).test({
-      message: message,
-      name: 'string_case',
-      exclusive: true,
-      test: function test(value) {
-        return (0, _isAbsent.default)(value) || value === value.toUpperCase();
-      }
+      test: value => isAbsent(value) || value === value.toLowerCase()
     });
   }
-});
-module.exports = exports["default"];
-});
 
-unwrapExports(string);
-
-var number = createCommonjsModule(function (module, exports) {
-
-
-
-exports.__esModule = true;
-exports.default = NumberSchema;
-
-var _inherits = interopRequireDefault(inherits_1);
-
-var _mixed = interopRequireDefault(mixed);
-
-
-
-var _isAbsent = interopRequireDefault(isAbsent);
-
-var isNaN = function isNaN(value) {
-  return value != +value;
-};
-
-var isInteger = function isInteger(val) {
-  return (0, _isAbsent.default)(val) || val === (val | 0);
-};
-
-function NumberSchema() {
-  var _this = this;
-
-  if (!(this instanceof NumberSchema)) return new NumberSchema();
-
-  _mixed.default.call(this, {
-    type: 'number'
-  });
-
-  this.withMutation(function () {
-    _this.transform(function (value) {
-      var parsed = value;
-
-      if (typeof parsed === 'string') {
-        parsed = parsed.replace(/\s/g, '');
-        if (parsed === '') return NaN; // don't use parseFloat to avoid positives on alpha-numeric strings
-
-        parsed = +parsed;
-      }
-
-      if (this.isType(parsed)) return parsed;
-      return parseFloat(parsed);
+  uppercase(message = string.uppercase) {
+    return this.transform(value => !isAbsent(value) ? value.toUpperCase() : value).test({
+      message,
+      name: 'string_case',
+      exclusive: true,
+      test: value => isAbsent(value) || value === value.toUpperCase()
     });
-  });
+  }
+
 }
+create.prototype = StringSchema.prototype; //
+// String Interfaces
+//
 
-(0, _inherits.default)(NumberSchema, _mixed.default, {
-  _typeCheck: function _typeCheck(value) {
+let isNaN$1 = value => value != +value;
+
+function create$1() {
+  return new NumberSchema();
+}
+class NumberSchema extends BaseSchema {
+  constructor() {
+    super({
+      type: 'number'
+    });
+    this.withMutation(() => {
+      this.transform(function (value) {
+        let parsed = value;
+
+        if (typeof parsed === 'string') {
+          parsed = parsed.replace(/\s/g, '');
+          if (parsed === '') return NaN; // don't use parseFloat to avoid positives on alpha-numeric strings
+
+          parsed = +parsed;
+        }
+
+        if (this.isType(parsed)) return parsed;
+        return parseFloat(parsed);
+      });
+    });
+  }
+
+  _typeCheck(value) {
     if (value instanceof Number) value = value.valueOf();
-    return typeof value === 'number' && !isNaN(value);
-  },
-  min: function min(_min, message) {
-    if (message === void 0) {
-      message = locale.number.min;
-    }
+    return typeof value === 'number' && !isNaN$1(value);
+  }
 
+  min(min, message = number.min) {
     return this.test({
-      message: message,
+      message,
       name: 'min',
       exclusive: true,
       params: {
-        min: _min
+        min
       },
-      test: function test(value) {
-        return (0, _isAbsent.default)(value) || value >= this.resolve(_min);
-      }
-    });
-  },
-  max: function max(_max, message) {
-    if (message === void 0) {
-      message = locale.number.max;
-    }
 
+      test(value) {
+        return isAbsent(value) || value >= this.resolve(min);
+      }
+
+    });
+  }
+
+  max(max, message = number.max) {
     return this.test({
-      message: message,
+      message,
       name: 'max',
       exclusive: true,
       params: {
-        max: _max
+        max
       },
-      test: function test(value) {
-        return (0, _isAbsent.default)(value) || value <= this.resolve(_max);
-      }
-    });
-  },
-  lessThan: function lessThan(less, message) {
-    if (message === void 0) {
-      message = locale.number.lessThan;
-    }
 
+      test(value) {
+        return isAbsent(value) || value <= this.resolve(max);
+      }
+
+    });
+  }
+
+  lessThan(less, message = number.lessThan) {
     return this.test({
-      message: message,
+      message,
       name: 'max',
       exclusive: true,
       params: {
-        less: less
+        less
       },
-      test: function test(value) {
-        return (0, _isAbsent.default)(value) || value < this.resolve(less);
-      }
-    });
-  },
-  moreThan: function moreThan(more, message) {
-    if (message === void 0) {
-      message = locale.number.moreThan;
-    }
 
+      test(value) {
+        return isAbsent(value) || value < this.resolve(less);
+      }
+
+    });
+  }
+
+  moreThan(more, message = number.moreThan) {
     return this.test({
-      message: message,
+      message,
       name: 'min',
       exclusive: true,
       params: {
-        more: more
+        more
       },
-      test: function test(value) {
-        return (0, _isAbsent.default)(value) || value > this.resolve(more);
-      }
-    });
-  },
-  positive: function positive(msg) {
-    if (msg === void 0) {
-      msg = locale.number.positive;
-    }
 
+      test(value) {
+        return isAbsent(value) || value > this.resolve(more);
+      }
+
+    });
+  }
+
+  positive(msg = number.positive) {
     return this.moreThan(0, msg);
-  },
-  negative: function negative(msg) {
-    if (msg === void 0) {
-      msg = locale.number.negative;
-    }
+  }
 
+  negative(msg = number.negative) {
     return this.lessThan(0, msg);
-  },
-  integer: function integer(message) {
-    if (message === void 0) {
-      message = locale.number.integer;
-    }
+  }
 
+  integer(message = number.integer) {
     return this.test({
       name: 'integer',
-      message: message,
-      test: isInteger
+      message,
+      test: val => isAbsent(val) || Number.isInteger(val)
     });
-  },
-  truncate: function truncate() {
-    return this.transform(function (value) {
-      return !(0, _isAbsent.default)(value) ? value | 0 : value;
-    });
-  },
-  round: function round(method) {
+  }
+
+  truncate() {
+    return this.transform(value => !isAbsent(value) ? value | 0 : value);
+  }
+
+  round(method) {
+    var _method;
+
     var avail = ['ceil', 'floor', 'round', 'trunc'];
-    method = method && method.toLowerCase() || 'round'; // this exists for symemtry with the new Math.trunc
+    method = ((_method = method) == null ? void 0 : _method.toLowerCase()) || 'round'; // this exists for symemtry with the new Math.trunc
 
     if (method === 'trunc') return this.truncate();
     if (avail.indexOf(method.toLowerCase()) === -1) throw new TypeError('Only valid options for round() are: ' + avail.join(', '));
-    return this.transform(function (value) {
-      return !(0, _isAbsent.default)(value) ? Math[method](value) : value;
-    });
-  }
-});
-module.exports = exports["default"];
-});
-
-unwrapExports(number);
-
-var isodate = createCommonjsModule(function (module, exports) {
-
-exports.__esModule = true;
-exports.default = parseIsoDate;
-
-/* eslint-disable */
-
-/**
- *
- * Date.parse with progressive enhancement for ISO 8601 <https://github.com/csnover/js-iso8601>
- * NON-CONFORMANT EDITION.
- * © 2011 Colin Snover <http://zetafleet.com>
- * Released under MIT license.
- */
-//              1 YYYY                 2 MM        3 DD              4 HH     5 mm        6 ss            7 msec         8 Z 9 ±    10 tzHH    11 tzmm
-var isoReg = /^(\d{4}|[+\-]\d{6})(?:-?(\d{2})(?:-?(\d{2}))?)?(?:[ T]?(\d{2}):?(\d{2})(?::?(\d{2})(?:[,\.](\d{1,}))?)?(?:(Z)|([+\-])(\d{2})(?::?(\d{2}))?)?)?$/;
-
-function parseIsoDate(date) {
-  var numericKeys = [1, 4, 5, 6, 7, 10, 11],
-      minutesOffset = 0,
-      timestamp,
-      struct;
-
-  if (struct = isoReg.exec(date)) {
-    // avoid NaN timestamps caused by “undefined” values being passed to Date.UTC
-    for (var i = 0, k; k = numericKeys[i]; ++i) {
-      struct[k] = +struct[k] || 0;
-    } // allow undefined days and months
-
-
-    struct[2] = (+struct[2] || 1) - 1;
-    struct[3] = +struct[3] || 1; // allow arbitrary sub-second precision beyond milliseconds
-
-    struct[7] = struct[7] ? String(struct[7]).substr(0, 3) : 0; // timestamps without timezone identifiers should be considered local time
-
-    if ((struct[8] === undefined || struct[8] === '') && (struct[9] === undefined || struct[9] === '')) timestamp = +new Date(struct[1], struct[2], struct[3], struct[4], struct[5], struct[6], struct[7]);else {
-      if (struct[8] !== 'Z' && struct[9] !== undefined) {
-        minutesOffset = struct[10] * 60 + struct[11];
-        if (struct[9] === '+') minutesOffset = 0 - minutesOffset;
-      }
-
-      timestamp = Date.UTC(struct[1], struct[2], struct[3], struct[4], struct[5] + minutesOffset, struct[6], struct[7]);
-    }
-  } else timestamp = Date.parse ? Date.parse(date) : NaN;
-
-  return timestamp;
-}
-
-module.exports = exports["default"];
-});
-
-unwrapExports(isodate);
-
-var date = createCommonjsModule(function (module, exports) {
-
-
-
-exports.__esModule = true;
-exports.default = void 0;
-
-var _mixed = interopRequireDefault(mixed);
-
-var _inherits = interopRequireDefault(inherits_1);
-
-var _isodate = interopRequireDefault(isodate);
-
-
-
-var _isAbsent = interopRequireDefault(isAbsent);
-
-var _Reference = interopRequireDefault(Reference_1);
-
-var invalidDate = new Date('');
-
-var isDate = function isDate(obj) {
-  return Object.prototype.toString.call(obj) === '[object Date]';
-};
-
-var _default = DateSchema;
-exports.default = _default;
-
-function DateSchema() {
-  var _this = this;
-
-  if (!(this instanceof DateSchema)) return new DateSchema();
-
-  _mixed.default.call(this, {
-    type: 'date'
-  });
-
-  this.withMutation(function () {
-    _this.transform(function (value) {
-      if (this.isType(value)) return value;
-      value = (0, _isodate.default)(value);
-      return value ? new Date(value) : invalidDate;
-    });
-  });
-}
-
-(0, _inherits.default)(DateSchema, _mixed.default, {
-  _typeCheck: function _typeCheck(v) {
-    return isDate(v) && !isNaN(v.getTime());
-  },
-  min: function min(_min, message) {
-    if (message === void 0) {
-      message = locale.date.min;
-    }
-
-    var limit = _min;
-
-    if (!_Reference.default.isRef(limit)) {
-      limit = this.cast(_min);
-      if (!this._typeCheck(limit)) throw new TypeError('`min` must be a Date or a value that can be `cast()` to a Date');
-    }
-
-    return this.test({
-      message: message,
-      name: 'min',
-      exclusive: true,
-      params: {
-        min: _min
-      },
-      test: function test(value) {
-        return (0, _isAbsent.default)(value) || value >= this.resolve(limit);
-      }
-    });
-  },
-  max: function max(_max, message) {
-    if (message === void 0) {
-      message = locale.date.max;
-    }
-
-    var limit = _max;
-
-    if (!_Reference.default.isRef(limit)) {
-      limit = this.cast(_max);
-      if (!this._typeCheck(limit)) throw new TypeError('`max` must be a Date or a value that can be `cast()` to a Date');
-    }
-
-    return this.test({
-      message: message,
-      name: 'max',
-      exclusive: true,
-      params: {
-        max: _max
-      },
-      test: function test(value) {
-        return (0, _isAbsent.default)(value) || value <= this.resolve(limit);
-      }
-    });
-  }
-});
-module.exports = exports["default"];
-});
-
-unwrapExports(date);
-
-var interopRequireWildcard = createCommonjsModule(function (module) {
-function _interopRequireWildcard(obj) {
-  if (obj && obj.__esModule) {
-    return obj;
-  } else {
-    var newObj = {};
-
-    if (obj != null) {
-      for (var key in obj) {
-        if (Object.prototype.hasOwnProperty.call(obj, key)) {
-          var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {};
-
-          if (desc.get || desc.set) {
-            Object.defineProperty(newObj, key, desc);
-          } else {
-            newObj[key] = obj[key];
-          }
-        }
-      }
-    }
-
-    newObj.default = obj;
-    return newObj;
-  }
-}
-
-module.exports = _interopRequireWildcard;
-});
-
-unwrapExports(interopRequireWildcard);
-
-function _taggedTemplateLiteralLoose(strings, raw) {
-  if (!raw) {
-    raw = strings.slice(0);
+    return this.transform(value => !isAbsent(value) ? Math[method](value) : value);
   }
 
-  strings.raw = raw;
-  return strings;
 }
-
-var taggedTemplateLiteralLoose = _taggedTemplateLiteralLoose;
+create$1.prototype = NumberSchema.prototype; //
+// Number Interfaces
+//
 
 /**
  * A specialized version of `_.reduce` for arrays without support for
@@ -11573,19 +9932,19 @@ var _deburrLetter = deburrLetter;
 var reLatin = /[\xc0-\xd6\xd8-\xf6\xf8-\xff\u0100-\u017f]/g;
 
 /** Used to compose unicode character classes. */
-var rsComboMarksRange$2 = '\\u0300-\\u036f',
-    reComboHalfMarksRange$2 = '\\ufe20-\\ufe2f',
-    rsComboSymbolsRange$2 = '\\u20d0-\\u20ff',
-    rsComboRange$2 = rsComboMarksRange$2 + reComboHalfMarksRange$2 + rsComboSymbolsRange$2;
+var rsComboMarksRange = '\\u0300-\\u036f',
+    reComboHalfMarksRange = '\\ufe20-\\ufe2f',
+    rsComboSymbolsRange = '\\u20d0-\\u20ff',
+    rsComboRange = rsComboMarksRange + reComboHalfMarksRange + rsComboSymbolsRange;
 
 /** Used to compose unicode capture groups. */
-var rsCombo$1 = '[' + rsComboRange$2 + ']';
+var rsCombo = '[' + rsComboRange + ']';
 
 /**
  * Used to match [combining diacritical marks](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks) and
  * [combining diacritical marks for symbols](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks_for_Symbols).
  */
-var reComboMark = RegExp(rsCombo$1, 'g');
+var reComboMark = RegExp(rsCombo, 'g');
 
 /**
  * Deburrs `string` by converting
@@ -11645,11 +10004,11 @@ function hasUnicodeWord(string) {
 var _hasUnicodeWord = hasUnicodeWord;
 
 /** Used to compose unicode character classes. */
-var rsAstralRange$2 = '\\ud800-\\udfff',
-    rsComboMarksRange$3 = '\\u0300-\\u036f',
-    reComboHalfMarksRange$3 = '\\ufe20-\\ufe2f',
-    rsComboSymbolsRange$3 = '\\u20d0-\\u20ff',
-    rsComboRange$3 = rsComboMarksRange$3 + reComboHalfMarksRange$3 + rsComboSymbolsRange$3,
+var rsAstralRange = '\\ud800-\\udfff',
+    rsComboMarksRange$1 = '\\u0300-\\u036f',
+    reComboHalfMarksRange$1 = '\\ufe20-\\ufe2f',
+    rsComboSymbolsRange$1 = '\\u20d0-\\u20ff',
+    rsComboRange$1 = rsComboMarksRange$1 + reComboHalfMarksRange$1 + rsComboSymbolsRange$1,
     rsDingbatRange = '\\u2700-\\u27bf',
     rsLowerRange = 'a-z\\xdf-\\xf6\\xf8-\\xff',
     rsMathOpRange = '\\xac\\xb1\\xd7\\xf7',
@@ -11657,37 +10016,37 @@ var rsAstralRange$2 = '\\ud800-\\udfff',
     rsPunctuationRange = '\\u2000-\\u206f',
     rsSpaceRange = ' \\t\\x0b\\f\\xa0\\ufeff\\n\\r\\u2028\\u2029\\u1680\\u180e\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200a\\u202f\\u205f\\u3000',
     rsUpperRange = 'A-Z\\xc0-\\xd6\\xd8-\\xde',
-    rsVarRange$2 = '\\ufe0e\\ufe0f',
+    rsVarRange = '\\ufe0e\\ufe0f',
     rsBreakRange = rsMathOpRange + rsNonCharRange + rsPunctuationRange + rsSpaceRange;
 
 /** Used to compose unicode capture groups. */
 var rsApos = "['\u2019]",
     rsBreak = '[' + rsBreakRange + ']',
-    rsCombo$2 = '[' + rsComboRange$3 + ']',
+    rsCombo$1 = '[' + rsComboRange$1 + ']',
     rsDigits = '\\d+',
     rsDingbat = '[' + rsDingbatRange + ']',
     rsLower = '[' + rsLowerRange + ']',
-    rsMisc = '[^' + rsAstralRange$2 + rsBreakRange + rsDigits + rsDingbatRange + rsLowerRange + rsUpperRange + ']',
-    rsFitz$1 = '\\ud83c[\\udffb-\\udfff]',
-    rsModifier$1 = '(?:' + rsCombo$2 + '|' + rsFitz$1 + ')',
-    rsNonAstral$1 = '[^' + rsAstralRange$2 + ']',
-    rsRegional$1 = '(?:\\ud83c[\\udde6-\\uddff]){2}',
-    rsSurrPair$1 = '[\\ud800-\\udbff][\\udc00-\\udfff]',
+    rsMisc = '[^' + rsAstralRange + rsBreakRange + rsDigits + rsDingbatRange + rsLowerRange + rsUpperRange + ']',
+    rsFitz = '\\ud83c[\\udffb-\\udfff]',
+    rsModifier = '(?:' + rsCombo$1 + '|' + rsFitz + ')',
+    rsNonAstral = '[^' + rsAstralRange + ']',
+    rsRegional = '(?:\\ud83c[\\udde6-\\uddff]){2}',
+    rsSurrPair = '[\\ud800-\\udbff][\\udc00-\\udfff]',
     rsUpper = '[' + rsUpperRange + ']',
-    rsZWJ$2 = '\\u200d';
+    rsZWJ = '\\u200d';
 
 /** Used to compose unicode regexes. */
 var rsMiscLower = '(?:' + rsLower + '|' + rsMisc + ')',
     rsMiscUpper = '(?:' + rsUpper + '|' + rsMisc + ')',
     rsOptContrLower = '(?:' + rsApos + '(?:d|ll|m|re|s|t|ve))?',
     rsOptContrUpper = '(?:' + rsApos + '(?:D|LL|M|RE|S|T|VE))?',
-    reOptMod$1 = rsModifier$1 + '?',
-    rsOptVar$1 = '[' + rsVarRange$2 + ']?',
-    rsOptJoin$1 = '(?:' + rsZWJ$2 + '(?:' + [rsNonAstral$1, rsRegional$1, rsSurrPair$1].join('|') + ')' + rsOptVar$1 + reOptMod$1 + ')*',
+    reOptMod = rsModifier + '?',
+    rsOptVar = '[' + rsVarRange + ']?',
+    rsOptJoin = '(?:' + rsZWJ + '(?:' + [rsNonAstral, rsRegional, rsSurrPair].join('|') + ')' + rsOptVar + reOptMod + ')*',
     rsOrdLower = '\\d*(?:1st|2nd|3rd|(?![123])\\dth)(?=\\b|[A-Z_])',
     rsOrdUpper = '\\d*(?:1ST|2ND|3RD|(?![123])\\dTH)(?=\\b|[a-z_])',
-    rsSeq$1 = rsOptVar$1 + reOptMod$1 + rsOptJoin$1,
-    rsEmoji = '(?:' + [rsDingbat, rsRegional$1, rsSurrPair$1].join('|') + ')' + rsSeq$1;
+    rsSeq = rsOptVar + reOptMod + rsOptJoin,
+    rsEmoji = '(?:' + [rsDingbat, rsRegional, rsSurrPair].join('|') + ')' + rsSeq;
 
 /** Used to match complex or compound words. */
 var reUnicodeWord = RegExp([
@@ -11842,6 +10201,102 @@ function castSlice(array, start, end) {
 
 var _castSlice = castSlice;
 
+/** Used to compose unicode character classes. */
+var rsAstralRange$1 = '\\ud800-\\udfff',
+    rsComboMarksRange$2 = '\\u0300-\\u036f',
+    reComboHalfMarksRange$2 = '\\ufe20-\\ufe2f',
+    rsComboSymbolsRange$2 = '\\u20d0-\\u20ff',
+    rsComboRange$2 = rsComboMarksRange$2 + reComboHalfMarksRange$2 + rsComboSymbolsRange$2,
+    rsVarRange$1 = '\\ufe0e\\ufe0f';
+
+/** Used to compose unicode capture groups. */
+var rsZWJ$1 = '\\u200d';
+
+/** Used to detect strings with [zero-width joiners or code points from the astral planes](http://eev.ee/blog/2015/09/12/dark-corners-of-unicode/). */
+var reHasUnicode = RegExp('[' + rsZWJ$1 + rsAstralRange$1  + rsComboRange$2 + rsVarRange$1 + ']');
+
+/**
+ * Checks if `string` contains Unicode symbols.
+ *
+ * @private
+ * @param {string} string The string to inspect.
+ * @returns {boolean} Returns `true` if a symbol is found, else `false`.
+ */
+function hasUnicode(string) {
+  return reHasUnicode.test(string);
+}
+
+var _hasUnicode = hasUnicode;
+
+/**
+ * Converts an ASCII `string` to an array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the converted array.
+ */
+function asciiToArray(string) {
+  return string.split('');
+}
+
+var _asciiToArray = asciiToArray;
+
+/** Used to compose unicode character classes. */
+var rsAstralRange$2 = '\\ud800-\\udfff',
+    rsComboMarksRange$3 = '\\u0300-\\u036f',
+    reComboHalfMarksRange$3 = '\\ufe20-\\ufe2f',
+    rsComboSymbolsRange$3 = '\\u20d0-\\u20ff',
+    rsComboRange$3 = rsComboMarksRange$3 + reComboHalfMarksRange$3 + rsComboSymbolsRange$3,
+    rsVarRange$2 = '\\ufe0e\\ufe0f';
+
+/** Used to compose unicode capture groups. */
+var rsAstral = '[' + rsAstralRange$2 + ']',
+    rsCombo$2 = '[' + rsComboRange$3 + ']',
+    rsFitz$1 = '\\ud83c[\\udffb-\\udfff]',
+    rsModifier$1 = '(?:' + rsCombo$2 + '|' + rsFitz$1 + ')',
+    rsNonAstral$1 = '[^' + rsAstralRange$2 + ']',
+    rsRegional$1 = '(?:\\ud83c[\\udde6-\\uddff]){2}',
+    rsSurrPair$1 = '[\\ud800-\\udbff][\\udc00-\\udfff]',
+    rsZWJ$2 = '\\u200d';
+
+/** Used to compose unicode regexes. */
+var reOptMod$1 = rsModifier$1 + '?',
+    rsOptVar$1 = '[' + rsVarRange$2 + ']?',
+    rsOptJoin$1 = '(?:' + rsZWJ$2 + '(?:' + [rsNonAstral$1, rsRegional$1, rsSurrPair$1].join('|') + ')' + rsOptVar$1 + reOptMod$1 + ')*',
+    rsSeq$1 = rsOptVar$1 + reOptMod$1 + rsOptJoin$1,
+    rsSymbol = '(?:' + [rsNonAstral$1 + rsCombo$2 + '?', rsCombo$2, rsRegional$1, rsSurrPair$1, rsAstral].join('|') + ')';
+
+/** Used to match [string symbols](https://mathiasbynens.be/notes/javascript-unicode). */
+var reUnicode = RegExp(rsFitz$1 + '(?=' + rsFitz$1 + ')|' + rsSymbol + rsSeq$1, 'g');
+
+/**
+ * Converts a Unicode `string` to an array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the converted array.
+ */
+function unicodeToArray(string) {
+  return string.match(reUnicode) || [];
+}
+
+var _unicodeToArray = unicodeToArray;
+
+/**
+ * Converts `string` to an array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the converted array.
+ */
+function stringToArray(string) {
+  return _hasUnicode(string)
+    ? _unicodeToArray(string)
+    : _asciiToArray(string);
+}
+
+var _stringToArray = stringToArray;
+
 /**
  * Creates a function like `_.lowerFirst`.
  *
@@ -11984,7 +10439,7 @@ var toposort_1 = function(edges) {
   return toposort(uniqueNodes(edges), edges)
 };
 
-var array = toposort;
+var array$1 = toposort;
 
 function toposort(nodes, edges) {
   var cursor = nodes.length
@@ -12070,66 +10525,33 @@ function makeNodesHash(arr){
   }
   return res
 }
-toposort_1.array = array;
+toposort_1.array = array$1;
 
-var sortFields_1 = createCommonjsModule(function (module, exports) {
-
-
-
-exports.__esModule = true;
-exports.default = sortFields;
-
-var _has = interopRequireDefault(has_1);
-
-var _toposort = interopRequireDefault(toposort_1);
-
-
-
-var _Reference = interopRequireDefault(Reference_1);
-
-var _isSchema = interopRequireDefault(isSchema);
-
-function sortFields(fields, excludes) {
-  if (excludes === void 0) {
-    excludes = [];
-  }
-
-  var edges = [],
-      nodes = [];
+function sortFields(fields, excludes = []) {
+  let edges = [];
+  let nodes = [];
 
   function addNode(depPath, key) {
-    var node = (0, propertyExpr.split)(depPath)[0];
+    var node = propertyExpr_2(depPath)[0];
     if (!~nodes.indexOf(node)) nodes.push(node);
-    if (!~excludes.indexOf(key + "-" + node)) edges.push([key, node]);
+    if (!~excludes.indexOf(`${key}-${node}`)) edges.push([key, node]);
   }
 
-  for (var key in fields) {
-    if ((0, _has.default)(fields, key)) {
-      var value = fields[key];
-      if (!~nodes.indexOf(key)) nodes.push(key);
-      if (_Reference.default.isRef(value) && !value.isContext) addNode(value.path, key);else if ((0, _isSchema.default)(value) && value._deps) value._deps.forEach(function (path) {
-        return addNode(path, key);
-      });
-    }
+  for (const key in fields) if (has_1(fields, key)) {
+    let value = fields[key];
+    if (!~nodes.indexOf(key)) nodes.push(key);
+    if (Reference.isRef(value) && value.isSibling) addNode(value.path, key);else if (isSchema(value) && 'deps' in value) value.deps.forEach(path => addNode(path, key));
   }
 
-  return _toposort.default.array(nodes, edges).reverse();
+  return toposort_1.array(nodes, edges).reverse();
 }
 
-module.exports = exports["default"];
-});
-
-unwrapExports(sortFields_1);
-
-var sortByKeyOrder_1 = createCommonjsModule(function (module, exports) {
-
-exports.__esModule = true;
-exports.default = sortByKeyOrder;
-
 function findIndex(arr, err) {
-  var idx = Infinity;
-  arr.some(function (key, ii) {
-    if (err.path.indexOf(key) !== -1) {
+  let idx = Infinity;
+  arr.some((key, ii) => {
+    var _err$path;
+
+    if (((_err$path = err.path) == null ? void 0 : _err$path.indexOf(key)) !== -1) {
       idx = ii;
       return true;
     }
@@ -12137,769 +10559,358 @@ function findIndex(arr, err) {
   return idx;
 }
 
-function sortByKeyOrder(fields) {
-  var keys = Object.keys(fields);
-  return function (a, b) {
+function sortByKeyOrder(keys) {
+  return (a, b) => {
     return findIndex(keys, a) - findIndex(keys, b);
   };
 }
 
-module.exports = exports["default"];
-});
+function _extends$3() { _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends$3.apply(this, arguments); }
 
-unwrapExports(sortByKeyOrder_1);
-
-var makePath_1 = createCommonjsModule(function (module, exports) {
-
-exports.__esModule = true;
-exports.default = makePath;
-
-function makePath(strings) {
-  for (var _len = arguments.length, values = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    values[_key - 1] = arguments[_key];
-  }
-
-  var path = strings.reduce(function (str, next) {
-    var value = values.shift();
-    return str + (value == null ? '' : value) + next;
-  });
-  return path.replace(/^\./, '');
-}
-
-module.exports = exports["default"];
-});
-
-unwrapExports(makePath_1);
-
-var object = createCommonjsModule(function (module, exports) {
-
-
-
-
-
-exports.__esModule = true;
-exports.default = ObjectSchema;
-
-var _taggedTemplateLiteralLoose2 = interopRequireDefault(taggedTemplateLiteralLoose);
-
-var _extends2 = interopRequireDefault(_extends_1);
-
-var _has = interopRequireDefault(has_1);
-
-var _snakeCase2 = interopRequireDefault(snakeCase_1);
-
-var _camelCase2 = interopRequireDefault(camelCase_1);
-
-var _mapKeys = interopRequireDefault(mapKeys_1);
-
-var _mapValues = interopRequireDefault(mapValues_1);
-
-
-
-var _mixed = interopRequireDefault(mixed);
-
-
-
-var _sortFields = interopRequireDefault(sortFields_1);
-
-var _sortByKeyOrder = interopRequireDefault(sortByKeyOrder_1);
-
-var _inherits = interopRequireDefault(inherits_1);
-
-var _makePath = interopRequireDefault(makePath_1);
-
-var _runValidations = interopRequireWildcard(runValidations_1);
-
-function _templateObject2() {
-  var data = (0, _taggedTemplateLiteralLoose2.default)(["", ".", ""]);
-
-  _templateObject2 = function _templateObject2() {
-    return data;
-  };
-
-  return data;
-}
-
-function _templateObject() {
-  var data = (0, _taggedTemplateLiteralLoose2.default)(["", ".", ""]);
-
-  _templateObject = function _templateObject() {
-    return data;
-  };
-
-  return data;
-}
-
-var isObject = function isObject(obj) {
-  return Object.prototype.toString.call(obj) === '[object Object]';
-};
+let isObject$1 = obj => Object.prototype.toString.call(obj) === '[object Object]';
 
 function unknown(ctx, value) {
-  var known = Object.keys(ctx.fields);
-  return Object.keys(value).filter(function (key) {
-    return known.indexOf(key) === -1;
-  });
+  let known = Object.keys(ctx.fields);
+  return Object.keys(value).filter(key => known.indexOf(key) === -1);
 }
 
-function ObjectSchema(spec) {
-  var _this2 = this;
+const defaultSort = sortByKeyOrder([]);
+class ObjectSchema extends BaseSchema {
+  constructor(spec) {
+    super({
+      type: 'object'
+    });
+    this.fields = Object.create(null);
+    this._sortErrors = defaultSort;
+    this._nodes = [];
+    this._excludedEdges = [];
+    this.withMutation(() => {
+      this.transform(function coerce(value) {
+        if (typeof value === 'string') {
+          try {
+            value = JSON.parse(value);
+          } catch (err) {
+            value = null;
+          }
+        }
 
-  if (!(this instanceof ObjectSchema)) return new ObjectSchema(spec);
-
-  _mixed.default.call(this, {
-    type: 'object',
-    default: function _default() {
-      var _this = this;
-
-      if (!this._nodes.length) return undefined;
-      var dft = {};
-
-      this._nodes.forEach(function (key) {
-        dft[key] = _this.fields[key].default ? _this.fields[key].default() : undefined;
+        if (this.isType(value)) return value;
+        return null;
       });
 
-      return dft;
-    }
-  });
-
-  this.fields = Object.create(null);
-  this._nodes = [];
-  this._excludedEdges = [];
-  this.withMutation(function () {
-    _this2.transform(function coerce(value) {
-      if (typeof value === 'string') {
-        try {
-          value = JSON.parse(value);
-        } catch (err) {
-          value = null;
-        }
+      if (spec) {
+        this.shape(spec);
       }
-
-      if (this.isType(value)) return value;
-      return null;
     });
+  }
 
-    if (spec) {
-      _this2.shape(spec);
-    }
-  });
-}
+  _typeCheck(value) {
+    return isObject$1(value) || typeof value === 'function';
+  }
 
-(0, _inherits.default)(ObjectSchema, _mixed.default, {
-  _typeCheck: function _typeCheck(value) {
-    return isObject(value) || typeof value === 'function';
-  },
-  _cast: function _cast(_value, options) {
-    var _this3 = this;
+  _cast(_value, options = {}) {
+    var _options$stripUnknown;
 
-    if (options === void 0) {
-      options = {};
-    }
-
-    var value = _mixed.default.prototype._cast.call(this, _value, options); //should ignore nulls here
+    let value = super._cast(_value, options); //should ignore nulls here
 
 
-    if (value === undefined) return this.default();
+    if (value === undefined) return this.getDefault();
     if (!this._typeCheck(value)) return value;
-    var fields = this.fields;
-    var strip = this._option('stripUnknown', options) === true;
+    let fields = this.fields;
+    let strip = (_options$stripUnknown = options.stripUnknown) != null ? _options$stripUnknown : this.spec.noUnknown;
 
-    var props = this._nodes.concat(Object.keys(value).filter(function (v) {
-      return _this3._nodes.indexOf(v) === -1;
-    }));
+    let props = this._nodes.concat(Object.keys(value).filter(v => this._nodes.indexOf(v) === -1));
 
-    var intermediateValue = {}; // is filled during the transform below
+    let intermediateValue = {}; // is filled during the transform below
 
-    var innerOptions = (0, _extends2.default)({}, options, {
+    let innerOptions = _extends$3({}, options, {
       parent: intermediateValue,
-      __validating: false
+      __validating: options.__validating || false
     });
-    var isChanged = false;
-    props.forEach(function (prop) {
-      var field = fields[prop];
-      var exists = (0, _has.default)(value, prop);
+
+    let isChanged = false;
+
+    for (const prop of props) {
+      let field = fields[prop];
+      let exists = has_1(value, prop);
 
       if (field) {
-        var fieldValue;
-        var strict = field._options && field._options.strict; // safe to mutate since this is fired in sequence
+        let fieldValue;
+        let inputValue = value[prop]; // safe to mutate since this is fired in sequence
 
-        innerOptions.path = (0, _makePath.default)(_templateObject(), options.path, prop);
-        innerOptions.value = value[prop];
-        field = field.resolve(innerOptions);
+        innerOptions.path = (options.path ? `${options.path}.` : '') + prop; // innerOptions.value = value[prop];
 
-        if (field._strip === true) {
+        field = field.resolve({
+          value: inputValue,
+          context: options.context,
+          parent: intermediateValue
+        });
+        let fieldSpec = 'spec' in field ? field.spec : undefined;
+        let strict = fieldSpec == null ? void 0 : fieldSpec.strict;
+
+        if (fieldSpec == null ? void 0 : fieldSpec.strip) {
           isChanged = isChanged || prop in value;
-          return;
+          continue;
         }
 
-        fieldValue = !options.__validating || !strict ? field.cast(value[prop], innerOptions) : value[prop];
-        if (fieldValue !== undefined) intermediateValue[prop] = fieldValue;
-      } else if (exists && !strip) intermediateValue[prop] = value[prop];
+        fieldValue = !options.__validating || !strict ? // TODO: use _cast, this is double resolving
+        field.cast(value[prop], innerOptions) : value[prop];
 
-      if (intermediateValue[prop] !== value[prop]) isChanged = true;
-    });
-    return isChanged ? intermediateValue : value;
-  },
-  _validate: function _validate(_value, opts) {
-    var _this4 = this;
+        if (fieldValue !== undefined) {
+          intermediateValue[prop] = fieldValue;
+        }
+      } else if (exists && !strip) {
+        intermediateValue[prop] = value[prop];
+      }
 
-    if (opts === void 0) {
-      opts = {};
+      if (intermediateValue[prop] !== value[prop]) {
+        isChanged = true;
+      }
     }
 
-    var endEarly, recursive;
-    var sync = opts.sync;
-    var errors = [];
-    var originalValue = opts.originalValue != null ? opts.originalValue : _value;
-    endEarly = this._option('abortEarly', opts);
-    recursive = this._option('recursive', opts);
-    opts = (0, _extends2.default)({}, opts, {
-      __validating: true,
-      originalValue: originalValue
-    });
-    return _mixed.default.prototype._validate.call(this, _value, opts).catch((0, _runValidations.propagateErrors)(endEarly, errors)).then(function (value) {
-      if (!recursive || !isObject(value)) {
-        // only iterate though actual objects
-        if (errors.length) throw errors[0];
-        return value;
+    return isChanged ? intermediateValue : value;
+  }
+
+  _validate(_value, opts = {}, callback) {
+    let errors = [];
+    let {
+      sync,
+      from = [],
+      originalValue = _value,
+      abortEarly = this.spec.abortEarly,
+      recursive = this.spec.recursive
+    } = opts;
+    from = [{
+      schema: this,
+      value: originalValue
+    }, ...from]; // this flag is needed for handling `strict` correctly in the context of
+    // validation vs just casting. e.g strict() on a field is only used when validating
+
+    opts.__validating = true;
+    opts.originalValue = originalValue;
+    opts.from = from;
+
+    super._validate(_value, opts, (err, value) => {
+      if (err) {
+        if (!ValidationError.isError(err) || abortEarly) {
+          return void callback(err, value);
+        }
+
+        errors.push(err);
+      }
+
+      if (!recursive || !isObject$1(value)) {
+        callback(errors[0] || null, value);
+        return;
       }
 
       originalValue = originalValue || value;
 
-      var validations = _this4._nodes.map(function (key) {
-        var path = (0, _makePath.default)(_templateObject2(), opts.path, key);
-        var field = _this4.fields[key];
-        var innerOptions = (0, _extends2.default)({}, opts, {
-          path: path,
-          parent: value,
-          originalValue: originalValue[key]
-        });
+      let tests = this._nodes.map(key => (_, cb) => {
+        let path = key.indexOf('.') === -1 ? (opts.path ? `${opts.path}.` : '') + key : `${opts.path || ''}["${key}"]`;
+        let field = this.fields[key];
 
-        if (field && field.validate) {
-          // inner fields are always strict:
-          // 1. this isn't strict so the casting will also have cast inner values
-          // 2. this is strict in which case the nested values weren't cast either
-          innerOptions.strict = true;
-          return field.validate(value[key], innerOptions);
+        if (field && 'validate' in field) {
+          field.validate(value[key], _extends$3({}, opts, {
+            // @ts-ignore
+            path,
+            from,
+            // inner fields are always strict:
+            // 1. this isn't strict so the casting will also have cast inner values
+            // 2. this is strict in which case the nested values weren't cast either
+            strict: true,
+            parent: value,
+            originalValue: originalValue[key]
+          }), cb);
+          return;
         }
 
-        return Promise.resolve(true);
+        cb(null);
       });
 
-      return (0, _runValidations.default)({
-        sync: sync,
-        validations: validations,
-        value: value,
-        errors: errors,
-        endEarly: endEarly,
-        path: opts.path,
-        sort: (0, _sortByKeyOrder.default)(_this4.fields)
-      });
+      runTests({
+        sync,
+        tests,
+        value,
+        errors,
+        endEarly: abortEarly,
+        sort: this._sortErrors,
+        path: opts.path
+      }, callback);
     });
-  },
-  concat: function concat(schema) {
-    var next = _mixed.default.prototype.concat.call(this, schema);
+  }
 
-    next._nodes = (0, _sortFields.default)(next.fields, next._excludedEdges);
+  clone(spec) {
+    const next = super.clone(spec);
+    next.fields = _extends$3({}, this.fields);
+    next._nodes = this._nodes;
+    next._excludedEdges = this._excludedEdges;
+    next._sortErrors = this._sortErrors;
     return next;
-  },
-  shape: function shape(schema, excludes) {
-    if (excludes === void 0) {
-      excludes = [];
+  }
+
+  concat(schema) {
+    let next = super.concat(schema);
+    let nextFields = next.fields;
+
+    for (let [field, schemaOrRef] of Object.entries(this.fields)) {
+      const target = nextFields[field];
+
+      if (target === undefined) {
+        nextFields[field] = schemaOrRef;
+      } else if (target instanceof BaseSchema && schemaOrRef instanceof BaseSchema) {
+        nextFields[field] = schemaOrRef.concat(target);
+      }
     }
 
-    var next = this.clone();
-    var fields = (0, _extends2.default)(next.fields, schema);
+    return next.withMutation(() => next.shape(nextFields));
+  }
+
+  getDefaultFromShape() {
+    let dft = {};
+
+    this._nodes.forEach(key => {
+      const field = this.fields[key];
+      dft[key] = 'default' in field ? field.getDefault() : undefined;
+    });
+
+    return dft;
+  }
+
+  _getDefault() {
+    if ('default' in this.spec) {
+      return super._getDefault();
+    } // if there is no default set invent one
+
+
+    if (!this._nodes.length) {
+      return undefined;
+    }
+
+    return this.getDefaultFromShape();
+  }
+
+  shape(additions, excludes = []) {
+    let next = this.clone();
+    let fields = Object.assign(next.fields, additions);
     next.fields = fields;
+    next._sortErrors = sortByKeyOrder(Object.keys(fields));
 
     if (excludes.length) {
       if (!Array.isArray(excludes[0])) excludes = [excludes];
-      var keys = excludes.map(function (_ref) {
-        var first = _ref[0],
-            second = _ref[1];
-        return first + "-" + second;
-      });
+      let keys = excludes.map(([first, second]) => `${first}-${second}`);
       next._excludedEdges = next._excludedEdges.concat(keys);
     }
 
-    next._nodes = (0, _sortFields.default)(fields, next._excludedEdges);
+    next._nodes = sortFields(fields, next._excludedEdges);
     return next;
-  },
-  from: function from(_from, to, alias) {
-    var fromGetter = (0, propertyExpr.getter)(_from, true);
-    return this.transform(function (obj) {
-      if (obj == null) return obj;
-      var newObj = obj;
+  }
 
-      if ((0, _has.default)(obj, _from)) {
-        newObj = (0, _extends2.default)({}, obj);
-        if (!alias) delete newObj[_from];
+  pick(keys) {
+    const picked = {};
+
+    for (const key of keys) {
+      if (this.fields[key]) picked[key] = this.fields[key];
+    }
+
+    return this.clone().withMutation(next => {
+      next.fields = {};
+      return next.shape(picked);
+    });
+  }
+
+  omit(keys) {
+    const next = this.clone();
+    const fields = next.fields;
+    next.fields = {};
+
+    for (const key of keys) {
+      delete fields[key];
+    }
+
+    return next.withMutation(() => next.shape(fields));
+  }
+
+  from(from, to, alias) {
+    let fromGetter = propertyExpr_5(from, true);
+    return this.transform(obj => {
+      if (obj == null) return obj;
+      let newObj = obj;
+
+      if (has_1(obj, from)) {
+        newObj = _extends$3({}, obj);
+        if (!alias) delete newObj[from];
         newObj[to] = fromGetter(obj);
       }
 
       return newObj;
     });
-  },
-  noUnknown: function noUnknown(noAllow, message) {
-    if (noAllow === void 0) {
-      noAllow = true;
-    }
+  }
 
-    if (message === void 0) {
-      message = locale.object.noUnknown;
-    }
-
+  noUnknown(noAllow = true, message = object.noUnknown) {
     if (typeof noAllow === 'string') {
       message = noAllow;
       noAllow = true;
     }
 
-    var next = this.test({
+    let next = this.test({
       name: 'noUnknown',
       exclusive: true,
       message: message,
-      test: function test(value) {
-        return value == null || !noAllow || unknown(this.schema, value).length === 0;
-      }
-    });
-    if (noAllow) next._options.stripUnknown = true;
-    return next;
-  },
-  transformKeys: function transformKeys(fn) {
-    return this.transform(function (obj) {
-      return obj && (0, _mapKeys.default)(obj, function (_, key) {
-        return fn(key);
-      });
-    });
-  },
-  camelCase: function camelCase() {
-    return this.transformKeys(_camelCase2.default);
-  },
-  snakeCase: function snakeCase() {
-    return this.transformKeys(_snakeCase2.default);
-  },
-  constantCase: function constantCase() {
-    return this.transformKeys(function (key) {
-      return (0, _snakeCase2.default)(key).toUpperCase();
-    });
-  },
-  describe: function describe() {
-    var base = _mixed.default.prototype.describe.call(this);
 
-    base.fields = (0, _mapValues.default)(this.fields, function (value) {
-      return value.describe();
-    });
-    return base;
-  }
-});
-module.exports = exports["default"];
-});
-
-unwrapExports(object);
-
-var array$1 = createCommonjsModule(function (module, exports) {
-
-
-
-
-
-exports.__esModule = true;
-exports.default = void 0;
-
-var _extends2 = interopRequireDefault(_extends_1);
-
-var _taggedTemplateLiteralLoose2 = interopRequireDefault(taggedTemplateLiteralLoose);
-
-var _inherits = interopRequireDefault(inherits_1);
-
-var _isAbsent = interopRequireDefault(isAbsent);
-
-var _isSchema = interopRequireDefault(isSchema);
-
-var _makePath = interopRequireDefault(makePath_1);
-
-var _printValue = interopRequireDefault(printValue_1);
-
-var _mixed = interopRequireDefault(mixed);
-
-
-
-var _runValidations = interopRequireWildcard(runValidations_1);
-
-function _templateObject() {
-  var data = (0, _taggedTemplateLiteralLoose2.default)(["", "[", "]"]);
-
-  _templateObject = function _templateObject() {
-    return data;
-  };
-
-  return data;
-}
-
-var hasLength = function hasLength(value) {
-  return !(0, _isAbsent.default)(value) && value.length > 0;
-};
-
-var _default = ArraySchema;
-exports.default = _default;
-
-function ArraySchema(type) {
-  var _this = this;
-
-  if (!(this instanceof ArraySchema)) return new ArraySchema(type);
-
-  _mixed.default.call(this, {
-    type: 'array'
-  }); // `undefined` specifically means uninitialized, as opposed to
-  // "no subtype"
-
-
-  this._subType = undefined;
-  this.withMutation(function () {
-    _this.transform(function (values) {
-      if (typeof values === 'string') try {
-        values = JSON.parse(values);
-      } catch (err) {
-        values = null;
-      }
-      return this.isType(values) ? values : null;
-    });
-
-    if (type) _this.of(type);
-  });
-}
-
-(0, _inherits.default)(ArraySchema, _mixed.default, {
-  _typeCheck: function _typeCheck(v) {
-    return Array.isArray(v);
-  },
-  _cast: function _cast(_value, _opts) {
-    var _this2 = this;
-
-    var value = _mixed.default.prototype._cast.call(this, _value, _opts); //should ignore nulls here
-
-
-    if (!this._typeCheck(value) || !this._subType) return value;
-    var isChanged = false;
-    var castArray = value.map(function (v) {
-      var castElement = _this2._subType.cast(v, _opts);
-
-      if (castElement !== v) {
-        isChanged = true;
-      }
-
-      return castElement;
-    });
-    return isChanged ? castArray : value;
-  },
-  _validate: function _validate(_value, options) {
-    var _this3 = this;
-
-    if (options === void 0) {
-      options = {};
-    }
-
-    var errors = [];
-    var sync = options.sync;
-    var path = options.path;
-    var subType = this._subType;
-
-    var endEarly = this._option('abortEarly', options);
-
-    var recursive = this._option('recursive', options);
-
-    var originalValue = options.originalValue != null ? options.originalValue : _value;
-    return _mixed.default.prototype._validate.call(this, _value, options).catch((0, _runValidations.propagateErrors)(endEarly, errors)).then(function (value) {
-      if (!recursive || !subType || !_this3._typeCheck(value)) {
-        if (errors.length) throw errors[0];
-        return value;
-      }
-
-      originalValue = originalValue || value;
-      var validations = value.map(function (item, idx) {
-        var path = (0, _makePath.default)(_templateObject(), options.path, idx); // object._validate note for isStrict explanation
-
-        var innerOptions = (0, _extends2.default)({}, options, {
-          path: path,
-          strict: true,
-          parent: value,
-          originalValue: originalValue[idx]
+      test(value) {
+        if (value == null) return true;
+        const unknownKeys = unknown(this.schema, value);
+        return !noAllow || unknownKeys.length === 0 || this.createError({
+          params: {
+            unknown: unknownKeys.join(', ')
+          }
         });
-        if (subType.validate) return subType.validate(item, innerOptions);
-        return true;
-      });
-      return (0, _runValidations.default)({
-        sync: sync,
-        path: path,
-        value: value,
-        errors: errors,
-        endEarly: endEarly,
-        validations: validations
-      });
+      }
+
     });
-  },
-  of: function of(schema) {
-    var next = this.clone();
-    if (schema !== false && !(0, _isSchema.default)(schema)) throw new TypeError('`array.of()` sub-schema must be a valid yup schema, or `false` to negate a current sub-schema. ' + 'not: ' + (0, _printValue.default)(schema));
-    next._subType = schema;
+    next.spec.noUnknown = noAllow;
     return next;
-  },
-  required: function required(message) {
-    if (message === void 0) {
-      message = locale.mixed.required;
-    }
+  }
 
-    var next = _mixed.default.prototype.required.call(this, message);
+  unknown(allow = true, message = object.noUnknown) {
+    return this.noUnknown(!allow, message);
+  }
 
-    return next.test({
-      message: message,
-      name: 'required',
-      test: hasLength
-    });
-  },
-  min: function min(_min, message) {
-    message = message || locale.array.min;
-    return this.test({
-      message: message,
-      name: 'min',
-      exclusive: true,
-      params: {
-        min: _min
-      },
-      test: function test(value) {
-        return (0, _isAbsent.default)(value) || value.length >= this.resolve(_min);
-      }
-    });
-  },
-  max: function max(_max, message) {
-    message = message || locale.array.max;
-    return this.test({
-      message: message,
-      name: 'max',
-      exclusive: true,
-      params: {
-        max: _max
-      },
-      test: function test(value) {
-        return (0, _isAbsent.default)(value) || value.length <= this.resolve(_max);
-      }
-    });
-  },
-  ensure: function ensure() {
-    var _this4 = this;
+  transformKeys(fn) {
+    return this.transform(obj => obj && mapKeys_1(obj, (_, key) => fn(key)));
+  }
 
-    return this.default(function () {
-      return [];
-    }).transform(function (val) {
-      if (_this4.isType(val)) return val;
-      return val === null ? [] : [].concat(val);
-    });
-  },
-  compact: function compact(rejector) {
-    var reject = !rejector ? function (v) {
-      return !!v;
-    } : function (v, i, a) {
-      return !rejector(v, i, a);
-    };
-    return this.transform(function (values) {
-      return values != null ? values.filter(reject) : values;
-    });
-  },
-  describe: function describe() {
-    var base = _mixed.default.prototype.describe.call(this);
+  camelCase() {
+    return this.transformKeys(camelCase_1);
+  }
 
-    if (this._subType) base.innerType = this._subType.describe();
+  snakeCase() {
+    return this.transformKeys(snakeCase_1);
+  }
+
+  constantCase() {
+    return this.transformKeys(key => snakeCase_1(key).toUpperCase());
+  }
+
+  describe() {
+    let base = super.describe();
+    base.fields = mapValues_1(this.fields, value => value.describe());
     return base;
   }
-});
-module.exports = exports["default"];
-});
 
-unwrapExports(array$1);
-
-var Lazy_1 = createCommonjsModule(function (module, exports) {
-
-
-
-exports.__esModule = true;
-exports.default = void 0;
-
-var _objectWithoutPropertiesLoose2 = interopRequireDefault(objectWithoutPropertiesLoose);
-
-var _isSchema = interopRequireDefault(isSchema);
-
-var Lazy =
-/*#__PURE__*/
-function () {
-  function Lazy(mapFn) {
-    this._resolve = function () {
-      var schema = mapFn.apply(void 0, arguments);
-      if (!(0, _isSchema.default)(schema)) throw new TypeError('lazy() functions must return a valid schema');
-      return schema;
-    };
-  }
-
-  var _proto = Lazy.prototype;
-
-  _proto.resolve = function resolve(_ref) {
-    var value = _ref.value,
-        rest = (0, _objectWithoutPropertiesLoose2.default)(_ref, ["value"]);
-    return this._resolve(value, rest);
-  };
-
-  _proto.cast = function cast(value, options) {
-    return this._resolve(value, options).cast(value, options);
-  };
-
-  _proto.validate = function validate(value, options) {
-    return this._resolve(value, options).validate(value, options);
-  };
-
-  _proto.validateSync = function validateSync(value, options) {
-    return this._resolve(value, options).validateSync(value, options);
-  };
-
-  _proto.validateAt = function validateAt(path, value, options) {
-    return this._resolve(value, options).validateAt(path, value, options);
-  };
-
-  _proto.validateSyncAt = function validateSyncAt(path, value, options) {
-    return this._resolve(value, options).validateSyncAt(path, value, options);
-  };
-
-  return Lazy;
-}();
-
-Lazy.prototype.__isYupSchema__ = true;
-var _default = Lazy;
-exports.default = _default;
-module.exports = exports["default"];
-});
-
-unwrapExports(Lazy_1);
-
-var setLocale_1 = createCommonjsModule(function (module, exports) {
-
-
-
-exports.__esModule = true;
-exports.default = setLocale;
-
-var _locale = interopRequireDefault(locale);
-
-function setLocale(custom) {
-  Object.keys(custom).forEach(function (type) {
-    Object.keys(custom[type]).forEach(function (method) {
-      _locale.default[type][method] = custom[type][method];
-    });
-  });
 }
-
-module.exports = exports["default"];
-});
-
-unwrapExports(setLocale_1);
-
-var lib$1 = createCommonjsModule(function (module, exports) {
-
-
-
-exports.__esModule = true;
-exports.addMethod = addMethod;
-exports.lazy = exports.ref = exports.boolean = void 0;
-
-var _mixed = interopRequireDefault(mixed);
-
-exports.mixed = _mixed.default;
-
-var _boolean = interopRequireDefault(boolean_1);
-
-exports.bool = _boolean.default;
-
-var _string = interopRequireDefault(string);
-
-exports.string = _string.default;
-
-var _number = interopRequireDefault(number);
-
-exports.number = _number.default;
-
-var _date = interopRequireDefault(date);
-
-exports.date = _date.default;
-
-var _object = interopRequireDefault(object);
-
-exports.object = _object.default;
-
-var _array = interopRequireDefault(array$1);
-
-exports.array = _array.default;
-
-var _Reference = interopRequireDefault(Reference_1);
-
-var _Lazy = interopRequireDefault(Lazy_1);
-
-var _ValidationError = interopRequireDefault(ValidationError_1);
-
-exports.ValidationError = _ValidationError.default;
-
-var _reach = interopRequireDefault(reach_1);
-
-exports.reach = _reach.default;
-
-var _isSchema = interopRequireDefault(isSchema);
-
-exports.isSchema = _isSchema.default;
-
-var _setLocale = interopRequireDefault(setLocale_1);
-
-exports.setLocale = _setLocale.default;
-var boolean = _boolean.default;
-exports.boolean = boolean;
-
-var ref = function ref(key, options) {
-  return new _Reference.default(key, options);
-};
-
-exports.ref = ref;
-
-var lazy = function lazy(fn) {
-  return new _Lazy.default(fn);
-};
-
-exports.lazy = lazy;
-
-function addMethod(schemaType, name, fn) {
-  if (!schemaType || !(0, _isSchema.default)(schemaType.prototype)) throw new TypeError('You must provide a yup schema constructor function');
-  if (typeof name !== 'string') throw new TypeError('A Method name must be provided');
-  if (typeof fn !== 'function') throw new TypeError('Method function must be provided');
-  schemaType.prototype[name] = fn;
+function create$2(spec) {
+  return new ObjectSchema(spec);
 }
-});
+create$2.prototype = ObjectSchema.prototype;
 
-unwrapExports(lib$1);
-var lib_1$1 = lib$1.addMethod;
-var lib_2$1 = lib$1.lazy;
-var lib_3$1 = lib$1.ref;
-var lib_4$1 = lib$1.mixed;
-var lib_5 = lib$1.bool;
-var lib_6 = lib$1.string;
-var lib_7 = lib$1.number;
-var lib_8 = lib$1.date;
-var lib_9 = lib$1.object;
-var lib_10 = lib$1.array;
-var lib_11 = lib$1.ValidationError;
-var lib_12 = lib$1.reach;
-var lib_13 = lib$1.isSchema;
-var lib_14 = lib$1.setLocale;
-
-var fileSchema = lib_9()
+var fileSchema = create$2()
     .shape({
-    name: lib_6().required(),
-    mimeType: lib_6().required(),
-    data: lib_6().required(),
-    signature: lib_6(),
+    name: create().required(),
+    mimeType: create().required(),
+    data: create().required(),
+    signature: create(),
 })
     .required()
     .noUnknown(true)
@@ -12916,14 +10927,14 @@ var validateFile = function (file) {
         });
     });
 };
-var dpySchema = lib_9()
+var dpySchema = create$2()
     .shape({
-    name: lib_6().required(),
-    mimeType: lib_6()
+    name: create().required(),
+    mimeType: create()
         .matches(/application\/dappy/)
         .required(),
-    data: lib_6().required(),
-    signature: lib_6(),
+    data: create().required(),
+    signature: create(),
 })
     .required()
     .noUnknown(true)
@@ -12933,13 +10944,13 @@ var getNodeIndex = function (node) {
     return node.ip + "---" + node.host;
 };
 
-var readDataorBagData = function (registryUri, fileId) {
-    // read bag data if fileId
-    if (fileId) {
-        return src_11(registryUri, { pursesIds: [fileId] });
+var readPursesDataOrContractConfig = function (masterRegistryUri, contractId, purseId) {
+    // read purse data if purseId
+    if (contractId && purseId) {
+        return src_14({ masterRegistryUri: masterRegistryUri, contractId: contractId, pursesIds: [purseId] });
     }
-    // read contract values { registryUri: ..., nonce: ...} if no file ID
-    return src_9(registryUri);
+    // read config values { fungible: ..., fee: ...} if no contract id AND purse id
+    return src_13({ masterRegistryUri: masterRegistryUri, contractId: contractId });
 };
 var registerDappyProtocol = function (session, getState) {
     session.protocol.registerBufferProtocol('dappy', function (request, callback) {
@@ -12947,28 +10958,52 @@ var registerDappyProtocol = function (session, getState) {
         var url = request.url;
         if (validateSearchWithProtocol(url)) {
             valid = true;
+            // dappy://aaa.bbb.ccc -> dappy://aaa.bbb.ccc,
+            if (!url.includes('%2C')) {
+                url += "%2C";
+            }
+        }
+        var randomId = '';
+        var browserView = undefined;
+        try {
+            var userAgent = request.headers['User-Agent'];
+            var io = userAgent.indexOf('randomId=');
+            randomId = userAgent.substring(io + 'randomId='.length);
+            var browserViews_1 = getBrowserViewsMain(getState());
+            var browserViewId = Object.keys(browserViews_1).find(function (browserViewId) { return browserViews_1[browserViewId].randomId === randomId; });
+            if (!browserViewId || !browserViews_1[browserViewId]) {
+                console.error('[dappy://] browserView not found, unauthorized request');
+                callback();
+                return;
+            }
+            browserView = browserViews_1[browserViewId];
+        }
+        catch (err) {
+            console.error('[dappy://] could not get browserView, unauthorized request');
+            console.log(err);
+            callback();
+            return;
         }
         /*
             Shortcut notation
-            change dappy://aaa?page=123 to dappy://betanetwork/aaa?page=123
+            change dappy://aaa.bbb?page=123 to dappy://betanetwork/aaa.bbb?page=123
           */
         if (!valid && validateShortcutSearchWithProtocol(url)) {
             try {
-                var randomId_1 = '';
-                var userAgent = request.headers['User-Agent'];
-                var io = userAgent.indexOf('randomId=');
-                randomId_1 = userAgent.substring(io + 'randomId='.length);
-                var browserViews_1 = getBrowserViewsMain(getState());
-                var browserViewId = Object.keys(browserViews_1).find(function (browserViewId) { return browserViews_1[browserViewId].randomId === randomId_1; });
-                var chainId_1 = browserViews_1[browserViewId].address.split('/')[0];
+                var chainId_1 = browserView.dappyDomain.split('/')[0];
                 url = url.replace('dappy://', 'dappy://' + chainId_1 + '/');
                 if (!validateSearchWithProtocol(url)) {
                     valid = true;
                 }
             }
-            catch (e) { }
+            catch (e) {
+                console.log('[dappy://] could not replace shortcut notation');
+                console.log(e);
+                callback();
+                return;
+            }
         }
-        // todo if multi, limit to n unforgeable names
+        // todo if multi, limit to n
         var multipleResources = false;
         var exploreDeploys = false;
         if (url.includes('explore-deploys')) {
@@ -12991,7 +11026,7 @@ var registerDappyProtocol = function (session, getState) {
         var blockchains = getBlockchains$1(getState());
         var blockchain = blockchains[chainId];
         if (!blockchain) {
-            console.error('[dapp] blockchain not found');
+            console.error('[dappy://] blockchain not found');
             callback();
             return;
         }
@@ -13004,25 +11039,30 @@ var registerDappyProtocol = function (session, getState) {
                 query = { terms: JSON.parse(request.headers['Explore-Deploys']).data };
             }
             catch (err) {
-                console.error('[dapp] could not parse explore-deploys haders');
+                console.log('[dappy://] could not parse explore-deploys haders');
+                console.log(err);
                 callback();
                 return;
             }
         }
         else if (multipleResources) {
+            // if address is dappy://d/aaa.bbb.ccc,ddd.eee.fff
+            // the two
             type = 'explore-deploy-x';
             query = {
                 terms: split[1]
                     .split('%2C')
                     // filter in the case of only one unf : dappy://aaa/bbb,
                     .filter(function (a) { return !!a; })
-                    .map(function (u) { return readDataorBagData(u.split('.')[0], u.split('.')[1]); }),
+                    .map(function (u) {
+                    return readPursesDataOrContractConfig(u.split('.')[0], u.split('.')[1], u.split('.')[2]);
+                }),
             };
         }
         else {
             type = 'api/explore-deploy';
             query = {
-                term: readDataorBagData(split[1].split('.')[0], split[1].split('.')[1]),
+                term: readPursesDataOrContractConfig(split[1].split('.')[0], split[1].split('.')[1], split[1].split('.')[2]),
             };
         }
         var settings = getSettings$1(getState());
@@ -13088,7 +11128,7 @@ var registerDappyProtocol = function (session, getState) {
                         }
                         catch (err) {
                             throw new Error(JSON.stringify({
-                                error: LoadError.InvalidManifest,
+                                error: BeesLoadError.InvalidManifest,
                                 args: {
                                     message: 'Failed to validate file, string is not valid base64 + gzipped',
                                 },
@@ -13106,7 +11146,7 @@ var registerDappyProtocol = function (session, getState) {
                     case 7:
                         err_1 = _a.sent();
                         throw new Error(JSON.stringify({
-                            error: LoadError.InvalidManifest,
+                            error: BeesLoadError.InvalidManifest,
                             args: {
                                 message: 'Failed to parse file ' + err_1,
                             },
@@ -13119,6 +11159,7 @@ var registerDappyProtocol = function (session, getState) {
                         return [3 /*break*/, 10];
                     case 9:
                         err_2 = _a.sent();
+                        console.log('[dappy://] error when parsing file as base64(gzip)');
                         console.log(err_2);
                         callback();
                         return [3 /*break*/, 10];
@@ -13129,6 +11170,7 @@ var registerDappyProtocol = function (session, getState) {
                     case 12: return [3 /*break*/, 14];
                     case 13:
                         err_3 = _a.sent();
+                        console.log('[dappy://] error when handling multiCall result');
                         console.log(err_3);
                         callback();
                         return [3 /*break*/, 14];
@@ -13167,7 +11209,9 @@ function parseString(setCookieValue, options) {
     value = options.decodeValues ? decodeURIComponent(value) : value; // decode cookie value
   } catch (e) {
     console.error(
-      `set-cookie-parser encountered an error while decoding a cookie with value '${value}'. Set options.decodeValues to false to disable this feature.`,
+      "set-cookie-parser encountered an error while decoding a cookie with value '" +
+        value +
+        "'. Set options.decodeValues to false to disable this feature.",
       e
     );
   }
@@ -13417,7 +11461,7 @@ var overrideHttpProtocols = function (session, getState, development, dispatchFr
     }
     var browserView = undefined;
     session.cookies.on('changed', function (e, c, ca, re) { return __awaiter(void 0, void 0, void 0, function () {
-        var servers, cookies;
+        var servers, cookies, cookiesToBeStored;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -13433,19 +11477,22 @@ var overrideHttpProtocols = function (session, getState, development, dispatchFr
                     return [4 /*yield*/, browserView.browserView.webContents.session.cookies.get({ url: "https://" + c.domain })];
                 case 1:
                     cookies = _a.sent();
-                    dispatchFromMain({
-                        action: saveCookiesForDomainAction({
-                            address: browserView.address,
-                            cookies: cookies
-                                .filter(function (c) { return typeof c.expirationDate === 'number'; })
-                                .map(function (cook) { return ({
-                                domain: cook.domain,
-                                name: cook.name,
-                                value: cook.value,
-                                expirationDate: cook.expirationDate,
-                            }); }),
-                        }),
-                    });
+                    cookiesToBeStored = cookies
+                        .filter(function (c) { return typeof c.expirationDate === 'number'; })
+                        .map(function (cook) { return ({
+                        domain: cook.domain,
+                        name: cook.name,
+                        value: cook.value,
+                        expirationDate: cook.expirationDate,
+                    }); });
+                    if (cookiesToBeStored.length) {
+                        dispatchFromMain({
+                            action: saveCookiesForDomainAction({
+                                dappyDomain: browserView.dappyDomain,
+                                cookies: cookiesToBeStored
+                            }),
+                        });
+                    }
                     return [2 /*return*/];
             }
         });
@@ -13488,8 +11535,8 @@ var overrideHttpProtocols = function (session, getState, development, dispatchFr
                         }
                     }
                     randomId = '';
-                    userAgent = request.headers['User-Agent'];
                     try {
+                        userAgent = request.headers['User-Agent'];
                         io = userAgent.indexOf('randomId=');
                         randomId = userAgent.substring(io + 'randomId='.length);
                     }
@@ -13550,7 +11597,7 @@ var overrideHttpProtocols = function (session, getState, development, dispatchFr
                                 rejectUnauthorized: false,
                                 cert: decodeURI(s.cert),
                                 minVersion: 'TLSv1.2',
-                                ca: [],
+                                ca: [], // we don't want to rely on CA
                             });
                         }
                         var options = {
@@ -13731,6 +11778,21 @@ var saveFailedRChainTransactionAction = function (values) { return ({
     type: SAVE_FAILED_RCHAIN_TRANSACTION,
     payload: values,
 }); };
+
+var TransactionStatus;
+(function (TransactionStatus) {
+    TransactionStatus["Pending"] = "pending";
+    TransactionStatus["Aired"] = "aired";
+    TransactionStatus["Failed"] = "failed";
+    TransactionStatus["Abandonned"] = "abandonned";
+    TransactionStatus["Completed"] = "completed";
+})(TransactionStatus || (TransactionStatus = {}));
+var CallStatus;
+(function (CallStatus) {
+    CallStatus["Pending"] = "pending";
+    CallStatus["Failed"] = "failed";
+    CallStatus["Completed"] = "completed";
+})(CallStatus || (CallStatus = {}));
 
 // SELECTORS
 var getBlockchainState = lib_4(function (state) { return state; }, function (state) { return state.blockchain; });
@@ -14016,7 +12078,7 @@ var benchmarkCron = function (getState, dispatchFromMain) { return __awaiter(voi
     });
 }); };
 
-var getDapps = function (path) {
+var getDapps$1 = function (path) {
     var directories = fs.readdirSync(path + '/dapps/');
     var dapps = {};
     directories.forEach(function (d) {
@@ -14193,7 +12255,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
         }
         if (request.url === 'interprocess://get-dapps') {
             try {
-                var dapps = getDapps(electron.app.getAppPath());
+                var dapps = getDapps$1(electron.app.getAppPath());
                 callback(Buffer.from(JSON.stringify({
                     success: true,
                     data: dapps,
@@ -14247,42 +12309,6 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
         }
     });
 };
-
-function symbolObservablePonyfill(root) {
-	var result;
-	var Symbol = root.Symbol;
-
-	if (typeof Symbol === 'function') {
-		if (Symbol.observable) {
-			result = Symbol.observable;
-		} else {
-			result = Symbol('observable');
-			Symbol.observable = result;
-		}
-	} else {
-		result = '@@observable';
-	}
-
-	return result;
-}
-
-/* global window */
-
-var root$1;
-
-if (typeof self !== 'undefined') {
-  root$1 = self;
-} else if (typeof window !== 'undefined') {
-  root$1 = window;
-} else if (typeof global !== 'undefined') {
-  root$1 = global;
-} else if (typeof module !== 'undefined') {
-  root$1 = module;
-} else {
-  root$1 = Function('return this')();
-}
-
-var result = symbolObservablePonyfill(root$1);
 
 /**
  * These are private action types reserved by Redux.
@@ -14894,7 +12920,7 @@ if (process.env.NODE_ENV !== 'production' && typeof isCrushed.name === 'string' 
   warning('You are currently using minified code outside of NODE_ENV === "production". ' + 'This means that you are running a slower development build of Redux. ' + 'You can use loose-envify (https://github.com/zertosh/loose-envify) for browserify ' + 'or setting mode to production in webpack (https://webpack.js.org/concepts/mode/) ' + 'to ensure you have the correct code for your production build.');
 }
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -14926,9 +12952,9 @@ function check(value, predicate, error) {
   }
 }
 
-var hasOwnProperty$d = Object.prototype.hasOwnProperty;
+var hasOwnProperty$a = Object.prototype.hasOwnProperty;
 function hasOwn(object, property) {
-  return is.notUndef(object) && hasOwnProperty$d.call(object, property);
+  return is.notUndef(object) && hasOwnProperty$a.call(object, property);
 }
 
 var is = {
@@ -15015,7 +13041,7 @@ var array$2 = {
 function deferred() {
   var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-  var def = _extends({}, props);
+  var def = _extends$4({}, props);
   var promise = new Promise(function (resolve, reject) {
     def.resolve = resolve;
     def.reject = reject;
@@ -15262,7 +13288,7 @@ function flush() {
   }
 }
 
-var _extends$1 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var CHANNEL_END_TYPE = '@@redux-saga/CHANNEL_END';
 var END = { type: CHANNEL_END_TYPE };
@@ -15448,7 +13474,7 @@ function stdChannel(subscribe) {
     });
   });
 
-  return _extends$1({}, chan, {
+  return _extends$5({}, chan, {
     take: function take(cb, matcher) {
       if (arguments.length > 1) {
         check(matcher, is.func, "channel.take's matcher argument must be a function");
@@ -15595,7 +13621,7 @@ var asEffect = {
   setContext: /*#__PURE__*/createAsEffectType(SET_CONTEXT)
 };
 
-var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 var _typeof$1 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
@@ -16200,7 +14226,7 @@ function proc(iterator) {
     function checkEffectEnd() {
       if (completedCount === keys.length) {
         completed = true;
-        cb(is.array(effects) ? array$2.from(_extends$2({}, results, { length: keys.length })) : results);
+        cb(is.array(effects) ? array$2.from(_extends$6({}, results, { length: keys.length })) : results);
       }
     }
 
@@ -16257,7 +14283,7 @@ function proc(iterator) {
           cb.cancel();
           completed = true;
           var response = (_response = {}, _response[key] = res, _response);
-          cb(is.array(effects) ? [].slice.call(_extends$2({}, response, { length: keys.length })) : response);
+          cb(is.array(effects) ? [].slice.call(_extends$6({}, response, { length: keys.length })) : response);
         }
       };
       chCbAtKey.cancel = noop;
@@ -16565,24 +14591,11 @@ function takeEvery$1(patternOrChannel, worker) {
   return fork.apply(undefined, [takeEvery, patternOrChannel, worker].concat(args));
 }
 
-var SYNC_IP_APPS = '[MAIN] Sync IP apps';
+var TRANSFER_TRANSACTIONS = '[MAIN] Transfer transactions';
 var initialState$4 = {};
 var reducer$3 = function (state, action) {
-    if (state === void 0) { state = initialState$4; }
-    switch (action.type) {
-        case SYNC_IP_APPS: {
-            return action.payload;
-        }
-        default:
-            return state;
-    }
-};
-
-var TRANSFER_TRANSACTIONS = '[MAIN] Transfer transactions';
-var initialState$5 = {};
-var reducer$4 = function (state, action) {
     var _a, _b;
-    if (state === void 0) { state = initialState$5; }
+    if (state === void 0) { state = initialState$4; }
     switch (action.type) {
         case TRANSFER_TRANSACTIONS: {
             var payload = action.payload;
@@ -16596,10 +14609,10 @@ var getTransactionsMainState = lib_4(function (state) { return state; }, functio
 var getTransactionsMain = lib_4(getTransactionsMainState, function (state) { return state; });
 
 var TRANSFER_IDENTIFICATIONS = '[MAIN] Transfer identification';
-var initialState$6 = {};
-var reducer$5 = function (state, action) {
+var initialState$5 = {};
+var reducer$4 = function (state, action) {
     var _a, _b;
-    if (state === void 0) { state = initialState$6; }
+    if (state === void 0) { state = initialState$5; }
     switch (action.type) {
         case TRANSFER_IDENTIFICATIONS: {
             var payload = action.payload;
@@ -16618,65 +14631,6 @@ var openDappModalAction = function (values) { return ({
     payload: values,
 }); };
 
-var LOAD_RESOURCE = '[Dapps] Load resource';
-var UPDATE_TRANSITORY_STATE = '[Dapps] Update transitory state';
-var loadResourceAction = function (payload) { return ({
-    type: LOAD_RESOURCE,
-    payload: payload,
-}); };
-var updateTransitoryStateAction = function (values) { return ({
-    type: UPDATE_TRANSITORY_STATE,
-    payload: values,
-}); };
-
-// SELECTORS
-var getDappsState = lib_4(function (state) { return state; }, function (state) { return state.dapps; });
-var getSearch = lib_4(getDappsState, function (state) { return state.search; });
-var getSearchError = lib_4(getDappsState, function (state) { return state.searchError; });
-var getSearching = lib_4(getDappsState, function (state) { return state.searching; });
-var getLastLoadErrors = lib_4(getDappsState, function (state) { return state.lastLoadErrors; });
-var getLoadStates = lib_4(getDappsState, function (state) { return state.loadStates; });
-var getDapps$1 = lib_4(getDappsState, function (state) { return state.dapps; });
-var getTabsFocusOrder = lib_4(getDappsState, function (state) { return state.tabsFocusOrder; });
-var getTabs = lib_4(getDappsState, function (state) { return state.tabs; });
-var getDappsTransitoryStates = lib_4(getDappsState, function (state) { return state.transitoryStates; });
-var getIdentifications = lib_4(getDappsState, function (state) { return state.identifications; });
-var getLoadedFiles = lib_4(getDappsState, function (state) { return state.loadedFiles; });
-var getIpApps = lib_4(getDappsState, function (state) { return state.ipApps; });
-// COMBINED SELECTORS
-var getIsSearchFocused = lib_4(getTabsFocusOrder, function (tabsFocusOrder) { return tabsFocusOrder[tabsFocusOrder.length - 1] === 'search'; });
-var getTabsFocusOrderWithoutSearch = lib_4(getTabsFocusOrder, function (tabsFocusOrder) {
-    return tabsFocusOrder.filter(function (d) { return d !== 'search'; });
-});
-var getFocusedTabId = lib_4(getTabsFocusOrderWithoutSearch, function (tabsFocusOrder) { return tabsFocusOrder[tabsFocusOrder.length - 1]; });
-var getSearchTransitoryState = lib_4(getSearch, getDappsTransitoryStates, function (search, transitoryStates) { return transitoryStates[search]; });
-var getSearchLoadStates = lib_4(getSearch, getLoadStates, function (search, loadStates) { return (search ? loadStates[search] : undefined); });
-var getActiveTabs = lib_4(getTabs, function (tabs) {
-    var activeTabs = {};
-    tabs.forEach(function (t) {
-        if (t.active) {
-            activeTabs[t.id] = t;
-        }
-    });
-    return activeTabs;
-});
-var getActiveResource = lib_4(getFocusedTabId, getTabs, getDapps$1, getIpApps, getLoadedFiles, function (focusedTabId, tabs, dapps, ipApps, loadedFiles) {
-    var tab = tabs.find(function (t) { return t.id === focusedTabId; });
-    if (!tab) {
-        return undefined;
-    }
-    if (dapps[tab.resourceId]) {
-        return dapps[tab.resourceId];
-    }
-    else if (ipApps[tab.resourceId]) {
-        return ipApps[tab.resourceId];
-    }
-    else if (loadedFiles[tab.resourceId]) {
-        return loadedFiles[tab.resourceId];
-    }
-    return undefined;
-});
-
 // SELECTORS
 var getUiState = lib_4(function (state) { return state; }, function (state) { return state.ui; });
 var getLanguage = lib_4(getUiState, function (state) { return state.language; });
@@ -16684,6 +14638,7 @@ var getMenuCollapsed = lib_4(getUiState, function (state) { return state.menuCol
 var getDappsListDisplay = lib_4(getUiState, function (state) { return state.dappsListDisplay; });
 var getDevMode = lib_4(getUiState, function (state) { return state.devMode; });
 var getNavigationUrl = lib_4(getUiState, function (state) { return state.navigationUrl; });
+var getGcu = lib_4(getUiState, function (state) { return state.gcu; });
 var getBodyDimensions = lib_4(getUiState, function (state) { return state.windowDimensions; });
 var getNavigationSuggestionsDisplayed = lib_4(getUiState, function (state) { return state.navigationSuggestionsDisplayed; });
 var getIsMobile = lib_4(getBodyDimensions, function (dimensions) { return !!(dimensions && dimensions[0] <= 769); });
@@ -16712,7 +14667,12 @@ var getIsBeta = lib_4(getMainState, function (state) { return state.isBeta; });
 var getInitializationOver = lib_4(getMainState, function (state) { return state.initializationOver; });
 var getDispatchWhenInitializationOver = lib_4(getMainState, function (state) { return state.dispatchWhenInitializationOver; });
 var getLoadResourceWhenReady = lib_4(getMainState, function (state) { return state.loadResourceWhenReady; });
-var getShouldBrowserViewsBeDisplayed = lib_4(getIsNavigationInDapps, getNavigationSuggestionsDisplayed, getDappModals, getTabsFocusOrder, getTabs, function (isNavigationInDapps, navigationSuggestionsDisplayed, dappModals, tabsFocusOrder, tabs) {
+var getShouldBrowserViewsBeDisplayed = lib_4(getIsNavigationInDapps, getNavigationSuggestionsDisplayed, getDappModals, getModal, getTabsFocusOrder, getTabs, function (isNavigationInDapps, navigationSuggestionsDisplayed, dappModals, modal, tabsFocusOrder, tabs) {
+    // return undefined : no browser views displayed
+    // return resourceId: string : the browser view corresponding to this resourceId should be displayed
+    if (!!modal) {
+        return undefined;
+    }
     if (!navigationSuggestionsDisplayed && isNavigationInDapps && tabsFocusOrder.length > 0) {
         var tab = tabs.find(function (t) { return t.id === tabsFocusOrder[tabsFocusOrder.length - 1]; });
         // should always be true
@@ -16748,55 +14708,55 @@ var splitSearch = function (address) {
     };
 };
 
-var identifyFromSandboxSchema = lib_9()
+var identifyFromSandboxSchema = create$2()
     .shape({
-    parameters: lib_9()
+    parameters: create$2()
         .shape({
-        publicKey: lib_6(),
+        publicKey: create(),
     })
         .noUnknown()
         .strict(true)
         .required(),
-    callId: lib_6().required(),
-    dappId: lib_6().required(),
-    randomId: lib_6().required(),
+    callId: create().required(),
+    dappId: create().required(),
+    randomId: create().required(),
 })
     .noUnknown()
     .strict(true)
     .required();
-var sendRChainPaymentRequestFromSandboxSchema = lib_9()
+var sendRChainPaymentRequestFromSandboxSchema = create$2()
     .shape({
-    parameters: lib_9()
+    parameters: create$2()
         .shape({
-        from: lib_6(),
+        from: create(),
         // .to is required when it comes from dapp
-        to: lib_6().required(),
+        to: create().required(),
         // .amount is required when it comes from dapp
-        amount: lib_7().required(),
+        amount: create$1().required(),
     })
         .noUnknown()
         .strict(true)
         .required(),
-    callId: lib_6().required(),
-    dappId: lib_6().required(),
-    randomId: lib_6().required(),
+    callId: create().required(),
+    dappId: create().required(),
+    randomId: create().required(),
 })
     .strict(true)
     .noUnknown()
     .required();
-var sendRChainTransactionFromSandboxSchema = lib_9()
+var sendRChainTransactionFromSandboxSchema = create$2()
     .shape({
-    parameters: lib_9()
+    parameters: create$2()
         .shape({
-        term: lib_6().required(),
-        signatures: lib_9(),
+        term: create().required(),
+        signatures: create$2(),
     })
         .noUnknown()
         .required()
         .strict(true),
-    callId: lib_6().required(),
-    dappId: lib_6().required(),
-    randomId: lib_6().required(),
+    callId: create().required(),
+    dappId: create().required(),
+    randomId: create().required(),
 })
     .strict(true)
     .noUnknown()
@@ -16831,7 +14791,7 @@ var registerInterProcessDappProtocol = function (session, store, dispatchFromMai
                     type: DAPP_INITIAL_SETUP,
                     payload: {
                         html: browserView.html,
-                        address: browserView.address,
+                        dappyDomain: browserView.dappyDomain,
                         path: browserView.path,
                         title: browserView.title,
                         dappId: browserView.resourceId,
@@ -17095,13 +15055,14 @@ var decomposeUrl = function (url) {
     }
 };
 
-var searchToAddress = function (name, chainId) {
-    return chainId + "/" + name;
+var searchToAddress = function (search, chainId, path) {
+    if (path === void 0) { path = ''; }
+    return chainId + "/" + search + path;
 };
 
 var development = !!process.defaultApp;
 var loadOrReloadBrowserView = function (action) {
-    var payload, browserViews, position, view, ua, newUserAgent, previewId, currentPathAndParameters, newBrowserViews;
+    var payload, browserViews, position, sameTabIdBrowserViewId, bv, view, ua, newUserAgent, previewId, currentPathAndParameters, newBrowserViews;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -17112,14 +15073,36 @@ var loadOrReloadBrowserView = function (action) {
                 return [4 /*yield*/, select(getBrowserViewsPositionMain)];
             case 2:
                 position = _a.sent();
-                // reload
+                /* reload
+                  a browser view with same id (payload.reosurceId) is
+                  already running
+                */
                 if (browserViews[payload.resourceId]) {
-                    electron.session.fromPartition("persist:" + payload.address).protocol.unregisterProtocol('dappy');
+                    if (development) {
+                        console.log('reload or self navigation, closing browserView with same id');
+                    }
+                    electron.session.fromPartition("persist:" + payload.dappyDomain).protocol.unregisterProtocol('dappy');
                     if (browserViews[payload.resourceId].browserView.webContents.isDevToolsOpened()) {
                         browserViews[payload.resourceId].browserView.webContents.closeDevTools();
                         browserViews[payload.resourceId].browserView.webContents.forcefullyCrashRenderer();
                     }
                     action.meta.browserWindow.removeBrowserView(browserViews[payload.resourceId].browserView);
+                }
+                sameTabIdBrowserViewId = Object.keys(browserViews).find(function (id) {
+                    return (browserViews[id].resourceId !== payload.resourceId && // already removed line 35
+                        browserViews[id].tabId === payload.tabId);
+                });
+                if (sameTabIdBrowserViewId) {
+                    if (development) {
+                        console.log('navigation ina tab, closing browserView with same tabId');
+                    }
+                    bv = browserViews[sameTabIdBrowserViewId];
+                    electron.session.fromPartition("persist:" + bv.dappyDomain).protocol.unregisterProtocol('dappy');
+                    if (browserViews[sameTabIdBrowserViewId].browserView.webContents.isDevToolsOpened()) {
+                        browserViews[sameTabIdBrowserViewId].browserView.webContents.closeDevTools();
+                        browserViews[sameTabIdBrowserViewId].browserView.webContents.forcefullyCrashRenderer();
+                    }
+                    action.meta.browserWindow.removeBrowserView(browserViews[sameTabIdBrowserViewId].browserView);
                 }
                 if (!position) {
                     console.error('No position, cannot create browserView');
@@ -17127,12 +15110,12 @@ var loadOrReloadBrowserView = function (action) {
                 }
                 view = new electron.BrowserView({
                     webPreferences: {
+                        nodeIntegration: false,
+                        sandbox: true,
+                        contextIsolation: true,
                         devTools: true,
                         disableDialogs: true,
-                        partition: "persist:" + payload.address,
-                        // sandbox forbids the navigation
-                        //sandbox: true,
-                        contextIsolation: true,
+                        partition: "persist:" + payload.dappyDomain,
                     },
                 });
                 // cookies to start with (from storage)
@@ -17140,14 +15123,14 @@ var loadOrReloadBrowserView = function (action) {
                     view.webContents.session.cookies.set(__assign(__assign({}, c), { url: "https://" + c.domain, secure: true, httpOnly: true }));
                 });
                 // todo, avoid circular ref to "store" (see logs when "npm run build:main")
-                registerDappyProtocol(electron.session.fromPartition("persist:" + payload.address), store.getState);
-                registerInterProcessDappProtocol(electron.session.fromPartition("persist:" + payload.address), store, action.meta.dispatchFromMain);
-                overrideHttpProtocols(electron.session.fromPartition("persist:" + payload.address), store.getState, development, action.meta.dispatchFromMain, false);
+                registerDappyProtocol(electron.session.fromPartition("persist:" + payload.dappyDomain), store.getState);
+                registerInterProcessDappProtocol(electron.session.fromPartition("persist:" + payload.dappyDomain), store, action.meta.dispatchFromMain);
+                overrideHttpProtocols(electron.session.fromPartition("persist:" + payload.dappyDomain), store.getState, development, action.meta.dispatchFromMain, false);
                 if (payload.devMode) {
                     view.webContents.openDevTools();
                 }
                 if (payload.muted) {
-                    browserViews[payload.resourceId].browserView.webContents.setAudioMuted(payload.muted);
+                    view.webContents.setAudioMuted(payload.muted);
                 }
                 ua = view.webContents.getUserAgent();
                 newUserAgent = ua + " randomId=" + payload.randomId;
@@ -17175,11 +15158,11 @@ var loadOrReloadBrowserView = function (action) {
                             console.error('Could not parse URL ' + currentUrl);
                         }
                     }
-                    previewId = ("" + payload.address + currentPathAndParameters).replace(/\W/g, '');
+                    previewId = ("" + payload.dappyDomain + currentPathAndParameters).replace(/\W/g, '');
                     action.meta.dispatchFromMain({
                         action: didNavigateInPageAction({
                             previewId: previewId,
-                            address: "" + payload.address + currentPathAndParameters,
+                            address: "" + payload.dappyDomain + currentPathAndParameters,
                             tabId: payload.tabId,
                             title: view.webContents.getTitle(),
                         }),
@@ -17220,7 +15203,7 @@ var loadOrReloadBrowserView = function (action) {
                                     rejectUnauthorized: false,
                                     cert: decodeURI(serverAuthorized.cert),
                                     minVersion: 'TLSv1.2',
-                                    ca: [],
+                                    ca: [], // we don't want to rely on CA
                                 });
                                 https.get({
                                     agent: a_1,
@@ -17229,7 +15212,7 @@ var loadOrReloadBrowserView = function (action) {
                                     method: 'get',
                                 }, function (res) {
                                     if (res.statusCode !== 200) {
-                                        console.error("Could not get favicon (status !== 200) for " + payload.address + currentPath);
+                                        console.error("Could not get favicon (status !== 200) for " + payload.dappyDomain + currentPath);
                                         console.log(favicons[0]);
                                         return;
                                     }
@@ -17282,7 +15265,7 @@ var loadOrReloadBrowserView = function (action) {
                             s = "" + urlDecomposed.host + urlDecomposed.path;
                         }
                         else {
-                            s = searchToAddress(urlDecomposed.path, payload.address.split('/')[0]);
+                            s = searchToAddress(urlDecomposed.path, payload.dappyDomain.split('/')[0]);
                         }
                         a.preventDefault();
                         action.meta.dispatchFromMain({
@@ -17318,7 +15301,10 @@ var loadOrReloadBrowserView = function (action) {
                     });
                 });
                 newBrowserViews = {};
-                newBrowserViews[payload.resourceId] = __assign(__assign({}, payload), { browserView: view, commEvent: undefined, visible: true });
+                newBrowserViews[payload.resourceId] = __assign(__assign({}, payload), { browserView: view, visible: true });
+                /*
+                  Hide all other browser views
+                */
                 Object.keys(browserViews).forEach(function (id) {
                     var _a;
                     if (id !== payload.resourceId && browserViews[id].visible) {
@@ -17438,11 +15424,12 @@ var transferIdentifications = function (action) {
                         browserViews[payload.dappId].browserView.webContents.executeJavaScript("\n      if (typeof dappyRChain !== 'undefined') { dappyRChain.requestIdentifications() };\n      ");
                     }
                     catch (e) {
-                        console.error('Could not execute javascript and trasfer identification');
+                        console.error('Could not execute javascript and transfer identifications');
+                        console.log(e);
                     }
                 }
                 else {
-                    console.error('Did not find browserView, cannot transfer identification');
+                    console.error('Did not find browserView, cannot transfer identifications');
                 }
                 return [2 /*return*/, undefined];
         }
@@ -17474,7 +15461,8 @@ var transferTransactions = function (action) {
                         browserViews[dappId].browserView.webContents.executeJavaScript("\n      if (typeof dappyRChain !== 'undefined') { dappyRChain.requestTransactions() };\n      ");
                     }
                     catch (e) {
-                        console.error('Could not execute javascript and trasfer transactions');
+                        console.error('Could not execute javascript and transfer transactions');
+                        console.log(e);
                     }
                 }
                 else {
@@ -17526,10 +15514,9 @@ var sagaMiddleware = sagaMiddlewareFactory();
 var store = createStore(combineReducers({
     settings: reducer$1,
     blockchains: reducer$2,
-    ipApps: reducer$3,
     browserViews: reducer,
-    transactions: reducer$4,
-    identifications: reducer$5,
+    transactions: reducer$3,
+    identifications: reducer$4,
 }), applyMiddleware(sagaMiddleware));
 sagaMiddleware.run(rootSagas);
 
@@ -17561,19 +15548,12 @@ electron.ipcMain.on('hi-from-dapp-sandboxed', function (commEvent, userAgent) {
             type: DAPP_INITIAL_SETUP,
             payload: {
                 html: browserViews[id].html,
-                address: browserViews[id].address,
+                dappyDomain: browserViews[id].dappyDomain,
                 path: browserViews[id].path,
                 title: browserViews[id].title,
                 dappId: browserViews[id].resourceId,
                 randomId: browserViews[id].randomId,
                 appPath: path.join(electron.app.getAppPath(), 'dist/'),
-            },
-        });
-        store.dispatch({
-            type: SAVE_BROWSER_VIEW_COMM_EVENT,
-            payload: {
-                id: id,
-                commEvent: commEvent,
             },
         });
     }
@@ -17613,6 +15593,7 @@ var validateAndProcessAddresses = function (addresses) {
         }
         loadResourceWhenReady = validDappyAddress.replace('dappy://', '');
     }
+    return loadResourceWhenReady;
 };
 validateAndProcessAddresses(process.argv);
 // macOS only
@@ -17625,7 +15606,14 @@ if (!isSingleInstance) {
     electron.app.quit();
 }
 electron.app.on('second-instance', function (event, argv, cwd) {
-    validateAndProcessAddresses(argv);
+    var a = validateAndProcessAddresses(argv);
+    if (typeof a === 'string') {
+        dispatchFromMain({
+            action: loadResourceAction({
+                address: a,
+            }),
+        });
+    }
     return;
 });
 function createWindow() {
@@ -17645,9 +15633,10 @@ function createWindow() {
         height: 800,
         // frame: false,
         webPreferences: {
-            partition: partition,
+            nodeIntegration: false,
             sandbox: true,
             contextIsolation: true,
+            partition: partition,
         },
     });
     registerDappyProtocol(electron.session.fromPartition(partition), store.getState);
