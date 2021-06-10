@@ -394,24 +394,28 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                   {selectedBlockchain.platform === 'rchain' && <i className="rchain20 fa-after" />}
                   {selectedBlockchain.chainName}
                 </h3>
-                <p className="network-variables">
-                  {t('rchain network').padEnd(50, ' ')} :
-                  {rchainInfo ? rchainInfo.rchainNetwork : 'unknown'}
-                  <br />
-                  {t('last known block height').padEnd(50, ' ')} :
-                  {rchainInfo ? rchainInfo.lastFinalizedBlockNumber : 'unknown'}
-                  <br />
-                  {t('name price').padEnd(50, ' ')} :
-                  {rchainInfo ? `${rchainInfo.namePrice / 100000000} REVs` : 'unknown'}
-                  <br />
-                  {t('name system master registry uri').padEnd(50, ' ')} :
-                  {rchainInfo ? rchainInfo.rchainNamesMasterRegistryUri : 'unknown'}
-                  <br />
-                  {t('name system contract id').padEnd(50, ' ')} :
-                  {rchainInfo ? rchainInfo.rchainNamesContractId : 'unknown'}
-                  <br />
-                </p>
-
+                <table className="network-variables">
+                  <tr>
+                    <td>{t('rchain network')}</td>
+                    <td>{rchainInfo ? rchainInfo.rchainNetwork : 'unknown'}</td>
+                  </tr>
+                  <tr>
+                    <td>{t('last known block height')}</td>
+                    <td>{rchainInfo ? rchainInfo.lastFinalizedBlockNumber : 'unknown'}</td>
+                  </tr>
+                  <tr>
+                    <td>{t('name price')}</td>
+                    <td>{rchainInfo ? `${rchainInfo.namePrice / 100000000} REVs` : 'unknown'}</td>
+                  </tr>
+                  <tr>
+                    <td>{t('name system master registry uri')}</td>
+                    <td>{rchainInfo ? rchainInfo.rchainNamesMasterRegistryUri : 'unknown'}</td>
+                  </tr>
+                  <tr>
+                    <td>{t('name system contract id')}</td>
+                    <td>{rchainInfo ? rchainInfo.rchainNamesContractId : 'unknown'}</td>
+                  </tr>
+                </table>
                 {this.props.namesBlockchain && this.props.namesBlockchain.chainId === selectedBlockchain.chainId ? (
                   <div>
                     <br />
@@ -436,9 +440,10 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                             const node = bc.nodes.find((n) => n.ip === formNode.ip);
                             let benchmark: undefined | Benchmark = undefined;
                             if (this.state.selectedBlockchain && node) {
-                              benchmark = this.props.benchmarks[
-                                `${this.state.selectedBlockchain.chainId || ''}-${getNodeIndex(formNode)}`
-                              ];
+                              benchmark =
+                                this.props.benchmarks[
+                                  `${this.state.selectedBlockchain.chainId || ''}-${getNodeIndex(formNode)}`
+                                ];
                             }
 
                             let ipIsDomainName = !REGEXP_IP.test(formNode.ip);

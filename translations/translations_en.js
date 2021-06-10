@@ -594,14 +594,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "names paragraph",
-    "definition": "Names in Dappy are the equivalent of domain names in legacy web (DNS). When a resource is loaded, Dappy uses the following data to query the blockchain platform and check the integrity of the responses.\n\nA name is always associated with a public key, the public key allows Dappy to check that all the content received has been issued by the owner of the corresponding private key, like a SSL certificate.\n\nA name is also associated with a blockchain address, so Dappy can retreive the resource (file or other data) that is linked with the name.\n\nIf you have a dapp that is not referenced by the main dappy names record, you can ADD_ONE_LOCALLY. Of course it must not conflict with an existing name.",
-    "context": "Settings > Names > Names",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "show only names my accounts",
     "definition": "Show only the names that belong to one of my accounts",
     "context": "Settings > Names > Names",
@@ -656,22 +648,6 @@ module.exports.translations = [
     "term": "loaded at",
     "definition": "Loaded at",
     "context": "Settings > Names > Names",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "add local name",
-    "definition": "add local name",
-    "context": "Settings > Names > Add local name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "add a local name",
-    "definition": "Add a local name",
-    "context": "Settings > Names > Add local name",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -816,14 +792,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "purchase name paragraph",
-    "definition": "The first step of owning and distributing a web application or file with Dappy is to own a name.\nSimply purchase a name that is available, and link it to a file or web application you have previously uploaded on the blockchain.\n\nNo networks has been configured. A network must be configured, and have at least one node to purchase or update names.",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "password for",
     "definition": "password for",
     "context": "Settings > Names > Purchase name",
@@ -858,14 +826,6 @@ module.exports.translations = [
   {
     "term": "update a name",
     "definition": "Update a name",
-    "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "update name paragraph",
-    "definition": "After having purchased a name, you are free to edit it : the registry address can be changed, the locked attribute can be changed, and you can assign another public key to the name (give it to someone else).",
     "context": "Settings > Names > Update name",
     "term_plural": "",
     "reference": "",
@@ -930,14 +890,6 @@ module.exports.translations = [
     },
     "context": "Settings > Names > Requests",
     "term_plural": "Successes",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "add one locally",
-    "definition": "Add a local name",
-    "context": "Settings > Names (add one locally)",
-    "term_plural": "",
     "reference": "",
     "comment": ""
   },
@@ -1850,7 +1802,7 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "copy box address",
+    "term": "Copy box address",
     "definition": "Copy box address",
     "context": "Settings > Accounts",
     "term_plural": "",
@@ -2144,6 +2096,126 @@ module.exports.translations = [
     "term": "deploy contract",
     "definition": "Deploy contract",
     "context": "Deploy > Dapps",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "dappy opensource warning",
+    "definition": "This program does not interact with any private server of FABCO / DAPPY. It does not rely on any centralized service or server. The private keys are stored on your computer, and encrypted with your password. Dappy browser is open soruce but largely unaudited software. We advise you to only use secondary REV/ETH addresses with small amounts.\n\nUSE DAPPY, TRANSFER FUNDS, REFERENCE PRIVATE KEYS AND PUBLIC KEYS AT YOUR OWN RISKS.",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "purchase a name 2",
+    "definition": "Name is the core asset of the dappy ecosystem, you can use a name to reference your website on the internet network (IP application), you can point your name to a HTML file or any other file that you have uploaded on the blockchain (dapp), you can also use it to receive payments, or as a speculative asset.",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "operation on name successful",
+    "definition": "✓ Transaction was successfully sent to the blockchain. Your name should appear or be updated in thirty or fourty minutes, after the transaction is processed, and the new name indexed by network members.",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "warning wait for update",
+    "definition": "Do not try to update or purchase a name many times a day, just check the transaction status and wait.",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "you need box",
+    "definition": "You must have an account with a token box deployed to purchase a name (NFT",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "add one locally 2",
+    "definition": "Add a local name for testing",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "update name paragraph 2",
+    "definition": "The data associated to a name can be updated anytime by the owner. It can point to another file on the blockchain, or be turned from dapp to IP app and vice versa.",
+    "context": "Settings > Names > Update name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "add local name dev",
+    "definition": "Add local name (development)",
+    "context": "Settings > Names",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "purchase name fee",
+    "definition": "As of now, every names purchased from the dappy name system is subjected to a 1% fee to help grow the team and secure the platform. 99% of the REV price will go to the current name owner, 1% to the owner of the name system contract.",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "update name price",
+    "definition": "Update name price",
+    "context": "Settings > Names > Update name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name for sale",
+    "definition": "Name for sale",
+    "context": "Settings > Names > Update name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name not for sale",
+    "definition": "Name not for sale",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name price (dust)",
+    "definition": "name price (dust)",
+    "context": "Settings > Names > Update name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "update name properties",
+    "definition": "Update name properties",
+    "context": "Settings > Names > Update name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "input your password",
+    "definition": "You need to input a valid password for your account",
+    "context": "Settings > Names > Update name",
     "term_plural": "",
     "reference": "",
     "comment": ""

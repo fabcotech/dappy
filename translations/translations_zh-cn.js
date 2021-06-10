@@ -588,14 +588,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "names paragraph",
-    "definition": "Dappy中的名称与旧版Web（DNS）中的域名等效。加载资源后，Dappy使用以下数据查询区块链平台并检查响应的完整性。\n名称始终与公用密钥相关联，公用密钥允许Dappy检查接收到的所有内容是否已由相应的专用密钥的所有者发布，例如SSL证书。\n名称也与区块链地址相关联，因此Dappy可以检索与该名称链接的资源（文件或其他数据）。\n如果您的dapp没有被主dappy名称记录所引用，则可以通过“新增本地”来添加。当然，它一定不能与现有名称冲突。",
-    "context": "Settings > Names > Names",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "show only names my accounts",
     "definition": "仅显示属于我的一个帐户的名称",
     "context": "Settings > Names > Names",
@@ -649,22 +641,6 @@ module.exports.translations = [
     "term": "loaded at",
     "definition": "读取至",
     "context": "Settings > Names > Names",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "add local name",
-    "definition": "新增本地域名",
-    "context": "Settings > Names > Add local name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "add a local name",
-    "definition": "新增一个本地域名",
-    "context": "Settings > Names > Add local name",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -808,14 +784,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "purchase name paragraph",
-    "definition": "使用Dappy来拥有和分发文件或Web应用程序的第一步是拥有一个域名。\n只需购买一个可用的名称，并将其链接到您先前已在区块链上上传的文件或Web应用程序。\n\n尚未配置任何网络。 必须配置一个网络，并且至少有一个活动节点来购买或更新名称。",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "password for",
     "definition": "密码",
     "context": "Settings > Names > Purchase name",
@@ -850,14 +818,6 @@ module.exports.translations = [
   {
     "term": "update a name",
     "definition": "更新一个域名",
-    "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "update name paragraph",
-    "definition": "购买名称后，您可以自由对其进行编辑：可以更改注册表地址，可以更改lock属性，还可以为该名称分配另一个公共密钥（将其提供给其他人）。",
     "context": "Settings > Names > Update name",
     "term_plural": "",
     "reference": "",
@@ -920,14 +880,6 @@ module.exports.translations = [
     },
     "context": "Settings > Names > Requests",
     "term_plural": "Successes",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "add one locally",
-    "definition": "新增本地",
-    "context": "Settings > Names (add one locally)",
-    "term_plural": "",
     "reference": "",
     "comment": ""
   },
@@ -1739,7 +1691,7 @@ module.exports.translations = [
   },
   {
     "term": "save nodes",
-    "definition": null,
+    "definition": "保存节点",
     "context": "Settings > Network",
     "term_plural": "",
     "reference": "",
@@ -1747,7 +1699,7 @@ module.exports.translations = [
   },
   {
     "term": "deploy dapp",
-    "definition": null,
+    "definition": "部署应用",
     "context": "Deploy > Dapp",
     "term_plural": "",
     "reference": "",
@@ -1755,7 +1707,7 @@ module.exports.translations = [
   },
   {
     "term": "remove tab",
-    "definition": null,
+    "definition": "关闭选项卡",
     "context": "Tab",
     "term_plural": "",
     "reference": "",
@@ -1763,7 +1715,7 @@ module.exports.translations = [
   },
   {
     "term": "stop tab",
-    "definition": null,
+    "definition": "停止选项卡",
     "context": "Tab",
     "term_plural": "",
     "reference": "",
@@ -1771,7 +1723,7 @@ module.exports.translations = [
   },
   {
     "term": "reputation badges",
-    "definition": null,
+    "definition": "徽章",
     "context": "Settings > Names > Purchase name",
     "term_plural": "",
     "reference": "",
@@ -1797,7 +1749,7 @@ module.exports.translations = [
   },
   {
     "term": "update balances",
-    "definition": "更新金额",
+    "definition": "更新余额",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1805,7 +1757,7 @@ module.exports.translations = [
   },
   {
     "term": "record regexp",
-    "definition": "Name must starts with a letter, and contain only letters and numbers (a-z, 0-9)",
+    "definition": "名称必须以字母开头，并且只包含字母和数字（a-z，0-9）。",
     "context": "Settings > Names > Purchase name",
     "term_plural": "",
     "reference": "",
@@ -1821,7 +1773,7 @@ module.exports.translations = [
   },
   {
     "term": "save box",
-    "definition": null,
+    "definition": "安全盒",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1829,15 +1781,15 @@ module.exports.translations = [
   },
   {
     "term": "password for account",
-    "definition": null,
+    "definition": "密码帐户",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
     "comment": ""
   },
   {
-    "term": "copy box address",
-    "definition": null,
+    "term": "Copy box address",
+    "definition": "复制盒子地址",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1845,7 +1797,7 @@ module.exports.translations = [
   },
   {
     "term": "copy contract address",
-    "definition": null,
+    "definition": "复制合约地址",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1853,7 +1805,7 @@ module.exports.translations = [
   },
   {
     "term": "remove box",
-    "definition": null,
+    "definition": "移除盒子",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1862,7 +1814,7 @@ module.exports.translations = [
   {
     "term": "token box",
     "definition": {
-      "other": ""
+      "other": "代币盒子"
     },
     "context": "Settings > Accounts",
     "term_plural": "token boxes",
@@ -1871,7 +1823,7 @@ module.exports.translations = [
   },
   {
     "term": "add existing token box",
-    "definition": null,
+    "definition": "添加一个现有的代币盒",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1879,7 +1831,7 @@ module.exports.translations = [
   },
   {
     "term": "failed to deploy box",
-    "definition": null,
+    "definition": "部署盒子失败",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1887,7 +1839,7 @@ module.exports.translations = [
   },
   {
     "term": "at least one node network",
-    "definition": null,
+    "definition": "您需要连接到一个至少有一个端点可用的网络上",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1895,7 +1847,7 @@ module.exports.translations = [
   },
   {
     "term": "deploy a new token box",
-    "definition": null,
+    "definition": "部署一个新的代币盒",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1903,7 +1855,7 @@ module.exports.translations = [
   },
   {
     "term": "set main account",
-    "definition": null,
+    "definition": "将此账户设为主账户",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1911,7 +1863,7 @@ module.exports.translations = [
   },
   {
     "term": "no network cannot send revs",
-    "definition": null,
+    "definition": "没有找到网络，不能发送REVs",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1919,7 +1871,7 @@ module.exports.translations = [
   },
   {
     "term": "back to accounts",
-    "definition": null,
+    "definition": "返回账户",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1927,7 +1879,7 @@ module.exports.translations = [
   },
   {
     "term": "box definition",
-    "definition": null,
+    "definition": "一个盒子可以包含来自一个或多个合约的一个或多个钱包。一个钱包可以是一个NFT，也可以是一个代表可替换的代币，这取决于它所链接的RChain-Token合约。",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1935,7 +1887,7 @@ module.exports.translations = [
   },
   {
     "term": "box super key definition",
-    "definition": null,
+    "definition": "一个盒子可以储存超级钥匙。通常情况下，您为您部署的合约拥有一把超级钥匙，此功能使您能够创建钱包，您也可以锁定合约，使其失去这种能力。",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1943,7 +1895,7 @@ module.exports.translations = [
   },
   {
     "term": "quantity",
-    "definition": null,
+    "definition": "数量",
     "context": "Settings > Accounts , quantity of tokens in a purse",
     "term_plural": "",
     "reference": "",
@@ -1951,7 +1903,7 @@ module.exports.translations = [
   },
   {
     "term": "type",
-    "definition": null,
+    "definition": "类型",
     "context": "Settings > Accounts , type of token (gold, silver, pokemon etc.)",
     "term_plural": "",
     "reference": "",
@@ -1959,7 +1911,7 @@ module.exports.translations = [
   },
   {
     "term": "check wallets",
-    "definition": null,
+    "definition": "检查您的钱包/账户",
     "context": "Home",
     "term_plural": "",
     "reference": "",
@@ -1967,7 +1919,7 @@ module.exports.translations = [
   },
   {
     "term": "deploy ft",
-    "definition": null,
+    "definition": "部署一份可替换物品的合约（FT）",
     "context": "Home",
     "term_plural": "",
     "reference": "",
@@ -1975,7 +1927,7 @@ module.exports.translations = [
   },
   {
     "term": "deploy nft",
-    "definition": null,
+    "definition": "部署非同质化（NFT）的合同",
     "context": "Home",
     "term_plural": "",
     "reference": "",
@@ -1983,7 +1935,7 @@ module.exports.translations = [
   },
   {
     "term": "d network is live",
-    "definition": null,
+    "definition": "d 网络是可用的",
     "context": "Home",
     "term_plural": "",
     "reference": "",
@@ -1991,8 +1943,256 @@ module.exports.translations = [
   },
   {
     "term": "d network definition",
-    "definition": null,
+    "definition": "d网络是dappy的主要网络。加入互联网的未来，现在就在dappy上获得一个域名吧！",
     "context": "Home",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "copy address",
+    "definition": "复制地址",
+    "context": "Transactions",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "record length",
+    "definition": "名称长度必须在1到24之间",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name is available",
+    "definition": "域名是可用的！",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "at price",
+    "definition": "根据价格",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name is for sale",
+    "definition": "域名可以出售！",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name is not for sale",
+    "definition": "域名已被占用，不出售",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "lookup name",
+    "definition": "查询域名",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "reset",
+    "definition": "重置",
+    "context": "Settings > Names > Update name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name public key and box public key different",
+    "definition": "域名的公钥与您的账户公钥不同，交易可能会失败",
+    "context": "Settings > Names > Update name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name box address and box address different",
+    "definition": "域名盒不同于您的帐户地址，交易可能会失败",
+    "context": "Settings > Names > Update name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "contract",
+    "definition": "合约",
+    "context": "Settings > Accounts > Boxes",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "deploy ft contract",
+    "definition": "如果将创建、交易和交换的代币是可替换的，例如它们可以代表公司的股份、黄金代币、类似ERC-20的代币等，则部署一个FT合约。",
+    "context": "Deploy > Dapps",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "ft contract for tipboard",
+    "definition": "如果您想使用提示板，请部署一个FT合同。",
+    "context": "Deploy > Dapps",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "deploy nft contract",
+    "definition": "如果代币代表稀缺的对象，如电影院中的特定座位、视频游戏中的稀缺物品，或域名系统（如dappy名字系统）中的稀缺域名等，则部署NFT合约。",
+    "context": "Deploy > Dapps",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "rchain token nft",
+    "definition": "RChain代币，用于非同质代币（NFT）",
+    "context": "Deploy > Dapps",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "rchain token ft",
+    "definition": "可替换代币的RChain代币",
+    "context": "Deploy > Dapps",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "deploy contract",
+    "definition": "部署合同",
+    "context": "Deploy > Dapps",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "dappy opensource warning",
+    "definition": "这个程序不与FABCO / DAPPY的任何私人服务器互动。它不依赖于任何中心化的服务或服务器。私钥存储在您的计算机上，并以您的密码加密。Dappy浏览器是开放的soruce，但基本上不受审计的软件。我们建议您只使用不重要的REV/ETH地址和小金额的账户。\n\n使用Dappy，转移资金，参考私钥和公钥，风险自负。",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "purchase a name 2",
+    "definition": "域名是dappy生态系统的核心资产，您可以用一个域名来引用您在互联网网络上的网站（IP应用），您可以把您的域名指向一个HTML文件或您在区块链（dapp）上上传的任何其他文件，您也可以用它来接收付款，或作为一种投机资产。",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "operation on name successful",
+    "definition": "✓ 交易已成功发送至区块链。在交易处理完毕后，您的域名应该在三十或四十分钟内出现或被更新，新的域名被网络成员索引。",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "warning wait for update",
+    "definition": "不要多次尝试更新或购买域名在同一天，只需检查交易状态并等待。",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "you need box",
+    "definition": "您必须有一个部署了代币盒的账户，才能购买一个域名（NFT",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "add one locally 2",
+    "definition": "添加一个用于测试的本地域名",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "update name paragraph 2",
+    "definition": "与一个域名相关的数据可以由所有者随时更新。它可以指向区块链上的另一个文件，或者从dapp变成IP应用，反之亦然。",
+    "context": "Settings > Names > Update name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "add local name dev",
+    "definition": "添加本地域名（开发）",
+    "context": "Settings > Names",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "purchase name fee",
+    "definition": "截至目前，从dappy域名系统购买的每个域名都要收取1%的费用，以帮助团队发展和确保平台安全。REV价格的99%将归属于当前的域名所有者，1%归属于域名系统合约的所有者。",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "update name price",
+    "definition": null,
+    "context": "Settings > Names > Update name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name for sale",
+    "definition": null,
+    "context": "Settings > Names > Update name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name not for sale",
+    "definition": null,
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name price (dust)",
+    "definition": null,
+    "context": "Settings > Names > Update name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "update name properties",
+    "definition": null,
+    "context": "Settings > Names > Update name",
     "term_plural": "",
     "reference": "",
     "comment": ""
