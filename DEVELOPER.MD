@@ -109,8 +109,7 @@ npm run build
 npm run build:main
 npm run build:dapp-sandboxed
 
-git add dist/*
-git add main.js
+git add main.js dist/*
 ```
 
 #### Register new release to sentry
