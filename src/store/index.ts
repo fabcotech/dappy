@@ -196,7 +196,7 @@ dbReq.onupgradeneeded = event => {
       const b = db.createObjectStore('cookies', { keyPath: 'dappyDomain' });
       console.log(a);
       console.log(b);
-      console.log('Migration from cookies.address to cookies.dappyDomain ok')
+      console.log('[migration] Migration from cookies.address to cookies.dappyDomain ok')
     }
   } else {
     db.createObjectStore('cookies', { keyPath: 'dappyDomain' });
@@ -384,8 +384,8 @@ dbReq.onsuccess = event => {
       })
       .catch(e => {
         asyncActionsOver += 1;
-        if (VERSION === "0.4.0") {
-          console.log('ignoring failed to load cookies from storage')
+        if (VERSION === "0.4.2") {
+          console.log('[migration] ignoring failed to load cookies from storage')
           console.log(cookiesToCheck.map(c => c.address))
           browserUtils.deleteStorageIndexed("cookies", cookiesToCheck.map(c => c.address))
         } else {
@@ -465,6 +465,25 @@ dbReq.onsuccess = event => {
   const requestRecords = recordsStore.getAll();
   requestRecords.onsuccess = e => {
     let records = requestRecords.result;
+    const recordsWithoutBox = records.filter(r => {
+      return typeof r.box !== "string";
+    });
+    if (recordsWithoutBox.length) {
+      console.log(`[migration] found ${recordsWithoutBox.length} records with no .box property, removing them now`);
+      browserUtils.deleteStorageIndexed('records', recordsWithoutBox.map(r => r.name))
+        .then(a => {
+          console.log('[migration] successfully deleted invalid records');
+        })
+        .catch(err => {
+          store.dispatch(
+            fromMain.saveErrorAction({
+              errorCode: 2049,
+              error: 'Could not delete invalid records from storage',
+              trace: err,
+            })
+          );
+        });
+    }
     records = records.map(r => {
       if (r.nonce) {
         const newR = { ...r };
@@ -472,7 +491,10 @@ dbReq.onsuccess = event => {
         return newR;
       }
       return r;
-    })
+    }).filter(r => {
+      return typeof r.box === "string"
+    });
+
     validateRecords(records)
       .then(() => {
         asyncActionsOver += 1;
@@ -589,8 +611,8 @@ dbReq.onsuccess = event => {
       })
       .catch(err => {
         asyncActionsOver += 1;
-        if (VERSION === "0.4.0") {
-          console.log('Ignoring failed validation of RChain infos from storage, version 0.4.0');
+        if (VERSION === "0.4.2") {
+          console.log('[migration] Ignoring failed validation of RChain infos from storage, version 0.4.2');
           rchainInfos.forEach(ri => {
             browserUtils.removeInStorage("rchainInfos", ri.chainId)
           })

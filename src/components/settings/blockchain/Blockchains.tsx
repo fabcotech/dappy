@@ -395,26 +395,28 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                   {selectedBlockchain.chainName}
                 </h3>
                 <table className="network-variables">
-                  <tr>
-                    <td>{t('rchain network')}</td>
-                    <td>{rchainInfo ? rchainInfo.rchainNetwork : 'unknown'}</td>
-                  </tr>
-                  <tr>
-                    <td>{t('last known block height')}</td>
-                    <td>{rchainInfo ? rchainInfo.lastFinalizedBlockNumber : 'unknown'}</td>
-                  </tr>
-                  <tr>
-                    <td>{t('name price')}</td>
-                    <td>{rchainInfo ? `${rchainInfo.namePrice / 100000000} REVs` : 'unknown'}</td>
-                  </tr>
-                  <tr>
-                    <td>{t('name system master registry uri')}</td>
-                    <td>{rchainInfo ? rchainInfo.rchainNamesMasterRegistryUri : 'unknown'}</td>
-                  </tr>
-                  <tr>
-                    <td>{t('name system contract id')}</td>
-                    <td>{rchainInfo ? rchainInfo.rchainNamesContractId : 'unknown'}</td>
-                  </tr>
+                  <tbody>
+                    <tr>
+                      <td>{t('rchain network')}</td>
+                      <td>{rchainInfo ? rchainInfo.rchainNetwork : 'unknown'}</td>
+                    </tr>
+                    <tr>
+                      <td>{t('last known block height')}</td>
+                      <td>{rchainInfo ? rchainInfo.lastFinalizedBlockNumber : 'unknown'}</td>
+                    </tr>
+                    <tr>
+                      <td>{t('name price')}</td>
+                      <td>{rchainInfo ? `${rchainInfo.namePrice / 100000000} REVs` : 'unknown'}</td>
+                    </tr>
+                    <tr>
+                      <td>{t('name system master registry uri')}</td>
+                      <td>{rchainInfo ? rchainInfo.rchainNamesMasterRegistryUri : 'unknown'}</td>
+                    </tr>
+                    <tr>
+                      <td>{t('name system contract id')}</td>
+                      <td>{rchainInfo ? rchainInfo.rchainNamesContractId : 'unknown'}</td>
+                    </tr>
+                  </tbody>
                 </table>
                 {this.props.namesBlockchain && this.props.namesBlockchain.chainId === selectedBlockchain.chainId ? (
                   <div>
