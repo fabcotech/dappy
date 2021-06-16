@@ -220,7 +220,16 @@ setInterval(() => {
   console.log('IndexedDB reload: closing connection');
   try {
     opennedDB.close();
-  } catch (e) {}
+  } catch (e) {
+    console.log(e);
+    store.dispatch(
+      fromMain.saveErrorAction({
+        errorCode: 2059,
+        error: 'Error closing IndexedDB',
+        trace: e
+      })
+    )
+  }
   setTimeout(() => {
     const a = window.indexedDB.open('dappy', DB_MIGRATION_NUMBER);
     a.onsuccess = event => {
