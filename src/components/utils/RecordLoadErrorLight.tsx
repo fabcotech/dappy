@@ -4,9 +4,20 @@ import { BeesLoadError } from 'beesjs';
 import { LoadRecordsError } from '../../models';
 
 export function RecordLoadErrorLight(props: { loadError: LoadRecordsError; instance: string }) {
-  const loadStatesNumber = Object.keys(props.loadError.loadState).length;
+  let couldNotGetLoadState = false;
+  let loadStatesNumber;
+  try {
+    loadStatesNumber = Object.keys(props.loadError.loadState).length;
+  } catch (e) {
+    couldNotGetLoadState = true;
+  }
+
+  if (couldNotGetLoadState) {
+    return <span>{props.loadError.error.error}</span>;
+  }
+
   let nodeUrlsReached = 0;
-  Object.keys(props.loadError.loadState).forEach(k => {
+  Object.keys(props.loadError.loadState).forEach((k) => {
     nodeUrlsReached += props.loadError.loadState[k].nodeUrls.length;
   });
   if (loadStatesNumber === 0) {

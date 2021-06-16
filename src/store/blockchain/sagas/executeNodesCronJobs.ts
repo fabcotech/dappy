@@ -114,7 +114,12 @@ const executeNodesCronJobs = function* (action: Action) {
             loadState: err.loadState,
             date: new Date().toISOString(),
             time: u,
-            error: err.error,
+            error: err.error
+              ? err.error
+              : {
+                  error: BeesLoadError.FailedToParseResponse,
+                  args: {},
+                },
           })
         );
       });
