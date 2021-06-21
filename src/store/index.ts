@@ -215,6 +215,34 @@ const registerIDBOpenDBRequestErrorListener = (idbOpenRequest: IDBOpenDBRequest)
   };
 }
 
+export const openConnection = () => {
+  return new Promise<void>((resolve, reject) => {
+    const a = window.indexedDB.open('dappy', DB_MIGRATION_NUMBER);
+    a.onerror = event => {
+      console.log('IndexedDB open: error');
+      store.dispatch(
+        fromMain.saveErrorAction({
+          errorCode: 2060,
+          error: 'Error opening IndexedDB',
+          trace: event
+        })
+      );
+      reject(event)
+    }
+    a.onsuccess = event => {
+      console.log('IndexedDB open: successful');
+      db = ((event.target as any).result) as IDBDatabase;
+      registerIDBOpenDBRequestErrorListener(a);
+      resolve();
+    }
+  })
+}
+
+/*
+  Is this setInterval to close/reopen connection still
+  useful ? browser-utils reopens connection in case the
+  transaction to indexedDB fails
+*/
 setInterval(() => {
   const opennedDB = getDb();
   console.log('IndexedDB reload: closing connection');
@@ -230,14 +258,7 @@ setInterval(() => {
       })
     )
   }
-  setTimeout(() => {
-    const a = window.indexedDB.open('dappy', DB_MIGRATION_NUMBER);
-    a.onsuccess = event => {
-      console.log('IndexedDB reload: successful');
-      db = ((event.target as any).result) as IDBDatabase;
-    }
-    registerIDBOpenDBRequestErrorListener(a);
-  }, 100)
+  setTimeout(openConnection, 100);
 }, RELOAD_INDEXEDDB_PERIOD);
 
 let asyncActionsOver = 0;

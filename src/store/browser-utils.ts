@@ -1,15 +1,19 @@
-import { getDb } from './index';
+import { getDb, openConnection } from './index';
 
 export const browserUtils = {
   deleteStorageIndexed: (
     key: 'previews' | 'tabs' | 'transactions' | 'blockchains' | 'records' | 'accounts' | 'cookies',
     value: string[]
   ) => {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       let i = 0;
       const doOperation = () => {
         try {
-          if (!['previews', 'tabs', 'blockchains', 'records', 'accounts', 'transactions', 'cookies'].find((k) => k === key)) {
+          if (
+            !['previews', 'tabs', 'blockchains', 'records', 'accounts', 'transactions', 'cookies'].find(
+              (k) => k === key
+            )
+          ) {
             i = 3;
             reject('Unknown db key ' + key);
           }
@@ -21,6 +25,11 @@ export const browserUtils = {
           resolve();
         } catch (e) {
           console.log(e);
+          try {
+            openConnection();
+          } catch (e2) {
+            console.log(e2);
+          }
           if (i < 3) {
             i += 1;
             console.log('indexedDB error, will retry in 1 second');
@@ -38,7 +47,7 @@ export const browserUtils = {
     key: 'previews' | 'tabs' | 'blockchains' | 'records' | 'accounts' | 'transactions' | 'cookies',
     value: { [id: string]: any }
   ) => {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       let i = 0;
       const doOperation = () => {
         try {
@@ -59,6 +68,11 @@ export const browserUtils = {
           resolve();
         } catch (e) {
           console.log(e);
+          try {
+            openConnection();
+          } catch (e2) {
+            console.log(e2);
+          }
           if (i < 3) {
             i += 1;
             console.log('indexedDB error, will retry in 1 second');
@@ -73,7 +87,7 @@ export const browserUtils = {
   },
 
   saveStorage: (key: string, value: any, autoIndexed = false) => {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       let i = 0;
       const doOperation = () => {
         try {
@@ -91,6 +105,11 @@ export const browserUtils = {
           resolve();
         } catch (e) {
           console.log(e);
+          try {
+            openConnection();
+          } catch (e2) {
+            console.log(e2);
+          }
           if (i < 3) {
             i += 1;
             console.log('indexedDB error, will retry in 1 second');
@@ -105,7 +124,7 @@ export const browserUtils = {
   },
 
   removeInStorage: (key: string, index: string | number) => {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       let i = 0;
       const doOperation = () => {
         try {
@@ -127,6 +146,11 @@ export const browserUtils = {
           resolve();
         } catch (e) {
           console.log(e);
+          try {
+            openConnection();
+          } catch (e2) {
+            console.log(e2);
+          }
           if (i < 3) {
             i += 1;
             console.log('indexedDB error, will retry in 1 second');
