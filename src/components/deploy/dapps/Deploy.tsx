@@ -150,8 +150,8 @@ export class Deploy extends React.Component<DeployProps, {}> {
 
     let validAfterBlockNumber = 0;
     if (this.props.rchainInfos && this.props.rchainInfos[(this.props.namesBlockchain as Blockchain).chainId]) {
-      validAfterBlockNumber = this.props.rchainInfos[(this.props.namesBlockchain as Blockchain).chainId].info
-        .lastFinalizedBlockNumber;
+      validAfterBlockNumber =
+        this.props.rchainInfos[(this.props.namesBlockchain as Blockchain).chainId].info.lastFinalizedBlockNumber;
     }
 
     const deployOptions = blockchainUtils.rchain.getDeployOptions(
@@ -265,9 +265,17 @@ export class Deploy extends React.Component<DeployProps, {}> {
       return (
         <div>
           <h3 className="subtitle is-4">Deploy</h3>
+          <p>{t('no networks')}</p>
+        </div>
+      );
+    }
+
+    if (!this.props.rchainInfos[this.props.namesBlockchain.chainId]) {
+      return (
+        <div>
+          <h3 className="subtitle is-4">Deploy</h3>
           <p>
-            No networks has been configured. A network must be configured, and have at least one active node to deploy
-            dapps.
+            {t('infos not retrieved')} {this.props.namesBlockchain.chainId} {t('wait for synchronization')}
           </p>
         </div>
       );
@@ -277,10 +285,7 @@ export class Deploy extends React.Component<DeployProps, {}> {
       return (
         <div>
           <h3 className="subtitle is-4">Deploy</h3>
-          <p>
-            There is no token boxes linked to your account, please deploy or link an existing box contract to your
-            account.
-          </p>
+          <p>{t('no boxes')}</p>
           <a onClick={() => this.props.navigate({ navigationUrl: '/accounts' })}>Go to accounts</a>
         </div>
       );
@@ -298,8 +303,7 @@ export class Deploy extends React.Component<DeployProps, {}> {
       });
       this.props.openModal({
         title: 'Contract successfully deployed',
-        text:
-          'The transaction has been successfully sent to the network, check the transactions list, the address of the contract will be available soon.',
+        text: t('transaction successful'),
         buttons: [
           {
             classNames: 'is-link',
@@ -332,19 +336,6 @@ export class Deploy extends React.Component<DeployProps, {}> {
       );
     }
 
-    /* if (this.state.step === 2) {
-      return (
-        <div>
-          <h3 className="subtitle is-4">{t('deploy (step 2)')}</h3>
-          <VariablesForm
-            back={this.onBackToStep1}
-            variables={this.state.variables as Variables}
-            filledVariablesData={this.onFilledVariablesData}
-          />
-        </div>
-      );
-    } */
-
     return (
       <div className="deploy-contract-form">
         <h3 className="subtitle is-4">{t('deploy (step 2)')}</h3>
@@ -355,13 +346,18 @@ export class Deploy extends React.Component<DeployProps, {}> {
           <div
             className={`term rchain-token-fungible ${this.state.selected === 'ft' ? 'selected' : ''}`}
             onClick={() => {
-              this.onChoseTerm(deployTerm({ 
-                masterRegistryUri: this.props.rchainInfos[(this.props.namesBlockchain as Blockchain).chainId].info.rchainNamesMasterRegistryUri,
-                boxId: this.state.box,
-                fungible: true,
-                contractId: 'contract' + new Date().getTime().toString().slice(7),
-                fee: null,
-              }), 'ft')
+              this.onChoseTerm(
+                deployTerm({
+                  masterRegistryUri:
+                    this.props.rchainInfos[(this.props.namesBlockchain as Blockchain).chainId].info
+                      .rchainNamesMasterRegistryUri,
+                  boxId: this.state.box,
+                  fungible: true,
+                  contractId: 'contract' + new Date().getTime().toString().slice(7),
+                  fee: null,
+                }),
+                'ft'
+              );
             }}>
             <span className="term-title">{t('rchain token ft')}</span>
             <p className="pt5">
@@ -374,13 +370,18 @@ export class Deploy extends React.Component<DeployProps, {}> {
           <div
             className={`term rchain-token-non-fungible ${this.state.selected === 'nft' ? 'selected' : ''}`}
             onClick={() => {
-              this.onChoseTerm(deployTerm({ 
-                masterRegistryUri: this.props.rchainInfos[(this.props.namesBlockchain as Blockchain).chainId].info.rchainNamesMasterRegistryUri,
-                boxId: this.state.box,
-                fungible: false,
-                contractId: 'contract' + new Date().getTime().toString().slice(7),
-                fee: null,
-              }), 'nft')
+              this.onChoseTerm(
+                deployTerm({
+                  masterRegistryUri:
+                    this.props.rchainInfos[(this.props.namesBlockchain as Blockchain).chainId].info
+                      .rchainNamesMasterRegistryUri,
+                  boxId: this.state.box,
+                  fungible: false,
+                  contractId: 'contract' + new Date().getTime().toString().slice(7),
+                  fee: null,
+                }),
+                'nft'
+              );
             }}>
             <span className="term-title">{t('rchain token nft')}</span>
             <p className="pt5">{t('deploy nft contract')}</p>

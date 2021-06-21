@@ -233,8 +233,7 @@ export class FileUploadComponent extends React.Component<FileUploadProps, {}> {
       });
       this.props.openModal({
         title: 'File successfully uploaded',
-        text:
-          'The transaction has been successfully sent to the network, you will be notified when the file has been added to the blockchain and is ready to be shared',
+        text: t('transaction successful'),
         buttons: [
           {
             classNames: 'is-link',

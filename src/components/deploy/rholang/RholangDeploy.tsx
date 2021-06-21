@@ -305,7 +305,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
       }
       this.props.openModal({
         title: 'Rholang successfully deployed',
-        text: 'The transaction has been successfully sent to the network',
+        text: t('transaction successful'),
         buttons: [
           {
             classNames: 'is-link',

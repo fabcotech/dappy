@@ -101,16 +101,15 @@ const sendRChainTransaction = function* (action: Action) {
     }
 
     if (payload.alert) {
-      let message = 'The transaction has been successfully sent to the network';
+      let message = t('transaction successful');
       if (payload.origin.origin === 'transfer') {
-        message =
-          'The transaction has been successfully sent to the network. Your balance should update after few minutes.';
+        message = t('transaction successful rev');
       } else if (payload.origin.origin === 'rchain-token' && payload.origin.operation === 'deploy-box') {
-        message = 'Box has been deployed. Please do not quit, your account should update after few minutes.';
+        message = t('transaction successful box');
       }
       yield put(
         fromMain.openModalAction({
-          title: 'Transaction successful',
+          title: t('just transaction successful'),
           text: message,
           buttons: [
             {

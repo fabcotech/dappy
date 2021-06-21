@@ -13,8 +13,7 @@ export const LOGREV_TO_REV_RATE = 100000000;
 
 export const VERSION = '0.4.2';
 
-export const RCHAIN_TOKEN_VERSION = '6.0.0';
-export const RCHAIN_TOKEN_SUPPORTED_VERSIONS = ['6.0.0'];
+export const RCHAIN_TOKEN_SUPPORTED_VERSIONS = ['6.0.0', '6.0.1'];
 
 export const MAIN_CHAIN_ID = 'd';
 export const CHAIN_IDS: { [chainId: string]: { name: string; platform: 'rchain' } } = {

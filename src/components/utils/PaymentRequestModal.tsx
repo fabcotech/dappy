@@ -262,7 +262,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
     }
 
     if (this.props.modal.text.startsWith('tip')) {
-      klasses += ' tip-modal'
+      klasses += ' tip-modal';
     }
 
     if (!this.props.modal.parameters) {
@@ -288,7 +288,12 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
       Title = () => <span>{t('dapp requests payment')}</span>;
     } else if (this.props.modal.text && this.props.modal.text.startsWith('tip')) {
       const t = this.props.modal.text;
-      Title = () => <span><i className="fa fa-before fa-money-bill-wave"></i>{t}</span>;
+      Title = () => (
+        <span>
+          <i className="fa fa-before fa-money-bill-wave"></i>
+          {t}
+        </span>
+      );
     }
 
     return (
