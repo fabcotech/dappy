@@ -7,9 +7,12 @@ Dappy is a no-DNS and no-CAs web browser, it works hand in hand with a blockchai
 The main features dappy includes are:
 - Decentralized name system on the blockchain, independant of the DNS and certificate authorities.
 - HTTPS only: HTTP + TLS encryption.
-- Secure javascript execution without any network access by default/
+- Secure javascript execution without any network access by default.
 - The dappy network as a source of authority, "à la place" of regular web centralized services.
-- Dapps: 100% blockchain, no-server remote web applications.
+
+Two types of applications exist on dappy, both of them also have extended micropayment, tipping and defi capabilities:
+- Dapps: 100% blockchain hosted, no-server web applications.
+- IP apps: HTTPS only websites that use the dappy name system instead of the DNS.
 
 Read more on [https://dappy.tech](https://dappy.tech).
 

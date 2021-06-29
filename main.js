@@ -283,8 +283,8 @@ var getBrowserViewsMainState = lib_4(function (state) { return state; }, functio
 var getBrowserViewsMain = lib_4(getBrowserViewsMainState, function (state) { return state.browserViews; });
 var getBrowserViewsPositionMain = lib_4(getBrowserViewsMainState, function (state) { return state.position; });
 
+var WS_PAYLOAD_PAX_SIZE = 512000; // bits
 var WS_RECONNECT_PERIOD = 10000;
-var WS_PAYLOAD_PAX_SIZE = 256000; // bits
 
 var LOAD_RESOURCE = '[Dapps] Load resource';
 var UPDATE_TRANSITORY_STATE = '[Dapps] Update transitory state';
@@ -478,85 +478,11 @@ in {
   !!! make sure your processes do not contain the string "£$£$", or the bytes c2a324c2a324, those are used as delimiters
 */
 
-new MakeNode, ByteArrayToNybbleList,
-    TreeHashMapSetter, TreeHashMapSetterBytes, TreeHashMapGetter, TreeHashMapContains, TreeHashMapUpdater, HowManyPrefixes, NybbleListForI, RemoveBytesSectionIfExistsCh, keccak256Hash(\`rho:crypto:keccak256Hash\`),
-    powersCh, storeToken, nodeGet in {
-  match ([1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,655256], ["00","01","02","03","04","05","06","07","08","09","0a","0b","0c","0d","0e","0f","10","11","12","13","14","15","16","17","18","19","1a","1b","1c","1d","1e","1f","20","21","22","23","24","25","26","27","28","29","2a","2b","2c","2d","2e","2f","30","31","32","33","34","35","36","37","38","39","3a","3b","3c","3d","3e","3f","40","41","42","43","44","45","46","47","48","49","4a","4b","4c","4d","4e","4f","50","51","52","53","54","55","56","57","58","59","5a","5b","5c","5d","5e","5f","60","61","62","63","64","65","66","67","68","69","6a","6b","6c","6d","6e","6f","70","71","72","73","74","75","76","77","78","79","7a","7b","7c","7d","7e","7f","80","81","82","83","84","85","86","87","88","89","8a","8b","8c","8d","8e","8f","90","91","92","93","94","95","96","97","98","99","9a","9b","9c","9d","9e","9f","a0","a1","a2","a3","a4","a5","a6","a7","a8","a9","aa","ab","ac","ad","ae","af","b0","b1","b2","b3","b4","b5","b6","b7","b8","b9","ba","bb","bc","bd","be","bf","c0","c1","c2","c3","c4","c5","c6","c7","c8","c9","ca","cb","cc","cd","ce","cf","d0","d1","d2","d3","d4","d5","d6","d7","d8","d9","da","db","dc","dd","de","df","e0","e1","e2","e3","e4","e5","e6","e7","e8","e9","ea","eb","ec","ed","ee","ef","f0","f1","f2","f3","f4","f5","f6","f7","f8","f9","fa","fb","fc","fd","fe","ff"], 12, "£$£$£$£$".toByteArray().slice(4, 16), "£$£$£$£$".toByteArray().slice(4, 10)) {
-    (powers, hexas, base, delimiter, insideDelimiter) => {
+new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, HowManyPrefixes, NybbleListForI, RemoveBytesSectionIfExistsCh, keccak256Hash(\`rho:crypto:keccak256Hash\`), powersCh, storeToken, nodeGet in {
+  match ([1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,32768,655256], ["00","01","02","03","04","05","06","07","08","09","0a","0b","0c","0d","0e","0f","10","11","12","13","14","15","16","17","18","19","1a","1b","1c","1d","1e","1f","20","21","22","23","24","25","26","27","28","29","2a","2b","2c","2d","2e","2f","30","31","32","33","34","35","36","37","38","39","3a","3b","3c","3d","3e","3f","40","41","42","43","44","45","46","47","48","49","4a","4b","4c","4d","4e","4f","50","51","52","53","54","55","56","57","58","59","5a","5b","5c","5d","5e","5f","60","61","62","63","64","65","66","67","68","69","6a","6b","6c","6d","6e","6f","70","71","72","73","74","75","76","77","78","79","7a","7b","7c","7d","7e","7f","80","81","82","83","84","85","86","87","88","89","8a","8b","8c","8d","8e","8f","90","91","92","93","94","95","96","97","98","99","9a","9b","9c","9d","9e","9f","a0","a1","a2","a3","a4","a5","a6","a7","a8","a9","aa","ab","ac","ad","ae","af","b0","b1","b2","b3","b4","b5","b6","b7","b8","b9","ba","bb","bc","bd","be","bf","c0","c1","c2","c3","c4","c5","c6","c7","c8","c9","ca","cb","cc","cd","ce","cf","d0","d1","d2","d3","d4","d5","d6","d7","d8","d9","da","db","dc","dd","de","df","e0","e1","e2","e3","e4","e5","e6","e7","e8","e9","ea","eb","ec","ed","ee","ef","f0","f1","f2","f3","f4","f5","f6","f7","f8","f9","fa","fb","fc","fd","fe","ff"], 12) {
+    (powers, hexas, base) => {
       contract MakeNode(@initVal, @node) = {
         @[node, *storeToken]!(initVal)
-      } |
-
-
-      /*
-        delimiter between sections is £$£$£$£$ , length of delimiter is 12
-        the hex representation of delimiter is c2a324c2a324c2a324c2a324
-        "£$£$£$£$".toByteArray().slice(4, 16) == c2a324c2a324c2a324c2a324
-        
-        inside delimiter is £$£$ = c2a324c2a324
-
-        The byte array has the following format (without bracket):
-        c2a324c2a324c2a324c2a324[suffix]c2a324c2a324[value as byte array]c2a324c2a324c2a324c2a324[suffix2]c2a324c2a324[value 2 as byte array] etc.
-      */
-      contract RemoveBytesSectionIfExistsCh(@suffix, @ba, @ret) = {
-        new itCh1, itCh2, removeSectionCh, indexesCh in {
-          if (ba == Nil) {
-            @ret!(Nil)
-          } else {
-            itCh1!(0) |
-            indexesCh!([])
-          } |
-          for (@i <= itCh1) {
-            if (ba.slice(i, i + 12) == delimiter) {
-              if (i == ba.length() - 12) {
-                for (@indexes <- indexesCh) {
-                  removeSectionCh!(indexes ++ [i])
-                }
-              } else {
-                for (@indexes <- indexesCh) {
-                  indexesCh!(indexes ++ [i]) |
-                  itCh1!(i + 1)
-                }
-              }
-            } else {
-              if (i == ba.length() - 12) {
-                for (@indexes <- indexesCh) {
-                  removeSectionCh!(indexes)
-                }
-              } else {
-                itCh1!(i + 1)
-              }
-            }
-          } |
-          for (@indexes <- removeSectionCh) {
-            for (@i <= itCh2) {
-              // check if there is an index for i
-              if (indexes.length() == i) {
-                @ret!(ba)
-              } else {
-                if (ba.length() > indexes.nth(i) + suffix.length() + 12) {
-                  if (ba.slice(indexes.nth(i) + 12, indexes.nth(i) + 12 + suffix.length()) == suffix) {
-                    if (indexes.length() - 1 == i) {
-                      // only one entry in ba, cannot slice(0,0), send Nil
-                      if (indexes.length() > 1) {
-                        @ret!(ba.slice(0, indexes.nth(i)))
-                      } else {
-                        @ret!(Nil)
-                      }
-                    } else {
-                      @ret!(ba.slice(0, indexes.nth(i)) ++ ba.slice(indexes.nth(i + 1), ba.length()))
-                    }
-                  } else {
-                    itCh2!(i + 1)
-                  }
-                } else {
-                  @ret!(ba)
-                }
-              }
-            } |
-            itCh2!(0)
-          }
-        }
       } |
 
       contract nodeGet(@node, ret) = {
@@ -665,22 +591,6 @@ new MakeNode, ByteArrayToNybbleList,
         }
       } |
   
-      contract TreeHashMap(@"remove", @map, @key, ret) = {
-        new hashCh, nybListCh in {
-          // Hash the key to get a 256-bit array
-          keccak256Hash!(key.toByteArray(), *hashCh) |
-          for (@hash <- hashCh) {
-            for (@depth <<- @(map, "depth")) {
-              // Get the bit list
-              ByteArrayToNybbleList!(hash, 0, depth, [], *nybListCh) |
-              for (@nybList <- nybListCh) {
-                TreeHashMapGetter!(map, nybList, 0,  depth, hash.slice(depth, 32), *ret)
-              }
-            }
-          }
-        }
-      } |
-
       contract TreeHashMap(@"getAllValues", @map, ret) = {
         new hashCh, resultCh, howManyPrefixesCh, iterateOnPrefixesCh, nybListCh in {
           HowManyPrefixes!(map, *howManyPrefixesCh) |
@@ -764,116 +674,6 @@ new MakeNode, ByteArrayToNybbleList,
                 } |
 
                 iterateOnPrefixesCh!()
-              }
-            }
-          }
-        }
-      } |
-
-      // Doesn't walk the path, just tries to fetch it directly.
-      // Will hang if there's no key with that 64-bit prefix.
-      // Returns Nil like "get" does if there is some other key with
-      // the same prefix but no value there.
-      contract TreeHashMap(@"fastUnsafeGet", @map, @key, ret) = {
-        new hashCh, nybListCh in {
-          // Hash the key to get a 256-bit array
-          keccak256Hash!(key.toByteArray(), *hashCh) |
-          for (@hash <- hashCh) {
-            for(@depth <<- @(map, "depth")) {
-              // Get the bit list
-              ByteArrayToNybbleList!(hash, 0, depth, [], *nybListCh) |
-              for (@nybList <- nybListCh) {
-                new restCh, valCh in {
-                  nodeGet!((map, nybList), *restCh) |
-                  for (@rest <- restCh) {
-                    ret!(rest.get(hash.slice(depth, 32)))
-                  }
-                }
-              }
-            }
-          }
-        }
-      } |
-
-      contract TreeHashMapSetterBytes(@channel, @nybList, @n, @len, @newVal, @suffix, ret) = {
-        // channel is either map or (map, "bytes")
-        // Look up the value of the node at (channel, nybList.slice(0, n + 1))
-        new valCh, restCh, retRemoveCh in {
-          match (channel, nybList.slice(0, n)) {
-            node => {
-              for (@val <<- @[node, *storeToken]) {
-                if (n == len) {
-                  // Acquire the lock on this node
-                  for (@val <- @[node, *storeToken]) {
-                    // If we're at the end of the path, set the node to newVal.
-                    if (val == 0) {
-                      // Release the lock
-                      @[node, *storeToken]!(delimiter ++ suffix ++ insideDelimiter ++ newVal.toByteArray()) |
-                      // Return
-                      ret!(Nil)
-                    }
-                    else {
-                      // Release the lock
-                      if (newVal == Nil) {
-                        RemoveBytesSectionIfExistsCh!(suffix, val, *retRemoveCh) |
-                        for (@bytes <- retRemoveCh) {
-                          @[node, *storeToken]!(bytes) |
-                          ret!(Nil)
-                        }
-                        // Return
-                      } else {
-                        RemoveBytesSectionIfExistsCh!(suffix, val, *retRemoveCh) |
-                        for (@bytes <- retRemoveCh) {
-                          // check if empty
-                          if (bytes == Nil) {
-                            @[node, *storeToken]!(delimiter ++ suffix ++ insideDelimiter ++ newVal.toByteArray()) |
-                            ret!(Nil)
-                          } else {
-                            @[node, *storeToken]!(bytes ++ delimiter ++ suffix ++ insideDelimiter ++ newVal.toByteArray()) |
-                            ret!(Nil)
-                          }
-                        }
-                      }
-                    }
-                  }
-                } else {
-                  // Otherwise make the rest of the path exist.
-                  // Bit k set means child node k exists.
-                  if ((val/powers.nth(nybList.nth(n))) % 2 == 0) {
-                    // Child node missing
-                    // Acquire the lock
-                    for (@val <- @[node, *storeToken]) {
-                      // Re-test value
-                      if ((val/powers.nth(nybList.nth(n))) % 2 == 0) {
-                        // Child node still missing
-                        // Create node, set node to 0
-                        MakeNode!(0, (channel, nybList.slice(0, n + 1))) |
-                        // Update current node to val | (1 << nybList.nth(n))
-                        match nybList.nth(n) {
-                          bit => {
-                            // val | (1 << bit)
-                            // Bitwise operators would be really nice to have!
-                            // Release the lock
-                            @[node, *storeToken]!((val % powers.nth(bit)) +
-                              (val / powers.nth(bit + 1)) * powers.nth(bit + 1) +
-                              powers.nth(bit))
-                          }
-                        } |
-                        // Child node now exists, loop
-                        TreeHashMapSetterBytes!(channel, nybList, n + 1, len, newVal, suffix, *ret)
-                      } else {
-                        // Child node created between reads
-                        // Release lock
-                        @[node, *storeToken]!(val) |
-                        // Loop
-                        TreeHashMapSetterBytes!(channel, nybList, n + 1, len, newVal, suffix, *ret)
-                      }
-                    }
-                  } else {
-                    // Child node exists, loop
-                    TreeHashMapSetterBytes!(channel, nybList, n + 1, len, newVal, suffix, *ret)
-                  }
-                }
               }
             }
           }
@@ -967,15 +767,9 @@ new MakeNode, ByteArrayToNybbleList,
                   if (alsoStoreAsBytes == true) {
                     new ret1, ret2 in {
                       if (newVal == Nil) {
-                        // store-as-bytes-map
                         TreeHashMapSetter!((map, "bytes"), nybList, 0,  depth, Nil, hash.slice(depth, 32), *ret2)
-                        // store-as-bytes-array
-                        /* TreeHashMapSetterBytes!((map, "bytes"), nybList, 0,  depth, Nil, hash.slice(depth, 32), *ret2) */
                       } else {
-                        // store-as-bytes-map
                         TreeHashMapSetter!((map, "bytes"), nybList, 0,  depth, newVal.toByteArray(), hash.slice(depth, 32), *ret2)
-                        // store-as-bytes-array
-                        /* TreeHashMapSetterBytes!((map, "bytes"), nybList, 0,  depth, newVal, hash.slice(depth, 32), *ret2) */
                       } |
                       TreeHashMapSetter!(map, nybList, 0, depth, newVal, hash.slice(depth, 32), *ret1) |
                       for (_ <- ret1; _ <- ret2) {
@@ -986,101 +780,6 @@ new MakeNode, ByteArrayToNybbleList,
                     TreeHashMapSetter!(map, nybList, 0,  depth, newVal, hash.slice(depth, 32), *ret)
                   }
                 }
-              }
-            }
-          }
-        }
-      } |
-
-      contract TreeHashMapContains(@map, @nybList, @n, @len, @suffix, ret) = {
-        // Look up the value of the node at [map, nybList.slice(0, n + 1)]
-        new valCh in {
-          nodeGet!((map, nybList.slice(0, n)), *valCh) |
-          for (@val <- valCh) {
-            if (n == len) {
-              ret!(val.contains(suffix))
-            } else {
-              // See getter for explanation of formula
-              if ((val/powers.nth(nybList.nth(n))) % 2 == 0) {
-                ret!(false)
-              } else {
-                TreeHashMapContains!(map, nybList, n + 1, len, suffix, *ret)
-              }
-            }
-          }
-        }
-      } |
-
-      contract TreeHashMap(@"contains", @map, @key, ret) = {
-        new hashCh, nybListCh in {
-          // Hash the key to get a 256-bit array
-          keccak256Hash!(key.toByteArray(), *hashCh) |
-          for (@hash <- hashCh) {
-            for (@depth <<- @(map, "depth")) {
-              // Get the bit list
-              ByteArrayToNybbleList!(hash, 0, depth, [], *nybListCh) |
-              for (@nybList <- nybListCh) {
-                TreeHashMapContains!(map, nybList, 0,  depth, hash.slice(depth, 32), *ret)
-              }
-            }
-          }
-        }
-      } |
-
-      contract TreeHashMapUpdater(@map, @nybList, @n, @len, update, @suffix, ret) = {
-        // Look up the value of the node at [map, nybList.slice(0, n + 1)
-        new valCh in {
-          match (map, nybList.slice(0, n)) {
-            node => {
-              for (@val <<- @[node, *storeToken]) {
-                if (n == len) {
-                  // We're at the end of the path.
-                  if (val == 0) {
-                    // There's nothing here.
-                    // Return
-                    ret!(Nil)
-                  } else {
-                    new resultCh in {
-                      // Acquire the lock on this node
-                      for (@val <- @[node, *storeToken]) {
-                        // Update the current value
-                        update!(val.get(suffix), *resultCh) |
-                        for (@newVal <- resultCh) {
-                          // Release the lock
-                          @[node, *storeToken]!(val.set(suffix, newVal)) |
-                          // Return
-                          ret!(Nil)
-                        }
-                      }
-                    }
-                  }
-                } else {
-                  // Otherwise try to reach the end of the path.
-                  // Bit k set means child node k exists.
-                  if ((val/powers.nth(nybList.nth(n))) % 2 == 0) {
-                    // If the path doesn't exist, there's no value to update.
-                    // Return
-                    ret!(Nil)
-                  } else {
-                    // Child node exists, loop
-                    TreeHashMapUpdater!(map, nybList, n + 1, len, *update, suffix, *ret)
-                  }
-                }
-              }
-            }
-          }
-        }
-      } |
-      contract TreeHashMap(@"update", @map, @key, update, ret) = {
-        new hashCh, nybListCh in {
-          // Hash the key to get a 256-bit array
-          keccak256Hash!(key.toByteArray(), *hashCh) |
-          for (@hash <- hashCh) {
-            for (@depth <<- @(map, "depth")) {
-              // Get the bit list
-              ByteArrayToNybbleList!(hash, 0, depth, [], *nybListCh) |
-              for (@nybList <- nybListCh) {
-                TreeHashMapUpdater!(map, nybList, 0,  depth, *update, hash.slice(depth, 32), *ret)
               }
             }
           }
@@ -1450,7 +1149,7 @@ new MakeNode, ByteArrayToNybbleList,
             match set {
               Nil => {}
               Set(last) => {
-                new retCh in {
+                new ch1, ch2 in {
                   match payload.get("purses").get(last) {
                     {
                       "quantity": Int,
@@ -1459,20 +1158,27 @@ new MakeNode, ByteArrayToNybbleList,
                       "price": Nil \\/ Int,
                       "boxId": String
                     } => {
-                      makePurseCh!((
-                        contractId,
-                        payload.get("purses").get(last),
-                        payload.get("data").get(last),
-                        true,
-                        *retCh
-                      )) |
-                      for (@r <- retCh) {
-                        match r {
-                          String => {
-                            @return!("error: some purses may have been created until one failed " ++ r)
-                          }
-                          _ => {
-                            @return!((true, Nil))
+                      getBoxCh!((payload.get("purses").get(last).get("boxId"), *ch1)) |
+                      for (@box <- ch1) {
+                        if (box == Nil) {
+                          @return!("error: some purses may have been created until one failed: box not found " ++ payload.get("purses").get(last).get("boxId"))
+                        } else {
+                          makePurseCh!((
+                            contractId,
+                            payload.get("purses").get(last),
+                            payload.get("data").get(last),
+                            true,
+                            *ch2
+                          )) |
+                          for (@r <- ch2) {
+                            match r {
+                              String => {
+                                @return!("error: some purses may have been created until one failed " ++ r)
+                              }
+                              _ => {
+                                @return!((true, Nil))
+                              }
+                            }
                           }
                         }
                       }
@@ -1484,7 +1190,7 @@ new MakeNode, ByteArrayToNybbleList,
                 }
               }
               Set(first ... rest) => {
-                new retCh in {
+                new ch1, ch2 in {
                   match payload.get("purses").get(first) {
                     {
                       "quantity": Int,
@@ -1493,20 +1199,27 @@ new MakeNode, ByteArrayToNybbleList,
                       "price": Nil \\/ Int,
                       "boxId": String
                     } => {
-                      makePurseCh!((
-                        contractId,
-                        payload.get("purses").get(first),
-                        payload.get("data").get(first),
-                        true,
-                        *retCh
-                      )) |
-                      for (@r <- retCh) {
-                        match r {
-                          String => {
-                            @return!("error: some purses may have been created until one failed " ++ r)
-                          }
-                          _ => {
-                            itCh!(rest)
+                      getBoxCh!((payload.get("purses").get(first).get("boxId"), *ch1)) |
+                      for (@box <- ch1) {
+                        if (box == Nil) {
+                          @return!("error: some purses may have been created until one failed: box not found " ++ payload.get("purses").get(first).get("boxId"))
+                        } else {
+                          makePurseCh!((
+                            contractId,
+                            payload.get("purses").get(first),
+                            payload.get("data").get(first),
+                            true,
+                            *ch2
+                          )) |
+                          for (@r <- ch2) {
+                            match r {
+                              String => {
+                                @return!("error: some purses may have been created until one failed " ++ r)
+                              }
+                              _ => {
+                                itCh!(rest)
+                              }
+                            }
                           }
                         }
                       }
@@ -1582,7 +1295,7 @@ new MakeNode, ByteArrayToNybbleList,
           } else {
             for (@superKeys <<- @(*vault, "boxesSuperKeys", boxId)) {
               for (@config <<- @(*vault, "boxConfig", boxId)) {
-                @return!(config.union({ "superKeys": superKeys, "purses": box, "version": "6.0.0" }))
+                @return!(config.union({ "superKeys": superKeys, "purses": box, "version": "6.0.1" }))
               }
             }
           }
@@ -1710,7 +1423,7 @@ new MakeNode, ByteArrayToNybbleList,
 
                         // config
                         @(*vault, "contractConfig", payload.get("contractId"))!(
-                          payload.set("locked", false).set("counter", 1).set("version", "6.0.0").set("fee", payload.get("fee"))
+                          payload.set("locked", false).set("counter", 1).set("version", "6.0.1").set("fee", payload.get("fee"))
                         ) |
 
                         new superKeyCh in {
@@ -2280,9 +1993,6 @@ var createPursesTerm_1 = (
 ) => {
   return `new basket,
   returnCh,
-  listenAgainOnReturnCh,
-  processPurseCh,
-  listenManyTimesCh,
   boxCh,
   stdout(\`rho:io:stdout\`),
   deployerId(\`rho:rchain:deployerId\`),
@@ -2321,6 +2031,43 @@ in {
 
 var createPursesTerm = {
 	createPursesTerm: createPursesTerm_1
+};
+
+/* GENERATED CODE, only edit rholang/*.rho files*/
+var lockTerm_1 = (
+  payload
+) => {
+  return `new basket,
+  returnCh,
+  stdout(\`rho:io:stdout\`),
+  deployerId(\`rho:rchain:deployerId\`),
+  registryLookup(\`rho:registry:lookup\`)
+in {
+
+  for (superKey <<- @(*deployerId, "rchain-token-contract", "${payload.masterRegistryUri}", "${payload.contractId}")) {
+    superKey!((
+      "LOCK",
+      *returnCh
+    )) |
+    for (@r <- returnCh) {
+      match r {
+        String => {
+          basket!({ "status": "failed", "message": r }) |
+          stdout!(("failed", r))
+        }
+        _ => {
+          stdout!("completed, contract locked") |
+          basket!({ "status": "completed" })
+        }
+      }
+    }
+  }
+}
+`;
+};
+
+var lockTerm = {
+	lockTerm: lockTerm_1
 };
 
 var readPursesTerm_1 = (
@@ -2783,7 +2530,7 @@ var decodePurses = {
 	decodePurses: decodePurses_1
 };
 
-var VERSION = "6.0.0";
+var VERSION = '6.0.1';
 
 var constants = {
 	VERSION: VERSION
@@ -2794,6 +2541,7 @@ const { deployBoxTerm: deployBoxTerm$1 } = deployBoxTerm;
 const { masterTerm: masterTerm$1 } = masterTerm;
 const { deployTerm: deployTerm$1 } = deployTerm;
 const { createPursesTerm: createPursesTerm$1 } = createPursesTerm;
+const { lockTerm: lockTerm$1 } = lockTerm;
 const { readPursesTerm: readPursesTerm$1 } = readPursesTerm;
 const { readAllPursesTerm: readAllPursesTerm$1 } = readAllPursesTerm;
 const { readBoxTerm: readBoxTerm$1 } = readBoxTerm;
@@ -2815,6 +2563,7 @@ var src = {
   deployBoxTerm: deployBoxTerm$1,
   deployTerm: deployTerm$1,
   createPursesTerm: createPursesTerm$1,
+  lockTerm: lockTerm$1,
   updatePurseDataTerm: updatePurseDataTerm$1,
   updatePursePriceTerm: updatePursePriceTerm$1,
   purchaseTerm: purchaseTerm$1,
@@ -2829,8 +2578,8 @@ var src = {
   // utils
   decodePurses: decodePurses$1,
 };
-var src_13 = src.readConfigTerm;
-var src_14 = src.readPursesDataTerm;
+var src_14 = src.readConfigTerm;
+var src_15 = src.readPursesDataTerm;
 
 function symbolObservablePonyfill(root) {
 	var result;
@@ -10947,10 +10696,10 @@ var getNodeIndex = function (node) {
 var readPursesDataOrContractConfig = function (masterRegistryUri, contractId, purseId) {
     // read purse data if purseId
     if (contractId && purseId) {
-        return src_14({ masterRegistryUri: masterRegistryUri, contractId: contractId, pursesIds: [purseId] });
+        return src_15({ masterRegistryUri: masterRegistryUri, contractId: contractId, pursesIds: [purseId] });
     }
     // read config values { fungible: ..., fee: ...} if no contract id AND purse id
-    return src_13({ masterRegistryUri: masterRegistryUri, contractId: contractId });
+    return src_14({ masterRegistryUri: masterRegistryUri, contractId: contractId });
 };
 var registerDappyProtocol = function (session, getState) {
     session.protocol.registerBufferProtocol('dappy', function (request, callback) {

@@ -12,6 +12,7 @@ import * as fromCommon from '../../common';
 import { TransactionForm } from '.';
 import { blockchain as blockchainUtils } from '../../utils/blockchain';
 import { LOGREV_TO_REV_RATE, DEFAULT_PHLO_LIMIT } from '../../CONSTANTS';
+import { formatAmount } from '../../utils/formatAmount';
 
 import './TransactionModal.scss';
 import { TransactionState, Account, RChainInfos, Record, TransactionOrigin } from '../../models';
@@ -176,7 +177,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
       blockchainUtils.transferFundsTerm(
         fromAddress,
         payload.parameters.to || this.state.to,
-        LOGREV_TO_REV_RATE * (payload.parameters.amount || this.state.amount)
+        (payload.parameters.amount || this.state.amount)
       ),
       this.state.privatekey,
       this.state.publickey,
@@ -360,7 +361,9 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
               <div>
                 <span className="label">{t('amount')}</span>
                 <b>
-                  {payload.parameters.amount || this.state.amount} {t('rev')}
+                  {formatAmount((payload.parameters.amount || this.state.amount) / LOGREV_TO_REV_RATE)} {t('rev')}
+                  <br />
+                  {payload.parameters.amount || this.state.amount} {t('dust')}
                 </b>
               </div>
               {payload.parameters.from ? (
