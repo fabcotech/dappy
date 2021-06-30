@@ -10,9 +10,9 @@ If you don't understand some terms, please refer first to the [glossary](https:/
 - Entry point: `main/main.ts`, compile (rollup) `npm run build:main`.
 - Main electron JS process (Node JS + Typescript).
 - Node JS + typescript.
-- Includes a redux store, mainly replicated/synced with browser-s process store.
+- Includes a redux store, mainly replicated/synced with browser process's store.
 - Handles all multi-requests / blockchain requests, see `main/performMultiRequest.ts` and `main/performSingleRequest.ts`.
-- Handles the HTTPS traffic coming from tabs and browser process, see `main/overrideHttpProtocols.ts`.
+- Handles the HTTPS traffic coming from tab processes and browser process, see `main/overrideHttpProtocols.ts`.
 
 **🐶 Browser process**, 1 process, permanent :
 - Entry point `src/index.tsx`, compile (parcel) `npm run build`.
@@ -24,6 +24,11 @@ If you don't understand some terms, please refer first to the [glossary](https:/
 - If IP app, no entry point, website loaded through HTTP + TLS.
 - Tab processes/windows are created in `main/store/sagas/loadOrReloadBrowserView.ts`.
 - Sandboxed environment with controlled internet access, each tab is identified by a randomId in user agent, see `main/overrideHttpProtocols.ts`.
+
+
+**Name system and multi requests**
+
+Dappy is no-DNS, name requests (DNS lookups) are similar to any other request addressed to the dappy network (explore-deploy is an example). See everywhere `multiCall()` or `singleCall()` functions are called in the **browser process**. In the **main process** it resolves to `main/performMultiRequest.ts` and `main/performSingleRequest.ts` and then `main/httpBrowserToNode.ts` which does the HTTP + TLSv1.3 request, it does not use the DNS (directly hits IP `host: server.ip`), neither CAs (`ca: []`).
 
 #### Quick start
 ```
@@ -77,7 +82,7 @@ Tags have been added to the code so you can quickly find where those connections
 - **no dns**: Dappy browser does not use the Domain Name System, and does raw IP requests, check this tag to see where it occurs.
 - **browser to server**: See how IP apps and no-DNS navigation is done.
 - **browser to network**: See how Dappy browsers queries the Dappy network.
-- **browser to node**: In case of a deploy (not a read query), multi-request is inadequat, a single browser to node query is performed.
+- **browser to node**: In case of a deploy (not a read query), multi-request is inadequat, a single browser to node (instead of network) query is performed.
 - **tab process - main process**: Inter-process secure communication between a tab and the main process.
 - **browser process - main process**: Inter-process secure communication between the browser process and the main process.
 

@@ -3,6 +3,8 @@ import https from 'https';
 import { WS_PAYLOAD_PAX_SIZE } from '../src/CONSTANTS';
 import { BlockchainNode } from '../src/models';
 
+const dappyNetworkAgents: { [key: string]: https.Agent } = {};
+
 export const httpBrowserToNode = (data: { [key: string]: any }, node: BlockchainNode, timeout?: number) => {
   return new Promise((resolve, reject) => {
     const s = JSON.stringify(data);
@@ -12,22 +14,38 @@ export const httpBrowserToNode = (data: { [key: string]: any }, node: Blockchain
       return;
     }
     try {
-      const req = https.request(
-        {
-          hostname: node.ip.split(':')[0],
-          port: node.ip.indexOf(':') === -1 ? 443 : node.ip.split(':')[1],
-          path: `/${data.type}`,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Host: node.host,
-          },
-          // cert does not have to be signed by CA (self-signed)
-          rejectUnauthorized: false,
-          // only origin user can have invalid cert
-          cert: node.cert ? decodeURI(node.cert) : node.origin === 'user' ? undefined : 'INVALIDCERT',
-          ca: [],
+
+      const ip = node.ip.split(':')[0];
+      const host = node.host;
+      const port = node.ip.indexOf(':') === -1 ? 443 : node.ip.split(':')[1];
+      const cert = node.cert ? decodeURI(node.cert) : node.origin === 'user' ? undefined : 'INVALIDCERT';
+
+      if (!dappyNetworkAgents[`${ip}-${cert}`]) {
+        dappyNetworkAgents[`${ip}-${cert}`] = new https.Agent({
+          /* no dns */
+          host: ip,
+          rejectUnauthorized: false, // cert does not have to be signed by CA (self-signed)
+          cert: cert,
+          minVersion: 'TLSv1.3',
+          ca: [], // we don't want to rely on CA
+        });
+      }
+
+      const options: https.RequestOptions = {
+        agent: dappyNetworkAgents[`${node.ip}-${node.cert}`],
+        method: 'POST',
+        port: port,
+        host: ip,
+        rejectUnauthorized: false,
+        path: `/${data.type}`,
+        headers: {
+          'Content-Type': 'application/json',
+          Host: host,
         },
+      };
+
+      const req = https.request(
+        options,
         (res) => {
           let data = '';
           res.on('data', (chunk) => {
