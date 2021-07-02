@@ -77,4 +77,8 @@ export const rchainTokenValidators = {
     readBox: readBox600,
     purses: purses600,
   },
+  ['6.0.1']: {
+    readBox: readBox600,
+    purses: purses600,
+  },
 };

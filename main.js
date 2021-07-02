@@ -4636,6 +4636,7 @@ var getNodeFromIndex = function (index) {
     };
 };
 
+var dappyNetworkAgents = {};
 var httpBrowserToNode = function (data, node, timeout) {
     return new Promise(function (resolve, reject) {
         var s = JSON.stringify(data);
@@ -4645,21 +4646,33 @@ var httpBrowserToNode = function (data, node, timeout) {
             return;
         }
         try {
-            var req = https.request({
-                hostname: node.ip.split(':')[0],
-                port: node.ip.indexOf(':') === -1 ? 443 : node.ip.split(':')[1],
-                path: "/" + data.type,
+            var ip = node.ip.split(':')[0];
+            var host = node.host;
+            var port = node.ip.indexOf(':') === -1 ? 443 : node.ip.split(':')[1];
+            var cert = node.cert ? decodeURI(node.cert) : node.origin === 'user' ? undefined : 'INVALIDCERT';
+            if (!dappyNetworkAgents[ip + "-" + cert]) {
+                dappyNetworkAgents[ip + "-" + cert] = new https.Agent({
+                    /* no dns */
+                    host: ip,
+                    rejectUnauthorized: false,
+                    cert: cert,
+                    minVersion: 'TLSv1.3',
+                    ca: [], // we don't want to rely on CA
+                });
+            }
+            var options = {
+                agent: dappyNetworkAgents[node.ip + "-" + node.cert],
                 method: 'POST',
+                port: port,
+                host: ip,
+                rejectUnauthorized: false,
+                path: "/" + data.type,
                 headers: {
                     'Content-Type': 'application/json',
-                    Host: node.host,
+                    Host: host,
                 },
-                // cert does not have to be signed by CA (self-signed)
-                rejectUnauthorized: false,
-                // only origin user can have invalid cert
-                cert: node.cert ? decodeURI(node.cert) : node.origin === 'user' ? undefined : 'INVALIDCERT',
-                ca: [],
-            }, function (res) {
+            };
+            var req = https.request(options, function (res) {
                 var data = '';
                 res.on('data', function (chunk) {
                     data += chunk;
