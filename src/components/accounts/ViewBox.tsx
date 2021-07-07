@@ -6,7 +6,7 @@ import Ajv from 'ajv';
 import * as fromBlockchain from '../../store/blockchain';
 import { Blockchain, MultiCallResult, RChainInfos } from '../../models';
 import { multiCall } from '../../utils/wsUtils';
-import { RCHAIN_TOKEN_SUPPORTED_VERSIONS } from '../../CONSTANTS';
+import { DAPPY_TOKEN_CONTRACT_ID, RCHAIN_TOKEN_SUPPORTED_VERSIONS } from '../../CONSTANTS';
 import { getNodeIndex } from '../../utils/getNodeIndex';
 import { rchainTokenValidators } from '../../store/decoders';
 import { ViewPurses } from './ViewPurses';
@@ -124,9 +124,16 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
         });
         return;
       }
+      console.log(val);
       this.setState({
         refreshing: false,
-        readBox: val,
+        readBox: {
+          ...val,
+          purses: {
+            [DAPPY_TOKEN_CONTRACT_ID]: [],
+            ...val.purses,
+          }
+        },
       });
     } catch (err) {
       console.log(err);
@@ -154,7 +161,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
     );
     if (this.state.error) {
       return (
-        <div className="settings-view-box pb20">
+        <div className={`settings-view-box pb20`}>
           <button onClick={this.props.back} className="button is-light">
             {t('back to accounts')}
           </button>
@@ -195,7 +202,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
           <p>{t('box definition')}</p>
           {Object.keys(this.state.readBox.purses).map((k) => {
             return (
-              <div className="view-box" key={k}>
+              <div className={`view-box ${k === DAPPY_TOKEN_CONTRACT_ID ? 'special' : ''}`} key={k}>
                 <ViewPurses
                   version={this.state.readBox.version}
                   namesBlockchain={this.props.namesBlockchain}

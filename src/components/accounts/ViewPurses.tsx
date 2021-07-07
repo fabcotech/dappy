@@ -111,7 +111,10 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
         });
         return;
       }
-      const val = rchainToolkit.utils.rhoValToJs(JSON.parse(dataFromBlockchainParsed.data.results[0].data).expr[0]);
+      let val = {}
+      try {
+        val = rchainToolkit.utils.rhoValToJs(JSON.parse(dataFromBlockchainParsed.data.results[0].data).expr[0]);
+      } catch (err) {}
       const validate = ajv.compile(rchainTokenValidators[this.props.version].purses);
       const valid = validate(Object.values(val));
       if (!valid) {
@@ -133,7 +136,7 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
       console.log(err);
       this.setState({
         refreshing: false,
-        error: 'Could not validate response',
+        error: 'Could not validate response, contrat: ' + this.props.contractId,
       });
     }
   };
@@ -150,7 +153,7 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
       <Fragment>
         <div className="view-purses-contract-name">{this.state.contractName}</div>
         <div className="address-and-copy fc">
-          <span className="">
+          <span className="address">
             {t('contract') + ' '}
             {this.state.fungible === true && (
               <span title="Contract for fungible tokens" className="tag is-light">
@@ -178,6 +181,12 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
           <div className="x-by-100-purses">Purses 100 / {this.props.pursesIds.length}</div>
         )}
         <div className="view-purses">
+          {
+            this.props.pursesIds.length === 0 ?
+            <div>
+              <span className="no-purses">No purses</span>
+            </div> : undefined
+          }
           {this.props.pursesIds.slice(0, 100).map((id) => {
             return (
               <div key={id} className="view-purse">

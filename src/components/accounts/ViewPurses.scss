@@ -8,6 +8,7 @@
   span:not(.tag) {
     font-weight: 400;
     font-size: 1.0rem;
+    margin-right: 5px;
   }
   .tag.is-light {
     font-weight: 800;
@@ -25,6 +26,10 @@
   height: 70px;
 }
 .view-purses {
+  .no-purses {
+    font-weight: 400;
+    font-size: 1.2rem;
+  }
   .view-purse {
     display: inline-block;
     margin-right: 5px;
@@ -33,7 +38,7 @@
     height: 95px;
     border-radius: 2px;
     border: 1px solid #ccc;
-    background: linear-gradient(25deg, rgba(0,0,0,0.03), rgba(0,0,0,0.08));
+    background: linear-gradient(25deg, rgba(230,230,230,1), rgba(245,245,245,1));
     padding: 5px 10px;
     .id {
       font-weight: 600;

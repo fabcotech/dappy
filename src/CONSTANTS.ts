@@ -18,6 +18,7 @@ export const VERSION = '0.4.4';
 export const RCHAIN_TOKEN_SUPPORTED_VERSIONS = ['6.0.0', '6.0.1'];
 
 export const MAIN_CHAIN_ID = 'd';
+export const DAPPY_TOKEN_CONTRACT_ID = 'dappytoken';
 export const CHAIN_IDS: { [chainId: string]: { name: string; platform: 'rchain' } } = {
   betanetwork: {
     name: 'Beta network',

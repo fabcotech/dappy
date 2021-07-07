@@ -1,3 +1,5 @@
+@import "../../style/variables.scss";
+
 .settings-view-box {
   .is-4 {
     font-weight: 300;
@@ -23,6 +25,19 @@
   }
   .view-box{
     margin-bottom: 20px;
+    &.special {
+      border: 2px solid $dNetwork;
+      background:  linear-gradient(25deg, lighten($dNetwork, 22%), lighten($dNetwork, 30%));;
+      border-radius: 3px;
+      padding: 16px;
+      .address-and-copy {
+        margin-bottom: 20px;
+        .address {
+          font-size: 1.6rem;
+          color: darken($dNetwork, 20%);
+        }
+      }
+    }
   }
   .super-keys {
     display: flex;
