@@ -21,6 +21,7 @@ import { multiCall } from '../../../utils/wsUtils';
 import { getNodeIndex } from '../../../utils/getNodeIndex';
 import { RecordForm } from '.';
 import { LOGREV_TO_REV_RATE } from '../../../CONSTANTS';
+import { validateName } from '../../../utils/validateSearch';
 
 interface PurchaseRecordProps {
   records: { [key: string]: Record };
@@ -275,14 +276,18 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
             <input
               disabled={this.state.loadingPurse}
               className="input name-input"
-              onChange={(e) =>
-                this.setState({ partialRecord: undefined, name: e.target.value, loadedPurse: undefined })
-              }
+              onChange={(e) => {
+                if (validateName(e.target.value)) {
+                  this.setState({ partialRecord: undefined, loadNameError: undefined, name: e.target.value, loadedPurse: undefined });
+                } else {
+                  this.setState({ partialRecord: undefined, loadNameError: `Invalid name, must start with a-z and contain only 0-9a-z characters`, name: '', loadedPurse: undefined });
+                }
+              }}
               placeholder={`amazoon`}
             />
           </div>
         </div>
-        {this.state.loadNameError && <p className="text-danger name-error no-padding">{this.state.loadNameError}</p>}
+        {this.state.loadNameError && <p className="text-danger name-error">{this.state.loadNameError}</p>}
         <div className="field is-horizontal is-grouped">
           <label className="label"></label>
           <div className="control">

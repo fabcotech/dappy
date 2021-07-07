@@ -32,6 +32,9 @@
       padding: 16px;
       .address-and-copy {
         margin-bottom: 20px;
+        .tag.is-light {
+          transform: translateY(-4px);
+        }
         .address {
           font-size: 1.6rem;
           color: darken($dNetwork, 20%);
