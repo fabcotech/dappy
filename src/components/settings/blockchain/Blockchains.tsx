@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import './Blockchains.scss';
 
 import { browserUtils } from '../../../store/browser-utils';
-import { Blockchain, Benchmark, RChainInfos, RChainInfo, BlockchainNode } from '../../../models';
+import { Blockchain, Benchmark, RChainInfos, RChainInfo } from '../../../models';
 import { AddBlockchain, BenchmarkComponent, Requests } from '.';
 import * as fromSettings from '../../../store/settings';
 import * as fromBlockchain from '../../../store/blockchain';
@@ -14,6 +14,7 @@ import * as fromUi from '../../../store/ui';
 import { PREDEFINED_BLOCKCHAINS } from '../../../BLOCKCHAINS';
 import { getNodeIndex } from '../../../utils/getNodeIndex';
 import { AddNode } from './AddNode';
+import { TopTabs } from './TopTabs';
 
 const REGEXP_IP = /^(?!\.)^[a-z0-9.-]*$/;
 
@@ -680,27 +681,3 @@ export const Blockchains = connect(
     openModal: (modal: fromMain.Modal) => dispatch(fromMain.openModalAction(modal)),
   })
 )(BlockchainsComponent);
-
-const TopTabs = (props: any) => (
-  <div className="tabs is-small">
-    <ul>
-      {Object.keys(props.blockchains).map((key) => (
-        <li key={key}>
-          <a className={key === 'd' ? 'tab-d-network' : ''} onClick={() => props.onSelectChain(key)}>
-            {props.blockchains[key].platform === 'rchain' && <i className="rchain20 fa-before" />}
-            {props.blockchains[key].chainName}
-          </a>
-        </li>
-      ))}
-      <li className={`${props.addFormDisplayed ? 'is-active' : ''}`}>
-        <a onClick={() => props.onToggleAddForm()}>
-          {t('add network')}
-          <i className="fa fa-plus fa-after" />
-        </a>
-      </li>
-      <li className={`${props.requestsDisplayed ? 'is-active' : ''}`}>
-        <a onClick={() => props.onToggleRequests()}>{t('request', true)}</a>
-      </li>
-    </ul>
-  </div>
-);

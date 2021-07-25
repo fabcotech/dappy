@@ -2219,5 +2219,69 @@ module.exports.translations = [
     "term_plural": "",
     "reference": "",
     "comment": ""
+  },
+  {
+    "term": "no boxes",
+    "definition": "There is no token boxes linked to your account, please deploy or link an existing box contract to your account.",
+    "context": "Settings > Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "wait for synchronization",
+    "definition": "Please wait for\n            synchronization.",
+    "context": "Settings > Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "infos not retrieved",
+    "definition": "Infos not retrieved from the network",
+    "context": "Settings > Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "no networks",
+    "definition": "No networks has been configured. A network must be configured, and have at least one active node to deploy rholang or smart contracts.",
+    "context": "Settings > Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "transaction successful",
+    "definition": "The transaction has been successfully sent to the network, check the transactions list, the address of the contract will be available soon.",
+    "context": "Settings",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "transaction successful rev",
+    "definition": "The transaction has been successfully sent to the network. Your balance should update after few minutes.",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "transaction successful box",
+    "definition": "Box has been deployed. Please do not quit, your account should update after few minutes.",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "just transaction successful",
+    "definition": "Transaction successful",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
   }
 ]

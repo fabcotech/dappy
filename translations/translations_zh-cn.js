@@ -2196,5 +2196,77 @@ module.exports.translations = [
     "term_plural": "",
     "reference": "",
     "comment": ""
+  },
+  {
+    "term": "input your password",
+    "definition": null,
+    "context": "Settings > Names > Update name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "no boxes",
+    "definition": null,
+    "context": "Settings > Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "wait for synchronization",
+    "definition": null,
+    "context": "Settings > Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "infos not retrieved",
+    "definition": null,
+    "context": "Settings > Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "no networks",
+    "definition": null,
+    "context": "Settings > Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "transaction successful",
+    "definition": null,
+    "context": "Settings",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "transaction successful rev",
+    "definition": null,
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "transaction successful box",
+    "definition": null,
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "just transaction successful",
+    "definition": null,
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
   }
 ]

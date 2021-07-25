@@ -817,5 +817,29 @@ module.exports.translations = {
   },
   "input your password": {
     "one": "You need to input a valid password for your account"
+  },
+  "no boxes": {
+    "one": "There is no token boxes linked to your account, please deploy or link an existing box contract to your account."
+  },
+  "wait for synchronization": {
+    "one": "Please wait for\n            synchronization."
+  },
+  "infos not retrieved": {
+    "one": "Infos not retrieved from the network"
+  },
+  "no networks": {
+    "one": "No networks has been configured. A network must be configured, and have at least one active node to deploy rholang or smart contracts."
+  },
+  "transaction successful": {
+    "one": "The transaction has been successfully sent to the network, check the transactions list, the address of the contract will be available soon."
+  },
+  "transaction successful rev": {
+    "one": "The transaction has been successfully sent to the network. Your balance should update after few minutes."
+  },
+  "transaction successful box": {
+    "one": "Box has been deployed. Please do not quit, your account should update after few minutes."
+  },
+  "just transaction successful": {
+    "one": "Transaction successful"
   }
 }
