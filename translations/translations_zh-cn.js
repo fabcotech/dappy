@@ -2268,5 +2268,21 @@ module.exports.translations = [
     "term_plural": "",
     "reference": "",
     "comment": ""
+  },
+  {
+    "term": "update nft purse price",
+    "definition": null,
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "update per token price",
+    "definition": null,
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
   }
 ]

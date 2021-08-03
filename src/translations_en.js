@@ -841,5 +841,26 @@ module.exports.translations = {
   },
   "just transaction successful": {
     "one": "Transaction successful"
+  },
+  "update nft purse price": {
+    "one": "Update purse (NFT) price"
+  },
+  "update per token price": {
+    "one": "Update per token price (FT)"
+  },
+  "transaction successful update price": {
+    "one": "Transaction for updating the purse price has been deployed."
+  },
+  "nft for sale": {
+    "one": "NFT for sale"
+  },
+  "for sale": {
+    "one": "Tokens for sale"
+  },
+  "per token": {
+    "one": "per token"
+  },
+  "not for sale": {
+    "one": "not for sale"
   }
 }

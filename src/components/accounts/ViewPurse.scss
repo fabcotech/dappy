@@ -1,0 +1,148 @@
+.view-purse {
+  display: inline-block;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  width: 350px;
+  height: 210px;
+  border-radius: 2px;
+  border: 1px solid #ccc;
+  background: linear-gradient(25deg, rgba(230,230,230,1), rgba(245,245,245,1));
+  
+  & > div {
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    display: grid;
+    grid-template-rows: 30px 60px 80px;
+    grid-template-columns: 100%;
+    position: relative;
+    .id {
+      font-weight: 600;
+      font-size: 1.4rem;
+      grid-row: 1;
+      grid-column: 1;
+      i {
+        font-size: 0.8rem;
+      }
+    }
+    .values {
+      grid-row: 2;
+      grid-column: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      font-size: 0.8rem;
+      font-weight: 400;
+    }
+    .big-price {
+      font-size: 2rem;
+      font-weight: 600;
+      font-style: italic;
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      height: 95px;
+      color: #136;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      .big-price-title {
+        height: 30px;
+        font-size: 1.5rem;
+      }
+      .prices {
+        display: flex;
+        flex-direction: column;
+        .formated-amount-rev {
+          height: 27px;
+          font-size: 1.3rem;
+        }
+        .formated-amount-dust {
+          height: 20px;
+          font-size: 1.0rem;
+        }
+        .per-token {
+          font-size: 0.8rem;
+        }
+      }
+    }
+    .set-purse-price {
+      grid-row: 3;
+      grid-column: 1;
+      //position: absolute;
+      display: grid;
+      grid-template-rows: 85px 45px;
+      grid-template-columns: 50% 50%;
+      &.setting-purse-price {
+        grid-template-rows: 20px 80px;
+        .set-purse-price-toggle-button {
+          grid-column: 2;
+          grid-row: 1;
+        }
+      }
+      .set-purse-price-toggle-button {
+        grid-column: 2;
+        grid-row: 2;      
+        font-size: 0.85rem;
+        text-decoration: underline;
+        white-space: pre;
+      }
+      .set-purse-price-send-button {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: flex-end;
+        grid-column: 2;
+        grid-row: 2;
+        .account-password-field {
+          width: 100%;
+          margin: 0px;
+          input {
+            margin: 0px;
+            width: 100%;
+          }
+        }
+        button {
+          width: 100%;
+        }
+      }
+      .new-price-field {
+        grid-column: 1;
+        grid-row: 1;
+        input {
+          max-width: 90%;
+          font-size: 0.8rem;
+        }
+      }
+      .prices {
+        padding: 4px;
+        padding-top: 12px;
+        grid-column: 1;
+        grid-row: 2;
+        display: flex;
+        flex-direction: column;
+        .formated-amount-dust {
+          overflow: visible;
+          white-space: pre;
+          white-space: pre;
+        }
+        .formated-amount-rev {
+          overflow: visible;
+          white-space: pre;
+          font-weight: 400;
+        }
+        .not-for-sale {
+          margin-top: 10px;
+          font-size: 1.2rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-style: italic;
+        }
+        .per-token {
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
+}

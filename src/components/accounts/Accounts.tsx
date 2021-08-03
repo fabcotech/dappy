@@ -37,18 +37,20 @@ interface AccountsProps {
 
 export function AccountsComponent(props: AccountsProps) {
   const [tab, setTab] = useState('accounts');
-  const [viewBox, setViewBox] = useState<undefined | string>(undefined);
+  const [viewBox, setViewBox] = useState<undefined | { boxId: string; account: Account }>(undefined);
   const [askPasswordForBox, setAskPasswordForBox] = useState<{ [key: string]: boolean }>({});
   const [askBoxregistryUri, setAskBoxregistryUri] = useState<{ [key: string]: boolean }>({});
 
-  if (typeof viewBox === 'string') {
+  if (typeof viewBox !== 'undefined') {
     // todo make sure rchaininfo exists
     return (
       <ViewBox
         back={() => setViewBox(undefined)}
         namesBlockchain={props.namesBlockchain}
-        rchainInfos={(props.rchainInfos[(props.namesBlockchain as Blockchain).chainId]) as RChainInfos}
-        boxId={viewBox}></ViewBox>
+        rchainInfos={props.rchainInfos[(props.namesBlockchain as Blockchain).chainId] as RChainInfos}
+        boxId={viewBox.boxId}
+        account={viewBox.account}
+        sendRChainTransaction={props.sendRChainTransaction}></ViewBox>
     );
   }
 
@@ -119,11 +121,11 @@ export function AccountsComponent(props: AccountsProps) {
                         <Fragment key={b}>
                           <button
                             onClick={() => {
-                              setViewBox(b);
+                              setViewBox({ boxId: b, account: a });
                             }}
                             key={b}
                             type="button"
-                            className="check-box button is-white is-small">
+                            className="check-box button is-dark is-small">
                             <div className="text">
                               <i className="fa fa-before fa-box"></i>
                               {b}
@@ -174,6 +176,9 @@ export function AccountsComponent(props: AccountsProps) {
                           <AccountPassword
                             encrypted={a.encrypted}
                             decryptedPrivateKey={(privateKey) => {
+                              if (!privateKey) {
+                                return;
+                              }
                               setAskPasswordForBox({ ...askPasswordForBox, [a.name]: false });
                               const id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
                               const timestamp = new Date().valueOf();
@@ -198,7 +203,11 @@ export function AccountsComponent(props: AccountsProps) {
                               if (props.rchainInfos && props.rchainInfos[chainId]) {
                                 validAfterBlockNumber = props.rchainInfos[chainId].info.lastFinalizedBlockNumber;
                               }
-                              const term = deployBoxTerm({ boxId: 'box' + new Date().getTime().toString().slice(7), masterRegistryUri: props.rchainInfos[chainId].info.rchainNamesMasterRegistryUri, publicKey: a.publicKey });
+                              const term = deployBoxTerm({
+                                boxId: 'box' + new Date().getTime().toString().slice(7),
+                                masterRegistryUri: props.rchainInfos[chainId].info.rchainNamesMasterRegistryUri,
+                                publicKey: a.publicKey,
+                              });
                               const deployOptions = blockchainUtils.rchain.getDeployOptions(
                                 timestamp,
                                 term,

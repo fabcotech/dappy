@@ -75,13 +75,20 @@
         display: block;
       }
       .check-box {
+        margin: 5px 0px;
         display: flex;
         align-items: center;
+        font-size: 1.0rem;
+        border-radius: 4px;
+        box-shadow: 0px 0px 17px rgb(0 0 0 / 30%);
         .text {
           max-width: 200px;
           text-overflow: ellipsis;
           overflow: hidden;
         } 
+      }
+      .password-for-deploy-box {
+        width: 176px;
       }
       .check-box:last-of-type {
         margin-bottom: 10px;

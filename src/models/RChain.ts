@@ -67,7 +67,7 @@ export interface TransactionOriginTransfer {
 export interface TransactionOriginRChainToken {
   origin: 'rchain-token';
   accountName: undefined | string;
-  operation: 'deploy-box' | 'deploy' | 'purchase' | 'update-purse-data';
+  operation: 'update-purse-price' | 'deploy-box' | 'deploy' | 'purchase' | 'update-purse-data';
 }
 export interface TransactionOriginDapp {
   origin: 'dapp';

@@ -106,6 +106,8 @@ const sendRChainTransaction = function* (action: Action) {
         message = t('transaction successful rev');
       } else if (payload.origin.origin === 'rchain-token' && payload.origin.operation === 'deploy-box') {
         message = t('transaction successful box');
+      } else if (payload.origin.origin === 'rchain-token' && payload.origin.operation === 'update-purse-price') {
+        message = t('transaction successful update price');
       }
       yield put(
         fromMain.openModalAction({

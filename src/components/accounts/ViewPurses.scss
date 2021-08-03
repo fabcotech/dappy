@@ -4,10 +4,10 @@
 }
 .address-and-copy {
   justify-content: flex-start;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   span:not(.tag) {
     font-weight: 400;
-    font-size: 1.0rem;
+    font-size: 1.8rem;
     margin-right: 5px;
   }
   .tag.is-light {
@@ -15,6 +15,7 @@
     margin-right: 5px;
     margin-left: 5px;
     padding: 7px;
+    font-size: 1.6rem;
   }
 }
 .x-by-100-purses {
@@ -29,30 +30,5 @@
   .no-purses {
     font-weight: 400;
     font-size: 1.2rem;
-  }
-  .view-purse {
-    display: inline-block;
-    margin-right: 5px;
-    margin-bottom: 5px;
-    width: 210px;
-    height: 95px;
-    border-radius: 2px;
-    border: 1px solid #ccc;
-    background: linear-gradient(25deg, rgba(230,230,230,1), rgba(245,245,245,1));
-    padding: 5px 10px;
-    .id {
-      font-weight: 600;
-    }
-    .values {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: flex-start;
-      font-size: 0.8rem;
-      font-weight: 400;
-    }
-  }
-  .more-purses {
-
   }
 }

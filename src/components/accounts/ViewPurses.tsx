@@ -4,11 +4,13 @@ import * as rchainToolkit from 'rchain-toolkit';
 import Ajv from 'ajv';
 
 import * as fromBlockchain from '../../store/blockchain';
-import { Blockchain,  MultiCallResult, RChainInfos } from '../../models';
+import { Blockchain, MultiCallResult, RChainInfos, Account } from '../../models';
 import { multiCall } from '../../utils/wsUtils';
 import { getNodeIndex } from '../../utils/getNodeIndex';
 import { rchainTokenValidators } from '../../store/decoders';
 import { toRGB } from './ViewBox';
+import { ViewPurse } from './ViewPurse';
+
 import './ViewPurses.scss';
 
 const ajv = new Ajv();
@@ -19,6 +21,8 @@ interface ViewPursesProps {
   rchainInfos: RChainInfos;
   pursesIds: string[];
   version: string;
+  account: Account;
+  sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
 }
 interface ViewPursesState {
   fungible: boolean | undefined;
@@ -111,7 +115,7 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
         });
         return;
       }
-      let val = {}
+      let val = {};
       try {
         val = rchainToolkit.utils.rhoValToJs(JSON.parse(dataFromBlockchainParsed.data.results[0].data).expr[0]);
       } catch (err) {}
@@ -181,35 +185,23 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
           <div className="x-by-100-purses">Purses 100 / {this.props.pursesIds.length}</div>
         )}
         <div className="view-purses">
-          {
-            this.props.pursesIds.length === 0 ?
+          {this.props.pursesIds.length === 0 ? (
             <div>
               <span className="no-purses">No purses</span>
-            </div> : undefined
-          }
+            </div>
+          ) : undefined}
           {this.props.pursesIds.slice(0, 100).map((id) => {
             return (
-              <div key={id} className="view-purse">
-                <span className="id">{id}</span>
-                {this.state.purses && this.state.purses[id] ? (
-                  <div className="values">
-                    <span>
-                      {t('type')}: {this.state.purses[id].type}
-                    </span>
-                    {
-                      this.state.fungible &&
-                      <span>
-                        {t('quantity')}: {this.state.purses[id].quantity}
-                      </span>
-                    }
-                    <span>
-                      {this.state.purses[id].price ? <span>price: {this.state.purses[id].price} </span> : undefined}
-                    </span>
-                  </div>
-                ) : (
-                  <i className="fa fa-after fa-redo rotating"></i>
-                )}
-              </div>
+              <ViewPurse
+                rchainInfos={this.props.rchainInfos}
+                account={this.props.account}
+                key={id}
+                id={id}
+                contractId={this.props.contractId}
+                fungible={this.state.fungible}
+                purse={this.state.purses[id]}
+                sendRChainTransaction={this.props.sendRChainTransaction}
+              />
             );
           })}
           {this.props.pursesIds.length > 100 && <div className="more-purses">...</div>}
