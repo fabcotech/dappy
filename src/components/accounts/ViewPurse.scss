@@ -2,7 +2,7 @@
   display: inline-block;
   margin-right: 5px;
   margin-bottom: 5px;
-  width: 350px;
+  width: 360px;
   height: 210px;
   border-radius: 2px;
   border: 1px solid #ccc;
@@ -84,20 +84,18 @@
       .set-purse-price-toggle-button {
         grid-column: 2;
         grid-row: 2;      
-        font-size: 0.85rem;
-        text-decoration: underline;
-        white-space: pre;
       }
       .set-purse-price-send-button {
         display: flex;
         flex-direction: column;
-        justify-content: space-around;
+        justify-content: flex-end;
         align-items: flex-end;
         grid-column: 2;
         grid-row: 2;
         .account-password-field {
           width: 100%;
           margin: 0px;
+          margin-bottom: 5px;
           input {
             margin: 0px;
             width: 100%;

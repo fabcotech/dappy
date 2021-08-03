@@ -131,16 +131,13 @@ export function AccountsComponent(props: AccountsProps) {
                               {b}
                             </div>
                           </button>
-                          <a
-                            type="button"
-                            className="button is-white is-small"
-                            onClick={() => window.copyToClipboard(b)}>
+                          <a className="underlined-link" onClick={() => window.copyToClipboard(b)}>
+                            <i className="fa fa-copy fa-before"></i>
                             {t('copy box address')}
-                            <i className="fa fa-copy fa-after"></i>
                           </a>
                           <a
                             type="button"
-                            className="button is-danger is-small"
+                            className="underlined-link red"
                             onClick={() =>
                               props.removeAccountTokenBox({
                                 accountName: k,
@@ -164,13 +161,13 @@ export function AccountsComponent(props: AccountsProps) {
                               setAskBoxregistryUri({ ...askBoxregistryUri, [a.name]: false });
                             }}></AccountBox>
                         ) : (
-                          <button
+                          <a
+                            className="underlined-link"
                             onClick={() => setAskBoxregistryUri({ ...askPasswordForBox, [a.name]: true })}
-                            type="button"
-                            className="button is-light is-small">
+                            type="button">
                             <i className="fa fa-plus fa-before"></i>
                             {t('add existing token box')}
-                          </button>
+                          </a>
                         )}
                         {askPasswordForBox[a.name] ? (
                           <AccountPassword
@@ -229,13 +226,13 @@ export function AccountsComponent(props: AccountsProps) {
                             }}
                           />
                         ) : (
-                          <button
+                          <a
+                            className="underlined-link"
                             onClick={() => setAskPasswordForBox({ ...askPasswordForBox, [a.name]: true })}
-                            type="button"
-                            className="button is-light is-small">
+                            type="button">
                             <i className="fa fa-box-open fa-before"></i>
                             {t('deploy a new token box')}
-                          </button>
+                          </a>
                         )}
                       </>
                     ) : undefined}
@@ -250,23 +247,23 @@ export function AccountsComponent(props: AccountsProps) {
                       </button>
                     )}
                     {!!props.namesBlockchain ? (
-                      <button
+                      <a
                         title={t('send revs')}
-                        onClick={() => props.sendRChainPayment(a, (props.namesBlockchain as Blockchain).chainId)}
-                        className="button is-info is-small">
+                        className="underlined-link"
+                        onClick={() => props.sendRChainPayment(a, (props.namesBlockchain as Blockchain).chainId)}>
                         <i title="Tipping unavailable" className="fa fa-before fa-money-bill-wave"></i>
                         {t('send revs')}
-                      </button>
+                      </a>
                     ) : (
                       <p className="text-danger">{t('no network cannot send revs')}</p>
                     )}
                   </div>
-                  <button
+                  <a
                     title="Remove the account forever"
                     onClick={() => props.deleteAccount(a)}
-                    className="remove-account button is-danger is-small">
+                    className="remove-account underlined-link red">
                     {t('remove account')}
-                  </button>
+                  </a>
                 </div>
               );
             })}

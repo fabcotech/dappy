@@ -69,10 +69,11 @@ export class ViewPurseComponent extends React.Component<ViewPursesProps, ViewPur
                       <input
                         type="number"
                         step="1"
-                        min="1"
+                        min="0"
                         defaultValue={this.state.newPrice}
+                        placeholder="dust price"
                         onChange={(e) => {
-                          if (e.target.value == '') {
+                          if (e.target.value == '' || e.target.value == '0') {
                             this.setState({
                               newPrice: 0,
                             });
@@ -160,7 +161,7 @@ export class ViewPurseComponent extends React.Component<ViewPursesProps, ViewPur
                       this.setState({ updatePursePrice: true, newPrice: (this.props.purse as Purse).price });
                     }
                   }}
-                  className="set-purse-price-toggle-button">
+                  className="underlined-link set-purse-price-toggle-button">
                   {this.state.updatePursePrice
                     ? t('cancel')
                     : this.props.fungible

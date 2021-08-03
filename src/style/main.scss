@@ -75,6 +75,16 @@ html, body {
   margin-right: 4px;
 };
 
+a.underlined-link {
+  font-weight: 400;
+  white-space: pre;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  height: 24px;
+  &.red {
+    color: #ff3860;
+  }
+}
 
 .text-success {
   color: $green;

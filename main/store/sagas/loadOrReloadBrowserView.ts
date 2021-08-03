@@ -211,7 +211,7 @@ const loadOrReloadBrowserView = function* (action: any) {
             },
             (res) => {
               if (res.statusCode !== 200) {
-                console.error(`Could not get favicon (status !== 200) for ${payload.dappyDomain}${currentPath}`);
+                console.error(`Could not get favicon (status !== 200) for ${payload.dappyDomain}`);
                 console.log(favicons[0]);
                 return;
               }
