@@ -74,18 +74,15 @@ export function AccountsComponent(props: AccountsProps) {
           <p className="smaller-text" dangerouslySetInnerHTML={{ __html: t('add account paragraph') }}></p>
           <br />
           {props.executingAccountsCronJobs ? (
-            <button title={t('update balances')} disabled className="disabled button is-info is-small">
+            <a title={t('update balances')} className="disabled underlined-link">
               <i className="fa fa-before fa-redo rotating"></i>
               {t('update balances')}
-            </button>
+            </a>
           ) : (
-            <button
-              title={t('update balances')}
-              className="disabled button is-info is-small"
-              onClick={() => props.updateBalances()}>
+            <a title={t('update balances')} className="underlined-link" onClick={() => props.updateBalances()}>
               <i className="fa fa-before fa-redo"></i>
               {t('update balances')}
-            </button>
+            </a>
           )}
           <br />
           <br />
@@ -133,7 +130,7 @@ export function AccountsComponent(props: AccountsProps) {
                           </button>
                           <a className="underlined-link" onClick={() => window.copyToClipboard(b)}>
                             <i className="fa fa-copy fa-before"></i>
-                            {t('copy box address')}
+                            {t('copy box id')}
                           </a>
                           <a
                             type="button"
@@ -141,7 +138,7 @@ export function AccountsComponent(props: AccountsProps) {
                             onClick={() =>
                               props.removeAccountTokenBox({
                                 accountName: k,
-                                registryUri: b,
+                                boxId: b,
                               })
                             }>
                             {t('remove box')}
@@ -170,61 +167,65 @@ export function AccountsComponent(props: AccountsProps) {
                           </a>
                         )}
                         {askPasswordForBox[a.name] ? (
-                          <AccountPassword
-                            encrypted={a.encrypted}
-                            decryptedPrivateKey={(privateKey) => {
-                              if (!privateKey) {
-                                return;
-                              }
-                              setAskPasswordForBox({ ...askPasswordForBox, [a.name]: false });
-                              const id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
-                              const timestamp = new Date().valueOf();
+                          <div className="account-password-field field is-horizontal">
+                            <div className="control">
+                              <AccountPassword
+                                encrypted={a.encrypted}
+                                decryptedPrivateKey={(privateKey) => {
+                                  if (!privateKey) {
+                                    return;
+                                  }
+                                  setAskPasswordForBox({ ...askPasswordForBox, [a.name]: false });
+                                  const id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
+                                  const timestamp = new Date().valueOf();
 
-                              const chainId = Object.keys(props.blockchains)[0];
-                              if (!chainId) {
-                                props.openModal({
-                                  title: t('failed to deploy box'),
-                                  text: t('at least one node network'),
-                                  buttons: [
-                                    {
-                                      classNames: 'is-link',
-                                      text: 'Ok',
-                                      action: fromMain.closeModalAction(),
-                                    },
-                                  ],
-                                });
-                                return;
-                              }
+                                  const chainId = Object.keys(props.blockchains)[0];
+                                  if (!chainId) {
+                                    props.openModal({
+                                      title: t('failed to deploy box'),
+                                      text: t('at least one node network'),
+                                      buttons: [
+                                        {
+                                          classNames: 'is-link',
+                                          text: 'Ok',
+                                          action: fromMain.closeModalAction(),
+                                        },
+                                      ],
+                                    });
+                                    return;
+                                  }
 
-                              let validAfterBlockNumber = 0;
-                              if (props.rchainInfos && props.rchainInfos[chainId]) {
-                                validAfterBlockNumber = props.rchainInfos[chainId].info.lastFinalizedBlockNumber;
-                              }
-                              const term = deployBoxTerm({
-                                boxId: 'box' + new Date().getTime().toString().slice(7),
-                                masterRegistryUri: props.rchainInfos[chainId].info.rchainNamesMasterRegistryUri,
-                                publicKey: a.publicKey,
-                              });
-                              const deployOptions = blockchainUtils.rchain.getDeployOptions(
-                                timestamp,
-                                term,
-                                privateKey,
-                                a.publicKey,
-                                1,
-                                RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
-                                validAfterBlockNumber
-                              );
-                              props.sendRChainTransaction({
-                                transaction: deployOptions,
-                                origin: { origin: 'rchain-token', operation: 'deploy-box', accountName: a.name },
-                                platform: 'rchain',
-                                blockchainId: chainId,
-                                id: id,
-                                alert: true,
-                                sentAt: new Date().toISOString(),
-                              });
-                            }}
-                          />
+                                  let validAfterBlockNumber = 0;
+                                  if (props.rchainInfos && props.rchainInfos[chainId]) {
+                                    validAfterBlockNumber = props.rchainInfos[chainId].info.lastFinalizedBlockNumber;
+                                  }
+                                  const term = deployBoxTerm({
+                                    boxId: 'box' + new Date().getTime().toString().slice(7),
+                                    masterRegistryUri: props.rchainInfos[chainId].info.rchainNamesMasterRegistryUri,
+                                    publicKey: a.publicKey,
+                                  });
+                                  const deployOptions = blockchainUtils.rchain.getDeployOptions(
+                                    timestamp,
+                                    term,
+                                    privateKey,
+                                    a.publicKey,
+                                    1,
+                                    RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
+                                    validAfterBlockNumber
+                                  );
+                                  props.sendRChainTransaction({
+                                    transaction: deployOptions,
+                                    origin: { origin: 'rchain-token', operation: 'deploy-box', accountName: a.name },
+                                    platform: 'rchain',
+                                    blockchainId: chainId,
+                                    id: id,
+                                    alert: true,
+                                    sentAt: new Date().toISOString(),
+                                  });
+                                }}
+                              />
+                            </div>
+                          </div>
                         ) : (
                           <a
                             className="underlined-link"

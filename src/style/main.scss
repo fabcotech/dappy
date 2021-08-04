@@ -84,6 +84,10 @@ a.underlined-link {
   &.red {
     color: #ff3860;
   }
+  &.disabled {
+    color: rgba(0,0,0,0.4);
+    cursor: default;
+  }
 }
 
 .text-success {

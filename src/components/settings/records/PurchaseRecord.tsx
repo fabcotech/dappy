@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import { purchaseTerm, readPursesTerm } from 'rchain-token';
+import { formatAmountNoDecimal, formatAmount } from '../../../utils/formatAmount';
 import * as rchainToolkit from 'rchain-toolkit';
 
 import './RecordsForm.scss';
@@ -168,7 +169,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
       newId: this.state.name,
       merge: false,
       quantity: 1,
-      price: (this.props.namesBlockchainInfos as RChainInfos).info.namePrice,
+      price: (this.state.loadedPurse as RChainTokenPurse).price,
       publicKey: this.state.publickey,
       data: Buffer.from(
         JSON.stringify({
@@ -278,9 +279,19 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
               className="input name-input"
               onChange={(e) => {
                 if (validateName(e.target.value)) {
-                  this.setState({ partialRecord: undefined, loadNameError: undefined, name: e.target.value, loadedPurse: undefined });
+                  this.setState({
+                    partialRecord: undefined,
+                    loadNameError: undefined,
+                    name: e.target.value,
+                    loadedPurse: undefined,
+                  });
                 } else {
-                  this.setState({ partialRecord: undefined, loadNameError: `Invalid name, must start with a-z and contain only 0-9a-z characters`, name: '', loadedPurse: undefined });
+                  this.setState({
+                    partialRecord: undefined,
+                    loadNameError: `Invalid name, must start with a-z and contain only 0-9a-z characters`,
+                    name: '',
+                    loadedPurse: undefined,
+                  });
                 }
               }}
               placeholder={`amazoon`}
@@ -322,10 +333,10 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
               <h5 className="current-price-existing-purse">
                 {t('at price')}
                 <span className="num">
-                  {formatter.format(this.state.loadedPurse.price / LOGREV_TO_REV_RATE).substr(1)}
+                  {formatAmount(this.state.loadedPurse.price / LOGREV_TO_REV_RATE))}
                 </span>
                 <span className="unit">{t('rev', true)} / </span>
-                <span className="dust">{this.state.loadedPurse.price} dust</span>
+                <span className="dust">{formatAmountNoDecimal(this.state.loadedPurse.price)} dust</span>
               </h5>
             </div>
           </div>
@@ -349,10 +360,10 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
                 <h5 className="current-price-existing-purse">
                   {t('at price')}
                   <span className="num">
-                    {formatter.format(this.state.loadedPurse.price / LOGREV_TO_REV_RATE).substr(1)}
+                    {formatAmount(this.state.loadedPurse.price / LOGREV_TO_REV_RATE)}
                   </span>
                   <span className="unit">{t('rev', true)}</span>
-                  <span className="dust">{this.state.loadedPurse.price} dust</span>
+                  <span className="dust">{formatAmountNoDecimal(this.state.loadedPurse.price)} dust</span>
                 </h5>
               </div>
             </div>

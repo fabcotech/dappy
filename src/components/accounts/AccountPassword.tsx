@@ -8,11 +8,15 @@ interface AccountPasswordProps {
   decryptedPrivateKey: (privateKey: string | undefined) => void;
 }
 
-export class AccountPassword extends React.Component<AccountPasswordProps, { passwordError: string | undefined }> {
+export class AccountPassword extends React.Component<
+  AccountPasswordProps,
+  { passwordError: string | undefined; success: boolean }
+> {
   constructor(props: AccountPasswordProps) {
     super(props);
     this.state = {
       passwordError: undefined,
+      success: false,
     };
   }
 
@@ -22,27 +26,27 @@ export class AccountPassword extends React.Component<AccountPasswordProps, { pas
       const decrypted = accountUtils.decrypt(this.props.encrypted, password);
       this.setState({
         passwordError: undefined,
+        success: true,
       });
       this.props.decryptedPrivateKey(decrypted);
     } catch (err) {
       this.props.decryptedPrivateKey(undefined);
       this.setState({
         passwordError: t('wrong password'),
+        success: false,
       });
     }
   };
 
   render() {
     return (
-      <div className="account-password-field field is-horizontal">
-        <div className="control">
-          <input
-            className={`input password-for-deploy-box ${this.state.passwordError ? 'is-danger' : ''}`}
-            type="password"
-            placeholder={t('password for account')}
-            onChange={this.onTryPassword}></input>
-        </div>
-      </div>
+      <input
+        className={`input password-for-deploy-box ${this.state.success ? 'is-success' : ''} ${
+          this.state.passwordError ? 'is-danger' : ''
+        }`}
+        type="password"
+        placeholder={t('password for account')}
+        onChange={this.onTryPassword}></input>
     );
   }
 }

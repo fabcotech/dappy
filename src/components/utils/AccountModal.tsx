@@ -145,7 +145,10 @@ export class AccountModalComponent extends React.Component<AccountModalComponent
                     </div>
 
                     <div className="field is-horizontal">
-                      <label className="label">{t('password')}*</label>
+                      <label className="label">
+                        <i className="fa fa-before fa-key"></i>
+                        {t('unlock account')}
+                      </label>
                       <div className="control has-icons-right">
                         <Field
                           className={`input ${this.state.passwordSuccess ? 'is-success' : ''} ${
@@ -155,6 +158,7 @@ export class AccountModalComponent extends React.Component<AccountModalComponent
                           name="password"
                           placeholder={`${t('password for')} ${account.name}`}
                         />
+                        <p className="help">{t('unlock account to see private key')}</p>
                       </div>
                     </div>
                     {touched.password && this.state.passwordError && (

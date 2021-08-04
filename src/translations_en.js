@@ -862,5 +862,32 @@ module.exports.translations = {
   },
   "not for sale": {
     "one": "not for sale"
+  },
+  "account locked": {
+    "one": "Account is locked"
+  },
+  "unlock account help text": {
+    "one": "Input your password to be able to perform any operation on your tokens"
+  },
+  "unlock account": {
+    "one": "Unlock account"
+  },
+  "unlock account to see private key": {
+    "one": "Input your password to be able to see private key"
+  },
+  "withdraw ft": {
+    "one": "Withdraw"
+  },
+  "withdraw nft": {
+    "one": "Send NFT"
+  },
+  "transaction successful withdraw": {
+    "one": "Withdraw transaction has been deployed."
+  },
+  "box to withdraw to": {
+    "one": "Box to withdraw to"
+  },
+  "copy box id": {
+    "one": "Copy box id"
   }
 }

@@ -11,6 +11,7 @@ import { getNodeIndex } from '../../utils/getNodeIndex';
 import { rchainTokenValidators } from '../../store/decoders';
 import { ViewPurses } from './ViewPurses';
 import './ViewBox.scss';
+import { AccountPassword } from './AccountPassword';
 
 const ajv = new Ajv();
 
@@ -25,6 +26,7 @@ interface BoxProps {
 interface BoxState {
   readBox: any;
   error: undefined | string;
+  privateKey: undefined | string;
   refreshing: boolean;
 }
 
@@ -50,6 +52,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
       readBox: undefined,
       error: undefined,
       refreshing: false,
+      privateKey: undefined,
     };
   }
 
@@ -202,6 +205,20 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
             <i className="fa fa-before fa-box"></i>
             {t('token box')} "{this.props.boxId}"
           </h4>
+          <div className="field unlock-account">
+            <label className="is-5">
+              <i className="fa fa-before fa-key"></i>
+              {t('unlock account')}
+            </label>
+            <div className="control">
+              <AccountPassword
+                encrypted={this.props.account.encrypted}
+                decryptedPrivateKey={(privateKey: undefined | string) =>
+                  this.setState({ privateKey: privateKey })
+                }></AccountPassword>
+            </div>
+            <p className="help">{t('unlock account help text')}</p>
+          </div>
           <h4 className="title is-5">Purses</h4>
           <p>{t('box definition')}</p>
           {Object.keys(this.state.readBox.purses).map((k) => {
@@ -213,6 +230,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
                   rchainInfos={this.props.rchainInfos}
                   contractId={k}
                   account={this.props.account}
+                  privateKey={this.state.privateKey}
                   pursesIds={this.state.readBox.purses[k]}
                   sendRChainTransaction={this.props.sendRChainTransaction}></ViewPurses>
               </div>

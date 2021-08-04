@@ -21,6 +21,7 @@ interface ViewPursesProps {
   rchainInfos: RChainInfos;
   pursesIds: string[];
   version: string;
+  privateKey: undefined | string;
   account: Account;
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
 }
@@ -173,12 +174,9 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
           </span>
 
           <span className="square ml5" style={{ background: toRGB(this.props.contractId) }}></span>
-          <a
-            type="button"
-            className="button is-white is-small"
-            onClick={() => window.copyToClipboard(this.props.contractId)}>
+          <a type="button" className="underlined-link" onClick={() => window.copyToClipboard(this.props.contractId)}>
+            <i className="fa fa-copy fa-before"></i>
             {t('copy contract address')}
-            <i className="fa fa-copy fa-after"></i>
           </a>
         </div>
         {this.props.pursesIds.length > 100 && (
@@ -199,6 +197,7 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
                 id={id}
                 contractId={this.props.contractId}
                 fungible={this.state.fungible}
+                privateKey={this.props.privateKey}
                 purse={this.state.purses[id]}
                 sendRChainTransaction={this.props.sendRChainTransaction}
               />

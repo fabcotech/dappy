@@ -13,7 +13,7 @@
     height: 100%;
     padding: 10px;
     display: grid;
-    grid-template-rows: 30px 60px 80px;
+    grid-template-rows: 30px 60px 100px;
     grid-template-columns: 100%;
     position: relative;
     .id {
@@ -67,49 +67,55 @@
         }
       }
     }
-    .set-purse-price {
-      grid-row: 3;
-      grid-column: 1;
-      //position: absolute;
+    .operations-toggle-buttons {
+      position: absolute;
+      right: 0px;
+      bottom: 0px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: flex-start;
+      padding-right: 10px;
+    }
+    .full-square {
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(25deg, rgba(230,230,230,1), rgba(245,245,245,1));
+      padding: 10px;
+      grid-row: inherit;
+      grid-column: inherit;
       display: grid;
-      grid-template-rows: 85px 45px;
+      grid-template-rows: 35px 30px 75px 45px;
       grid-template-columns: 50% 50%;
-      &.setting-purse-price {
-        grid-template-rows: 20px 80px;
-        .set-purse-price-toggle-button {
-          grid-column: 2;
-          grid-row: 1;
-        }
+      .is-5 {
+        text-decoration: underline;
+        font-size: 1.2rem;
+        grid-row: 1;
+        grid-column-start: 1;
+        grid-column-end: 3;
       }
-      .set-purse-price-toggle-button {
-        grid-column: 2;
-        grid-row: 2;      
-      }
-      .set-purse-price-send-button {
+    }
+
+    .update-purse-price {
+      .validate-operation-button {
         display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
+        justify-content: flex-start;
         align-items: flex-end;
-        grid-column: 2;
-        grid-row: 2;
-        .account-password-field {
-          width: 100%;
-          margin: 0px;
-          margin-bottom: 5px;
-          input {
-            margin: 0px;
-            width: 100%;
-          }
-        }
-        button {
-          width: 100%;
+        grid-column-start: 1;
+        grid-column-end: 3;
+        grid-row: 4;
+        .underlined-link {
+          margin-right: 10px;
         }
       }
       .new-price-field {
         grid-column: 1;
-        grid-row: 1;
+        grid-row: 2;
         input {
-          max-width: 90%;
+          max-width: 140px;
           font-size: 0.8rem;
         }
       }
@@ -117,7 +123,7 @@
         padding: 4px;
         padding-top: 12px;
         grid-column: 1;
-        grid-row: 2;
+        grid-row: 3;
         display: flex;
         flex-direction: column;
         .formated-amount-dust {
@@ -133,12 +139,40 @@
         .not-for-sale {
           margin-top: 10px;
           font-size: 1.2rem;
-    text-transform: uppercase;
-    font-weight: 600;
-    font-style: italic;
+          text-transform: uppercase;
+          font-weight: 600;
+          font-style: italic;
         }
         .per-token {
           font-size: 0.8rem;
+        }
+      }
+    }
+    .withdraw {
+      .box-withdraw-fields {
+        grid-column-start: 1;
+        grid-column-end: 3;
+        grid-row: 2;
+        .label {
+          margin: 0px;
+        }
+        .field {
+          margin: 0px;
+        }
+        input {
+          max-width: 140px;
+          font-size: 0.8rem;
+        }
+      }
+      .validate-operation-button {
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-end;
+        grid-column-start: 1;
+        grid-column-end: 3;
+        grid-row: 4;
+        .underlined-link {
+          margin-right: 10px;
         }
       }
     }
