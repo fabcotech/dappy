@@ -6,6 +6,7 @@ import { RChainTokenPurse, Account, RChainInfos } from '../../models';
 import { formatAmountNoDecimal, formatAmount } from '../../utils/formatAmount';
 import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '../../CONSTANTS';
 import { blockchain as blockchainUtils } from '../../utils/blockchain';
+import { createSocialCanvas } from '../../utils/createSocialCanvas';
 
 import './ViewPurse.scss';
 
@@ -26,6 +27,9 @@ export class ViewPurseComponent extends React.Component<ViewPursesProps, ViewPur
     this.state = {
       action: undefined,
       newPrice: undefined,
+      image: undefined,
+      boxWithdraw: undefined,
+      quantityWithdraw: undefined,
     };
   }
 
@@ -40,6 +44,7 @@ export class ViewPurseComponent extends React.Component<ViewPursesProps, ViewPur
               newPrice: undefined,
               boxWithdraw: undefined,
               quantityWithdraw: undefined,
+              image: undefined,
             });
           }}
           className="underlined-link">
@@ -86,6 +91,17 @@ export class ViewPurseComponent extends React.Component<ViewPursesProps, ViewPur
                   }}
                   className="underlined-link">
                   {this.props.fungible ? t('update per token price') : t('update nft purse price')}
+                </a>
+                <a
+                  onClick={() => {
+                    this.setState({
+                      action: 'share-image',
+                      image: 'mountain',
+                    });
+                  }}
+                  className="underlined-link">
+                  <i className="fa fa-before fa-images"></i>
+                  {t('share image')}
                 </a>
               </div>
             )}
@@ -323,6 +339,60 @@ export class ViewPurseComponent extends React.Component<ViewPursesProps, ViewPur
                         ? t('withdraw ft')
                         : t('withdraw nft')
                       : t('account locked')}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* SHARE IMAGE */}
+            {this.state.action === 'share-image' && (
+              <div className={`share-image full-square`}>
+                <h3 className="title is-5">{t('share image')}</h3>
+                <div className="image-fields">
+                  <div className="select is-small">
+                    <select onChange={(e) => this.setState({ image: e.target.value })}>
+                      {['fire', 'volcano', 'mountain', 'ice', 'network', 'desert'].map((i) => {
+                        return (
+                          <option key={i} value={i}>
+                            {i}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="validate-operation-button">
+                  <Cancel />
+                  <button
+                    className="button is-link is-small"
+                    disabled={!this.props.purse || typeof this.state.image !== 'string'}
+                    onClick={() => {
+                      if (this.props.purse && typeof this.state.image === 'string') {
+                        createSocialCanvas(
+                          this.props.fungible === true,
+                          this.props.id,
+                          this.props.contractId,
+                          this.props.purse.quantity,
+                          this.state.image
+                        ).then((a) => {
+                          window.triggerCommand('download-file', {
+                            name:
+                              'dappy_' + this.state.image + '_' + this.props.contractId + '_' + this.props.id + '.png',
+                            mimeType: 'image/png',
+                            data: a.replace(/^data:image\/png;base64,/, ''),
+                          });
+                          this.setState({
+                            newPrice: undefined,
+                            boxWithdraw: undefined,
+                            quantityWithdraw: undefined,
+                            action: undefined,
+                            image: undefined,
+                          });
+                        });
+                      }
+                    }}>
+                    {t('download image for social networks')}
                   </button>
                 </div>
               </div>

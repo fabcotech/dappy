@@ -252,7 +252,7 @@ export function AccountsComponent(props: AccountsProps) {
                         title={t('send revs')}
                         className="underlined-link"
                         onClick={() => props.sendRChainPayment(a, (props.namesBlockchain as Blockchain).chainId)}>
-                        <i title="Tipping unavailable" className="fa fa-before fa-money-bill-wave"></i>
+                        <i className="fa fa-before fa-money-bill-wave"></i>
                         {t('send revs')}
                       </a>
                     ) : (
