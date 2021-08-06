@@ -6,7 +6,7 @@ import { RChainTokenPurse, Account, RChainInfos } from '../../models';
 import { formatAmountNoDecimal, formatAmount } from '../../utils/formatAmount';
 import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '../../CONSTANTS';
 import { blockchain as blockchainUtils } from '../../utils/blockchain';
-import { createSocialCanvas } from '../../utils/createSocialCanvas';
+import { createSocialCanvas, images, mascots } from '../../utils/createSocialCanvas';
 
 import './ViewPurse.scss';
 
@@ -28,6 +28,7 @@ export class ViewPurseComponent extends React.Component<ViewPursesProps, ViewPur
       action: undefined,
       newPrice: undefined,
       image: undefined,
+      mascot: undefined,
       boxWithdraw: undefined,
       quantityWithdraw: undefined,
     };
@@ -45,6 +46,7 @@ export class ViewPurseComponent extends React.Component<ViewPursesProps, ViewPur
               boxWithdraw: undefined,
               quantityWithdraw: undefined,
               image: undefined,
+              mascot: undefined,
             });
           }}
           className="underlined-link">
@@ -96,7 +98,8 @@ export class ViewPurseComponent extends React.Component<ViewPursesProps, ViewPur
                   onClick={() => {
                     this.setState({
                       action: 'share-image',
-                      image: 'mountain',
+                      image: 'fire',
+                      mascot: 'tyrannosaurus',
                     });
                   }}
                   className="underlined-link">
@@ -349,17 +352,52 @@ export class ViewPurseComponent extends React.Component<ViewPursesProps, ViewPur
               <div className={`share-image full-square`}>
                 <h3 className="title is-5">{t('share image')}</h3>
                 <div className="image-fields">
-                  <div className="select is-small">
-                    <select onChange={(e) => this.setState({ image: e.target.value })}>
-                      {['fire', 'volcano', 'mountain', 'ice', 'network', 'desert'].map((i) => {
-                        return (
-                          <option key={i} value={i}>
-                            {i}
-                          </option>
-                        );
-                      })}
-                    </select>
+                  <div className="field">
+                    <label className="label">{t('background')}</label>
+                    <div className="select is-small">
+                      <select
+                        defaultValue={this.state.image}
+                        onChange={(e) => this.setState({ image: e.target.value })}>
+                        {Object.keys(images)
+                          .filter((i) => i !== 'default')
+                          .map((i) => {
+                            return (
+                              <option key={i} value={i}>
+                                {i}
+                              </option>
+                            );
+                          })}
+                      </select>
+                    </div>
                   </div>
+                  <div className="field">
+                    <label className="label">{t('mascot')}</label>
+                    <div className="select is-small">
+                      <select
+                        defaultValue={this.state.mascot}
+                        onChange={(e) => this.setState({ mascot: e.target.value || 'none' })}>
+                        {['none'].concat(Object.keys(mascots).filter((i) => i !== 'default')).map((i) => {
+                          return (
+                            <option key={i} value={i}>
+                              {i}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      <p className="help">
+                        Images by&nbsp;
+                        <a type="button" onClick={() => window.openExternal('https://www.freepik.com/catalyststuff')}>
+                          catalyststuff
+                        </a>{' '}
+                        on Freepik
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="preview">
+                  <img className="background" src={images[this.state.image] || images.default}></img>
+                  <img className="mascot" src={mascots[this.state.mascot] || mascots.default}></img>
                 </div>
 
                 <div className="validate-operation-button">
@@ -374,7 +412,8 @@ export class ViewPurseComponent extends React.Component<ViewPursesProps, ViewPur
                           this.props.id,
                           this.props.contractId,
                           this.props.purse.quantity,
-                          this.state.image
+                          this.state.image,
+                          this.state.mascot || 'none'
                         ).then((a) => {
                           window.triggerCommand('download-file', {
                             name:

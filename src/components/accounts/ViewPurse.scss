@@ -180,15 +180,38 @@
       .image-fields {
         grid-row-start: 2;
         grid-row-end: 4;
-        label {
-          width: 140px;
-          padding: 0px;
+        .label {
+          margin: 0px;
         }
         .field {
           display: inline-block;
           margin-bottom: 0px;
           width: 170px;
           height: 30px;
+        }
+        .help {
+          white-space: pre;
+        }
+      }
+      .preview {
+        width: 170px;
+        height: 85px;
+        grid-column: 2;
+        grid-row-start: 2;
+        grid-row-end: 4;
+        position: relative;
+        .background {
+          width: 100%;
+          height: auto;
+          z-index: 1;
+        }
+        .mascot {
+          z-index: 2;
+          position: absolute;
+          top: -5px;
+          left: 30px;
+          width: 100px;
+          height: auto;
         }
       }
       .validate-operation-button {

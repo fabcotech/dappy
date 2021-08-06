@@ -1,5 +1,3 @@
-import { resolver } from 'beesjs';
-
 const fire = require('../images/social/fire.jpg');
 const volcano = require('../images/social/volcano.jpg');
 const ice = require('../images/social/ice.jpg');
@@ -7,7 +5,47 @@ const desert = require('../images/social/desert.jpg');
 const network = require('../images/social/network.jpg');
 const mountain = require('../images/social/mountain.jpg');
 
-const values = {
+const tyrannosaurus = require('../images/mascots/tyrannosaurus.png');
+const astronaut_on_moon = require('../images/mascots/astronaut_on_moon.png');
+const rainbow_unicorn = require('../images/mascots/rainbow_unicorn.png');
+const koalas = require('../images/mascots/koalas.png');
+const astronaut_dabbing = require('../images/mascots/astronaut_dabbing.png');
+const astronaut_on_rocket = require('../images/mascots/astronaut_on_rocket.png');
+const astronaut_to_the_moon = require('../images/mascots/astronaut_to_the_moon.png');
+const baby = require('../images/mascots/baby.png');
+const cat_in_donut = require('../images/mascots/cat_in_donut.png');
+const chameleon = require('../images/mascots/chameleon.png');
+const panda_with_bamboo = require('../images/mascots/panda_with_bamboo.png');
+const shark = require('../images/mascots/shark.png');
+const sloth_doing_yoga = require('../images/mascots/sloth_doing_yoga.png');
+
+export const images: { [key: string]: string } = {
+  fire,
+  volcano,
+  ice,
+  desert,
+  network,
+  mountain,
+  default: fire,
+};
+
+export const mascots: { [key: string]: string } = {
+  tyrannosaurus,
+  rainbow_unicorn,
+  astronaut_on_moon,
+  astronaut_dabbing,
+  astronaut_on_rocket,
+  astronaut_to_the_moon,
+  baby,
+  cat_in_donut,
+  chameleon,
+  panda_with_bamboo,
+  shark,
+  sloth_doing_yoga,
+  default: tyrannosaurus,
+};
+
+const values: { [key: string]: { alpha: number; fillStyle: string; fontColor: string } } = {
   desert: { alpha: 0.1, fillStyle: '#fff', fontColor: '#000022' },
   fire: { alpha: 0.5, fillStyle: '#222', fontColor: '#ffffff' },
   volcano: { alpha: 0.5, fillStyle: '#222', fontColor: '#ffffff' },
@@ -20,7 +58,8 @@ export const createSocialCanvas = (
   purseId: string,
   contractId: string,
   quantity: number,
-  style: string
+  style: string,
+  mascot: string
 ) => {
   return new Promise((resolve) => {
     const canvas = document.createElement('canvas');
@@ -28,26 +67,10 @@ export const createSocialCanvas = (
     canvas.setAttribute('height', '500px');
     const context = canvas.getContext('2d') as CanvasRenderingContext2D;
 
-    console.log(fire);
     const background = new Image();
-    if (style === 'fire') {
-      background.src = fire;
-    } else if (style === 'mountain') {
-      background.src = mountain;
-    } else if (style === 'ice') {
-      background.src = ice;
-    } else if (style === 'volcano') {
-      background.src = volcano;
-    } else if (style === 'network') {
-      background.src = network;
-    } else if (style === 'desert') {
-      background.src = desert;
-    } else {
-      background.src = mountain;
-    }
+    background.src = images[style] || images.default;
 
     background.onload = () => {
-      console.log('oknload');
       context.drawImage(background, 0, 0);
 
       context.globalAlpha = values[style].alpha;
@@ -58,17 +81,27 @@ export const createSocialCanvas = (
       context.font = '600 75px fira';
       context.fillStyle = values[style].fontColor;
       if (fungible) {
-        context.fillText(`I own ${quantity} tokens`, 40, 270);
+        context.fillText(`I own ${quantity} tokens`, 40, 170);
       } else {
-        context.fillText(`I own NFT "${purseId}"`, 40, 270);
+        context.fillText(`I own NFT "${purseId}"`, 40, 170);
       }
 
       context.font = '600 30px fira';
-      context.fillText(`in contract ${contractId}`, 40, 305);
+      context.fillText(`in contract "${contractId}"`, 40, 210);
 
       context.font = '600 30px fira';
       context.fillText(`dappy.tech`, 840, 480);
-      resolve(canvas.toDataURL('image/png'));
+      if (mascot === 'none') {
+        resolve(canvas.toDataURL('image/png'));
+      } else {
+        const mascotImg = new Image();
+        mascotImg.src = mascots[mascot] || mascots.default;
+
+        mascotImg.onload = () => {
+          context.drawImage(mascotImg, 0, 200, 300, 300);
+          resolve(canvas.toDataURL('image/png'));
+        };
+      }
     };
   });
 };
