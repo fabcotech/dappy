@@ -92,7 +92,11 @@ export class ViewPurseComponent extends React.Component<ViewPursesProps, ViewPur
                     });
                   }}
                   className="underlined-link">
-                  {this.props.fungible ? t('update per token price') : t('update nft purse price')}
+                  {this.props.id === '0'
+                    ? 'tokens for sale (mint)'
+                    : this.props.fungible
+                    ? t('update per token price')
+                    : t('update nft purse price')}
                 </a>
                 <a
                   onClick={() => {
@@ -440,8 +444,11 @@ export class ViewPurseComponent extends React.Component<ViewPursesProps, ViewPur
             {this.state.action === undefined && this.props.purse && typeof this.props.purse.price === 'number' && (
               <div className="big-price">
                 <span className="big-price-title">
-                  <i className="fa fa-before fa-money-bill-wave"></i>
-                  {this.props.fungible ? t('for sale') : t('nft for sale')}
+                  {this.props.id === '0'
+                    ? 'tokens for sale (mint)'
+                    : this.props.fungible
+                    ? t('for sale')
+                    : t('nft for sale')}
                 </span>
                 <div className="prices">
                   <span className="formated-amount-rev">

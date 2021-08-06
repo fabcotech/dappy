@@ -30,7 +30,7 @@ const purses800 = {
       timestamp: { type: 'number' },
       price: { type: 'number', nullable: true },
     },
-    required: ['id', 'type', 'quantity', 'boxId', 'timestammp'],
+    required: ['id', 'type', 'quantity', 'boxId', 'timestamp'],
   },
 };
 

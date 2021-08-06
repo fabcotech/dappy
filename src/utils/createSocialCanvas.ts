@@ -4,6 +4,7 @@ const ice = require('../images/social/ice.jpg');
 const desert = require('../images/social/desert.jpg');
 const network = require('../images/social/network.jpg');
 const mountain = require('../images/social/mountain.jpg');
+const moon = require('../images/social/moon.jpg');
 
 const tyrannosaurus = require('../images/mascots/tyrannosaurus.png');
 const astronaut_on_moon = require('../images/mascots/astronaut_on_moon.png');
@@ -26,6 +27,7 @@ export const images: { [key: string]: string } = {
   desert,
   network,
   mountain,
+  moon,
   default: fire,
 };
 
@@ -42,6 +44,7 @@ export const mascots: { [key: string]: string } = {
   panda_with_bamboo,
   shark,
   sloth_doing_yoga,
+  koalas,
   default: tyrannosaurus,
 };
 
@@ -52,6 +55,7 @@ const values: { [key: string]: { alpha: number; fillStyle: string; fontColor: st
   ice: { alpha: 0.4, fillStyle: '#000', fontColor: '#ffffff' },
   mountain: { alpha: 0.6, fillStyle: '#fff', fontColor: '#111111' },
   network: { alpha: 0.6, fillStyle: '#223', fontColor: '#ffffff' },
+  moon: { alpha: 0.6, fillStyle: '#223', fontColor: '#ffffff' },
 };
 export const createSocialCanvas = (
   fungible: boolean,
@@ -81,16 +85,16 @@ export const createSocialCanvas = (
       context.font = '600 75px fira';
       context.fillStyle = values[style].fontColor;
       if (fungible) {
-        context.fillText(`I own ${quantity} tokens`, 40, 170);
+        context.fillText(`I own ${quantity} tokens`, 40, 160);
       } else {
-        context.fillText(`I own NFT "${purseId}"`, 40, 170);
+        context.fillText(`I own NFT "${purseId}"`, 40, 160);
       }
 
       context.font = '600 30px fira';
-      context.fillText(`in contract "${contractId}"`, 40, 210);
+      context.fillText(`in contract "${contractId}"`, 40, 200);
 
       context.font = '600 30px fira';
-      context.fillText(`dappy.tech`, 840, 480);
+      context.fillText(`d/dappy | dappy.tech`, 685, 480);
       if (mascot === 'none') {
         resolve(canvas.toDataURL('image/png'));
       } else {
