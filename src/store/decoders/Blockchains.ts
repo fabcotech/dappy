@@ -23,9 +23,9 @@ export const validateBlockchain = (bc: any): Promise<boolean> =>
     blockchainSchema
       .validate(bc)
       .then(() => {
-        resolve();
+        resolve(true);
       })
-      .catch((err: Error) => {
+      .catch((err: yup.ValidationError) => {
         reject(err);
       });
   });
@@ -41,8 +41,8 @@ export const validateBlockchains = (blockchains: any): Promise<Blockchain[]> => 
       .then(() => {
         resolve(blockchains as Blockchain[]);
       })
-      .catch(e => {
-        reject(e);
+      .catch((err: any) => {
+        reject(err);
       });
   });
 };

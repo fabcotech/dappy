@@ -17,9 +17,9 @@ export const validateFile = (file: any): Promise<boolean> =>
     fileSchema
       .validate(file)
       .then(() => {
-        resolve();
+        resolve(true);
       })
-      .catch((err: Error) => {
+      .catch((err: yup.ValidationError) => {
         reject(err);
       });
   });
@@ -44,9 +44,9 @@ export const validateDpy = (dpy: any): Promise<boolean> =>
     dpySchema
       .validate(dpy)
       .then(() => {
-        resolve();
+        resolve(true);
       })
-      .catch((err: Error) => {
+      .catch((err: yup.ValidationError) => {
         reject(err);
       });
   });

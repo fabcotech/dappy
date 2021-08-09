@@ -52,9 +52,9 @@ export const validateDappFromNetwork = (dapp: any): Promise<boolean> =>
     dappFromNetworkSchema
       .validate(dapp)
       .then(() => {
-        resolve();
+        resolve(true);
       })
-      .catch((err: Error) => {
+      .catch((err: yup.ValidationError) => {
         reject(err);
       });
   });
@@ -67,13 +67,13 @@ export const validateDapp = (dapp: any): Promise<boolean> =>
         loadStateSchema
           .validate(dapp.loadState)
           .then(() => {
-            resolve();
+            resolve(true);
           })
-          .catch(err => {
+          .catch((err: yup.ValidationError) => {
             reject(err);
           });
       })
-      .catch(err => {
+      .catch((err: yup.ValidationError) => {
         reject(err);
       });
   });
@@ -89,7 +89,7 @@ export const validateDapps = (dapps: any): Promise<Dapp[]> => {
       .then(() => {
         resolve(dapps as Dapp[]);
       })
-      .catch(e => {
+      .catch((e) => {
         reject(e);
       });
   });

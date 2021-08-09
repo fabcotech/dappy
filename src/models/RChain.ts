@@ -63,6 +63,7 @@ export enum CallStatus {
 
 export interface TransactionOriginTransfer {
   origin: 'transfer';
+  accountName: undefined | string;
 }
 export interface TransactionOriginRChainToken {
   origin: 'rchain-token';
@@ -71,6 +72,7 @@ export interface TransactionOriginRChainToken {
 }
 export interface TransactionOriginDapp {
   origin: 'dapp';
+  accountName: undefined | string;
   dappId: string;
   dappTitle: string;
   callId: string;
@@ -78,12 +80,15 @@ export interface TransactionOriginDapp {
 export interface TransactionOriginRecord {
   origin: 'record';
   recordName: string;
+  accountName: string;
 }
 export interface TransactionOriginDeploy {
   origin: 'deploy';
+  accountName: string;
 }
 export interface TransactionOriginRholang {
   origin: 'rholang';
+  accountName: string;
 }
 export type TransactionOrigin =
   | TransactionOriginDapp
@@ -93,7 +98,33 @@ export type TransactionOrigin =
   | TransactionOriginRholang
   | TransactionOriginRChainToken;
 
-export type TransactionValue = string | undefined | { address: string } | { message: string };
+export interface RChainTokenCreatePursesReturn {
+  status: string;
+  values: { [purseId: string]: true | string };
+}
+export interface RChainTokenUpdatePursePriceReturn {
+  status: string;
+}
+export interface RChainTokenDeploy {
+  status: string;
+  masterRegistryUri: string;
+  contractId: string;
+}
+export interface RChainTokenDeployBox {
+  status: string;
+  boxId: string;
+}
+
+export type TransactionValue =
+  | string
+  | undefined
+  | { status: string; address: string }
+  | { message: string }
+  | RChainTokenDeploy
+  | RChainTokenDeployBox
+  | RChainTokenUpdatePursePriceReturn
+  | RChainTokenCreatePursesReturn;
+
 export interface TransactionState {
   transaction: undefined | DeployOptions;
   status: TransactionStatus;

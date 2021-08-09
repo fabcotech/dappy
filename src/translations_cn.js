@@ -799,5 +799,98 @@ module.exports.translations = {
   },
   "purchase name fee": {
     "one": "截至目前，从dappy域名系统购买的每个域名都要收取1%的费用，以帮助团队发展和确保平台安全。REV价格的99%将归属于当前的域名所有者，1%归属于域名系统合约的所有者。"
+  },
+  "update name price": {
+    "one": "更新域名价格"
+  },
+  "name for sale": {
+    "one": "域名可售"
+  },
+  "name not for sale": {
+    "one": "域名不可售"
+  },
+  "name price (dust)": {
+    "one": "域名价格（dust）"
+  },
+  "update name properties": {
+    "one": "更新域名属性"
+  },
+  "input your password": {
+    "one": "您需要为你的账户输入一个有效密码"
+  },
+  "no boxes": {
+    "one": "您的账户没有链接到代币盒，请部署或链接一个现有代币盒合约到您的账户。"
+  },
+  "wait for synchronization": {
+    "one": "请稍等……\n同步中……"
+  },
+  "infos not retrieved": {
+    "one": "未从网络中检索到信息"
+  },
+  "no networks": {
+    "one": "未配置网络。必须配置一个网络，且至少有一个活跃的节点部署 Rholang 或智能合约。"
+  },
+  "transaction successful": {
+    "one": "交易已成功发送到网络，查看交易列表，合约地址将很快可用。"
+  },
+  "transaction successful rev": {
+    "one": "该交易已成功发送到网络。几分钟后，您的余额将被更新。"
+  },
+  "transaction successful box": {
+    "one": "代币盒已经部署完毕。请不要退出，您的账户应该在几分钟后更新。"
+  },
+  "just transaction successful": {
+    "one": "交易成功"
+  },
+  "update nft purse price": {
+    "one": "更新钱包（NFT）价格"
+  },
+  "update per token price": {
+    "one": "更新每个代币价格（FT）"
+  },
+  "transaction successful update price": {
+    "one": "更新钱包价格的交易已被部署。"
+  },
+  "nft for sale": {
+    "one": "NFT 出售"
+  },
+  "for sale": {
+    "one": "代币出售"
+  },
+  "per token": {
+    "one": "每个代币"
+  },
+  "not for sale": {
+    "one": "不出售"
+  },
+  "account locked": {
+    "one": "账户被锁定"
+  },
+  "unlock account help text": {
+    "one": "输入您的密码，就可以对您的代币进行任何操作"
+  },
+  "unlock account": {
+    "one": "解锁账户"
+  },
+  "unlock account to see private key": {
+    "one": "输入您的密码就能看到私钥"
+  },
+  "withdraw ft": {
+    "one": "提现"
+  },
+  "withdraw nft": {
+    "one": "发送 NFT"
+  },
+  "transaction successful withdraw": {
+    "one": "提现交易已经部署完毕。"
+  },
+  "box to withdraw to": {
+    "one": "撤回到代币盒"
+  },
+  "copy box id": {
+    "one": "复制代币盒 id"
+  },
+  "download image for social networks": {
+    "one": "下载图片用于社交网络"
   }
 }

@@ -90,7 +90,7 @@ export const validateTransactionState = (transactionState: any): Promise<boolean
       .then(() => {
         resolve(true);
       })
-      .catch((err: Error) => {
+      .catch((err: yup.ValidationError) => {
         reject(err);
       });
   });

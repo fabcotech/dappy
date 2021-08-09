@@ -13,10 +13,10 @@ export const validateMain = (main: any): Promise<boolean> =>
   new Promise((resolve, reject) => {
     mainSchema
       .validate(main)
-      .then(a => {
-        resolve();
+      .then(() => {
+        resolve(true);
       })
-      .catch(err => {
+      .catch((err: yup.ValidationError) => {
         reject(err);
       });
   });

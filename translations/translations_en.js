@@ -1934,7 +1934,7 @@ module.exports.translations = [
   },
   {
     "term": "deploy ft",
-    "definition": " Deploy a contract for fungibles (FT)",
+    "definition": "Deploy a contract for fungibles (FT)",
     "context": "Home",
     "term_plural": "",
     "reference": "",
@@ -2102,7 +2102,7 @@ module.exports.translations = [
   },
   {
     "term": "dappy opensource warning",
-    "definition": "This program does not interact with any private server of FABCO / DAPPY. It does not rely on any centralized service or server. The private keys are stored on your computer, and encrypted with your password. Dappy browser is open soruce but largely unaudited software. We advise you to only use secondary REV/ETH addresses with small amounts.\n\nUSE DAPPY, TRANSFER FUNDS, REFERENCE PRIVATE KEYS AND PUBLIC KEYS AT YOUR OWN RISKS.",
+    "definition": "This program does not interact with any private server of FABCO / DAPPY. It does not rely on any centralized service or server. The private keys are stored on your computer, and encrypted with your password. Dappy browser is open source but largely unaudited software. We advise you to only use secondary REV/ETH addresses with small amounts.\n\nUSE DAPPY, TRANSFER FUNDS, REFERENCE PRIVATE KEYS AND PUBLIC KEYS AT YOUR OWN RISKS.",
     "context": "Settings > Names > Purchase name",
     "term_plural": "",
     "reference": "",
@@ -2246,7 +2246,7 @@ module.exports.translations = [
   },
   {
     "term": "no networks",
-    "definition": "No networks has been configured. A network must be configured, and have at least one active node to deploy rholang or smart contracts.",
+    "definition": "No networks has been configured. A network must be configured, and have at least one active node to deploy Rholang or smart contracts.",
     "context": "Settings > Deploy",
     "term_plural": "",
     "reference": "",
@@ -2335,6 +2335,86 @@ module.exports.translations = [
   {
     "term": "not for sale",
     "definition": "not for sale",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "account locked",
+    "definition": "Account is locked",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "unlock account help text",
+    "definition": "Input your password to be able to perform any operation on your tokens",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "unlock account",
+    "definition": "Unlock account",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "unlock account to see private key",
+    "definition": "Input your password to be able to see private key",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "withdraw ft",
+    "definition": "Withdraw",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "withdraw nft",
+    "definition": "Send NFT",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "transaction successful withdraw",
+    "definition": "Withdraw transaction has been deployed.",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "box to withdraw to",
+    "definition": "Box to withdraw to",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "copy box id",
+    "definition": "Copy box id",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "download image for social networks",
+    "definition": "Download image for social networks",
     "context": "Settings > Account",
     "term_plural": "",
     "reference": "",

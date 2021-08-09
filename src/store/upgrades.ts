@@ -51,7 +51,6 @@ export const upgrades = {
           muted: false,
         };
       });
-      console.log('newTabs', newTabs);
 
       const tx = db.transaction('tabs', 'readwrite');
       const objectStore = tx.objectStore('tabs');

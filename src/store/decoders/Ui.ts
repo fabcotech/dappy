@@ -26,7 +26,7 @@ export const validateUi = (ui: any): Promise<boolean> =>
     uiSchema
       .validate(ui)
       .then((a) => {
-        resolve();
+        resolve(true);
       })
       .catch((err) => {
         reject(err);

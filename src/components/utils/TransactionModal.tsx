@@ -10,7 +10,6 @@ import * as fromCommon from '../../common';
 import { TransactionForm } from '.';
 import { blockchain as blockchainUtils } from '../../utils/blockchain';
 import { signSecp256k1 } from '../../utils/signSecp256k1';
-import { generateNonce } from '../../utils/generateNonce';
 
 import './TransactionModal.scss';
 import { TransactionState, TransactionStatus, Account, RChainInfos } from '../../models';
@@ -31,6 +30,7 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
   state: {
     privatekey: string;
     box: undefined | string;
+    accountName: undefined | string;
     publickey: string;
     phloLimit: number;
     seeCode: boolean;
@@ -38,6 +38,7 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
   } = {
     privatekey: '',
     box: undefined,
+    accountName: undefined,
     publickey: '',
     phloLimit: 1600,
     seeCode: false,
@@ -57,6 +58,7 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
       platform: 'rchain',
       origin: {
         origin: 'dapp',
+        accountName: '',
         dappId: payload.origin.dappId,
         dappTitle: payload.origin.dappTitle,
         callId: payload.origin.callId,
@@ -75,6 +77,7 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
     publickey: string;
     phloLimit: number;
     box: undefined | string;
+    accountName: undefined | string;
   }) => {
     this.setState(t);
   };
@@ -122,6 +125,7 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
       transaction: deployOptions,
       origin: {
         origin: 'dapp',
+        accountName: this.state.accountName as string,
         dappId: payload.origin.dappId,
         dappTitle: payload.origin.dappTitle,
         callId: payload.origin.callId,

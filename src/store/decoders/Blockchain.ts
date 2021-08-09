@@ -15,10 +15,9 @@ export const validatePushManifestResult = (pushManifestResult: any) => {
       reject();
       return;
     }
-    pushManifestResultSchema.isValid(pushManifestResult).then((valid) => {
-      console.log(valid);
+    pushManifestResultSchema.isValid(pushManifestResult).then((valid: boolean) => {
       if (valid) {
-        resolve();
+        resolve(true);
       } else {
         reject();
       }

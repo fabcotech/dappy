@@ -26,9 +26,9 @@ export const validateAccount = (account: any): Promise<boolean> =>
     accountSchema
       .validate(account)
       .then(() => {
-        resolve();
+        resolve(true);
       })
-      .catch((err: Error) => {
+      .catch((err: yup.ValidationError) => {
         reject(err);
       });
   });

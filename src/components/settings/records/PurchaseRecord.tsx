@@ -43,6 +43,7 @@ const defaultState = {
   privatekey: '',
   publickey: '',
   box: '',
+  accountName: '',
   phloLimit: 0,
   settingUpIpServers: false,
   partialRecord: undefined,
@@ -65,6 +66,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
     privatekey: string;
     publickey: string;
     box: string | undefined;
+    accountName: string | undefined;
     phloLimit: number;
     settingUpIpServers: boolean;
     partialRecord: PartialRecord | undefined;
@@ -81,6 +83,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
     publickey: string;
     phloLimit: number;
     box: string | undefined;
+    accountName: string | undefined;
   }) => {
     this.setState(t);
     if (this.setTouched) this.setTouched();
@@ -203,7 +206,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
 
     this.props.sendRChainTransaction({
       transaction: deployOptions,
-      origin: { origin: 'record', recordName: partialRecord.name },
+      origin: { origin: 'record', recordName: partialRecord.name, accountName: this.state.accountName as string },
       platform: 'rchain',
       blockchainId: (this.props.namesBlockchainInfos as RChainInfos).chainId,
       id: id,
@@ -316,31 +319,31 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
             </button>
           </div>
         </div>
-        {this.state.loadedPurse && this.state.loadedPurse.id === '0' && (
-          <div className="field is-horizontal is-grouped">
-            <label className="label"></label>
-            <div className={`control you-will-purchase-control ${dNetwork ? 'dNetwork' : ''}`}>
-              {dNetwork && (
-                <h4 className="d-network">
+        {this.state.loadedPurse &&
+          typeof this.state.loadedPurse.price === 'number' &&
+          this.state.loadedPurse.id === '0' && (
+            <div className="field is-horizontal is-grouped">
+              <label className="label"></label>
+              <div className={`control you-will-purchase-control ${dNetwork ? 'dNetwork' : ''}`}>
+                {dNetwork && (
+                  <h4 className="d-network">
+                    {' '}
+                    <span className="fa  fa-check"></span> d network
+                  </h4>
+                )}
+                <h4 className="you-will-purchase-purse">
                   {' '}
-                  <span className="fa  fa-check"></span> d network
+                  <span className="fa  fa-check"></span> {t('name is available')}
                 </h4>
-              )}
-              <h4 className="you-will-purchase-purse">
-                {' '}
-                <span className="fa  fa-check"></span> {t('name is available')}
-              </h4>
-              <h5 className="current-price-existing-purse">
-                {t('at price')}
-                <span className="num">
-                  {formatAmount(this.state.loadedPurse.price / LOGREV_TO_REV_RATE))}
-                </span>
-                <span className="unit">{t('rev', true)} / </span>
-                <span className="dust">{formatAmountNoDecimal(this.state.loadedPurse.price)} dust</span>
-              </h5>
+                <h5 className="current-price-existing-purse">
+                  {t('at price')}
+                  <span className="num">{formatAmount(this.state.loadedPurse.price / LOGREV_TO_REV_RATE)}</span>
+                  <span className="unit">{t('rev', true)} / </span>
+                  <span className="dust">{formatAmountNoDecimal(this.state.loadedPurse.price)} dust</span>
+                </h5>
+              </div>
             </div>
-          </div>
-        )}
+          )}
         {this.state.loadedPurse &&
           typeof this.state.loadedPurse.price === 'number' &&
           this.state.loadedPurse.id !== '0' && (
@@ -359,9 +362,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
                 </h4>
                 <h5 className="current-price-existing-purse">
                   {t('at price')}
-                  <span className="num">
-                    {formatAmount(this.state.loadedPurse.price / LOGREV_TO_REV_RATE)}
-                  </span>
+                  <span className="num">{formatAmount(this.state.loadedPurse.price / LOGREV_TO_REV_RATE)}</span>
                   <span className="unit">{t('rev', true)}</span>
                   <span className="dust">{formatAmountNoDecimal(this.state.loadedPurse.price)} dust</span>
                 </h5>

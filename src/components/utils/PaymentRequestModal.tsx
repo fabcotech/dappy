@@ -9,7 +9,7 @@ import * as fromUi from '../../store/ui';
 import * as fromSettings from '../../store/settings';
 import * as fromBlockchain from '../../store/blockchain';
 import * as fromCommon from '../../common';
-import { TransactionForm } from '.';
+import { TransactionForm } from './TransactionForm';
 import { blockchain as blockchainUtils } from '../../utils/blockchain';
 import { LOGREV_TO_REV_RATE, DEFAULT_PHLO_LIMIT } from '../../CONSTANTS';
 import { formatAmount } from '../../utils/formatAmount';
@@ -37,6 +37,8 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
   state: {
     privatekey: string;
     publickey: string;
+    box: undefined | string;
+    accountName: undefined | string;
     phloLimit: number;
     to: string;
     amount: number;
@@ -46,6 +48,8 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
   } = {
     privatekey: '',
     publickey: '',
+    box: undefined,
+    accountName: undefined,
     to: '',
     amount: 0,
     phloLimit: DEFAULT_PHLO_LIMIT,
@@ -158,7 +162,13 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
     }
   };
 
-  onFilledTransactionData = (t: { privatekey: string; publickey: string; phloLimit: number }) => {
+  onFilledTransactionData = (t: {
+    privatekey: string;
+    publickey: string;
+    phloLimit: number;
+    box: undefined | string;
+    accountName: undefined | string;
+  }) => {
     this.setState(t);
   };
 
@@ -177,7 +187,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
       blockchainUtils.transferFundsTerm(
         fromAddress,
         payload.parameters.to || this.state.to,
-        (payload.parameters.amount || this.state.amount)
+        payload.parameters.amount || this.state.amount
       ),
       this.state.privatekey,
       this.state.publickey,
@@ -192,10 +202,11 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
       there will be payload.dappId
     */
     if (payload.dappId) {
-      let origin: TransactionOrigin = { origin: 'transfer' };
+      let origin: TransactionOrigin = { origin: 'transfer', accountName: this.state.accountName as string };
       if (payload.origin.dappId) {
         origin = {
           origin: 'dapp',
+          accountName: this.state.accountName as string,
           dappId: payload.origin.dappId,
           dappTitle: payload.origin.dappTitle,
           callId: payload.origin.callId,
@@ -227,6 +238,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
         transaction: deployOptions,
         origin: {
           origin: 'transfer',
+          accountName: this.state.accountName as string,
         },
         platform: 'rchain',
         blockchainId: payload.chainId,

@@ -18,7 +18,11 @@ import { PrivateKeyWarning } from '.';
 interface AccountSelectComponentProps {
   chooseBox?: boolean;
   accounts: { [accountName: string]: Account };
-  updatePrivateKey: (t: { privatekey: string | undefined; box: string | undefined }) => void;
+  updatePrivateKey: (t: {
+    privatekey: string | undefined;
+    box: string | undefined;
+    accountName: undefined | string;
+  }) => void;
 }
 interface AccountSelectComponentState {
   passwordError: string | undefined;
@@ -53,14 +57,18 @@ export class AccountSelectComponent extends React.Component<AccountSelectCompone
             passwordSuccess: true,
             passwordError: undefined,
           });
-          this.props.updatePrivateKey({ privatekey: decrypted, box: data.account.boxes[0] });
+          this.props.updatePrivateKey({
+            privatekey: decrypted,
+            box: data.account.boxes[0],
+            accountName: data.account.name,
+          });
         } catch (err) {
           this.setState({
             boxFound: undefined,
             passwordError: t('wrong password'),
             passwordSuccess: false,
           });
-          this.props.updatePrivateKey({ privatekey: undefined, box: undefined });
+          this.props.updatePrivateKey({ privatekey: undefined, box: undefined, accountName: undefined });
         }
       },
     });
@@ -166,7 +174,7 @@ export class AccountSelectComponent extends React.Component<AccountSelectCompone
 // Transaction form
 
 interface TransactionFormProps {
-  accounts?: { [accountName: string]: Account };
+  accounts: { [accountName: string]: Account };
   chooseBox?: boolean;
   publicKey?: string;
   phloLimit?: number;
@@ -176,32 +184,21 @@ interface TransactionFormProps {
     publickey: string;
     phloLimit: number;
     box: string | undefined;
+    accountName: string | undefined;
   }) => void;
 }
-interface TransactionFormState {
-  atLeastOneAccount: boolean;
-}
+interface TransactionFormState {}
 
 export class TransactionForm extends React.Component<TransactionFormProps, TransactionFormState> {
   constructor(props: TransactionFormProps) {
     super(props);
-    this.state = {
-      atLeastOneAccount: false,
-    };
-  }
-
-  static getDerivedStateFromProps(nextProps: TransactionFormProps, prevState: {}) {
-    if (nextProps.accounts && Object.keys(nextProps.accounts).length) {
-      return { atLeastOneAccount: true };
-    } else {
-      return { atLeastOneAccount: false };
-    }
+    this.state = {};
   }
 
   publickey = '';
 
   render() {
-    if (!this.state.atLeastOneAccount) {
+    if (!this.props.accounts || Object.keys(this.props.accounts).length === 0) {
       return (
         <form className="transaction-form">
           <h5 className="is-6 title">{t('transaction')}</h5>
@@ -219,6 +216,7 @@ export class TransactionForm extends React.Component<TransactionFormProps, Trans
         initialValues={{
           privatekey: '',
           box: '',
+          accountName: '',
           phloLimit: this.props.phloLimit || DEFAULT_PHLO_LIMIT,
         }}
         validate={(values) => {
@@ -267,6 +265,7 @@ export class TransactionForm extends React.Component<TransactionFormProps, Trans
               privatekey: values.privatekey,
               phloLimit: values.phloLimit,
               box: values.box,
+              accountName: values.accountName,
             });
           } else {
             this.props.filledTransactionData({
@@ -274,6 +273,7 @@ export class TransactionForm extends React.Component<TransactionFormProps, Trans
               privatekey: '',
               phloLimit: 0,
               box: undefined,
+              accountName: undefined,
             });
           }
 
@@ -292,46 +292,16 @@ export class TransactionForm extends React.Component<TransactionFormProps, Trans
                   </div>
                 </div>
               ) : undefined}
-              {this.state.atLeastOneAccount ? (
-                <AccountSelectComponent
-                  chooseBox={this.props.chooseBox}
-                  updatePrivateKey={(a) => {
-                    setFieldValue('box', a.box);
-                    setFieldValue('privatekey', a.privatekey);
-                  }}
-                  accounts={this.props.accounts as { [accountName: string]: Account }}
-                />
-              ) : undefined}
+              <AccountSelectComponent
+                chooseBox={this.props.chooseBox}
+                updatePrivateKey={(a) => {
+                  setFieldValue('accountName', a.accountName);
+                  setFieldValue('box', a.box);
+                  setFieldValue('privatekey', a.privatekey);
+                }}
+                accounts={this.props.accounts}
+              />
 
-              {!this.state.atLeastOneAccount ? (
-                <div className="field is-horizontal">
-                  <label className="label">{t('public key')}*</label>
-                  <div className="control">
-                    <input
-                      disabled
-                      className="input"
-                      type="text"
-                      name="publickey"
-                      value={this.props.publicKey || this.publickey}
-                      placeholder={t('public key derived')}
-                    />
-                  </div>
-                </div>
-              ) : undefined}
-
-              {!this.state.atLeastOneAccount ? (
-                <Fragment>
-                  <div className="field is-horizontal">
-                    <label className="label">{t('private key')}*</label>
-                    <div className="control">
-                      <Field className="input" type="password" name="privatekey" placeholder="Private key" />
-                    </div>
-                  </div>
-                  {touched.privatekey && errors.privatekey && (
-                    <p className="text-danger">{(errors as any).privatekey}</p>
-                  )}
-                </Fragment>
-              ) : undefined}
               <div className="field is-horizontal">
                 <label className="label">{t('phlogiston limit')}*</label>
                 <div className="control">

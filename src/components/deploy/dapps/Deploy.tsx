@@ -40,6 +40,7 @@ export class Deploy extends React.Component<DeployProps, {}> {
     variables: undefined | Variables; // step 2
     privatekey: string; // step 3
     box: string | undefined; // step 3
+    accountName: string | undefined; // step 3
     publickey: string; // step 3
     phloLimit: number; // step 3
     step: number;
@@ -51,6 +52,7 @@ export class Deploy extends React.Component<DeployProps, {}> {
     variables: undefined,
     privatekey: '',
     box: undefined,
+    accountName: undefined,
     publickey: '',
     phloLimit: 0,
     step: 1,
@@ -135,11 +137,11 @@ export class Deploy extends React.Component<DeployProps, {}> {
 
   onFilledTransactionData = (t: {
     box: string | undefined;
+    accountName: string | undefined;
     privatekey: string;
     publickey: string;
     phloLimit: number;
   }) => {
-    console.log(t);
     this.setState(t);
   };
 
@@ -166,7 +168,7 @@ export class Deploy extends React.Component<DeployProps, {}> {
 
     this.props.sendRChainTransaction({
       transaction: deployOptions,
-      origin: { origin: 'rchain-token', operation: 'deploy', accountName: undefined },
+      origin: { origin: 'rchain-token', operation: 'deploy', accountName: this.state.accountName },
       platform: 'rchain',
       blockchainId: (this.props.namesBlockchain as Blockchain).chainId,
       id: id,
@@ -236,7 +238,7 @@ export class Deploy extends React.Component<DeployProps, {}> {
         encrypted: accountUtils.encrypt(this.state.privatekey, passwordBytes),
         publicKey: this.state.publickey,
         phloLimit: this.state.phloLimit,
-        origin: { origin: 'deploy' },
+        origin: { origin: 'deploy', accountName: this.state.accountName as string },
         platform: 'rchain',
         blockchainId: this.props.namesBlockchain.chainId,
         id: id,

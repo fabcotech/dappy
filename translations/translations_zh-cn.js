@@ -2159,7 +2159,7 @@ module.exports.translations = [
   },
   {
     "term": "update name price",
-    "definition": null,
+    "definition": "更新域名价格",
     "context": "Settings > Names > Update name",
     "term_plural": "",
     "reference": "",
@@ -2167,7 +2167,7 @@ module.exports.translations = [
   },
   {
     "term": "name for sale",
-    "definition": null,
+    "definition": "域名可售",
     "context": "Settings > Names > Update name",
     "term_plural": "",
     "reference": "",
@@ -2175,7 +2175,7 @@ module.exports.translations = [
   },
   {
     "term": "name not for sale",
-    "definition": null,
+    "definition": "域名不可售",
     "context": "Settings > Names > Purchase name",
     "term_plural": "",
     "reference": "",
@@ -2183,7 +2183,7 @@ module.exports.translations = [
   },
   {
     "term": "name price (dust)",
-    "definition": null,
+    "definition": "域名价格（dust）",
     "context": "Settings > Names > Update name",
     "term_plural": "",
     "reference": "",
@@ -2191,7 +2191,7 @@ module.exports.translations = [
   },
   {
     "term": "update name properties",
-    "definition": null,
+    "definition": "更新域名属性",
     "context": "Settings > Names > Update name",
     "term_plural": "",
     "reference": "",
@@ -2199,7 +2199,7 @@ module.exports.translations = [
   },
   {
     "term": "input your password",
-    "definition": null,
+    "definition": "您需要为你的账户输入一个有效密码",
     "context": "Settings > Names > Update name",
     "term_plural": "",
     "reference": "",
@@ -2207,7 +2207,7 @@ module.exports.translations = [
   },
   {
     "term": "no boxes",
-    "definition": null,
+    "definition": "您的账户没有链接到代币盒，请部署或链接一个现有代币盒合约到您的账户。",
     "context": "Settings > Deploy",
     "term_plural": "",
     "reference": "",
@@ -2215,7 +2215,7 @@ module.exports.translations = [
   },
   {
     "term": "wait for synchronization",
-    "definition": null,
+    "definition": "请稍等……\n同步中……",
     "context": "Settings > Deploy",
     "term_plural": "",
     "reference": "",
@@ -2223,7 +2223,7 @@ module.exports.translations = [
   },
   {
     "term": "infos not retrieved",
-    "definition": null,
+    "definition": "未从网络中检索到信息",
     "context": "Settings > Deploy",
     "term_plural": "",
     "reference": "",
@@ -2231,7 +2231,7 @@ module.exports.translations = [
   },
   {
     "term": "no networks",
-    "definition": null,
+    "definition": "未配置网络。必须配置一个网络，且至少有一个活跃的节点部署 Rholang 或智能合约。",
     "context": "Settings > Deploy",
     "term_plural": "",
     "reference": "",
@@ -2239,7 +2239,7 @@ module.exports.translations = [
   },
   {
     "term": "transaction successful",
-    "definition": null,
+    "definition": "交易已成功发送到网络，查看交易列表，合约地址将很快可用。",
     "context": "Settings",
     "term_plural": "",
     "reference": "",
@@ -2247,7 +2247,7 @@ module.exports.translations = [
   },
   {
     "term": "transaction successful rev",
-    "definition": null,
+    "definition": "该交易已成功发送到网络。几分钟后，您的余额将被更新。",
     "context": "Settings > Account",
     "term_plural": "",
     "reference": "",
@@ -2255,7 +2255,7 @@ module.exports.translations = [
   },
   {
     "term": "transaction successful box",
-    "definition": null,
+    "definition": "代币盒已经部署完毕。请不要退出，您的账户应该在几分钟后更新。",
     "context": "Settings > Account",
     "term_plural": "",
     "reference": "",
@@ -2263,7 +2263,7 @@ module.exports.translations = [
   },
   {
     "term": "just transaction successful",
-    "definition": null,
+    "definition": "交易成功",
     "context": "Settings > Account",
     "term_plural": "",
     "reference": "",
@@ -2271,7 +2271,7 @@ module.exports.translations = [
   },
   {
     "term": "update nft purse price",
-    "definition": null,
+    "definition": "更新钱包（NFT）价格",
     "context": "Settings > Account",
     "term_plural": "",
     "reference": "",
@@ -2279,7 +2279,127 @@ module.exports.translations = [
   },
   {
     "term": "update per token price",
-    "definition": null,
+    "definition": "更新每个代币价格（FT）",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "transaction successful update price",
+    "definition": "更新钱包价格的交易已被部署。",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "nft for sale",
+    "definition": "NFT 出售",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "for sale",
+    "definition": "代币出售",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "per token",
+    "definition": "每个代币",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "not for sale",
+    "definition": "不出售",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "account locked",
+    "definition": "账户被锁定",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "unlock account help text",
+    "definition": "输入您的密码，就可以对您的代币进行任何操作",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "unlock account",
+    "definition": "解锁账户",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "unlock account to see private key",
+    "definition": "输入您的密码就能看到私钥",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "withdraw ft",
+    "definition": "提现",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "withdraw nft",
+    "definition": "发送 NFT",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "transaction successful withdraw",
+    "definition": "提现交易已经部署完毕。",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "box to withdraw to",
+    "definition": "撤回到代币盒",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "copy box id",
+    "definition": "复制代币盒 id",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "download image for social networks",
+    "definition": "下载图片用于社交网络",
     "context": "Settings > Account",
     "term_plural": "",
     "reference": "",

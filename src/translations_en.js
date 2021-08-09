@@ -711,7 +711,7 @@ module.exports.translations = {
     "one": "Check your wallets / accounts"
   },
   "deploy ft": {
-    "one": " Deploy a contract for fungibles (FT)"
+    "one": "Deploy a contract for fungibles (FT)"
   },
   "deploy nft": {
     "one": "Deploy a contract for non-fungibles (NFT)"
@@ -774,7 +774,7 @@ module.exports.translations = {
     "one": "Deploy contract"
   },
   "dappy opensource warning": {
-    "one": "This program does not interact with any private server of FABCO / DAPPY. It does not rely on any centralized service or server. The private keys are stored on your computer, and encrypted with your password. Dappy browser is open soruce but largely unaudited software. We advise you to only use secondary REV/ETH addresses with small amounts.\n\nUSE DAPPY, TRANSFER FUNDS, REFERENCE PRIVATE KEYS AND PUBLIC KEYS AT YOUR OWN RISKS."
+    "one": "This program does not interact with any private server of FABCO / DAPPY. It does not rely on any centralized service or server. The private keys are stored on your computer, and encrypted with your password. Dappy browser is open source but largely unaudited software. We advise you to only use secondary REV/ETH addresses with small amounts.\n\nUSE DAPPY, TRANSFER FUNDS, REFERENCE PRIVATE KEYS AND PUBLIC KEYS AT YOUR OWN RISKS."
   },
   "purchase a name 2": {
     "one": "Name is the core asset of the dappy ecosystem, you can use a name to reference your website on the internet network (IP application), you can point your name to a HTML file or any other file that you have uploaded on the blockchain (dapp), you can also use it to receive payments, or as a speculative asset."
@@ -828,7 +828,7 @@ module.exports.translations = {
     "one": "Infos not retrieved from the network"
   },
   "no networks": {
-    "one": "No networks has been configured. A network must be configured, and have at least one active node to deploy rholang or smart contracts."
+    "one": "No networks has been configured. A network must be configured, and have at least one active node to deploy Rholang or smart contracts."
   },
   "transaction successful": {
     "one": "The transaction has been successfully sent to the network, check the transactions list, the address of the contract will be available soon."
@@ -889,5 +889,8 @@ module.exports.translations = {
   },
   "copy box id": {
     "one": "Copy box id"
+  },
+  "download image for social networks": {
+    "one": "Download image for social networks"
   }
 }

@@ -41,9 +41,9 @@ export const validateDappyNodeFullInfo = (dnfi: any) => {
       reject();
       return;
     }
-    dappyNodeInfoFullSchema.isValid(dnfi).then((valid) => {
+    dappyNodeInfoFullSchema.isValid(dnfi).then((valid: boolean) => {
       if (valid) {
-        resolve();
+        resolve(true);
       } else {
         reject();
       }
@@ -60,10 +60,9 @@ export const validateDappyNodeInfo = (dni: any) => {
     dappyNodeInfoSchema
       .validate(dni)
       .then(() => {
-        resolve();
+        resolve(true);
       })
-      .catch((err) => {
-        console.log(err);
+      .catch((err: yup.ValidationError) => {
         reject(err);
       });
   });

@@ -246,12 +246,13 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
                     <i className="fa fa-key fa-before"></i>
                     {sk.replace('rho:id:', '')}
                     <span className="square" style={{ background: toRGB(sk.replace('rho:id:', '')) }}></span>
+                    &nbsp;
                     <a
                       type="button"
-                      className="button is-white is-small"
+                      className="underlined-link"
                       onClick={() => window.copyToClipboard(sk.replace('rho:id:', ''))}>
+                      <i className="fa fa-copy fa-before"></i>
                       {t('copy contract address')}
-                      <i className="fa fa-copy fa-after"></i>
                     </a>
                   </span>
                 );

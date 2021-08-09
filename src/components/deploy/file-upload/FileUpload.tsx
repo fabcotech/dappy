@@ -184,9 +184,7 @@ export class FileUploadComponent extends React.Component<FileUploadProps, {}> {
           Avoid sending private key in clear through redux logs
           Encrypting it with window.uniqueEphemeralToken
         */
-        const passwordBytes = accountUtils.passwordFromStringToBytes(
-          (window.uniqueEphemeralToken as string).substr(0, 32)
-        );
+        const passwordBytes = accountUtils.passwordFromStringToBytes(window.uniqueEphemeralToken.substr(0, 32));
         this.props.sendRChainTransactionWithFile({
           fileAsBase64: dappyFileAsBase64,
           encrypted: accountUtils.encrypt(this.state.privatekey, passwordBytes),

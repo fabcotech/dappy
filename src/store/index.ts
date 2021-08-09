@@ -42,7 +42,33 @@ import { PREDEFINED_TABS } from '../TABS';
 import { initCronJobs } from './initCronJobs';
 import { interProcess } from '../interProcess';
 import { browserUtils } from './browser-utils';
+
+import { MultiCallResult } from '../models';
 // import { upgrades } from './upgrades';
+
+declare global {
+  interface Window {
+    Sentry: any;
+    uniqueEphemeralToken: string;
+    singleDappyCall: (body: any, parameters: any) => Promise<any>;
+    multiDappyCall: (body: any, parameters: any) => Promise<MultiCallResult>;
+    getIpAddressAndCert: (parameters: any) => void;
+    triggerCommand: (command: string, payload: any) => void;
+    initContextMenu: () => void;
+    copyToClipboard: (a: string) => void;
+    dispatchInMain: (a: Action) => void;
+    openExternal: (url: string) => void;
+    t: (a: string, plural?: boolean) => void;
+    translations: {
+      [key: string]: {
+        one: string;
+        other?: string;
+      };
+    };
+    dispatchFromMainProcess: (a: Action) => void;
+    dispatchWhenReady: undefined | Action;
+  }
+}
 
 export interface Action {
   type: string;
@@ -59,7 +85,7 @@ export interface State {
   cookies: fromCookies.State;
 }
 
-const errorCatcherMiddleware = store => next => action => {
+const errorCatcherMiddleware = (store) => (next) => (action) => {
   try {
     return next(action);
   } catch (err) {
@@ -135,11 +161,9 @@ const dispatchInitActions = () => {
     store.dispatch(
       fromUi.setBodyDimensionsAction({ bodyDimensions: [document.body.clientWidth, document.body.clientHeight] })
     );
-    setTimeout(
-      () => {
-        initCronJobs(store)
-      }, 10000
-    )
+    setTimeout(() => {
+      initCronJobs(store);
+    }, 10000);
     store.dispatch(fromMain.updateInitializationOverAction());
   }
 };
@@ -150,12 +174,12 @@ export let db: undefined | IDBDatabase;
 
 export const getDb: () => IDBDatabase = () => db as IDBDatabase;
 
-dbReq.onupgradeneeded = event => {
+dbReq.onupgradeneeded = (event) => {
   if (!event.target) {
     console.error('DB onupgradeneeded failed to initialize');
     return;
   }
-  db = ((event.target as any).result) as IDBDatabase;
+  db = (event.target as any).result as IDBDatabase;
 
   if (!db.objectStoreNames.contains('ui')) {
     db.createObjectStore('ui', {});
@@ -196,7 +220,7 @@ dbReq.onupgradeneeded = event => {
       const b = db.createObjectStore('cookies', { keyPath: 'dappyDomain' });
       console.log(a);
       console.log(b);
-      console.log('[migration] Migration from cookies.address to cookies.dappyDomain ok')
+      console.log('[migration] Migration from cookies.address to cookies.dappyDomain ok');
     }
   } else {
     db.createObjectStore('cookies', { keyPath: 'dappyDomain' });
@@ -204,7 +228,7 @@ dbReq.onupgradeneeded = event => {
 };
 
 const registerIDBOpenDBRequestErrorListener = (idbOpenRequest: IDBOpenDBRequest) => {
-  idbOpenRequest.onerror = err => {
+  idbOpenRequest.onerror = (err) => {
     store.dispatch(
       fromMain.saveErrorAction({
         errorCode: 2017,
@@ -213,30 +237,30 @@ const registerIDBOpenDBRequestErrorListener = (idbOpenRequest: IDBOpenDBRequest)
       })
     );
   };
-}
+};
 
 export const openConnection = () => {
   return new Promise<void>((resolve, reject) => {
     const a = window.indexedDB.open('dappy', DB_MIGRATION_NUMBER);
-    a.onerror = event => {
+    a.onerror = (event) => {
       console.log('IndexedDB open: error');
       store.dispatch(
         fromMain.saveErrorAction({
           errorCode: 2060,
           error: 'Error opening IndexedDB',
-          trace: event
+          trace: event,
         })
       );
-      reject(event)
-    }
-    a.onsuccess = event => {
+      reject(event);
+    };
+    a.onsuccess = (event) => {
       console.log('IndexedDB open: successful');
-      db = ((event.target as any).result) as IDBDatabase;
+      db = (event.target as any).result as IDBDatabase;
       registerIDBOpenDBRequestErrorListener(a);
       resolve();
-    }
-  })
-}
+    };
+  });
+};
 
 /*
   Is this setInterval to close/reopen connection still
@@ -254,27 +278,27 @@ setInterval(() => {
       fromMain.saveErrorAction({
         errorCode: 2059,
         error: 'Error closing IndexedDB',
-        trace: e
+        trace: e,
       })
-    )
+    );
   }
   setTimeout(openConnection, 100);
 }, RELOAD_INDEXEDDB_PERIOD);
 
 let asyncActionsOver = 0;
-dbReq.onsuccess = event => {
+dbReq.onsuccess = (event) => {
   if (!event.target) {
     console.error('DB onsuccess failed to initialize');
     return;
   }
-  db = ((event.target as any).result) as IDBDatabase;
+  db = (event.target as any).result as IDBDatabase;
 
   // UI
   const uiTx = db.transaction('ui', 'readonly');
   var uiObjectStore = uiTx.objectStore('ui');
 
   const requestUI = uiObjectStore.get(0);
-  requestUI.onsuccess = e => {
+  requestUI.onsuccess = (e) => {
     let ui = requestUI.result;
     if (typeof ui === 'undefined') {
       console.warn('ui not found in storage, probably first launch');
@@ -292,7 +316,7 @@ dbReq.onsuccess = event => {
         store.dispatch(fromUi.updateUiFromStorageAction({ uiState: ui }));
         dispatchInitActions();
       })
-      .catch(e => {
+      .catch((e) => {
         if (ui) {
           console.error(e);
         }
@@ -312,7 +336,7 @@ dbReq.onsuccess = event => {
   const settingsTx = db.transaction('settings', 'readonly');
   var settingsObjectStore = settingsTx.objectStore('settings');
   const requestSettings = settingsObjectStore.get(0);
-  requestSettings.onsuccess = e => {
+  requestSettings.onsuccess = (e) => {
     let settings = requestSettings.result;
     if (typeof settings === 'undefined') {
       console.warn('settings not found in storage, probably first launch');
@@ -329,7 +353,7 @@ dbReq.onsuccess = event => {
         store.dispatch(fromSettings.updateSettingsCompletedAction(settings));
         dispatchInitActions();
       })
-      .catch(e => {
+      .catch((e) => {
         if (settings) {
           console.error(e);
         }
@@ -349,11 +373,11 @@ dbReq.onsuccess = event => {
   const tabsTx = db.transaction('tabs', 'readonly');
   var tabsStore = tabsTx.objectStore('tabs');
   const requestTabs = tabsStore.getAll();
-  requestTabs.onsuccess = e => {
+  requestTabs.onsuccess = (e) => {
     let tabsToCheck = requestTabs.result;
 
     validateTabs(tabsToCheck)
-      .then(tabs => {
+      .then((tabs) => {
         asyncActionsOver += 1;
         if (tabs.length) {
           store.dispatch(fromDapps.updatTabsFromStorageAction({ tabs: tabs }));
@@ -362,7 +386,7 @@ dbReq.onsuccess = event => {
         }
         dispatchInitActions();
       })
-      .catch(e => {
+      .catch((e) => {
         asyncActionsOver += 1;
         store.dispatch(
           fromMain.saveErrorAction({
@@ -379,15 +403,15 @@ dbReq.onsuccess = event => {
   const previewsTx = db.transaction('previews', 'readonly');
   var previewsStore = previewsTx.objectStore('previews');
   const requestPreviews = previewsStore.getAll();
-  requestPreviews.onsuccess = e => {
+  requestPreviews.onsuccess = (e) => {
     const previewsToCheck = requestPreviews.result;
     validatePreviews(previewsToCheck)
-      .then(previews => {
+      .then((previews) => {
         asyncActionsOver += 1;
         store.dispatch(fromHistory.updatPreviewsFromStorageAction({ previews: previews }));
         dispatchInitActions();
       })
-      .catch(e => {
+      .catch((e) => {
         asyncActionsOver += 1;
         store.dispatch(
           fromMain.saveErrorAction({
@@ -404,30 +428,26 @@ dbReq.onsuccess = event => {
   const cookiesTx = db.transaction('cookies', 'readonly');
   var cookiesStore = cookiesTx.objectStore('cookies');
   const requestCookes = cookiesStore.getAll();
-  requestCookes.onsuccess = e => {
+  requestCookes.onsuccess = (e) => {
     const cookiesToCheck = requestCookes.result;
+    console.log('cookiesToCheck');
+    console.log(cookiesToCheck);
     validateCookies(cookiesToCheck)
-      .then(cookiesFromStorage => {
+      .then((cookiesFromStorage) => {
         asyncActionsOver += 1;
         store.dispatch(fromCookies.updateCookiesFromStorageAction({ cookiesFromStorage: cookiesFromStorage }));
         dispatchInitActions();
       })
-      .catch(e => {
+      .catch((e) => {
         asyncActionsOver += 1;
-        if (VERSION === "0.4.2") {
-          console.log('[migration] ignoring failed to load cookies from storage')
-          console.log(cookiesToCheck.map(c => c.address))
-          browserUtils.deleteStorageIndexed("cookies", cookiesToCheck.map(c => c.address))
-        } else {
-          store.dispatch(
-            fromMain.saveErrorAction({
-              errorCode: 2053,
-              error: 'Unable to read cookies from storage',
-              trace: e,
-            })
-          );
-          dispatchInitActions();
-        }
+        store.dispatch(
+          fromMain.saveErrorAction({
+            errorCode: 2053,
+            error: 'Unable to read cookies from storage',
+            trace: e,
+          })
+        );
+        dispatchInitActions();
       });
   };
 
@@ -435,21 +455,21 @@ dbReq.onsuccess = event => {
   const blockchainsTx = db.transaction('blockchains', 'readonly');
   var blockchainsStore = blockchainsTx.objectStore('blockchains');
   const requestBlockchains = blockchainsStore.getAll();
-  requestBlockchains.onsuccess = e => {
+  requestBlockchains.onsuccess = (e) => {
     const blockchainsToCheck = requestBlockchains.result;
     validateBlockchains(blockchainsToCheck)
-      .then(blockchains => {
+      .then((blockchains) => {
         asyncActionsOver += 1;
         if (blockchains.length) {
           store.dispatch(fromSettings.updateBlockchainsFromStorageAction(blockchains));
         } else {
-          store.dispatch(fromSettings.updateBlockchainsFromStorageAction([PREDEFINED_BLOCKCHAINS[0]]))
+          store.dispatch(fromSettings.updateBlockchainsFromStorageAction([PREDEFINED_BLOCKCHAINS[0]]));
         }
         dispatchInitActions();
       })
-      .catch(e => {
+      .catch((e) => {
         asyncActionsOver += 1;
-        store.dispatch(fromSettings.updateBlockchainsFromStorageAction([PREDEFINED_BLOCKCHAINS[0]]))
+        store.dispatch(fromSettings.updateBlockchainsFromStorageAction([PREDEFINED_BLOCKCHAINS[0]]));
         store.dispatch(
           fromMain.saveErrorAction({
             errorCode: 2004,
@@ -458,53 +478,59 @@ dbReq.onsuccess = event => {
           })
         );
         dispatchInitActions();
-      })
+      });
   };
 
-    // TRANSACTIONS
-    const transactionsTx = db.transaction('transactions', 'readonly');
-    var transactionsStore = transactionsTx.objectStore('transactions');
-    const requestTransactions = transactionsStore.getAll();
-    requestTransactions.onsuccess = e => {
-      const transactionsToCheck = requestTransactions.result;
-      validateTransactionStates(transactionsToCheck)
-        .then(transactions => {
-          asyncActionsOver += 1;
-          store.dispatch(fromBlockchain.updateTransactionsFromStorageAction({
-            transactions: transactions
-          }));
-          dispatchInitActions();
-        })
-        .catch(e => {
-          asyncActionsOver += 1;
-          store.dispatch(fromSettings.updateBlockchainsFromStorageAction(PREDEFINED_BLOCKCHAINS))
-          store.dispatch(
-            fromMain.saveErrorAction({
-              errorCode: 2047,
-              error: 'Unable to read transactions from storage',
-              trace: e,
-            })
-          );
-          dispatchInitActions();
-        })
-    };
+  // TRANSACTIONS
+  const transactionsTx = db.transaction('transactions', 'readonly');
+  var transactionsStore = transactionsTx.objectStore('transactions');
+  const requestTransactions = transactionsStore.getAll();
+  requestTransactions.onsuccess = (e) => {
+    const transactionsToCheck = requestTransactions.result;
+    validateTransactionStates(transactionsToCheck)
+      .then((transactions) => {
+        asyncActionsOver += 1;
+        store.dispatch(
+          fromBlockchain.updateTransactionsFromStorageAction({
+            transactions: transactions,
+          })
+        );
+        dispatchInitActions();
+      })
+      .catch((e) => {
+        asyncActionsOver += 1;
+        store.dispatch(fromSettings.updateBlockchainsFromStorageAction(PREDEFINED_BLOCKCHAINS));
+        store.dispatch(
+          fromMain.saveErrorAction({
+            errorCode: 2047,
+            error: 'Unable to read transactions from storage',
+            trace: e,
+          })
+        );
+        dispatchInitActions();
+      });
+  };
 
   // RECORDS
   const recordsTx = db.transaction('records', 'readonly');
   var recordsStore = recordsTx.objectStore('records');
   const requestRecords = recordsStore.getAll();
-  requestRecords.onsuccess = e => {
+  requestRecords.onsuccess = (e) => {
     let records = requestRecords.result;
-    const recordsWithoutBox = records.filter(r => {
-      return typeof r.box !== "string";
+    const recordsWithoutBox = records.filter((r) => {
+      return typeof r.box !== 'string';
     });
     if (recordsWithoutBox.length) {
       console.log(`[migration] found ${recordsWithoutBox.length} records with no .box property, removing them now`);
-      browserUtils.deleteStorageIndexed('records', recordsWithoutBox.map(r => r.name))
-        .then(a => {
+      browserUtils
+        .deleteStorageIndexed(
+          'records',
+          recordsWithoutBox.map((r) => r.name)
+        )
+        .then((a) => {
           console.log('[migration] successfully deleted invalid records');
         })
-        .catch(err => {
+        .catch((err) => {
           store.dispatch(
             fromMain.saveErrorAction({
               errorCode: 2049,
@@ -514,16 +540,18 @@ dbReq.onsuccess = event => {
           );
         });
     }
-    records = records.map(r => {
-      if (r.nonce) {
-        const newR = { ...r };
-        delete newR.nonce;
-        return newR;
-      }
-      return r;
-    }).filter(r => {
-      return typeof r.box === "string"
-    });
+    records = records
+      .map((r) => {
+        if (r.nonce) {
+          const newR = { ...r };
+          delete newR.nonce;
+          return newR;
+        }
+        return r;
+      })
+      .filter((r) => {
+        return typeof r.box === 'string';
+      });
 
     validateRecords(records)
       .then(() => {
@@ -535,7 +563,7 @@ dbReq.onsuccess = event => {
         );
         dispatchInitActions();
       })
-      .catch(err => {
+      .catch((err) => {
         asyncActionsOver += 1;
         store.dispatch(
           fromMain.saveErrorAction({
@@ -544,110 +572,105 @@ dbReq.onsuccess = event => {
             trace: records,
           })
         );
-        dispatchInitActions()
-      });
-
-  // ACCOUNTS
-  const accountsTx = db.transaction('accounts', 'readonly');
-  var accountsStore = accountsTx.objectStore('accounts');
-  const requestAccounts = accountsStore.getAll();
-  requestAccounts.onsuccess = e => {
-    let accounts = requestAccounts.result;
-    accounts = accounts.map(a => {
-      return {
-        ...a,
-        boxes: a.boxes || []
-      }
-    });
-
-    validateAccounts(accounts)
-      .then(() => {
-        asyncActionsOver += 1;
-        store.dispatch(
-          fromSettings.updateAccountsFromStorageAction({
-            accounts: accounts,
-          })
-        );
-        dispatchInitActions();
-      })
-      .catch(err => {
-        console.log(err);
-        asyncActionsOver += 1;
-        store.dispatch(
-          fromMain.saveErrorAction({
-            errorCode: 2037,
-            error: 'Unable to read accounts from storage',
-            trace: accounts,
-          })
-        );
         dispatchInitActions();
       });
-  };
 
-  // BENCHMARKS
-  const benchmarksTx = db.transaction('benchmarks', 'readonly');
-  var benchmarksStore = benchmarksTx.objectStore('benchmarks');
-  const requestBenchmarks = benchmarksStore.getAll();
-  requestBenchmarks.onsuccess = e => {
-    const benchmarks = requestBenchmarks.result;
-    if (typeof benchmarks === 'undefined') {
-      console.warn('benchmarks not found in storage, probably first launch');
-      asyncActionsOver += 1;
-      dispatchInitActions();
-      return;
-    }
-    validateBenchmarks(benchmarks)
-      .then(() => {
-        asyncActionsOver += 1;
-        store.dispatch(
-          fromBlockchain.updateBenchmarksFromStorageAction({
-            benchmarks: benchmarks,
-          })
-        );
-        dispatchInitActions();
-      })
-      .catch(e => {
-        asyncActionsOver += 1;
-        store.dispatch(
-          fromMain.saveErrorAction({
-            errorCode: 2015,
-            error: 'Unable to read benchmarks from storage',
-            trace: benchmarks,
-          })
-        );
-        dispatchInitActions();
+    // ACCOUNTS
+    const accountsTx = db.transaction('accounts', 'readonly');
+    var accountsStore = accountsTx.objectStore('accounts');
+    const requestAccounts = accountsStore.getAll();
+    requestAccounts.onsuccess = (e) => {
+      let accounts = requestAccounts.result;
+      accounts = accounts.map((a) => {
+        return {
+          ...a,
+          boxes: a.boxes || [],
+        };
       });
-  };
 
-  // RCHAIN INFOS
-  const rchainInfosTx = db.transaction('rchainInfos', 'readonly');
-  var rchainInfosStore = rchainInfosTx.objectStore('rchainInfos');
-  const requestRChainInfos = rchainInfosStore.getAll();
-  requestRChainInfos.onsuccess = e => {
-    let rchainInfos = requestRChainInfos.result;
-    if (!rchainInfos) {
-      asyncActionsOver += 1;
-      dispatchInitActions();
-      return;
-    }
-
-    Promise.all(rchainInfos.map((ri: any) => {
-      return validateDappyNodeFullInfo(ri);
-    }))
-      .then(valid => {
-        asyncActionsOver += 1;
-        store.dispatch(fromBlockchain.updateRChainBlockchainInfosFromStorageAction({ rchainInfos: rchainInfos }));
-        dispatchInitActions();
-      })
-      .catch(err => {
-        asyncActionsOver += 1;
-        if (VERSION === "0.4.2") {
-          console.log('[migration] Ignoring failed validation of RChain infos from storage, version 0.4.2');
-          rchainInfos.forEach(ri => {
-            browserUtils.removeInStorage("rchainInfos", ri.chainId)
-          })
+      validateAccounts(accounts)
+        .then(() => {
+          asyncActionsOver += 1;
+          store.dispatch(
+            fromSettings.updateAccountsFromStorageAction({
+              accounts: accounts,
+            })
+          );
           dispatchInitActions();
-        } else {
+        })
+        .catch((err) => {
+          console.log(err);
+          asyncActionsOver += 1;
+          store.dispatch(
+            fromMain.saveErrorAction({
+              errorCode: 2037,
+              error: 'Unable to read accounts from storage',
+              trace: accounts,
+            })
+          );
+          dispatchInitActions();
+        });
+    };
+
+    // BENCHMARKS
+    const benchmarksTx = db.transaction('benchmarks', 'readonly');
+    var benchmarksStore = benchmarksTx.objectStore('benchmarks');
+    const requestBenchmarks = benchmarksStore.getAll();
+    requestBenchmarks.onsuccess = (e) => {
+      const benchmarks = requestBenchmarks.result;
+      if (typeof benchmarks === 'undefined') {
+        console.warn('benchmarks not found in storage, probably first launch');
+        asyncActionsOver += 1;
+        dispatchInitActions();
+        return;
+      }
+      validateBenchmarks(benchmarks)
+        .then(() => {
+          asyncActionsOver += 1;
+          store.dispatch(
+            fromBlockchain.updateBenchmarksFromStorageAction({
+              benchmarks: benchmarks,
+            })
+          );
+          dispatchInitActions();
+        })
+        .catch((e) => {
+          asyncActionsOver += 1;
+          store.dispatch(
+            fromMain.saveErrorAction({
+              errorCode: 2015,
+              error: 'Unable to read benchmarks from storage',
+              trace: benchmarks,
+            })
+          );
+          dispatchInitActions();
+        });
+    };
+
+    // RCHAIN INFOS
+    const rchainInfosTx = db.transaction('rchainInfos', 'readonly');
+    var rchainInfosStore = rchainInfosTx.objectStore('rchainInfos');
+    const requestRChainInfos = rchainInfosStore.getAll();
+    requestRChainInfos.onsuccess = (e) => {
+      let rchainInfos = requestRChainInfos.result;
+      if (!rchainInfos) {
+        asyncActionsOver += 1;
+        dispatchInitActions();
+        return;
+      }
+
+      Promise.all(
+        rchainInfos.map((ri: any) => {
+          return validateDappyNodeFullInfo(ri);
+        })
+      )
+        .then((valid) => {
+          asyncActionsOver += 1;
+          store.dispatch(fromBlockchain.updateRChainBlockchainInfosFromStorageAction({ rchainInfos: rchainInfos }));
+          dispatchInitActions();
+        })
+        .catch((err) => {
+          asyncActionsOver += 1;
           store.dispatch(
             fromMain.saveErrorAction({
               errorCode: 2016,
@@ -656,34 +679,34 @@ dbReq.onsuccess = event => {
             })
           );
           dispatchInitActions();
-        }
-      });
+        });
+    };
+
+    registerIDBOpenDBRequestErrorListener(dbReq);
   };
 
-  registerIDBOpenDBRequestErrorListener(dbReq);
-};
+  const uniqueEphemeralTokenInterval = setInterval(() => {
+    if (window.uniqueEphemeralToken) {
+      asyncActionsOver += 1;
+      dispatchInitActions();
+      clearInterval(uniqueEphemeralTokenInterval);
+    }
+  }, 100);
 
-const uniqueEphemeralTokenInterval =  setInterval(() => {
-  if (window.uniqueEphemeralToken) {
-    asyncActionsOver += 1;
-    dispatchInitActions();
-    clearInterval(uniqueEphemeralTokenInterval)
+  window.dispatchFromMainProcess = (action) => {
+    store.dispatch(action);
+  };
+  if (window.dispatchWhenReady) {
+    store.dispatch(window.dispatchWhenReady);
   }
-}, 100)
+  interProcess(store);
 
-window.dispatchFromMainProcess = (action) => {
-  store.dispatch(action);
-}
-if (window.dispatchWhenReady) {
-  store.dispatch(window.dispatchWhenReady);
-}
-interProcess(store)
-
-const windowResizeStream = fromEvent(window, 'resize', true);
-xstream.merge(windowResizeStream.compose(throttle(600)), windowResizeStream.compose(debounce(600))).subscribe({
-  next: x => {
-    store.dispatch(
-      fromUi.setBodyDimensionsAction({ bodyDimensions: [document.body.clientWidth, document.body.clientHeight] })
-    );
-  },
-});
+  const windowResizeStream = fromEvent(window, 'resize', true);
+  xstream.merge(windowResizeStream.compose(throttle(600)), windowResizeStream.compose(debounce(600))).subscribe({
+    next: (x) => {
+      store.dispatch(
+        fromUi.setBodyDimensionsAction({ bodyDimensions: [document.body.clientWidth, document.body.clientHeight] })
+      );
+    },
+  });
+};

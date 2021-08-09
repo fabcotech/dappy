@@ -24,9 +24,9 @@ export const validateLoadState = (loadState: any): Promise<boolean> =>
     loadStateSchema
       .validate(loadState)
       .then(() => {
-        resolve();
+        resolve(true);
       })
-      .catch((err: Error) => {
+      .catch((err: yup.ValidationError) => {
         reject(err);
       });
   });

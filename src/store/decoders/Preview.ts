@@ -18,9 +18,9 @@ export const validatePreview = (tab: any): Promise<boolean> =>
   new Promise((resolve, reject) => {
     PreviewSchema.validate(tab)
       .then(() => {
-        resolve();
+        resolve(true);
       })
-      .catch((err: Error) => {
+      .catch((err: yup.ValidationError) => {
         reject(err);
       });
   });
@@ -36,7 +36,7 @@ export const validatePreviews = (previews: any): Promise<Preview[]> => {
       .then(() => {
         resolve(previews as Preview[]);
       })
-      .catch(e => {
+      .catch((e) => {
         reject(e);
       });
   });

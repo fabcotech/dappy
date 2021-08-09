@@ -28,14 +28,14 @@ export const validateBenchmarks = (benchmarks: any) => {
       return;
     }
     if (!benchmarks.length) {
-      resolve();
+      resolve(true);
       return;
     }
-    return Promise.all(Object.keys(benchmarks).map(b => benchmarkSchema.isValid(b))).then(results => {
-      if (results.find(valid => !valid)) {
+    return Promise.all(Object.keys(benchmarks).map((b) => benchmarkSchema.isValid(b))).then((results) => {
+      if (results.find((valid) => !valid)) {
         reject();
       } else {
-        resolve();
+        resolve(true);
       }
     });
   });

@@ -40,9 +40,9 @@ export const validateNodeFromNetwork = (node: any): Promise<boolean> =>
     nodeFromNetworkSchema
       .validate(node)
       .then(() => {
-        resolve();
+        resolve(true);
       })
-      .catch((err: Error) => {
+      .catch((err: yup.ValidationError) => {
         reject(err);
       });
   });

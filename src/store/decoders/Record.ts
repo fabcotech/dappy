@@ -34,9 +34,9 @@ export const validateRecordFromNetwork = (record: any): Promise<boolean> =>
     recordFromNetworkSchema
       .validate(record)
       .then(() => {
-        resolve();
+        resolve(true);
       })
-      .catch((err: Error) => {
+      .catch((err: yup.ValidationError) => {
         reject(err);
       });
   });
@@ -105,9 +105,9 @@ export const validateRecord = (record: any): Promise<boolean> =>
     recordSchema
       .validate(record)
       .then(() => {
-        resolve();
+        resolve(true);
       })
-      .catch((err: Error) => {
+      .catch((err: yup.ValidationError) => {
         reject(err);
       });
   });

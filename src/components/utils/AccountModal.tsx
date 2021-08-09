@@ -106,15 +106,15 @@ export class AccountModalComponent extends React.Component<AccountModalComponent
                       </div>
                     </div>
                     <div className="field is-horizontal">
-                      <label className="label">{t('address')}</label>
+                      <label className="label">{t('rev address')}</label>
                       <div className="control">
                         <p className="private-or-public-key">{account.address}</p>
                         <a
                           type="button"
-                          className="button is-white is-small"
+                          className="underlined-link"
                           onClick={() => window.copyToClipboard(account.address)}>
-                          {t('copy address')}
-                          <i className="fa fa-copy fa-after"></i>
+                          <i className="fa fa-copy fa-before"></i>
+                          {t('copy rev address')}
                         </a>
                       </div>
                     </div>
@@ -125,10 +125,10 @@ export class AccountModalComponent extends React.Component<AccountModalComponent
                         <p className="private-or-public-key">{account.publicKey}</p>
                         <a
                           type="button"
-                          className="button is-white is-small"
+                          className="underlined-link"
                           onClick={() => window.copyToClipboard(account.publicKey)}>
+                          <i className="fa fa-copy fa-before"></i>
                           copy public key
-                          <i className="fa fa-copy fa-after"></i>
                         </a>
                       </div>
                     </div>

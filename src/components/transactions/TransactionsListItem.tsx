@@ -1,7 +1,15 @@
 import * as React from 'react';
 import { DateTime } from 'luxon';
 
-import { TransactionState, TransactionOriginDapp, TransactionOriginRecord, Blockchain, TransactionStatus } from '../../models';
+import {
+  TransactionState,
+  TransactionOriginDapp,
+  TransactionOriginRecord,
+  Blockchain,
+  TransactionStatus,
+  RChainTokenDeploy,
+  RChainTokenDeployBox,
+} from '../../models';
 
 interface TransactionListItemProps {
   transactionState: TransactionState;
@@ -18,10 +26,11 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
   if (typeof props.transactionState.value === 'string') {
     Value = <span>{props.transactionState.value}</span>;
   } else if (props.transactionState.value && props.transactionState.value.hasOwnProperty('address')) {
+    const value = props.transactionState.value as { status: string; address: string };
     Value = (
       <span>
-        {`Address is ${props.transactionState.value.address} `}
-        <a type="button" onClick={() => window.copyToClipboard(props.transactionState.value.address)}>
+        {`Address is ${value.address} `}
+        <a type="button" onClick={() => window.copyToClipboard(value.address)}>
           {t('copy address')}
         </a>
       </span>
@@ -33,10 +42,11 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
     props.transactionState.value &&
     props.transactionState.value.hasOwnProperty('boxId')
   ) {
+    const value: RChainTokenDeployBox = props.transactionState.value as RChainTokenDeployBox;
     Value = (
       <span>
-        {`Box address is ${props.transactionState.value.boxId} `}
-        <a type="button" onClick={() => window.copyToClipboard(props.transactionState.value.boxId)}>
+        {`Box address is ${value.boxId} `}
+        <a type="button" onClick={() => window.copyToClipboard(value.boxId)}>
           {t('copy box id')}
         </a>
       </span>
@@ -49,14 +59,16 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
     props.transactionState.value.hasOwnProperty('masterRegistryUri') &&
     props.transactionState.value.hasOwnProperty('contractId')
   ) {
+    console.log(props.transactionState);
+    const value: RChainTokenDeploy = props.transactionState.value as RChainTokenDeploy;
     Value = (
       <span>
-        {`Contract address is ${props.transactionState.value.masterRegistryUri}.${props.transactionState.value.contractId} `}
-        <a type="button" onClick={() => window.copyToClipboard(props.transactionState.value.masterRegistryUri + "." + props.transactionState.value.contractId)}>
+        {`Contract address is ${value.masterRegistryUri}.${value.contractId} `}
+        <a type="button" onClick={() => window.copyToClipboard(value.masterRegistryUri + '.' + value.contractId)}>
           {t('copy address')}
         </a>
         {' or '}
-        <a type="button" onClick={() => window.copyToClipboard(props.transactionState.value.contractId)}>
+        <a type="button" onClick={() => window.copyToClipboard(value.contractId)}>
           {t('copy contract id')}
         </a>
       </span>
@@ -85,7 +97,11 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
       </th>
       <th className="value">{Value}</th>
       <th>
-        <span className={`tag ${props.transactionState.status}`}>{props.transactionState.status === TransactionStatus.Completed ? "recorded in the blockchain" : props.transactionState.status }</span>
+        <span className={`tag ${props.transactionState.status}`}>
+          {props.transactionState.status === TransactionStatus.Completed
+            ? 'recorded in the blockchain'
+            : props.transactionState.status}
+        </span>
       </th>
     </tr>
   );

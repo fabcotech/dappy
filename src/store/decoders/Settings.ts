@@ -12,16 +12,8 @@ export const settingsSchema = yup
       .string()
       .matches(/absolute/)
       .required(),
-    resolverAccuracy: yup
-      .number()
-      .min(51)
-      .max(100)
-      .required(),
-    resolverAbsolute: yup
-      .number()
-      .min(1)
-      .max(10)
-      .required(),
+    resolverAccuracy: yup.number().min(51).max(100).required(),
+    resolverAbsolute: yup.number().min(1).max(10).required(),
   })
   .required()
   .noUnknown(true)
@@ -31,10 +23,10 @@ export const validateSettings = (settings: any): Promise<boolean> =>
   new Promise((resolve, reject) => {
     settingsSchema
       .validate(settings)
-      .then(a => {
-        resolve();
+      .then((a) => {
+        resolve(true);
       })
-      .catch(err => {
+      .catch((err: yup.ValidationError) => {
         reject(err);
       });
   });

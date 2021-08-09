@@ -40,7 +40,7 @@ export const interProcess = (store: Store) => {
       uniqueEphemeralToken = r.uniqueEphemeralToken;
       if (actionsAwaitingEphemeralToken.length) {
         actionsAwaitingEphemeralToken.forEach((a) => {
-          dispatchInMain(a);
+          window.dispatchInMain(a);
         });
       }
       if (r.loadResourceWhenReady) {
@@ -224,33 +224,6 @@ export const interProcess = (store: Store) => {
     });
   };
 
-  window.getDapps = () => {
-    return new Promise((resolve, reject) => {
-      const interProcess = new XMLHttpRequest();
-      interProcess.open('POST', 'interprocess://get-dapps');
-      interProcess.setRequestHeader(
-        'Data',
-        encodeURI(
-          JSON.stringify({
-            uniqueEphemeralToken: uniqueEphemeralToken,
-          })
-        )
-      );
-      interProcess.send();
-      interProcess.onload = (a) => {
-        try {
-          const r = JSON.parse(a.target.responseText);
-          if (r.success) {
-            resolve(r.data);
-          } else {
-            reject(r);
-          }
-        } catch (e) {
-          reject({ message: 'could not parse response' });
-        }
-      };
-    });
-  };
   /* 
 // todo shortcuts don't work on linux/ubuntu
 const itemZoomIn = new remote.MenuItem({

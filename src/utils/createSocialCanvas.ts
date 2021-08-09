@@ -5,6 +5,7 @@ const desert = require('../images/social/desert.jpg');
 const network = require('../images/social/network.jpg');
 const mountain = require('../images/social/mountain.jpg');
 const moon = require('../images/social/moon.jpg');
+const space = require('../images/social/space.jpg');
 
 const tyrannosaurus = require('../images/mascots/tyrannosaurus.png');
 const astronaut_on_moon = require('../images/mascots/astronaut_on_moon.png');
@@ -19,6 +20,9 @@ const chameleon = require('../images/mascots/chameleon.png');
 const panda_with_bamboo = require('../images/mascots/panda_with_bamboo.png');
 const shark = require('../images/mascots/shark.png');
 const sloth_doing_yoga = require('../images/mascots/sloth_doing_yoga.png');
+const koala_swimming = require('../images/mascots/koala_swimming.png');
+const king_pig = require('../images/mascots/king_pig.png');
+const cat_with_bat = require('../images/mascots/cat_with_bat.png');
 
 export const images: { [key: string]: string } = {
   fire,
@@ -28,6 +32,7 @@ export const images: { [key: string]: string } = {
   network,
   mountain,
   moon,
+  space,
   default: fire,
 };
 
@@ -45,6 +50,9 @@ export const mascots: { [key: string]: string } = {
   shark,
   sloth_doing_yoga,
   koalas,
+  koala_swimming,
+  king_pig,
+  cat_with_bat,
   default: tyrannosaurus,
 };
 
@@ -56,6 +64,7 @@ const values: { [key: string]: { alpha: number; fillStyle: string; fontColor: st
   mountain: { alpha: 0.6, fillStyle: '#fff', fontColor: '#111111' },
   network: { alpha: 0.6, fillStyle: '#223', fontColor: '#ffffff' },
   moon: { alpha: 0.6, fillStyle: '#223', fontColor: '#ffffff' },
+  space: { alpha: 0.6, fillStyle: '#223', fontColor: '#ffffff' },
 };
 export const createSocialCanvas = (
   fungible: boolean,
@@ -85,13 +94,19 @@ export const createSocialCanvas = (
       context.font = '600 75px fira';
       context.fillStyle = values[style].fontColor;
       if (fungible) {
-        context.fillText(`I own ${quantity} tokens`, 40, 160);
+        context.fillText(`I own ${quantity} tokens`, 40, 155);
       } else {
-        context.fillText(`I own NFT "${purseId}"`, 40, 160);
+        context.fillText(`I own NFT`, 40, 155);
+        if (purseId.length > 14) {
+          context.font = '600 55px fira';
+          context.fillText(`"${purseId}"`, 380, 155);
+        } else {
+          context.fillText(`"${purseId}"`, 380, 155);
+        }
       }
 
       context.font = '600 30px fira';
-      context.fillText(`in contract "${contractId}"`, 40, 200);
+      context.fillText(`in contract "${contractId}"`, 40, 195);
 
       context.font = '600 30px fira';
       context.fillText(`d/dappy | dappy.tech`, 685, 480);

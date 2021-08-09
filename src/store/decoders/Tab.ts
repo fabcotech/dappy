@@ -22,9 +22,9 @@ export const validateTab = (tab: any): Promise<boolean> =>
   new Promise((resolve, reject) => {
     TabSchema.validate(tab)
       .then(() => {
-        resolve();
+        resolve(true);
       })
-      .catch((err: Error) => {
+      .catch((err: yup.ValidationError) => {
         reject(err);
       });
   });

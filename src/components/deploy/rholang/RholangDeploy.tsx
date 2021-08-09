@@ -34,6 +34,7 @@ interface RholangDeployState {
   rholang: string; // step 1
   privatekey: string; // step 2
   publickey: string; // step 2
+  accountName: string; // step 2
   phloLimit: number; // step 2
   parsedResp: string; // step 3
   jsValue: string; // step 3
@@ -47,6 +48,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
     step: 1,
     privatekey: '',
     publickey: '',
+    accountName: '',
     phloLimit: 0,
     parsedResp: '',
     jsValue: '',
@@ -70,12 +72,19 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
     if (el) el.value = this.state.rholang;
   };
 
-  onFilledTransactionData = (t: { privatekey: string; publickey: string; phloLimit: number }) => {
+  onFilledTransactionData = (t: {
+    privatekey: string;
+    publickey: string;
+    phloLimit: number;
+    box: undefined | string;
+    accountName: undefined | string;
+  }) => {
     if (!this.state.rholang) {
       return;
     }
     try {
       this.setState({
+        accountName: t.accountName,
         privatekey: t.privatekey,
         phloLimit: t.phloLimit,
         publickey: t.publickey,
@@ -255,7 +264,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
         this.signature = deployOptions.signature;
         this.props.sendRChainTransaction({
           transaction: deployOptions,
-          origin: { origin: 'rholang' },
+          origin: { origin: 'rholang', accountName: this.state.accountName },
           platform: 'rchain',
           blockchainId: chainId,
           id: id,

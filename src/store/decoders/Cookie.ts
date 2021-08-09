@@ -29,9 +29,9 @@ export const validateCookie = (c: any): Promise<boolean> =>
     cookieSchema
       .validate(c)
       .then(() => {
-        resolve();
+        resolve(true);
       })
-      .catch((err: Error) => {
+      .catch((err: yup.ValidationError) => {
         reject(err);
       });
   });

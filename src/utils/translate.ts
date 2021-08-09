@@ -1,14 +1,14 @@
 export const translate = (term: string, plural = false) => {
-  if (translations[term]) {
+  if (window.translations[term]) {
     if (plural) {
-      if (translations[term].other) {
-        return translations[term].other;
+      if (window.translations[term].other) {
+        return window.translations[term].other;
       } else {
         console.warn('Unknown translation for ' + term + ' plural');
-        return translations[term].one;
+        return window.translations[term].one;
       }
     } else {
-      return translations[term].one;
+      return window.translations[term].one;
     }
   } else {
     console.warn('Unknown translation for ' + term);

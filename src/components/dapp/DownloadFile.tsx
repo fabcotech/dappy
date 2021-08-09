@@ -57,7 +57,7 @@ class DownloadFileComponent extends React.Component<DownloadFileComponentProps> 
       view[i] = dataAsString.charCodeAt(i);
     }
 
-    window.triggerCommand(window.uniqueEphemeralToken, 'download-file', {
+    window.triggerCommand('download-file', {
       name: loadedFile.name,
       mimeType: loadedFile.mimeType,
       data: loadedFile.data,

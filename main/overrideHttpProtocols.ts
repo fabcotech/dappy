@@ -96,7 +96,7 @@ export const overrideHttpProtocols = (
       dispatchFromMain({
         action: fromCookies.saveCookiesForDomainAction({
           dappyDomain: browserView.dappyDomain,
-          cookies: cookiesToBeStored
+          cookies: cookiesToBeStored,
         }),
       });
     }
