@@ -51,6 +51,9 @@ export const AddRecord = (props: AddRecordProps) => {
               if (partialRecord && partialRecord.address) {
                 r.address = partialRecord.address;
               }
+              if (partialRecord && partialRecord.csp) {
+                r.csp = partialRecord.csp;
+              }
               if (partialRecord && partialRecord.servers) {
                 r.servers = partialRecord.servers;
               }

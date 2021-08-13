@@ -34,8 +34,7 @@ class NavigationBarComponent extends WithSuggestions {
       tabId: this.props.tab.id,
       loadState: this.props.loadState,
       servers: this.props.servers,
-      badges: this.props.recordBadges ?
-        this.props.recordBadges[this.props.search || ''] : {}
+      badges: this.props.recordBadges ? this.props.recordBadges[this.props.search || ''] : {},
     });
   };
 
@@ -77,7 +76,11 @@ class NavigationBarComponent extends WithSuggestions {
           </div>
           {this.props.resourceLoaded && !loadingOrReloading ? (
             <div>
-              <i onClick={(e) => this.props.loadResource({ tabId: tab.id, url: '', address: ''})} className={`fa fa-redo `} title="Reload" />
+              <i
+                onClick={(e) => this.props.loadResource({ tabId: tab.id, url: '', address: '' })}
+                className={`fa fa-redo `}
+                title="Reload"
+              />
             </div>
           ) : (
             <div className={`${loadingOrReloading ? 'disabled' : ''}`}>
@@ -185,7 +188,7 @@ export const NavigationBar = connect(
         appType = 'IP';
         search = ipApp.search;
         address = searchToAddress(ipApp.search, ipApp.chainId);
-        servers = ipApp.servers;
+        servers = ipApp.record.servers;
         resourceId = ipApp.id;
         publicKey = ipApp.publicKey;
         chainId = ipApp.chainId;

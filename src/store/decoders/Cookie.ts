@@ -12,6 +12,7 @@ export const cookieSchema = yup
         .shape({
           name: yup.string().required(),
           value: yup.string(),
+          sameSite: yup.string().required(),
           domain: yup.string().required(),
           expirationDate: yup.number().required(),
         })
@@ -42,10 +43,22 @@ export const validateCookies = (cookies: any): Promise<{ dappyDomain: string; co
       reject('Must be an array');
       return;
     }
-
-    return Promise.all(cookies.map(validateCookie))
+    // migration
+    // adding .sameSite if cookie does not have it
+    const cookiesMigrated = cookies.map((c) => {
+      return {
+        ...c,
+        cookies: c.cookies.map((c) => {
+          return {
+            ...c,
+            sameSite: c.sameSite || 'lax',
+          };
+        }),
+      };
+    });
+    return Promise.all(cookiesMigrated.map(validateCookie))
       .then(() => {
-        resolve(cookies as { dappyDomain: string; cookies: Cookie[] }[]);
+        resolve(cookiesMigrated as { dappyDomain: string; cookies: Cookie[] }[]);
       })
       .catch((e) => {
         reject(e);

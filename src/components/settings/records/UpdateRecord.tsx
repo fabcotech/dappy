@@ -340,6 +340,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
                       boxId: this.state.box,
                       data: Buffer.from(
                         JSON.stringify({
+                          csp: (this.state.newRecord as PartialRecord).csp,
                           address: (this.state.newRecord as PartialRecord).address,
                           badges: (this.state.newRecord as PartialRecord).badges || {},
                           servers: (this.state.newRecord as PartialRecord).servers || [],

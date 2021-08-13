@@ -13,6 +13,7 @@ export interface RecordFromNetwork {
   price: undefined | number;
   publicKey: string;
   address?: string;
+  csp?: string;
   expiration?: string;
   servers?: IPServer[];
   badges: { [key: string]: string };
@@ -42,6 +43,7 @@ export interface LoadRecordsError {
 export interface PartialRecord {
   name: string;
   address?: string | undefined;
+  csp?: string | undefined;
   servers?: IPServer[] | undefined;
   badges?: { [key: string]: string };
 }

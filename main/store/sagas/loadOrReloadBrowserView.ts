@@ -20,7 +20,6 @@ const development = !!process.defaultApp;
 
 const loadOrReloadBrowserView = function* (action: any) {
   const payload = action.payload;
-
   const browserViews: {
     [resourceId: string]: DappyBrowserView;
   } = yield select(fromBrowserViews.getBrowserViewsMain);
@@ -77,6 +76,7 @@ const loadOrReloadBrowserView = function* (action: any) {
   const view = new BrowserView({
     webPreferences: {
       nodeIntegration: false,
+      enableRemoteModule: false,
       sandbox: true,
       contextIsolation: true,
       devTools: true,
@@ -188,7 +188,7 @@ const loadOrReloadBrowserView = function* (action: any) {
       } else if (favicons[0].startsWith('https://')) {
         try {
           const urlDecomposed = decomposeUrl(favicons[0]);
-          const serverAuthorized = payload.servers.find((s) => s.host === urlDecomposed.host);
+          const serverAuthorized = payload.record.servers.find((s) => s.host === urlDecomposed.host);
           if (!serverAuthorized) {
             console.error(`Could not get favicon, no servers authorized to reach https address ${favicons[0]}`);
             return;
@@ -274,7 +274,7 @@ const loadOrReloadBrowserView = function* (action: any) {
         }),
       });
     } else {
-      const serverAuthorized = payload.servers.find((s) => s.primary && s.host === urlDecomposed.host);
+      const serverAuthorized = payload.record.servers.find((s) => s.primary && s.host === urlDecomposed.host);
       // If the navigation url is not bound to an authorized server
       if (!serverAuthorized) {
         a.preventDefault();

@@ -1,6 +1,6 @@
 import { BrowserView } from 'electron';
 
-import { IPServer } from '../../src/models';
+import { Record } from '../../src/models';
 
 export interface DappyBrowserView {
   visible: boolean;
@@ -9,7 +9,7 @@ export interface DappyBrowserView {
   path: string;
   tabId: string;
   randomId: string;
-  servers: IPServer[];
+  record: Record;
   browserView: BrowserView;
   // file://dapp-sandboxed for dapps, https://... for IP apps
   currentUrl: string;

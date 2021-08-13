@@ -7,6 +7,8 @@ import setCookie from 'set-cookie-parser';
 import * as fromCookies from '../src/store/cookies';
 import * as fromMainBrowserViews from './store/browserViews';
 import { DappyBrowserView } from './models';
+import { Cookie } from '../src/models';
+import { cps } from 'redux-saga/effects';
 
 let httpErrorServerUrl = undefined;
 const agents: { [key: string]: https.Agent } = {};
@@ -18,6 +20,7 @@ export const overrideHttpProtocols = (
   dispatchFromMain: (a: any) => void,
   allowSentry: boolean
 ) => {
+  let topLevelNavigation = true;
   // debug
   let debug = development;
 
@@ -78,20 +81,24 @@ export const overrideHttpProtocols = (
       console.log('no browserView, cannot save cookies');
       return;
     }
-    const servers = browserView.servers.filter((s) => s.host === c.domain);
+    const servers = browserView.record.servers.filter((s) => s.host === c.domain);
     if (!servers.length) {
-      console.log('no browserView.servers matching cookies domain ' + c.domain);
+      console.log('no browserView.record.servers matching cookies domain ' + c.domain);
       return;
     }
     const cookies = await browserView.browserView.webContents.session.cookies.get({ url: `https://${c.domain}` });
     const cookiesToBeStored = cookies
       .filter((c) => typeof c.expirationDate === 'number')
-      .map((cook) => ({
-        domain: cook.domain,
-        name: cook.name,
-        value: cook.value,
-        expirationDate: cook.expirationDate,
-      }));
+      .map(
+        (cook) =>
+          ({
+            sameSite: cook.sameSite === 'strict' ? 'strict' : 'lax',
+            domain: cook.domain,
+            name: cook.name,
+            value: cook.value,
+            expirationDate: cook.expirationDate,
+          } as Cookie)
+      );
     if (cookiesToBeStored.length) {
       dispatchFromMain({
         action: fromCookies.saveCookiesForDomainAction({
@@ -171,7 +178,7 @@ export const overrideHttpProtocols = (
     const host = pathArray.slice(0, 1)[0];
     const path = pathArray.slice(1).join('/');
 
-    const serversWithSameHost = browserView.servers.filter((s) => s.host === host);
+    const serversWithSameHost = browserView.record.servers.filter((s) => s.host === host);
     if (!serversWithSameHost.length) {
       console.log(
         `[https] An app (${browserView.resourceId}) tried to make an https request to an unknown host (${host})`
@@ -189,7 +196,21 @@ export const overrideHttpProtocols = (
       url: `https://${serversWithSameHost[0].host}`,
     });
 
-    const cookieHeader: string = cookies.map((c) => `${c.name}=${c.value}`).join('; ');
+    let cookieHeader = '';
+    if (topLevelNavigation) {
+      if (debug) console.log('[https load] first top level navigation, only lax cookies');
+      cookieHeader = cookies
+        .filter((c) => !!c.domain && !c.domain.startsWith('.'))
+        .filter((c) => c.sameSite === 'lax')
+        .map((c) => `${c.name}=${c.value}`)
+        .join('; ');
+      topLevelNavigation = false;
+    } else {
+      cookieHeader = cookies
+        .filter((c) => !!c.domain && !c.domain.startsWith('.'))
+        .map((c) => `${c.name}=${c.value}`)
+        .join('; ');
+    }
 
     const loadFails = {};
 
@@ -210,6 +231,7 @@ export const overrideHttpProtocols = (
         });
       }
 
+      const randomIdIndex = request.headers['User-Agent'].indexOf('randomId=');
       const options: https.RequestOptions = {
         agent: agents[`${s.ip}-${s.cert}`],
         method: request.method,
@@ -218,8 +240,9 @@ export const overrideHttpProtocols = (
           ...request.headers,
           /* no dns */
           host: s.host,
-          'User-Agent': request.headers['User-Agent'].substr(0, io),
+          'User-Agent': request.headers['User-Agent'].substr(0, randomIdIndex),
           Cookie: cookieHeader,
+          Origin: `dappy://${browserView.dappyDomain}`,
         },
       };
 
@@ -230,6 +253,7 @@ export const overrideHttpProtocols = (
               const cookies = setCookie.parse(resp, {
                 decodeValues: true,
               });
+
               cookies.forEach((c) => {
                 browserViews[appId].browserView.webContents.session.cookies.set({
                   name: c.name,
@@ -238,12 +262,18 @@ export const overrideHttpProtocols = (
                   expirationDate: c.expires ? new Date(c.expires).getTime() / 1000 : undefined,
                   secure: true,
                   httpOnly: true,
+                  // sameSite is by default 'lax'
+                  sameSite: ['Strict', 'strict'].includes(c.sameSite) ? 'strict' : 'lax',
                 });
               });
               if (debug && cookies.length) console.log(`[https load] set ${cookies.length} cookie(s)`);
             }
 
             if (debug) console.log('[https load] OK', resp.statusCode, request.url, i);
+            resp.headers = {
+              ...resp.headers,
+              'Content-Security-Policy': browserView.record.csp || "default-src 'self'",
+            };
             if (!over) {
               callback(resp);
               over = true;

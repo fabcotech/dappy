@@ -1,6 +1,6 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
 import { readPursesDataTerm } from 'rchain-token';
-import { BeesLoadError } from 'beesjs';
+import { BeesLoadError, BeesLoadErrorWithArgs } from 'beesjs';
 
 import { multiCall } from '../../../utils/wsUtils';
 import { MultiCallResult } from '../../../models/WebSocket';
@@ -55,9 +55,9 @@ const loadResource = function* (action: Action) {
 
   let tabId = payload.tabId as string;
   if (tabId) {
-    const tab = tabs.find(t => t.id === tabId) as Tab;
+    const tab = tabs.find((t) => t.id === tabId) as Tab;
     if (!tab) {
-      console.log('did not find tab from payload', tabId)
+      console.log('did not find tab from payload', tabId);
       yield put(
         fromDapps.loadResourceFailedAction({
           tabId: tabId,
@@ -80,7 +80,7 @@ const loadResource = function* (action: Action) {
       console.log('reloading dapp', dappId);
       yield put(fromMain.closeAllDappModalsAction({ dappId: dappId as string }));
       const a = searchToAddress(dapps[dappId].search, dapps[dappId].chainId, dapps[dappId].path);
-      address = a
+      address = a;
       resourceId = a + '_' + tabId;
     }
 
@@ -89,18 +89,18 @@ const loadResource = function* (action: Action) {
     if (ipAppId && !payload.address) {
       console.log('reloading ipApp', ipAppId);
       const a = searchToAddress(ipApps[ipAppId].search, ipApps[ipAppId].chainId, ipApps[ipAppId].path);
-      address = a
+      address = a;
       resourceId = a + '_' + tabId;
       url = ipApps[ipAppId].url;
       yield put(fromMain.closeAllDappModalsAction({ dappId: ipAppId as string }));
     }
-    
+
     // if loadedFileId is found, it is a reload and not a load
     const loadedFileId = Object.keys(loadedFiles).find((k) => k === tab.resourceId);
     if (loadedFileId && !payload.address) {
       console.log('reloading loadedFile', loadedFileId);
       const a = searchToAddress(loadedFiles[loadedFileId].search, loadedFiles[loadedFileId].chainId, '');
-      address = a
+      address = a;
       resourceId = a + '_' + tabId;
     }
 
@@ -214,7 +214,7 @@ const loadResource = function* (action: Action) {
             error: BeesLoadError.IncompleteAddress,
             args: {
               search: address,
-              plus: `on network "${MAIN_CHAIN_ID}" only the purse id must be referenced`
+              plus: `on network "${MAIN_CHAIN_ID}" only the purse id must be referenced`,
             },
           },
         })
@@ -226,7 +226,7 @@ const loadResource = function* (action: Action) {
       purseId = searchSplitted.search;
     }
   } else {
-    const s = searchSplitted.search.split(".");
+    const s = searchSplitted.search.split('.');
     if (s.length === 1) {
       masterRegistryUri = info.rchainNamesMasterRegistryUri;
       contractId = info.rchainNamesContractId;
@@ -251,7 +251,7 @@ const loadResource = function* (action: Action) {
           error: BeesLoadError.IncompleteAddress,
           args: {
             search: address,
-            plus: `master registry uri must be of length 54`
+            plus: `master registry uri must be of length 54`,
           },
         },
       })
@@ -320,7 +320,7 @@ const loadResource = function* (action: Action) {
         if (recordFromBlockchain.badges) {
           recordFromBlockchain.badges = JSON.parse(recordFromBlockchain.badges);
         }
-        if (typeof recordFromBlockchain.price === "string" && recordFromBlockchain.price.length) {
+        if (typeof recordFromBlockchain.price === 'string' && recordFromBlockchain.price.length) {
           recordFromBlockchain.price = parseInt(recordFromBlockchain.price, 10);
         }
         yield validateRecordFromNetwork(recordFromBlockchain);
@@ -398,7 +398,7 @@ const loadResource = function* (action: Action) {
             url: urlOk,
             publicKey: record.publicKey,
             name: record.name,
-            servers: record.servers as IPServer[],
+            record: record as Record,
             randomId: randomId,
             launchedAt: new Date().toISOString(),
           },
@@ -422,7 +422,7 @@ const loadResource = function* (action: Action) {
       }
     }
     const s = (record.address || '').split('.');
-    console.log('address resolved by name system ' + record.address)
+    console.log('address resolved by name system ' + record.address);
     fileContractId = s[0];
     filePurseId = s[1] || 'index';
   }
@@ -499,12 +499,7 @@ const loadResource = function* (action: Action) {
   const dataFromBlockchainParsed: { data: object } = JSON.parse(dataFromBlockchain);
   let verifiedDappyFile: DappyFile | undefined = undefined;
   try {
-    verifiedDappyFile = yield validateAndReturnFile(
-      dataFromBlockchainParsed,
-      filePurseId,
-      '',
-      checkSignature
-    );
+    verifiedDappyFile = yield validateAndReturnFile(dataFromBlockchainParsed, filePurseId, '', checkSignature);
   } catch (e) {
     let error;
     try {

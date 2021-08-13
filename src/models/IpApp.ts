@@ -1,4 +1,4 @@
-import { IPServer } from './Record';
+import { Record } from './Record';
 
 export interface IpApp {
   id: string;
@@ -13,7 +13,7 @@ export interface IpApp {
   url: undefined | string;
   publicKey: string;
   name: string;
-  servers: IPServer[];
+  record: Record;
   randomId: string;
   launchedAt: undefined | string;
 }

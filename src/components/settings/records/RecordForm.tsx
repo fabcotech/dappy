@@ -94,11 +94,13 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                 type: this.props.partialRecord.address ? 'dapp' : 'ip',
                 badges: this.props.partialRecord.badges || ({} as { [key: string]: string }),
                 names: [this.props.partialRecord.name],
+                csp: "default-src 'self'",
               }
             : {
                 names: this.props.nameDisabledAndForced ? [this.props.nameDisabledAndForced] : [''],
                 address: '',
                 type: 'dapp',
+                csp: "default-src 'self'",
                 servers: [],
                 badges: {} as { [key: string]: string },
               }
@@ -148,6 +150,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                 servers: this.state.servers,
                 name: [this.props.special.name].concat(values.names).join(','),
                 address: values.address,
+                csp: values.csp,
                 badges: values.badges,
               });
             } else {
@@ -155,6 +158,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                 servers: this.state.servers,
                 name: values.names[0],
                 address: values.address,
+                csp: values.csp,
                 badges: values.badges,
               });
             }
@@ -328,6 +332,16 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                     {touched.address && errors.address && <p className="text-danger">{(errors as any).address}</p>}
                   </Fragment>
                 )}
+                <div className="field is-horizontal">
+                  <label className="label">{t('csp')}</label>
+                  <div className="control">
+                    <Field className="input" type="text" name="csp" placeholder="default-src 'self'" />
+                    <p className="help">
+                      See <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP">documentation from Mozilla</a>
+                    </p>
+                  </div>
+                </div>
+                {touched.csp && errors.csp && <p className="text-danger">{(errors as any).csp}</p>}
                 <div className="field is-horizontal badges-field">
                   <label className="label">{t('reputation badges')}*</label>
                   <div className="control">

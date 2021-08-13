@@ -1,4 +1,4 @@
-import { app, Session, clipboard, dialog } from 'electron';
+import { Session, clipboard, dialog } from 'electron';
 import crypto from 'crypto';
 import { Store } from 'redux';
 import fs from 'fs';
@@ -12,7 +12,6 @@ import { performMultiRequest } from './performMultiRequest';
 import { performSingleRequest } from './performSingleRequest';
 import { benchmarkCron } from './benchmarkCron';
 import * as fromMainBrowserViews from './store/browserViews';
-import { getDapps } from './getDapps';
 
 let benchmarkCronRanOnce = false;
 let uniqueEphemeralTokenAskedOnce = false;
@@ -204,29 +203,6 @@ export const registerInterProcessProtocol = (
       } catch (err) {
         console.log(err);
         callback(Buffer.from(err));
-      }
-    }
-
-    if (request.url === 'interprocess://get-dapps') {
-      try {
-        const dapps = getDapps(app.getAppPath());
-        callback(
-          Buffer.from(
-            JSON.stringify({
-              success: true,
-              data: dapps,
-            })
-          )
-        );
-      } catch (err) {
-        callback(
-          Buffer.from(
-            JSON.stringify({
-              success: false,
-              error: { message: err.message },
-            })
-          )
-        );
       }
     }
 

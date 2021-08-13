@@ -176,6 +176,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
       publicKey: this.state.publickey,
       data: Buffer.from(
         JSON.stringify({
+          csp: partialRecord.csp,
           address: partialRecord.address,
           badges: partialRecord.badges || {},
           servers: partialRecord.servers || [],

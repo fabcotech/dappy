@@ -22,6 +22,7 @@ export const recordFromNetworkSchema = yup
     box: yup.string().required(),
     price: yup.number(),
     address: yup.string(),
+    csp: yup.string(),
     servers: yup.array(recordServerSchema),
     badges: yup.object(),
   })
@@ -50,6 +51,7 @@ export const ipRecordSchema = yup
     price: yup.number(),
     loadedAt: yup.string().required(),
     servers: yup.array(recordServerSchema),
+    csp: yup.string(),
     badges: yup.object(),
     origin: yup
       .string()
@@ -88,6 +90,7 @@ export const recordSchema = yup
     box: yup.string().required(),
     price: yup.number(),
     address: yup.string(),
+    csp: yup.string(),
     loadedAt: yup.string().required(),
     servers: yup.array(recordServerSchema),
     badges: yup.object(),
