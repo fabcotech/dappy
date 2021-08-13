@@ -11602,6 +11602,7 @@ var getCookies = lib_4(getCookiesState, function (state) { return state.cookies;
 var httpErrorServerUrl = undefined;
 var agents = {};
 var overrideHttpProtocols = function (session, getState, development, dispatchFromMain, allowSentry) {
+    var topLevelNavigation = true;
     // debug
     var debug = development;
     if (!httpErrorServerUrl) {
@@ -11668,9 +11669,9 @@ var overrideHttpProtocols = function (session, getState, development, dispatchFr
                         console.log('no browserView, cannot save cookies');
                         return [2 /*return*/];
                     }
-                    servers = browserView.servers.filter(function (s) { return s.host === c.domain; });
+                    servers = browserView.record.servers.filter(function (s) { return s.host === c.domain; });
                     if (!servers.length) {
-                        console.log('no browserView.servers matching cookies domain ' + c.domain);
+                        console.log('no browserView.record.servers matching cookies domain ' + c.domain);
                         return [2 /*return*/];
                     }
                     return [4 /*yield*/, browserView.browserView.webContents.session.cookies.get({ url: "https://" + c.domain })];
@@ -11678,12 +11679,15 @@ var overrideHttpProtocols = function (session, getState, development, dispatchFr
                     cookies = _a.sent();
                     cookiesToBeStored = cookies
                         .filter(function (c) { return typeof c.expirationDate === 'number'; })
-                        .map(function (cook) { return ({
-                        domain: cook.domain,
-                        name: cook.name,
-                        value: cook.value,
-                        expirationDate: cook.expirationDate,
-                    }); });
+                        .map(function (cook) {
+                        return ({
+                            sameSite: cook.sameSite === 'strict' ? 'strict' : 'lax',
+                            domain: cook.domain,
+                            name: cook.name,
+                            value: cook.value,
+                            expirationDate: cook.expirationDate,
+                        });
+                    });
                     if (cookiesToBeStored.length) {
                         dispatchFromMain({
                             action: saveCookiesForDomainAction({
@@ -11764,7 +11768,7 @@ var overrideHttpProtocols = function (session, getState, development, dispatchFr
                     pathArray = withoutProtocol.join('').split('/');
                     host = pathArray.slice(0, 1)[0];
                     path = pathArray.slice(1).join('/');
-                    serversWithSameHost = browserView.servers.filter(function (s) { return s.host === host; });
+                    serversWithSameHost = browserView.record.servers.filter(function (s) { return s.host === host; });
                     if (!serversWithSameHost.length) {
                         console.log("[https] An app (" + browserView.resourceId + ") tried to make an https request to an unknown host (" + host + ")");
                         http
@@ -11780,7 +11784,23 @@ var overrideHttpProtocols = function (session, getState, development, dispatchFr
                         })];
                 case 1:
                     cookies = _a.sent();
-                    cookieHeader = cookies.map(function (c) { return c.name + "=" + c.value; }).join('; ');
+                    cookieHeader = '';
+                    if (topLevelNavigation) {
+                        if (debug)
+                            console.log('[https load] first top level navigation, only lax cookies');
+                        cookieHeader = cookies
+                            .filter(function (c) { return !!c.domain && !c.domain.startsWith('.'); })
+                            .filter(function (c) { return c.sameSite === 'lax'; })
+                            .map(function (c) { return c.name + "=" + c.value; })
+                            .join('; ');
+                        topLevelNavigation = false;
+                    }
+                    else {
+                        cookieHeader = cookies
+                            .filter(function (c) { return !!c.domain && !c.domain.startsWith('.'); })
+                            .map(function (c) { return c.name + "=" + c.value; })
+                            .join('; ');
+                    }
                     loadFails = {};
                     over = false;
                     i = 0;
@@ -11799,13 +11819,14 @@ var overrideHttpProtocols = function (session, getState, development, dispatchFr
                                 ca: [], // we don't want to rely on CA
                             });
                         }
+                        var randomIdIndex = request.headers['User-Agent'].indexOf('randomId=');
                         var options = {
                             agent: agents[s.ip + "-" + s.cert],
                             method: request.method,
                             path: path ? "/" + path : '/',
                             headers: __assign(__assign({}, request.headers), { 
                                 /* no dns */
-                                host: s.host, 'User-Agent': request.headers['User-Agent'].substr(0, io), Cookie: cookieHeader }),
+                                host: s.host, 'User-Agent': request.headers['User-Agent'].substr(0, randomIdIndex), Cookie: cookieHeader, Origin: "dappy://" + browserView.dappyDomain }),
                         };
                         try {
                             var req_1 = https
@@ -11822,6 +11843,8 @@ var overrideHttpProtocols = function (session, getState, development, dispatchFr
                                             expirationDate: c.expires ? new Date(c.expires).getTime() / 1000 : undefined,
                                             secure: true,
                                             httpOnly: true,
+                                            // sameSite is by default 'lax'
+                                            sameSite: ['Strict', 'strict'].includes(c.sameSite) ? 'strict' : 'lax',
                                         });
                                     });
                                     if (debug && cookies_1.length)
@@ -11829,6 +11852,7 @@ var overrideHttpProtocols = function (session, getState, development, dispatchFr
                                 }
                                 if (debug)
                                     console.log('[https load] OK', resp.statusCode, request.url, i);
+                                resp.headers = __assign(__assign({}, resp.headers), { 'Content-Security-Policy': browserView.record.csp || "default-src 'self'" });
                                 if (!over) {
                                     callback(resp);
                                     over = true;
@@ -12277,19 +12301,6 @@ var benchmarkCron = function (getState, dispatchFromMain) { return __awaiter(voi
     });
 }); };
 
-var getDapps$1 = function (path) {
-    var directories = fs.readdirSync(path + '/dapps/');
-    var dapps = {};
-    directories.forEach(function (d) {
-        dapps[d] = {
-            js: encodeURI(fs.readFileSync(path + '/dapps/' + d + '/js.js', { encoding: 'utf8' })),
-            css: encodeURI(fs.readFileSync(path + '/dapps/' + d + '/css.css', { encoding: 'utf8' })),
-            html: encodeURI(fs.readFileSync(path + '/dapps/' + d + '/html.html', { encoding: 'utf8' })),
-        };
-    });
-    return dapps;
-};
-
 var benchmarkCronRanOnce = false;
 var uniqueEphemeralTokenAskedOnce = false;
 var uniqueEphemeralToken = '';
@@ -12450,21 +12461,6 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
             catch (err) {
                 console.log(err);
                 callback(Buffer.from(err));
-            }
-        }
-        if (request.url === 'interprocess://get-dapps') {
-            try {
-                var dapps = getDapps$1(electron.app.getAppPath());
-                callback(Buffer.from(JSON.stringify({
-                    success: true,
-                    data: dapps,
-                })));
-            }
-            catch (err) {
-                callback(Buffer.from(JSON.stringify({
-                    success: false,
-                    error: { message: err.message },
-                })));
             }
         }
         if (request.url === 'interprocess://trigger-command') {
@@ -15310,6 +15306,7 @@ var loadOrReloadBrowserView = function (action) {
                 view = new electron.BrowserView({
                     webPreferences: {
                         nodeIntegration: false,
+                        enableRemoteModule: false,
                         sandbox: true,
                         contextIsolation: true,
                         devTools: true,
@@ -15390,7 +15387,7 @@ var loadOrReloadBrowserView = function (action) {
                         else if (favicons[0].startsWith('https://')) {
                             try {
                                 var urlDecomposed_1 = decomposeUrl(favicons[0]);
-                                var serverAuthorized = payload.servers.find(function (s) { return s.host === urlDecomposed_1.host; });
+                                var serverAuthorized = payload.record.servers.find(function (s) { return s.host === urlDecomposed_1.host; });
                                 if (!serverAuthorized) {
                                     console.error("Could not get favicon, no servers authorized to reach https address " + favicons[0]);
                                     return;
@@ -15475,7 +15472,7 @@ var loadOrReloadBrowserView = function (action) {
                         });
                     }
                     else {
-                        var serverAuthorized = payload.servers.find(function (s) { return s.primary && s.host === urlDecomposed.host; });
+                        var serverAuthorized = payload.record.servers.find(function (s) { return s.primary && s.host === urlDecomposed.host; });
                         // If the navigation url is not bound to an authorized server
                         if (!serverAuthorized) {
                             a.preventDefault();
