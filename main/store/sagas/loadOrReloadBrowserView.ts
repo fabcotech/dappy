@@ -33,14 +33,26 @@ const loadOrReloadBrowserView = function* (action: any) {
   */
   if (browserViews[payload.resourceId]) {
     if (development) {
-      console.log('reload or self navigation, closing browserView with same id');
+      console.log('reload or self navigation, closing browserView and unregister protocols');
     }
-    session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('dappy');
-    if (browserViews[payload.resourceId].browserView.webContents.isDevToolsOpened()) {
-      browserViews[payload.resourceId].browserView.webContents.closeDevTools();
-      browserViews[payload.resourceId].browserView.webContents.forcefullyCrashRenderer();
+    const a = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('dappy');
+    const b = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('interprocessdapp');
+    const c = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.uninterceptProtocol('https');
+    let d = true;
+    if (!development) {
+      d = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.uninterceptProtocol('http');
     }
-    action.meta.browserWindow.removeBrowserView(browserViews[payload.resourceId].browserView);
+    if (development) {
+      console.log(a, b, c, d);
+    }
+    const bv = browserViews[payload.resourceId];
+    if (bv && bv.browserView) {
+      if (bv.browserView.webContents.isDevToolsOpened()) {
+        bv.browserView.webContents.closeDevTools();
+      }
+      bv.browserView.webContents.forcefullyCrashRenderer();
+    }
+    action.meta.browserWindow.removeBrowserView(bv.browserView);
   }
 
   /* navigation in a tab
@@ -56,13 +68,24 @@ const loadOrReloadBrowserView = function* (action: any) {
   });
   if (sameTabIdBrowserViewId) {
     if (development) {
-      console.log('navigation ina tab, closing browserView with same tabId');
+      console.log('navigation in tab, closing browserView with same tabId');
     }
     const bv = browserViews[sameTabIdBrowserViewId];
-    session.fromPartition(`persist:${bv.dappyDomain}`).protocol.unregisterProtocol('dappy');
-    if (browserViews[sameTabIdBrowserViewId].browserView.webContents.isDevToolsOpened()) {
-      browserViews[sameTabIdBrowserViewId].browserView.webContents.closeDevTools();
-      browserViews[sameTabIdBrowserViewId].browserView.webContents.forcefullyCrashRenderer();
+    const a = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('dappy');
+    const b = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('interprocessdapp');
+    const c = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.uninterceptProtocol('https');
+    let d = true;
+    if (!development) {
+      d = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.uninterceptProtocol('http');
+    }
+    if (development) {
+      console.log(a, b, c, d);
+    }
+    if (bv && bv.browserView) {
+      if (bv.browserView.webContents.isDevToolsOpened()) {
+        bv.browserView.webContents.closeDevTools();
+      }
+      bv.browserView.webContents.forcefullyCrashRenderer();
     }
     action.meta.browserWindow.removeBrowserView(browserViews[sameTabIdBrowserViewId].browserView);
   }
@@ -86,7 +109,7 @@ const loadOrReloadBrowserView = function* (action: any) {
   });
 
   // cookies to start with (from storage)
-  payload.cookies.map((c) => {
+  payload.cookies.forEach((c) => {
     view.webContents.session.cookies.set({
       ...c,
       url: `https://${c.domain}`,
@@ -258,7 +281,6 @@ const loadOrReloadBrowserView = function* (action: any) {
       a.preventDefault();
       return;
     }
-
     if (urlDecomposed.protocol === 'dappy') {
       let s;
       if (validateSearch(`${urlDecomposed.host}${urlDecomposed.path}`)) {

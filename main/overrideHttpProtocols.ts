@@ -8,7 +8,6 @@ import * as fromCookies from '../src/store/cookies';
 import * as fromMainBrowserViews from './store/browserViews';
 import { DappyBrowserView } from './models';
 import { Cookie } from '../src/models';
-import { cps } from 'redux-saga/effects';
 
 let httpErrorServerUrl = undefined;
 const agents: { [key: string]: https.Agent } = {};
