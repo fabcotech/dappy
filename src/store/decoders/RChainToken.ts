@@ -1,8 +1,8 @@
 import Ajv from 'ajv';
 
 const ajv = new Ajv();
-const readBox900 = {
-  schemaId: 'read-box-9.0.0',
+const readBox1000 = {
+  schemaId: 'read-box-10.0.0',
   type: 'object',
   properties: {
     version: { type: 'string' },
@@ -17,8 +17,8 @@ const readBox900 = {
   },
   required: ['purses', 'superKeys', 'version', 'publicKey'],
 };
-const purses900 = {
-  schemaId: 'purses-9.0.0',
+const purses1000 = {
+  schemaId: 'purses-10.0.0',
   type: 'array',
   items: {
     type: 'object',
@@ -36,8 +36,8 @@ const purses900 = {
 
 ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
 export const rchainTokenValidators = {
-  ['9.0.0']: {
-    readBox: readBox900,
-    purses: purses900,
+  ['10.0.0']: {
+    readBox: readBox1000,
+    purses: purses1000,
   },
 };

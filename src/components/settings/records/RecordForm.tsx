@@ -301,7 +301,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                       <div className="control">
                         {this.state.servers.map((s) => {
                           return (
-                            <div className="server-ro" key={s.ip}>
+                            <div className="server-ro" key={s.ip + s.host}>
                               <span className="ip">
                                 {t('ip')} : {s.ip}
                               </span>
