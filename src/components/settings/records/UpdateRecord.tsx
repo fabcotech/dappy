@@ -358,7 +358,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
               </div>
             </div>
           </form>
-          {this.state.loadedRecord ? (
+          {/* this.state.loadedRecord ? (
             <>
               <h4 className="title is-4">
                 <i className="fa fa-before fa-money-bill-wave"></i>
@@ -446,7 +446,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
                 </div>
               </form>
             </>
-          ) : undefined}
+          ) : undefined */}
         </div>
       </Fragment>
     );

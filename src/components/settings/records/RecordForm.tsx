@@ -37,6 +37,11 @@ const CheckRadio = (props: { humanName: string; value: string; field: any; form:
   );
 };
 
+const buildCSPFromIPServers = (a: IPServer[]) => {
+  const hosts = a.map((a) => a.host).join(' ');
+  return `Content-Security-Policy: default-src 'self'; script-src ${hosts}; style-src ${hosts}; img-src ${hosts}`;
+};
+
 export class RecordForm extends React.Component<RecordFormProps, {}> {
   constructor(props: RecordFormProps) {
     super(props);
@@ -78,12 +83,6 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
     });
   };
 
-  onSetIpServers = (a: IPServer[]) => {
-    this.setState({
-      servers: a,
-    });
-  };
-
   render() {
     return (
       <Formik
@@ -94,13 +93,13 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                 type: this.props.partialRecord.address ? 'dapp' : 'ip',
                 badges: this.props.partialRecord.badges || ({} as { [key: string]: string }),
                 names: [this.props.partialRecord.name],
-                csp: "default-src 'self'",
+                csp: " default-src 'self'",
               }
             : {
                 names: this.props.nameDisabledAndForced ? [this.props.nameDisabledAndForced] : [''],
                 address: '',
                 type: 'dapp',
-                csp: "default-src 'self'",
+                csp: " default-src 'self'",
                 servers: [],
                 badges: {} as { [key: string]: string },
               }
@@ -189,8 +188,14 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                 <IPServersComponent
                   back={this.onToggleSetupIpServers}
                   setIpServers={(a: IPServer[]) => {
-                    this.onSetIpServers(a);
                     setFieldTouched('servers');
+                    this.setState({
+                      servers: a,
+                    });
+                    if (values.csp === " default-src 'self'") {
+                      setFieldTouched('csp');
+                      setFieldValue('csp', buildCSPFromIPServers(a));
+                    }
                   }}
                   ipServers={this.state.servers}></IPServersComponent>
               </div>
