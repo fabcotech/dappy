@@ -340,6 +340,20 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                 <div className="field is-horizontal">
                   <label className="label">{t('csp')}</label>
                   <div className="control">
+                    <a
+                      onClick={() => {
+                        setFieldValue('csp', "default-src 'self'");
+                      }}
+                      className="underlined-link">
+                      Restrictive
+                    </a>{' '}
+                    <a
+                      onClick={() => {
+                        setFieldValue('csp', "default-src * 'unsafe-inline' 'unsafe-eval'");
+                      }}
+                      className="underlined-link">
+                      Openned
+                    </a>
                     <Field className="input" type="text" name="csp" placeholder="default-src 'self'" />
                     <p className="help">
                       See <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP">documentation from Mozilla</a>
