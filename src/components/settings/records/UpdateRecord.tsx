@@ -211,6 +211,8 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
       );
     }
 
+    const info = (this.props.namesBlockchainInfos as RChainInfos).info;
+
     if (
       this.transactionId &&
       this.props.transactions[this.transactionId] &&
@@ -266,6 +268,12 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
         {this.state.privatekey && !this.state.box && <p className="text-danger pt10">{t('you need box')}</p>}
         <br />
         <div className="update-record-properties-form">
+          <div className="field is-horizontal">
+            <label className="label">contract ID</label>
+            <div className="control inline-control">
+              <input disabled={true} defaultValue={info.rchainNamesContractId} className="input"></input>
+            </div>
+          </div>
           <div className="field is-horizontal">
             <label className="label">{t('name')}*</label>
             <div className="control inline-control">
@@ -333,9 +341,8 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
                 <button
                   onClick={() => {
                     const payload = {
-                      masterRegistryUri: (this.props.namesBlockchainInfos as RChainInfos).info
-                        .rchainNamesMasterRegistryUri,
-                      contractId: (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesContractId,
+                      masterRegistryUri: info.rchainNamesMasterRegistryUri,
+                      contractId: info.rchainNamesContractId,
                       purseId: this.state.name,
                       boxId: this.state.box,
                       data: Buffer.from(
@@ -358,95 +365,6 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
               </div>
             </div>
           </form>
-          {/* this.state.loadedRecord ? (
-            <>
-              <h4 className="title is-4">
-                <i className="fa fa-before fa-money-bill-wave"></i>
-                {t('update name price')}
-              </h4>
-              <div className="field is-horizontal">
-                <div className="control">
-                  <input
-                    className="radio is-checkradio is-link is-inverted"
-                    onChange={() => {}}
-                    type="radio"
-                    checked={this.state.loadedRecordPrice === undefined}
-                    name=""></input>
-                  <label
-                    onClick={() => {
-                      this.setState({ loadedRecordPrice: undefined });
-                    }}>
-                    {t('name not for sale')}
-                  </label>
-                  <input
-                    className="radio is-checkradio is-link is-inverted"
-                    onChange={() => {}}
-                    type="radio"
-                    checked={typeof this.state.loadedRecordPrice === 'number'}
-                    name=""></input>
-                  <label
-                    onClick={() => {
-                      this.setState({ loadedRecordPrice: 100000000 });
-                    }}>
-                    {t('name for sale')}
-                  </label>
-                </div>
-              </div>
-              {typeof this.state.loadedRecordPrice === 'number' && (
-                <div className="field is-horizontal">
-                  <label className="label"></label>
-                  <div className="control">
-                    <input
-                      onChange={(e) => {
-                        const n = parseInt(e.currentTarget.value, 10);
-                        this.setState({
-                          loadedRecordPrice: typeof n === 'number' ? n : undefined,
-                        });
-                      }}
-                      step={1}
-                      className="input"
-                      type="number"
-                      name="price"
-                      value={this.state.loadedRecordPrice}
-                      placeholder={t('name price (dust)')}
-                    />
-                    <span className="dust-price">{formatAmountNoDecimal(this.state.loadedRecordPrice)} dust</span>
-                    <span className="rev-price">
-                      {formatAmount(this.state.loadedRecordPrice / LOGREV_TO_REV_RATE)} REV
-                    </span>
-                  </div>
-                </div>
-              )}
-              <BoxAndPublicKeyError />
-              <form>
-                <div className="field is-horizontal is-grouped pt20">
-                  <div className="control">
-                    <button
-                      onClick={() => {
-                        const payload = {
-                          masterRegistryUri: (this.props.namesBlockchainInfos as RChainInfos).info
-                            .rchainNamesMasterRegistryUri,
-                          contractId: (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesContractId,
-                          purseId: (this.state.loadedRecord as Record).name,
-                          boxId: this.state.box,
-                          price: this.state.loadedRecordPrice,
-                        };
-                        const term = updatePursePriceTerm(payload);
-                        this.onSubmit(term);
-                      }}
-                      className="button is-link"
-                      disabled={
-                        this.state.loadedRecordPrice === this.state.loadedRecord.price ||
-                        !this.state.privatekey ||
-                        !this.state.box
-                      }>
-                      {t('update name price')}
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </>
-          ) : undefined */}
         </div>
       </Fragment>
     );

@@ -34,11 +34,6 @@ interface PurchaseRecordProps {
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
 }
 
-const formatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-});
-
 const defaultState = {
   privatekey: '',
   publickey: '',
@@ -48,6 +43,7 @@ const defaultState = {
   settingUpIpServers: false,
   partialRecord: undefined,
 
+  contractId: '',
   name: '',
   loadNameError: undefined,
   loadedPurse: undefined,
@@ -70,6 +66,8 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
     phloLimit: number;
     settingUpIpServers: boolean;
     partialRecord: PartialRecord | undefined;
+
+    contractId: string;
     name: string;
     loadNameError: undefined | string;
     loadedPurse: undefined | RChainTokenPurse;
@@ -107,7 +105,8 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
             terms: [
               readPursesTerm({
                 masterRegistryUri: (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesMasterRegistryUri,
-                contractId: (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesContractId,
+                contractId:
+                  this.state.contractId || (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesContractId,
                 pursesIds: [this.state.name, '0'],
               }),
             ],
@@ -234,6 +233,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
         </Fragment>
       );
     }
+    const info = (this.props.namesBlockchainInfos as RChainInfos).info;
 
     if (
       this.transactionId &&
@@ -276,7 +276,37 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
         {this.state.privatekey && !this.state.box && <p className="text-danger pt10">{t('you need box')}</p>}
         <br />
         <div className="field is-horizontal">
-          <label className="label">{t('name')}</label>
+          <label className="label">{t('contract ID')}</label>
+          <div className="control">
+            <input
+              disabled={true}
+              placeholder={'dappynamesystem'}
+              defaultValue={info.rchainNamesContractId}
+              className="input name-input"
+              onChange={(e) => {
+                if (e.target.value) {
+                  this.setState({
+                    partialRecord: undefined,
+                    loadNameError: undefined,
+                    loadedPurse: undefined,
+                    contractId: e.target.value,
+                  });
+                } else {
+                  this.setState({
+                    partialRecord: undefined,
+                    loadNameError: undefined,
+                    loadedPurse: undefined,
+                    contractId: undefined,
+                  });
+                }
+              }}
+            />
+          </div>
+        </div>
+        <div className="field is-horizontal">
+          <label className="label">
+            {t('name')} / {t('id')}
+          </label>
           <div className="control">
             <input
               disabled={this.state.loadingPurse}
@@ -298,7 +328,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
                   });
                 }
               }}
-              placeholder={`amazoon`}
+              placeholder={`rainbow`}
             />
           </div>
         </div>
@@ -382,7 +412,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
           )}
         {this.state.loadedPurse && typeof this.state.loadedPurse.price === 'number' && (
           <RecordForm
-            special={(this.props.namesBlockchainInfos as RChainInfos).info.special}
+            special={info.special}
             validateName
             nameDisabledAndForced={this.state.name}
             filledRecord={this.onFilledRecords}

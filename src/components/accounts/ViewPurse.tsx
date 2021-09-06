@@ -93,7 +93,7 @@ export class ViewPurseComponent extends React.Component<ViewPursesProps, ViewPur
                   }}
                   className="underlined-link">
                   {this.props.id === '0'
-                    ? 'tokens for sale (mint)'
+                    ? t('update cost of minting')
                     : this.props.fungible
                     ? t('update per token price')
                     : t('update nft purse price')}
