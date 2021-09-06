@@ -147,7 +147,7 @@ export const overrideHttpProtocols = (
       const io = userAgent.indexOf('randomId=');
       randomId = userAgent.substring(io + 'randomId='.length);
     } catch (err) {
-      console.log('[https] An unauthorized app tried to make an https request');
+      console.log('[https] An unauthorized app tried to make an https request, randomId: ', randomId);
       http
         .request(`${httpErrorServerUrl}/unauthorized-app`, (resp) => {
           callback(resp);

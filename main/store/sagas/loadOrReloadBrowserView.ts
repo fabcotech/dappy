@@ -271,16 +271,8 @@ const loadOrReloadBrowserView = function* (action: any) {
       }),
     });
   });
-  view.webContents.addListener('will-navigate', (a, url) => {
-    let urlDecomposed;
-    try {
-      urlDecomposed = decomposeUrl(url);
-    } catch (err) {
-      console.error('[dapp] will-navigate invalid URL ' + url);
-      console.log(err);
-      a.preventDefault();
-      return;
-    }
+
+  const handleNavigation = (urlDecomposed, url, e) => {
     if (urlDecomposed.protocol === 'dappy') {
       let s;
       if (validateSearch(`${urlDecomposed.host}${urlDecomposed.path}`)) {
@@ -288,7 +280,8 @@ const loadOrReloadBrowserView = function* (action: any) {
       } else {
         s = searchToAddress(urlDecomposed.path, payload.dappyDomain.split('/')[0]);
       }
-      a.preventDefault();
+      e.preventDefault();
+      console.log('[dapp] navigation/redirect will navigating to ' + s);
       action.meta.dispatchFromMain({
         action: fromDapps.loadResourceAction({
           address: s,
@@ -299,11 +292,39 @@ const loadOrReloadBrowserView = function* (action: any) {
       const serverAuthorized = payload.record.servers.find((s) => s.primary && s.host === urlDecomposed.host);
       // If the navigation url is not bound to an authorized server
       if (!serverAuthorized) {
-        a.preventDefault();
+        console.error('[dapp] navigation/redirect did not find server ' + url);
+        e.preventDefault();
         action.meta.openExternal(url);
       }
     }
+  };
+
+  view.webContents.addListener('will-redirect', (e, url) => {
+    let urlDecomposed;
+    try {
+      urlDecomposed = decomposeUrl(url);
+    } catch (err) {
+      console.error('[dapp] navigation/redirect invalid URL ' + url);
+      console.log(err);
+      e.preventDefault();
+      return;
+    }
+    handleNavigation(urlDecomposed, url, e);
   });
+
+  view.webContents.addListener('will-navigate', (e, url) => {
+    let urlDecomposed;
+    try {
+      urlDecomposed = decomposeUrl(url);
+    } catch (err) {
+      console.error('[dapp] will-navigate invalid URL ' + url);
+      console.log(err);
+      e.preventDefault();
+      return;
+    }
+    handleNavigation(urlDecomposed, url, e);
+  });
+
   view.webContents.addListener('did-finish-load', (a) => {
     action.meta.dispatchFromMain({
       action: fromDapps.updateTransitoryStateAction({
