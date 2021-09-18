@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Formik, Field, FieldArray } from 'formik';
+
 import { IPServer } from '../../../models';
+import { ServerConfig } from './ServerConfig';
 
 import './IPServers.scss';
 
@@ -16,6 +18,38 @@ const REGEXP_HOST = /^(?!\.)^[a-z0-9.-]*$/;
 export class IPServersComponent extends React.Component<IPServersComponentProps> {
   state: { retrieveError: { [n: number]: string } } = {
     retrieveError: {},
+  };
+
+  generateCertificateAndKey = (
+    index: number,
+    setFieldValue: (a: string, b: string) => void,
+    setFieldTouched: (a: string, b: boolean) => void
+  ) => {
+    window
+      .generateCertificateAndKey()
+      .then((a: { key: string; certificate: string }) => {
+        if (a.key && a.certificate && typeof a.key === 'string' && typeof a.certificate === 'string') {
+          setFieldValue(`servers.${index}.cert`, a.certificate);
+          setFieldTouched(`servers.${index}.cert`, true);
+          setFieldValue(`servers.${index}.key`, a.key);
+          setFieldTouched(`servers.${index}.key`, true);
+        }
+        this.setState({
+          retrieveError: {
+            ...this.state.retrieveError,
+            [index]: '',
+          },
+        });
+      })
+      .catch((err: Error) => {
+        console.log(err);
+        this.setState({
+          retrieveError: {
+            ...this.state.retrieveError,
+            [index]: err.message || err,
+          },
+        });
+      });
   };
 
   retrieveIpAddressAndCert = (
@@ -56,7 +90,9 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
     return (
       <Formik
         initialValues={{
-          servers: this.props.ipServers.length ? this.props.ipServers : [{ ip: '', host: '', cert: '', primary: true }],
+          servers: this.props.ipServers.length
+            ? this.props.ipServers.map((a) => ({ ...a, displayConfig: false, key: '' }))
+            : [{ ip: '', host: '', cert: '', primary: true, displayConfig: false, key: '' }],
         }}
         validate={(values) => {
           const errors: { [key: string]: { [key: string]: { ip?: string; cert?: string; host?: string } } } = {};
@@ -117,8 +153,8 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                     const touchedServer = touched.servers ? touched.servers[index] : {};
                     const errorsServer = errors.servers ? errors.servers[index] : {};
                     const retrieveError = this.state.retrieveError[index];
-                    return (
-                      <div key={index} className="ip-server">
+                    const Top = () => (
+                      <React.Fragment>
                         <h5 className="is-6 title">
                           {values.servers[index] && values.servers[index].ip
                             ? values.servers[index].ip
@@ -130,6 +166,37 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                               onClick={() => arrayHelpers.pop()}></i>
                           ) : undefined}
                         </h5>
+                        {values.servers[index] && values.servers[index] && (
+                          <a
+                            type="button"
+                            className="underlined-link"
+                            onClick={() => {
+                              setFieldValue(`servers.${index}.displayConfig`, !values.servers[index].displayConfig);
+                            }}>
+                            <i className="fa fa-before fa-server"></i>
+                            {values.servers[index].displayConfig ? 'Hide config' : 'Check nginx and apache config'}
+                            <br />
+                            <br />
+                          </a>
+                        )}
+                      </React.Fragment>
+                    );
+
+                    if (values.servers[index].displayConfig) {
+                      return (
+                        <div key={index} className="ip-server">
+                          <Top />
+                          <ServerConfig
+                            host={values.servers[index].host}
+                            certificate={values.servers[index].cert}
+                            kkey={values.servers[index].key}
+                          />
+                        </div>
+                      );
+                    }
+                    return (
+                      <div key={index} className="ip-server">
+                        <Top />
                         <div className="field is-horizontal">
                           <label className="label">{t('host name')}*</label>
                           <div className="control">
@@ -139,9 +206,8 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                               name={`servers.${index}.host`}
                               placeholder="dappy.tech"
                             />
-                            <button
-                              type="button"
-                              className="button is-link is-small"
+                            <a
+                              className="underlined-link"
                               onClick={() =>
                                 this.retrieveIpAddressAndCert(
                                   index,
@@ -150,8 +216,8 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                                   setFieldTouched
                                 )
                               }>
-                              Try to retrieve IP and certificate
-                            </button>
+                              Try to retrieve IP and certificate from DNS
+                            </a>
                           </div>
                         </div>
                         {retrieveError && <p className="text-danger">{retrieveError}</p>}
@@ -182,6 +248,12 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                               name={`servers.${index}.cert`}
                               placeholder="-----BEGIN CERTIFICATE-----"
                             />
+                            <a
+                              className="underlined-link"
+                              onClick={() => this.generateCertificateAndKey(index, setFieldValue, setFieldTouched)}>
+                              <i className="fa fa-before fa-key"></i>
+                              Generate TLS certificate and key
+                            </a>
                           </div>
                         </div>
                         <div className="field is-horizontal">
@@ -228,7 +300,9 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                           this.props.setIpServers(
                             values.servers.map((s) => {
                               return {
-                                ...s,
+                                ip: s.ip,
+                                host: s.host,
+                                primary: s.primary,
                                 cert: encodeURI(s.cert),
                               };
                             })

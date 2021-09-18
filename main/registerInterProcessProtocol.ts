@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { Store } from 'redux';
 import fs from 'fs';
 import path from 'path';
+import pem from 'pem';
 
 import { getIpAddressAndCert } from './getIpAddressAndCert';
 import { BlockchainNode, MultiCallBody, MultiCallParameters } from '../src/models';
@@ -253,6 +254,23 @@ export const registerInterProcessProtocol = (
           })
         )
       );
+    }
+    if (request.url === 'interprocess://generate-certificate-and-key') {
+      pem.createCertificate({ days: 1000000, selfSigned: true }, function (err, keys) {
+        if (err) {
+          console.log(err);
+          callback(Buffer.from(err));
+          return;
+        }
+        callback(
+          Buffer.from(
+            JSON.stringify({
+              key: keys.clientKey,
+              certificate: keys.certificate,
+            })
+          )
+        );
+      });
     }
   });
 };

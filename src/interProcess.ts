@@ -195,6 +195,32 @@ export const interProcess = (store: Store) => {
     });
   };
 
+  window.generateCertificateAndKey = () => {
+    console.log('generateCertificateAndKey');
+    return new Promise((resolve, reject) => {
+      const interProcess = new XMLHttpRequest();
+      interProcess.open('POST', 'interprocess://generate-certificate-and-key');
+      interProcess.setRequestHeader(
+        'Data',
+        encodeURI(
+          JSON.stringify({
+            uniqueEphemeralToken: uniqueEphemeralToken,
+            parameters: {},
+          })
+        )
+      );
+      interProcess.send();
+      interProcess.onload = (a) => {
+        try {
+          const r = JSON.parse(a.target.responseText);
+          resolve(r);
+        } catch (e) {
+          reject({ message: 'could not parse response' });
+        }
+      };
+    });
+  };
+
   window.getIpAddressAndCert = (parameters) => {
     return new Promise((resolve, reject) => {
       const interProcess = new XMLHttpRequest();

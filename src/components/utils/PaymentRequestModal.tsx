@@ -138,6 +138,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
             dappId: payload.origin.dappId,
             dappTitle: payload.origin.dappTitle,
             callId: payload.origin.callId,
+            accountName: undefined,
           },
           value: { message: 'Discarded by user' },
           sentAt: new Date().toISOString(),
@@ -153,6 +154,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
         platform: 'rchain',
         origin: {
           origin: 'transfer',
+          accountName: undefined,
         },
         value: { message: 'Discarded by user' },
         sentAt: new Date().toISOString(),
@@ -287,12 +289,15 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
     let foundAccountName: string | undefined = undefined;
     let accounts = this.props.accounts;
     if (payload.parameters.from) {
-      const foundKey = Object.keys(this.props.accounts).find(
+      const foundKeys = Object.keys(this.props.accounts).filter(
         (k) => this.props.accounts[k].address === payload.parameters.from
       );
-      if (foundKey) {
-        foundAccountName = this.props.accounts[foundKey].name;
-        accounts = { [foundKey]: this.props.accounts[foundKey] };
+      if (foundKeys[0]) {
+        foundAccountName = this.props.accounts[foundKeys[0]].name;
+        accounts = {};
+        foundKeys.forEach((fk) => {
+          accounts[fk] = this.props.accounts[fk];
+        });
       }
     }
 
