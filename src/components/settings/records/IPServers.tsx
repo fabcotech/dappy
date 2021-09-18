@@ -63,7 +63,9 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
         .getIpAddressAndCert({ host: host })
         .then((a: { ip: string; cert: string }) => {
           if (a.ip && a.cert && typeof a.ip === 'string' && typeof a.cert === 'string') {
-            setFieldValue(`servers.${index}.cert`, a.cert);
+            setFieldValue(`servers.${index}.key`, '');
+            setFieldTouched(`servers.${index}.key`, true);
+            setFieldValue(`servers.${index}.cert`, decodeURI(a.cert));
             setFieldTouched(`servers.${index}.cert`, true);
             setFieldValue(`servers.${index}.ip`, a.ip);
             setFieldTouched(`servers.${index}.ip`, true);

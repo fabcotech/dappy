@@ -196,7 +196,6 @@ export const interProcess = (store: Store) => {
   };
 
   window.generateCertificateAndKey = () => {
-    console.log('generateCertificateAndKey');
     return new Promise((resolve, reject) => {
       const interProcess = new XMLHttpRequest();
       interProcess.open('POST', 'interprocess://generate-certificate-and-key');

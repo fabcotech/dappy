@@ -8,6 +8,25 @@ export const ServerConfig = (props: {
   certificate: string | undefined;
 }) => {
   const [nginx, setNginx] = React.useState(true);
+
+  const Top = () => (
+    <>
+      <a
+        title="Switch between apache2 and nginx config"
+        className="underlined-link nginx-or-apache"
+        onClick={() => setNginx(!nginx)}>
+        <span className={nginx ? 'ip-server-confg-grey' : ''}>NGINX</span>
+        &nbsp;/&nbsp;
+        <span className={nginx ? '' : 'ip-server-confg-grey'}>Apache</span>
+      </a>
+      <p>
+        The config are appropriate for linux debian/ubuntu, Apache/2.4.41 (Ubuntu) and nginx 1.18.0-0ubuntu1.2 . Please
+        be careful to what system and reverse proxy you are using.
+      </p>
+      <br />
+      <br />
+    </>
+  );
   if (nginx) {
     const pathCrt = `/etc/nginx/conf.d/${props.host || 'myhost'}.crt`;
     const pathKey = `/etc/nginx/conf.d/${props.host || 'myhost'}.key`;
@@ -35,11 +54,7 @@ export const ServerConfig = (props: {
 
     return (
       <div>
-        <a className="underlined-link nginx-or-apache" onClick={() => setNginx(false)}>
-          NGINX <span className="ip-server-confg-grey">Apache</span>
-        </a>
-        <br />
-        <br />
+        <Top />
         <b>&nbsp;&nbsp;{pathConf}&nbsp;</b>
         <a className="underlined-link" onClick={() => window.copyToClipboard(conf)}>
           <i className="fa fa-copy fa-before"></i>
@@ -126,11 +141,7 @@ export const ServerConfig = (props: {
 
   return (
     <div>
-      <a className="underlined-link nginx-or-apache" onClick={() => setNginx(true)}>
-        <span className="ip-server-confg-grey">NGINX</span> Apache
-      </a>
-      <br />
-      <br />
+      <Top />
       <b>&nbsp;&nbsp;{pathConf}&nbsp;</b>
       <a className="underlined-link" onClick={() => window.copyToClipboard(conf)}>
         <i className="fa fa-copy fa-before"></i>
