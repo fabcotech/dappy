@@ -15,9 +15,9 @@ export const ServerConfig = (props: {
         title="Switch between apache2 and nginx config"
         className="underlined-link nginx-or-apache"
         onClick={() => setNginx(!nginx)}>
-        <span className={nginx ? 'ip-server-confg-grey' : ''}>NGINX</span>
+        <span className={nginx ? '' : 'ip-server-confg-grey'}>NGINX</span>
         &nbsp;/&nbsp;
-        <span className={nginx ? '' : 'ip-server-confg-grey'}>Apache</span>
+        <span className={nginx ? 'ip-server-confg-grey' : ''}>Apache</span>
       </a>
       <p>
         The config are appropriate for linux debian/ubuntu, Apache/2.4.41 (Ubuntu) and nginx 1.18.0-0ubuntu1.2 . Please
