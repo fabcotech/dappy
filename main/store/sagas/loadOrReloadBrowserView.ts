@@ -326,6 +326,7 @@ const loadOrReloadBrowserView = function* (action: any) {
   });
 
   view.webContents.addListener('did-finish-load', (a) => {
+    action.meta.browserWindow.webContents.executeJavaScript(`console.log('did-finish-load ${payload.resourceId}')`);
     action.meta.dispatchFromMain({
       action: fromDapps.updateTransitoryStateAction({
         resourceId: payload.resourceId,
@@ -334,12 +335,19 @@ const loadOrReloadBrowserView = function* (action: any) {
     });
   });
   view.webContents.addListener('did-stop-loading', (a) => {
+    action.meta.browserWindow.webContents.executeJavaScript(`console.log('did-stop-loading ${payload.resourceId}')`);
     action.meta.dispatchFromMain({
       action: fromDapps.updateTransitoryStateAction({
         resourceId: payload.resourceId,
         transitoryState: undefined,
       }),
     });
+  });
+  view.webContents.addListener('did-start-loading', (a) => {
+    action.meta.browserWindow.webContents.executeJavaScript(`console.log('did-start-loading ${payload.resourceId}')`);
+  });
+  view.webContents.addListener('dom-ready', (a) => {
+    action.meta.browserWindow.webContents.executeJavaScript(`console.log('dom-ready ${payload.resourceId}')`);
   });
 
   let newBrowserViews = {};

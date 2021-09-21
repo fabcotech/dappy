@@ -78,7 +78,7 @@ export class AccountModalComponent extends React.Component<AccountModalComponent
         <div className="modal-background" />
         <div className="modal-card">
           <header className="modal-card-head">
-            <p className="modal-card-title">Show account</p>
+            <p className="modal-card-title">{t('check account')}</p>
           </header>
           <section className="modal-card-body">
             <Formik

@@ -892,5 +892,14 @@ module.exports.translations = {
   },
   "download image for social networks": {
     "one": "Download image for social networks"
+  },
+  "csp": {
+    "one": "Content Security Policy header"
+  },
+  "update cost of minting": {
+    "one": "Update cost of minting"
+  },
+  "check account": {
+    "one": "check account"
   }
 }

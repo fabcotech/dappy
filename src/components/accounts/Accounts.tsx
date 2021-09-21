@@ -98,8 +98,8 @@ export function AccountsComponent(props: AccountsProps) {
                 <div key={k} className="account box">
                   <div className="left">
                     <b className="name" onClick={() => props.showAccountModal(a)}>
-                      {a.name} {a.main ? <span className="tag is-light">{t('main')}</span> : undefined}
-                      <i className="fa fa-eye" />
+                      {a.name}
+                      {a.main ? <span className="tag is-light">{t('main')}</span> : undefined}
                     </b>
                   </div>
                   <div className="balance">
@@ -258,6 +258,10 @@ export function AccountsComponent(props: AccountsProps) {
                     ) : (
                       <p className="text-danger">{t('no network cannot send revs')}</p>
                     )}
+                    <a onClick={() => props.showAccountModal(a)} className="underlined-link">
+                      <i className="fa fa-before fa-eye"></i>
+                      Check account
+                    </a>
                   </div>
                   <a
                     title="Remove the account forever"

@@ -50,6 +50,9 @@
   }
   .modal-card {
     width: 800px;
+    .modal-card-title {
+      text-transform: capitalize;
+    }
   }
   .enter-password {
     color: #aaa
