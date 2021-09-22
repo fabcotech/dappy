@@ -9,6 +9,8 @@ var http = _interopDefault(require('http'));
 var https = _interopDefault(require('https'));
 var fs = _interopDefault(require('fs'));
 var crypto = _interopDefault(require('crypto'));
+var net = _interopDefault(require('net'));
+var child_process = _interopDefault(require('child_process'));
 var dns = _interopDefault(require('dns'));
 
 var DAPP_INITIAL_SETUP = '[Common] dapp initial setup';
@@ -91,6 +93,10 @@ function __generator(thisArg, body) {
 }
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+function commonjsRequire () {
+	throw new Error('Dynamic requires are not currently supported by rollup-plugin-commonjs');
+}
 
 function unwrapExports (x) {
 	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
@@ -318,7 +324,9 @@ var getTabsFocusOrderWithoutSearch = lib_4(getTabsFocusOrder, function (tabsFocu
 });
 var getFocusedTabId = lib_4(getTabsFocusOrderWithoutSearch, function (tabsFocusOrder) { return tabsFocusOrder[tabsFocusOrder.length - 1]; });
 var getSearchTransitoryState = lib_4(getSearch, getDappsTransitoryStates, function (search, transitoryStates) { return transitoryStates[search]; });
-var getSearchLoadStates = lib_4(getSearch, getLoadStates, function (search, loadStates) { return (search ? loadStates[search] : undefined); });
+var getSearchLoadStates = lib_4(getSearch, getLoadStates, function (search, loadStates) {
+    return search ? loadStates[search] : undefined;
+});
 var getActiveTabs = lib_4(getTabs, function (tabs) {
     var activeTabs = {};
     tabs.forEach(function (t) {
@@ -352,9 +360,6 @@ var deployBoxTerm_1 = (
   return `new basket,
   masterEntryCh,
   registerBoxReturnCh,
-  sendReturnCh,
-  deletePurseReturnCh,
-  boxCh,
   stdout(\`rho:io:stdout\`),
   deployerId(\`rho:rchain:deployerId\`),
   registryLookup(\`rho:registry:lookup\`)
@@ -397,10 +402,12 @@ var masterTerm_1 = (payload) => {
   makePurseCh,
   transferToEscrowPurseCh,
   calculateFeeCh,
+  validateStringCh,
   initializeOCAPOnBoxCh,
 
   initLocksForContractCh,
   initLocksForBoxCh,
+  appendLogsForContract,
 
   /*
     vault is the ultimate accessibility unforgeable in
@@ -939,6 +946,43 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
     @(*vault, "CONTRACT_LOCK", contractId)!(Nil)
   } |
 
+  // validate string, used for .type , purse ID, box ID, contract ID
+  for (@(str, ret) <= validateStringCh) {
+    match (str, Set("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9")) {
+      (String, valids) => {
+        new tmpCh, itCh in {
+          for (@i <= itCh) {
+            if (i == str.length()) { @ret!(true) }
+            else {
+              if (valids.contains(str.slice(i, i + 1)) == true) { itCh!(i + 1) }
+              else { @ret!(false) }
+            }
+          } |
+          itCh!(0)
+        }
+      }
+      _ => { @ret!(false) }
+    }
+  } |
+
+  for (@(contractId, type, str) <= appendLogsForContract) {
+    new blockDataCh in {
+      blockData!(*blockDataCh) |
+      for (_, @timestamp, _ <- blockDataCh) {
+        for (@current <- @(*vault, "LOGS", contractId)) {
+          match current.length() > 2600 {
+            true => {
+              @(*vault, "LOGS", contractId)!("\${type},\${ts}," %% { "type": type, "ts": timestamp } ++ str ++ current.slice(0,2200))
+            }
+            false => {
+              @(*vault, "LOGS", contractId)!("\${type},\${ts}," %% { "type": type, "ts": timestamp } ++ str ++ current)
+            }
+          }
+        }
+      }
+    }
+  } |
+
   TreeHashMap!("init", ${payload.depth || 3}, true, *boxesReadyCh) |
   TreeHashMap!("init", ${payload.depth || 3}, false, *contractsReadyCh) |
 
@@ -1030,46 +1074,46 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
     } |
 
     // save purse id in box
-    for (@(contractId, boxId, purseId, merge, return) <= savePurseInBoxCh) {
+    for (@(contractId, purse, merge, return) <= savePurseInBoxCh) {
       new ch1, ch3, iterateAndMergePursesCh in {
 
-        for (@box <- @(*vault, "boxes", boxId)) {
+        for (@box <- @(*vault, "boxes", purse.get("boxId"))) {
           getContractPursesThmCh!((contractId, *ch1)) |
           for (@pursesThm <- ch1) {
             if (pursesThm != Nil) {
               if (box.get(contractId) == Nil) {
-                stdout!(contractId ++ "/" ++ boxId ++ " purse " ++ purseId ++ " saved to box") |
-                @(*vault, "boxes", boxId)!(box.set(contractId, Set(purseId))) |
-                @return!((true, Nil))
+                stdout!(contractId ++ "/" ++ purse.get("boxId") ++ " purse " ++ purse.get("id") ++ " saved to box") |
+                @(*vault, "boxes", purse.get("boxId"))!(box.set(contractId, Set(purse.get("id")))) |
+                @return!((true, purse))
               } else {
-                if (box.get(contractId).contains(purseId) == false) {
+                if (box.get(contractId).contains(purse.get("id")) == false) {
                   for (@contractConfig <<- @(*vault, "contractConfig", contractId)) {
                     match (contractConfig.get("fungible") == true, merge) {
                       (true, true) => {
                         for (@pursesThm <<- @(*vault, "purses", contractId)) {
-                          TreeHashMap!("get", pursesThm, purseId, *ch3) |
+                          TreeHashMap!("get", pursesThm, purse.get("id"), *ch3) |
                           for (@purse <- ch3) {
-                            iterateAndMergePursesCh!((box, purse, pursesThm))
+                            iterateAndMergePursesCh!((box, pursesThm))
                           }
                         }
                       }
                       _ => {
-                        stdout!(contractId ++ "/" ++ boxId ++ " purse " ++ purseId ++ " saved to box") |
-                        @(*vault, "boxes", boxId)!(box.set(
+                        stdout!(contractId ++ "/" ++ purse.get("boxId") ++ " purse " ++ purse.get("id") ++ " saved to box") |
+                        @(*vault, "boxes", purse.get("boxId"))!(box.set(
                           contractId,
-                          box.get(contractId).union(Set(purseId))
+                          box.get(contractId).union(Set(purse.get("id")))
                         )) |
-                        @return!((true, Nil))
+                        @return!((true, purse))
                       }
                     }
                   }
                 } else {
-                  @(*vault, "boxes", boxId)!(box) |
+                  @(*vault, "boxes", purse.get("boxId"))!(box) |
                   @return!("error: CRITICAL, purse already exists in box")
                 }
               }
             } else {
-              @(*vault, "boxes", boxId)!(box) |
+              @(*vault, "boxes", purse.get("boxId"))!(box) |
               @return!("error: CRITICAL, pursesThm not found")
             }
           }
@@ -1077,14 +1121,14 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
         // if contract is fungible, we may find a
         // purse with same .price and .type property
         // if found, then merge and delete current purse
-        for (@(box, purse, pursesThm) <- iterateAndMergePursesCh) {
+        for (@(box, pursesThm) <- iterateAndMergePursesCh) {
           new tmpCh, itCh in {
             for (ids <= itCh) {
               match *ids {
                 Set() => {
-                  stdout!(contractId ++ "/" ++ boxId ++ " purse " ++ purse.get("id") ++ " saved to box") |
-                  @(*vault, "boxes", boxId)!(box.set(contractId, Set(purseId))) |
-                  @return!((true, Nil))
+                  stdout!(contractId ++ "/" ++ purse.get("boxId") ++ " purse " ++ purse.get("id") ++ " saved to box") |
+                  @(*vault, "boxes", purse.get("boxId"))!(box.set(contractId, Set(purse.get("id")))) |
+                  @return!((true, purse))
                 }
                 Set(last) => {
                   new ch4, ch5, ch6, ch7 in {
@@ -1116,19 +1160,18 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
                             )
                           } |
                           for (_ <- ch5; _ <- ch6; _ <- ch7) {
-                            stdout!(contractId ++ "/" ++ boxId ++ " purse " ++ purse.get("id") ++ " merged into purse " ++ purse2.get("id")) |
-                            @return!((true, Nil)) |
-                            @(*vault, "boxes", boxId)!(box)
+                            stdout!(contractId ++ "/" ++ purse.get("boxId") ++ " purse " ++ purse.get("id") ++ " merged into purse " ++ purse2.get("id")) |
+                            @return!((true, purse)) |
+                            @(*vault, "boxes", purse.get("boxId"))!(box)
                           }
                         }
                         _ => {
-                          stdout!(contractId ++ "/" ++ boxId ++ " purse " ++ purse.get("id") ++ " saved to box") |
-                          @(*vault, "boxes", boxId)!(box.set(
+                          stdout!(contractId ++ "/" ++ purse.get("boxId") ++ " purse " ++ purse.get("id") ++ " saved to box") |
+                          @(*vault, "boxes", purse.get("boxId"))!(box.set(
                             contractId,
                             box.get(contractId).union(Set(purse.get("id")))
                           )) |
-                          @return!((true, Nil)) |
-                          @(*vault, "boxes", boxId)!(box)
+                          @return!((true, purse))
                         }
                       }
                     }
@@ -1165,9 +1208,9 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
                             )
                           } |
                           for (_ <- ch5; _ <- ch6; _ <- ch7) {
-                            stdout!(contractId ++ "/" ++ boxId ++ " purse " ++ purse.get("id") ++ " merged into purse " ++ purse2.get("id")) |
-                            @return!((true, Nil)) |
-                            @(*vault, "boxes", boxId)!(box)
+                            stdout!(contractId ++ "/" ++ purse.get("boxId") ++ " purse " ++ purse.get("id") ++ " merged into purse " ++ purse2.get("id")) |
+                            @return!((true, purse)) |
+                            @(*vault, "boxes", purse.get("boxId"))!(box)
                           }
                         }
                         _ => {
@@ -1263,7 +1306,7 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
                   } |
 
                   for (_ <- ch3; _ <- ch4) {
-                    savePurseInBoxCh!((contractId, purse.get("boxId"), purse.get("id"), merge, return))
+                    savePurseInBoxCh!((contractId, purse, merge, return))
                   }
                 }
                 _ => {
@@ -1308,8 +1351,23 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
           } else {
             for (@superKeys <<- @(*vault, "boxesSuperKeys", boxId)) {
               for (@config <<- @(*vault, "boxConfig", boxId)) {
-                @return!(config.union({ "superKeys": superKeys, "purses": box, "version": "10.0.0" }))
+                @return!(config.union({ "superKeys": superKeys, "purses": box, "version": "11.0.0" }))
               }
+            }
+          }
+        }
+      }
+    } |
+
+    for (@("PUBLIC_READ_LOGS", contractId, return) <= entryCh) {
+      new ch1 in {
+        getContractPursesThmCh!((contractId, *ch1)) |
+        for (@pursesThm <- ch1) {
+          if (pursesThm == Nil) {
+            @return!("error: contract not found")
+          } else {
+            for (@logs <<- @(*vault, "LOGS", contractId)) {
+              @return!((true, logs))
             }
           }
         }
@@ -1401,7 +1459,7 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
     for (@("PUBLIC_REGISTER_BOX", payload, return) <= entryCh) {
       match (payload.get("boxId"), payload.get("publicKey"), payload.get("boxId").length() > 1, payload.get("boxId").length() < 25) {
         (String, String, true, true) => {
-          new ch1, ch2, ch3, ch4, ch5, ch6 in {
+          new ch1, ch2, ch3, ch4, ch5, ch6, ch7 in {
             registryLookup!(\`rho:rchain:revVault\`, *ch3) |
             for (@(_, RevVault) <- ch3) {
               revAddress!("fromPublicKey", payload.get("publicKey").hexToBytes(), *ch4) |
@@ -1410,7 +1468,14 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
                 for (@b <- ch5) {
                   match b {
                     (true, vaultFromPublicKey) => {
-                      ch6!(true)
+                      validateStringCh!((payload.get("boxId"), *ch7)) |
+                      for (@valid <- ch7) {
+                        if (valid == true) {
+                          ch6!(true)
+                        } else {
+                          @return!("error: invalid box id")
+                        }
+                      }
                     }
                     _ => {
                       @return!("error: invalid public key, could not get vault")
@@ -1447,7 +1512,7 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
 
       for (@("REGISTER_CONTRACT", payload, return) <= @boxCh) {
         for (_ <- @(*vault, "REGISTER_CONTRACT_LOCK", boxId)) {
-          new registerContract, ch1, ch2, ch3, ch4, ch5, unlock in {
+          new registerContract, ch1, ch2, ch3, ch4, ch5, ch6, unlock in {
             for (@result <- unlock) {
               @(*vault, "REGISTER_CONTRACT_LOCK", boxId)!(Nil) |
               @return!(result)
@@ -1456,14 +1521,21 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
               { "contractId": String, "fungible": Bool, "fee": Nil \\/ (String, Int), "expires": Nil \\/ Int } => {
                 match (payload.get("contractId").length() > 1, payload.get("contractId").length() < 25) {
                   (true, true) => {
-                    if (payload.get("expires") == Nil) {
-                      registerContract!(Nil)
-                    } else {
-                      // minimum 2 hours expiration
-                      if (payload.get("expires") >= 1000 * 60 * 60 * 2) {
-                        registerContract!(Nil)
+                    validateStringCh!((payload.get("contractId"), *ch6)) |
+                    for (@valid <- ch6) {
+                      if (valid == true) {
+                        if (payload.get("expires") == Nil) {
+                          registerContract!(Nil)
+                        } else {
+                          // minimum 2 hours expiration
+                          if (payload.get("expires") >= 1000 * 60 * 60 * 2) {
+                            registerContract!(Nil)
+                          } else {
+                            unlock!("error: .expires must be at least 2 hours")
+                          }
+                        }
                       } else {
-                        unlock!("error: .expires must be at least 2 hours")
+                        unlock!("error: invalid contract id")
                       }
                     }
                   }
@@ -1499,12 +1571,13 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
 
                     // config
                     @(*vault, "contractConfig", payload.get("contractId"))!(
-                      payload.set("locked", false).set("counter", 1).set("version", "10.0.0").set("fee", payload.get("fee"))
+                      payload.set("locked", false).set("counter", 1).set("version", "11.0.0").set("fee", payload.get("fee"))
                     ) |
 
                     new superKeyCh in {
                       // return the bundle+ super key
                       unlock!((true, bundle+{*superKeyCh})) |
+                      @(*vault, "LOGS", payload.get("contractId"))!("") |
                       initLocksForContractCh!(payload.get("contractId")) |
 
                       for (@("LOCK", return2) <= superKeyCh) {
@@ -1531,7 +1604,7 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
                               @return2!("error: contract is locked") |
                               @(*vault, "CONTRACT_LOCK", payload.get("contractId"))!(Nil)
                             } else {
-                              new blockDataCh, ch1, ch2 in {
+                              new blockDataCh, ch1, ch2, ch3 in {
                                 blockData!(*blockDataCh) |
                                 for (_, @timestamp, _ <- blockDataCh) {
                                   match (createPursePayload, createPursePayload.get("price") == 0) {
@@ -1544,29 +1617,35 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
                                       "boxId": String
                                     }, false) => {
                                       getBoxCh!((createPursePayload.get("boxId"), *ch1)) |
-                                      for (@box <- ch1) {
-                                        if (box == Nil) {
-                                          @return2!("error: box not found " ++ createPursePayload.get("boxId")) |
-                                          @(*vault, "CONTRACT_LOCK", payload.get("contractId"))!(Nil)
-                                        } else {
-                                          makePurseCh!((
-                                            payload.get("contractId"),
-                                            createPursePayload.delete("data").set("timestamp", timestamp),
-                                            createPursePayload.get("data"),
-                                            true,
-                                            *ch2
-                                          )) |
-                                          for (@r <- ch2) {
-                                            @(*vault, "CONTRACT_LOCK", payload.get("contractId"))!(Nil) |
-                                            match r {
-                                              String => {
-                                                @return2!(r)
-                                              }
-                                              _ => {
-                                                @return2!(true)
+                                      validateStringCh!((createPursePayload.get("id") ++ createPursePayload.get("type"), *ch3)) |
+                                      for (@box <- ch1; @valid <- ch3) {
+                                        if (valid == true) {
+                                          if (box == Nil) {
+                                            @return2!("error: box not found " ++ createPursePayload.get("boxId")) |
+                                            @(*vault, "CONTRACT_LOCK", payload.get("contractId"))!(Nil)
+                                          } else {
+                                            makePurseCh!((
+                                              payload.get("contractId"),
+                                              createPursePayload.delete("data").set("timestamp", timestamp),
+                                              createPursePayload.get("data"),
+                                              true,
+                                              *ch2
+                                            )) |
+                                            for (@r <- ch2) {
+                                              @(*vault, "CONTRACT_LOCK", payload.get("contractId"))!(Nil) |
+                                              match r {
+                                                String => {
+                                                  @return2!(r)
+                                                }
+                                                (true, newPurse) => {
+                                                  @return2!(true)
+                                                }
                                               }
                                             }
                                           }
+                                        } else {
+                                          @return2!("error: invalid id or type property") |
+                                          @(*vault, "CONTRACT_LOCK", payload.get("contractId"))!(Nil)
                                         }
                                       }
                                     }
@@ -1978,8 +2057,7 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
       for (@("PURCHASE", payload, return) <= @boxCh) {
         match payload {
           { "quantity": Int, "contractId": String, "merge": Bool, "purseId": String, "newId": Nil \\/ String, "data": _, "purseRevAddr": String, "purseAuthKey": _ } => {
-            stdout!(payload) |
-            new ch3, ch4, ch5, ch6, ch7, step2Ch, ch20, ch21, ch22, ch23, ch24, step3Ch, rollbackCh, ch30, ch31, ch32, ch33, ch34, ch35, ch36, ch37, step4Ch, ch40, ch41, ch42, ch43, ch44, ch45, step5Ch, ch50, ch51, ch52, ch53, unlock in {
+            new ch3, ch4, ch5, ch6, ch7, ch8, step2Ch, ch20, ch21, ch22, ch23, ch24, step3Ch, rollbackCh, ch30, ch31, ch32, ch33, ch34, ch35, ch36, ch37, step4Ch, ch40, ch41, ch42, ch43, ch44, ch45, step5Ch, ch50, ch51, ch52, ch53, unlock in {
 
               for (@result <- unlock) {
                 @return!(result) |
@@ -1989,29 +2067,35 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
               // STEP 1
               // check box, purse
               getBoxCh!((boxId, *ch3)) |
-              for (@box <- ch3) {
-                if (box != Nil) {
-                  getContractPursesThmCh!((payload.get("contractId"), *ch4)) |
-                  getContractPursesDataThmCh!((payload.get("contractId"), *ch5)) |
-                  for (@pursesThm <- ch4; @pursesDataThm <- ch5) {
-                    if (pursesThm != Nil) {
-                      TreeHashMap!("get", pursesThm, payload.get("purseId"), *ch6) |
-                      TreeHashMap!("get", pursesDataThm, payload.get("purseId"), *ch7)
-                    } else {
-                      @return!("error: contract not found")
-                    } |
-                    for (@purse <- ch6; @purseData <- ch7) {
-                      if (purse != Nil) {
-                        for (_ <- @(*vault, "CONTRACT_LOCK", payload.get("contractId"))) {
-                          step2Ch!((pursesThm, pursesDataThm, purse, purseData))
-                        }
+              validateStringCh!((payload.get("newId"), *ch8)) |
+              for (@box <- ch3; @valid <- ch8) {
+                if (valid == true) {
+                  // todo, remove this check ? box should always exist
+                  if (box != Nil) {
+                    getContractPursesThmCh!((payload.get("contractId"), *ch4)) |
+                    getContractPursesDataThmCh!((payload.get("contractId"), *ch5)) |
+                    for (@pursesThm <- ch4; @pursesDataThm <- ch5) {
+                      if (pursesThm != Nil) {
+                        TreeHashMap!("get", pursesThm, payload.get("purseId"), *ch6) |
+                        TreeHashMap!("get", pursesDataThm, payload.get("purseId"), *ch7)
                       } else {
-                        @return!("error: purse not found")
+                        @return!("error: contract not found")
+                      } |
+                      for (@purse <- ch6; @purseData <- ch7) {
+                        if (purse != Nil) {
+                          for (_ <- @(*vault, "CONTRACT_LOCK", payload.get("contractId"))) {
+                            step2Ch!((pursesThm, pursesDataThm, purse, purseData))
+                          }
+                        } else {
+                          @return!("error: purse not found")
+                        }
                       }
                     }
+                  } else {
+                    @return!("error: CRITICAL box not found")
                   }
                 } else {
-                  @return!("error: CRITICAL box not found")
+                  @return!("error: invalid newId property")
                 }
               } |
 
@@ -2085,7 +2169,7 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
                   TreeHashMap!("set", pursesThm, purse.get("id"), purse, *ch30) |
                   TreeHashMap!("set", pursesDataThm, purse.get("id"), purseData, *ch31) |
                   if (purse.get("quantity") - payload.get("quantity") == 0) {
-                    savePurseInBoxCh!((payload.get("contractId"), purse.get("boxId"), purse.get("id"), true, *ch32))
+                    savePurseInBoxCh!((payload.get("contractId"), purse, true, *ch32))
                   } else {
                     // the purse has not been removed from box
                     ch32!((true, Nil))
@@ -2128,8 +2212,8 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
                     String => {
                       rollbackCh!(makePurseResult)
                     }
-                    _ => {
-                      step5Ch!((pursesThm, pursesDataThm, purse, purseData, RevVault, escrowPurseRevAddr, escrowPurseAuthKey, emitterRevAddress, recipientRevAddress, amount, feeAmount, feeRevAddress))
+                    (true, newPurse) => {
+                      step5Ch!((pursesThm, pursesDataThm, purse, purseData, RevVault, escrowPurseRevAddr, escrowPurseAuthKey, emitterRevAddress, recipientRevAddress, amount, feeAmount, feeRevAddress, newPurse))
                     }
                   }
                 } |
@@ -2194,7 +2278,7 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
 
               // STEP 5
               // everything went ok, do final payment
-              for (@(pursesThm, pursesDataThm, purse, purseData, RevVault, escrowPurseRevAddr, escrowPurseAuthKey, emitterRevAddress, recipientRevAddress, amount, feeAmount, feeRevAddress) <- step5Ch) {
+              for (@(pursesThm, pursesDataThm, purse, purseData, RevVault, escrowPurseRevAddr, escrowPurseAuthKey, emitterRevAddress, recipientRevAddress, amount, feeAmount, feeRevAddress, newPurse) <- step5Ch) {
                 @RevVault!("findOrCreate", escrowPurseRevAddr, *ch50) |
                 for (@(true, purseVaultEscrow) <- ch50) {
                   @purseVaultEscrow!("transfer", recipientRevAddress, amount, escrowPurseAuthKey, *ch51) |
@@ -2214,7 +2298,8 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
                             }
                           }
                         } |
-                        unlock!((true, Nil))
+                        unlock!((true, Nil)) |
+                        appendLogsForContract!((payload.get("contractId"), "p", "\${toBox},\${fromBox},\${q},\${p},\${id},\${newId};" %% { "fromBox": boxId, "toBox": purse.get("boxId"), "q": payload.get("quantity"), "p": purse.get("price"), "newId": newPurse.get("id"), "id": payload.get("purseId") }))
                       }
                       _ => {
                         stdout!("error: CRITICAL, makePurse went fine, but could not do final transfer") |
@@ -2256,8 +2341,6 @@ var deployTerm_1 = (payload) => {
     return `new basket,
   masterEntryCh,
   registerContractReturnCh,
-  sendReturnCh,
-  deletePurseReturnCh,
   boxCh,
   stdout(\`rho:io:stdout\`),
   deployerId(\`rho:rchain:deployerId\`),
@@ -3085,6 +3168,34 @@ var withdrawTerm = {
 	withdrawTerm: withdrawTerm_1
 };
 
+/* GENERATED CODE, only edit rholang/*.rho files*/
+var readLogsTerm_1 = (
+  payload
+) => {
+  return `new return, entryCh, lookup(\`rho:registry:lookup\`), stdout(\`rho:io:stdout\`) in {
+  lookup!(\`rho:id:${payload.masterRegistryUri}\`, *entryCh) |
+  for(entry <- entryCh) {
+    new a in {
+      entry!(("PUBLIC_READ_LOGS", "${payload.contractId}", *a)) |
+      for (@logs <- a) {
+        match logs {
+          String => {
+            return!("")
+          }
+          (true, logss) => {
+            return!(logss)
+          }
+        }
+      }
+    }
+  }
+}`;
+};
+
+var readLogsTerm = {
+	readLogsTerm: readLogsTerm_1
+};
+
 // store-as-bytes-map
 var decodePurses_1 = (expr, rhoExprToVar, decodePar) => {
   const purses = {};
@@ -3133,7 +3244,98 @@ var decodePurses = {
 	decodePurses: decodePurses_1
 };
 
-var VERSION = '10.0.0';
+var logs_1 = {
+  checkLine: (s) => {
+    if (s.startsWith('p')) {
+      const split = s.split(',');
+      const ts = parseInt(split[1], 10);
+      if (typeof ts !== 'number' || ts < 100) {
+        throw new Error('Incorrect timestamp 2nd value');
+      }
+      const toBox = split[2];
+      if (typeof toBox !== 'string' || toBox.length === 0) {
+        throw new Error('Incorrect toBox 3rd value');
+      }
+      const fromBox = split[3];
+      if (typeof fromBox !== 'string' || fromBox.length === 0) {
+        throw new Error('Incorrect fromBox 4th value');
+      }
+      const quantity = parseInt(split[4], 10);
+      if (typeof quantity !== 'number' || isNaN(quantity) || quantity < 1) {
+        throw new Error('Incorrect quantity 5th value');
+      }
+      const price = parseInt(split[5], 10);
+      if (typeof price !== 'number' || isNaN(price) || price < 1) {
+        throw new Error('Incorrect price 6th value');
+      }
+      const pursePurchasedFrom = split[6];
+      if (
+        typeof pursePurchasedFrom !== 'string' ||
+        pursePurchasedFrom.length === 0
+      ) {
+        throw new Error('Incorrect newPurse 6th value');
+      }
+      const newPurseId = split[7];
+      if (typeof newPurseId !== 'string' || newPurseId.length === 0) {
+        throw new Error('Incorrect newPurse 7th value');
+      }
+    } else {
+      throw new Error('Unknown operation');
+    }
+  },
+  isPurchaseFromZero: (s) => {
+    if (s.startsWith('p')) {
+      const split = s.split(',');
+      return split[6] === '0';
+    } else {
+      return false;
+    }
+  },
+  isNFTPurchase: (s) => {
+    if (s.startsWith('p')) {
+      const split = s.split(',');
+      const parsed = parseInt(split[6]);
+      return (
+        split[6] === '0' ||
+        isNaN(parsed) ||
+        parsed.toString().length !== split[6].length
+      );
+    } else {
+      return false;
+    }
+  },
+  formatLine: (s) => {
+    if (s.startsWith('p')) {
+      const split = s.split(',');
+      const parsed = parseInt(split[6]);
+      let ts = parseInt(split[1], 10);
+      ts = new Date(ts).toISOString().slice(0, 16);
+      if (
+        split[6] === '0' ||
+        isNaN(parsed) ||
+        parsed.toString().length !== split[6].length
+      ) {
+        if (split[5] === '0') {
+          return ` ${ts} box ${split[2]} minted new NFT ${split[7]} at price ${split[5]}`;
+        } else {
+          return ` ${ts} box ${split[2]} purchased NFT ${split[7]} from box ${split[3]} at price ${split[4]}`;
+        }
+      } else {
+        return ` ${ts} box ${split[2]} purchased ${split[4]} token${
+          split[4] === '1' ? '' : 's'
+        } from box ${split[3]} at price ${split[5]}`;
+      }
+    } else {
+      throw new Error('Unknown operation');
+    }
+  },
+};
+
+var logs = {
+	logs: logs_1
+};
+
+var VERSION = '11.0.0';
 
 var constants = {
 	VERSION: VERSION
@@ -3156,9 +3358,11 @@ const { updatePursePriceTerm: updatePursePriceTerm$1 } = updatePursePriceTerm;
 const { renewTerm: renewTerm$1 } = renewTerm;
 const { purchaseTerm: purchaseTerm$1 } = purchaseTerm;
 const { withdrawTerm: withdrawTerm$1 } = withdrawTerm;
+const { readLogsTerm: readLogsTerm$1 } = readLogsTerm;
 
 // utils
 const { decodePurses: decodePurses$1 } = decodePurses;
+const { logs: logs$1 } = logs;
 
 const { VERSION: VERSION$1 } = constants;
 
@@ -3180,14 +3384,16 @@ var src = {
   readPursesTerm: readPursesTerm$1,
   readAllPursesTerm: readAllPursesTerm$1,
   readBoxTerm: readBoxTerm$1,
+  readLogsTerm: readLogsTerm$1,
   readConfigTerm: readConfigTerm$1,
   readPursesDataTerm: readPursesDataTerm$1,
 
   // utils
   decodePurses: decodePurses$1,
+  logs: logs$1,
 };
-var src_16 = src.readConfigTerm;
-var src_17 = src.readPursesDataTerm;
+var src_17 = src.readConfigTerm;
+var src_18 = src.readPursesDataTerm;
 
 function symbolObservablePonyfill(root) {
 	var result;
@@ -11317,10 +11523,10 @@ var getNodeIndex = function (node) {
 var readPursesDataOrContractConfig = function (masterRegistryUri, contractId, purseId) {
     // read purse data if purseId
     if (contractId && purseId) {
-        return src_17({ masterRegistryUri: masterRegistryUri, contractId: contractId, pursesIds: [purseId] });
+        return src_18({ masterRegistryUri: masterRegistryUri, contractId: contractId, pursesIds: [purseId] });
     }
     // read config values { fungible: ..., fee: ...} if no contract id AND purse id
-    return src_16({ masterRegistryUri: masterRegistryUri, contractId: contractId });
+    return src_17({ masterRegistryUri: masterRegistryUri, contractId: contractId });
 };
 var registerDappyProtocol = function (session, getState) {
     session.protocol.registerBufferProtocol('dappy', function (request, callback) {
@@ -11915,7 +12121,7 @@ var overrideHttpProtocols = function (session, getState, development, dispatchFr
                         randomId = userAgent.substring(io + 'randomId='.length);
                     }
                     catch (err) {
-                        console.log('[https] An unauthorized app tried to make an https request');
+                        console.log('[https] An unauthorized app tried to make an https request, randomId: ', randomId);
                         http
                             .request(httpErrorServerUrl + "/unauthorized-app", function (resp) {
                             callback(resp);
@@ -12126,6 +12332,2418 @@ var overrideHttpProtocols = function (session, getState, development, dispatchFr
             }
         });
     }); });
+};
+
+var promisify_1 = createCommonjsModule(function (module, exports) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.promisify = promisify;
+// Symbols is a better way to do this, but not all browsers have good support,
+// so instead we'll just make do with a very unlikely string.
+var customArgumentsToken = "__ES6-PROMISIFY--CUSTOM-ARGUMENTS__";
+/**
+ * promisify()
+ * Transforms callback-based function -- func(arg1, arg2 .. argN, callback) --
+ * into an ES6-compatible Promise. Promisify provides a default callback of the
+ * form (error, result) and rejects when `error` is truthy.
+ *
+ * @param {function} original - The function to promisify
+ * @return {function} A promisified version of `original`
+ */
+
+function promisify(original) {
+  // Ensure the argument is a function
+  if (typeof original !== "function") {
+    throw new TypeError("Argument to promisify must be a function");
+  } // If the user has asked us to decode argument names for them, honour that
+
+
+  var argumentNames = original[customArgumentsToken]; // If the user has supplied a custom Promise implementation, use it.
+  // Otherwise fall back to whatever we can find on the global object.
+
+  var ES6Promise = promisify.Promise || Promise; // If we can find no Promise implemention, then fail now.
+
+  if (typeof ES6Promise !== "function") {
+    throw new Error("No Promise implementation found; do you need a polyfill?");
+  }
+
+  return function () {
+    var _this = this;
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return new ES6Promise(function (resolve, reject) {
+      // Append the callback bound to the context
+      args.push(function callback(err) {
+        if (err) {
+          return reject(err);
+        }
+
+        for (var _len2 = arguments.length, values = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+          values[_key2 - 1] = arguments[_key2];
+        }
+
+        if (values.length === 1 || !argumentNames) {
+          return resolve(values[0]);
+        }
+
+        var o = {};
+        values.forEach(function (value, index) {
+          var name = argumentNames[index];
+
+          if (name) {
+            o[name] = value;
+          }
+        });
+        resolve(o);
+      }); // Call the function.
+
+      original.apply(_this, args);
+    });
+  };
+} // Attach this symbol to the exported function, so users can use it
+
+
+promisify.argumentNames = customArgumentsToken;
+promisify.Promise = undefined; // Export the public API
+});
+
+unwrapExports(promisify_1);
+var promisify_2 = promisify_1.promisify;
+
+var isWindows = process.platform === 'win32';
+var trailingSlashRe = isWindows ? /[^:]\\$/ : /.\/$/;
+
+// https://github.com/nodejs/node/blob/3e7a14381497a3b73dda68d05b5130563cdab420/lib/os.js#L25-L43
+var osTmpdir = function () {
+	var path;
+
+	if (isWindows) {
+		path = process.env.TEMP ||
+			process.env.TMP ||
+			(process.env.SystemRoot || process.env.windir) + '\\temp';
+	} else {
+		path = process.env.TMPDIR ||
+			process.env.TMP ||
+			process.env.TEMP ||
+			'/tmp';
+	}
+
+	if (trailingSlashRe.test(path)) {
+		path = path.slice(0, -1);
+	}
+
+	return path;
+};
+
+var helper = createCommonjsModule(function (module) {
+
+
+
+
+
+var tempDir = process.env.PEMJS_TMPDIR || osTmpdir();
+
+/**
+ * pem helper module
+ *
+ * @module helper
+ */
+
+/**
+ * helper function to check is the string a number or not
+ * @param {String} str String that should be checked to be a number
+ */
+module.exports.isNumber = function (str) {
+  if (Array.isArray(str)) {
+    return false
+  }
+  /*
+  var bstr = str && str.toString()
+  str = str + ''
+
+  return bstr - parseFloat(bstr) + 1 >= 0 &&
+          !/^\s+|\s+$/g.test(str) && /^\d+$/g.test(str) &&
+          !isNaN(str) && !isNaN(parseFloat(str))
+  */
+  return /^\d+$/g.test(str)
+};
+
+/**
+ * helper function to check is the string a hexaceximal value
+ * @param {String} hex String that should be checked to be a hexaceximal
+ */
+module.exports.isHex = function isHex (hex) {
+  return /^(0x){0,1}([0-9A-F]{1,40}|[0-9A-F]{1,40})$/gi.test(hex)
+};
+
+/**
+ * helper function to convert a string to a hexaceximal value
+ * @param {String} str String that should be converted to a hexaceximal
+ */
+module.exports.toHex = function toHex (str) {
+  var hex = '';
+  for (var i = 0; i < str.length; i++) {
+    hex += '' + str.charCodeAt(i).toString(16);
+  }
+  return hex
+};
+
+// cipherPassword returns an array of supported ciphers.
+/**
+ * list of supported ciphers
+ * @type {Array}
+ */
+module.exports.ciphers = ['aes128', 'aes192', 'aes256', 'camellia128', 'camellia192', 'camellia256', 'des', 'des3', 'idea'];
+var ciphers = module.exports.ciphers;
+
+/**
+ * Creates a PasswordFile to hide the password form process infos via `ps auxf` etc.
+ * @param {Object} options object of cipher, password and passType, mustPass, {cipher:'aes128', password:'xxxx', passType:"in/out/word"}, if the object empty we do nothing
+ * @param {String} options.cipher cipher like 'aes128', 'aes192', 'aes256', 'camellia128', 'camellia192', 'camellia256', 'des', 'des3', 'idea'
+ * @param {String} options.password password can be empty or at last 4 to 1023 chars
+ * @param {String} options.passType passType: can be in/out/word for passIN/passOUT/passWORD
+ * @param {Boolean} options.mustPass mustPass is used when you need to set the pass like as "-password pass:" most needed when empty password
+ * @param {Object} params params will be extended with the data that need for the openssl command. IS USED AS POINTER!
+ * @param {String} PasswordFileArray PasswordFileArray is an array of filePaths that later need to deleted ,after the openssl command. IS USED AS POINTER!
+ * @return {Boolean} result
+ */
+module.exports.createPasswordFile = function (options, params, PasswordFileArray) {
+  if (!options || !Object.prototype.hasOwnProperty.call(options, 'password') || !Object.prototype.hasOwnProperty.call(options, 'passType') || !/^(word|in|out)$/.test(options.passType)) {
+    return false
+  }
+  var PasswordFile = path.join(tempDir, crypto.randomBytes(20).toString('hex'));
+  PasswordFileArray.push(PasswordFile);
+  options.password = options.password.trim();
+  if (options.password === '') {
+    options.mustPass = true;
+  }
+  if (options.cipher && (ciphers.indexOf(options.cipher) !== -1)) {
+    params.push('-' + options.cipher);
+  }
+  params.push('-pass' + options.passType);
+  if (options.mustPass) {
+    params.push('pass:' + options.password);
+  } else {
+    fs.writeFileSync(PasswordFile, options.password);
+    params.push('file:' + PasswordFile);
+  }
+  return true
+};
+
+/**
+ * Deletes a file or an array of files
+ * @param {Array} files array of files that shoudld be deleted
+ * @param {errorCallback} callback Callback function with an error object
+ */
+module.exports.deleteTempFiles = function (files, callback) {
+  var rmFiles = [];
+  if (typeof files === 'string') {
+    rmFiles.push(files);
+  } else if (Array.isArray(files)) {
+    rmFiles = files;
+  } else {
+    return callback(new Error('Unexcepted files parameter type; only string or array supported'))
+  }
+  var deleteSeries = function (list, finalCallback) {
+    if (list.length) {
+      var file = list.shift();
+      var myCallback = function (err) {
+        if (err && err.code === 'ENOENT') {
+          // file doens't exist
+          return deleteSeries(list, finalCallback)
+        } else if (err) {
+          // other errors, e.g. maybe we don't have enough permission
+          return finalCallback(err)
+        } else {
+          return deleteSeries(list, finalCallback)
+        }
+      };
+      if (file && typeof file === 'string') {
+        fs.unlink(file, myCallback);
+      } else {
+        return deleteSeries(list, finalCallback)
+      }
+    } else {
+      return finalCallback(null) // no errors
+    }
+  };
+  deleteSeries(rmFiles, callback);
+};
+/**
+ * Callback for return an error object.
+ * @callback errorCallback
+ * @param {Error} err - An Error Object or null
+ */
+});
+var helper_1 = helper.isNumber;
+var helper_2 = helper.isHex;
+var helper_3 = helper.toHex;
+var helper_4 = helper.ciphers;
+var helper_5 = helper.createPasswordFile;
+var helper_6 = helper.deleteTempFiles;
+
+var windows = isexe;
+isexe.sync = sync;
+
+
+
+function checkPathExt (path, options) {
+  var pathext = options.pathExt !== undefined ?
+    options.pathExt : process.env.PATHEXT;
+
+  if (!pathext) {
+    return true
+  }
+
+  pathext = pathext.split(';');
+  if (pathext.indexOf('') !== -1) {
+    return true
+  }
+  for (var i = 0; i < pathext.length; i++) {
+    var p = pathext[i].toLowerCase();
+    if (p && path.substr(-p.length).toLowerCase() === p) {
+      return true
+    }
+  }
+  return false
+}
+
+function checkStat (stat, path, options) {
+  if (!stat.isSymbolicLink() && !stat.isFile()) {
+    return false
+  }
+  return checkPathExt(path, options)
+}
+
+function isexe (path, options, cb) {
+  fs.stat(path, function (er, stat) {
+    cb(er, er ? false : checkStat(stat, path, options));
+  });
+}
+
+function sync (path, options) {
+  return checkStat(fs.statSync(path), path, options)
+}
+
+var mode = isexe$1;
+isexe$1.sync = sync$1;
+
+
+
+function isexe$1 (path, options, cb) {
+  fs.stat(path, function (er, stat) {
+    cb(er, er ? false : checkStat$1(stat, options));
+  });
+}
+
+function sync$1 (path, options) {
+  return checkStat$1(fs.statSync(path), options)
+}
+
+function checkStat$1 (stat, options) {
+  return stat.isFile() && checkMode(stat, options)
+}
+
+function checkMode (stat, options) {
+  var mod = stat.mode;
+  var uid = stat.uid;
+  var gid = stat.gid;
+
+  var myUid = options.uid !== undefined ?
+    options.uid : process.getuid && process.getuid();
+  var myGid = options.gid !== undefined ?
+    options.gid : process.getgid && process.getgid();
+
+  var u = parseInt('100', 8);
+  var g = parseInt('010', 8);
+  var o = parseInt('001', 8);
+  var ug = u | g;
+
+  var ret = (mod & o) ||
+    (mod & g) && gid === myGid ||
+    (mod & u) && uid === myUid ||
+    (mod & ug) && myUid === 0;
+
+  return ret
+}
+
+var core;
+if (process.platform === 'win32' || commonjsGlobal.TESTING_WINDOWS) {
+  core = windows;
+} else {
+  core = mode;
+}
+
+var isexe_1 = isexe$2;
+isexe$2.sync = sync$2;
+
+function isexe$2 (path, options, cb) {
+  if (typeof options === 'function') {
+    cb = options;
+    options = {};
+  }
+
+  if (!cb) {
+    if (typeof Promise !== 'function') {
+      throw new TypeError('callback not provided')
+    }
+
+    return new Promise(function (resolve, reject) {
+      isexe$2(path, options || {}, function (er, is) {
+        if (er) {
+          reject(er);
+        } else {
+          resolve(is);
+        }
+      });
+    })
+  }
+
+  core(path, options || {}, function (er, is) {
+    // ignore EACCES because that just means we aren't allowed to run it
+    if (er) {
+      if (er.code === 'EACCES' || options && options.ignoreErrors) {
+        er = null;
+        is = false;
+      }
+    }
+    cb(er, is);
+  });
+}
+
+function sync$2 (path, options) {
+  // my kingdom for a filtered catch
+  try {
+    return core.sync(path, options || {})
+  } catch (er) {
+    if (options && options.ignoreErrors || er.code === 'EACCES') {
+      return false
+    } else {
+      throw er
+    }
+  }
+}
+
+const isWindows$1 = process.platform === 'win32' ||
+    process.env.OSTYPE === 'cygwin' ||
+    process.env.OSTYPE === 'msys';
+
+
+const COLON = isWindows$1 ? ';' : ':';
+
+
+const getNotFoundError = (cmd) =>
+  Object.assign(new Error(`not found: ${cmd}`), { code: 'ENOENT' });
+
+const getPathInfo = (cmd, opt) => {
+  const colon = opt.colon || COLON;
+
+  // If it has a slash, then we don't bother searching the pathenv.
+  // just check the file itself, and that's it.
+  const pathEnv = cmd.match(/\//) || isWindows$1 && cmd.match(/\\/) ? ['']
+    : (
+      [
+        // windows always checks the cwd first
+        ...(isWindows$1 ? [process.cwd()] : []),
+        ...(opt.path || process.env.PATH ||
+          /* istanbul ignore next: very unusual */ '').split(colon),
+      ]
+    );
+  const pathExtExe = isWindows$1
+    ? opt.pathExt || process.env.PATHEXT || '.EXE;.CMD;.BAT;.COM'
+    : '';
+  const pathExt = isWindows$1 ? pathExtExe.split(colon) : [''];
+
+  if (isWindows$1) {
+    if (cmd.indexOf('.') !== -1 && pathExt[0] !== '')
+      pathExt.unshift('');
+  }
+
+  return {
+    pathEnv,
+    pathExt,
+    pathExtExe,
+  }
+};
+
+const which = (cmd, opt, cb) => {
+  if (typeof opt === 'function') {
+    cb = opt;
+    opt = {};
+  }
+  if (!opt)
+    opt = {};
+
+  const { pathEnv, pathExt, pathExtExe } = getPathInfo(cmd, opt);
+  const found = [];
+
+  const step = i => new Promise((resolve, reject) => {
+    if (i === pathEnv.length)
+      return opt.all && found.length ? resolve(found)
+        : reject(getNotFoundError(cmd))
+
+    const ppRaw = pathEnv[i];
+    const pathPart = /^".*"$/.test(ppRaw) ? ppRaw.slice(1, -1) : ppRaw;
+
+    const pCmd = path.join(pathPart, cmd);
+    const p = !pathPart && /^\.[\\\/]/.test(cmd) ? cmd.slice(0, 2) + pCmd
+      : pCmd;
+
+    resolve(subStep(p, i, 0));
+  });
+
+  const subStep = (p, i, ii) => new Promise((resolve, reject) => {
+    if (ii === pathExt.length)
+      return resolve(step(i + 1))
+    const ext = pathExt[ii];
+    isexe_1(p + ext, { pathExt: pathExtExe }, (er, is) => {
+      if (!er && is) {
+        if (opt.all)
+          found.push(p + ext);
+        else
+          return resolve(p + ext)
+      }
+      return resolve(subStep(p, i, ii + 1))
+    });
+  });
+
+  return cb ? step(0).then(res => cb(null, res), cb) : step(0)
+};
+
+const whichSync = (cmd, opt) => {
+  opt = opt || {};
+
+  const { pathEnv, pathExt, pathExtExe } = getPathInfo(cmd, opt);
+  const found = [];
+
+  for (let i = 0; i < pathEnv.length; i ++) {
+    const ppRaw = pathEnv[i];
+    const pathPart = /^".*"$/.test(ppRaw) ? ppRaw.slice(1, -1) : ppRaw;
+
+    const pCmd = path.join(pathPart, cmd);
+    const p = !pathPart && /^\.[\\\/]/.test(cmd) ? cmd.slice(0, 2) + pCmd
+      : pCmd;
+
+    for (let j = 0; j < pathExt.length; j ++) {
+      const cur = p + pathExt[j];
+      try {
+        const is = isexe_1.sync(cur, { pathExt: pathExtExe });
+        if (is) {
+          if (opt.all)
+            found.push(cur);
+          else
+            return cur
+        }
+      } catch (ex) {}
+    }
+  }
+
+  if (opt.all && found.length)
+    return found
+
+  if (opt.nothrow)
+    return null
+
+  throw getNotFoundError(cmd)
+};
+
+var which_1 = which;
+which.sync = whichSync;
+
+var cpspawn = child_process.spawn;
+
+
+
+
+
+var settings = {};
+var tempDir = process.env.PEMJS_TMPDIR || osTmpdir();
+
+/**
+ * pem openssl module
+ *
+ * @module openssl
+ */
+
+/**
+ * configue this openssl module
+ *
+ * @static
+ * @param {String} option name e.g. pathOpenSSL, openSslVersion; TODO rethink nomenclature
+ * @param {*} value value
+ */
+function set$1 (option, value) {
+  settings[option] = value;
+}
+
+/**
+ * get configuration setting value
+ *
+ * @static
+ * @param {String} option name
+ */
+function get$1 (option) {
+  return settings[option] || null
+}
+
+/**
+ * Spawn an openssl command
+ *
+ * @static
+ * @param {Array} params Array of openssl command line parameters
+ * @param {String} searchStr String to use to find data
+ * @param {Array} [tmpfiles] list of temporary files
+ * @param {Function} callback Called with (error, stdout-substring)
+ */
+function exec (params, searchStr, tmpfiles, callback) {
+  if (!callback && typeof tmpfiles === 'function') {
+    callback = tmpfiles;
+    tmpfiles = false;
+  }
+
+  spawnWrapper(params, tmpfiles, function (err, code, stdout, stderr) {
+    var start, end;
+
+    if (err) {
+      return callback(err)
+    }
+
+    if ((start = stdout.match(new RegExp('\\-+BEGIN ' + searchStr + '\\-+$', 'm')))) {
+      start = start.index;
+    } else {
+      start = -1;
+    }
+
+    // To get the full EC key with parameters and private key
+    if (searchStr === 'EC PARAMETERS') {
+      searchStr = 'EC PRIVATE KEY';
+    }
+
+    if ((end = stdout.match(new RegExp('^\\-+END ' + searchStr + '\\-+', 'm')))) {
+      end = end.index + end[0].length;
+    } else {
+      end = -1;
+    }
+
+    if (start >= 0 && end >= 0) {
+      return callback(null, stdout.substring(start, end))
+    } else {
+      return callback(new Error(searchStr + ' not found from openssl output:\n---stdout---\n' + stdout + '\n---stderr---\n' + stderr + '\ncode: ' + code))
+    }
+  });
+}
+
+/**
+ *  Spawn an openssl command and get binary output
+ *
+ * @static
+ * @param {Array} params Array of openssl command line parameters
+ * @param {Array} [tmpfiles] list of temporary files
+ * @param {Function} callback Called with (error, stdout)
+*/
+function execBinary (params, tmpfiles, callback) {
+  if (!callback && typeof tmpfiles === 'function') {
+    callback = tmpfiles;
+    tmpfiles = false;
+  }
+  spawnWrapper(params, tmpfiles, true, function (err, code, stdout, stderr) {
+    if (err) {
+      return callback(err)
+    }
+    return callback(null, stdout)
+  });
+}
+
+/**
+ * Generically spawn openSSL, without processing the result
+ *
+ * @static
+ * @param {Array}        params   The parameters to pass to openssl
+ * @param {Boolean}      binary   Output of openssl is binary or text
+ * @param {Function}     callback Called with (error, exitCode, stdout, stderr)
+ */
+function spawn (params, binary, callback) {
+  var pathBin = get$1('pathOpenSSL') || process.env.OPENSSL_BIN || 'openssl';
+
+  testOpenSSLPath(pathBin, function (err) {
+    if (err) {
+      return callback(err)
+    }
+    var openssl = cpspawn(pathBin, params);
+    var stderr = '';
+
+    var stdout = (binary ? Buffer.alloc(0) : '');
+    openssl.stdout.on('data', function (data) {
+      if (!binary) {
+        stdout += data.toString('binary');
+      } else {
+        stdout = Buffer.concat([stdout, data]);
+      }
+    });
+
+    openssl.stderr.on('data', function (data) {
+      stderr += data.toString('binary');
+    });
+    // We need both the return code and access to all of stdout.  Stdout isn't
+    // *really* available until the close event fires; the timing nuance was
+    // making this fail periodically.
+    var needed = 2; // wait for both exit and close.
+    var code = -1;
+    var finished = false;
+    var done = function (err) {
+      if (finished) {
+        return
+      }
+
+      if (err) {
+        finished = true;
+        return callback(err)
+      }
+
+      if (--needed < 1) {
+        finished = true;
+        if (code) {
+          if (code === 2 && (stderr === '' || /depth lookup: unable to/.test(stderr))) {
+            return callback(null, code, stdout, stderr)
+          }
+          return callback(new Error('Invalid openssl exit code: ' + code + '\n% openssl ' + params.join(' ') + '\n' + stderr), code)
+        } else {
+          return callback(null, code, stdout, stderr)
+        }
+      }
+    };
+
+    openssl.on('error', done);
+
+    openssl.on('exit', function (ret) {
+      code = ret;
+      done();
+    });
+
+    openssl.on('close', function () {
+      stdout = (binary ? stdout : Buffer.from(stdout, 'binary').toString('utf-8'));
+      stderr = Buffer.from(stderr, 'binary').toString('utf-8');
+      done();
+    });
+  });
+}
+
+/**
+ * Wrapper for spawn method
+ *
+ * @static
+ * @param {Array} params The parameters to pass to openssl
+ * @param {Array} [tmpfiles] list of temporary files
+ * @param {Boolean} [binary] Output of openssl is binary or text
+ * @param {Function} callback Called with (error, exitCode, stdout, stderr)
+ */
+function spawnWrapper (params, tmpfiles, binary, callback) {
+  if (!callback && typeof binary === 'function') {
+    callback = binary;
+    binary = false;
+  }
+
+  var files = [];
+  var delTempPWFiles = [];
+
+  if (tmpfiles) {
+    tmpfiles = [].concat(tmpfiles);
+    var fpath, i;
+    for (i = 0; i < params.length; i++) {
+      if (params[i] === '--TMPFILE--') {
+        fpath = path.join(tempDir, crypto.randomBytes(20).toString('hex'));
+        files.push({
+          path: fpath,
+          contents: tmpfiles.shift()
+        });
+        params[i] = fpath;
+        delTempPWFiles.push(fpath);
+      }
+    }
+  }
+
+  var file;
+  for (i = 0; i < files.length; i++) {
+    file = files[i];
+    fs.writeFileSync(file.path, file.contents);
+  }
+
+  spawn(params, binary, function (err, code, stdout, stderr) {
+    helper.deleteTempFiles(delTempPWFiles, function (fsErr) {
+      callback(err || fsErr, code, stdout, stderr);
+    });
+  });
+}
+
+/**
+ * Validates the pathBin for the openssl command
+ *
+ * @private
+ * @param {String} pathBin The path to OpenSSL Bin
+ * @param {Function} callback Callback function with an error object
+ */
+function testOpenSSLPath (pathBin, callback) {
+  which_1(pathBin, function (error) {
+    if (error) {
+      return callback(new Error('Could not find openssl on your system on this path: ' + pathBin))
+    }
+    callback();
+  });
+}
+
+/* Once PEM is imported, the openSslVersion is set with this function. */
+spawn(['version'], false, function (err, code, stdout, stderr) {
+  var text = String(stdout) + '\n' + String(stderr) + '\n' + String(err);
+  var tmp = text.match(/^LibreSSL/i);
+  set$1('openSslVersion', (tmp && tmp[0] ? 'LibreSSL' : 'openssl').toUpperCase());
+});
+
+var openssl = {
+  exec: exec,
+  execBinary: execBinary,
+  spawn: spawn,
+  spawnWrapper: spawnWrapper,
+  set: set$1,
+  get: get$1
+};
+
+// PEM format: .pem, .crt, .cer (!bin), .key
+// base64 encoded; the cert file might also include the private key; so key file is optional
+
+// DER format: .der, .cer (bin)
+// binary encoded format; cannot include key file
+
+// PKCS#7 / P7B format: .p7b, .p7c
+// contains cert and ca chain cert files, but not the key file
+// A PKCS7 certificate is serialized using either PEM or DER format.
+
+// PKCS#12 / PFX format: .pfx, .p12
+// contains all files: key file, cert and ca chain cert files
+
+/**
+ * pem convert module
+ *
+ * @module convert
+ */
+
+/**
+ * conversion from PEM to DER format
+ * if private key is included in PEM encoded file, it won't be included in DER file
+ * use this method with type 'rsa' to export private key in that case
+ * @param  {String} pathIN  path of the PEM encoded certificate file
+ * @param  {String} pathOUT path of the DER encoded certificate file to generate
+ * @param  {String} [type] type of file, use 'rsa' for key file, 'x509' otherwise or leave this parameter out
+ * @param  {Function} callback callback method called with error, boolean result
+ */
+var PEM2DER = function (pathIN, pathOUT, type, callback) {
+  if (!callback && typeof type === 'function') {
+    callback = type;
+    type = 'x509';
+  }
+  var params = [
+    type,
+    '-outform',
+    'der',
+    '-in',
+    pathIN,
+    '-out',
+    pathOUT
+  ];
+  openssl.spawnWrapper(params, false, function (error, code) {
+    if (error) {
+      callback(error);
+    } else {
+      callback(null, code === 0);
+    }
+  });
+};
+
+/**
+ * conversion from DER to PEM format
+ * @param  {String} pathIN  path of the DER encoded certificate file
+ * @param  {String} pathOUT path of the PEM encoded certificate file to generate
+ * @param  {String} [type] type of file, use 'rsa' for key file, 'x509' otherwise or leave this parameter out
+ * @param  {Function} callback callback method called with error, boolean result
+ */
+var DER2PEM = function (pathIN, pathOUT, type, callback) {
+  if (!callback && typeof type === 'function') {
+    callback = type;
+    type = 'x509';
+  }
+  var params = [
+    type,
+    '-inform',
+    'der',
+    '-in',
+    pathIN,
+    '-out',
+    pathOUT
+  ];
+  openssl.spawnWrapper(params, false, function (error, code) {
+    if (error) {
+      callback(error);
+    } else {
+      callback(null, code === 0);
+    }
+  });
+};
+
+/**
+ * conversion from PEM to P7B format
+ * @param  {Object} pathBundleIN  paths of the PEM encoded certificate files ({cert: '...', ca: '...' or ['...', ...]})
+ * @param  {String} pathOUT path of the P7B encoded certificate file to generate
+ * @param  {Function} callback callback method called with error, boolean result
+ */
+var PEM2P7B = function (pathBundleIN, pathOUT, callback) {
+  var params = [
+    'crl2pkcs7',
+    '-nocrl',
+    '-certfile',
+    pathBundleIN.cert,
+    '-out',
+    pathOUT
+  ];
+  if (pathBundleIN.ca) {
+    if (!Array.isArray(pathBundleIN.ca)) {
+      pathBundleIN.ca = [pathBundleIN.ca];
+    }
+    pathBundleIN.ca.forEach(function (ca) {
+      params.push('-certfile');
+      params.push(ca);
+    });
+  }
+  openssl.spawnWrapper(params, false, function (error, code) {
+    if (error) {
+      callback(error);
+    } else {
+      callback(null, code === 0);
+    }
+  });
+};
+
+/**
+ * conversion from P7B to PEM format
+ * @param  {String} pathIN  path of the P7B encoded certificate file
+ * @param  {String} pathOUT path of the PEM encoded certificate file to generate
+ * @param  {Function} callback callback method called with error, boolean result
+ */
+var P7B2PEM = function (pathIN, pathOUT, callback) {
+  var params = [
+    'pkcs7',
+    '-print_certs',
+    '-in',
+    pathIN,
+    '-out',
+    pathOUT
+  ];
+  openssl.spawnWrapper(params, false, function (error, code) {
+    if (error) {
+      callback(error);
+    } else {
+      callback(null, code === 0);
+    }
+  });
+};// TODO: CA also included?
+
+/**
+ * conversion from PEM to PFX
+ * @param  {Object} pathBundleIN paths of the PEM encoded certificate files ({cert: '...', key: '...', ca: '...' or ['...', ...]})
+ * @param  {String} pathOUT path of the PFX encoded certificate file to generate
+ * @param  {String} password password to set for accessing the PFX file
+ * @param  {Function} callback callback method called with error, boolean result
+ */
+var PEM2PFX = function (pathBundleIN, pathOUT, password, callback) {
+  var params = [
+    'pkcs12',
+    '-export',
+    '-out',
+    pathOUT,
+    '-inkey',
+    pathBundleIN.key,
+    '-in',
+    pathBundleIN.cert
+  ];
+  if (pathBundleIN.ca) {
+    if (!Array.isArray(pathBundleIN.ca)) {
+      pathBundleIN.ca = [pathBundleIN.ca];
+    }
+    pathBundleIN.ca.forEach(function (ca) {
+      params.push('-certfile');
+      params.push(ca);
+    });
+  }
+  var delTempPWFiles = [];
+  helper.createPasswordFile({ cipher: '', password: password, passType: 'in' }, params, delTempPWFiles);
+  helper.createPasswordFile({ cipher: '', password: password, passType: 'out' }, params, delTempPWFiles);
+  openssl.spawnWrapper(params, false, function (error, code) {
+    function done (error) {
+      if (error) {
+        callback(error);
+      } else {
+        callback(null, code === 0);
+      }
+    }
+    helper.deleteTempFiles(delTempPWFiles, function (fsErr) {
+      done(error || fsErr);
+    });
+  });
+};
+
+/**
+ * conversion from PFX to PEM
+ * @param  {Object} pathIN  path of the PFX encoded certificate file
+ * @param  {String} pathOUT path of the PEM encoded certificate file to generate
+ * @param  {String} password password to set for accessing the PFX file
+ * @param  {Function} callback callback method called with error, boolean result
+ */
+var PFX2PEM = function (pathIN, pathOUT, password, callback) {
+  var params = [
+    'pkcs12',
+    '-in',
+    pathIN,
+    '-out',
+    pathOUT,
+    '-nodes'
+  ];
+  var delTempPWFiles = [];
+  helper.createPasswordFile({ cipher: '', password: password, passType: 'in' }, params, delTempPWFiles);
+  helper.createPasswordFile({ cipher: '', password: password, passType: 'out' }, params, delTempPWFiles);
+  openssl.spawnWrapper(params, false, function (error, code) {
+    function done (error) {
+      if (error) {
+        callback(error);
+      } else {
+        callback(null, code === 0);
+      }
+    }
+    helper.deleteTempFiles(delTempPWFiles, function (fsErr) {
+      done(error || fsErr);
+    });
+  });
+};
+
+/**
+ * conversion from P7B to PFX/PKCS#12
+ * @param  {Object} pathBundleIN  paths of the PEM encoded certificate files ({cert: '...', key: '...', ca: '...' or ['...', ...]})
+ * @param  {String} pathOUT path of the PFX certificate file to generate
+ * @param  {String} password password to be set for the PFX file and to be used to access the key file
+ * @param  {Function} callback callback method called with error, boolean result
+ */
+var P7B2PFX = function (pathBundleIN, pathOUT, password, callback) {
+  var tmpfile = pathBundleIN.cert.replace(/\.[^.]+$/, '.cer');
+  var params = [
+    'pkcs7',
+    '-print_certs',
+    '-in',
+    pathBundleIN.cert,
+    '-out',
+    tmpfile
+  ];
+  openssl.spawnWrapper(params, false, function (error, code) {
+    if (error) {
+      callback(error);
+    } else {
+      var params = [
+        'pkcs12',
+        '-export',
+        '-in',
+        tmpfile,
+        '-inkey',
+        pathBundleIN.key,
+        '-out',
+        pathOUT
+      ];
+      if (pathBundleIN.ca) {
+        if (!Array.isArray(pathBundleIN.ca)) {
+          pathBundleIN.ca = [pathBundleIN.ca];
+        }
+        pathBundleIN.ca.forEach(function (ca) {
+          params.push('-certfile');
+          params.push(ca);
+        });
+      }
+      var delTempPWFiles = [tmpfile];
+      helper.createPasswordFile({ cipher: '', password: password, passType: 'in' }, params, delTempPWFiles);
+      helper.createPasswordFile({ cipher: '', password: password, passType: 'out' }, params, delTempPWFiles);
+      openssl.spawnWrapper(params, false, function (error, code) {
+        function done (error) {
+          if (error) {
+            callback(error);
+          } else {
+            callback(null, code === 0);
+          }
+        }
+        helper.deleteTempFiles(delTempPWFiles, function (fsErr) {
+          done(error || fsErr);
+        });
+      });
+    }
+  });
+};
+
+var convert = {
+	PEM2DER: PEM2DER,
+	DER2PEM: DER2PEM,
+	PEM2P7B: PEM2P7B,
+	P7B2PEM: P7B2PEM,
+	PEM2PFX: PEM2PFX,
+	PFX2PEM: PFX2PEM,
+	P7B2PFX: P7B2PFX
+};
+
+/**
+ * pem module
+ *
+ * @module pem
+ */
+
+const { promisify } = promisify_1;
+
+
+
+
+var createPrivateKey_1 = createPrivateKey;
+var createDhparam_1 = createDhparam;
+var createEcparam_1 = createEcparam;
+var createCSR_1 = createCSR;
+var createCertificate_1 = createCertificate;
+var readCertificateInfo_1 = readCertificateInfo;
+var getPublicKey_1 = getPublicKey;
+var getFingerprint_1 = getFingerprint;
+var getModulus_1 = getModulus;
+var getDhparamInfo_1 = getDhparamInfo;
+var createPkcs12_1 = createPkcs12;
+var readPkcs12_1 = readPkcs12;
+var verifySigningChain_1 = verifySigningChain;
+var checkCertificate_1 = checkCertificate;
+var checkPkcs12_1 = checkPkcs12;
+var config_1 = config;
+
+/**
+ * quick access the convert module
+ * @type {module:convert}
+ */
+var convert$1 = convert;
+
+var KEY_START = '-----BEGIN PRIVATE KEY-----';
+var KEY_END = '-----END PRIVATE KEY-----';
+var RSA_KEY_START = '-----BEGIN RSA PRIVATE KEY-----';
+var RSA_KEY_END = '-----END RSA PRIVATE KEY-----';
+var ENCRYPTED_KEY_START = '-----BEGIN ENCRYPTED PRIVATE KEY-----';
+var ENCRYPTED_KEY_END = '-----END ENCRYPTED PRIVATE KEY-----';
+var CERT_START = '-----BEGIN CERTIFICATE-----';
+var CERT_END = '-----END CERTIFICATE-----';
+
+/**
+ * Creates a private key
+ *
+ * @static
+ * @param {Number} [keyBitsize=2048] Size of the key, defaults to 2048bit
+ * @param {Object} [options] object of cipher and password {cipher:'aes128',password:'xxx'}, defaults empty object
+ * @param {String} [options.cipher] string of the cipher for the encryption - needed with password
+ * @param {String} [options.password] string of the cipher password for the encryption needed with cipher
+ * @param {Function} callback Callback function with an error object and {key}
+ */
+function createPrivateKey (keyBitsize, options, callback) {
+  if (!callback && !options && typeof keyBitsize === 'function') {
+    callback = keyBitsize;
+    keyBitsize = undefined;
+    options = {};
+  } else if (!callback && keyBitsize && typeof options === 'function') {
+    callback = options;
+    options = {};
+  }
+
+  keyBitsize = Number(keyBitsize) || 2048;
+
+  var params = ['genrsa'];
+  var delTempPWFiles = [];
+
+  if (options && options.cipher && (Number(helper.ciphers.indexOf(options.cipher)) !== -1) && options.password) {
+    helper.createPasswordFile({ cipher: options.cipher, password: options.password, passType: 'out' }, params, delTempPWFiles);
+  }
+
+  params.push(keyBitsize);
+
+  openssl.exec(params, 'RSA PRIVATE KEY', function (sslErr, key) {
+    function done (err) {
+      if (err) {
+        return callback(err)
+      }
+      callback(null, {
+        key: key
+      });
+    }
+    helper.deleteTempFiles(delTempPWFiles, function (fsErr) {
+      done(sslErr || fsErr);
+    });
+  });
+}
+
+/**
+ * Creates a dhparam key
+ *
+ * @static
+ * @param {Number} [keyBitsize=512] Size of the key, defaults to 512bit
+ * @param {Function} callback Callback function with an error object and {dhparam}
+ */
+function createDhparam (keyBitsize, callback) {
+  if (!callback && typeof keyBitsize === 'function') {
+    callback = keyBitsize;
+    keyBitsize = undefined;
+  }
+
+  keyBitsize = Number(keyBitsize) || 512;
+
+  var params = ['dhparam',
+    '-outform',
+    'PEM',
+    keyBitsize
+  ];
+
+  openssl.exec(params, 'DH PARAMETERS', function (error, dhparam) {
+    if (error) {
+      return callback(error)
+    }
+    return callback(null, {
+      dhparam: dhparam
+    })
+  });
+}
+
+/**
+ * Creates a ecparam key
+ * @static
+ * @param {String} [keyName=secp256k1] Name of the key, defaults to secp256k1
+ * @param {String} [paramEnc=explicit] Encoding of the elliptic curve parameters, defaults to explicit
+ * @param {Boolean} [noOut=false] This option inhibits the output of the encoded version of the parameters.
+ * @param {Function} callback Callback function with an error object and {ecparam}
+ */
+function createEcparam (keyName, paramEnc, noOut, callback) {
+  if (!callback && typeof noOut === 'undefined' && !paramEnc && typeof keyName === 'function') {
+    callback = keyName;
+    keyName = undefined;
+  } else if (!callback && typeof noOut === 'undefined' && keyName && typeof paramEnc === 'function') {
+    callback = paramEnc;
+    paramEnc = undefined;
+  } else if (!callback && typeof noOut === 'function' && keyName && paramEnc) {
+    callback = noOut;
+    noOut = undefined;
+  }
+
+  keyName = keyName || 'secp256k1';
+  paramEnc = paramEnc || 'explicit';
+  noOut = noOut || false;
+
+  var params = ['ecparam',
+    '-name',
+    keyName,
+    '-genkey',
+    '-param_enc',
+    paramEnc
+  ];
+
+  var searchString = 'EC PARAMETERS';
+  if (noOut) {
+    params.push('-noout');
+    searchString = 'EC PRIVATE KEY';
+  }
+
+  openssl.exec(params, searchString, function (error, ecparam) {
+    if (error) {
+      return callback(error)
+    }
+    return callback(null, {
+      ecparam: ecparam
+    })
+  });
+}
+
+/**
+ * Creates a Certificate Signing Request
+ * If client key is undefined, a new key is created automatically. The used key is included
+ * in the callback return as clientKey
+ * @static
+ * @param {Object} [options] Optional options object
+ * @param {String} [options.clientKey] Optional client key to use
+ * @param {Number} [options.keyBitsize] If clientKey is undefined, bit size to use for generating a new key (defaults to 2048)
+ * @param {String} [options.hash] Hash function to use (either md5 sha1 or sha256, defaults to sha256)
+ * @param {String} [options.country] CSR country field
+ * @param {String} [options.state] CSR state field
+ * @param {String} [options.locality] CSR locality field
+ * @param {String} [options.organization] CSR organization field
+ * @param {String} [options.organizationUnit] CSR organizational unit field
+ * @param {String} [options.commonName='localhost'] CSR common name field
+ * @param {String} [options.emailAddress] CSR email address field
+ * @param {String} [options.csrConfigFile] CSR config file
+ * @param {Array}  [options.altNames] is a list of subjectAltNames in the subjectAltName field
+ * @param {Function} callback Callback function with an error object and {csr, clientKey}
+ */
+function createCSR (options, callback) {
+  if (!callback && typeof options === 'function') {
+    callback = options;
+    options = undefined;
+  }
+
+  options = options || {};
+
+  // http://stackoverflow.com/questions/14089872/why-does-node-js-accept-ip-addresses-in-certificates-only-for-san-not-for-cn
+  if (options.commonName && (net.isIPv4(options.commonName) || net.isIPv6(options.commonName))) {
+    if (!options.altNames) {
+      options.altNames = [options.commonName];
+    } else if (options.altNames.indexOf(options.commonName) === -1) {
+      options.altNames = options.altNames.concat([options.commonName]);
+    }
+  }
+
+  if (!options.clientKey) {
+    createPrivateKey(options.keyBitsize || 2048, function (error, keyData) {
+      if (error) {
+        return callback(error)
+      }
+      options.clientKey = keyData.key;
+      createCSR(options, callback);
+    });
+    return
+  }
+
+  var params = ['req',
+    '-new',
+    '-' + (options.hash || 'sha256')
+  ];
+
+  if (options.csrConfigFile) {
+    params.push('-config');
+    params.push(options.csrConfigFile);
+  } else {
+    params.push('-subj');
+    params.push(generateCSRSubject(options));
+  }
+
+  params.push('-key');
+  params.push('--TMPFILE--');
+
+  var tmpfiles = [options.clientKey];
+  var config = null;
+
+  if (options.altNames && Array.isArray(options.altNames) && options.altNames.length) {
+    params.push('-extensions');
+    params.push('v3_req');
+    params.push('-config');
+    params.push('--TMPFILE--');
+    var altNamesRep = [];
+    for (var i = 0; i < options.altNames.length; i++) {
+      altNamesRep.push((net.isIP(options.altNames[i]) ? 'IP' : 'DNS') + '.' + (i + 1) + ' = ' + options.altNames[i]);
+    }
+
+    tmpfiles.push(config = [
+      '[req]',
+      'req_extensions = v3_req',
+      'distinguished_name = req_distinguished_name',
+      '[v3_req]',
+      'subjectAltName = @alt_names',
+      '[alt_names]',
+      altNamesRep.join('\n'),
+      '[req_distinguished_name]',
+      'commonName = Common Name',
+      'commonName_max = 64'
+    ].join('\n'));
+  } else if (options.config) {
+    config = options.config;
+  }
+
+  var delTempPWFiles = [];
+  if (options.clientKeyPassword) {
+    helper.createPasswordFile({ cipher: '', password: options.clientKeyPassword, passType: 'in' }, params, delTempPWFiles);
+  }
+
+  openssl.exec(params, 'CERTIFICATE REQUEST', tmpfiles, function (sslErr, data) {
+    function done (err) {
+      if (err) {
+        return callback(err)
+      }
+      callback(null, {
+        csr: data,
+        config: config,
+        clientKey: options.clientKey
+      });
+    }
+    helper.deleteTempFiles(delTempPWFiles, function (fsErr) {
+      done(sslErr || fsErr);
+    });
+  });
+}
+
+/**
+ * Creates a certificate based on a CSR. If CSR is not defined, a new one
+ * will be generated automatically. For CSR generation all the options values
+ * can be used as with createCSR.
+ * @static
+ * @param {Object} [options] Optional options object
+ * @param {String} [options.serviceCertificate] PEM encoded certificate
+ * @param {String} [options.serviceKey] Private key for signing the certificate, if not defined a new one is generated
+ * @param {String} [options.serviceKeyPassword] Password of the service key
+ * @param {Boolean} [options.selfSigned] If set to true and serviceKey is not defined, use clientKey for signing
+ * @param {String|Number} [options.serial] Set a serial max. 20 octets - only together with options.serviceCertificate
+ * @param {String} [options.serialFile] Set the name of the serial file, without extension. - only together with options.serviceCertificate and never in tandem with options.serial
+ * @param {String} [options.hash] Hash function to use (either md5 sha1 or sha256, defaults to sha256)
+ * @param {String} [options.csr] CSR for the certificate, if not defined a new one is generated
+ * @param {Number} [options.days] Certificate expire time in days
+ * @param {String} [options.clientKeyPassword] Password of the client key
+ * @param {String} [options.extFile] extension config file - without '-extensions v3_req'
+ * @param {String} [options.config] extension config file - with '-extensions v3_req'
+ * @param {String} [options.csrConfigFile] CSR config file - only used if no options.csr is provided
+ * @param {Array}  [options.altNames] is a list of subjectAltNames in the subjectAltName field - only used if no options.csr is provided
+ * @param {Function} callback Callback function with an error object and {certificate, csr, clientKey, serviceKey}
+ */
+function createCertificate (options, callback) {
+  if (!callback && typeof options === 'function') {
+    callback = options;
+    options = undefined;
+  }
+
+  options = options || {};
+
+  if (!options.csr) {
+    createCSR(options, function (error, keyData) {
+      if (error) {
+        return callback(error)
+      }
+      options.csr = keyData.csr;
+      options.config = keyData.config;
+      options.clientKey = keyData.clientKey;
+      createCertificate(options, callback);
+    });
+    return
+  }
+
+  if (!options.clientKey) {
+    options.clientKey = '';
+  }
+
+  if (!options.serviceKey) {
+    if (options.selfSigned) {
+      options.serviceKey = options.clientKey;
+    } else {
+      createPrivateKey(options.keyBitsize || 2048, function (error, keyData) {
+        if (error) {
+          return callback(error)
+        }
+        options.serviceKey = keyData.key;
+        createCertificate(options, callback);
+      });
+      return
+    }
+  }
+
+  readCertificateInfo(options.csr, function (error2, data2) {
+    if (error2) {
+      return callback(error2)
+    }
+
+    var params = ['x509',
+      '-req',
+      '-' + (options.hash || 'sha256'),
+      '-days',
+      Number(options.days) || '365',
+      '-in',
+      '--TMPFILE--'
+    ];
+    var tmpfiles = [options.csr];
+    var delTempPWFiles = [];
+
+    if (options.serviceCertificate) {
+      params.push('-CA');
+      params.push('--TMPFILE--');
+      params.push('-CAkey');
+      params.push('--TMPFILE--');
+      if (options.serial) {
+        params.push('-set_serial');
+        if (helper.isNumber(options.serial)) {
+        // set the serial to the max lenth of 20 octets ()
+        // A certificate serial number is not decimal conforming. That is the
+        // bytes in a serial number do not necessarily map to a printable ASCII
+        // character.
+        // eg: 0x00 is a valid serial number and can not be represented in a
+        // human readable format (atleast one that can be directly mapped to
+        // the ACSII table).
+          params.push('0x' + ('0000000000000000000000000000000000000000' + options.serial.toString(16)).slice(-40));
+        } else {
+          if (helper.isHex(options.serial)) {
+            if (options.serial.startsWith('0x')) {
+              options.serial = options.serial.substring(2, options.serial.length);
+            }
+            params.push('0x' + ('0000000000000000000000000000000000000000' + options.serial).slice(-40));
+          } else {
+            params.push('0x' + ('0000000000000000000000000000000000000000' + helper.toHex(options.serial)).slice(-40));
+          }
+        }
+      } else {
+        params.push('-CAcreateserial');
+        if (options.serialFile) {
+          params.push('-CAserial');
+          params.push(options.serialFile + '.srl');
+        }
+      }
+      if (options.serviceKeyPassword) {
+        helper.createPasswordFile({ cipher: '', password: options.serviceKeyPassword, passType: 'in' }, params, delTempPWFiles);
+      }
+      tmpfiles.push(options.serviceCertificate);
+      tmpfiles.push(options.serviceKey);
+    } else {
+      params.push('-signkey');
+      params.push('--TMPFILE--');
+      if (options.serviceKeyPassword) {
+        helper.createPasswordFile({ cipher: '', password: options.serviceKeyPassword, passType: 'in' }, params, delTempPWFiles);
+      }
+      tmpfiles.push(options.serviceKey);
+    }
+
+    if (options.config) {
+      params.push('-extensions');
+      params.push('v3_req');
+      params.push('-extfile');
+      params.push('--TMPFILE--');
+      tmpfiles.push(options.config);
+    } else if (options.extFile) {
+      params.push('-extfile');
+      params.push(options.extFile);
+    } else {
+      var altNamesRep = [];
+      if (data2 && data2.san) {
+        for (var i = 0; i < data2.san.dns.length; i++) {
+          altNamesRep.push('DNS' + '.' + (i + 1) + ' = ' + data2.san.dns[i]);
+        }
+        for (var i2 = 0; i2 < data2.san.ip.length; i2++) {
+          altNamesRep.push('IP' + '.' + (i2 + 1) + ' = ' + data2.san.ip[i2]);
+        }
+        for (var i3 = 0; i3 < data2.san.email.length; i3++) {
+          altNamesRep.push('email' + '.' + (i3 + 1) + ' = ' + data2.san.email[i3]);
+        }
+        params.push('-extensions');
+        params.push('v3_req');
+        params.push('-extfile');
+        params.push('--TMPFILE--');
+        tmpfiles.push([
+          '[v3_req]',
+          'subjectAltName = @alt_names',
+          '[alt_names]',
+          altNamesRep.join('\n')
+        ].join('\n'));
+      }
+    }
+
+    if (options.clientKeyPassword) {
+      helper.createPasswordFile({ cipher: '', password: options.clientKeyPassword, passType: 'in' }, params, delTempPWFiles);
+    }
+
+    openssl.exec(params, 'CERTIFICATE', tmpfiles, function (sslErr, data) {
+      function done (err) {
+        if (err) {
+          return callback(err)
+        }
+        var response = {
+          csr: options.csr,
+          clientKey: options.clientKey,
+          certificate: data,
+          serviceKey: options.serviceKey
+        };
+        return callback(null, response)
+      }
+
+      helper.deleteTempFiles(delTempPWFiles, function (fsErr) {
+        done(sslErr || fsErr);
+      });
+    });
+  });
+}
+
+/**
+ * Exports a public key from a private key, CSR or certificate
+ * @static
+ * @param {String} certificate PEM encoded private key, CSR or certificate
+ * @param {Function} callback Callback function with an error object and {publicKey}
+ */
+function getPublicKey (certificate, callback) {
+  if (!callback && typeof certificate === 'function') {
+    callback = certificate;
+    certificate = undefined;
+  }
+
+  certificate = (certificate || '').toString();
+
+  var params;
+
+  if (certificate.match(/BEGIN(\sNEW)? CERTIFICATE REQUEST/)) {
+    params = ['req',
+      '-in',
+      '--TMPFILE--',
+      '-pubkey',
+      '-noout'
+    ];
+  } else if (certificate.match(/BEGIN RSA PRIVATE KEY/) || certificate.match(/BEGIN PRIVATE KEY/)) {
+    params = ['rsa',
+      '-in',
+      '--TMPFILE--',
+      '-pubout'
+    ];
+  } else {
+    params = ['x509',
+      '-in',
+      '--TMPFILE--',
+      '-pubkey',
+      '-noout'
+    ];
+  }
+
+  openssl.exec(params, 'PUBLIC KEY', certificate, function (error, key) {
+    if (error) {
+      return callback(error)
+    }
+    return callback(null, {
+      publicKey: key
+    })
+  });
+}
+
+/**
+ * Reads subject data from a certificate or a CSR
+ * @static
+ * @param {String} certificate PEM encoded CSR or certificate
+ * @param {Function} callback Callback function with an error object and {country, state, locality, organization, organizationUnit, commonName, emailAddress}
+ */
+function readCertificateInfo (certificate, callback) {
+  if (!callback && typeof certificate === 'function') {
+    callback = certificate;
+    certificate = undefined;
+  }
+
+  certificate = (certificate || '').toString();
+  var isMatch = certificate.match(/BEGIN(\sNEW)? CERTIFICATE REQUEST/);
+  var type = isMatch ? 'req' : 'x509';
+  var params = [type,
+    '-noout',
+    '-nameopt',
+    'RFC2253,sep_multiline,space_eq,-esc_msb,utf8',
+    '-text',
+    '-in',
+    '--TMPFILE--'
+  ];
+  openssl.spawnWrapper(params, certificate, function (err, code, stdout, stderr) {
+    if (err) {
+      return callback(err)
+    } else if (stderr) {
+      return callback(stderr)
+    }
+    return fetchCertificateData(stdout, callback)
+  });
+}
+
+/**
+ * get the modulus from a certificate, a CSR or a private key
+ * @static
+ * @param {String} certificate PEM encoded, CSR PEM encoded, or private key
+ * @param {String} [password] password for the certificate
+ * @param {String} [hash] hash function to use (up to now `md5` supported) (default: none)
+ * @param {Function} callback Callback function with an error object and {modulus}
+ */
+function getModulus (certificate, password, hash, callback) {
+  if (!callback && !hash && typeof password === 'function') {
+    callback = password;
+    password = undefined;
+    hash = false;
+  } else if (!callback && hash && typeof hash === 'function') {
+    callback = hash;
+    hash = false;
+    // password will be falsy if not provided
+  }
+  // adding hash function to params, is not supported by openssl.
+  // process piping would be the right way (... | openssl md5)
+  // No idea how this can be achieved in easy with the current build in methods
+  // of pem.
+  if (hash && hash !== 'md5') {
+    hash = false;
+  }
+
+  certificate = (Buffer.isBuffer(certificate) && certificate.toString()) || certificate;
+
+  var type = '';
+  if (certificate.match(/BEGIN(\sNEW)? CERTIFICATE REQUEST/)) {
+    type = 'req';
+  } else if (certificate.match(/BEGIN RSA PRIVATE KEY/) || certificate.match(/BEGIN PRIVATE KEY/)) {
+    type = 'rsa';
+  } else {
+    type = 'x509';
+  }
+  var params = [
+    type,
+    '-noout',
+    '-modulus',
+    '-in',
+    '--TMPFILE--'
+  ];
+  var delTempPWFiles = [];
+  if (password) {
+    helper.createPasswordFile({ cipher: '', password: password, passType: 'in' }, params, delTempPWFiles);
+  }
+
+  openssl.spawnWrapper(params, certificate, function (sslErr, code, stdout, stderr) {
+    function done (err) {
+      if (err) {
+        return callback(err)
+      }
+      var match = stdout.match(/Modulus=([0-9a-fA-F]+)$/m);
+      if (match) {
+        return callback(null, {
+          modulus: hash ? commonjsRequire()(match[1]) : match[1]
+        })
+      } else {
+        return callback(new Error('No modulus'))
+      }
+    }
+    helper.deleteTempFiles(delTempPWFiles, function (fsErr) {
+      done(sslErr || fsErr || stderr);
+    });
+  });
+}
+
+/**
+ * get the size and prime of DH parameters
+ * @static
+ * @param {String} DH parameters PEM encoded
+ * @param {Function} callback Callback function with an error object and {size, prime}
+ */
+function getDhparamInfo (dh, callback) {
+  dh = (Buffer.isBuffer(dh) && dh.toString()) || dh;
+
+  var params = [
+    'dhparam',
+    '-text',
+    '-in',
+    '--TMPFILE--'
+  ];
+
+  openssl.spawnWrapper(params, dh, function (err, code, stdout, stderr) {
+    if (err) {
+      return callback(err)
+    } else if (stderr) {
+      return callback(stderr)
+    }
+
+    var result = {};
+    var match = stdout.match(/Parameters: \((\d+) bit\)/);
+
+    if (match) {
+      result.size = Number(match[1]);
+    }
+
+    var prime = '';
+    stdout.split('\n').forEach(function (line) {
+      if (/\s+([0-9a-f][0-9a-f]:)+[0-9a-f]?[0-9a-f]?/g.test(line)) {
+        prime += line.trim();
+      }
+    });
+
+    if (prime) {
+      result.prime = prime;
+    }
+
+    if (!match && !prime) {
+      return callback(new Error('No DH info found'))
+    }
+
+    return callback(null, result)
+  });
+}
+
+/**
+ * config the pem module
+ * @static
+ * @param {Object} options
+ */
+function config (options) {
+  Object.keys(options).forEach(function (k) {
+    openssl.set(k, options[k]);
+  });
+}
+
+/**
+ * Gets the fingerprint for a certificate
+ * @static
+ * @param {String} PEM encoded certificate
+ * @param {String} [hash] hash function to use (either `md5`, `sha1` or `sha256`, defaults to `sha1`)
+ * @param {Function} callback Callback function with an error object and {fingerprint}
+ */
+function getFingerprint (certificate, hash, callback) {
+  if (!callback && typeof hash === 'function') {
+    callback = hash;
+    hash = undefined;
+  }
+
+  hash = hash || 'sha1';
+
+  var params = ['x509',
+    '-in',
+    '--TMPFILE--',
+    '-fingerprint',
+    '-noout',
+    '-' + hash
+  ];
+
+  openssl.spawnWrapper(params, certificate, function (err, code, stdout, stderr) {
+    if (err) {
+      return callback(err)
+    } else if (stderr) {
+      return callback(stderr)
+    }
+    var match = stdout.match(/Fingerprint=([0-9a-fA-F:]+)$/m);
+    if (match) {
+      return callback(null, {
+        fingerprint: match[1]
+      })
+    } else {
+      return callback(new Error('No fingerprint'))
+    }
+  });
+}
+
+/**
+ * Export private key and certificate to a PKCS12 keystore
+ * @static
+ * @param {String} PEM encoded private key
+ * @param {String} PEM encoded certificate
+ * @param {String} Password of the result PKCS12 file
+ * @param {Object} [options] object of cipher and optional client key password {cipher:'aes128', clientKeyPassword: 'xxxx', certFiles: ['file1','file2']}
+ * @param {Function} callback Callback function with an error object and {pkcs12}
+ */
+function createPkcs12 (key, certificate, password, options, callback) {
+  if (!callback && typeof options === 'function') {
+    callback = options;
+    options = {};
+  }
+
+  var params = ['pkcs12', '-export'];
+  var delTempPWFiles = [];
+
+  if (options.cipher && options.clientKeyPassword) {
+    // NOTICE: The password field is needed! self if it is empty.
+    // create password file for the import "-passin"
+    helper.createPasswordFile({ cipher: options.cipher, password: options.clientKeyPassword, passType: 'in' }, params, delTempPWFiles);
+  }
+  // NOTICE: The password field is needed! self if it is empty.
+  // create password file for the password "-password"
+  helper.createPasswordFile({ cipher: '', password: password, passType: 'word' }, params, delTempPWFiles);
+
+  params.push('-in');
+  params.push('--TMPFILE--');
+  params.push('-inkey');
+  params.push('--TMPFILE--');
+
+  var tmpfiles = [certificate, key];
+
+  if (options.certFiles) {
+    tmpfiles.push(options.certFiles.join(''));
+
+    params.push('-certfile');
+    params.push('--TMPFILE--');
+  }
+
+  openssl.execBinary(params, tmpfiles, function (sslErr, pkcs12) {
+    function done (err) {
+      if (err) {
+        return callback(err)
+      }
+      return callback(null, {
+        pkcs12: pkcs12
+      })
+    }
+    helper.deleteTempFiles(delTempPWFiles, function (fsErr) {
+      done(sslErr || fsErr);
+    });
+  });
+}
+
+/**
+ * read sslcert data from Pkcs12 file. Results are provided in callback response in object notation ({cert: .., ca:..., key:...})
+ * @static
+ * @param  {Buffer|String}   bufferOrPath Buffer or path to file
+ * @param  {Object}   [options]      openssl options
+ * @param  {Function} callback     Called with error object and sslcert bundle object
+ */
+function readPkcs12 (bufferOrPath, options, callback) {
+  if (!callback && typeof options === 'function') {
+    callback = options;
+    options = {};
+  }
+
+  options.p12Password = options.p12Password || '';
+
+  var tmpfiles = [];
+  var delTempPWFiles = [];
+  var args = ['pkcs12', '-in', bufferOrPath];
+
+  helper.createPasswordFile({ cipher: '', password: options.p12Password, passType: 'in' }, args, delTempPWFiles);
+
+  if (Buffer.isBuffer(bufferOrPath)) {
+    tmpfiles = [bufferOrPath];
+    args[2] = '--TMPFILE--';
+  }
+
+  if (options.clientKeyPassword) {
+    helper.createPasswordFile({ cipher: '', password: options.clientKeyPassword, passType: 'out' }, args, delTempPWFiles);
+  } else {
+    args.push('-nodes');
+  }
+
+  openssl.execBinary(args, tmpfiles, function (sslErr, stdout) {
+    function done (err) {
+      var keybundle = {};
+
+      if (err && err.message.indexOf('No such file or directory') !== -1) {
+        err.code = 'ENOENT';
+      }
+
+      if (!err) {
+        var certs = readFromString(stdout, CERT_START, CERT_END);
+        keybundle.cert = certs.shift();
+        keybundle.ca = certs;
+        keybundle.key = readFromString(stdout, KEY_START, KEY_END).pop();
+
+        if (keybundle.key) {
+        // convert to RSA key
+          return openssl.exec(['rsa', '-in', '--TMPFILE--'], 'RSA PRIVATE KEY', [keybundle.key], function (err, key) {
+            keybundle.key = key;
+
+            return callback(err, keybundle)
+          })
+        }
+
+        if (options.clientKeyPassword) {
+          keybundle.key = readFromString(stdout, ENCRYPTED_KEY_START, ENCRYPTED_KEY_END).pop();
+        } else {
+          keybundle.key = readFromString(stdout, RSA_KEY_START, RSA_KEY_END).pop();
+        }
+      }
+
+      return callback(err, keybundle)
+    }
+    helper.deleteTempFiles(delTempPWFiles, function (fsErr) {
+      done(sslErr || fsErr);
+    });
+  });
+}
+
+/**
+ * Check a certificate
+ * @static
+ * @param {String} PEM encoded certificate
+ * @param {String} [passphrase] password for the certificate
+ * @param {Function} callback Callback function with an error object and a boolean valid
+ */
+function checkCertificate (certificate, passphrase, callback) {
+  var params;
+  var delTempPWFiles = [];
+
+  if (!callback && typeof passphrase === 'function') {
+    callback = passphrase;
+    passphrase = undefined;
+  }
+  certificate = (certificate || '').toString();
+
+  if (certificate.match(/BEGIN(\sNEW)? CERTIFICATE REQUEST/)) {
+    params = ['req', '-text', '-noout', '-verify', '-in', '--TMPFILE--'];
+  } else if (certificate.match(/BEGIN RSA PRIVATE KEY/) || certificate.match(/BEGIN PRIVATE KEY/)) {
+    params = ['rsa', '-noout', '-check', '-in', '--TMPFILE--'];
+  } else {
+    params = ['x509', '-text', '-noout', '-in', '--TMPFILE--'];
+  }
+  if (passphrase) {
+    helper.createPasswordFile({ cipher: '', password: passphrase, passType: 'in' }, params, delTempPWFiles);
+  }
+
+  openssl.spawnWrapper(params, certificate, function (sslErr, code, stdout, stderr) {
+    function done (err) {
+      if (err && err.toString().trim() !== 'verify OK') {
+        return callback(err)
+      }
+      var result;
+      switch (params[0]) {
+        case 'rsa':
+          result = /^Rsa key ok$/i.test(stdout.trim());
+          break
+        default:
+          result = /Signature Algorithm/im.test(stdout);
+          break
+      }
+
+      callback(null, result);
+    }
+    helper.deleteTempFiles(delTempPWFiles, function (fsErr) {
+      done(sslErr || fsErr || stderr);
+    });
+  });
+}
+
+/**
+ * check a PKCS#12 file (.pfx or.p12)
+ * @static
+ * @param {Buffer|String} bufferOrPath PKCS#12 certificate
+ * @param {String} [passphrase] optional passphrase which will be used to open the keystore
+ * @param {Function} callback Callback function with an error object and a boolean valid
+ */
+function checkPkcs12 (bufferOrPath, passphrase, callback) {
+  if (!callback && typeof passphrase === 'function') {
+    callback = passphrase;
+    passphrase = '';
+  }
+
+  var tmpfiles = [];
+  var delTempPWFiles = [];
+  var args = ['pkcs12', '-info', '-in', bufferOrPath, '-noout', '-maciter', '-nodes'];
+
+  helper.createPasswordFile({ cipher: '', password: passphrase, passType: 'in' }, args, delTempPWFiles);
+
+  if (Buffer.isBuffer(bufferOrPath)) {
+    tmpfiles = [bufferOrPath];
+    args[3] = '--TMPFILE--';
+  }
+
+  openssl.spawnWrapper(args, tmpfiles, function (sslErr, code, stdout, stderr) {
+    function done (err) {
+      if (err) {
+        return callback(err)
+      }
+      callback(null, (/MAC verified OK/im.test(stderr) || (!(/MAC verified OK/im.test(stderr)) && !(/Mac verify error/im.test(stderr)))));
+    }
+    helper.deleteTempFiles(delTempPWFiles, function (fsErr) {
+      done(sslErr || fsErr);
+    });
+  });
+}
+
+/**
+ * Verifies the signing chain of the passed certificate
+ * @static
+ * @param {String|Array} PEM encoded certificate include intermediate certificates
+ * @param {String|Array} [List] of CA certificates
+ * @param {Function} callback Callback function with an error object and a boolean valid
+ */
+function verifySigningChain (certificate, ca, callback) {
+  if (!callback && typeof ca === 'function') {
+    callback = ca;
+    ca = undefined;
+  }
+  if (!Array.isArray(certificate)) {
+    certificate = [certificate];
+  }
+  if (!Array.isArray(ca) && ca !== undefined) {
+    if (ca !== '') {
+      ca = [ca];
+    }
+  }
+
+  var files = [];
+
+  if (ca !== undefined) {
+    // ca certificates
+    files.push(ca.join('\n'));
+  }
+  // certificate incl. intermediate certificates
+  files.push(certificate.join('\n'));
+
+  var params = ['verify'];
+
+  if (ca !== undefined) {
+    // ca certificates
+    params.push('-CAfile');
+    params.push('--TMPFILE--');
+  }
+  // certificate incl. intermediate certificates
+  params.push('--TMPFILE--');
+
+  openssl.spawnWrapper(params, files, function (err, code, stdout, stderr) {
+    if (err) {
+      return callback(err)
+    }
+
+    callback(null, stdout.trim().slice(-4) === ': OK');
+  });
+}
+
+// HELPER FUNCTIONS
+function fetchCertificateData (certData, callback) {
+  // try catch : if something will fail in parsing it won't crash the calling code
+  try {
+    certData = (certData || '').toString();
+
+    var serial, subject, tmp, issuer;
+    var certValues = {
+      issuer: {}
+    };
+    var validity = {};
+    var san;
+
+    var ky, i;
+
+    // serial
+    if ((serial = certData.match(/\s*Serial Number:\r?\n?\s*([^\r\n]*)\r?\n\s*\b/)) && serial.length > 1) {
+      certValues.serial = serial[1];
+    }
+
+    if ((subject = certData.match(/\s*Subject:\r?\n(\s*(([a-zA-Z0-9.]+)\s=\s[^\r\n]+\r?\n))*\s*\b/)) && subject.length > 1) {
+      subject = subject[0];
+      tmp = matchAll(subject, /\s([a-zA-Z0-9.]+)\s=\s([^\r\n].*)/g);
+      if (tmp) {
+        for (i = 0; i < tmp.length; i++) {
+          ky = tmp[i][1].trim();
+          if (ky.match('(C|ST|L|O|OU|CN|emailAddress|DC)') || ky === '') {
+            continue
+          }
+          certValues[ky] = tmp[i][2].trim();
+        }
+      }
+
+      // country
+      tmp = subject.match(/\sC\s=\s([^\r\n].*?)[\r\n]/);
+      certValues.country = (tmp && tmp[1]) || '';
+
+      // state
+      tmp = subject.match(/\sST\s=\s([^\r\n].*?)[\r\n]/);
+      certValues.state = (tmp && tmp[1]) || '';
+
+      // locality
+      tmp = subject.match(/\sL\s=\s([^\r\n].*?)[\r\n]/);
+      certValues.locality = (tmp && tmp[1]) || '';
+
+      // organization
+      tmp = matchAll(subject, /\sO\s=\s([^\r\n].*)/g);
+      certValues.organization = tmp ? (tmp.length > 1 ? tmp.sort(function (t, n) {
+        var e = t[1].toUpperCase();
+        var r = n[1].toUpperCase();
+        return r > e ? -1 : e > r ? 1 : 0
+      }).sort(function (t, n) {
+        return t[1].length - n[1].length
+      }).map(function (t) {
+        return t[1]
+      }) : tmp[0][1]) : '';
+
+      // unit
+      tmp = matchAll(subject, /\sOU\s=\s([^\r\n].*)/g);
+      certValues.organizationUnit = tmp ? (tmp.length > 1 ? tmp.sort(function (t, n) {
+        var e = t[1].toUpperCase();
+        var r = n[1].toUpperCase();
+        return r > e ? -1 : e > r ? 1 : 0
+      }).sort(function (t, n) {
+        return t[1].length - n[1].length
+      }).map(function (t) {
+        return t[1]
+      }) : tmp[0][1]) : '';
+
+      // common name
+      tmp = matchAll(subject, /\sCN\s=\s([^\r\n].*)/g);
+      certValues.commonName = tmp ? (tmp.length > 1 ? tmp.sort(function (t, n) {
+        var e = t[1].toUpperCase();
+        var r = n[1].toUpperCase();
+        return r > e ? -1 : e > r ? 1 : 0
+      }).sort(function (t, n) {
+        return t[1].length - n[1].length
+      }).map(function (t) {
+        return t[1]
+      }) : tmp[0][1]) : '';
+
+      // email
+      tmp = matchAll(subject, /emailAddress\s=\s([^\r\n].*)/g);
+      certValues.emailAddress = tmp ? (tmp.length > 1 ? tmp.sort(function (t, n) {
+        var e = t[1].toUpperCase();
+        var r = n[1].toUpperCase();
+        return r > e ? -1 : e > r ? 1 : 0
+      }).sort(function (t, n) {
+        return t[1].length - n[1].length
+      }).map(function (t) {
+        return t[1]
+      }) : tmp[0][1]) : '';
+
+      // DC name
+      tmp = matchAll(subject, /\sDC\s=\s([^\r\n].*)/g);
+      certValues.dc = tmp ? (tmp.length > 1 ? tmp.sort(function (t, n) {
+        var e = t[1].toUpperCase();
+        var r = n[1].toUpperCase();
+        return r > e ? -1 : e > r ? 1 : 0
+      }).sort(function (t, n) {
+        return t[1].length - n[1].length
+      }).map(function (t) {
+        return t[1]
+      }) : tmp[0][1]) : '';
+    }
+
+    if ((issuer = certData.match(/\s*Issuer:\r?\n(\s*([a-zA-Z0-9.]+)\s=\s[^\r\n].*\r?\n)*\s*\b/)) && issuer.length > 1) {
+      issuer = issuer[0];
+      tmp = matchAll(issuer, /\s([a-zA-Z0-9.]+)\s=\s([^\r\n].*)/g);
+      for (i = 0; i < tmp.length; i++) {
+        ky = tmp[i][1].toString();
+        if (ky.match('(C|ST|L|O|OU|CN|emailAddress|DC)')) {
+          continue
+        }
+        certValues.issuer[ky] = tmp[i][2].toString();
+      }
+
+      // country
+      tmp = issuer.match(/\sC\s=\s([^\r\n].*?)[\r\n]/);
+      certValues.issuer.country = (tmp && tmp[1]) || '';
+
+      // state
+      tmp = issuer.match(/\sST\s=\s([^\r\n].*?)[\r\n]/);
+      certValues.issuer.state = (tmp && tmp[1]) || '';
+
+      // locality
+      tmp = issuer.match(/\sL\s=\s([^\r\n].*?)[\r\n]/);
+      certValues.issuer.locality = (tmp && tmp[1]) || '';
+
+      // organization
+      tmp = matchAll(issuer, /\sO\s=\s([^\r\n].*)/g);
+      certValues.issuer.organization = tmp ? (tmp.length > 1 ? tmp.sort(function (t, n) {
+        var e = t[1].toUpperCase();
+        var r = n[1].toUpperCase();
+        return r > e ? -1 : e > r ? 1 : 0
+      }).sort(function (t, n) {
+        return t[1].length - n[1].length
+      }).map(function (t) {
+        return t[1]
+      }) : tmp[0][1]) : '';
+
+      // unit
+      tmp = matchAll(issuer, /\sOU\s=\s([^\r\n].*)/g);
+      certValues.issuer.organizationUnit = tmp ? (tmp.length > 1 ? tmp.sort(function (t, n) {
+        var e = t[1].toUpperCase();
+        var
+          r = n[1].toUpperCase();
+        return r > e ? -1 : e > r ? 1 : 0
+      }).sort(function (t, n) {
+        return t[1].length - n[1].length
+      }).map(function (t) {
+        return t[1]
+      }) : tmp[0][1]) : '';
+
+      // common name
+      tmp = matchAll(issuer, /\sCN\s=\s([^\r\n].*)/g);
+      certValues.issuer.commonName = tmp ? (tmp.length > 1 ? tmp.sort(function (t, n) {
+        var e = t[1].toUpperCase();
+        var
+          r = n[1].toUpperCase();
+        return r > e ? -1 : e > r ? 1 : 0
+      }).sort(function (t, n) {
+        return t[1].length - n[1].length
+      }).map(function (t) {
+        return t[1]
+      }) : tmp[0][1]) : '';
+
+      // DC name
+      tmp = matchAll(issuer, /\sDC\s=\s([^\r\n].*)/g);
+      certValues.issuer.dc = tmp ? (tmp.length > 1 ? tmp.sort(function (t, n) {
+        var e = t[1].toUpperCase();
+        var
+          r = n[1].toUpperCase();
+        return r > e ? -1 : e > r ? 1 : 0
+      }).sort(function (t, n) {
+        return t[1].length - n[1].length
+      }).map(function (t) {
+        return t[1]
+      }) : tmp[0][1]) : '';
+    }
+
+    // SAN
+    if ((san = certData.match(/X509v3 Subject Alternative Name: \r?\n([^\r\n]*)\r?\n/)) && san.length > 1) {
+      san = san[1].trim() + '\n';
+      certValues.san = {};
+
+      // hostnames
+      tmp = pregMatchAll('DNS:([^,\\r\\n].*?)[,\\r\\n\\s]', san);
+      certValues.san.dns = tmp || '';
+
+      // IP-Addresses IPv4 & IPv6
+      tmp = pregMatchAll('IP Address:([^,\\r\\n].*?)[,\\r\\n\\s]', san);
+      certValues.san.ip = tmp || '';
+
+      // Email Addresses
+      tmp = pregMatchAll('email:([^,\\r\\n].*?)[,\\r\\n\\s]', san);
+      certValues.san.email = tmp || '';
+    }
+
+    // Validity
+    if ((tmp = certData.match(/Not Before\s?:\s?([^\r\n]*)\r?\n/)) && tmp.length > 1) {
+      validity.start = Date.parse((tmp && tmp[1]) || '');
+    }
+
+    if ((tmp = certData.match(/Not After\s?:\s?([^\r\n]*)\r?\n/)) && tmp.length > 1) {
+      validity.end = Date.parse((tmp && tmp[1]) || '');
+    }
+
+    if (validity.start && validity.end) {
+      certValues.validity = validity;
+    }
+    // Validity end
+
+    // Signature Algorithm
+    if ((tmp = certData.match(/Signature Algorithm: ([^\r\n]*)\r?\n/)) && tmp.length > 1) {
+      certValues.signatureAlgorithm = (tmp && tmp[1]) || '';
+    }
+
+    // Public Key
+    if ((tmp = certData.match(/Public[ -]Key: ([^\r\n]*)\r?\n/)) && tmp.length > 1) {
+      certValues.publicKeySize = ((tmp && tmp[1]) || '').replace(/[()]/g, '');
+    }
+
+    // Public Key Algorithm
+    if ((tmp = certData.match(/Public Key Algorithm: ([^\r\n]*)\r?\n/)) && tmp.length > 1) {
+      certValues.publicKeyAlgorithm = (tmp && tmp[1]) || '';
+    }
+
+    callback(null, certValues);
+  } catch (err) {
+    callback(err);
+  }
+}
+
+function matchAll (str, regexp) {
+  var matches = [];
+  str.replace(regexp, function () {
+    var arr = ([]).slice.call(arguments, 0);
+    var extras = arr.splice(-2);
+    arr.index = extras[0];
+    arr.input = extras[1];
+    matches.push(arr);
+  });
+  return matches.length ? matches : null
+}
+
+function pregMatchAll (regex, haystack) {
+  var globalRegex = new RegExp(regex, 'g');
+  var globalMatch = haystack.match(globalRegex) || [];
+  var matchArray = [];
+  var nonGlobalRegex, nonGlobalMatch;
+  for (var i = 0; i < globalMatch.length; i++) {
+    nonGlobalRegex = new RegExp(regex);
+    nonGlobalMatch = globalMatch[i].match(nonGlobalRegex);
+    matchArray.push(nonGlobalMatch[1]);
+  }
+  return matchArray
+}
+
+function generateCSRSubject (options) {
+  options = options || {};
+
+  var csrData = {
+    C: options.country || options.C,
+    ST: options.state || options.ST,
+    L: options.locality || options.L,
+    O: options.organization || options.O,
+    OU: options.organizationUnit || options.OU,
+    CN: options.commonName || options.CN || 'localhost',
+    DC: options.dc || options.DC || '',
+    emailAddress: options.emailAddress
+  };
+
+  var csrBuilder = Object.keys(csrData).map(function (key) {
+    if (csrData[key]) {
+      if (typeof csrData[key] === 'object' && csrData[key].length >= 1) {
+        var tmpStr = '';
+        csrData[key].map(function (o) {
+          tmpStr += '/' + key + '=' + o.replace(/[^\w .*\-,@']+/g, ' ').trim();
+        });
+        return tmpStr
+      } else {
+        return '/' + key + '=' + csrData[key].replace(/[^\w .*\-,@']+/g, ' ').trim()
+      }
+    }
+  });
+
+  return csrBuilder.join('')
+}
+
+function readFromString (string, start, end) {
+  if (Buffer.isBuffer(string)) {
+    string = string.toString('utf8');
+  }
+
+  var output = [];
+
+  if (!string) {
+    return output
+  }
+
+  var offset = string.indexOf(start);
+
+  while (offset !== -1) {
+    string = string.substring(offset);
+
+    var endOffset = string.indexOf(end);
+
+    if (endOffset === -1) {
+      break
+    }
+
+    endOffset += end.length;
+
+    output.push(string.substring(0, endOffset));
+    offset = string.indexOf(start, endOffset);
+  }
+
+  return output
+}
+
+// promisify not tested yet
+/**
+ * Verifies the signing chain of the passed certificate
+ * @namespace
+ * @name promisified
+ * @property {function}  createPrivateKey               @see createPrivateKey
+ * @property {function}  createDhparam       - The default number of players.
+ * @property {function}  createEcparam         - The default level for the party.
+ * @property {function}  createCSR      - The default treasure.
+ * @property {function}  createCertificate - How much gold the party starts with.
+ */
+var promisified = {
+  createPrivateKey: promisify(createPrivateKey),
+  createDhparam: promisify(createDhparam),
+  createEcparam: promisify(createEcparam),
+  createCSR: promisify(createCSR),
+  createCertificate: promisify(createCertificate),
+  readCertificateInfo: promisify(readCertificateInfo),
+  getPublicKey: promisify(getPublicKey),
+  getFingerprint: promisify(getFingerprint),
+  getModulus: promisify(getModulus),
+  getDhparamInfo: promisify(getDhparamInfo),
+  createPkcs12: promisify(createPkcs12),
+  readPkcs12: promisify(readPkcs12),
+  verifySigningChain: promisify(verifySigningChain),
+  checkCertificate: promisify(checkCertificate),
+  checkPkcs12: promisify(checkPkcs12)
+};
+
+var pem = {
+	createPrivateKey: createPrivateKey_1,
+	createDhparam: createDhparam_1,
+	createEcparam: createEcparam_1,
+	createCSR: createCSR_1,
+	createCertificate: createCertificate_1,
+	readCertificateInfo: readCertificateInfo_1,
+	getPublicKey: getPublicKey_1,
+	getFingerprint: getFingerprint_1,
+	getModulus: getModulus_1,
+	getDhparamInfo: getDhparamInfo_1,
+	createPkcs12: createPkcs12_1,
+	readPkcs12: readPkcs12_1,
+	verifySigningChain: verifySigningChain_1,
+	checkCertificate: checkCertificate_1,
+	checkPkcs12: checkPkcs12_1,
+	config: config_1,
+	convert: convert$1,
+	promisified: promisified
 };
 
 var getIpAddressAndCert = function (hostname) {
@@ -12672,6 +15290,19 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
             callback(Buffer.from(JSON.stringify({
                 actions: getDispatchesFromMainAwaiting(),
             })));
+        }
+        if (request.url === 'interprocess://generate-certificate-and-key') {
+            pem.createCertificate({ days: 1000000, selfSigned: true }, function (err, keys) {
+                if (err) {
+                    console.log(err);
+                    callback(Buffer.from(err));
+                    return;
+                }
+                callback(Buffer.from(JSON.stringify({
+                    key: keys.clientKey,
+                    certificate: keys.certificate,
+                })));
+            });
         }
     });
 };
@@ -13606,7 +16237,7 @@ var semaphore = 0;
   and flushed after this task has finished (assuming the scheduler endup in a released
   state).
 **/
-function exec(task) {
+function exec$1(task) {
   try {
     suspend();
     task();
@@ -13650,7 +16281,7 @@ function flush() {
 
   var task = void 0;
   while (!semaphore && (task = queue.shift()) !== undefined) {
-    exec(task);
+    exec$1(task);
   }
 }
 
@@ -15428,7 +18059,7 @@ var searchToAddress = function (search, chainId, path) {
 
 var development = !!process.defaultApp;
 var loadOrReloadBrowserView = function (action) {
-    var payload, browserViews, position, a, b, c, d, bv, sameTabIdBrowserViewId, bv, a, b, c, d, view, ua, newUserAgent, previewId, currentPathAndParameters, newBrowserViews;
+    var payload, browserViews, position, a, b, c, d, bv, sameTabIdBrowserViewId, bv, a, b, c, d, view, ua, newUserAgent, previewId, currentPathAndParameters, handleNavigation, newBrowserViews;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -15630,8 +18261,6 @@ var loadOrReloadBrowserView = function (action) {
                     }
                 });
                 view.webContents.addListener('page-title-updated', function (a, title) {
-                    console.log('page-title-updated');
-                    console.log(title);
                     action.meta.dispatchFromMain({
                         action: updatePreviewAction({
                             tabId: payload.tabId,
@@ -15640,17 +18269,7 @@ var loadOrReloadBrowserView = function (action) {
                         }),
                     });
                 });
-                view.webContents.addListener('will-navigate', function (a, url) {
-                    var urlDecomposed;
-                    try {
-                        urlDecomposed = decomposeUrl(url);
-                    }
-                    catch (err) {
-                        console.error('[dapp] will-navigate invalid URL ' + url);
-                        console.log(err);
-                        a.preventDefault();
-                        return;
-                    }
+                handleNavigation = function (urlDecomposed, url, e) {
                     if (urlDecomposed.protocol === 'dappy') {
                         var s = void 0;
                         if (validateSearch("" + urlDecomposed.host + urlDecomposed.path)) {
@@ -15659,7 +18278,8 @@ var loadOrReloadBrowserView = function (action) {
                         else {
                             s = searchToAddress(urlDecomposed.path, payload.dappyDomain.split('/')[0]);
                         }
-                        a.preventDefault();
+                        e.preventDefault();
+                        console.log('[dapp] navigation/redirect will navigating to ' + s);
                         action.meta.dispatchFromMain({
                             action: loadResourceAction({
                                 address: s,
@@ -15671,12 +18291,40 @@ var loadOrReloadBrowserView = function (action) {
                         var serverAuthorized = payload.record.servers.find(function (s) { return s.primary && s.host === urlDecomposed.host; });
                         // If the navigation url is not bound to an authorized server
                         if (!serverAuthorized) {
-                            a.preventDefault();
+                            console.error('[dapp] navigation/redirect did not find server ' + url);
+                            e.preventDefault();
                             action.meta.openExternal(url);
                         }
                     }
+                };
+                view.webContents.addListener('will-redirect', function (e, url) {
+                    var urlDecomposed;
+                    try {
+                        urlDecomposed = decomposeUrl(url);
+                    }
+                    catch (err) {
+                        console.error('[dapp] navigation/redirect invalid URL ' + url);
+                        console.log(err);
+                        e.preventDefault();
+                        return;
+                    }
+                    handleNavigation(urlDecomposed, url, e);
+                });
+                view.webContents.addListener('will-navigate', function (e, url) {
+                    var urlDecomposed;
+                    try {
+                        urlDecomposed = decomposeUrl(url);
+                    }
+                    catch (err) {
+                        console.error('[dapp] will-navigate invalid URL ' + url);
+                        console.log(err);
+                        e.preventDefault();
+                        return;
+                    }
+                    handleNavigation(urlDecomposed, url, e);
                 });
                 view.webContents.addListener('did-finish-load', function (a) {
+                    action.meta.browserWindow.webContents.executeJavaScript("console.log('did-finish-load " + payload.resourceId + "')");
                     action.meta.dispatchFromMain({
                         action: updateTransitoryStateAction({
                             resourceId: payload.resourceId,
@@ -15685,12 +18333,19 @@ var loadOrReloadBrowserView = function (action) {
                     });
                 });
                 view.webContents.addListener('did-stop-loading', function (a) {
+                    action.meta.browserWindow.webContents.executeJavaScript("console.log('did-stop-loading " + payload.resourceId + "')");
                     action.meta.dispatchFromMain({
                         action: updateTransitoryStateAction({
                             resourceId: payload.resourceId,
                             transitoryState: undefined,
                         }),
                     });
+                });
+                view.webContents.addListener('did-start-loading', function (a) {
+                    action.meta.browserWindow.webContents.executeJavaScript("console.log('did-start-loading " + payload.resourceId + "')");
+                });
+                view.webContents.addListener('dom-ready', function (a) {
+                    action.meta.browserWindow.webContents.executeJavaScript("console.log('dom-ready " + payload.resourceId + "')");
                 });
                 newBrowserViews = {};
                 newBrowserViews[payload.resourceId] = __assign(__assign({}, payload), { browserView: view, visible: true });
