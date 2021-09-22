@@ -132,7 +132,7 @@ export const registerInterProcessProtocol = (
           });
       } catch (err) {
         console.log(err);
-        callback(Buffer.from(err));
+        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when multi-dappy-call'));
       }
     }
 
@@ -151,7 +151,7 @@ export const registerInterProcessProtocol = (
           });
       } catch (err) {
         console.log(err);
-        callback(Buffer.from(err));
+        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when single-dappy-call'));
       }
     }
 
@@ -181,7 +181,7 @@ export const registerInterProcessProtocol = (
         }
       } catch (err) {
         console.log(err);
-        callback(Buffer.from(err));
+        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when dispatch-in-main'));
       }
     }
 
@@ -192,7 +192,7 @@ export const registerInterProcessProtocol = (
         openExternal(value);
       } catch (err) {
         console.log(err);
-        callback(err);
+        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when open-external'));
       }
     }
 
@@ -203,7 +203,7 @@ export const registerInterProcessProtocol = (
         clipboard.writeText(value);
       } catch (err) {
         console.log(err);
-        callback(Buffer.from(err));
+        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when copy-to-clipboard'));
       }
     }
 
@@ -242,7 +242,7 @@ export const registerInterProcessProtocol = (
         }
       } catch (err) {
         console.log(err);
-        callback(err);
+        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when trigger-command'));
       }
     }
 
@@ -259,7 +259,7 @@ export const registerInterProcessProtocol = (
       pem.createCertificate({ days: 1000000, selfSigned: true }, function (err, keys) {
         if (err) {
           console.log(err);
-          callback(Buffer.from(err));
+          callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when generate-certificate-and-key'));
           return;
         }
         callback(
