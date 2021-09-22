@@ -2419,5 +2419,29 @@ module.exports.translations = [
     "term_plural": "",
     "reference": "",
     "comment": ""
+  },
+  {
+    "term": "csp",
+    "definition": "Content Security Policy header",
+    "context": "",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "update cost of minting",
+    "definition": "Update cost of minting",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "check account",
+    "definition": "check account",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
   }
 ]

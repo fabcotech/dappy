@@ -1,14 +1,6 @@
 import { createSelector } from 'reselect';
 import { BeesLoadErrors, BeesLoadCompleted } from 'beesjs';
-import {
-  Dapp,
-  TransitoryState,
-  Tab,
-  LastLoadError,
-  Identification,
-  LoadedFile,
-  IpApp,
-} from '../../models';
+import { Dapp, TransitoryState, Tab, LastLoadError, Identification, LoadedFile, IpApp } from '../../models';
 import * as fromActions from './actions';
 import * as fromHistory from '../history';
 import { Action } from '../';
@@ -375,9 +367,9 @@ export const reducer = (state = initialState, action: Action): State => {
 
     case fromActions.UPDATE_RESOURCE_ADDRESS: {
       const payload: fromActions.UpdateResourceAddressPayload = action.payload;
-      const tab = state.tabs.find(t => t.id === payload.tabId);
+      const tab = state.tabs.find((t) => t.id === payload.tabId);
       if (!tab) {
-        console.log('did not find tab ')
+        console.log('did not find tab ');
         return state;
       }
       if (state.dapps[tab.resourceId]) {
@@ -389,12 +381,12 @@ export const reducer = (state = initialState, action: Action): State => {
             search: payload.searchSplitted.search,
             chainId: payload.searchSplitted.chainId,
             path: payload.searchSplitted.path,
-          }
-        }
+          },
+        };
         return {
           ...state,
-          dapps: newDapps
-        }
+          dapps: newDapps,
+        };
       } else if (state.ipApps[tab.resourceId]) {
         const ipApp = state.ipApps[tab.resourceId];
         const newIpApps = {
@@ -404,12 +396,12 @@ export const reducer = (state = initialState, action: Action): State => {
             search: payload.searchSplitted.search,
             chainId: payload.searchSplitted.chainId,
             path: payload.searchSplitted.path,
-          }
-        }
+          },
+        };
         return {
           ...state,
-          ipApps: newIpApps
-        }
+          ipApps: newIpApps,
+        };
       } else {
         // ignore loadedFiles
         return state;
@@ -626,7 +618,9 @@ export const getSearchTransitoryState = createSelector(
 
 export const getSearchLoadStates = createSelector(getSearch, getLoadStates, (search, loadStates):
   | undefined
-  | { completed: BeesLoadCompleted; errors: BeesLoadErrors; pending: string[] } => (search ? loadStates[search] : undefined));
+  | { completed: BeesLoadCompleted; errors: BeesLoadErrors; pending: string[] } =>
+  search ? loadStates[search] : undefined
+);
 
 export const getActiveTabs = createSelector(getTabs, (tabs) => {
   const activeTabs: { [tabId: string]: Tab } = {};

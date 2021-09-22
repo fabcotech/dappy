@@ -60,9 +60,6 @@ export class ViewPurseComponent extends React.Component<ViewPursesProps, ViewPur
           <div>
             <span className="id">{this.props.purse.id}</span>
             <div className="values">
-              <span>
-                {t('type')}: {this.props.purse.type}
-              </span>
               {this.props.fungible && (
                 <span>
                   {t('quantity')}: {this.props.purse.quantity}
