@@ -14,8 +14,8 @@ export const PreviewSchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const validatePreview = (tab: any): Promise<boolean> =>
-  new Promise((resolve, reject) => {
+export const validatePreview = (tab: any) =>
+  new Promise<true>((resolve, reject) => {
     PreviewSchema.validate(tab)
       .then(() => {
         resolve(true);
@@ -26,7 +26,7 @@ export const validatePreview = (tab: any): Promise<boolean> =>
   });
 
 export const validatePreviews = (previews: any): Promise<Preview[]> => {
-  return new Promise((resolve, reject) => {
+  return new Promise<Preview[]>((resolve, reject) => {
     if (!previews || !Array.isArray(previews)) {
       reject();
       return;

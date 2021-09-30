@@ -18,8 +18,8 @@ export const blockchainSchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const validateBlockchain = (bc: any): Promise<boolean> =>
-  new Promise((resolve, reject) => {
+export const validateBlockchain = (bc: any) =>
+  new Promise<true>((resolve, reject) => {
     blockchainSchema
       .validate(bc)
       .then(() => {
@@ -31,7 +31,7 @@ export const validateBlockchain = (bc: any): Promise<boolean> =>
   });
 
 export const validateBlockchains = (blockchains: any): Promise<Blockchain[]> => {
-  return new Promise((resolve, reject) => {
+  return new Promise<Blockchain[]>((resolve, reject) => {
     if (!blockchains || !Array.isArray(blockchains)) {
       reject('Must be an array');
       return;

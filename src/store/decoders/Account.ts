@@ -21,8 +21,8 @@ export const accountSchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const validateAccount = (account: any): Promise<boolean> =>
-  new Promise((resolve, reject) => {
+export const validateAccount = (account: any) =>
+  new Promise<true>((resolve, reject) => {
     accountSchema
       .validate(account)
       .then(() => {
@@ -34,7 +34,7 @@ export const validateAccount = (account: any): Promise<boolean> =>
   });
 
 export const validateAccounts = (accounts: any): Promise<Account[]> => {
-  return new Promise((resolve, reject) => {
+  return new Promise<Account[]>((resolve, reject) => {
     if (!accounts || !Array.isArray(accounts)) {
       reject('Must be an array');
       return;

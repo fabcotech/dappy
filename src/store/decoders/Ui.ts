@@ -21,8 +21,8 @@ export const uiSchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const validateUi = (ui: any): Promise<boolean> =>
-  new Promise((resolve, reject) => {
+export const validateUi = (ui: any) =>
+  new Promise<true>((resolve, reject) => {
     uiSchema
       .validate(ui)
       .then((a) => {

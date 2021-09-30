@@ -171,6 +171,7 @@ npm run electron-builder:dist:linux:rpm
 
 On mac (on macOS)
 ```
+# Install XCode
 npm run electron-builder:dist:mac
 ```
 

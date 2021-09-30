@@ -36,7 +36,7 @@ const dappyNodeInfoFullSchema = yup
   .strict(true);
 
 export const validateDappyNodeFullInfo = (dnfi: any) => {
-  return new Promise((resolve, reject) => {
+  return new Promise<true>((resolve, reject) => {
     if (!dnfi) {
       reject();
       return;
@@ -51,7 +51,7 @@ export const validateDappyNodeFullInfo = (dnfi: any) => {
   });
 };
 export const validateDappyNodeInfo = (dni: any) => {
-  return new Promise((resolve, reject) => {
+  return new Promise<true>((resolve, reject) => {
     if (!dni) {
       reject();
       return;

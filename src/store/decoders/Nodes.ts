@@ -35,8 +35,8 @@ export const blockchainNodeSchema = yup
   })
   .required();
 
-export const validateNodeFromNetwork = (node: any): Promise<boolean> =>
-  new Promise((resolve, reject) => {
+export const validateNodeFromNetwork = (node: any) =>
+  new Promise<true>((resolve, reject) => {
     nodeFromNetworkSchema
       .validate(node)
       .then(() => {
@@ -48,7 +48,7 @@ export const validateNodeFromNetwork = (node: any): Promise<boolean> =>
   });
 
 export const validateNodesFromNetwork = (nodes: any): Promise<NodeFromNetwork[]> => {
-  return new Promise((resolve, reject) => {
+  return new Promise<NodeFromNetwork[]>((resolve, reject) => {
     if (!nodes || !Array.isArray(nodes)) {
       reject('Must be an array');
       return;

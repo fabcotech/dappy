@@ -22,7 +22,7 @@ export const validateBenchmark = (b: any) => {
 };
 
 export const validateBenchmarks = (benchmarks: any) => {
-  return new Promise((resolve, reject) => {
+  return new Promise<true>((resolve, reject) => {
     if (!Array.isArray(benchmarks)) {
       reject();
       return;

@@ -201,7 +201,7 @@ const sendRChainTransaction = function* (action: Action) {
       const jsValue = rhoValToJs(dataAtNameResponseExpr);
       if (payload.origin.origin === 'record') {
         validateRchainTokenOperationResult(jsValue)
-          .then((a) => {
+          .then(() => {
             if (jsValue.status === 'completed') {
               store.dispatch(
                 fromBlockchain.updateRChainTransactionStatusAction({

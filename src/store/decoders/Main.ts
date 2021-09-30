@@ -9,8 +9,8 @@ export const mainSchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const validateMain = (main: any): Promise<boolean> =>
-  new Promise((resolve, reject) => {
+export const validateMain = (main: any) =>
+  new Promise<true>((resolve, reject) => {
     mainSchema
       .validate(main)
       .then(() => {

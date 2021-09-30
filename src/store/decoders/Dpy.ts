@@ -12,8 +12,8 @@ export const fileSchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const validateFile = (file: any): Promise<boolean> =>
-  new Promise((resolve, reject) => {
+export const validateFile = (file: any) =>
+  new Promise<true>((resolve, reject) => {
     fileSchema
       .validate(file)
       .then(() => {
@@ -39,8 +39,8 @@ export const dpySchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const validateDpy = (dpy: any): Promise<boolean> =>
-  new Promise((resolve, reject) => {
+export const validateDpy = (dpy: any) =>
+  new Promise<true>((resolve, reject) => {
     dpySchema
       .validate(dpy)
       .then(() => {

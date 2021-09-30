@@ -25,8 +25,8 @@ export const cookieSchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const validateCookie = (c: any): Promise<boolean> =>
-  new Promise((resolve, reject) => {
+export const validateCookie = (c: any) =>
+  new Promise<true>((resolve, reject) => {
     cookieSchema
       .validate(c)
       .then(() => {
@@ -38,14 +38,14 @@ export const validateCookie = (c: any): Promise<boolean> =>
   });
 
 export const validateCookies = (cookies: any): Promise<{ dappyDomain: string; cookies: Cookie[] }[]> => {
-  return new Promise((resolve, reject) => {
+  return new Promise<{ dappyDomain: string; cookies: Cookie[] }[]>((resolve, reject) => {
     if (!cookies || !Array.isArray(cookies)) {
       reject('Must be an array');
       return;
     }
     // migration
     // adding .sameSite if cookie does not have it
-    const cookiesMigrated = cookies.map((c) => {
+    const cookiesMigrated: { dappyDomain: string; cookies: Cookie[] }[] = cookies.map((c) => {
       return {
         ...c,
         cookies: c.cookies.map((c) => {
@@ -58,7 +58,7 @@ export const validateCookies = (cookies: any): Promise<{ dappyDomain: string; co
     });
     return Promise.all(cookiesMigrated.map(validateCookie))
       .then(() => {
-        resolve(cookiesMigrated as { dappyDomain: string; cookies: Cookie[] }[]);
+        resolve(cookiesMigrated);
       })
       .catch((e) => {
         reject(e);

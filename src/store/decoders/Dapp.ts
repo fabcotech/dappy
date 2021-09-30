@@ -47,8 +47,8 @@ export const dappSchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const validateDappFromNetwork = (dapp: any): Promise<boolean> =>
-  new Promise((resolve, reject) => {
+export const validateDappFromNetwork = (dapp: any) =>
+  new Promise<true>((resolve, reject) => {
     dappFromNetworkSchema
       .validate(dapp)
       .then(() => {
@@ -59,8 +59,8 @@ export const validateDappFromNetwork = (dapp: any): Promise<boolean> =>
       });
   });
 
-export const validateDapp = (dapp: any): Promise<boolean> =>
-  new Promise((resolve, reject) => {
+export const validateDapp = (dapp: any) =>
+  new Promise<true>((resolve, reject) => {
     dappSchema
       .validate(dapp)
       .then(() => {
@@ -79,7 +79,7 @@ export const validateDapp = (dapp: any): Promise<boolean> =>
   });
 
 export const validateDapps = (dapps: any): Promise<Dapp[]> => {
-  return new Promise((resolve, reject) => {
+  return new Promise<Dapp[]>((resolve, reject) => {
     if (!dapps || !Array.isArray(dapps)) {
       reject();
       return;

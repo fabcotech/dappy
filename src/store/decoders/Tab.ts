@@ -18,8 +18,8 @@ export const TabSchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const validateTab = (tab: any): Promise<boolean> =>
-  new Promise((resolve, reject) => {
+export const validateTab = (tab: any) =>
+  new Promise<true>((resolve, reject) => {
     TabSchema.validate(tab)
       .then(() => {
         resolve(true);

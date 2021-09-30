@@ -54,7 +54,7 @@ declare global {
     multiDappyCall: (body: any, parameters: any) => Promise<MultiCallResult>;
     getIpAddressAndCert: (parameters: any) => void;
     generateCertificateAndKey: () => Promise<{ key: string; certificate: string }>;
-    triggerCommand: (command: string, payload: any) => void;
+    triggerCommand: (command: string, payload?: { [key: string]: string }) => void;
     initContextMenu: () => void;
     copyToClipboard: (a: string) => void;
     dispatchInMain: (a: Action) => void;
@@ -445,8 +445,6 @@ dbReq.onsuccess = (event) => {
   const requestCookes = cookiesStore.getAll();
   requestCookes.onsuccess = (e) => {
     const cookiesToCheck = requestCookes.result;
-    console.log('cookiesToCheck');
-    console.log(cookiesToCheck);
     validateCookies(cookiesToCheck)
       .then((cookiesFromStorage) => {
         asyncActionsOver += 1;

@@ -10,7 +10,7 @@ const pushManifestResultSchema = yup
   .strict(true);
 
 export const validatePushManifestResult = (pushManifestResult: any) => {
-  return new Promise((resolve, reject) => {
+  return new Promise<true>((resolve, reject) => {
     if (!pushManifestResult) {
       reject();
       return;
@@ -34,14 +34,14 @@ const rchainTokenOperationSchema = yup.object().shape({
 });
 
 export const validateRchainTokenOperationResult = (rchainTokenOperationResult: any) => {
-  return new Promise((resolve, reject) => {
+  return new Promise<true>((resolve, reject) => {
     if (!rchainTokenOperationResult) {
       reject();
       return;
     }
     rchainTokenOperationSchema.isValid(rchainTokenOperationResult).then((valid) => {
       if (valid) {
-        resolve();
+        resolve(true);
       } else {
         reject();
       }

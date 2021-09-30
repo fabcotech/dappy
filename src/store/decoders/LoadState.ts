@@ -19,8 +19,8 @@ export const loadStateSchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const validateLoadState = (loadState: any): Promise<boolean> =>
-  new Promise((resolve, reject) => {
+export const validateLoadState = (loadState: any) =>
+  new Promise<true>((resolve, reject) => {
     loadStateSchema
       .validate(loadState)
       .then(() => {

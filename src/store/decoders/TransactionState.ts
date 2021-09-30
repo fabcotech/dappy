@@ -83,8 +83,8 @@ export const transactionStateSchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const validateTransactionState = (transactionState: any): Promise<boolean> =>
-  new Promise((resolve, reject) => {
+export const validateTransactionState = (transactionState: any) =>
+  new Promise<true>((resolve, reject) => {
     transactionStateSchema
       .validate(transactionState)
       .then(() => {

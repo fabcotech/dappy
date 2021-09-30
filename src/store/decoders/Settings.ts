@@ -19,8 +19,8 @@ export const settingsSchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const validateSettings = (settings: any): Promise<boolean> =>
-  new Promise((resolve, reject) => {
+export const validateSettings = (settings: any) =>
+  new Promise<true>((resolve, reject) => {
     settingsSchema
       .validate(settings)
       .then((a) => {

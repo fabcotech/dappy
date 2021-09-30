@@ -30,8 +30,8 @@ export const recordFromNetworkSchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const validateRecordFromNetwork = (record: any): Promise<boolean> =>
-  new Promise((resolve, reject) => {
+export const validateRecordFromNetwork = (record: any) =>
+  new Promise<true>((resolve, reject) => {
     recordFromNetworkSchema
       .validate(record)
       .then(() => {
@@ -103,8 +103,8 @@ export const recordSchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const validateRecord = (record: any): Promise<boolean> =>
-  new Promise((resolve, reject) => {
+export const validateRecord = (record: any) =>
+  new Promise<true>((resolve, reject) => {
     recordSchema
       .validate(record)
       .then(() => {
