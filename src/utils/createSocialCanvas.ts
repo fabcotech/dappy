@@ -109,7 +109,7 @@ export const createSocialCanvas = (
       context.fillText(`in contract "${contractId}"`, 40, 195);
 
       context.font = '600 30px fira';
-      context.fillText(`d/dappy | dappy.tech`, 685, 480);
+      context.fillText(`d:dappy | dappy.tech`, 685, 480);
       if (mascot === 'none') {
         resolve(canvas.toDataURL('image/png'));
       } else {

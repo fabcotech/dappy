@@ -17,7 +17,7 @@ class NavigationBarHomeComponent extends WithSuggestions {
     }
 
     const inputProps = {
-      placeholder: `Type dappy or ${this.props.namesBlockchainId}/dappy`,
+      placeholder: `Type dappy or ${this.props.namesBlockchainId}:dappy`,
       className: `${this.state.pristine ? 'pristine' : ''} input`,
       value: this.state.search || '',
       onChange: this.onChange,

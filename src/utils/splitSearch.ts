@@ -1,9 +1,9 @@
 import { SplitSearch } from '../models';
 
 export const splitSearch = (address: string): SplitSearch => {
-  const split = address.split('/');
+  const split = address.split(':');
   const chainId = split[0];
-  let search = split.slice(1).join('/');
+  let search = split.slice(1).join(':');
 
   let path = '';
   const ioSlash = search.indexOf('/');
