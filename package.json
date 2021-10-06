@@ -46,7 +46,7 @@
     "ajv": "^6.12.6",
     "beesjs": "fabcotech/beesjs#0bab81e5727aea49f7247e3a496de54107d489f6",
     "blakejs": "^1.1.0",
-    "bulma": "0.7.1",
+    "bulma": "0.9.3",
     "bulma-extensions": "^6.2.7",
     "elliptic": "^6.5.3",
     "formik": "^1.5.8",
