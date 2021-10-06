@@ -72,6 +72,7 @@ export const dappRecordSchema = yup
     address: yup.string().required(),
     loadedAt: yup.string().required(),
     servers: yup.array(recordServerSchema),
+    csp: yup.string(),
     badges: yup.object(),
     origin: yup
       .string()
