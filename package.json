@@ -18,21 +18,7 @@
     "electron-builder:dist:windows:64": "electron-builder -c build.yml --x64 --publish never --win nsis",
     "electron-builder:dist:windows:32": "electron-builder -c build.yml --ia32 --publish never --win nsis",
     "electron-builder:dist:mac": "electron-builder -c build.yml --publish never --mac",
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js"
-    ],
-    "transform": {
-      "\\.(ts|tsx)$": "ts-jest"
-    },
-    "testRegex": "/__tests__/.*\\.(ts|tsx|js)$",
-    "automock": false,
-    "setupFiles": [
-      "./setupJest.js"
-    ]
+    "test": "jest"
   },
   "prettier": {
     "printWidth": 120,
@@ -71,7 +57,7 @@
   "devDependencies": {
     "@types/chrome": "0.0.71",
     "@types/elliptic": "^6.4.9",
-    "@types/jest": "^24.0.15",
+    "@types/jest": "^27.0.2",
     "@types/luxon": "^1.4.1",
     "@types/react": "^16.9.44",
     "@types/react-autosuggest": "^9.3.11",
@@ -81,7 +67,7 @@
     "@types/yup": "^0.26.1",
     "cssnano": "^4.1.10",
     "electron": "^15.0.0",
-    "jest": "^26.2.2",
+    "jest": "^27.2.4",
     "parcel-bundler": "1.12.5",
     "rollup": "1.26.0",
     "rollup-plugin-commonjs": "^10.1.0",
@@ -91,7 +77,7 @@
     "sass": "1.26.5",
     "set-cookie-parser": "^2.4.6",
     "source-map-loader": "^0.2.3",
-    "ts-jest": "^26.1.4",
+    "ts-jest": "^27.0.5",
     "typescript": "4.2.3"
   }
 }

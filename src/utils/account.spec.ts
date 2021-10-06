@@ -1,4 +1,4 @@
-import { account as accountUtils } from '../account';
+import { account as accountUtils } from './account';
 
 describe('utils/account', () => {
   const password = 'password';
