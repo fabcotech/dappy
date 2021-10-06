@@ -197,7 +197,7 @@ export class ViewContractsComponent extends React.Component<ViewContractsProps, 
           {this.state.contractConfig && this.state.contractConfig.fee && (
             <span className="ml-2">
               <i className="fa fa-money-bill-wave mr-1"></i>
-              {t('fee')}: {feePermillage(this.state.contractConfig.fee)}
+              {t('fee')} {(t('(ratio)'))}: {feePermillage(this.state.contractConfig.fee)}
             </span>
           )}
         </div>
