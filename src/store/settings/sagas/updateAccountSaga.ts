@@ -1,10 +1,10 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
 
-import { Account } from '../../../models';
-import { browserUtils } from '../../browser-utils';
+import { Account } from '/models';
+import { browserUtils } from '/store/browser-utils';
 import * as fromSettings from '..';
-import * as fromMain from '../../main';
-import { Action } from '../..';
+import * as fromMain from '/store/main';
+import { Action } from '/store';
 
 const updateAccount = function*(action: Action) {
   const accounts: {

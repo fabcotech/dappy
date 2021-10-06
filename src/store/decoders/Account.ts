@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { Account } from '../../models';
+import { Account } from '/models';
 
 export const accountSchema = yup
   .object()

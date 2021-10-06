@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Formik, Field } from 'formik';
 
-import { Variables, Variable } from '../../../models';
+import { Variables, Variable } from '/models';
 
 interface VariablesFormProps {
   back?: () => void;

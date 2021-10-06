@@ -1,4 +1,4 @@
-import { Variable } from '../models';
+import { Variable } from '/models';
 
 export const manifest = {
   getMatchesInAssets: (str = '') => {

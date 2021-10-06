@@ -2,7 +2,7 @@ import { takeEvery, select } from 'redux-saga/effects';
 import { Action } from 'redux';
 import { State } from '..';
 
-import * as fromDapps from '../dapps';
+import * as fromDapps from '/dapps';
 
 const logCSSStyle = 'font-weight: bold; color: #FFF;padding:2px;';
 const logCSSStyleState = `${logCSSStyle}`;

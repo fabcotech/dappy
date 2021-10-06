@@ -1,9 +1,9 @@
 import * as React from 'react';
 
-import { Tab, LoadedFile } from '../../models';
+import { Tab, LoadedFile } from '/models';
 import './DownloadFile.scss';
 
-const fileIconImg = require('../../images/file-icon.png');
+const fileIconImg = require('/images/file-icon.png');
 
 interface DownloadFileComponentProps {
   loadedFile: undefined | LoadedFile;

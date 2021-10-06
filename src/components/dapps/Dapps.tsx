@@ -2,8 +2,8 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 
 import './Dapps.scss';
-import * as fromDapps from '../../store/dapps';
-import * as fromUi from '../../store/ui';
+import * as fromDapps from '/store/dapps';
+import * as fromUi from '/store/ui';
 import { FetchContract, TabsList } from '.';
 import { DappsSandboxed } from '../dapp';
 

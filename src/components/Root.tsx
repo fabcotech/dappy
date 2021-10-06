@@ -2,8 +2,8 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 
 import './Root.scss';
-import * as fromUi from '../store/ui';
-import * as fromMain from '../store/main';
+import * as fromUi from '/store/ui';
+import * as fromMain from '/store/main';
 import { Dapps } from './dapps';
 import { Root as DeployRoot } from './deploy';
 import { Root as SettingsRoot } from './settings';
@@ -11,10 +11,10 @@ import { Root as AccountsRoot } from './accounts';
 import { Root as TransactionsRoot } from './transactions';
 import { Menu } from './Menu';
 import { Modal, Gcu } from './utils';
-import { NavigationUrl, Language } from '../models';
-import { DEVELOPMENT } from '../CONSTANTS';
-import { GCU_TEXT, GCU_VERSION } from '../GCU';
-import { initTranslate } from '../utils/translate';
+import { NavigationUrl, Language } from '/models';
+import { DEVELOPMENT } from '/CONSTANTS';
+import { GCU_TEXT, GCU_VERSION } from '/GCU';
+import { initTranslate } from '/utils/translate';
 
 interface RootComponentProps {
   dappsListDisplay: number;

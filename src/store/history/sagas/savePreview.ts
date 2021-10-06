@@ -1,12 +1,12 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
 
 import * as fromHistory from '..';
-import * as fromMain from '../../main';
-import * as fromDapps from '../../dapps';
-import { Action } from '../../';
-import { browserUtils } from '../../browser-utils';
-import { splitSearch } from '../../../utils/splitSearch';
-import { Preview, Dapp, IpApp, LoadedFile, Tab } from '../../../models';
+import * as fromMain from '/store/main';
+import * as fromDapps from '/store/dapps';
+import { Action } from '/store/';
+import { browserUtils } from '/store/browser-utils';
+import { splitSearch } from '/utils/splitSearch';
+import { Preview, Dapp, IpApp, LoadedFile, Tab } from '/models';
 
 const savePreview = function* (action: Action) {
   const activeResource: Dapp | IpApp | LoadedFile | undefined = yield select(fromDapps.getActiveResource);

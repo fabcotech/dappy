@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import * as fromDapps from '../../store/dapps';
-import * as fromUi from '../../store/ui';
-import { blockchain as blockchainUtils } from '../../utils/';
-import { Dapp, TransitoryState, Tab } from '../../models';
+import * as fromDapps from '/store/dapps';
+import * as fromUi from '/store/ui';
+import { blockchain as blockchainUtils } from '/utils/';
+import { Dapp, TransitoryState, Tab } from '/models';
 import { TabListItem } from '.';
 import './TabsList.scss';
 

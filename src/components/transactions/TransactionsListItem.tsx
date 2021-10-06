@@ -9,7 +9,7 @@ import {
   TransactionStatus,
   RChainTokenDeployPayload,
   RChainTokenDeployBoxPayload,
-} from '../../models';
+} from '/models';
 
 interface TransactionListItemProps {
   transactionState: TransactionState;

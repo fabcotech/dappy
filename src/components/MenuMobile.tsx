@@ -1,6 +1,6 @@
 import * as React from 'react';
 import './MenuMobile.scss';
-import { NavigationUrl } from '../models';
+import { NavigationUrl } from '/models';
 
 interface MenuMobileComponentProps {
   dappsListDisplay: number;

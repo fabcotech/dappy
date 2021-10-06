@@ -1,15 +1,15 @@
 import { takeEvery, select } from 'redux-saga/effects';
 
-import { store } from '../..';
+import { store } from '/store';
 import * as fromBlockchain from '..';
-import * as fromSettings from '../../settings';
-import * as fromMain from '../../main';
-import { Blockchain } from '../../../models';
-import { Action } from '../../';
-import { validateRecordFromNetwork } from '../../decoders';
-import { MultiCallError, Account } from '../../../models/';
-import { multiCall } from '../../../utils/wsUtils';
-import { getNodeIndex } from '../../../utils/getNodeIndex';
+import * as fromSettings from '/store/settings';
+import * as fromMain from '/store/main';
+import { Blockchain } from '/models';
+import { Action } from '/store/';
+import { validateRecordFromNetwork } from '/store/decoders';
+import { MultiCallError, Account } from '/models/';
+import { multiCall } from '/utils/wsUtils';
+import { getNodeIndex } from '/utils/getNodeIndex';
 
 const executeRecordsByPublicKeyCronJobs = function* (action: Action) {
   const namesBlockchain: Blockchain | undefined = yield select(fromSettings.getNamesBlockchain);

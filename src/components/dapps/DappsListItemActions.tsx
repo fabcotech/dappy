@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Dapp, Tab } from '../../models';
+import { Dapp, Tab } from '/models';
 
 interface ActionsProps {
   dapp: undefined | Dapp;

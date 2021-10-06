@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { Tab } from '../../models';
+import { Tab } from '/models';
 
 export const TabSchema = yup
   .object()

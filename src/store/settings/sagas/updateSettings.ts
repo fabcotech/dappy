@@ -1,8 +1,8 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
 
-import { browserUtils } from '../../browser-utils';
+import { browserUtils } from '/store/browser-utils';
 import * as fromSettings from '..';
-import { Action } from '../..';
+import { Action } from '/store';
 
 const updateSettings = function*(action: Action) {
   let settings: fromSettings.Settings = yield select(fromSettings.getSettings);

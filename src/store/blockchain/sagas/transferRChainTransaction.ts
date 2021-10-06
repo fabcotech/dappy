@@ -2,8 +2,8 @@ import { Transaction } from 'electron';
 import { takeEvery, select } from 'redux-saga/effects';
 
 import * as fromBlockchain from '..';
-import { Action } from '../..';
-import { TransactionState } from '../../../models';
+import { Action } from '/store';
+import { TransactionState } from '/models';
 
 const transferRChainTransaction = function* (action: Action) {
   let payload:

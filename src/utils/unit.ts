@@ -1,4 +1,4 @@
-import { Fee } from '../models';
+import { Fee } from '/models';
 
 export const feePermillage = (f: Fee) => (f[1] / 10000).toFixed(3);
 

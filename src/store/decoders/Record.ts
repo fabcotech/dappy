@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { Record } from '../../models';
+import { Record } from '/models';
 
 export const recordServerSchema = yup
   .object()

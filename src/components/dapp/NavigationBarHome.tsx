@@ -2,10 +2,10 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import Autosuggest from 'react-autosuggest';
 
-import * as fromDapps from '../../store/dapps';
-import * as fromBlockchain from '../../store/blockchain';
-import * as fromHistory from '../../store/history';
-import * as fromSettings from '../../store/settings';
+import * as fromDapps from '/store/dapps';
+import * as fromBlockchain from '/store/blockchain';
+import * as fromHistory from '/store/history';
+import * as fromSettings from '/store/settings';
 import './ReactAutoSuggest';
 import './NavigationBar.scss';
 import { WithSuggestions, getSuggestionValue, renderSuggestion } from './WithSuggestions';

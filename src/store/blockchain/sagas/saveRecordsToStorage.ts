@@ -1,10 +1,10 @@
 import { takeEvery } from 'redux-saga/effects';
 
 import * as fromBlockchain from '..';
-import * as fromMain from '../../main';
-import { browserUtils } from '../../browser-utils';
-import { Record } from '../../../models';
-import { Action, db, store } from '../../';
+import * as fromMain from '/store/main';
+import { browserUtils } from '/store/browser-utils';
+import { Record } from '/models';
+import { Action, db, store } from '/store/';
 
 const saveRecordsToStorage = function*(action: Action) {
   const payload: fromBlockchain.GetAllRecordsCompletedPayload = action.payload;

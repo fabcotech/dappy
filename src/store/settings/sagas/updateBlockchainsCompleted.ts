@@ -1,10 +1,10 @@
 import { takeEvery, select, put } from 'redux-saga/effects';
 
 import * as fromSettings from '..';
-import * as fromMain from '../../main';
-import * as fromDapps from '../../dapps';
-import { Action } from '../..';
-import { Blockchain } from '../../../models';
+import * as fromMain from '/store/main';
+import * as fromDapps from '/store/dapps';
+import { Action } from '/store';
+import { Blockchain } from '/models';
 
 const updateBlockchainsCompleted = function* (action: Action) {
   const blockchains: {

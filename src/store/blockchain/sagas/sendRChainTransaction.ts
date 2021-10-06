@@ -1,16 +1,16 @@
 import { takeEvery, put, select } from 'redux-saga/effects';
 import { rhoValToJs } from 'rchain-toolkit/dist/utils';
 
-import { Blockchain, TransactionStatus, BlockchainNode, MultiCallError } from '../../../models';
+import { Blockchain, TransactionStatus, BlockchainNode, MultiCallError } from '/models';
 import * as fromBlockchain from '..';
-import { buildUnforgeableNameQuery } from '../../../utils/buildUnforgeableNameQuery';
-import * as fromMain from '../../main';
-import { multiCall } from '../../../utils/wsUtils';
-import { Action, store } from '../../';
-import * as fromSettings from '../../settings';
-import { singleCall } from '../../../utils/wsUtils';
-import { validateRchainTokenOperationResult } from '../../decoders';
-import { getNodeIndex } from '../../../utils/getNodeIndex';
+import { buildUnforgeableNameQuery } from '/utils/buildUnforgeableNameQuery';
+import * as fromMain from '/store/main';
+import { multiCall } from '/utils/wsUtils';
+import { Action, store } from '/store/';
+import * as fromSettings from '/store/settings';
+import { singleCall } from '/utils/wsUtils';
+import { validateRchainTokenOperationResult } from '/store/decoders';
+import { getNodeIndex } from '/utils/getNodeIndex';
 
 const sendRChainTransaction = function* (action: Action) {
   const payload: fromBlockchain.SendRChainTransactionPayload = action.payload;

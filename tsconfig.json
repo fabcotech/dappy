@@ -1,9 +1,17 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "paths": { "*": ["types/*"] },
+    "paths": {
+      "*": [
+        "types/*"
+      ],
+      "/*": ["src/*"],
+    },
     "target": "ES5",
-    "lib": ["dom", "esnext"],
+    "lib": [
+      "dom",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": false,
     "esModuleInterop": true,
@@ -19,10 +27,12 @@
     "strictNullChecks": true,
     "sourceMap": true
   },
-  "include": ["src"],
+  "include": [
+    "src"
+  ],
   "linterOptions": {
     "exclude": [
-        "node_modules/**"
+      "node_modules/**"
     ]
-},
+  },
 }

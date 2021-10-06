@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 
 import * as fromActions from './actions';
-import { Blockchain, Account, BlockchainNode } from '../../models';
+import { Blockchain, Account, BlockchainNode } from '/models';
 import { Action } from '../';
 
 export interface Settings {

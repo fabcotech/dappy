@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Resolver, Development, FactorySettings, UpdateLanguage } from './settings';
 import { Blockchains } from './blockchain';
 import { Root as RecordsRoot } from './records/';
-import { NavigationUrl } from '../../models';
+import { NavigationUrl } from '/models';
 import './Root.scss';
 import { ConsultGcu } from './ConsultGcu';
 

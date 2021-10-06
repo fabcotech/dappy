@@ -1,7 +1,7 @@
 import React from 'react';
 import { BeesLoadError } from 'beesjs';
 
-import { LoadRecordsError } from '../../models';
+import { LoadRecordsError } from '/models';
 
 export function RecordLoadErrorLight(props: { loadError: LoadRecordsError; instance: string }) {
   let couldNotGetLoadState = false;

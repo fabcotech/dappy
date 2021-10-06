@@ -4,7 +4,7 @@ import { Formik, Field } from 'formik';
 
 const ec = new elliptic.ec('secp256k1');
 
-import { Account, Identification } from '../../models';
+import { Account, Identification } from '/models';
 
 import './TransactionForm.scss';
 import { AccountSelectComponent } from './TransactionForm';

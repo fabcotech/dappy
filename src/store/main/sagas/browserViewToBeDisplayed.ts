@@ -1,9 +1,9 @@
 import { takeEvery, select } from 'redux-saga/effects';
 
-import * as fromDapps from '../../dapps';
-import * as fromUi from '../../ui';
+import * as fromDapps from '/store/dapps';
+import * as fromUi from '/store/ui';
 import * as fromMain from '../';
-import { Action } from '../..';
+import { Action } from '/store';
 
 // todo can it be triggered not for every actions ????
 const browserViewToBeDisplayed = function* (action: Action) {

@@ -1,16 +1,16 @@
 import * as React from 'react';
 import { deployTerm } from 'rchain-token';
 
-import * as fromUi from '../../../store/ui';
-import * as fromMain from '../../../store/main';
-import * as fromBlockchain from '../../../store/blockchain';
-import { Blockchain, TransactionState, Account, TransactionStatus, Variables, RChainInfos } from '../../../models';
+import * as fromUi from '/store/ui';
+import * as fromMain from '/store/main';
+import * as fromBlockchain from '/store/blockchain';
+import { Blockchain, TransactionState, Account, TransactionStatus, Variables, RChainInfos } from '/models';
 import './Deploy.scss';
-import { blockchain as blockchainUtils } from '../../../utils/blockchain';
+import { blockchain as blockchainUtils } from '/utils/blockchain';
 import { TransactionForm } from '../../utils';
-import { account as accountUtils } from '../../../utils/account';
-import { manifest as manifestUtils } from '../../../utils';
-import { RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '../../../CONSTANTS';
+import { account as accountUtils } from '/utils/account';
+import { manifest as manifestUtils } from '/utils';
+import { RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '/CONSTANTS';
 
 interface DeployProps {
   transactions: { [id: string]: TransactionState };

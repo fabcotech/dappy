@@ -1,7 +1,7 @@
 import { takeEvery, select } from 'redux-saga/effects';
 
 import * as fromSettings from '..';
-import { Action } from '../..';
+import { Action } from '/store';
 
 const updateSettingsCompleted = function* (action: Action) {
   let settings: fromSettings.Settings = yield select(fromSettings.getSettings);

@@ -2,17 +2,17 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { blake2b } from 'blakejs';
 
-import * as fromMain from '../../store/main';
-import * as fromUi from '../../store/ui';
-import * as fromSettings from '../../store/settings';
-import * as fromBlockchain from '../../store/blockchain';
-import * as fromCommon from '../../common';
+import * as fromMain from '/store/main';
+import * as fromUi from '/store/ui';
+import * as fromSettings from '/store/settings';
+import * as fromBlockchain from '/store/blockchain';
+import * as fromCommon from '/common';
 import { TransactionForm } from '.';
-import { blockchain as blockchainUtils } from '../../utils/blockchain';
-import { signSecp256k1 } from '../../utils/signSecp256k1';
+import { blockchain as blockchainUtils } from '/utils/blockchain';
+import { signSecp256k1 } from '/utils/signSecp256k1';
 
 import './TransactionModal.scss';
-import { TransactionState, TransactionStatus, Account, RChainInfos } from '../../models';
+import { TransactionState, TransactionStatus, Account, RChainInfos } from '/models';
 
 interface TransactionModalComponentProps {
   modal: undefined | fromMain.Modal;

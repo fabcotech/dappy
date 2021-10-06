@@ -1,9 +1,9 @@
 import { takeEvery, put, select } from 'redux-saga/effects';
 
-import { TransactionStatus } from '../../../models';
+import { TransactionStatus } from '/models';
 import * as fromBlockchain from '..';
-import * as fromMain from '../../main';
-import { Action } from '../../';
+import * as fromMain from '/store/main';
+import { Action } from '/store/';
 
 const rChainTransactionError = function* (action: Action) {
   const payload: fromBlockchain.RChainTransactionErrorPayload = action.payload;

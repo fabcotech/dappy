@@ -3,7 +3,7 @@ import xs, { Subscription } from 'xstream';
 
 import { DappImage } from '../utils';
 import { ActionsComponent } from '.';
-import { TransitoryState, Tab, Dapp } from '../../models';
+import { TransitoryState, Tab, Dapp } from '/models';
 import './TabListItem.scss';
 
 interface TabListItemProps {

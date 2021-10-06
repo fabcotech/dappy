@@ -1,9 +1,9 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
 
-import { browserUtils } from '../../browser-utils';
+import { browserUtils } from '/store/browser-utils';
 import * as fromUi from '..';
-import * as fromMain from '../../main';
-import { Action } from '../../';
+import * as fromMain from '/store/main';
+import { Action } from '/store/';
 
 const saveUiToStorage = function* (action: Action) {
   const uiState: fromUi.State = yield select(fromUi.getUiState);

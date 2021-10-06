@@ -1,6 +1,7 @@
 import * as React from 'react';
+import { NavigationUrl } from '/models';
+
 import './Menu.scss';
-import { NavigationUrl } from '../models';
 import { MenuMobile } from '.';
 
 interface MenuComponentProps {

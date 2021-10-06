@@ -3,18 +3,18 @@ import { connect } from 'react-redux';
 import { deployBoxTerm } from 'rchain-token';
 
 import './Accounts.scss';
-import { Account, Blockchain, RChainInfo, RChainInfos } from '../../models';
-import * as fromSettings from '../../store/settings';
-import * as fromBlockchain from '../../store/blockchain';
-import * as fromMain from '../../store/main';
-import * as fromCommon from '../../common';
-import { blockchain as blockchainUtils } from '../../utils/blockchain';
+import { Account, Blockchain, RChainInfo, RChainInfos } from '/models';
+import * as fromSettings from '/store/settings';
+import * as fromBlockchain from '/store/blockchain';
+import * as fromMain from '/store/main';
+import * as fromCommon from '/common';
+import { blockchain as blockchainUtils } from '/utils/blockchain';
 import { AddAccount } from './AddAccount';
-import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '../../CONSTANTS';
+import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '/CONSTANTS';
 import { AccountPassword } from './AccountPassword';
 import { AccountBox } from './AccountBox';
 import { ViewBox } from './ViewBox';
-import { formatAmount } from '../../utils/formatAmount';
+import { formatAmount } from '/utils/formatAmount';
 
 interface AccountsProps {
   accounts: { [name: string]: Account };

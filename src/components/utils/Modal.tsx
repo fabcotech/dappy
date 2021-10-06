@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import * as fromMain from '../../store/main';
+import * as fromMain from '/store/main';
 import { LoadState } from '../dapps/';
 import { connect } from 'react-redux';
 import { TransactionModal, AccountModal, IdentificationModal } from '.';

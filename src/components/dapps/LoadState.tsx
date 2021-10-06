@@ -1,10 +1,10 @@
 import * as React from 'react';
 
-import * as fromDapps from '../../store/dapps';
-import * as fromMain from '../../store/main';
+import * as fromDapps from '/store/dapps';
+import * as fromMain from '/store/main';
 import './LoadState.scss';
 import { connect } from 'react-redux';
-import { Dapp } from '../../models';
+import { Dapp } from '/models';
 
 interface LoadStateProps {
   dappId: string;

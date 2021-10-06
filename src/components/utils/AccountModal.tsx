@@ -4,12 +4,12 @@ import xs, { Stream } from 'xstream';
 import debounce from 'xstream/extra/debounce';
 import { Field, Formik } from 'formik';
 
-import * as fromMain from '../../store/main';
-import * as fromUi from '../../store/ui';
-import { account as accountUtils } from '../../utils';
+import * as fromMain from '/store/main';
+import * as fromUi from '/store/ui';
+import { account as accountUtils } from '/utils';
 
 import './TransactionModal.scss';
-import { Account } from '../../models';
+import { Account } from '/models';
 
 interface AccountModalComponentProps {
   modal: undefined | fromMain.Modal;

@@ -1,12 +1,12 @@
 import React, { Fragment } from 'react';
 import { updatePursePriceTerm, withdrawTerm } from 'rchain-token';
 
-import * as fromBlockchain from '../../../../store/blockchain';
-import { RChainTokenPurse, Account, RChainInfos } from '../../../../models';
-import { formatAmountNoDecimal, formatAmount } from '../../../../utils/formatAmount';
-import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '../../../../CONSTANTS';
-import { blockchain as blockchainUtils } from '../../../../utils/blockchain';
-import { createSocialCanvas, images, mascots } from '../../../../utils/createSocialCanvas';
+import * as fromBlockchain from '/store/blockchain';
+import { RChainTokenPurse, Account, RChainInfos } from '/models';
+import { formatAmountNoDecimal, formatAmount } from '/utils/formatAmount';
+import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '/CONSTANTS';
+import { blockchain as blockchainUtils } from '/utils/blockchain';
+import { createSocialCanvas, images, mascots } from '/utils/createSocialCanvas';
 
 import './ViewPurse.scss';
 

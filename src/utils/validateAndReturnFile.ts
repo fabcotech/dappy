@@ -3,8 +3,8 @@ import * as zlib from 'zlib';
 import * as elliptic from 'elliptic';
 import { BeesLoadError } from 'beesjs';
 
-import { DappyFile } from '../models';
-import { validateDpy, validateFile } from '../store/decoders/Dpy';
+import { DappyFile } from '/models';
+import { validateDpy, validateFile } from '/store/decoders/Dpy';
 
 const ec = new elliptic.ec('secp256k1');
 

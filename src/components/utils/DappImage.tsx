@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TransitoryState } from '../../models';
+import { TransitoryState } from '/models';
 
 export const DappImage = (props: {
   img: undefined | string;

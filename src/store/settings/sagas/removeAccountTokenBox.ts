@@ -1,10 +1,10 @@
 import { takeEvery, put, select } from 'redux-saga/effects';
 
-import { browserUtils } from '../../browser-utils';
+import { browserUtils } from '/store/browser-utils';
 import * as fromSettings from '..';
-import { Action } from '../..';
-import { Account } from '../../../models';
-import * as fromMain from '../../main';
+import { Action } from '/store';
+import { Account } from '/models';
+import * as fromMain from '/store/main';
 
 const removeAccountTokenBox = function* (action: Action) {
   const payload: fromSettings.SaveAccountTokenBoxPayload = action.payload;

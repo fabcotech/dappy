@@ -1,7 +1,7 @@
 import { blake2b } from 'blakejs';
 import * as rchainToolkit from 'rchain-toolkit';
 
-export const generateSignature = (nonce: string | Uint8Array, privateKey: string) => {
+export const generateSignature = (nonce: string | Uint8Array, privateKey: string) => {
   const bufferToSign = Buffer.from(nonce);
   const uInt8Array = new Uint8Array(bufferToSign);
 

@@ -2,11 +2,11 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Deploy } from './';
 
-import * as fromSettings from '../../../store/settings';
-import * as fromBlockchain from '../../../store/blockchain';
-import * as fromMain from '../../../store/main';
-import * as fromUi from '../../../store/ui';
-import { Blockchain, TransactionState, Account, RChainInfos } from '../../../models';
+import * as fromSettings from '/store/settings';
+import * as fromBlockchain from '/store/blockchain';
+import * as fromMain from '/store/main';
+import * as fromUi from '/store/ui';
+import { Blockchain, TransactionState, Account, RChainInfos } from '/models';
 import './SettingsDapps.scss';
 
 interface SettingsDappsProps {

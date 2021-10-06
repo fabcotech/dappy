@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { Cookie } from '../../models';
+import { Cookie } from '/models';
 
 export const cookieSchema = yup
   .object()

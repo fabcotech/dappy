@@ -1,9 +1,9 @@
 import * as React from 'react';
 
 import './DisplayError.scss';
-import { TransitoryState, Tab, LastLoadError, Cookie } from '../../models';
+import { TransitoryState, Tab, LastLoadError, Cookie } from '/models';
 import { LoadErrorHtml } from '../utils';
-import { blockchain as blockchainUtils } from '../../utils';
+import { blockchain as blockchainUtils } from '/utils';
 
 interface DisplayErrorComponentProps {
   transitoryStates: { [resourceId: string]: TransitoryState };

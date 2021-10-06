@@ -2,8 +2,8 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 
 import './DappsSandboxed.scss';
-import * as fromDapps from '../../store/dapps';
-import * as fromMain from '../../store/main';
+import * as fromDapps from '/store/dapps';
+import * as fromMain from '/store/main';
 import {
   Dapp,
   TransitoryState,
@@ -11,7 +11,7 @@ import {
   LastLoadError,
   IpApp,
   LoadedFile,
-} from '../../models';
+} from '/models';
 import { DisplayError, DownloadFile, NavigationBar } from './';
 import { Modal } from '../utils';
 

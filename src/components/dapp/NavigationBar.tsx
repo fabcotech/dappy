@@ -3,17 +3,17 @@ import Autosuggest from 'react-autosuggest';
 import { connect } from 'react-redux';
 import { utils } from 'rchain-toolkit';
 
-import { blockchain as blockchainUtils } from '../../utils/';
-import { searchToAddress } from '../../utils/searchToAddress';
+import { blockchain as blockchainUtils } from '/utils/';
+import { searchToAddress } from '/utils/searchToAddress';
 import { getSuggestionValue, renderSuggestion, WithSuggestions } from './WithSuggestions';
-import * as fromDapps from '../../store/dapps';
-import * as fromCommon from '../../common';
-import * as fromBlockchain from '../../store/blockchain';
-import * as fromSettings from '../../store/settings';
-import * as fromHistory from '../../store/history';
-import * as fromUi from '../../store/ui';
-import * as fromMain from '../../store/main';
-import { Tab, LoadCompletedData } from '../../models';
+import * as fromDapps from '/store/dapps';
+import * as fromCommon from '/common';
+import * as fromBlockchain from '/store/blockchain';
+import * as fromSettings from '/store/settings';
+import * as fromHistory from '/store/history';
+import * as fromUi from '/store/ui';
+import * as fromMain from '/store/main';
+import { Tab, LoadCompletedData } from '/models';
 import './NavigationBar.scss';
 
 class NavigationBarComponent extends WithSuggestions {

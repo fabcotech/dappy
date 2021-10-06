@@ -1,7 +1,7 @@
 import { BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
 import * as fromReducer from './reducer';
 
-import { Blockchain, Account, BlockchainNode  } from '../../models';
+import { Blockchain, Account, BlockchainNode  } from '/models';
 
 export const UPDATE_RESOLVER_SETTINGS = '[Settings] Update resolvers settings';
 export const UPDATE_DEV_MODE = '[Settings] Update dev mode';

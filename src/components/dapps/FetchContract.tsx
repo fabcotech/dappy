@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import { MAIN_CHAIN_ID, VERSION } from '../../CONSTANTS';
+import { MAIN_CHAIN_ID, VERSION } from '/CONSTANTS';
 import './FetchContract.scss';
-import * as fromSettings from '../../store/settings';
-import * as fromUi from '../../store/ui';
-import { Blockchain, NavigationUrl } from '../../models';
+import * as fromSettings from '/store/settings';
+import * as fromUi from '/store/ui';
+import { Blockchain, NavigationUrl } from '/models';
 
 import { NavigationBarHome } from '../dapp/';
 

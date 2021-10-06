@@ -1,15 +1,15 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import * as fromMain from '../../store/main';
-import * as fromUi from '../../store/ui';
-import * as fromSettings from '../../store/settings';
-import * as fromDapps from '../../store/dapps';
-import * as fromCommon from '../../common';
+import * as fromMain from '/store/main';
+import * as fromUi from '/store/ui';
+import * as fromSettings from '/store/settings';
+import * as fromDapps from '/store/dapps';
+import * as fromCommon from '/common';
 import { IdentificationForm } from '.';
 
 import './IdentificationModal.scss';
-import { Account, Identification } from '../../models';
+import { Account, Identification } from '/models';
 
 interface IdentificationModalComponentProps {
   modal: undefined | fromMain.Modal;

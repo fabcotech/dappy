@@ -1,11 +1,12 @@
 import url from 'url';
 import { put, takeEvery, select } from 'redux-saga/effects';
 
+import { Session } from '/models';
+
 import * as fromHistory from '..';
-import * as fromMain from '../../main';
-import * as fromDapps from '../../dapps';
-import { Action } from '../../';
-import { Session } from '../../../models';
+import * as fromMain from '/store/main';
+import * as fromDapps from '/store/dapps';
+import { Action } from '/store';
 
 const goBackward = function* (action: Action) {
   const payload: fromHistory.GoBackwardPayload = action.payload;

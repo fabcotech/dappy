@@ -2,7 +2,7 @@ import { createSelector } from 'reselect';
 
 import * as fromActions from './actions';
 import { Action } from '../';
-import { NavigationUrl, Language } from '../../models';
+import { NavigationUrl, Language } from '/models';
 
 export interface State {
   gcu: undefined | string;

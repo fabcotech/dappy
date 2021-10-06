@@ -3,15 +3,15 @@ import { readPursesTerm, readConfigTerm } from 'rchain-token';
 import * as rchainToolkit from 'rchain-toolkit';
 import Ajv from 'ajv';
 
-import * as fromBlockchain from '../../../store/blockchain';
-import { Blockchain, MultiCallResult, RChainInfos, Account } from '../../../models';
-import { multiCall } from '../../../utils/wsUtils';
-import { feePermillage, toDuration, toDurationString } from '../../../utils/unit';
-import { getNodeIndex } from '../../../utils/getNodeIndex';
-import { rchainTokenValidators } from '../../../store/decoders';
+import * as fromBlockchain from '/store/blockchain';
+import { Blockchain, MultiCallResult, RChainInfos, Account } from '/models';
+import { multiCall } from '/utils/wsUtils';
+import { feePermillage, toDuration, toDurationString } from '/utils/unit';
+import { getNodeIndex } from '/utils/getNodeIndex';
+import { rchainTokenValidators } from '/store/decoders';
 import { toRGB } from '../ViewBox';
 import { ViewPurse } from './ViewPurse';
-import { ContractConfig, Fee } from '../../../models';
+import { ContractConfig, Fee } from '/models';
 
 import './ViewContracts.scss';
 
@@ -32,7 +32,7 @@ interface ViewContractsState {
   purses: any;
   refreshing: boolean;
   error?: string;
-  contractConfig: ContractConfig;
+  contractConfig?: ContractConfig;
 }
 
 export class ViewContractsComponent extends React.Component<ViewContractsProps, ViewContractsState> {

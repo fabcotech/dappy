@@ -3,13 +3,13 @@ import xs, { Stream } from 'xstream';
 import throttle from 'xstream/extra/throttle';
 import debounce from 'xstream/extra/debounce';
 
-import { blockchain as blockchainUtils } from '../../utils';
-import { validateSearch } from '../../utils/validateSearch';
-import { searchToAddress } from '../../utils/searchToAddress';
-import * as fromDapps from '../../store/dapps';
+import { blockchain as blockchainUtils } from '/utils';
+import { validateSearch } from '/utils/validateSearch';
+import { searchToAddress } from '/utils/searchToAddress';
+import * as fromDapps from '/store/dapps';
 import './ReactAutoSuggest';
 import './NavigationBar.scss';
-import { TransitoryState, Tab, Preview, IPServer, LoadCompletedData, SessionItem } from '../../models';
+import { TransitoryState, Tab, Preview, IPServer, LoadCompletedData, SessionItem } from '/models';
 import { DappImage } from '../utils';
 
 interface Sugg {

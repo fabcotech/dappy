@@ -7,10 +7,10 @@ import * as rchainToolkit from 'rchain-toolkit';
 
 const ec = new elliptic.ec('secp256k1');
 
-import { Account } from '../../models';
-import { account as accountUtils } from '../../utils';
+import { Account } from '/models';
+import { account as accountUtils } from '/utils';
 import './TransactionForm.scss';
-import { DEFAULT_PHLO_LIMIT } from '../../CONSTANTS';
+import { DEFAULT_PHLO_LIMIT } from '/CONSTANTS';
 import { PrivateKeyWarning } from '.';
 
 // Account selection

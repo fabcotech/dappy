@@ -2,11 +2,11 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 
 import './LoadInfo.scss';
-import { Blockchain, IPServer, LoadCompletedData } from '../../models';
-import * as fromMain from '../../store/main';
-import * as fromDapps from '../../store/dapps';
-import * as fromSettings from '../../store/settings';
-import { searchToAddress } from '../../utils/searchToAddress';
+import { Blockchain, IPServer, LoadCompletedData } from '/models';
+import * as fromMain from '/store/main';
+import * as fromDapps from '/store/dapps';
+import * as fromSettings from '/store/settings';
+import { searchToAddress } from '/utils/searchToAddress';
 import { BadgeAppreciation } from '../utils/BadgeAppreciation';
 
 interface LoadInfoComponentProps {
@@ -14,7 +14,7 @@ interface LoadInfoComponentProps {
   servers: IPServer[] | undefined;
   tabId: string;
   address: string | undefined;
-  namesBlockchain: undefined | Blockchain;
+  namesBlockchain: undefined | Blockchain;
   loadState: undefined | LoadCompletedData;
   badges: { [name: string]: string };
   resourceId: string;

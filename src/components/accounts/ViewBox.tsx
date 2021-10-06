@@ -3,12 +3,12 @@ import { readBoxTerm } from 'rchain-token';
 import * as rchainToolkit from 'rchain-toolkit';
 import Ajv from 'ajv';
 
-import * as fromBlockchain from '../../store/blockchain';
-import { Blockchain, MultiCallResult, RChainInfos, Account } from '../../models';
-import { multiCall } from '../../utils/wsUtils';
-import { DAPPY_TOKEN_CONTRACT_ID, RCHAIN_TOKEN_SUPPORTED_VERSIONS } from '../../CONSTANTS';
-import { getNodeIndex } from '../../utils/getNodeIndex';
-import { rchainTokenValidators } from '../../store/decoders';
+import * as fromBlockchain from '/store/blockchain';
+import { Blockchain, MultiCallResult, RChainInfos, Account } from '/models';
+import { multiCall } from '/utils/wsUtils';
+import { DAPPY_TOKEN_CONTRACT_ID, RCHAIN_TOKEN_SUPPORTED_VERSIONS } from '/CONSTANTS';
+import { getNodeIndex } from '/utils/getNodeIndex';
+import { rchainTokenValidators } from '/store/decoders';
 import { ViewContracts } from './ViewContracts';
 import './ViewBox.scss';
 import { AccountPassword } from './AccountPassword';

@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { Preview } from '../../models';
+import { Preview } from '/models';
 
 export const PreviewSchema = yup
   .object()

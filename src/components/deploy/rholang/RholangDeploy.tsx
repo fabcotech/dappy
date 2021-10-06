@@ -2,16 +2,16 @@ import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { rhoValToJs } from 'rchain-toolkit/dist/utils';
 
-import { buildUnforgeableDeployQuery } from '../../../utils/buildUnforgeableDeployQuery';
-import { buildUnforgeableNameQuery } from '../../../utils/buildUnforgeableNameQuery';
-import { multiCall } from '../../../utils/wsUtils';
-import { Account, Blockchain, RChainInfos, TransactionState, TransactionStatus, MultiCallError } from '../../../models';
-import * as fromBlockchain from '../../../store/blockchain';
-import * as fromMain from '../../../store/main';
-import * as fromSettings from '../../../store/settings';
+import { buildUnforgeableDeployQuery } from '/utils/buildUnforgeableDeployQuery';
+import { buildUnforgeableNameQuery } from '/utils/buildUnforgeableNameQuery';
+import { multiCall } from '/utils/wsUtils';
+import { Account, Blockchain, RChainInfos, TransactionState, TransactionStatus, MultiCallError } from '/models';
+import * as fromBlockchain from '/store/blockchain';
+import * as fromMain from '/store/main';
+import * as fromSettings from '/store/settings';
 import { TransactionForm } from '../../utils';
-import { blockchain as blockchainUtils } from '../../../utils';
-import { getNodeIndex } from '../../../utils/getNodeIndex';
+import { blockchain as blockchainUtils } from '/utils';
+import { getNodeIndex } from '/utils/getNodeIndex';
 import './RholangDeploy.scss';
 
 const defaultRholang = `new stdout(\`rho:io:stdout\`), deployId(\`rho:rchain:deployId\`) in {\n  stdout!("bonjour !")|\n  deployId!("bonjour !")\n}`;

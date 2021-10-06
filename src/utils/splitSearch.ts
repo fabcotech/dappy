@@ -1,4 +1,4 @@
-import { SplitSearch } from '../models';
+import { SplitSearch } from '/models';
 
 export const splitSearch = (address: string): SplitSearch => {
   const split = address.split(':');

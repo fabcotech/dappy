@@ -1,5 +1,5 @@
 import * as yup from 'yup';
-import { TransactionState } from '../../models';
+import { TransactionState } from '/models';
 
 // todo have the origin validation working ?
 export const transactionOriginSchemas = yup.mixed().oneOf([
