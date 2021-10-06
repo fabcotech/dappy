@@ -6,7 +6,7 @@ import Ajv from 'ajv';
 import * as fromBlockchain from '../../../store/blockchain';
 import { Blockchain, MultiCallResult, RChainInfos, Account } from '../../../models';
 import { multiCall } from '../../../utils/wsUtils';
-import { feePermillage, toDurationString } from '../../../utils/unit';
+import { feePermillage, toDuration, toDurationString } from '../../../utils/unit';
 import { getNodeIndex } from '../../../utils/getNodeIndex';
 import { rchainTokenValidators } from '../../../store/decoders';
 import { toRGB } from '../ViewBox';
@@ -191,7 +191,7 @@ export class ViewContractsComponent extends React.Component<ViewContractsProps, 
           {this.state.contractConfig && this.state.contractConfig.expires && (
             <span className="ml-2">
               <i className="fa fa-clock mx-1"></i>
-              {t('expires')}: {toDurationString(this.state.contractConfig.expires)}
+              {t('expires in')} {toDurationString(t, toDuration(this.state.contractConfig.expires))}
             </span>
           )}
           {this.state.contractConfig && this.state.contractConfig.fee && (
