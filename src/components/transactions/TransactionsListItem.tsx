@@ -7,8 +7,8 @@ import {
   TransactionOriginRecord,
   Blockchain,
   TransactionStatus,
-  RChainTokenDeploy,
-  RChainTokenDeployBox,
+  RChainTokenDeployPayload,
+  RChainTokenDeployBoxPayload,
 } from '../../models';
 
 interface TransactionListItemProps {
@@ -42,7 +42,7 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
     props.transactionState.value &&
     props.transactionState.value.hasOwnProperty('boxId')
   ) {
-    const value: RChainTokenDeployBox = props.transactionState.value as RChainTokenDeployBox;
+    const value: RChainTokenDeployBoxPayload = props.transactionState.value as RChainTokenDeployBoxPayload;
     Value = (
       <span>
         {`Box address is ${value.boxId} `}
@@ -60,7 +60,7 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
     props.transactionState.value.hasOwnProperty('contractId')
   ) {
     console.log(props.transactionState);
-    const value: RChainTokenDeploy = props.transactionState.value as RChainTokenDeploy;
+    const value: RChainTokenDeployPayload = props.transactionState.value as RChainTokenDeployPayload;
     Value = (
       <span>
         {`Contract address is ${value.masterRegistryUri}.${value.contractId} `}

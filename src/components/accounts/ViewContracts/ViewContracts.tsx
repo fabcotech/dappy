@@ -3,19 +3,21 @@ import { readPursesTerm, readConfigTerm } from 'rchain-token';
 import * as rchainToolkit from 'rchain-toolkit';
 import Ajv from 'ajv';
 
-import * as fromBlockchain from '../../store/blockchain';
-import { Blockchain, MultiCallResult, RChainInfos, Account } from '../../models';
-import { multiCall } from '../../utils/wsUtils';
-import { getNodeIndex } from '../../utils/getNodeIndex';
-import { rchainTokenValidators } from '../../store/decoders';
-import { toRGB } from './ViewBox';
+import * as fromBlockchain from '../../../store/blockchain';
+import { Blockchain, MultiCallResult, RChainInfos, Account } from '../../../models';
+import { multiCall } from '../../../utils/wsUtils';
+import { feePermillage, toDurationString } from '../../../utils/unit';
+import { getNodeIndex } from '../../../utils/getNodeIndex';
+import { rchainTokenValidators } from '../../../store/decoders';
+import { toRGB } from '../ViewBox';
 import { ViewPurse } from './ViewPurse';
+import { ContractConfig, Fee } from '../../../models';
 
-import './ViewPurses.scss';
+import './ViewContracts.scss';
 
 const ajv = new Ajv();
 
-interface ViewPursesProps {
+interface ViewContractsProps {
   namesBlockchain: Blockchain | undefined;
   contractId: string;
   rchainInfos: RChainInfos;
@@ -25,21 +27,18 @@ interface ViewPursesProps {
   account: Account;
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
 }
-interface ViewPursesState {
-  fungible: boolean | undefined;
-  contractName: undefined | string;
+interface ViewContractsState {
+  fungible?: boolean;
   purses: any;
   refreshing: boolean;
-  error: undefined | string;
+  error?: string;
+  contractConfig: ContractConfig;
 }
 
-export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPursesState> {
-  constructor(props: ViewPursesProps) {
+export class ViewContractsComponent extends React.Component<ViewContractsProps, ViewContractsState> {
+  constructor(props: ViewContractsProps) {
     super(props);
     this.state = {
-      fungible: undefined,
-      contractName: undefined,
-      error: undefined,
       purses: {},
       refreshing: false,
     };
@@ -106,9 +105,11 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
     try {
       const dataFromBlockchain = (multiCallResult as MultiCallResult).result.data;
       const dataFromBlockchainParsed: { data: { results: { data: string }[] } } = JSON.parse(dataFromBlockchain);
-      const values = rchainToolkit.utils.rhoValToJs(JSON.parse(dataFromBlockchainParsed.data.results[1].data).expr[0]);
-      const fungible = values.fungible;
-      const contractName = values.name;
+      const contractConfig = rchainToolkit.utils.rhoValToJs(
+        JSON.parse(dataFromBlockchainParsed.data.results[1].data).expr[0]
+      ) as ContractConfig;
+      const fungible = contractConfig.fungible;
+
       if (fungible !== true && fungible !== false) {
         this.setState({
           refreshing: false,
@@ -135,7 +136,9 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
         refreshing: false,
         purses: val,
         fungible: fungible,
-        contractName: contractName,
+        contractConfig,
+        //        contractExpiration: contractConfig.expires,
+        // contractFee: contractConfig.fee,
       });
     } catch (err) {
       console.log(err);
@@ -156,7 +159,6 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
     }
     return (
       <Fragment>
-        <div className="view-purses-contract-name">{this.state.contractName}</div>
         <div className="address-and-copy fc">
           <span className="address">
             {t('contract') + ' '}
@@ -178,6 +180,26 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
             <i className="fa fa-copy fa-before"></i>
             {t('copy contract address')}
           </a>
+        </div>
+        <div className="mb-2">
+          {this.state.contractConfig && (
+            <span className={`${this.state.contractConfig.locked ? 'has-text-success' : 'has-text-danger'}`}>
+              <i className={`mr-1 fa fa-${this.state.contractConfig.locked ? 'lock' : 'lock-open'}`}></i>
+              {t(this.state.contractConfig.locked ? 'locked' : 'unlocked')}
+            </span>
+          )}
+          {this.state.contractConfig && this.state.contractConfig.expires && (
+            <span className="ml-2">
+              <i className="fa fa-clock mx-1"></i>
+              {t('expires')}: {toDurationString(this.state.contractConfig.expires)}
+            </span>
+          )}
+          {this.state.contractConfig && this.state.contractConfig.fee && (
+            <span className="ml-2">
+              <i className="fa fa-money-bill-wave mr-1"></i>
+              {t('fee')}: {feePermillage(this.state.contractConfig.fee)}
+            </span>
+          )}
         </div>
         {this.props.pursesIds.length > 100 && (
           <div className="x-by-100-purses">Purses 100 / {this.props.pursesIds.length}</div>
@@ -210,4 +232,4 @@ export class ViewPursesComponent extends React.Component<ViewPursesProps, ViewPu
   }
 }
 
-export const ViewPurses = ViewPursesComponent;
+export const ViewContracts = ViewContractsComponent;

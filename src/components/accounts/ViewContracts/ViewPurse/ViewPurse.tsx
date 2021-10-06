@@ -1,37 +1,39 @@
 import React, { Fragment } from 'react';
-
-import * as fromBlockchain from '../../store/blockchain';
 import { updatePursePriceTerm, withdrawTerm } from 'rchain-token';
-import { RChainTokenPurse, Account, RChainInfos } from '../../models';
-import { formatAmountNoDecimal, formatAmount } from '../../utils/formatAmount';
-import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '../../CONSTANTS';
-import { blockchain as blockchainUtils } from '../../utils/blockchain';
-import { createSocialCanvas, images, mascots } from '../../utils/createSocialCanvas';
+
+import * as fromBlockchain from '../../../../store/blockchain';
+import { RChainTokenPurse, Account, RChainInfos } from '../../../../models';
+import { formatAmountNoDecimal, formatAmount } from '../../../../utils/formatAmount';
+import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '../../../../CONSTANTS';
+import { blockchain as blockchainUtils } from '../../../../utils/blockchain';
+import { createSocialCanvas, images, mascots } from '../../../../utils/createSocialCanvas';
 
 import './ViewPurse.scss';
 
-interface ViewPursesProps {
-  fungible: undefined | boolean;
+interface ViewPurseProps {
+  fungible?: boolean;
   id: string;
   contractId: string;
-  privateKey: undefined | string;
+  privateKey?: string;
   rchainInfos: RChainInfos;
   account: Account;
-  purse: undefined | RChainTokenPurse;
+  purse?: RChainTokenPurse;
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
 }
 
-export class ViewPurseComponent extends React.Component<ViewPursesProps, ViewPursesState> {
-  constructor(props: ViewPursesProps) {
+interface ViewPurseState {
+  action?: string;
+  newPrice?: number;
+  image?: string;
+  mascot?: string;
+  boxWithdraw?: string;
+  quantityWithdraw?: number;
+}
+
+export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurseState> {
+  constructor(props: ViewPurseProps) {
     super(props);
-    this.state = {
-      action: undefined,
-      newPrice: undefined,
-      image: undefined,
-      mascot: undefined,
-      boxWithdraw: undefined,
-      quantityWithdraw: undefined,
-    };
+    this.state = {};
   }
 
   render() {

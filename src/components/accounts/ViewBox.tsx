@@ -9,7 +9,7 @@ import { multiCall } from '../../utils/wsUtils';
 import { DAPPY_TOKEN_CONTRACT_ID, RCHAIN_TOKEN_SUPPORTED_VERSIONS } from '../../CONSTANTS';
 import { getNodeIndex } from '../../utils/getNodeIndex';
 import { rchainTokenValidators } from '../../store/decoders';
-import { ViewPurses } from './ViewPurses';
+import { ViewContracts } from './ViewContracts';
 import './ViewBox.scss';
 import { AccountPassword } from './AccountPassword';
 
@@ -224,7 +224,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
           {Object.keys(this.state.readBox.purses).map((k) => {
             return (
               <div className={`view-box ${k === DAPPY_TOKEN_CONTRACT_ID ? 'special' : ''}`} key={k}>
-                <ViewPurses
+                <ViewContracts
                   version={this.state.readBox.version}
                   namesBlockchain={this.props.namesBlockchain}
                   rchainInfos={this.props.rchainInfos}
@@ -232,7 +232,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
                   account={this.props.account}
                   privateKey={this.state.privateKey}
                   pursesIds={this.state.readBox.purses[k]}
-                  sendRChainTransaction={this.props.sendRChainTransaction}></ViewPurses>
+                  sendRChainTransaction={this.props.sendRChainTransaction}></ViewContracts>
               </div>
             );
           })}

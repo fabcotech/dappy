@@ -17,7 +17,7 @@
     "electron-builder:dist:linux:rpm": "electron-builder -c build.yml --x64 --publish never --linux rpm",
     "electron-builder:dist:windows:64": "electron-builder -c build.yml --x64 --publish never --win nsis",
     "electron-builder:dist:windows:32": "electron-builder -c build.yml --ia32 --publish never --win nsis",
-    "electron-builder:dist:mac": "electron-builder -c build.yml --publish never --mac"
+    "electron-builder:dist:mac": "electron-builder -c build.yml --publish never --mac",
   },
   "jest": {
     "moduleFileExtensions": [

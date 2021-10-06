@@ -15,3 +15,4 @@ export * from './History';
 export * from './IpApp';
 export * from './Language';
 export * from './Cookie';
+export * from './RChainToken';
