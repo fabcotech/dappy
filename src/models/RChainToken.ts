@@ -17,12 +17,18 @@ export interface RChainTokenDeployBoxPayload {
 
 export type Fee = [string, number];
 
-export interface ContractConfig {
+export interface RChainContractConfig {
   fee?: Fee;
-  expires: number;
-  contractId: number;
+  expires?: number;
+  contractId: string;
   counter: number;
   fungible: boolean;
   locked: boolean;
   version: string;
+}
+
+export interface RChainTokenPurse {
+  quantity: number;
+  price: undefined | number;
+  id: string;
 }

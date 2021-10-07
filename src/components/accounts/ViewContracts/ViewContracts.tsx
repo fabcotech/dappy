@@ -1,38 +1,75 @@
 import React, { Fragment } from 'react';
+import { connect } from 'react-redux';
 import { readPursesTerm, readConfigTerm } from 'rchain-token';
 import * as rchainToolkit from 'rchain-toolkit';
-import Ajv from 'ajv';
 
 import * as fromBlockchain from '/store/blockchain';
-import { Blockchain, MultiCallResult, RChainInfos, Account } from '/models';
-import { multiCall } from '/utils/wsUtils';
+import { Blockchain, RChainInfos, Account, RChainContractConfig, RChainTokenPurse } from '/models';
+import { multiCallParseAndValidate, RequestResult } from '/utils/wsUtils';
 import { feePermillage, toDuration, toDurationString } from '/utils/unit';
 import { getNodeIndex } from '/utils/getNodeIndex';
-import { rchainTokenValidators } from '/store/decoders';
+import { rchainTokenValidators, validate, ValidationError } from '/store/decoders';
+
 import { toRGB } from '../ViewBox';
 import { ViewPurse } from './ViewPurse';
-import { ContractConfig, Fee } from '/models';
 
 import './ViewContracts.scss';
 
-const ajv = new Ajv();
+const parseRhoValToJs = (r: { data: string }) => rchainToolkit.utils.rhoValToJs(JSON.parse(r.data).expr[0]);
+
+async function getPursesAndContractConfig({
+  blockchain,
+  pursesIds,
+  masterRegistryUri,
+  contractId,
+  version
+}: {
+  blockchain: Blockchain,
+  pursesIds: string[],
+  masterRegistryUri: string,
+  contractId: string,
+  version: string
+}): Promise<[RequestResult<RChainTokenPurse>, RequestResult<RChainContractConfig>]> {
+  const indexes = blockchain.nodes.filter((n) => n.readyState === 1).map(getNodeIndex);
+
+  return multiCallParseAndValidate([
+    { 
+      execute: () => readPursesTerm({masterRegistryUri, contractId, pursesIds}), 
+      parse: parseRhoValToJs, 
+      validate: validate(rchainTokenValidators[version].purses)
+    },
+    { 
+      execute: () => readConfigTerm({masterRegistryUri, contractId}), 
+      parse: parseRhoValToJs, 
+      validate: validate(rchainTokenValidators[version].contractConfig)
+    }
+  ],
+  {
+    chainId: blockchain.chainId,
+    urls: indexes,
+    resolverMode: 'absolute',
+    resolverAccuracy: 100,
+    resolverAbsolute: indexes.length,
+    multiCallId: fromBlockchain.EXPLORE_DEPLOY_X,
+  }) as Promise<[RequestResult<RChainTokenPurse>, RequestResult<RChainContractConfig>]>;
+}
 
 interface ViewContractsProps {
-  namesBlockchain: Blockchain | undefined;
+  namesBlockchain?: Blockchain;
   contractId: string;
   rchainInfos: RChainInfos;
   pursesIds: string[];
   version: string;
-  privateKey: undefined | string;
+  privateKey?: string;
   account: Account;
+  getPursesAndContractConfig: typeof getPursesAndContractConfig;
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
 }
 interface ViewContractsState {
-  fungible?: boolean;
   purses: any;
   refreshing: boolean;
   error?: string;
-  contractConfig?: ContractConfig;
+  contractConfig?: RChainContractConfig;
 }
 
 export class ViewContractsComponent extends React.Component<ViewContractsProps, ViewContractsState> {
@@ -48,17 +85,24 @@ export class ViewContractsComponent extends React.Component<ViewContractsProps, 
     this.refresh();
   }
 
+  displayValidationErrors(errors: { dataPath: string; message: string }[]) {
+    this.setState({
+      refreshing: false,
+      error: errors.map((e) => `body${e.dataPath} ${e.message}`).join(', '),
+    });
+  }
+
   refresh = async () => {
     if (this.state.refreshing) {
       return;
     }
+
     this.setState({
-      fungible: undefined,
       error: undefined,
       purses: {},
       refreshing: true,
     });
-    let multiCallResult;
+
     if (!this.props.namesBlockchain) {
       this.setState({
         refreshing: false,
@@ -66,87 +110,29 @@ export class ViewContractsComponent extends React.Component<ViewContractsProps, 
       });
       return;
     }
-    try {
-      const indexes = this.props.namesBlockchain.nodes.filter((n) => n.readyState === 1).map(getNodeIndex);
-      multiCallResult = await multiCall(
-        {
-          type: 'explore-deploy-x',
-          body: {
-            terms: [
-              readPursesTerm({
-                masterRegistryUri: this.props.rchainInfos.info.rchainNamesMasterRegistryUri,
-                contractId: this.props.contractId,
-                pursesIds: this.props.pursesIds.slice(0, 100),
-              }),
-              readConfigTerm({
-                masterRegistryUri: this.props.rchainInfos.info.rchainNamesMasterRegistryUri,
-                contractId: this.props.contractId,
-              }),
-            ],
-          },
-        },
-        {
-          chainId: this.props.namesBlockchain.chainId,
-          urls: indexes,
-          resolverMode: 'absolute',
-          resolverAccuracy: 100,
-          resolverAbsolute: indexes.length,
-          multiCallId: fromBlockchain.EXPLORE_DEPLOY_X,
-        }
-      );
-    } catch (err) {
-      this.setState({
-        refreshing: false,
-        error: err.error.error,
-      });
+
+    const [pursesRequest, contractConfigRequest] = await this.props.getPursesAndContractConfig({
+      blockchain: this.props.namesBlockchain,
+      pursesIds: this.props.pursesIds.slice(0, 100),
+      masterRegistryUri: this.props.rchainInfos.info.rchainNamesMasterRegistryUri,
+      contractId: this.props.contractId,
+      version: this.props.version
+    });
+
+    const validationErrors = [pursesRequest.validationErrors, contractConfigRequest.validationErrors]
+      .filter((v) => !!v)
+      .flatMap((e) => e) as ValidationError[];
+
+    if (validationErrors.length) {
+      this.displayValidationErrors(validationErrors);
       return;
     }
 
-    try {
-      const dataFromBlockchain = (multiCallResult as MultiCallResult).result.data;
-      const dataFromBlockchainParsed: { data: { results: { data: string }[] } } = JSON.parse(dataFromBlockchain);
-      const contractConfig = rchainToolkit.utils.rhoValToJs(
-        JSON.parse(dataFromBlockchainParsed.data.results[1].data).expr[0]
-      ) as ContractConfig;
-      const fungible = contractConfig.fungible;
-
-      if (fungible !== true && fungible !== false) {
-        this.setState({
-          refreshing: false,
-          error: 'Could not get fungible property of the contract',
-        });
-        return;
-      }
-      let val = {};
-      try {
-        val = rchainToolkit.utils.rhoValToJs(JSON.parse(dataFromBlockchainParsed.data.results[0].data).expr[0]);
-      } catch (err) {}
-      const validate = ajv.compile(rchainTokenValidators[this.props.version].purses);
-      const valid = validate(Object.values(val));
-      if (!valid) {
-        this.setState({
-          refreshing: false,
-          error: (validate.errors as { dataPath: string; message: string }[])
-            .map((e) => `body${e.dataPath} ${e.message}`)
-            .join(', '),
-        });
-        return;
-      }
-      this.setState({
-        refreshing: false,
-        purses: val,
-        fungible: fungible,
-        contractConfig,
-        //        contractExpiration: contractConfig.expires,
-        // contractFee: contractConfig.fee,
-      });
-    } catch (err) {
-      console.log(err);
-      this.setState({
-        refreshing: false,
-        error: 'Could not validate response, contrat: ' + this.props.contractId,
-      });
-    }
+    this.setState({
+      refreshing: false,
+      purses: pursesRequest.result,
+      contractConfig: contractConfigRequest.result,
+    });
   };
 
   render() {
@@ -162,12 +148,12 @@ export class ViewContractsComponent extends React.Component<ViewContractsProps, 
         <div className="address-and-copy fc">
           <span className="address">
             {t('contract') + ' '}
-            {this.state.fungible === true && (
+            {this.state.contractConfig?.fungible && (
               <span title="Contract for fungible tokens" className="tag is-light">
                 FT
               </span>
             )}
-            {this.state.fungible === false && (
+            {!this.state.contractConfig?.fungible && (
               <span title="Contract for non-fungible tokens" className="tag is-light">
                 NFT
               </span>
@@ -185,19 +171,19 @@ export class ViewContractsComponent extends React.Component<ViewContractsProps, 
           {this.state.contractConfig && (
             <span className={`${this.state.contractConfig.locked ? 'has-text-success' : 'has-text-danger'}`}>
               <i className={`mr-1 fa fa-${this.state.contractConfig.locked ? 'lock' : 'lock-open'}`}></i>
-              {t(this.state.contractConfig.locked ? 'locked' : 'unlocked')}
+              {t(this.state.contractConfig.locked ? 'locked' : 'not locked')}
             </span>
           )}
           {this.state.contractConfig && this.state.contractConfig.expires && (
             <span className="ml-2">
               <i className="fa fa-clock mx-1"></i>
-              {t('expires in')} {toDurationString(t, toDuration(this.state.contractConfig.expires))}
+              {t('duration')}: {toDurationString(t, toDuration(this.state.contractConfig.expires))}
             </span>
           )}
           {this.state.contractConfig && this.state.contractConfig.fee && (
             <span className="ml-2">
               <i className="fa fa-money-bill-wave mr-1"></i>
-              {t('fee')} {(t('(ratio)'))}: {feePermillage(this.state.contractConfig.fee)}
+              {t('fee')} {t('(ratio)')}: {feePermillage(this.state.contractConfig.fee)}
             </span>
           )}
         </div>
@@ -218,7 +204,7 @@ export class ViewContractsComponent extends React.Component<ViewContractsProps, 
                 key={id}
                 id={id}
                 contractId={this.props.contractId}
-                fungible={this.state.fungible}
+                fungible={this.state.contractConfig?.fungible}
                 privateKey={this.props.privateKey}
                 purse={this.state.purses[id]}
                 sendRChainTransaction={this.props.sendRChainTransaction}
@@ -232,4 +218,6 @@ export class ViewContractsComponent extends React.Component<ViewContractsProps, 
   }
 }
 
-export const ViewContracts = ViewContractsComponent;
+export const ViewContracts = connect(null, () => ({
+  getPursesAndContractConfig,
+}))(ViewContractsComponent);

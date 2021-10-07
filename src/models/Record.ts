@@ -1,11 +1,5 @@
 import { BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
 
-export interface RChainTokenPurse {
-  quantity: number;
-  price: undefined | number;
-  id: string;
-  box: string;
-}
 
 export interface RecordFromNetwork {
   name: string;
