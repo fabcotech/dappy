@@ -16,7 +16,7 @@ class NavigationBarHomeComponent extends WithSuggestions {
 
     return (
       <div className={`navigation-bar ${'active'}`}>
-        <div className="actions actions-4">
+        <div className="actions pl-1 pr-1 actions-4">
           <div className="disabled">
             <i className="fa fa-arrow-left" />
           </div>
@@ -31,7 +31,7 @@ class NavigationBarHomeComponent extends WithSuggestions {
           </div>
         </div>
 
-        <div className="form">
+        <div className="form pl-1 pr-2">
           <span className="lock-div">
             <i className="fa fa-lock" />
           </span>

@@ -107,7 +107,6 @@ export class WithSuggestionsComponent extends React.Component<
       Component has just been created
     */
     if (nextProps.tab && typeof prevState.search === 'undefined') {
-      console.log(1);
       return {
         search: nextProps.tab.address,
         currentCounter: nextProps.tab.counter,
@@ -119,7 +118,6 @@ export class WithSuggestionsComponent extends React.Component<
         Tab has been focused
       */
     } else if (nextProps.tab && nextProps.tab.counter > prevState.currentCounter) {
-      console.log(2);
       return {
         search: nextProps.tab.address,
         currentCounter: nextProps.tab.counter,
@@ -144,7 +142,6 @@ export class WithSuggestionsComponent extends React.Component<
         nextProps.sessionItem !== prevState.currentSessionItem &&
         nextProps.tab
       ) {
-        console.log(3);
         if (nextProps.sessionItem.address !== search) {
           search = nextProps.sessionItem.address;
         }
@@ -238,7 +235,6 @@ export class WithSuggestionsComponent extends React.Component<
     if (this.inputEl) {
       return;
     }
-    console.log('this.inputEl', e);
     this.inputEl = e;
   };
 }

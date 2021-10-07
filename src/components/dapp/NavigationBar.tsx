@@ -40,8 +40,8 @@ class NavigationBarComponent extends WithSuggestions {
     const loadingOrReloading =
       this.props.transitoryState && ['loading', 'reloading'].includes(this.props.transitoryState);
     return (
-      <div id={tab.id} className={`navigation-bar ${'active'}`}>
-        <div className="actions actions-4">
+      <div style={{ zIndex: this.props.zIndex }} id={tab.id} className={`navigation-bar ${'active'}`}>
+        <div className="actions pl-1 pr-1 actions-4">
           <div>
             {this.props.canGoBackward ? (
               <i onClick={(e) => this.props.goBackward(tab.id)} className="fa fa-arrow-left " title="Go backward" />
@@ -85,10 +85,10 @@ class NavigationBarComponent extends WithSuggestions {
           )}
         </div>
 
-        <div className={`form ${this.props.resourceLoaded ? 'with-app-type' : ''}`}>
+        <div className={`form pl-1 pr-2 ${this.props.resourceLoaded ? 'with-app-type' : ''}`}>
           {this.props.resourceLoaded ? (
             <div
-              className={`lock-div with-type resource-loaded`}
+              className={`lock-div mr-1 with-type resource-loaded`}
               onClick={() => {
                 if (this.props.tab) {
                   this.onShowLoadInfo();
@@ -110,7 +110,7 @@ class NavigationBarComponent extends WithSuggestions {
             className={`${this.state.pristine ? 'pristine' : ''} input`}
             value={this.state.search || ''}
             onChange={this.onChange}
-            onKeyDown={(a) => this.onKeyDown(a, false)}></input>
+            onKeyDown={this.onKeyDown}></input>
           <div
             className={`fc tip-div ${
               this.props.resourceLoaded && this.props.publicKey && this.props.chainId && this.props.resourceId

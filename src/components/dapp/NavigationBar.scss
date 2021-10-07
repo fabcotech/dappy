@@ -1,14 +1,12 @@
 @import "../../style/variables.scss";
 
 .navigation-bar {
-  background: $background;
+  background-color: #fafafa;
   display: grid;
-  grid-template-columns: 160px calc(100% - 160px);
+  grid-template-columns: 10rem calc(100% - 10rem);
   grid-template-rows: 100%;
   border-bottom: 1px solid $background-dark;
   .actions {
-    padding-left: 5px;
-    padding-right: 5px;
     display: grid;
     &.actions-4 {
       grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -53,7 +51,7 @@
   &.active {
     .form {
       input {
-        border-radius: 4px;
+        border-radius: 0.25rem;
         box-shadow: none;
         &:focus {
           box-shadow: none;
@@ -67,21 +65,18 @@
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    padding-left: 5px;
-    padding-right: 10px;
     position: relative;
     .lock-div {
-      width: 45px;
-      height: 60px;
+      width: 4rem;
+      height: 3rem;
     }
     &.with-app-type {
       .lock-div {
-        width: 58px;
-        margin-right: 4px;
-        border-radius: 3px;
+        width: 5rem;
+        border-radius: 0.25rem;
       }
       .tip-div {
-        width: 38px;
+        width: 2.5rem;
         i {
           cursor: default;
           color: #888;
@@ -109,7 +104,7 @@
       justify-content: space-evenly;
       border-color: rgba($primary, 0.4);
       .app-type {
-        border-radius: 2px;
+        border-radius: 0.25rem;
         min-width: 18px;
         font-weight: 600;
         color: #777;
@@ -126,12 +121,12 @@
       cursor: default;
     }
     input {
-      background: transparent;
+      background: #fafafa;
       border: 1px solid #eee;
       font-weight: 500;
       color: #444;
       &.pristine {
-        background: transparent;
+        background: #fafafa;
         color: #555;
         border: 1px solid #eee;
       }

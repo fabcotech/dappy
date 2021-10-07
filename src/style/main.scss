@@ -106,6 +106,9 @@ a.underlined-link {
 .message-body {
   padding: 1em;
 }
+.message.is-primary .message-body {
+  color: #4a4a4a;
+}
 
 .rchain20 {
   width: 20px;
