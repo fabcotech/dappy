@@ -1,11 +1,10 @@
 import * as React from 'react';
-import Autosuggest from 'react-autosuggest';
 import { connect } from 'react-redux';
 import { utils } from 'rchain-toolkit';
 
 import { blockchain as blockchainUtils } from '/utils/';
 import { searchToAddress } from '/utils/searchToAddress';
-import { getSuggestionValue, renderSuggestion, WithSuggestions } from './WithSuggestions';
+import { WithSuggestions } from './WithSuggestions';
 import * as fromDapps from '/store/dapps';
 import * as fromCommon from '/common';
 import * as fromBlockchain from '/store/blockchain';
@@ -17,12 +16,6 @@ import { Tab, LoadCompletedData } from '/models';
 import './NavigationBar.scss';
 
 class NavigationBarComponent extends WithSuggestions {
-  componentDidMount() {
-    if (this.el && this.props.zIndex) {
-      this.el.style.zIndex = this.props.zIndex.toString();
-    }
-  }
-
   onShowLoadInfo = () => {
     if (!this.props.tab || !this.props.resourceLoaded) {
       return;
@@ -43,19 +36,11 @@ class NavigationBarComponent extends WithSuggestions {
       this.init();
     }
 
-    const inputProps = {
-      placeholder: `Type dappy or ${this.props.namesBlockchainId}:dappy`,
-      className: `${this.state.pristine ? 'pristine' : ''} input`,
-      value: this.state.search || '',
-      onChange: this.onChange,
-      onKeyDown: this.onKeyDown,
-    };
-
     const tab = this.props.tab as Tab;
     const loadingOrReloading =
       this.props.transitoryState && ['loading', 'reloading'].includes(this.props.transitoryState);
     return (
-      <div id={tab.id} ref={this.setEl} className={`navigation-bar ${'active'}`}>
+      <div id={tab.id} className={`navigation-bar ${'active'}`}>
         <div className="actions actions-4">
           <div>
             {this.props.canGoBackward ? (
@@ -100,26 +85,32 @@ class NavigationBarComponent extends WithSuggestions {
           )}
         </div>
 
-        <div className={`form with-app-type`}>
-          <div
-            className={`lock-div with-type ${this.props.resourceLoaded ? 'resource-loaded' : ''}`}
-            onClick={() => {
-              if (this.props.tab) {
-                this.onShowLoadInfo();
-              }
-            }}>
-            <i className="fa fa-lock" />
-            <span className="app-type fc">{this.props.appType}</span>
-          </div>
+        <div className={`form ${this.props.resourceLoaded ? 'with-app-type' : ''}`}>
+          {this.props.resourceLoaded ? (
+            <div
+              className={`lock-div with-type resource-loaded`}
+              onClick={() => {
+                if (this.props.tab) {
+                  this.onShowLoadInfo();
+                }
+              }}>
+              <i className="fa fa-lock" />
+              <span className="app-type fc">{this.props.appType}</span>
+            </div>
+          ) : (
+            <span className="lock-div">
+              <i className="fa fa-lock" />
+            </span>
+          )}
 
-          <Autosuggest
-            suggestions={this.state.suggestions}
-            onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-            onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-            getSuggestionValue={getSuggestionValue}
-            renderSuggestion={renderSuggestion}
-            inputProps={inputProps}
-          />
+          <input
+            spellCheck="false"
+            ref={this.setInputEl}
+            placeholder={`Type dappy or ${this.props.namesBlockchainId}:dappy`}
+            className={`${this.state.pristine ? 'pristine' : ''} input`}
+            value={this.state.search || ''}
+            onChange={this.onChange}
+            onKeyDown={(a) => this.onKeyDown(a, false)}></input>
           <div
             className={`fc tip-div ${
               this.props.resourceLoaded && this.props.publicKey && this.props.chainId && this.props.resourceId

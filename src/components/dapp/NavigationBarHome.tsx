@@ -1,28 +1,18 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import Autosuggest from 'react-autosuggest';
 
 import * as fromDapps from '/store/dapps';
 import * as fromBlockchain from '/store/blockchain';
 import * as fromHistory from '/store/history';
 import * as fromSettings from '/store/settings';
-import './ReactAutoSuggest';
 import './NavigationBar.scss';
-import { WithSuggestions, getSuggestionValue, renderSuggestion } from './WithSuggestions';
+import { WithSuggestions } from './WithSuggestions';
 
 class NavigationBarHomeComponent extends WithSuggestions {
   render() {
     if (!this.stream) {
       this.init();
     }
-
-    const inputProps = {
-      placeholder: `Type dappy or ${this.props.namesBlockchainId}:dappy`,
-      className: `${this.state.pristine ? 'pristine' : ''} input`,
-      value: this.state.search || '',
-      onChange: this.onChange,
-      onKeyDown: this.onKeyDown,
-    };
 
     return (
       <div className={`navigation-bar ${'active'}`}>
@@ -45,14 +35,14 @@ class NavigationBarHomeComponent extends WithSuggestions {
           <span className="lock-div">
             <i className="fa fa-lock" />
           </span>
-          <Autosuggest
-            suggestions={this.state.suggestions}
-            onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-            onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-            getSuggestionValue={getSuggestionValue}
-            renderSuggestion={renderSuggestion}
-            inputProps={inputProps}
-          />
+          <input
+            spellCheck="false"
+            ref={this.setInputEl}
+            placeholder={`Type dappy or ${this.props.namesBlockchainId}:dappy`}
+            className={`${this.state.pristine ? 'pristine' : ''} input`}
+            value={this.state.search || ''}
+            onChange={this.onChange}
+            onKeyDown={this.onKeyDown}></input>
         </div>
       </div>
     );

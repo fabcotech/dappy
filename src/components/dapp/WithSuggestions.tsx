@@ -7,7 +7,6 @@ import { blockchain as blockchainUtils } from '/utils';
 import { validateSearch } from '/utils/validateSearch';
 import { searchToAddress } from '/utils/searchToAddress';
 import * as fromDapps from '/store/dapps';
-import './ReactAutoSuggest';
 import './NavigationBar.scss';
 import { TransitoryState, Tab, Preview, IPServer, LoadCompletedData, SessionItem } from '/models';
 import { DappImage } from '../utils';
@@ -101,7 +100,6 @@ export class WithSuggestionsComponent extends React.Component<
     lastUpdateTriggeredByUserAction: false,
     currentSessionItem: undefined,
   };
-  el: null | HTMLDivElement = null;
   inputEl: HTMLInputElement | null = null;
 
   static getDerivedStateFromProps(nextProps: WithSuggestionsComponentProps, prevState: WithSuggestionsComponentState) {
@@ -109,6 +107,7 @@ export class WithSuggestionsComponent extends React.Component<
       Component has just been created
     */
     if (nextProps.tab && typeof prevState.search === 'undefined') {
+      console.log(1);
       return {
         search: nextProps.tab.address,
         currentCounter: nextProps.tab.counter,
@@ -120,6 +119,7 @@ export class WithSuggestionsComponent extends React.Component<
         Tab has been focused
       */
     } else if (nextProps.tab && nextProps.tab.counter > prevState.currentCounter) {
+      console.log(2);
       return {
         search: nextProps.tab.address,
         currentCounter: nextProps.tab.counter,
@@ -144,6 +144,7 @@ export class WithSuggestionsComponent extends React.Component<
         nextProps.sessionItem !== prevState.currentSessionItem &&
         nextProps.tab
       ) {
+        console.log(3);
         if (nextProps.sessionItem.address !== search) {
           search = nextProps.sessionItem.address;
         }
@@ -156,78 +157,9 @@ export class WithSuggestionsComponent extends React.Component<
     }
   }
 
-  getSuggestions = (value: string) => {
-    if (!value) {
-      return [];
-    }
-
-    const inputValue = value.trim().toLowerCase();
-    const inputLength = inputValue.length;
-
-    if (inputLength === 0) {
-      return [];
-    }
-
-    // Suggestions from previews
-    let suggestions = Object.keys(this.props.previews)
-      .filter((searchOrUrl) => {
-        return (
-          searchOrUrl.indexOf(inputValue) !== -1 || this.props.previews[searchOrUrl].title.indexOf(inputValue) !== -1
-        );
-      })
-      .slice(0, 12)
-      .map((previewId) => {
-        const sugg = this.props.previews[previewId];
-        return {
-          id: previewId,
-          search: sugg.search || '',
-          preview: this.props.previews[previewId],
-        };
-      });
-
-    // Add suggestions from record names
-    if (suggestions.length < 12) {
-      suggestions = suggestions.concat(
-        this.props.recordNames
-          .filter((r) => !suggestions.find((s) => s.id === r))
-          .filter((r) => r.toLowerCase().slice(0, inputLength) === inputValue)
-          .slice(0, 12 - suggestions.length)
-          .map((name) => {
-            return {
-              id: name,
-              search: name,
-              preview: this.props.previews[searchToAddress(name, this.props.namesBlockchainId)],
-            };
-          })
-      );
-    }
-
-    return suggestions;
-  };
-
-  onSuggestionsFetchRequested = (a: { value: string }) => {
-    const suggestions = this.getSuggestions(a.value);
-    const displayed = suggestions.length > 0;
-    if (this.props.isDisplayed && this.props.navigationSuggestionsDisplayed !== displayed) {
-      this.props.isDisplayed(displayed);
-    }
-    this.setState({
-      suggestions: suggestions,
-    });
-  };
-
-  onSuggestionsClearRequested = () => {
-    if (this.props.isDisplayed && this.props.navigationSuggestionsDisplayed) {
-      this.props.isDisplayed(false);
-    }
-    this.setState({
-      suggestions: [],
-    });
-  };
-
-  onChange = (e: React.ChangeEvent<HTMLInputElement>, x: any) => {
+  onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (this.stream) {
-      this.stream.shamefullySendNext({ search: x.newValue || '', launch: false });
+      this.stream.shamefullySendNext({ search: e.target.value || '', launch: false });
     }
   };
 
@@ -258,7 +190,7 @@ export class WithSuggestionsComponent extends React.Component<
           }
 
           this.setState({
-            search: s,
+            search: '',
             pristine: true,
             lastUpdateTriggeredByUserAction: true,
           });
@@ -289,7 +221,7 @@ export class WithSuggestionsComponent extends React.Component<
     });
   };
 
-  onKeyDown = (e: KeyboardEvent<any>) => {
+  onKeyDown = (e: React.KeyboardEventHandler<HTMLInputElement>) => {
     if (e.key === 'Enter' && this.stream) {
       this.stream.shamefullySendNext({ search: this.state.search || '', launch: true });
     }
@@ -302,15 +234,12 @@ export class WithSuggestionsComponent extends React.Component<
     });
   };
 
-  setEl = (e: HTMLDivElement) => {
+  setInputEl = (e: HTMLInputElement) => {
     if (this.inputEl) {
       return;
     }
-    this.el = e;
-    const qs = e.querySelector('.react-autosuggest__container');
-    if (qs) {
-      this.inputEl = qs.querySelector('input');
-    }
+    console.log('this.inputEl', e);
+    this.inputEl = e;
   };
 }
 

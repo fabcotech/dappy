@@ -55,8 +55,8 @@ class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps, 
         className={`display-error ${this.props.tab.id} ${this.props.lastLoadError ? 'with-error' : ''}`}>
         {!!this.props.lastLoadError ? (
           <div className="load-error">
-            <div className="message is-danger">
-              <div className="message-body scaling-and-appearing-once">
+            <div className="message is-danger scaling-and-appearing-once">
+              <div className="message-body">
                 <LoadErrorHtml
                   loadError={this.props.lastLoadError.error}
                   clearSearchAndLoadError={this.onClearSearchAndLoadError}

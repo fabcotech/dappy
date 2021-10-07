@@ -1,8 +1,8 @@
 import { takeEvery, select } from 'redux-saga/effects';
 import { Action } from 'redux';
-import { State } from '..';
 
-import * as fromDapps from '/dapps';
+import { State } from '/store/';
+import * as fromDapps from '/store/dapps';
 
 const logCSSStyle = 'font-weight: bold; color: #FFF;padding:2px;';
 const logCSSStyleState = `${logCSSStyle}`;
