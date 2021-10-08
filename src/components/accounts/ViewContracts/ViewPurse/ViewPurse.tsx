@@ -16,6 +16,8 @@ const isExpired = (purseCreationTimestamp: number, contractExpirationDuration: n
 
 const expiresIn = (purseCreationTimestamp: number, contractExpirationDuration: number) =>
   toDurationString(t, toDuration(purseCreationTimestamp + contractExpirationDuration - new Date().getTime()));
+
+
 interface ViewPurseProps {
   fungible?: boolean;
   id: string;
@@ -42,6 +44,10 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
     super(props);
     this.state = {};
   }
+
+  
+  isUserFT = () =>
+    this.props.fungible && this.props.contractExpiration && this.props.purse?.id !== "0"
 
   render() {
     let Cancel = () => <Fragment></Fragment>;
@@ -75,11 +81,11 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                   {t('quantity')}: {this.props.purse.quantity}
                 </span>
               )}
-              {!this.props.fungible && this.props.contractExpiration && (
+              {!this.isUserFT() && (
                 <span>
-                  {isExpired(this.props.purse.timestamp, this.props.contractExpiration)
+                  {isExpired(this.props.purse.timestamp, this.props.contractExpiration!)
                     ? t('expired')
-                    : `${t('expires in')} ${expiresIn(this.props.purse.timestamp, this.props.contractExpiration)}`}
+                    : `${t('expires in')} ${expiresIn(this.props.purse.timestamp, this.props.contractExpiration!)}`}
                 </span>
               )}
             </div>
