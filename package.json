@@ -46,7 +46,6 @@
     "redux": "4.1.1",
     "redux-saga": "^0.16.2",
     "reselect": "^3.0.1",
-    "ts-loader": "^9.2.6",
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1",
     "uuid": "^3.4.0",
