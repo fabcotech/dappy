@@ -6,14 +6,14 @@
   justify-content: flex-start;
   span:not(.tag) {
     font-weight: 400;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     margin-right: 5px;
   }
   .tag.is-light {
     font-weight: 800;
     margin-right: 5px;
     margin-left: 5px;
-    padding: 7px;
+    padding: 0 7px;
     font-size: 1.6rem;
   }
   a.underlined-link {

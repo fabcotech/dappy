@@ -6,12 +6,12 @@ import * as rchainToolkit from 'rchain-toolkit';
 import * as fromBlockchain from '/store/blockchain';
 import { Blockchain, RChainInfos, Account, RChainContractConfig, RChainTokenPurse } from '/models';
 import { multiCallParseAndValidate, RequestResult } from '/utils/wsUtils';
-import { feePermillage, toDuration, toDurationString } from '/utils/unit';
 import { getNodeIndex } from '/utils/getNodeIndex';
 import { rchainTokenValidators, validate, ValidationError } from '/store/decoders';
 
 import { toRGB } from '../ViewBox';
 import { ViewPurse } from './ViewPurse';
+import { ContractMetadata } from './ContractMetadata';
 
 import './ViewContracts.scss';
 
@@ -149,12 +149,12 @@ export class ViewContractsComponent extends React.Component<ViewContractsProps, 
           <span className="address">
             {t('contract') + ' '}
             {this.state.contractConfig?.fungible && (
-              <span title="Contract for fungible tokens" className="tag is-light">
+              <span title="Contract for fungible tokens">
                 FT
               </span>
             )}
             {!this.state.contractConfig?.fungible && (
-              <span title="Contract for non-fungible tokens" className="tag is-light">
+              <span title="Contract for non-fungible tokens">
                 NFT
               </span>
             )}
@@ -167,26 +167,7 @@ export class ViewContractsComponent extends React.Component<ViewContractsProps, 
             {t('copy contract address')}
           </a>
         </div>
-        <div className="mb-2">
-          {this.state.contractConfig && (
-            <span className={`${this.state.contractConfig.locked ? 'has-text-success' : 'has-text-danger'}`}>
-              <i className={`mr-1 fa fa-${this.state.contractConfig.locked ? 'lock' : 'lock-open'}`}></i>
-              {t(this.state.contractConfig.locked ? 'locked' : 'not locked')}
-            </span>
-          )}
-          {this.state.contractConfig && this.state.contractConfig.expires && (
-            <span className="ml-2">
-              <i className="fa fa-clock mx-1"></i>
-              {t('duration')}: {toDurationString(t, toDuration(this.state.contractConfig.expires))}
-            </span>
-          )}
-          {this.state.contractConfig && this.state.contractConfig.fee && (
-            <span className="ml-2">
-              <i className="fa fa-money-bill-wave mr-1"></i>
-              {t('fee')} {t('(ratio)')}: {feePermillage(this.state.contractConfig.fee)}
-            </span>
-          )}
-        </div>
+        <ContractMetadata contractConfig={this.state.contractConfig} />
         {this.props.pursesIds.length > 100 && (
           <div className="x-by-100-purses">Purses 100 / {this.props.pursesIds.length}</div>
         )}
