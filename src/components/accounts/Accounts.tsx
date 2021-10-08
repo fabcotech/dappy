@@ -71,7 +71,7 @@ export function AccountsComponent(props: AccountsProps) {
       {tab === 'accounts' ? (
         <div>
           <h3 className="subtitle is-4"></h3>
-          <p className="smaller-text" dangerouslySetInnerHTML={{ __html: t('add account paragraph') }}></p>
+          <p className="limited-width mw42rem" dangerouslySetInnerHTML={{ __html: t('add account paragraph') }}></p>
           <br />
           {props.executingAccountsCronJobs ? (
             <a title={t('update balances')} className="disabled underlined-link">

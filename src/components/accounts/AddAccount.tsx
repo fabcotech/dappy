@@ -22,7 +22,6 @@ export function AddAccountsComponent(props: AddAccountsProps) {
   return (
     <div>
       <h3 className="subtitle is-4">{t('add account')}</h3>
-      <p className="smaller-text" />
       <div className="message is-warning">
         <div className="message-body">{t('forgot password warning')}</div>
       </div>
@@ -43,12 +42,12 @@ export function AddAccountsComponent(props: AddAccountsProps) {
 }
 
 export const AddAccount = connect(
-  state => {
+  (state) => {
     return {
       accounts: fromSettings.getAccounts(state),
     };
   },
-  dispatch => ({
+  (dispatch) => ({
     createAccount: (a: Account) => dispatch(fromSettings.createAccountAction({ account: a })),
   })
 )(AddAccountsComponent);

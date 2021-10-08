@@ -23,7 +23,7 @@ export function RequestsComponent(props: RequestsProps) {
       {table === 'errors' ? (
         <div>
           <h3 className="subtitle is-4">{t('node requests errors')}</h3>
-          <p className="smaller-text" />
+          <p className="limited-width" />
           <table className="table is-fullwidth is-striped is-bordered is-hoverable">
             <thead>
               <tr>
@@ -36,7 +36,7 @@ export function RequestsComponent(props: RequestsProps) {
               </tr>
             </thead>
             <tbody>
-              {props.loadNodesErrors.slice((page - 1) * PER_PAGE, page * PER_PAGE).map(c => {
+              {props.loadNodesErrors.slice((page - 1) * PER_PAGE, page * PER_PAGE).map((c) => {
                 return (
                   <tr key={c.date}>
                     <th>{new Date(c.date).toISOString()}</th>
@@ -57,23 +57,19 @@ export function RequestsComponent(props: RequestsProps) {
             </tbody>
           </table>
           {errorsPages > 1 ? (
-            <Pagination changePage={i => setPage(i)} pages={errorsPages} currentPage={page} />
-          ) : (
-            undefined
-          )}
+            <Pagination changePage={(i) => setPage(i)} pages={errorsPages} currentPage={page} />
+          ) : undefined}
         </div>
-      ) : (
-        undefined
-      )}
+      ) : undefined}
     </div>
   );
 }
 
 export const Requests = connect(
-  state => {
+  (state) => {
     return {
       loadNodesErrors: fromBlockchain.getLoadNodesErrors(state),
     };
   },
-  dispatch => ({})
+  (dispatch) => ({})
 )(RequestsComponent);
