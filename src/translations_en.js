@@ -901,5 +901,42 @@ module.exports.translations = {
   },
   "check account": {
     "one": "check account"
+  },
+  "not locked title": {
+    "one": "The contract is not locked, the owner can delete tokens and create tokens"
+  },
+  "not locked": {
+    "one": "Not locked"
+  },
+  "expiration": {
+    "one": "Expiry duration"
+  },
+  "hours": {
+    "one": "hour",
+    "other": "hours"
+  },
+  "rchain token fee": {
+    "one": "Fee/charge on resale"
+  },
+  "and": {
+    "one": "and"
+  },
+  "share image": {
+    "one": "Share image"
+  },
+  "days": {
+    "one": "day",
+    "other": "days"
+  },
+  "minutes": {
+    "one": "minute",
+    "other": "minutes"
+  },
+  "seconds": {
+    "one": "second",
+    "other": "seconds"
+  },
+  "locked title": {
+    "one": "The contract is locked, owner cannot delete tokens or create tokens"
   }
 }

@@ -31,4 +31,6 @@ export interface RChainTokenPurse {
   quantity: number;
   price: undefined | number;
   id: string;
+  boxId: string;
+  timestamp: number;
 }

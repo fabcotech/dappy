@@ -1,6 +1,6 @@
 import { Fee } from '/models';
 
-export const feePermillage = (f: Fee) => (f[1] / 10000).toFixed(3);
+export const feePermillage = (f: Fee) => (f[1] / 100).toFixed(3);
 
 const MILLISECONDS_IN_ONE_SECOND = 1000;
 const MILLISECONDS_IN_ONE_MINUTE = 60 * MILLISECONDS_IN_ONE_SECOND;
@@ -35,14 +35,14 @@ export const toDuration = (milliseconds: number) => {
   };
 };
 
-const isEmptyDuration = (duration: Duration) =>
-  !duration.days && !duration.hours && !duration.minutes && !duration.seconds && !duration.milliseconds;
+export const isEmptyOrNegativeDuration = (duration: Duration) =>
+  duration.days <= 0 && duration.hours <= 0 && duration.minutes <= 0 && duration.seconds <= 0 && duration.milliseconds <= 0;
 
 type Duration = ReturnType<typeof toDuration>;
 type TranslationFn = (lbl: string, plural: boolean) => string;
 
 export const toDurationString = (translate: TranslationFn, duration: Duration) => {
-  if (isEmptyDuration(duration)) return translate('expired', false);
+  if (isEmptyOrNegativeDuration(duration)) return translate('expired', false);
   if (duration.days < 1 && duration.hours < 1) return translate('less than one hour', false);
 
   return [

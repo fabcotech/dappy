@@ -7,9 +7,15 @@ import { formatAmountNoDecimal, formatAmount } from '/utils/formatAmount';
 import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '/CONSTANTS';
 import { blockchain as blockchainUtils } from '/utils/blockchain';
 import { createSocialCanvas, images, mascots } from '/utils/createSocialCanvas';
+import { toDuration, toDurationString, isEmptyOrNegativeDuration } from '/utils/unit';
 
 import './ViewPurse.scss';
 
+const isExpired = (purseCreationTimestamp: number, contractExpirationDuration: number) =>
+  isEmptyOrNegativeDuration(toDuration(purseCreationTimestamp + contractExpirationDuration - (new Date().getTime())));
+
+const expiresIn = (purseCreationTimestamp: number, contractExpirationDuration: number) =>
+  toDurationString(t, toDuration(purseCreationTimestamp + contractExpirationDuration - new Date().getTime()));
 interface ViewPurseProps {
   fungible?: boolean;
   id: string;
@@ -18,6 +24,7 @@ interface ViewPurseProps {
   rchainInfos: RChainInfos;
   account: Account;
   purse?: RChainTokenPurse;
+  contractExpiration?: number;
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
 }
 
@@ -56,6 +63,7 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
         </a>
       );
     }
+
     return (
       <div key={this.props.id} className="view-purse">
         {this.props.purse ? (
@@ -65,6 +73,13 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
               {this.props.fungible && (
                 <span>
                   {t('quantity')}: {this.props.purse.quantity}
+                </span>
+              )}
+              {!this.props.fungible && this.props.contractExpiration && (
+                <span>
+                  {isExpired(this.props.purse.timestamp, this.props.contractExpiration)
+                    ? t('expired')
+                    : `${t('expires in')} ${expiresIn(this.props.purse.timestamp, this.props.contractExpiration)}`}
                 </span>
               )}
             </div>

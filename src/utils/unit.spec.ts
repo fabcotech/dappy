@@ -24,7 +24,12 @@ describe('utils/unit', () => {
     });
 
     it('should convert duration structure in duration string', () => {
-        const t = (lbl: string) => lbl;
+        const t = (lbl: string, plural: boolean) => {
+            if (lbl === "hours") {
+                return plural ? "hours" : "hour";
+            }
+            return lbl;
+        };
 
         expect(toDurationString(t, {
             days: 5,
@@ -65,5 +70,21 @@ describe('utils/unit', () => {
             seconds: 0,
             milliseconds: 0,
         })).toStrictEqual("expired");
+
+        expect(toDurationString(t, {
+            days: -1,
+            hours: -3,
+            minutes: -1,
+            seconds: -5,
+            milliseconds: -100,
+        })).toStrictEqual("expired");
+
+        expect(toDurationString(t, {
+            days: 0,
+            hours: 1,
+            minutes: 0,
+            seconds: 0,
+            milliseconds: 0,
+        })).toStrictEqual("1 hour");
     });
 });

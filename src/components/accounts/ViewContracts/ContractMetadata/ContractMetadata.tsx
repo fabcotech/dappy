@@ -20,13 +20,13 @@ const ContractMetadataComponent = ({ contractConfig } : ContractMetadataProps) =
   {contractConfig && contractConfig.expires && (
     <span className="ml-2">
       <i className="fa fa-clock mx-1"></i>
-      {t('duration')}: {toDurationString(t, toDuration(contractConfig.expires))}
+      {t('expiration')}: {toDurationString(t, toDuration(contractConfig.expires))}
     </span>
   )}
   {contractConfig && contractConfig.fee && (
     <span className="ml-2">
       <i className="fa fa-money-bill-wave mr-1"></i>
-      {t('fee')} {t('(ratio)')}: {feePermillage(contractConfig.fee)}
+      {t('rchain token fee')}: {feePermillage(contractConfig.fee)}%
     </span>
   )}
   </div>);

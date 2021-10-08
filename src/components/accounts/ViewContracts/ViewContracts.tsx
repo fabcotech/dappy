@@ -189,6 +189,7 @@ export class ViewContractsComponent extends React.Component<ViewContractsProps, 
                 privateKey={this.props.privateKey}
                 purse={this.state.purses[id]}
                 sendRChainTransaction={this.props.sendRChainTransaction}
+                contractExpiration={this.state.contractConfig?.expires}
               />
             );
           })}
