@@ -1,17 +1,16 @@
 import React, { Fragment } from 'react';
-import { updatePurseDataTerm, updatePursePriceTerm } from 'rchain-token';
+import { updatePurseDataTerm } from 'rchain-token';
 
-import { Record, TransactionState, RChainInfos, Account, PartialRecord } from '../../../models';
-import { blockchain as blockchainUtils } from '../../../utils';
-import * as fromBlockchain from '../../../store/blockchain';
-import { getNodeIndex } from '../../../utils/getNodeIndex';
-import { formatAmount, formatAmountNoDecimal } from '../../../utils/formatAmount';
-import { TransactionForm } from '../../utils';
-import { multiCall } from '../../../utils/wsUtils';
+import { Record, TransactionState, RChainInfos, Account, PartialRecord, Blockchain } from '/models';
+import { blockchain as blockchainUtils } from '/utils';
+import { validateRecordFromNetwork } from '/store/decoders';
+import * as fromBlockchain from '/store/blockchain';
+import { getNodeIndex } from '/utils/getNodeIndex';
+import { multiCall } from '/utils/wsUtils';
+
+import { TransactionForm } from '../utils';
 import { RecordForm } from './RecordForm';
 import './UpdateRecord.scss';
-import { validateRecordFromNetwork } from '../../../store/decoders';
-import { LOGREV_TO_REV_RATE } from '../../../CONSTANTS';
 
 interface UpdateRecordProps {
   records: { [key: string]: Record };

@@ -5462,7 +5462,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
     return new Promise(function (resolve, reject) {
         resolver(function (index) {
             var a = getNodeFromIndex(index);
-            return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+            return new Promise(function (resolve2, reject) { return __awaiter(void 0, void 0, void 0, function () {
                 var node, over_1, requestId, newBodyForRequest, resp, err_1;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
@@ -5473,7 +5473,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
                             over_1 = false;
                             setTimeout(function () {
                                 if (!over_1) {
-                                    resolve({
+                                    resolve2({
                                         type: 'ERROR',
                                         status: 500,
                                         nodeUrl: index,
@@ -5490,7 +5490,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
                         case 2:
                             resp = _a.sent();
                             if (!over_1) {
-                                resolve({
+                                resolve2({
                                     type: 'SUCCESS',
                                     data: resp,
                                     nodeUrl: index,
@@ -5500,7 +5500,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
                             return [3 /*break*/, 4];
                         case 3:
                             err_1 = _a.sent();
-                            resolve({
+                            resolve2({
                                 type: 'ERROR',
                                 status: 500,
                                 nodeUrl: index,
@@ -5519,7 +5519,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
                                     });
                                     resp.on('end', function () {
                                         console.log('[get-nodes] Successfully fell back on HTTP for ' + index);
-                                        resolve({
+                                        resolve2({
                                             type: 'SUCCESS',
                                             data: data,
                                             nodeUrl: index,
@@ -5527,7 +5527,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
                                     });
                                 })
                                     .on('error', function (err) {
-                                    resolve({
+                                    resolve2({
                                         type: 'ERROR',
                                         status: 500,
                                         nodeUrl: index,
@@ -5535,7 +5535,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
                                 });
                             }
                             else {
-                                resolve({
+                                resolve2({
                                     type: 'ERROR',
                                     status: 500,
                                     nodeUrl: index,
@@ -15257,9 +15257,13 @@ function ownKeys(object, enumerableOnly) {
 
   if (Object.getOwnPropertySymbols) {
     var symbols = Object.getOwnPropertySymbols(object);
-    if (enumerableOnly) symbols = symbols.filter(function (sym) {
-      return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-    });
+
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+
     keys.push.apply(keys, symbols);
   }
 

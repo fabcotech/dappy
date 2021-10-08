@@ -1,9 +1,10 @@
 import Ajv from 'ajv';
 
 import { rchainTokenValidators, LATEST_PROTOCOL_VERSION } from './RChainToken';
+import { uiSchema } from './Ui';
 
 describe('decoders', () => {
-  it('should decode ContractConfig', () => {
+  it('should validate ContractConfig', () => {
     const ajv = new Ajv();
     const validator = ajv.compile(rchainTokenValidators[LATEST_PROTOCOL_VERSION].contractConfig);
 
@@ -19,7 +20,7 @@ describe('decoders', () => {
     validator(contractConfig);
     expect(validator.errors).toBe(null);
   });
-  it('should decode Purses', () => {
+  it('should validate Purses', () => {
     const ajv = new Ajv();
     const validator = ajv.compile(rchainTokenValidators[LATEST_PROTOCOL_VERSION].purses);
 
@@ -42,5 +43,19 @@ describe('decoders', () => {
 
     validator(purses);
     expect(validator.errors).toBe(null);
+  });
+
+  it("shoud validate Ui", () => {
+    const uiObj = {
+      dappsListDisplay: 1,
+      devMode: true,
+      gcu: "1.0",
+      language: "en",
+      menuCollapsed: false,
+      navigationUrl: "/names",
+    };
+
+    const r = uiSchema.validateSync(uiObj);
+    console.log(r);
   });
 });

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
 import './Records.scss';
-import { Record, Account, IPServer } from '../../../models';
-import { Pagination } from '../../utils';
+import { Record, Account, IPServer } from '/models';
+import { Pagination } from '../utils';
 
 interface RecordsProps {
   records: { [name: string]: Record };

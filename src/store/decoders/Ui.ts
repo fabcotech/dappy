@@ -1,5 +1,19 @@
 import * as yup from 'yup';
 
+const navigationPaths = [
+  '/settings',
+  '/settings/blockchain',
+  '/settings/gcu',
+  '/names',
+  '/accounts',
+  '/deploy/file-upload',
+  '/dapps',
+  '/transactions',
+  '/deploy/dapps',
+  '/deploy/rholang',
+  '/dev/manifest',
+];
+
 export const uiSchema = yup
   .object()
   .shape({
@@ -7,14 +21,14 @@ export const uiSchema = yup
     dappsListDisplay: yup.number().required(),
     devMode: yup.boolean().required(),
     gcu: yup.string(),
-    // todo this does not work, navigationUrl can be anything
     navigationUrl: yup
       .string()
-      .matches(
-        /\/settings\/blockchain|\/settings|\/|\/dapps|\/settings\/names|\/settings\/gcu|\/dev\/manifest|transactions|\/deploy\/dapps|\/deploy\/file-upload|\/deploy\/rholang|\/accounts/
-      )
       .required()
-      .strict(true),
+      .test(
+        'is-navigation-url',
+        '${path} ${value} is unknown',
+        (currentPath?: string) => navigationPaths.some((path: string) => new RegExp(path).test(`^${currentPath}/?$`))
+      ),
     language: yup.string().matches(/en|cn/).required().strict(true),
   })
   .required()
@@ -25,10 +39,10 @@ export const validateUi = (ui: any) =>
   new Promise<true>((resolve, reject) => {
     uiSchema
       .validate(ui)
-      .then((a) => {
+      .then(() => {
         resolve(true);
       })
-      .catch((err) => {
+      .catch((err:any) => {
         reject(err);
       });
   });

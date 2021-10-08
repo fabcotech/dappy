@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
-import './Records.scss';
-import { Record, RecordFromNetwork, TransactionState, RChainInfos, Account, Blockchain } from '../../../models';
-import * as fromBlockchain from '../../../store/blockchain';
-import * as fromSettings from '../../../store/settings';
+import { Record, RecordFromNetwork, TransactionState, RChainInfos, Account, Blockchain, NavigationUrl } from '/models';
+import * as fromBlockchain from '/store/blockchain';
+import * as fromSettings from '/store/settings';
+
 import { AddRecord } from './AddRecord';
 import { PurchaseRecord } from './PurchaseRecord';
 import { UpdateRecord } from './UpdateRecord';
 import { Requests } from './Requests';
 import { Records } from './Records';
 
+import './Records.scss';
+
 interface RecordsRootProps {
+  navigationUrl: string;
+  navigate: (navigationUrl: NavigationUrl) => void;
   records: { [name: string]: Record };
   recordNamesInAlphaOrder: string[];
   transactions: { [id: string]: TransactionState };
@@ -27,8 +31,9 @@ export function RootComponent(props: RecordsRootProps) {
   const [tab, setTab] = useState('names');
 
   return (
-    <div className="settings-names pb20">
-      <div className="tabs is-small">
+    <div className="settings-names p20 has-background-white">
+      <h3 className="subtitle is-3">{t('name system')}</h3>      
+      <div className="tabs">
         <ul>
           <li className={tab === 'names' ? 'is-active' : ''}>
             <a onClick={() => setTab('names')}>{t('name', true)}</a>

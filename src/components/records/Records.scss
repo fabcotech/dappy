@@ -1,6 +1,7 @@
-@import "../../../style//variables.scss";
+@import "/style/variables.scss";
 
 .settings-names {
+  z-index: 2;
   .smaller-text {
     max-width: 700px;
   }

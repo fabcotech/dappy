@@ -26,7 +26,7 @@ class FetchContractComponent extends React.Component<FetchContractProps, {}> {
   };
 
   onNavigateToNames = () => {
-    this.props.navigate('/settings/names');
+    this.props.navigate('/names');
   };
 
   render() {

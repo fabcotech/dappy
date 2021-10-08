@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { RecordFromNetwork, PartialRecord, Record } from '../../../models';
+import { RecordFromNetwork, PartialRecord, Record } from '/models';
 import { RecordForm } from '.';
 
 interface AddRecordProps {

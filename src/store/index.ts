@@ -308,12 +308,15 @@ dbReq.onsuccess = (event) => {
       return;
     }
 
+    if (ui.navigationUrl === '/settings/accounts') {
+      ui.navigationUrl = '/accounts';
+    } else if (ui.navigationUrl === '/settings/names') {
+      ui.navigationUrl = '/names';
+    }
+
     validateUi(ui)
       .then(() => {
         asyncActionsOver += 1;
-        if (ui.navigationUrl === '/settings/accounts') {
-          ui.navigationUrl = '/accounts';
-        }
         store.dispatch(fromUi.updateUiFromStorageAction({ uiState: ui }));
         dispatchInitActions();
       })

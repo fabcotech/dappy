@@ -6,6 +6,7 @@ interface MenuMobileComponentProps {
   dappsListDisplay: number;
   isNavigationInDapps: boolean;
   isNavigationInSettings: boolean;
+  isNavigationInNames: boolean;
   isNavigationInAccounts: boolean;
   isNavigationInDeploy: boolean;
   isNavigationInTransactions: boolean;
@@ -70,6 +71,14 @@ class MenuMobileComponent extends React.Component<MenuMobileComponentProps, {}> 
                 {t('menu settings')}
               </a>
             </li>
+            <li>
+              <a
+                className={this.props.isNavigationInNames ? 'is-active' : ''}
+                onClick={() => this.onCollapseMobileMenuAndNavigate('/names')}>
+                <i className="fa fa-globe fa-before" />
+                {t('name system')}
+              </a>
+            </li>            
             <li>
               <a
                 className={this.props.isNavigationInAccounts ? 'is-active' : ''}

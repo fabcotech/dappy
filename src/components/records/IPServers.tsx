@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Formik, Field, FieldArray } from 'formik';
 
-import { IPServer } from '../../../models';
+import { IPServer } from '/models';
 import { ServerConfig } from './ServerConfig';
 
 import './IPServers.scss';

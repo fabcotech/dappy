@@ -2,8 +2,8 @@ import React, { Fragment } from 'react';
 import { Formik, Field } from 'formik';
 
 import './RecordsForm.scss';
-import { Record, IPServer, RChainInfo, PartialRecord, Blockchain } from '../../../models';
-import { BadgeAppreciation } from '../../utils/BadgeAppreciation';
+import { Record, IPServer, RChainInfo, PartialRecord, Blockchain } from '/models';
+import { BadgeAppreciation } from '../utils/BadgeAppreciation';
 import { IPServersComponent } from './IPServers';
 
 interface RecordFormProps {

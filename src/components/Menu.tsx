@@ -9,6 +9,7 @@ interface MenuComponentProps {
   menuCollapsed: boolean;
   isNavigationInDapps: boolean;
   isNavigationInSettings: boolean;
+  isNavigationInNames: boolean;
   isNavigationInAccounts: boolean;
   isNavigationInDeploy: boolean;
   isNavigationInTransactions: boolean;
@@ -31,6 +32,7 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
           isBeta={this.props.isBeta}
           isNavigationInDapps={this.props.isNavigationInDapps}
           isNavigationInSettings={this.props.isNavigationInSettings}
+          isNavigationInNames={this.props.isNavigationInNames}
           isNavigationInAccounts={this.props.isNavigationInAccounts}
           isNavigationInDeploy={this.props.isNavigationInDeploy}
           isNavigationInTransactions={this.props.isNavigationInTransactions}
@@ -67,6 +69,13 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
             </li>
             <li>
               <a
+                className={this.props.isNavigationInNames ? 'is-active' : ''}
+                onClick={() => this.props.navigate('/names')}>
+                <i className="fa fa-globe fa-before" />
+              </a>
+            </li>
+            <li>
+              <a
                 className={this.props.isNavigationInAccounts ? 'is-active' : ''}
                 onClick={() => this.props.navigate('/accounts')}>
                 <i className="fa fa-money-check fa-before" />
@@ -92,7 +101,7 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
     }
 
     return (
-      <aside className={`root-left menu ${this.props.menuCollapsed ? 'collaped' : 'not-collapsed'}`}>
+      <aside className={`root-left menu not-collapsed`}>
         <ul className="menu-list top not-collapsed">
           <li className="dappy">
             dappy <br />
@@ -128,6 +137,14 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
               {t('menu settings')}
             </a>
           </li>
+          <li>
+            <a
+              className={this.props.isNavigationInNames ? 'is-active' : ''}
+              onClick={() => this.props.navigate('/names')}>
+              <i className="fa fa-globe fa-before" />
+              {t('name system')}
+            </a>
+          </li>          
           <li>
             <a
               className={this.props.isNavigationInAccounts ? 'is-active' : ''}

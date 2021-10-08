@@ -132,23 +132,27 @@ export const getIsMobile = createSelector(getBodyDimensions, (dimensions) => !!(
 
 export const getIsTablet = createSelector(getBodyDimensions, (dimensions) => !!(dimensions && dimensions[0] <= 959));
 
-export const getIsNavigationInSettings = createSelector(getNavigationUrl, (navigationUrl) =>
+export const getIsNavigationInSettings = createSelector(getNavigationUrl, (navigationUrl: string) =>
   navigationUrl.startsWith('/settings')
 );
 
-export const getIsNavigationInAccounts = createSelector(getNavigationUrl, (navigationUrl) =>
+export const getIsNavigationInNames = createSelector(getNavigationUrl, (navigationUrl: string) =>
+  navigationUrl.startsWith('/names')
+);
+
+export const getIsNavigationInAccounts = createSelector(getNavigationUrl, (navigationUrl: string) =>
   navigationUrl.startsWith('/accounts')
 );
 
 export const getIsNavigationInDapps = createSelector(
   getNavigationUrl,
-  (navigationUrl) => navigationUrl === '/' || navigationUrl.startsWith('/dapps')
+  (navigationUrl: string) => navigationUrl === '/' || navigationUrl.startsWith('/dapps')
 );
 
-export const getIsNavigationInDeploy = createSelector(getNavigationUrl, (navigationUrl) =>
+export const getIsNavigationInDeploy = createSelector(getNavigationUrl, (navigationUrl: string) =>
   navigationUrl.startsWith('/deploy')
 );
 
-export const getIsNavigationInTransactions = createSelector(getNavigationUrl, (navigationUrl) =>
+export const getIsNavigationInTransactions = createSelector(getNavigationUrl, (navigationUrl: string) =>
   navigationUrl.startsWith('/transactions')
 );

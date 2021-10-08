@@ -2,7 +2,6 @@ import * as React from 'react';
 
 import { Resolver, Development, FactorySettings, UpdateLanguage } from './settings';
 import { Blockchains } from './blockchain';
-import { Root as RecordsRoot } from './records/';
 import { NavigationUrl } from '/models';
 import './Root.scss';
 import { ConsultGcu } from './ConsultGcu';
@@ -48,9 +47,6 @@ export class RootComponent extends React.Component<RootProps, {}> {
             <li className={this.props.navigationUrl === '/settings/blockchains' ? 'is-active' : ''}>
               <a onClick={() => this.props.navigate('/settings/blockchains')}>{t('menu networks')}</a>
             </li>
-            <li className={this.props.navigationUrl === '/settings/names' ? 'is-active' : ''}>
-              <a onClick={() => this.props.navigate('/settings/names')}>{t('menu names')}</a>
-            </li>
             <li className={this.props.navigationUrl === '/settings/gcu' ? 'is-active' : ''}>
               <a onClick={() => this.props.navigate('/settings/gcu')}>{t('menu gcu')}</a>
             </li>
@@ -68,7 +64,6 @@ export class RootComponent extends React.Component<RootProps, {}> {
           </React.Fragment>
         ) : undefined}
         {this.props.navigationUrl === '/settings/blockchains' ? <Blockchains /> : undefined}
-        {this.props.navigationUrl === '/settings/names' ? <RecordsRoot /> : undefined}
         {this.props.navigationUrl === '/settings/gcu' ? <ConsultGcu /> : undefined}
       </div>
     );

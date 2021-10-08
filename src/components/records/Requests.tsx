@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
 import './Requests.scss';
-import { LoadRecordsError, LoadRecordsSuccess } from '../../../models';
-import * as fromBlockchain from '../../../store/blockchain';
-import { Pagination, RecordLoadErrorLight } from '../../utils';
+import { LoadRecordsError, LoadRecordsSuccess } from '/models';
+import * as fromBlockchain from '/store/blockchain';
+import { Pagination, RecordLoadErrorLight } from '../utils';
 
 interface RequestsProps {
   loadSuccesses: LoadRecordsSuccess[];

@@ -1,9 +1,7 @@
 import React, { Fragment } from 'react';
 import { purchaseTerm, readPursesTerm } from 'rchain-token';
-import { formatAmountNoDecimal, formatAmount } from '../../../utils/formatAmount';
 import * as rchainToolkit from 'rchain-toolkit';
 
-import './RecordsForm.scss';
 import {
   Record,
   TransactionState,
@@ -14,15 +12,19 @@ import {
   Blockchain,
   MultiCallResult,
   RChainTokenPurse,
-} from '../../../models';
-import { blockchain as blockchainUtils } from '../../../utils';
-import * as fromBlockchain from '../../../store/blockchain';
-import { TransactionForm } from '../../utils';
-import { multiCall } from '../../../utils/wsUtils';
-import { getNodeIndex } from '../../../utils/getNodeIndex';
+} from '/models';
+import { formatAmountNoDecimal, formatAmount } from '/utils/formatAmount';
+import { blockchain as blockchainUtils } from '/utils';
+import { multiCall } from '/utils/wsUtils';
+import { getNodeIndex } from '/utils/getNodeIndex';
+import { validateName } from '/utils/validateSearch';
+import * as fromBlockchain from '/store/blockchain';
+import { LOGREV_TO_REV_RATE } from '/CONSTANTS';
+
+import { TransactionForm } from '../utils';
 import { RecordForm } from '.';
-import { LOGREV_TO_REV_RATE } from '../../../CONSTANTS';
-import { validateName } from '../../../utils/validateSearch';
+
+import './RecordsForm.scss';
 
 interface PurchaseRecordProps {
   records: { [key: string]: Record };
