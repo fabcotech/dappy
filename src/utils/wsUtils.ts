@@ -15,9 +15,9 @@ interface ValidationError {
 }
 
 export interface Request {
-  execute: () => any,
-  parse: (obj: any) => any,
-  validate: (obj: object) => ValidationError[] | undefined;
+  execute: () => any;
+  parse: (obj: any) => any;
+  validate: (obj: any) => ValidationError[] | undefined;
 }
 
 export interface RequestResult<TResult> {
@@ -25,26 +25,30 @@ export interface RequestResult<TResult> {
   validationErrors: ValidationError[] | null;
 }
 
-export const multiCallParseAndValidate = async (requests: Request[], options: MultiCallParameters): Promise<RequestResult<any>[]> => {
+export const multiCallParseAndValidate = async (
+  requests: Request[],
+  options: MultiCallParameters
+): Promise<RequestResult<any>[]> => {
   return multiCall(
     {
       type: 'explore-deploy-x',
       body: {
-        terms: requests.map(r => r.execute())
+        terms: requests.map((r) => r.execute()),
       },
     },
     options
-  ).then(r => {
+  ).then((r) => {
     const dataFromBlockchain = r.result.data;
     const dataFromBlockchainParsed: { data: { results: { data: string }[] } } = JSON.parse(dataFromBlockchain);
 
-    var parsedResults = dataFromBlockchainParsed.data.results.map((r, i) =>
-      requests[i].parse(r)
-    );
+    var parsedResults = dataFromBlockchainParsed.data.results.map((r, i) => requests[i].parse(r));
 
-    return requests.map(({validate}, i) => ({
-      result: parsedResults[i],
-      validationErrors: validate(parsedResults[i])
-    } as RequestResult<any>));   
-  })
-}
+    return requests.map(
+      ({ validate }, i) =>
+        ({
+          result: parsedResults[i],
+          validationErrors: validate(parsedResults[i]),
+        } as RequestResult<any>)
+    );
+  });
+};

@@ -121,14 +121,11 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
         });
         return;
       }
-      const validate = ajv.compile(rchainTokenValidators[val.version].readBox);
-      const valid = validate(val);
-      if (!valid) {
+      const valid = rchainTokenValidators[val.version].readBox(val);
+      if (valid !== undefined) {
         this.setState({
           refreshing: false,
-          error: (validate.errors as { dataPath: string; message: string }[])
-            .map((e) => `body${e.dataPath} ${e.message}`)
-            .join(', '),
+          error: valid.map((e) => e.message).join(', '),
         });
         return;
       }

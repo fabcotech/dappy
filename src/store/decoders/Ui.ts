@@ -9,7 +9,7 @@ const navigationPaths = [
   '/deploy/file-upload',
   '/dapps',
   '/transactions',
-  '/deploy/dapps',
+  '/deploy/dapp',
   '/deploy/rholang',
   '/dev/manifest',
 ];
@@ -24,10 +24,8 @@ export const uiSchema = yup
     navigationUrl: yup
       .string()
       .required()
-      .test(
-        'is-navigation-url',
-        '${path} ${value} is unknown',
-        (currentPath?: string) => navigationPaths.some((path: string) => new RegExp(path).test(`^${currentPath}/?$`))
+      .test('is-navigation-url', '${path} ${value} is unknown', (currentPath?: string) =>
+        navigationPaths.some((path: string) => new RegExp(path).test(`^${currentPath}/?$`))
       ),
     language: yup.string().matches(/en|cn/).required().strict(true),
   })
@@ -42,7 +40,7 @@ export const validateUi = (ui: any) =>
       .then(() => {
         resolve(true);
       })
-      .catch((err:any) => {
+      .catch((err: any) => {
         reject(err);
       });
   });

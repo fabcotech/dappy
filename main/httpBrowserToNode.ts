@@ -14,11 +14,10 @@ export const httpBrowserToNode = (data: { [key: string]: any }, node: Blockchain
       return;
     }
     try {
-
       const ip = node.ip.split(':')[0];
       const host = node.host;
       const port = node.ip.indexOf(':') === -1 ? 443 : node.ip.split(':')[1];
-      const cert = node.cert ? decodeURI(node.cert) : node.origin === 'user' ? undefined : 'INVALIDCERT';
+      const cert = node.cert ? decodeURI(decodeURI(node.cert)) : node.origin === 'user' ? undefined : 'INVALIDCERT';
 
       if (!dappyNetworkAgents[`${ip}-${cert}`]) {
         dappyNetworkAgents[`${ip}-${cert}`] = new https.Agent({
@@ -44,18 +43,15 @@ export const httpBrowserToNode = (data: { [key: string]: any }, node: Blockchain
         },
       };
 
-      const req = https.request(
-        options,
-        (res) => {
-          let data = '';
-          res.on('data', (chunk) => {
-            data += chunk;
-          });
-          res.on('end', () => {
-            resolve(data);
-          });
-        }
-      );
+      const req = https.request(options, (res) => {
+        let data = '';
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
+        res.on('end', () => {
+          resolve(data);
+        });
+      });
       if (data.body) {
         req.end(JSON.stringify(data.body));
       } else {

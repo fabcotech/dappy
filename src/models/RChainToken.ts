@@ -34,3 +34,19 @@ export interface RChainTokenPurse {
   boxId: string;
   timestamp: number;
 }
+export interface RChainTokenCreatePursePayload {
+  masterRegistryUri: string;
+  boxId: string;
+  contractId: string;
+  purses: {
+    [tmpId: string]: {
+      id: string;
+      boxId: string;
+      quantity: number;
+      price: number | undefined;
+    };
+  };
+  data: {
+    [tmpId: string]: string;
+  };
+}

@@ -58,10 +58,20 @@ li.dappy {
   &.collapsed {
     a {
       text-align: center;
+      i.rotated-d {
+        transform: rotate(-15deg) !important;
+      }
     }
   }
   .menu-list li {
     position: relative;
+    i.rotated-d {
+      font-family: fira;
+      font-weight: 700;
+      font-style: normal;
+      transform: rotate(-15deg) translateX(0.25rem);
+      font-size: 1.4rem !important;
+    }
     i.fa {
       font-size: 1.3em;
       width: 26px;

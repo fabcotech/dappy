@@ -221,7 +221,7 @@ const loadOrReloadBrowserView = function* (action: any) {
             /* no dns */
             host: serverAuthorized.ip,
             rejectUnauthorized: false, // cert does not have to be signed by CA (self-signed)
-            cert: decodeURI(serverAuthorized.cert),
+            cert: decodeURI(decodeURI(serverAuthorized.cert)),
             minVersion: 'TLSv1.2',
             ca: [], // we don't want to rely on CA
           });

@@ -71,7 +71,7 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
               <a
                 className={this.props.isNavigationInNames ? 'is-active' : ''}
                 onClick={() => this.props.navigate('/names')}>
-                <i className="fa fa-globe fa-before" />
+                <i className="fa fa-before rotated-d">d</i>
               </a>
             </li>
             <li>
@@ -141,10 +141,10 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
             <a
               className={this.props.isNavigationInNames ? 'is-active' : ''}
               onClick={() => this.props.navigate('/names')}>
-              <i className="fa fa-globe fa-before" />
+              <i className="fa fa-before rotated-d">d</i>
               {t('name system')}
             </a>
-          </li>          
+          </li>
           <li>
             <a
               className={this.props.isNavigationInAccounts ? 'is-active' : ''}

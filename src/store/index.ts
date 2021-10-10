@@ -422,7 +422,10 @@ dbReq.onsuccess = (event) => {
   var previewsStore = previewsTx.objectStore('previews');
   const requestPreviews = previewsStore.getAll();
   requestPreviews.onsuccess = (e) => {
-    const previewsToCheck = requestPreviews.result;
+    let previewsToCheck = requestPreviews.result;
+    // some previews don't have .title
+    // error encountered in dappy 0.4.8
+    previewsToCheck = previewsToCheck.filter((p) => !!p.title);
     validatePreviews(previewsToCheck)
       .then((previews) => {
         asyncActionsOver += 1;

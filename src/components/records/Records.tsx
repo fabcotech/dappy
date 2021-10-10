@@ -41,7 +41,7 @@ export const Records = (props: RecordsProps) => {
   return (
     <div>
       <h3 className="subtitle is-4">{t('name', true)}</h3>
-      <p className="smaller-text">
+      <p className="limited-width">
         {t('purchase a name 2')}
         <br />
         <br /> <a onClick={() => props.setTab('add-name')}>{t('add one locally 2')}</a>
@@ -49,7 +49,7 @@ export const Records = (props: RecordsProps) => {
         <br />
       </p>
 
-      <p className="smaller-text"></p>
+      <p className="limited-width"></p>
       <div className="field show-only">
         <input className="is-checkradio is-link" type="checkbox" checked={showOnlyOwnNames} onChange={() => {}} />
         <label
@@ -133,9 +133,7 @@ export const Records = (props: RecordsProps) => {
             }
 
             return (
-              <tr
-                key={record.name}
-                className={`${accountsBoxes.includes(record.box) ? 'belongs-to-an-account' : ''}`}>
+              <tr key={record.name} className={`${accountsBoxes.includes(record.box) ? 'belongs-to-an-account' : ''}`}>
                 <th>
                   {!!foundAccount ? <span className="tag is-light">{foundAccount.name}</span> : undefined}
                   {record.name}

@@ -202,7 +202,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
         <Fragment>
           <h3 className="subtitle is-4">{t('update a name')}</h3>
           <p
-            className="smaller-text"
+            className="limited-width"
             dangerouslySetInnerHTML={{
               __html: t('purchase a name 2'),
             }}></p>
@@ -220,7 +220,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
       return (
         <Fragment>
           <h3 className="subtitle is-4">{t('update a name')}</h3>
-          <p className="smaller-text">
+          <p className="limited-width">
             {t('operation on name successful')}
             {t('warning wait for update')}
           </p>
@@ -255,9 +255,9 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
     return (
       <Fragment>
         <h3 className="subtitle is-4">{t('update a name')}</h3>
-        <p className="smaller-text">{t('update name paragraph 2')}</p>
+        <p className="limited-width">{t('update name paragraph 2')}</p>
         <br />
-        <p className="smaller-text">{t('warning wait for update')}</p>
+        <p className="limited-width">{t('warning wait for update')}</p>
         <br />
         <TransactionForm
           chooseBox={true}

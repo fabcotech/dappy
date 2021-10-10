@@ -364,7 +364,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                 <div className="field is-horizontal badges-field">
                   <label className="label">{t('reputation badges')}*</label>
                   <div className="control">
-                    <p className="smaller-text">
+                    <p className="limited-width">
                       Badges allow you to attest, certify or discredit other websites on dappy. If you add the badge
                       "bob" to your record "mysite", users who visits "bob" website will see a certification or
                       discredit badge from "mysite".

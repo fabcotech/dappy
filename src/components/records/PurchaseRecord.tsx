@@ -228,7 +228,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
         <Fragment>
           <h3 className="subtitle is-4">{t('purchase a name')}</h3>
           <p
-            className="smaller-text"
+            className="limited-width"
             dangerouslySetInnerHTML={{
               __html: t('purchase a name 2'),
             }}></p>
@@ -245,7 +245,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
       return (
         <Fragment>
           <h3 className="subtitle is-4">{t('purchase a name')}</h3>
-          <p className="smaller-text">
+          <p className="limited-width">
             {t('operation on name successful')}
             {t('warning wait for update')}
           </p>
@@ -268,7 +268,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
     return (
       <Fragment>
         <h3 className="subtitle is-4">{t('purchase a name')}</h3>
-        <p className="smaller-text">{t('purchase a name 2')} </p>
+        <p className="limited-width">{t('purchase a name 2')} </p>
         <br />
         <TransactionForm
           chooseBox={true}

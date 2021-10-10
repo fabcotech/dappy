@@ -7,7 +7,7 @@ import * as fromBlockchain from '/store/blockchain';
 import { Blockchain, RChainInfos, Account, RChainContractConfig, RChainTokenPurse } from '/models';
 import { multiCallParseAndValidate, RequestResult } from '/utils/wsUtils';
 import { getNodeIndex } from '/utils/getNodeIndex';
-import { rchainTokenValidators, validate, ValidationError } from '/store/decoders';
+import { rchainTokenValidators, ValidationError } from '/store/decoders';
 
 import { toRGB } from '../ViewBox';
 import { ViewPurse } from './ViewPurse';
@@ -15,7 +15,14 @@ import { ContractMetadata } from './ContractMetadata';
 
 import './ViewContracts.scss';
 
-const parseRhoValToJs = (r: { data: string }) => rchainToolkit.utils.rhoValToJs(JSON.parse(r.data).expr[0]);
+const parseRhoValToJs = (r: { data: string }) => {
+  const data = JSON.parse(r.data);
+  if (data && data.expr && data.expr[0]) {
+    return rchainToolkit.utils.rhoValToJs(JSON.parse(r.data).expr[0]);
+  }
+
+  return undefined;
+};
 
 async function getPursesAndContractConfig({
   blockchain,
@@ -37,12 +44,12 @@ async function getPursesAndContractConfig({
       {
         execute: () => readPursesTerm({ masterRegistryUri, contractId, pursesIds }),
         parse: parseRhoValToJs,
-        validate: validate(rchainTokenValidators[version].purses),
+        validate: rchainTokenValidators[version].purses,
       },
       {
         execute: () => readConfigTerm({ masterRegistryUri, contractId }),
         parse: parseRhoValToJs,
-        validate: validate(rchainTokenValidators[version].contractConfig),
+        validate: rchainTokenValidators[version].contractConfig,
       },
     ],
     {

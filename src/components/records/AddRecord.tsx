@@ -22,7 +22,7 @@ export const AddRecord = (props: AddRecordProps) => {
     <div>
       <h3 className="subtitle is-4">{t('add local name dev')}</h3>
 
-      <p className="smaller-text">{t('add local name paragraph')}</p>
+      <p className="limited-width">{t('add local name paragraph')}</p>
       <br />
       <div className="field is-horizontal">
         <label className="label">{t('public key')}*</label>
