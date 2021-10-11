@@ -6,7 +6,7 @@ import { uiSchema } from './Ui';
 describe('decoders', () => {
   it('should validate ContractConfig', () => {
     const ajv = new Ajv();
-    const validator = ajv.compile(rchainTokenValidators[LATEST_PROTOCOL_VERSION].contractConfig);
+    const validator = rchainTokenValidators[LATEST_PROTOCOL_VERSION].contractConfig;
 
     const contractConfig = {
       contractId: "contract 1",
@@ -17,12 +17,12 @@ describe('decoders', () => {
       fee: ['foo', 1],
     };
 
-    validator(contractConfig);
-    expect(validator.errors).toBe(null);
+    var errors = validator(contractConfig);
+    expect(errors).toBe(undefined);
   });
   it('should validate Purses', () => {
     const ajv = new Ajv();
-    const validator = ajv.compile(rchainTokenValidators[LATEST_PROTOCOL_VERSION].purses);
+    const validator = rchainTokenValidators[LATEST_PROTOCOL_VERSION].purses;
 
     const purses = {
       1: {
@@ -41,10 +41,9 @@ describe('decoders', () => {
       },
     };
 
-    validator(purses);
-    expect(validator.errors).toBe(null);
+    var errors = validator(purses);
+    expect(errors).toBe(undefined);
   });
-
   it("shoud validate Ui", () => {
     const uiObj = {
       dappsListDisplay: 1,
@@ -52,10 +51,9 @@ describe('decoders', () => {
       gcu: "1.0",
       language: "en",
       menuCollapsed: false,
-      navigationUrl: "/names",
+      navigationUrl: "/names",  
     };
 
-    const r = uiSchema.validateSync(uiObj);
-    console.log(r);
+    expect(() => uiSchema.validateSync(uiObj)).not.toThrowError();
   });
 });
