@@ -18,7 +18,8 @@
     "electron-builder:dist:windows:64": "electron-builder -c build.yml --x64 --publish never --win nsis",
     "electron-builder:dist:windows:32": "electron-builder -c build.yml --ia32 --publish never --win nsis",
     "electron-builder:dist:mac": "electron-builder -c build.yml --publish never --mac",
-    "test": "jest"
+    "test": "jest",
+    "prepare": "husky install"
   },
   "prettier": {
     "printWidth": 120,
@@ -64,6 +65,7 @@
     "@types/yup": "^0.29.13",
     "cssnano": "^4.1.10",
     "electron": "^15.0.0",
+    "husky": "^7.0.2",
     "jest": "^27.2.4",
     "parcel-bundler": "1.12.5",
     "rollup": "1.26.0",
