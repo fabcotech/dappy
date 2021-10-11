@@ -11,14 +11,13 @@ import { toDuration, toDurationString, isEmptyOrNegativeDuration } from '/utils/
 
 import './ViewPurse.scss';
 
-const isExpired = (purseCreationTimestamp: number, contractExpirationDuration: number) =>
-  isEmptyOrNegativeDuration(toDuration(purseCreationTimestamp + contractExpirationDuration - (new Date().getTime())));
+const isExpired = (now: () => number) => (purseCreationTimestamp: number, contractExpirationDuration: number) =>
+  isEmptyOrNegativeDuration(toDuration(purseCreationTimestamp + contractExpirationDuration - now()));
 
-const expiresIn = (purseCreationTimestamp: number, contractExpirationDuration: number) =>
-  toDurationString(t, toDuration(purseCreationTimestamp + contractExpirationDuration - new Date().getTime()));
+const expiresIn = (now: () => number) => (purseCreationTimestamp: number, contractExpirationDuration: number) =>
+  toDurationString(t, toDuration(purseCreationTimestamp + contractExpirationDuration - now()));
 
-
-interface ViewPurseProps {
+export interface ViewPurseProps {
   fungible?: boolean;
   id: string;
   contractId: string;
@@ -28,6 +27,7 @@ interface ViewPurseProps {
   purse?: RChainTokenPurse;
   contractExpiration?: number;
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
+  now: () => number;
 }
 
 interface ViewPurseState {
@@ -45,9 +45,11 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
     this.state = {};
   }
 
-  
-  isUserFT = () =>
-    this.props.fungible && this.props.contractExpiration && this.props.purse?.id !== "0"
+  static defaultProps = {
+    now: () => new Date().getTime()
+  }
+
+  isUserFT = () => this.props.fungible && this.props.contractExpiration && this.props.purse?.id !== '0';
 
   render() {
     let Cancel = () => <Fragment></Fragment>;
@@ -81,11 +83,11 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                   {t('quantity')}: {this.props.purse.quantity}
                 </span>
               )}
-              {!this.isUserFT() && (
-                <span>
-                  {isExpired(this.props.purse.timestamp, this.props.contractExpiration!)
+              {this.isUserFT() && (
+                <span data-testid="expiration">
+                  {isExpired(this.props.now)(this.props.purse.timestamp, this.props.contractExpiration!)
                     ? t('expired')
-                    : `${t('expires in')} ${expiresIn(this.props.purse.timestamp, this.props.contractExpiration!)}`}
+                    : `${t('expires in')} ${expiresIn(this.props.now)(this.props.purse.timestamp, this.props.contractExpiration!)}`}
                 </span>
               )}
             </div>
@@ -419,10 +421,12 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                   </div>
                 </div>
 
-                <div className="preview">
-                  <img className="background" src={images[this.state.image] || images.default}></img>
-                  <img className="mascot" src={mascots[this.state.mascot] || mascots.default}></img>
-                </div>
+                {this.state.image && this.state.mascot && (
+                  <div className="preview">
+                    <img className="background" src={images[this.state.image] || images.default}></img>
+                    <img className="mascot" src={mascots[this.state.mascot] || mascots.default}></img>
+                  </div>
+                )}
 
                 <div className="validate-operation-button">
                   <Cancel />
@@ -443,7 +447,7 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                             name:
                               'dappy_' + this.state.image + '_' + this.props.contractId + '_' + this.props.id + '.png',
                             mimeType: 'image/png',
-                            data: a.replace(/^data:image\/png;base64,/, ''),
+                            data: (a as string || '').replace(/^data:image\/png;base64,/, ''),
                           });
                           this.setState({
                             newPrice: undefined,
@@ -484,7 +488,7 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
           <div>
             <span className="id">
               {this.props.id}
-              <i className="fa fa-after fa-redo rotating"></i>
+              <i className="fa fa-after fa-redo rotating" data-testid="loading-icon"></i>
             </span>
           </div>
         )}
