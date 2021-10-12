@@ -12,7 +12,7 @@ import {
   LoadRecordsSuccess,
   LoadRecordsError,
   LoadNodesError,
-} from '../../models';
+} from '/models';
 
 export interface State {
   rchain: {
@@ -186,39 +186,6 @@ export const reducer = (state = initialState, action: any): State => {
             ...state.records.records,
             [payload.record.name]: payload.record,
           },
-        },
-      };
-    }
-
-    case fromActions.GET_ALL_RECORDS_COMPLETED: {
-      const payload: fromActions.GetAllRecordsCompletedPayload = action.payload;
-      const recordsOriginUser = Object.keys(state.records.records)
-        .filter((k) => state.records.records[k].origin === 'user')
-        .map((k) => state.records.records[k]);
-
-      const records: { [name: string]: Record } = {};
-      recordsOriginUser.concat(payload.records).forEach((record) => {
-        records[record.name] = record;
-      });
-
-      const loadStateKey = Object.keys(payload.loadState)[0];
-      const nodesReached = payload.loadState[loadStateKey].nodeUrls;
-      const nodesNotReached = Object.keys(payload.loadErrors);
-      return {
-        ...state,
-        records: {
-          ...state.records,
-          records: records,
-          date: payload.date,
-          loadSuccesses: [
-            {
-              date: payload.date,
-              time: payload.time,
-              nodesReached: nodesReached,
-              nodesNotReached: nodesNotReached,
-              recordsNumber: payload.records.length,
-            },
-          ].concat(state.records.loadSuccesses),
         },
       };
     }

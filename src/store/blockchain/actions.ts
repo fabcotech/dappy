@@ -33,7 +33,6 @@ export const GET_NODES_COMPLETED = '[Blockchain] Get nodes completed';
 
 export const UPDATE_RECORDS_FROM_STORAGE = '[Blockchain] Update records from storage';
 export const GET_ALL_RECORDS_FAILED = '[Blockchain] Get all records failed';
-export const GET_ALL_RECORDS_COMPLETED = '[Blockchain] Get all records completed';
 export const GET_ONE_RECORD_COMPLETED = '[Blockchain] Get one record completed';
 export const REMOVE_OLD_RECORDS = '[Blockchain] Remove old records';
 export const REMOVE_OLD_RECORDS_COMPLETED = '[Blockchain] Remove old records completed';
@@ -129,18 +128,6 @@ export interface UpdateRecordsFromStoragePayload {
 }
 export const updateRecordsFromStorageAction = (values: UpdateRecordsFromStoragePayload) => ({
   type: UPDATE_RECORDS_FROM_STORAGE,
-  payload: values,
-});
-
-export interface GetAllRecordsCompletedPayload {
-  records: Record[];
-  date: string;
-  time: number;
-  loadState: BeesLoadCompleted;
-  loadErrors: BeesLoadErrors;
-}
-export const getAllRecordsCompletedAction = (values: GetAllRecordsCompletedPayload) => ({
-  type: GET_ALL_RECORDS_COMPLETED,
   payload: values,
 });
 
