@@ -22,7 +22,7 @@ export interface Request {
 
 export interface RequestResult<TResult> {
   result: TResult;
-  validationErrors: ValidationError[] | null;
+  validationErrors?: ValidationError[];
 }
 
 export const multiCallParseAndValidate = async (

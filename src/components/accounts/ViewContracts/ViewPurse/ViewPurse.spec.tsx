@@ -13,8 +13,8 @@ const getFakeViewPurseProps = (props: Partial<ViewPurseProps> = {}) => ({
     account: getFakeAccount(),
     sendRChainTransaction: () => {},
   },
-  ...(props as any),
-});
+  ...props,
+}) as ViewPurseProps;
 
 describe('ViewPurse', () => {
   it('should display loading icon if no purse provided', () => {
@@ -26,56 +26,7 @@ describe('ViewPurse', () => {
     expect(screen.getByTestId('loading-icon')).toHaveClass('rotating');
   });
 
-  it('should display expire duration for fungible tokens', () => {
-    const today = new Date(2021, 10, 13).getTime();
-    const props = getFakeViewPurseProps({
-      now: () => today,
-      fungible: true,
-      purse: getFakePurse({
-        timestamp: today,
-      }),
-      contractExpiration: duration4days,
-    });
-
-    render(<ViewPurseComponent {...props} />);
-    expect(screen.queryByTestId('expiration')).toHaveTextContent('expires in 4 days');
-  });
-
-  it('should display expired for expired fungible tokens', () => {
-    const today = new Date(2021, 10, 13).getTime();
-    const props = getFakeViewPurseProps({
-      now: () => today,
-      fungible: true,
-      purse: getFakePurse({
-        timestamp: new Date(2021, 10, 5).getTime(),
-      }),
-      contractExpiration: duration4days,
-    });
-
-    render(<ViewPurseComponent {...props} />);
-    expect(screen.queryByTestId('expiration')).toHaveTextContent('expired');
-  });
-
-  it('should not display expire duration for token named 0', () => {
-    const today = new Date(2021, 10, 13).getTime();
-
-    render(
-      <ViewPurseComponent
-        {...getFakeViewPurseProps({
-          now: () => today,
-          fungible: true,
-          purse: getFakePurse({
-            id: '0',
-            timestamp: today,
-          }),
-          contractExpiration: duration4days,
-        })}
-      />
-    );
-    expect(screen.queryByTestId('expiration')).toBeFalsy();
-  });
-
-  it('should not display expire duration for NFT', () => {
+  it('should display expire duration for NFT', () => {
     const today = new Date(2021, 10, 13).getTime();
     const props = getFakeViewPurseProps({
       now: () => today,
@@ -87,20 +38,70 @@ describe('ViewPurse', () => {
     });
 
     render(<ViewPurseComponent {...props} />);
-    expect(screen.queryByTestId('expiration')).toBeFalsy();
+    expect(screen.queryByText(/expires in/)).toBeTruthy();
   });
 
-  it('should not display expire duration if contract has no expiration date', () => {
+  it('should display expired for expired NFT', () => {
+    const today = new Date(2021, 10, 13).getTime();
+    const props = getFakeViewPurseProps({
+      now: () => today,
+      fungible: false,
+      purse: getFakePurse({
+        timestamp: new Date(2021, 10, 5).getTime(),
+      }),
+      contractExpiration: duration4days,
+    });
+
+    render(<ViewPurseComponent {...props} />);
+    expect(screen.queryByText(/expired/)).toBeTruthy();
+  });
+
+  it('should not display expire duration for NFT named 0', () => {
+    const today = new Date(2021, 10, 13).getTime();
+
+    render(
+      <ViewPurseComponent
+        {...getFakeViewPurseProps({
+          now: () => today,
+          fungible: false,
+          purse: getFakePurse({
+            id: '0',
+            timestamp: today,
+          }),
+          contractExpiration: duration4days,
+        })}
+      />
+    );
+    expect(screen.queryByText(/expired|expires in/)).toBeFalsy();
+  });
+
+  it('should not display expire duration for FT', () => {
     const today = new Date(2021, 10, 13).getTime();
     const props = getFakeViewPurseProps({
       now: () => today,
       fungible: true,
       purse: getFakePurse({
-        timestamp: today
+        timestamp: today,
       }),
+      contractExpiration: duration4days,
     });
 
     render(<ViewPurseComponent {...props} />);
-    expect(screen.queryByTestId('expiration')).toBeFalsy();
+    expect(screen.queryByText(/expired|expires in/)).toBeFalsy();
+  });
+
+  it('should not display expire duration for NFT if contract has no expiration date', () => {
+    const today = new Date(2021, 10, 13).getTime();
+    const props = getFakeViewPurseProps({
+      now: () => today,
+      fungible: false,
+      purse: getFakePurse({
+        timestamp: today
+      }),
+      contractExpiration: undefined
+    });
+
+    render(<ViewPurseComponent {...props} />);
+    expect(screen.queryByText(/expired|expires in/)).toBeFalsy();
   });
 });

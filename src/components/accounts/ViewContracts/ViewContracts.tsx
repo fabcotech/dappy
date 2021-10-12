@@ -36,7 +36,7 @@ async function getPursesAndContractConfig({
   masterRegistryUri: string;
   contractId: string;
   version: string;
-}): Promise<[RequestResult<RChainTokenPurse>, RequestResult<RChainContractConfig>]> {
+}): Promise<[RequestResult<Record<string, RChainTokenPurse>>, RequestResult<RChainContractConfig>]> {
   const indexes = blockchain.nodes.filter((n) => n.readyState === 1).map(getNodeIndex);
 
   return multiCallParseAndValidate(
@@ -60,7 +60,7 @@ async function getPursesAndContractConfig({
       resolverAbsolute: indexes.length,
       multiCallId: fromBlockchain.EXPLORE_DEPLOY_X,
     }
-  ) as Promise<[RequestResult<RChainTokenPurse>, RequestResult<RChainContractConfig>]>;
+  ) as Promise<[RequestResult<Record<string, RChainTokenPurse>>, RequestResult<RChainContractConfig>]>;
 }
 
 const Loading = (props: { contractId: string }) => {
@@ -76,7 +76,7 @@ const Loading = (props: { contractId: string }) => {
     </Fragment>
   );
 };
-interface ViewContractsProps {
+export interface ViewContractsProps {
   namesBlockchain?: Blockchain;
   contractId: string;
   rchainInfos: RChainInfos;
@@ -87,8 +87,9 @@ interface ViewContractsProps {
   getPursesAndContractConfig: typeof getPursesAndContractConfig;
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
 }
+
 interface ViewContractsState {
-  purses: any;
+  purses: Record<string, RChainTokenPurse>;
   refreshing: boolean;
   error?: string;
   contractConfig?: RChainContractConfig;
@@ -107,10 +108,10 @@ export class ViewContractsComponent extends React.Component<ViewContractsProps, 
     this.refresh();
   }
 
-  displayValidationErrors(errors: { dataPath: string; message: string }[]) {
+  displayError(message: string) {
     this.setState({
       refreshing: false,
-      error: errors.map((e) => `body${e.dataPath} ${e.message}`).join(', '),
+      error: message,
     });
   }
 
@@ -126,10 +127,7 @@ export class ViewContractsComponent extends React.Component<ViewContractsProps, 
     });
 
     if (!this.props.namesBlockchain) {
-      this.setState({
-        refreshing: false,
-        error: 'Names blockchain not found',
-      });
+      this.displayError(t('Names blockchain not found'));
       return;
     }
 
@@ -146,7 +144,7 @@ export class ViewContractsComponent extends React.Component<ViewContractsProps, 
       .flatMap((e) => e) as ValidationError[];
 
     if (validationErrors.length) {
-      this.displayValidationErrors(validationErrors);
+      this.displayError(validationErrors.map((e) => `${t('error')} on ${e.dataPath}: ${e.message}`).join(', '));
       return;
     }
 
@@ -160,7 +158,7 @@ export class ViewContractsComponent extends React.Component<ViewContractsProps, 
   render() {
     if (this.state.error) {
       return (
-        <div>
+        <div data-testid="error">
           <span className="text-danger">{this.state.error}</span>
         </div>
       );

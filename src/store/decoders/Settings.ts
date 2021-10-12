@@ -23,7 +23,7 @@ export const validateSettings = (settings: any) =>
   new Promise<true>((resolve, reject) => {
     settingsSchema
       .validate(settings)
-      .then((a) => {
+      .then((a : any) => {
         resolve(true);
       })
       .catch((err: yup.ValidationError) => {

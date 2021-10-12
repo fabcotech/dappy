@@ -49,7 +49,7 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
     now: () => new Date().getTime()
   }
 
-  isUserFT = () => this.props.fungible && this.props.contractExpiration && this.props.purse?.id !== '0';
+  isExpirableNFT = () => !this.props.fungible && this.props.contractExpiration && this.props.purse?.id !== '0';
 
   render() {
     let Cancel = () => <Fragment></Fragment>;
@@ -83,8 +83,8 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                   {t('quantity')}: {this.props.purse.quantity}
                 </span>
               )}
-              {this.isUserFT() && (
-                <span data-testid="expiration">
+              {this.isExpirableNFT() && (
+                <span>
                   {isExpired(this.props.now)(this.props.purse.timestamp, this.props.contractExpiration!)
                     ? t('expired')
                     : `${t('expires in')} ${expiresIn(this.props.now)(this.props.purse.timestamp, this.props.contractExpiration!)}`}
