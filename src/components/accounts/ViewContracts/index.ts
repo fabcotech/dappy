@@ -1,1 +1,0 @@
-export { ViewContracts } from "./ViewContracts";

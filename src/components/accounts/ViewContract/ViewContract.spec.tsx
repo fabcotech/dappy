@@ -1,11 +1,11 @@
 import React from 'react';
-import { ViewContractsComponent, ViewContractsProps } from './ViewContracts';
+import { ViewContractComponent, ViewContractProps } from './ViewContract';
 import { render, screen, waitFor } from '@testing-library/react';
 import { getFakeAccount, getFakeRChainInfos, getFakeBlockChain, getFakeRChainContractConfig, getFakePurse } from '/fakeData';
 import { RChainContractConfig, RChainTokenPurse } from '/models';
 import { RequestResult } from '/utils/wsUtils';
 
-const getFakeViewContractsProps = (props: Partial<ViewContractsProps> = {}) =>
+const getFakeViewContractsProps = (props: Partial<ViewContractProps> = {}) =>
   ({
     contractId: 'contract1',
     rchainInfos: getFakeRChainInfos(),
@@ -15,13 +15,13 @@ const getFakeViewContractsProps = (props: Partial<ViewContractsProps> = {}) =>
     getPursesAndContractConfig: () => Promise.resolve([]),
     sendRChainTransaction: () => {},
     ...props,
-  } as ViewContractsProps);
+  } as ViewContractProps);
 
 describe('ViewContracts', () => {
   it('should display error if blockchain is not given as props', () => {
     const props = getFakeViewContractsProps();
 
-    render(<ViewContractsComponent {...props} />);
+    render(<ViewContractComponent {...props} />);
 
     expect(screen.getByTestId('error')).toHaveTextContent('Names blockchain not found');
   });
@@ -39,7 +39,7 @@ describe('ViewContracts', () => {
         ]),
     });
 
-    render(<ViewContractsComponent {...props} />);
+    render(<ViewContractComponent {...props} />);
 
     await waitFor(() => {
       screen.getByTestId('error');
@@ -62,7 +62,7 @@ describe('ViewContracts', () => {
         ]),
     });
 
-    render(<ViewContractsComponent {...props} />);
+    render(<ViewContractComponent {...props} />);
     await waitFor(() => {
       screen.getByText("not locked");
     });
@@ -86,7 +86,7 @@ describe('ViewContracts', () => {
         ]),
     });
 
-    render(<ViewContractsComponent {...props} />);
+    render(<ViewContractComponent {...props} />);
     await waitFor(() => {
       screen.getByText("locked");
     });

@@ -13,7 +13,7 @@ import { toRGB } from '../ViewBox';
 import { ViewPurse } from './ViewPurse';
 import { ContractMetadata } from './ContractMetadata';
 
-import './ViewContracts.scss';
+import './ViewContract.scss';
 
 const parseRhoValToJs = (r: { data: string }) => {
   const data = JSON.parse(r.data);
@@ -76,7 +76,7 @@ const Loading = (props: { contractId: string }) => {
     </Fragment>
   );
 };
-export interface ViewContractsProps {
+export interface ViewContractProps {
   namesBlockchain?: Blockchain;
   contractId: string;
   rchainInfos: RChainInfos;
@@ -88,15 +88,15 @@ export interface ViewContractsProps {
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
 }
 
-interface ViewContractsState {
+interface ViewContractState {
   purses: Record<string, RChainTokenPurse>;
   refreshing: boolean;
   error?: string;
   contractConfig?: RChainContractConfig;
 }
 
-export class ViewContractsComponent extends React.Component<ViewContractsProps, ViewContractsState> {
-  constructor(props: ViewContractsProps) {
+export class ViewContractComponent extends React.Component<ViewContractProps, ViewContractState> {
+  constructor(props: ViewContractProps) {
     super(props);
     this.state = {
       purses: {},
@@ -217,6 +217,6 @@ export class ViewContractsComponent extends React.Component<ViewContractsProps, 
   }
 }
 
-export const ViewContracts = connect(null, () => ({
+export const ViewContract = connect(null, () => ({
   getPursesAndContractConfig,
-}))(ViewContractsComponent);
+}))(ViewContractComponent);
