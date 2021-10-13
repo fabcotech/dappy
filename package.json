@@ -56,6 +56,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
+    "@testing-library/user-event": "^13.3.0",
     "@types/chrome": "0.0.71",
     "@types/elliptic": "^6.4.9",
     "@types/jest": "^27.0.2",

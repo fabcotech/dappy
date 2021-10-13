@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import {
   getFakeAccount,
   getFakeRChainInfos,
@@ -26,6 +27,13 @@ describe('PurchaseRecord', () => {
   it('should render', () => {
     const props = getFakePurchaseRecordProps();
 
-    render(<PurchaseRecordComponent {...props} />)
+    const { debug } = render(<PurchaseRecordComponent {...props} />);
+
+    const nameInput = screen.getByLabelText('name / id');
+    userEvent.type(nameInput, "foo");
+    // userEvent.click(screen.getByRole('button', { name: 'lookup name' }));
+
+    // console.log(q);
+    // debug();
   });
 });

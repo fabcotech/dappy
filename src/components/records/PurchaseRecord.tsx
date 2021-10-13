@@ -286,11 +286,12 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
           </div>
         </div>
         <div className="field is-horizontal">
-          <label className="label">
-            {t('name')} / {t('id')}
+          <label className="label" htmlFor="name-input">
+            {t('name / id')}
           </label>
           <div className="control">
             <input
+              id="name-input"
               disabled={this.state.loadingPurse}
               className="input name-input"
               onChange={(e) => {
@@ -310,7 +311,7 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
                   });
                 }
               }}
-              placeholder={`rainbow`}
+              placeholder={t(`name lookup placeholder`)}
             />
           </div>
         </div>
@@ -321,6 +322,7 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
             <button
               type="button"
               className="button is-link"
+              name="lookup"
               disabled={
                 !!this.state.loadedPurse || !this.state.name || this.state.name === '0' || this.state.loadingPurse
               }
