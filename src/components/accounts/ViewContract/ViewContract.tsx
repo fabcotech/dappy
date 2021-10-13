@@ -6,12 +6,11 @@ import * as rchainToolkit from 'rchain-toolkit';
 import * as fromBlockchain from '/store/blockchain';
 import { Blockchain, RChainInfos, Account, RChainContractConfig, RChainTokenPurse } from '/models';
 import { multiCallParseAndValidate, RequestResult } from '/utils/wsUtils';
+import { ContractHeader } from '/components/utils/ContractHeader'
 import { getNodeIndex } from '/utils/getNodeIndex';
 import { rchainTokenValidators, ValidationError } from '/store/decoders';
 
-import { toRGB } from '../ViewBox';
 import { ViewPurse } from './ViewPurse';
-import { ContractMetadata } from './ContractMetadata';
 
 import './ViewContract.scss';
 
@@ -167,21 +166,7 @@ export class ViewContractComponent extends React.Component<ViewContractProps, Vi
       const contractConfig = this.state.contractConfig as RChainContractConfig;
       return (
         <Fragment>
-          <div className="address-and-copy fc">
-            <span className="address">
-              {t('contract') + ' '}
-              {contractConfig.fungible && <span title="Contract for fungible tokens">FT</span>}
-              {!contractConfig.fungible && <span title="Contract for non-fungible tokens">NFT</span>}
-              {this.props.contractId}
-            </span>
-
-            <span className="square ml5" style={{ background: toRGB(this.props.contractId) }}></span>
-            <a type="button" className="underlined-link" onClick={() => window.copyToClipboard(this.props.contractId)}>
-              <i className="fa fa-copy fa-before"></i>
-              {t('copy contract address')}
-            </a>
-          </div>
-          <ContractMetadata contractConfig={contractConfig} />
+          <ContractHeader contractConfig={contractConfig} />
           {this.props.pursesIds.length > 100 && (
             <div className="x-by-100-purses">Purses 100 / {this.props.pursesIds.length}</div>
           )}
