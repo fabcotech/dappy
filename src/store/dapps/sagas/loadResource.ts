@@ -3,7 +3,7 @@ import { readPursesDataTerm } from 'rchain-token';
 import { BeesLoadError, BeesLoadErrorWithArgs } from 'beesjs';
 
 import { multiCall } from '../../../utils/wsUtils';
-import { MultiCallResult } from '../../../models/WebSocket';
+import { MultiCallResult } from '/models/MultiCall';
 import * as fromDapps from '..';
 import * as fromSettings from '../../settings';
 import * as fromBlockchain from '../../blockchain';

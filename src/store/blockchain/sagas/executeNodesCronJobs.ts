@@ -8,7 +8,7 @@ import * as fromMain from '/store/main';
 import { Blockchain, NodeFromNetwork } from '/models';
 import { Action } from '/store/';
 import { validateNodesFromNetwork } from '/store/decoders';
-import { MultiCallError } from '/models/WebSocket';
+import { MultiCallError } from '/models/MultiCall';
 import { multiCall } from '/utils/wsUtils';
 import { getNodeIndex } from '/utils/getNodeIndex';
 

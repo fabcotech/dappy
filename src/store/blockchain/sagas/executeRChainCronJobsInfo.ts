@@ -5,12 +5,11 @@ import { store } from '/store';
 import * as fromBlockchain from '..';
 import * as fromSettings from '/store/settings';
 import * as fromMain from '/store/main';
-import { Blockchain, RChainInfos, RChainInfo } from '/models';
+import { Blockchain, RChainInfos, RChainInfo, MultiCallError } from '/models';
 import { Action } from '/store/';
 import { validateDappyNodeInfo } from '/store/decoders';
 import { multiCall } from '/utils/wsUtils';
 import { getNodeIndex } from '/utils/getNodeIndex';
-import { MultiCallError } from '/models/WebSocket';
 import { RCHAIN_INFOS_EXPIRATION } from '/CONSTANTS';
 
 const executeRChainCronJobsInfo = function* (action: Action) {

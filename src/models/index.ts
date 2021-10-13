@@ -8,7 +8,7 @@ export * from './Navigation';
 export * from './Tab';
 export * from './Account';
 export * from './Nodes';
-export * from './WebSocket';
+export * from './MultiCall';
 export * from './Dappy';
 export * from './File';
 export * from './History';
