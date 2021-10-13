@@ -5,8 +5,9 @@ import * as fromDapps from '/store/dapps';
 import * as fromBlockchain from '/store/blockchain';
 import * as fromHistory from '/store/history';
 import * as fromSettings from '/store/settings';
-import './NavigationBar.scss';
 import { WithSuggestions } from './WithSuggestions';
+
+import './NavigationBar.scss';
 
 class NavigationBarHomeComponent extends WithSuggestions {
   render() {
@@ -69,6 +70,8 @@ export const NavigationBarHome = connect(
       canGoBackward: false,
       search: undefined,
       loadState: undefined,
+      address: undefined,
+      recordBadges: undefined,
       servers: [],
     };
   },

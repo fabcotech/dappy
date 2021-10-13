@@ -52,7 +52,7 @@ declare global {
     uniqueEphemeralToken: string;
     singleDappyCall: (body: any, parameters: any) => Promise<any>;
     multiDappyCall: (body: any, parameters: any) => Promise<MultiCallResult>;
-    getIpAddressAndCert: (parameters: any) => void;
+    getIpAddressAndCert:  (string) => Promise<{cert: string, ip: string}>;
     generateCertificateAndKey: () => Promise<{ key: string; certificate: string }>;
     triggerCommand: (command: string, payload?: { [key: string]: string }) => void;
     initContextMenu: () => void;

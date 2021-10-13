@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { updatePurseDataTerm } from 'rchain-token';
 
-import { Record, TransactionState, RChainInfos, Account, PartialRecord, Blockchain } from '/models';
+import { Record, TransactionState, RChainInfos, Account, PartialRecord, Blockchain, MultiCallResult } from '/models';
 import { blockchain as blockchainUtils } from '/utils';
 import { validateRecordFromNetwork } from '/store/decoders';
 import * as fromBlockchain from '/store/blockchain';
@@ -113,8 +113,9 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
 
     try {
       const dataFromBlockchain = (multiCallResult as MultiCallResult).result.data;
-      const dataFromBlockchainParsed: { data: { results: { data: string }[] } } = JSON.parse(dataFromBlockchain);
+      const dataFromBlockchainParsed: { records: any } = JSON.parse(dataFromBlockchain);
       const record = dataFromBlockchainParsed.records[0];
+      console.log('dataFromBlockchainParsed', dataFromBlockchainParsed);
 
       if (record) {
         if (record && record.servers) {
@@ -328,9 +329,10 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
               </h4>
               <RecordForm
                 nameDisabledAndForced={this.state.loadedRecord.name}
-                records={{}}
                 partialRecord={this.state.loadedRecord}
-                filledRecord={(a) => this.setState({ newRecord: a })}></RecordForm>
+                filledRecord={(a) => this.setState({ newRecord: a })}
+                special={undefined}
+                validateName={undefined} />
             </>
           )}
           {this.state.loadedRecord && <BoxAndPublicKeyError />}

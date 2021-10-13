@@ -141,12 +141,6 @@ export class IdentificationForm extends React.Component<IdentificationFormProps,
               {this.state.atLeastOneAccount && !this.state.usePrivateKey ? (
                 <AccountSelectComponent
                   chooseBox={true}
-                  usePrivateKey={() => {
-                    setFieldValue('privateKey', '');
-                    this.setState({
-                      usePrivateKey: true,
-                    });
-                  }}
                   updatePrivateKey={(a) => {
                     console.log(a);
                     setFieldValue('privateKey', a.privatekey);

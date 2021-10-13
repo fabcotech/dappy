@@ -57,7 +57,7 @@ class FetchContractComponent extends React.Component<FetchContractProps, {}> {
 
     return (
       <div className="fetch-contract">
-        <NavigationBarHome></NavigationBarHome>
+        <NavigationBarHome />
         <div className="home-page">
           <div className="froggy">
             <div className="img">

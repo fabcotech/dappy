@@ -97,8 +97,8 @@ export class AccountSelectComponent extends React.Component<AccountSelectCompone
             this.stream.shamefullySendNext({ account: account, password: values.password });
           }
           return errors;
-        }}
-        render={({ values, errors, touched, setFieldValue }) => {
+        }}>
+        {({ values, errors, touched, setFieldValue }) => {
           return (
             <div className="account-form">
               <div className="field is-horizontal">
@@ -166,7 +166,7 @@ export class AccountSelectComponent extends React.Component<AccountSelectCompone
             </div>
           );
         }}
-      />
+      </Formik>
     );
   }
 }
@@ -278,8 +278,8 @@ export class TransactionForm extends React.Component<TransactionFormProps, Trans
           }
 
           return errors;
-        }}
-        render={({ errors, touched, handleSubmit, setFieldValue }) => {
+        }}>
+        {({ errors, touched, handleSubmit, setFieldValue }) => {
           return (
             <form className="transaction-form" onSubmit={handleSubmit}>
               <h5 className="is-6 title">{t('transaction')}</h5>
@@ -312,7 +312,7 @@ export class TransactionForm extends React.Component<TransactionFormProps, Trans
             </form>
           );
         }}
-      />
+      </Formik>
     );
   }
 }

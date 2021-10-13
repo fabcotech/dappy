@@ -1,18 +1,17 @@
 import React, { Fragment } from 'react';
 import { Formik, Field } from 'formik';
 
-import './RecordsForm.scss';
-import { Record, IPServer, RChainInfo, PartialRecord, Blockchain } from '/models';
+import { IPServer, RChainInfo, PartialRecord, Blockchain } from '/models';
 import { BadgeAppreciation } from '../utils/BadgeAppreciation';
 import { IPServersComponent } from './IPServers';
 
+import './RecordsForm.scss';
+
 interface RecordFormProps {
-  validateName?: boolean;
+  validateName: undefined | boolean;
   nameDisabledAndForced: undefined | string;
-  records: { [key: string]: Record };
   partialRecord: PartialRecord | undefined;
-  special?: RChainInfo['special'];
-  namesBlockchain?: Blockchain;
+  special: RChainInfo['special'] | undefined;
   filledRecord: (t: undefined | PartialRecord) => void;
 }
 
@@ -132,8 +131,8 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
               errors.names[0] = t('field required');
             } else if (this.props.validateName && !/^[a-z][a-z0-9]*$/.test(values.names[0])) {
               errors.names[0] = t('record regexp');
-            } else if (values.names[0].length < 1 || values.names[0].length > 24) {
-              errors.names[i] = t('record length');
+              // } else if (values.names[0].length < 1 || values.names[0].length > 24) {
+              // errors.names[i] = t('record length');
             }
 
             if (values.type === 'ip') {
@@ -168,8 +167,8 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
           // will be used by the async function
           return errors;
         }}
-        onSubmit={() => {}}
-        render={({ validateForm, values, setFieldValue, setFieldTouched, errors, touched }) => {
+        onSubmit={() => {}}>
+        {({ validateForm, values, setFieldValue, setFieldTouched, errors, touched }) => {
           if (this.initValidate === false) {
             this.initValidate = true;
             validateForm();
@@ -246,7 +245,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                               name={`names.${i}`}
                               placeholder={`name ${i}`}
                             />
-                            {touched.names && touched.names[i] && errors.names && errors.names[i] && (
+                            {touched.names && (touched as any).names[i] && errors.names && errors.names[i] && (
                               <p className="text-danger name-error no-padding">{(errors as any).names[i]}</p>
                             )}
                           </Fragment>
@@ -282,7 +281,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                     )}
                   </div>
                 </div>
-                {touched.names && touched.names[0] && errors.names && errors.names[0] && (
+                {touched.names && (touched as any).names[0] && errors.names && errors.names[0] && (
                   <p className="text-danger">{(errors as any).names[0]}</p>
                 )}
                 <div className="field is-horizontal">
@@ -453,7 +452,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
             </form>
           );
         }}
-      />
+      </Formik>
     );
   }
 }

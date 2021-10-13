@@ -3,7 +3,6 @@ import { purchaseTerm, readPursesTerm } from 'rchain-token';
 import * as rchainToolkit from 'rchain-toolkit';
 
 import {
-  Record,
   TransactionState,
   RChainInfos,
   Account,
@@ -26,13 +25,11 @@ import { RecordForm } from '.';
 
 import './RecordsForm.scss';
 
-interface PurchaseRecordProps {
-  records: { [key: string]: Record };
-  transactions: { [id: string]: TransactionState };
-  rchainInfos: { [chainId: string]: RChainInfos };
-  namesBlockchainInfos: RChainInfos | undefined;
-  accounts: { [accountName: string]: Account };
+export interface PurchaseRecordProps {
+  accounts: Record<string, Account>;
   namesBlockchain: Blockchain;
+  transactions: { [id: string]: TransactionState };
+  namesBlockchainInfos: RChainInfos;
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
 }
 
@@ -52,7 +49,7 @@ const defaultState = {
   loadingPurse: false,
 };
 
-export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
+export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps, {}> {
   constructor(props: PurchaseRecordProps) {
     super(props);
     this.setTouched = undefined;
@@ -123,7 +120,7 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
           multiCallId: fromBlockchain.EXPLORE_DEPLOY_X,
         }
       );
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
       this.setState({
         loadedPurse: undefined,
@@ -218,23 +215,6 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
   };
 
   render() {
-    if (
-      !this.props.namesBlockchainInfos ||
-      !(this.props.namesBlockchainInfos as RChainInfos).info ||
-      !(this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesMasterRegistryUri ||
-      !(this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesContractId
-    ) {
-      return (
-        <Fragment>
-          <h3 className="subtitle is-4">{t('purchase a name')}</h3>
-          <p
-            className="limited-width"
-            dangerouslySetInnerHTML={{
-              __html: t('purchase a name 2'),
-            }}></p>
-        </Fragment>
-      );
-    }
     const info = (this.props.namesBlockchainInfos as RChainInfos).info;
 
     if (
@@ -419,8 +399,6 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
             nameDisabledAndForced={this.state.name}
             filledRecord={this.onFilledRecords}
             partialRecord={this.state.partialRecord}
-            records={this.props.records}
-            namesBlockchain={this.props.namesBlockchain}
           />
         )}
         <form>
@@ -447,3 +425,5 @@ export class PurchaseRecord extends React.Component<PurchaseRecordProps, {}> {
     );
   }
 }
+
+export const PurchaseRecord = PurchaseRecordComponent;

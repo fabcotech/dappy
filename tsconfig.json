@@ -29,7 +29,8 @@
   },
   "include": [
     "src",
-    "./jest/setup.ts"
+    "./jest/setup.ts",
+    "node_modules/beesjs/**/*.ts",
   ],
   "linterOptions": {
     "exclude": [

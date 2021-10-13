@@ -223,7 +223,7 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                           </div>
                         </div>
                         {retrieveError && <p className="text-danger">{retrieveError}</p>}
-                        {touchedServer && touchedServer.host && errorsServer && errorsServer.host && (
+                        {touchedServer && touchedServer.host && errorsServer && typeof errorsServer !== 'string' && (
                           <p className="text-danger">{errorsServer.host}</p>
                         )}
                         <div className="field is-horizontal">
@@ -237,7 +237,7 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                             />
                           </div>
                         </div>
-                        {touchedServer && touchedServer.ip && errorsServer && errorsServer.ip && (
+                        {touchedServer && touchedServer.ip && errorsServer && typeof errorsServer !== 'string' && (
                           <p className="text-danger">{errorsServer.ip}</p>
                         )}
                         <div className="field is-horizontal">
@@ -281,7 +281,7 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                             {t('primary server paragraph')}
                           </div>
                         </div>
-                        {touchedServer && touchedServer.cert && errorsServer && errorsServer.cert && (
+                        {touchedServer && touchedServer.cert && errorsServer && typeof errorsServer !== 'string' && (
                           <p className="text-danger">{errorsServer.cert}</p>
                         )}
                       </div>

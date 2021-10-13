@@ -68,7 +68,7 @@ class DownloadFileComponent extends React.Component<DownloadFileComponentProps> 
     return (
       <div
         ref={this.setMainEl}
-        className={`loaded-file ${this.props.tab.id} ${this.props.lastLoadError ? 'with-error' : ''}`}>
+        className={`loaded-file ${this.props.tab.id}`}>
         {!!this.props.loadedFile ? (
           <div className="download-file">
             <div>

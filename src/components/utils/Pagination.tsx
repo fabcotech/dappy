@@ -8,13 +8,11 @@ export function Pagination(props: { pages: number; currentPage: number; changePa
       <nav className="pagination is-centered" role="navigation" aria-label="pagination">
         <a
           className="pagination-previous"
-          disabled={props.currentPage === 1}
           onClick={a => (props.currentPage === 1 ? undefined : props.changePage(props.currentPage - 1))}>
           {t('previous')}
         </a>
         <a
           className="pagination-next"
-          disabled={props.currentPage === props.pages}
           onClick={a => (props.currentPage === props.pages ? undefined : props.changePage(props.currentPage + 1))}>
           {t('next')}
         </a>
@@ -95,13 +93,11 @@ export function Pagination(props: { pages: number; currentPage: number; changePa
       <nav className="pagination is-centered" role="navigation" aria-label="pagination">
         <a
           className="pagination-previous"
-          disabled={props.currentPage === 1}
           onClick={a => (props.currentPage === 1 ? undefined : props.changePage(props.currentPage - 1))}>
           {t('previous')}
         </a>
         <a
           className="pagination-next"
-          disabled={props.currentPage === props.pages}
           onClick={a => (props.currentPage === props.pages ? undefined : props.changePage(props.currentPage + 1))}>
           {t('next')}
         </a>

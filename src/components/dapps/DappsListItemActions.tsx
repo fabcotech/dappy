@@ -40,11 +40,11 @@ export class ActionsComponent extends React.Component<ActionsProps, {}> {
     }
   };
 
-  onClick = (e) => {
+  onClick = (e: MouseEvent) => {
     if (!this.el) {
       return;
     }
-    if (this.state.active && !this.el.parentElement.querySelector(':hover')) {
+    if (this.state.active && this.el.parentElement && !this.el.parentElement.querySelector(':hover')) {
       this.setState({
         active: false,
       });

@@ -14,10 +14,10 @@ interface DisplayErrorComponentProps {
   loadResource: (address: string, tabId: string) => void;
 }
 
-class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps, DisplayErrorComponentState> {
+class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps> {
   el: null | HTMLIFrameElement = null;
 
-  shouldComponentUpdate(nextProps: DisplayErrorComponentProps, nextState: DisplayErrorComponentState) {
+  shouldComponentUpdate(nextProps: DisplayErrorComponentProps) {
     if (this.el) {
       this.el.style.zIndex = nextProps.zIndex.toString();
     }

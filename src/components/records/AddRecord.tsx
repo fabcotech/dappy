@@ -35,7 +35,8 @@ export const AddRecord = (props: AddRecordProps) => {
         key={resetForm}
         filledRecord={(a: PartialRecord | undefined) => setPartialRecord(a)}
         partialRecord={partialRecord}
-        records={props.records}
+        validateName={undefined}
+        special={undefined}
       />
       <div className="field is-horizontal is-grouped pt20">
         <div className="control">

@@ -1,6 +1,6 @@
-import { RChainTokenPurse, Account, RChainInfos, Blockchain, RChainContractConfig } from '/models';
+import { RChainTokenPurse, Account, RChainInfos, Blockchain, RChainContractConfig, Record } from '/models';
 
-export const getFakeAccount = (account: Partial<Account> = {}) => ({
+export const getFakeAccount = (account: Partial<Account> = {}): Account => ({
   platform: 'rchain',
   name: 'account1',
   publicKey:
@@ -23,14 +23,14 @@ export const getFakePurse = (props: Partial<RChainTokenPurse> = {}): RChainToken
   ...props,
 });
 
-export const getFakeRChainInfos = (rchainInfos: Partial<RChainInfos> = {}) => ({
-  chainId: 'chain',
+export const getFakeRChainInfos = (rchainInfos: Partial<RChainInfos> = {}): RChainInfos => ({
+  chainId: 'chain1',
   date: '2021-10-11T13:00:00.000Z',
   info: {
     dappyNodeVersion: 'x.x.x',
     lastFinalizedBlockNumber: 12,
     namePrice: 100000,
-    rchainNamesContractId: 'otherContract',
+    rchainNamesContractId: 'contract1',
     rchainNamesMasterRegistryUri: 'nosd1g9idkg3dtuhucgy8bd3788iayddxpsnhnzspcw9dyms5an5up',
     rnodeVersion: 'RChain Node 0.12.1 (28aa7954c3b8f6e9a9774a74214dcf2f3b69667b)',
     rchainNetwork: 'fakenet',
@@ -41,7 +41,7 @@ export const getFakeRChainInfos = (rchainInfos: Partial<RChainInfos> = {}) => ({
 export const getFakeBlockChain = (blockChain: Partial<Blockchain> = {}): Blockchain => ({
   platform: 'rchain',
   chainId: 'chain1',
-  chainName: 'chainName1',
+  chainName: 'chain1',
   nodes: [],
   ...blockChain
 });

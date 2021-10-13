@@ -110,7 +110,7 @@ class NavigationBarComponent extends WithSuggestions {
             className={`${this.state.pristine ? 'pristine' : ''} input`}
             value={this.state.search || ''}
             onChange={this.onChange}
-            onKeyDown={this.onKeyDown}></input>
+            onKeyDown={this.onKeyDown} />
           <div
             className={`fc tip-div ${
               this.props.resourceLoaded && this.props.publicKey && this.props.chainId && this.props.resourceId

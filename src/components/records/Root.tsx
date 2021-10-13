@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
-import { Record, RecordFromNetwork, TransactionState, RChainInfos, Account, Blockchain, NavigationUrl } from '/models';
+import { Record, RecordFromNetwork, TransactionState, RChainInfos, Account, Blockchain } from '/models';
 import * as fromBlockchain from '/store/blockchain';
 import * as fromSettings from '/store/settings';
 
@@ -14,13 +14,11 @@ import { Records } from './Records';
 import './Records.scss';
 
 interface RecordsRootProps {
-  navigationUrl: string;
-  navigate: (navigationUrl: NavigationUrl) => void;
+  namesBlockchain: Blockchain | undefined;
   records: { [name: string]: Record };
   recordNamesInAlphaOrder: string[];
   transactions: { [id: string]: TransactionState };
   rchainInfos: { [chainId: string]: RChainInfos };
-  namesBlockchain: Blockchain;
   namesBlockchainInfos: RChainInfos | undefined;
   accounts: { [accountName: string]: Account };
   addRecord: (a: RecordFromNetwork) => void;
@@ -29,6 +27,25 @@ interface RecordsRootProps {
 
 export function RootComponent(props: RecordsRootProps) {
   const [tab, setTab] = useState('names');
+
+  if (
+    !props.namesBlockchainInfos ||
+    !(props.namesBlockchainInfos as RChainInfos).info ||
+    !(props.namesBlockchainInfos as RChainInfos).info.rchainNamesMasterRegistryUri ||
+    !(props.namesBlockchainInfos as RChainInfos).info.rchainNamesContractId ||
+    !props.namesBlockchain
+  ) {
+    return (
+      <div className="settings-names p20 has-background-white">
+        <h3 className="subtitle is-4">{t('purchase a name')}</h3>
+        <p
+          className="limited-width"
+          dangerouslySetInnerHTML={{
+            __html: t('purchase a name 2'),
+          }}></p>
+      </div>
+    );
+  }
 
   return (
     <div className="settings-names p20 has-background-white">
@@ -62,8 +79,6 @@ export function RootComponent(props: RecordsRootProps) {
       {tab === 'purchase-name' ? (
         <PurchaseRecord
           transactions={props.transactions}
-          records={props.records}
-          rchainInfos={props.rchainInfos}
           namesBlockchainInfos={props.namesBlockchainInfos}
           accounts={props.accounts}
           sendRChainTransaction={props.sendRChainTransaction}

@@ -8,5 +8,11 @@ module.exports = {
   },
   setupFilesAfterEnv: [
     '<rootDir>/jest/setup.ts'
+  ],
+  transform: {
+    "node_modules/beesjs/.+\\.(j|t)sx?$": "ts-jest"
+  },
+  transformIgnorePatterns: [
+    "node_modules/(?!beesjs/.*)"
   ]
 };

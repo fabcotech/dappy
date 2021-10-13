@@ -102,7 +102,7 @@ class RootComponent extends React.Component<RootComponentProps, {}> {
             <SettingsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
           ) : undefined}
           {this.props.isNavigationInNames ? (
-            <RecordRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
+            <RecordRoot />
           ) :undefined}
           {this.props.isNavigationInAccounts ? (
             <AccountsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />

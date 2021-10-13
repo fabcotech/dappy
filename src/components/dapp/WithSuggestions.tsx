@@ -218,7 +218,7 @@ export class WithSuggestionsComponent extends React.Component<
     });
   };
 
-  onKeyDown = (e: React.KeyboardEventHandler<HTMLInputElement>) => {
+  onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = e => {
     if (e.key === 'Enter' && this.stream) {
       this.stream.shamefullySendNext({ search: this.state.search || '', launch: true });
     }
