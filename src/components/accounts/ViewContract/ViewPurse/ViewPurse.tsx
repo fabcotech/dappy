@@ -18,14 +18,14 @@ const expiresIn = (now: () => number) => (purseCreationTimestamp: number, contra
   toDurationString(t, toDuration(purseCreationTimestamp + contractExpirationDuration - now()));
 
 export interface ViewPurseProps {
-  fungible?: boolean;
   id: string;
+  fungible: boolean | undefined;
   contractId: string;
-  privateKey?: string;
+  privateKey: string | undefined;
   rchainInfos: RChainInfos;
   account: Account;
-  purse?: RChainTokenPurse;
-  contractExpiration?: number;
+  purse: RChainTokenPurse | undefined;
+  contractExpiration: number | undefined;
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
   now: () => number;
 }

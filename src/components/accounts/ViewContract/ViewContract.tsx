@@ -77,12 +77,12 @@ const Loading = (props: { contractId: string }) => {
   );
 };
 export interface ViewContractProps {
-  namesBlockchain?: Blockchain;
+  namesBlockchain: Blockchain | undefined;
   contractId: string;
   rchainInfos: RChainInfos;
   pursesIds: string[];
   version: string;
-  privateKey?: string;
+  privateKey: string | undefined;
   account: Account;
   getPursesAndContractConfig: typeof getPursesAndContractConfig;
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
