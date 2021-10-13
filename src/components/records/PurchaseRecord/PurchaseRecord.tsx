@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
-import { purchaseTerm, readPursesTerm } from 'rchain-token';
-import * as rchainToolkit from 'rchain-toolkit';
+import { connect } from 'react-redux';
+import { purchaseTerm } from 'rchain-token';
 
 import {
   TransactionState,
@@ -9,27 +9,29 @@ import {
   PartialRecord,
   TransactionStatus,
   Blockchain,
-  MultiCallResult,
   RChainTokenPurse,
+  RChainContractConfig,
 } from '/models';
 import { formatAmountNoDecimal, formatAmount } from '/utils/formatAmount';
+import { getPursesAndContractConfig } from '/api/rchain-token';
 import { blockchain as blockchainUtils } from '/utils';
-import { multiCall } from '/utils/wsUtils';
-import { getNodeIndex } from '/utils/getNodeIndex';
 import { validateName } from '/utils/validateSearch';
 import * as fromBlockchain from '/store/blockchain';
 import { LOGREV_TO_REV_RATE } from '/CONSTANTS';
+import { ValidationError } from '/store/decoders';
+import { ContractHeader } from '/components/utils/ContractHeader';
 
-import { TransactionForm } from '../utils';
-import { RecordForm } from '.';
+import { TransactionForm } from '../../utils';
+import { RecordForm } from '..';
 
-import './RecordsForm.scss';
+import './PurchaseRecord.scss';
 
 export interface PurchaseRecordProps {
   accounts: Record<string, Account>;
   namesBlockchain: Blockchain;
   transactions: { [id: string]: TransactionState };
   namesBlockchainInfos: RChainInfos;
+  getPursesAndContractConfig: typeof getPursesAndContractConfig;
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
 }
 
@@ -47,6 +49,7 @@ const defaultState = {
   loadNameError: undefined,
   loadedPurse: undefined,
   loadingPurse: false,
+  contractConfig: undefined,
 };
 
 export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps, {}> {
@@ -65,12 +68,12 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
     phloLimit: number;
     settingUpIpServers: boolean;
     partialRecord: PartialRecord | undefined;
-
     contractId: string;
     name: string;
     loadNameError: undefined | string;
     loadedPurse: undefined | RChainTokenPurse;
     loadingPurse: boolean;
+    contractConfig: RChainContractConfig | undefined;
   } = defaultState;
 
   transactionId = '';
@@ -92,64 +95,38 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
       loadedPurse: undefined,
     });
 
-    const indexes = this.props.namesBlockchain.nodes.map(getNodeIndex);
+    const [pursesRequest, contractConfigRequest] = await this.props.getPursesAndContractConfig({
+      masterRegistryUri: this.props.namesBlockchainInfos.info.rchainNamesMasterRegistryUri,
+      contractId: this.state.contractId || (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesContractId,
+      pursesIds: [this.state.name, '0'],
+      blockchain: this.props.namesBlockchain,
+      version: '12.0.1', // Who give the version to use ?
+    });
 
-    // todo only ask for names that are not in this.state.availables
-    let multiCallResult;
-    try {
-      multiCallResult = await multiCall(
-        {
-          type: 'explore-deploy-x',
-          body: {
-            terms: [
-              readPursesTerm({
-                masterRegistryUri: (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesMasterRegistryUri,
-                contractId:
-                  this.state.contractId || (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesContractId,
-                pursesIds: [this.state.name, '0'],
-              }),
-            ],
-          },
-        },
-        {
-          chainId: this.props.namesBlockchain.chainId,
-          urls: indexes,
-          resolverMode: 'absolute',
-          resolverAccuracy: 100,
-          resolverAbsolute: indexes.length,
-          multiCallId: fromBlockchain.EXPLORE_DEPLOY_X,
-        }
-      );
-    } catch (err: any) {
-      console.log(err);
+    const validationErrors = [pursesRequest.validationErrors, contractConfigRequest.validationErrors]
+      .filter((v) => !!v)
+      .flatMap((e) => e) as ValidationError[];
+
+    if (validationErrors.length) {
+      const errorMsg = validationErrors.map((e) => `${t('error')} ${e.dataPath}: ${e.message}`).join(', ');
       this.setState({
         loadedPurse: undefined,
         loadingPurse: false,
-        loadNameError: err.error.error,
+        loadNameError: errorMsg,
       });
       return;
     }
 
-    try {
-      const dataFromBlockchain = (multiCallResult as MultiCallResult).result.data;
-      const dataFromBlockchainParsed: { data: { results: { data: string }[] } } = JSON.parse(dataFromBlockchain);
-      const records = rchainToolkit.utils.rhoValToJs(JSON.parse(dataFromBlockchainParsed.data.results[0].data).expr[0]);
+    const records = pursesRequest.result;
+    const recordOnChain = records[this.state.name];
+    const recordZero = records['0'];
 
-      const recordOnChain = records[this.state.name];
-      const recordZero = records['0'];
-      this.setState({
-        loadingPurse: false,
-        loadedPurse: recordOnChain || recordZero,
-        loadNameError: undefined,
-      });
-    } catch (err) {
-      console.log(err);
-      this.setState({
-        loadingPurse: false,
-        loadedPurse: undefined,
-        loadNameError: 'Error when parsing result',
-      });
-    }
+    this.setState({
+      loadingPurse: false,
+      loadedPurse: recordOnChain || recordZero,
+      loadNameError: undefined,
+      contractConfig: contractConfigRequest.result,
+    });
   };
 
   onFilledRecords = (t: PartialRecord | undefined) => {
@@ -341,21 +318,20 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
               <label className="label"></label>
               <div className={`control you-will-purchase-control ${dNetwork ? 'dNetwork' : ''}`}>
                 {dNetwork && (
-                  <h4 className="d-network">
-                    {' '}
-                    <span className="fa  fa-check"></span> d network
-                  </h4>
+                  <div className="d-network">
+                    <span className="fa fa-check"></span> d network
+                  </div>
                 )}
-                <h4 className="you-will-purchase-purse">
-                  {' '}
-                  <span className="fa  fa-check"></span> {t('name is available')}
-                </h4>
-                <h5 className="current-price-existing-purse">
+                <div className="you-will-purchase-purse">
+                  <span className="fa fa-check"></span> {t('name is available')}
+                </div>
+                <div className="current-price-existing-purse">
                   {t('at price')}
                   <span className="num">{formatAmount(this.state.loadedPurse.price / LOGREV_TO_REV_RATE)}</span>
                   <span className="unit">{t('rev', true)} / </span>
                   <span className="dust">{formatAmountNoDecimal(this.state.loadedPurse.price)} dust</span>
-                </h5>
+                </div>
+                <div>{this.state.contractConfig && <ContractHeader contractConfig={this.state.contractConfig} />}</div>
               </div>
             </div>
           )}
@@ -428,4 +404,6 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
   }
 }
 
-export const PurchaseRecord = PurchaseRecordComponent;
+export const PurchaseRecord = connect(null, () => ({
+  getPursesAndContractConfig,
+}))(PurchaseRecordComponent);

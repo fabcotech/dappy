@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 
 import * as fromBlockchain from '/store/blockchain';
-import { getPursesAndContractConfig } from '/api/dappy';
+import { getPursesAndContractConfig } from '/api/rchain-token';
 import { Blockchain, RChainInfos, Account, RChainContractConfig, RChainTokenPurse } from '/models';
 import { ContractHeader } from '/components/utils/ContractHeader'
 import { ValidationError } from '/store/decoders';
@@ -40,7 +40,7 @@ interface ViewContractState {
   purses: Record<string, RChainTokenPurse>;
   refreshing: boolean;
   error?: string;
-  contractConfig?: RChainContractConfig;
+  contractConfig: RChainContractConfig | undefined;
 }
 
 export class ViewContractComponent extends React.Component<ViewContractProps, ViewContractState> {
@@ -49,6 +49,7 @@ export class ViewContractComponent extends React.Component<ViewContractProps, Vi
     this.state = {
       purses: {},
       refreshing: false,
+      contractConfig: undefined,
     };
   }
 
@@ -92,7 +93,7 @@ export class ViewContractComponent extends React.Component<ViewContractProps, Vi
       .flatMap((e) => e) as ValidationError[];
 
     if (validationErrors.length) {
-      this.displayError(validationErrors.map((e) => `${t('error')} on ${e.dataPath}: ${e.message}`).join(', '));
+      this.displayError(validationErrors.map((e) => `${t('error')} ${e.dataPath}: ${e.message}`).join(', '));
       return;
     }
 
