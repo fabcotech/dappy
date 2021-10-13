@@ -115,7 +115,6 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
       const dataFromBlockchain = (multiCallResult as MultiCallResult).result.data;
       const dataFromBlockchainParsed: { records: any } = JSON.parse(dataFromBlockchain);
       const record = dataFromBlockchainParsed.records[0];
-      console.log('dataFromBlockchainParsed', dataFromBlockchainParsed);
 
       if (record) {
         if (record && record.servers) {
