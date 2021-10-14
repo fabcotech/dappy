@@ -4,7 +4,7 @@ import { rhoValToJs } from 'rchain-toolkit/dist/utils';
 
 import { buildUnforgeableDeployQuery } from '/utils/buildUnforgeableDeployQuery';
 import { buildUnforgeableNameQuery } from '/utils/buildUnforgeableNameQuery';
-import { multiCall } from '/utils/wsUtils';
+import { multiCall } from '/interProcess';
 import { Account, Blockchain, RChainInfos, TransactionState, TransactionStatus, MultiCallError } from '/models';
 import * as fromBlockchain from '/store/blockchain';
 import * as fromMain from '/store/main';

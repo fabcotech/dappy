@@ -6,7 +6,7 @@ import { blockchain as blockchainUtils } from '/utils';
 import { validateRecordFromNetwork } from '/store/decoders';
 import * as fromBlockchain from '/store/blockchain';
 import { getNodeIndex } from '/utils/getNodeIndex';
-import { multiCall } from '/utils/wsUtils';
+import { multiCall } from '/interProcess';
 
 import { TransactionForm } from '../utils';
 import { RecordForm } from './RecordForm';
@@ -331,7 +331,8 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
                 partialRecord={this.state.loadedRecord}
                 filledRecord={(a) => this.setState({ newRecord: a })}
                 special={undefined}
-                validateName={undefined} />
+                validateName={undefined}
+              />
             </>
           )}
           {this.state.loadedRecord && <BoxAndPublicKeyError />}

@@ -8,7 +8,7 @@ import { Blockchain } from '/models';
 import { Action } from '/store/';
 import { validateRecordFromNetwork } from '/store/decoders';
 import { MultiCallError, Account } from '/models/';
-import { multiCall } from '/utils/wsUtils';
+import { multiCall } from '/interProcess';
 import { getNodeIndex } from '/utils/getNodeIndex';
 
 const executeRecordsByPublicKeyCronJobs = function* (action: Action) {
@@ -61,7 +61,7 @@ const executeRecordsByPublicKeyCronJobs = function* (action: Action) {
           if (recordFromBlockchain.badges) {
             recordFromBlockchain.badges = JSON.parse(recordFromBlockchain.badges);
           }
-          if (typeof recordFromBlockchain.price === "string" && recordFromBlockchain.price.length) {
+          if (typeof recordFromBlockchain.price === 'string' && recordFromBlockchain.price.length) {
             recordFromBlockchain.price = parseInt(recordFromBlockchain.price, 10);
           }
           try {

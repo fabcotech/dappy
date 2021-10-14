@@ -2,7 +2,7 @@ import { put, takeEvery, select } from 'redux-saga/effects';
 import { readPursesDataTerm } from 'rchain-token';
 import { BeesLoadError, BeesLoadErrorWithArgs } from 'beesjs';
 
-import { multiCall } from '../../../utils/wsUtils';
+import { multiCall } from '/interProcess';
 import { MultiCallResult } from '/models/MultiCall';
 import * as fromDapps from '..';
 import * as fromSettings from '../../settings';

@@ -5,10 +5,10 @@ import { Blockchain, TransactionStatus, BlockchainNode, MultiCallError } from '/
 import * as fromBlockchain from '..';
 import { buildUnforgeableNameQuery } from '/utils/buildUnforgeableNameQuery';
 import * as fromMain from '/store/main';
-import { multiCall } from '/utils/wsUtils';
+import { multiCall } from '/interProcess';
 import { Action, store } from '/store/';
 import * as fromSettings from '/store/settings';
-import { singleCall } from '/utils/wsUtils';
+import { singleCall } from '/interProcess';
 import { validateRchainTokenOperationResult } from '/store/decoders';
 import { getNodeIndex } from '/utils/getNodeIndex';
 

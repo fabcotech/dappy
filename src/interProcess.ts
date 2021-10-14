@@ -1,8 +1,19 @@
 import { Store } from 'redux';
+
+import { MultiCallBody, MultiCallError, MultiCallParameters, MultiCallResult } from '/models';
 import * as fromDapps from './store/dapps';
 import * as fromMain from './store/main';
+import { BeesLoadError } from 'beesjs';
 
 const actionsAwaitingEphemeralToken: any[] = [];
+
+export const singleCall = (body: { [key: string]: any }, node: BlockchainNode) => {
+  return window.singleDappyCall(body, node);
+};
+
+export const multiCall = (body: MultiCallBody, parameters: MultiCallParameters): Promise<MultiCallResult> => {
+  return window.multiDappyCall(body, parameters);
+};
 
 export const interProcess = (store: Store) => {
   let uniqueEphemeralToken = '';
@@ -181,15 +192,16 @@ export const interProcess = (store: Store) => {
       interProcess.onload = (a) => {
         try {
           const r = JSON.parse(a.target.responseText);
+          console.log(r);
           if (r.success) {
-            resolve(r.data);
+            resolve(r.data as MultiCallResult);
           } else {
-            reject(r);
+            reject(r as MultiCallError);
           }
         } catch (e) {
           console.log(a.target.responseText);
           console.log(e);
-          reject({ message: 'could not parse response' });
+          reject({ error: { error: BeesLoadError.FailedToParseResponse, args: {} }, loadState: {} } as MultiCallError);
         }
       };
     });

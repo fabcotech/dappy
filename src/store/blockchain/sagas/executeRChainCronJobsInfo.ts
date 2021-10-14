@@ -8,7 +8,7 @@ import * as fromMain from '/store/main';
 import { Blockchain, RChainInfos, RChainInfo, MultiCallError } from '/models';
 import { Action } from '/store/';
 import { validateDappyNodeInfo } from '/store/decoders';
-import { multiCall } from '/utils/wsUtils';
+import { multiCall } from '/interProcess';
 import { getNodeIndex } from '/utils/getNodeIndex';
 import { RCHAIN_INFOS_EXPIRATION } from '/CONSTANTS';
 

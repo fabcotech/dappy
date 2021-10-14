@@ -9,7 +9,7 @@ import { Blockchain, NodeFromNetwork } from '/models';
 import { Action } from '/store/';
 import { validateNodesFromNetwork } from '/store/decoders';
 import { MultiCallError } from '/models/MultiCall';
-import { multiCall } from '/utils/wsUtils';
+import { multiCall } from '/interProcess';
 import { getNodeIndex } from '/utils/getNodeIndex';
 
 const executeNodesCronJobs = function* (action: Action) {

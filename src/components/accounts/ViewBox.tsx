@@ -5,7 +5,7 @@ import Ajv from 'ajv';
 
 import * as fromBlockchain from '/store/blockchain';
 import { Blockchain, MultiCallResult, RChainInfos, Account } from '/models';
-import { multiCall } from '/utils/wsUtils';
+import { multiCall } from '/interProcess';
 import { toRGB } from '/utils/color';
 import { DAPPY_TOKEN_CONTRACT_ID, RCHAIN_TOKEN_SUPPORTED_VERSIONS } from '/CONSTANTS';
 import { getNodeIndex } from '/utils/getNodeIndex';

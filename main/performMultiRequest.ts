@@ -2,7 +2,7 @@ import http from 'http';
 import { resolver, BeesLoadError } from 'beesjs';
 
 import { getNodeFromIndex } from '../src/utils/getNodeFromIndex';
-import { MultiCallBody, MultiCallParameters, MultiCallResult, MultiCallError } from '../src/models/WebSocket';
+import { MultiCallBody, MultiCallParameters, MultiCallResult, MultiCallError } from '../src/models/';
 import * as fromBlockchains from './store/blockchains';
 import { httpBrowserToNode } from './httpBrowserToNode';
 
@@ -16,7 +16,7 @@ export const performMultiRequest = (
     resolver(
       (index) => {
         const a = getNodeFromIndex(index);
-        return new Promise(async (resolve2, reject) => {
+        return new Promise(async (resolve2, reject2) => {
           if (
             blockchains[parameters.chainId] &&
             blockchains[parameters.chainId].nodes.find((n) => n.ip === a.ip && n.host === a.host)
