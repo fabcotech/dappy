@@ -1,0 +1,7 @@
+### Transport Layer Security (HTTP+TLS)
+
+TLS/SSL has been around for almost 20 years. It is mandatory in dappy, unencrypted HTTP traffic does not exist. For browser to node (network member) it only accept TLSv1.3, and for regular browser to servers communication it accepts only TLSv1.2+ .
+
+This make a lot of MITM attacks impossible to perform.
+
+[See it in the dappy codebase](https://github.com/fabcotech/dappy/blob/master/main/overrideHttpProtocols.ts#L229)

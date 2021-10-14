@@ -28,7 +28,7 @@ export const PurseInfoComponent = ({
             <div className="message d-network">
               <div className="message-body">
                 <span className="fa fa-check has-text-white"></span>
-                <span className="subtitle is-5 ml-1 has-text-white">d network</span>
+                <span className="d-network-font ml-3 subtitle is-5 ml-1 has-text-white">d network</span>
               </div>
             </div>
           )}

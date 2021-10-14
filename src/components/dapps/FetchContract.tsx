@@ -73,7 +73,7 @@ class FetchContractComponent extends React.Component<FetchContractProps, {}> {
           <div className="topright fc">
             {dNetwork ? (
               <div className="dnetwork">
-                <h4>{t('d network is live')}</h4>
+                <h4 className="d-network-font">{t('d network is live')}</h4>
                 <p>
                   {t('d network definition')}
                   <a></a>
