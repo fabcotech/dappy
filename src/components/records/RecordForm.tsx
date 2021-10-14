@@ -42,13 +42,9 @@ const buildCSPFromIPServers = (a: IPServer[]) => {
 };
 
 export class RecordForm extends React.Component<RecordFormProps, {}> {
-  constructor(props: RecordFormProps) {
-    super(props);
-  }
 
   badgeInput: undefined | HTMLInputElement = undefined;
   badgeAppreciationInput: undefined | HTMLInputElement = undefined;
-  initValidate: boolean = false;
 
   state: {
     special: boolean;
@@ -168,11 +164,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
           return errors;
         }}
         onSubmit={() => {}}>
-        {({ validateForm, values, setFieldValue, setFieldTouched, errors, touched }) => {
-          if (this.initValidate === false) {
-            this.initValidate = true;
-            validateForm();
-          }
+        {({ values, setFieldValue, setFieldTouched, errors, touched }) => {
           if (this.state.settingUpIpServers) {
             return (
               <div className="ip-servers-form">
@@ -274,7 +266,6 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                       <input
                         className="input name-input"
                         disabled
-                        value={this.props.nameDisabledAndForced}
                         defaultValue={this.props.nameDisabledAndForced}></input>
                     ) : (
                       <Field className="input" type="text" name={`names.0`} placeholder={`name`} />
