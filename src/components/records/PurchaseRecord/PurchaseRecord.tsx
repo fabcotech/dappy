@@ -322,18 +322,22 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
                     <span className="fa fa-check"></span> d network
                   </div>
                 )}
-                <div className="block box has-background-success-light">
-                  <i className="fa fa-check" />
-                  <span className="ml-1 subtitle is-5">{t('name is available')}</span>
-                  <div className="current-price-existing-purse">
-                    {t('at price')}
-                    <span className="ml-1">{formatAmount(this.state.loadedPurse.price / LOGREV_TO_REV_RATE)}</span>
-                    <span className="ml-1">{t('rev', true)} / </span>
-                    <span>{formatAmountNoDecimal(this.state.loadedPurse.price)} dust</span>
+                <div className="message is-success">
+                  <div className="message-body">
+                    <i className="fa fa-check" />
+                    <span className="ml-1 subtitle is-5">{t('name is available')}</span>
+                    <div className="current-price-existing-purse">
+                      {t('at price')}
+                      <span className="ml-1">{formatAmount(this.state.loadedPurse.price / LOGREV_TO_REV_RATE)}</span>
+                      <span className="ml-1">{t('rev', true)} / </span>
+                      <span>{formatAmountNoDecimal(this.state.loadedPurse.price)} dust</span>
+                    </div>
                   </div>
                 </div>
-                <div className="block box has-background-info-light">
-                  {this.state.contractConfig && <ContractHeader contractConfig={this.state.contractConfig} />}
+                <div className="message is-info">
+                  <div className="message-body">
+                    {this.state.contractConfig && <ContractHeader contractConfig={this.state.contractConfig} />}
+                  </div>
                 </div>
               </div>
             </div>
