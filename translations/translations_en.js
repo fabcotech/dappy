@@ -2165,14 +2165,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "purchase name fee",
-    "definition": "As of now, every names purchased from the dappy name system is subjected to a 1% fee to help grow the team and secure the platform. 99% of the REV price will go to the current name owner, 1% to the owner of the name system contract.",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "update name price",
     "definition": "Update name price",
     "context": "Settings > Names > Update name",

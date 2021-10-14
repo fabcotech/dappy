@@ -797,9 +797,6 @@ module.exports.translations = {
   "add local name dev": {
     "one": "添加本地域名（开发）"
   },
-  "purchase name fee": {
-    "one": "截至目前，从dappy域名系统购买的每个域名都要收取1%的费用，以帮助团队发展和确保平台安全。REV价格的99%将归属于当前的域名所有者，1%归属于域名系统合约的所有者。"
-  },
   "update name price": {
     "one": "更新域名价格"
   },

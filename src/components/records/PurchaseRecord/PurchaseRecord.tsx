@@ -383,9 +383,6 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
           />
         )}
         <form>
-          <div className="message is-info">
-            <div className="message-body">{t('purchase name fee')}</div>
-          </div>
           <div className="field is-horizontal is-grouped pt20">
             <div className="control">
               <button

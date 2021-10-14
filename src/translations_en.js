@@ -797,9 +797,6 @@ module.exports.translations = {
   "add local name dev": {
     "one": "Add local name (development)"
   },
-  "purchase name fee": {
-    "one": "As of now, every names purchased from the dappy name system is subjected to a 1% fee to help grow the team and secure the platform. 99% of the REV price will go to the current name owner, 1% to the owner of the name system contract."
-  },
   "update name price": {
     "one": "Update name price"
   },

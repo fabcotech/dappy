@@ -2150,14 +2150,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "purchase name fee",
-    "definition": "截至目前，从dappy域名系统购买的每个域名都要收取1%的费用，以帮助团队发展和确保平台安全。REV价格的99%将归属于当前的域名所有者，1%归属于域名系统合约的所有者。",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "update name price",
     "definition": "更新域名价格",
     "context": "Settings > Names > Update name",
