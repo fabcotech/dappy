@@ -41,7 +41,7 @@ export function RootComponent(props: RecordsRootProps) {
         <p
           className="limited-width"
           dangerouslySetInnerHTML={{
-            __html: t('purchase a name 2'),
+            __html: t('name system not available'),
           }}></p>
       </div>
     );
