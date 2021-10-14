@@ -12,19 +12,15 @@ import {
   RChainTokenPurse,
   RChainContractConfig,
 } from '/models';
-import { formatAmountNoDecimal, formatAmount } from '/utils/formatAmount';
 import { getPursesAndContractConfig } from '/api/rchain-token';
 import { blockchain as blockchainUtils } from '/utils';
 import { validateName } from '/utils/validateSearch';
 import * as fromBlockchain from '/store/blockchain';
-import { LOGREV_TO_REV_RATE } from '/CONSTANTS';
 import { ValidationError } from '/store/decoders';
-import { ContractHeader } from '/components/utils/ContractHeader';
 
 import { TransactionForm } from '../../utils';
 import { RecordForm } from '..';
-
-import './PurchaseRecord.scss';
+import { isPurchasable, PurseInfo } from './PurseInfo';
 
 export interface PurchaseRecordProps {
   accounts: Record<string, Account>;
@@ -311,80 +307,19 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
             </button>
           </div>
         </div>
-        {this.state.loadedPurse &&
-          typeof this.state.loadedPurse.price === 'number' &&
-          this.state.loadedPurse.id === '0' && (
-            <div className="field is-horizontal is-grouped">
-              <label className="label"></label>
-              <div className={`control you-will-purchase-control ${dNetwork ? 'dNetwork' : ''}`}>
-                {dNetwork && (
-                  <div className="d-network">
-                    <span className="fa fa-check"></span> d network
-                  </div>
-                )}
-                <div className="message is-success">
-                  <div className="message-body">
-                    <i className="fa fa-check" />
-                    <span className="ml-1 subtitle is-5">{t('name is available')}</span>
-                    <div className="current-price-existing-purse">
-                      {t('at price')}
-                      <span className="ml-1">{formatAmount(this.state.loadedPurse.price / LOGREV_TO_REV_RATE)}</span>
-                      <span className="ml-1">{t('rev', true)} / </span>
-                      <span>{formatAmountNoDecimal(this.state.loadedPurse.price)} dust</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="message is-info">
-                  <div className="message-body">
-                    {this.state.contractConfig && <ContractHeader contractConfig={this.state.contractConfig} />}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        {this.state.loadedPurse &&
-          typeof this.state.loadedPurse.price === 'number' &&
-          this.state.loadedPurse.id !== '0' && (
-            <div className="field is-horizontal is-grouped">
-              <label className="label"></label>
-              <div className={`control you-will-purchase-control ${dNetwork ? 'dNetwork' : ''}`}>
-                {dNetwork && (
-                  <h4 className="d-network">
-                    {' '}
-                    <span className="fa  fa-check"></span> d network
-                  </h4>
-                )}
-                <h4>
-                  {' '}
-                  <span className="fa fa-check"></span> {t('name is for sale')}
-                </h4>
-                <h5 className="current-price-existing-purse">
-                  {t('at price')}
-                  <span className="num">{formatAmount(this.state.loadedPurse.price / LOGREV_TO_REV_RATE)}</span>
-                  <span className="unit">{t('rev', true)}</span>
-                  <span className="dust">{formatAmountNoDecimal(this.state.loadedPurse.price)} dust</span>
-                </h5>
-              </div>
-            </div>
-          )}
-        {this.state.loadedPurse &&
-          typeof this.state.loadedPurse.price !== 'number' &&
-          this.state.loadedPurse.id !== '0' && (
-            <div className="field is-horizontal is-grouped">
-              <label className="label"></label>
-              <div className="control">
-                <h4>{t('name is not for sale')}</h4>
-              </div>
-            </div>
-          )}
-        {this.state.loadedPurse && typeof this.state.loadedPurse.price === 'number' && (
-          <RecordForm
-            special={info.special}
-            validateName
-            nameDisabledAndForced={this.state.name}
-            filledRecord={this.onFilledRecords}
-            partialRecord={this.state.partialRecord}
-          />
+        {this.state.loadedPurse && this.state.contractConfig && (
+          <Fragment>
+            <PurseInfo purse={this.state.loadedPurse} contractConfig={this.state.contractConfig} dNetwork={dNetwork} />
+            {isPurchasable(this.state.loadedPurse) && (
+              <RecordForm
+                special={info.special}
+                validateName
+                nameDisabledAndForced={this.state.name}
+                filledRecord={this.onFilledRecords}
+                partialRecord={this.state.partialRecord}
+              />
+            )}
+          </Fragment>
         )}
         <form>
           <div className="field is-horizontal is-grouped pt20">

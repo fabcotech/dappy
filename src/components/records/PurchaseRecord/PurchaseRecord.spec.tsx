@@ -27,7 +27,7 @@ const getFakePurchaseRecordProps = (props: Partial<PurchaseRecordProps> = {}): P
 };
 
 describe('PurchaseRecord', () => {
-  it('should display name is available', async () => {
+  it('should display name is available and contract infos', async () => {
     const purse0 = getFakePurse({
       id: '0'
     });
@@ -43,7 +43,7 @@ describe('PurchaseRecord', () => {
         ]),
     });
 
-    const { debug } = render(<PurchaseRecordComponent {...props} />);
+    render(<PurchaseRecordComponent {...props} />);
 
     const nameInput = screen.getByLabelText('name / id');
     userEvent.type(nameInput, 'foo');
@@ -55,5 +55,43 @@ describe('PurchaseRecord', () => {
 
     expect(screen.getByText('not locked')).toHaveClass('has-text-danger');
     expect(screen.getByText('not locked')).toHaveAttribute('title', 'not locked title');
+    expect(screen.queryByText('d network')).toBeFalsy();
+  });
+
+  it('should display name is for sale, contract infos and d network displayed', async () => {
+    const purse0 = getFakePurse({
+      id: '0'
+    });
+    const purseFoo = getFakePurse({
+      id: 'foo'
+    });
+    const props = getFakePurchaseRecordProps({
+      namesBlockchain: getFakeBlockChain({
+        chainId: 'd'
+      }),
+      getPursesAndContractConfig: () =>
+        Promise.resolve([
+          {
+            result: { [purse0.id]: purse0, [purseFoo.id]: purseFoo },
+          } as RequestResult<Record<string, RChainTokenPurse>>,
+          {
+            result: getFakeRChainContractConfig(),
+          } as RequestResult<RChainContractConfig>,
+        ]),
+    });
+
+    render(<PurchaseRecordComponent {...props} />);
+
+    const nameInput = screen.getByLabelText('name / id');
+    userEvent.type(nameInput, 'foo');
+    userEvent.click(screen.getByRole('button', { name: 'lookup name' }));
+    
+    await waitFor(() => {
+      screen.getByText('name is for sale');
+    });
+
+    expect(screen.getByText('not locked')).toHaveClass('has-text-danger');
+    expect(screen.getByText('not locked')).toHaveAttribute('title', 'not locked title');
+    expect(screen.queryByText('d network')).toBeTruthy();
   });
 });
