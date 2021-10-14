@@ -43,10 +43,9 @@ const executeNodesCronJobs = function* (action: Action) {
     )
       .then((a) => {
         const u = new Date().getTime() - t;
-        const resultFromBlockchain = JSON.parse(a.result.data);
-        const result = resultFromBlockchain.data;
-
         try {
+          const resultFromBlockchain = JSON.parse(a.result.data);
+          const result = resultFromBlockchain.data;
           validateNodesFromNetwork(Object.values(result as { [key: string]: NodeFromNetwork }))
             .then((nodes: NodeFromNetwork[]) => {
               // todo maybe this can go when problem is solved in dappy-node
