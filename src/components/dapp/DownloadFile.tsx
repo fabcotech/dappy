@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { Tab, LoadedFile } from '/models';
+import { triggerCommand } from '/interProcess';
 import './DownloadFile.scss';
 
 const fileIconImg = require('/images/file-icon.png');
@@ -57,7 +58,7 @@ class DownloadFileComponent extends React.Component<DownloadFileComponentProps> 
       view[i] = dataAsString.charCodeAt(i);
     }
 
-    window.triggerCommand('download-file', {
+    triggerCommand('download-file', {
       name: loadedFile.name,
       mimeType: loadedFile.mimeType,
       data: loadedFile.data,
@@ -66,9 +67,7 @@ class DownloadFileComponent extends React.Component<DownloadFileComponentProps> 
 
   render() {
     return (
-      <div
-        ref={this.setMainEl}
-        className={`loaded-file ${this.props.tab.id}`}>
+      <div ref={this.setMainEl} className={`loaded-file ${this.props.tab.id}`}>
         {!!this.props.loadedFile ? (
           <div className="download-file">
             <div>

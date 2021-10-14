@@ -2,11 +2,12 @@ import { takeEvery } from 'redux-saga/effects';
 
 import * as fromDapps from '..';
 import { Action } from '../..';
+import { dispatchInMain } from '/interProcess';
 
 const transferIdentification = function* (action: Action) {
   const payload: fromDapps.SaveIdentificationPayload = action.payload;
 
-  window.dispatchInMain({ type: '[MAIN] Transfer identification', payload: payload });
+  dispatchInMain({ type: '[MAIN] Transfer identification', payload: payload });
 
   return;
 };

@@ -4,24 +4,22 @@ import * as fromDapps from '..';
 import * as fromSettings from '../../settings';
 import * as fromCookies from '../../cookies';
 import { searchToAddress } from '../../../utils/searchToAddress';
-import {
-  Cookie,
-  Tab,
-} from '../../../models';
+import { Cookie, Tab } from '../../../models';
 import { Action } from '../../';
+import { dispatchInMain } from '/interProcess';
 
 const launchDappCompleted = function* (action: Action) {
   const payload: fromDapps.LaunchDappCompletedPayload = action.payload;
   const settings: fromSettings.Settings = yield select(fromSettings.getSettings);
   const tabs: Tab[] = yield select(fromDapps.getTabs);
   const cookies: { [address: string]: Cookie[] } = yield select(fromCookies.getCookies);
-  
-  const tab: Tab = tabs.find(t => t.id === payload.dapp.tabId) as Tab;
+
+  const tab: Tab = tabs.find((t) => t.id === payload.dapp.tabId) as Tab;
 
   // used as identifier for session, indexeddb etc..., do not put path
   const dappyDomain = searchToAddress(payload.dapp.search, payload.dapp.chainId, '');
 
-  window.dispatchInMain({
+  dispatchInMain({
     type: '[MAIN] Load or reload browser view',
     payload: {
       currentUrl: `dist/dapp-sandboxed.html`,

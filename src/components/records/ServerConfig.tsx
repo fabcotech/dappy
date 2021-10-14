@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import { copyToClipboard } from '/interProcess';
 import './ServerConfig.scss';
 
 export const ServerConfig = (props: {
@@ -56,11 +57,11 @@ export const ServerConfig = (props: {
       <div>
         <Top />
         <b>&nbsp;&nbsp;{pathConf}&nbsp;</b>
-        <a className="underlined-link" onClick={() => window.copyToClipboard(conf)}>
+        <a className="underlined-link" onClick={() => copyToClipboard(conf)}>
           <i className="fa fa-copy fa-before"></i>
           copy text
         </a>{' '}
-        <a className="underlined-link" onClick={() => window.copyToClipboard(commandConf)}>
+        <a className="underlined-link" onClick={() => copyToClipboard(commandConf)}>
           <i className="fa fa-copy fa-before"></i>
           copy bash command
         </a>
@@ -69,11 +70,11 @@ export const ServerConfig = (props: {
         <br />
         <b>&nbsp;&nbsp;{pathCrt}&nbsp;</b>
         <>
-          <a className="underlined-link" onClick={() => window.copyToClipboard(props.certificate || '')}>
+          <a className="underlined-link" onClick={() => copyToClipboard(props.certificate || '')}>
             <i className="fa fa-copy fa-before"></i>
             copy text
           </a>{' '}
-          <a className="underlined-link" onClick={() => window.copyToClipboard(commandCrt)}>
+          <a className="underlined-link" onClick={() => copyToClipboard(commandCrt)}>
             <i className="fa fa-copy fa-before"></i>
             copy bash command
           </a>
@@ -84,11 +85,11 @@ export const ServerConfig = (props: {
         <b>&nbsp;&nbsp;{pathKey}&nbsp;</b>
         {props.kkey && (
           <>
-            <a className="underlined-link" onClick={() => window.copyToClipboard(props.kkey || '')}>
+            <a className="underlined-link" onClick={() => copyToClipboard(props.kkey || '')}>
               <i className="fa fa-copy fa-before"></i>
               copy text
             </a>{' '}
-            <a className="underlined-link" onClick={() => window.copyToClipboard(commandKey)}>
+            <a className="underlined-link" onClick={() => copyToClipboard(commandKey)}>
               <i className="fa fa-copy fa-before"></i>
               copy bash command
             </a>
@@ -99,9 +100,7 @@ export const ServerConfig = (props: {
         <a
           className="underlined-link"
           onClick={() =>
-            window.copyToClipboard(
-              `sudo sh -c '${commandKey} && ${commandCrt} && ${commandConf}'`.replaceAll('$', '\\$')
-            )
+            copyToClipboard(`sudo sh -c '${commandKey} && ${commandCrt} && ${commandConf}'`.replaceAll('$', '\\$'))
           }>
           <i className="fa fa-copy fa-before"></i>
           copy all commands (sudo)
@@ -143,11 +142,11 @@ export const ServerConfig = (props: {
     <div>
       <Top />
       <b>&nbsp;&nbsp;{pathConf}&nbsp;</b>
-      <a className="underlined-link" onClick={() => window.copyToClipboard(conf)}>
+      <a className="underlined-link" onClick={() => copyToClipboard(conf)}>
         <i className="fa fa-copy fa-before"></i>
         copy text
       </a>{' '}
-      <a className="underlined-link" onClick={() => window.copyToClipboard(commandConf)}>
+      <a className="underlined-link" onClick={() => copyToClipboard(commandConf)}>
         <i className="fa fa-copy fa-before"></i>
         copy bash command
       </a>
@@ -156,11 +155,11 @@ export const ServerConfig = (props: {
       <br />
       <b>&nbsp;&nbsp;{pathCrt}&nbsp;</b>
       <>
-        <a className="underlined-link" onClick={() => window.copyToClipboard(props.certificate || '')}>
+        <a className="underlined-link" onClick={() => copyToClipboard(props.certificate || '')}>
           <i className="fa fa-copy fa-before"></i>
           copy text
         </a>{' '}
-        <a className="underlined-link" onClick={() => window.copyToClipboard(commandCrt)}>
+        <a className="underlined-link" onClick={() => copyToClipboard(commandCrt)}>
           <i className="fa fa-copy fa-before"></i>
           copy bash command
         </a>
@@ -171,11 +170,11 @@ export const ServerConfig = (props: {
       <b>&nbsp;&nbsp;{pathKey}&nbsp;</b>
       {props.kkey && (
         <>
-          <a className="underlined-link" onClick={() => window.copyToClipboard(props.kkey || '')}>
+          <a className="underlined-link" onClick={() => copyToClipboard(props.kkey || '')}>
             <i className="fa fa-copy fa-before"></i>
             copy text
           </a>{' '}
-          <a className="underlined-link" onClick={() => window.copyToClipboard(commandKey)}>
+          <a className="underlined-link" onClick={() => copyToClipboard(commandKey)}>
             <i className="fa fa-copy fa-before"></i>
             copy bash command
           </a>
@@ -185,7 +184,7 @@ export const ServerConfig = (props: {
       <br />
       <a
         className="underlined-link"
-        onClick={() => window.copyToClipboard(`sudo sh -c '${commandKey} && ${commandCrt} && ${commandConf}'`)}>
+        onClick={() => copyToClipboard(`sudo sh -c '${commandKey} && ${commandCrt} && ${commandConf}'`)}>
         <i className="fa fa-copy fa-before"></i>
         copy all commands (sudo)
       </a>

@@ -7,6 +7,7 @@ import * as fromHistory from '../../history';
 import { searchToAddress } from '../../../utils/searchToAddress';
 import { Session, Cookie, Tab, IPServer, Record, SessionItem } from '../../../models';
 import { Action } from '../../';
+import { dispatchInMain } from '/interProcess';
 
 const launchIpAppCompleted = function* (action: Action) {
   const payload: fromDapps.LaunchIpAppCompletedPayload = action.payload;
@@ -45,7 +46,7 @@ const launchIpAppCompleted = function* (action: Action) {
     currentUrl = payload.ipApp.url;
   }
 
-  window.dispatchInMain({
+  dispatchInMain({
     type: '[MAIN] Load or reload browser view',
     payload: {
       currentUrl: currentUrl,

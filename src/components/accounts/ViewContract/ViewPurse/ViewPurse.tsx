@@ -8,6 +8,7 @@ import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '/CONSTANT
 import { blockchain as blockchainUtils } from '/utils/blockchain';
 import { createSocialCanvas, images, mascots } from '/utils/createSocialCanvas';
 import { toDuration, toDurationString, isEmptyOrNegativeDuration } from '/utils/unit';
+import { triggerCommand, openExternal } from '/interProcess';
 
 import './ViewPurse.scss';
 
@@ -46,8 +47,8 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
   }
 
   static defaultProps = {
-    now: () => new Date().getTime()
-  }
+    now: () => new Date().getTime(),
+  };
 
   isExpirableNFT = () => !this.props.fungible && this.props.contractExpiration && this.props.purse?.id !== '0';
 
@@ -87,7 +88,10 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                 <span>
                   {isExpired(this.props.now)(this.props.purse.timestamp, this.props.contractExpiration!)
                     ? t('expired')
-                    : `${t('expires in')} ${expiresIn(this.props.now)(this.props.purse.timestamp, this.props.contractExpiration!)}`}
+                    : `${t('expires in')} ${expiresIn(this.props.now)(
+                        this.props.purse.timestamp,
+                        this.props.contractExpiration!
+                      )}`}
                 </span>
               )}
             </div>
@@ -412,7 +416,7 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                       </select>
                       <p className="help">
                         Images by&nbsp;
-                        <a type="button" onClick={() => window.openExternal('https://www.freepik.com/catalyststuff')}>
+                        <a type="button" onClick={() => openExternal('https://www.freepik.com/catalyststuff')}>
                           catalyststuff
                         </a>{' '}
                         on Freepik
@@ -443,11 +447,11 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                           this.state.image,
                           this.state.mascot || 'none'
                         ).then((a) => {
-                          window.triggerCommand('download-file', {
+                          triggerCommand('download-file', {
                             name:
                               'dappy_' + this.state.image + '_' + this.props.contractId + '_' + this.props.id + '.png',
                             mimeType: 'image/png',
-                            data: (a as string || '').replace(/^data:image\/png;base64,/, ''),
+                            data: ((a as string) || '').replace(/^data:image\/png;base64,/, ''),
                           });
                           this.setState({
                             newPrice: undefined,

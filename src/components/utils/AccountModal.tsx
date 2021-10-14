@@ -4,6 +4,7 @@ import xs, { Stream } from 'xstream';
 import debounce from 'xstream/extra/debounce';
 import { Field, Formik } from 'formik';
 
+import { copyToClipboard } from '/interProcess';
 import * as fromMain from '/store/main';
 import * as fromUi from '/store/ui';
 import { account as accountUtils } from '/utils';
@@ -109,10 +110,7 @@ export class AccountModalComponent extends React.Component<AccountModalComponent
                       <label className="label">{t('rev address')}</label>
                       <div className="control">
                         <p className="private-or-public-key">{account.address}</p>
-                        <a
-                          type="button"
-                          className="underlined-link"
-                          onClick={() => window.copyToClipboard(account.address)}>
+                        <a type="button" className="underlined-link" onClick={() => copyToClipboard(account.address)}>
                           <i className="fa fa-copy fa-before"></i>
                           {t('copy rev address')}
                         </a>
@@ -123,10 +121,7 @@ export class AccountModalComponent extends React.Component<AccountModalComponent
                       <label className="label">{t('public key')}</label>
                       <div className="control">
                         <p className="private-or-public-key">{account.publicKey}</p>
-                        <a
-                          type="button"
-                          className="underlined-link"
-                          onClick={() => window.copyToClipboard(account.publicKey)}>
+                        <a type="button" className="underlined-link" onClick={() => copyToClipboard(account.publicKey)}>
                           <i className="fa fa-copy fa-before"></i>
                           copy public key
                         </a>

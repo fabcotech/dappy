@@ -4,6 +4,7 @@ import { browserUtils } from '/store/browser-utils';
 import * as fromUi from '..';
 import * as fromMain from '/store/main';
 import { Action } from '/store/';
+import { dispatchInMain } from '/interProcess';
 
 const saveUiToStorage = function* (action: Action) {
   const uiState: fromUi.State = yield select(fromUi.getUiState);
@@ -49,7 +50,7 @@ const saveUiToStorage = function* (action: Action) {
     height: uiState.windowDimensions[1] - y,
   };
 
-  window.dispatchInMain({
+  dispatchInMain({
     type: '[MAIN] Update browser views position',
     payload: browserViewsPosition,
   });

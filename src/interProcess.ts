@@ -4,6 +4,7 @@ import { MultiCallBody, MultiCallError, MultiCallParameters, MultiCallResult } f
 import * as fromDapps from './store/dapps';
 import * as fromMain from './store/main';
 import { BeesLoadError } from 'beesjs';
+import { Action } from '/store';
 
 const actionsAwaitingEphemeralToken: any[] = [];
 
@@ -13,6 +14,22 @@ export const singleCall = (body: { [key: string]: any }, node: BlockchainNode) =
 
 export const multiCall = (body: MultiCallBody, parameters: MultiCallParameters): Promise<MultiCallResult> => {
   return window.multiDappyCall(body, parameters);
+};
+
+export const copyToClipboard = (a: string) => {
+  return window.copyToClipboard(a);
+};
+
+export const dispatchInMain = (a: Action) => {
+  return window.dispatchInMain(a);
+};
+
+export const triggerCommand = (command: string, payload?: { [key: string]: string }) => {
+  return window.triggerCommand(command, payload);
+};
+
+export const openExternal = (url: string) => {
+  window.openExternal(url);
 };
 
 export const interProcess = (store: Store) => {

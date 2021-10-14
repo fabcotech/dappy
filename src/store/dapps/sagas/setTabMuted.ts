@@ -3,8 +3,8 @@ import { takeEvery, select, put } from 'redux-saga/effects';
 import * as fromDapps from '..';
 import * as fromMain from '../../main';
 import { Tab } from '../../../models';
-import { browserUtils } from '../../browser-utils';
 import { Action } from '../..';
+import { dispatchInMain } from '/interProcess';
 
 const setTabMuted = function* (action: Action) {
   const payload: fromDapps.SetTabMutedPayload = action.payload;
@@ -19,7 +19,7 @@ const setTabMuted = function* (action: Action) {
     return;
   }
 
-  window.dispatchInMain({
+  dispatchInMain({
     type: '[MAIN] Set browser view muted',
     payload: {
       muted: payload.muted,

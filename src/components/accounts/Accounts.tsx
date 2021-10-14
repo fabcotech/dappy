@@ -15,6 +15,7 @@ import { AccountPassword } from './AccountPassword';
 import { AccountBox } from './AccountBox';
 import { ViewBox } from './ViewBox';
 import { formatAmount } from '/utils/formatAmount';
+import { copyToClipboard } from '/interProcess';
 
 interface AccountsProps {
   accounts: { [name: string]: Account };
@@ -128,7 +129,7 @@ export function AccountsComponent(props: AccountsProps) {
                               {b}
                             </div>
                           </button>
-                          <a className="underlined-link" onClick={() => window.copyToClipboard(b)}>
+                          <a className="underlined-link" onClick={() => copyToClipboard(b)}>
                             <i className="fa fa-copy fa-before"></i>
                             {t('copy box id')}
                           </a>

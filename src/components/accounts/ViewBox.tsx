@@ -5,7 +5,7 @@ import Ajv from 'ajv';
 
 import * as fromBlockchain from '/store/blockchain';
 import { Blockchain, MultiCallResult, RChainInfos, Account } from '/models';
-import { multiCall } from '/interProcess';
+import { multiCall, copyToClipboard } from '/interProcess';
 import { toRGB } from '/utils/color';
 import { DAPPY_TOKEN_CONTRACT_ID, RCHAIN_TOKEN_SUPPORTED_VERSIONS } from '/CONSTANTS';
 import { getNodeIndex } from '/utils/getNodeIndex';
@@ -233,7 +233,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
                     <a
                       type="button"
                       className="underlined-link"
-                      onClick={() => window.copyToClipboard(sk.replace('rho:id:', ''))}>
+                      onClick={() => copyToClipboard(sk.replace('rho:id:', ''))}>
                       <i className="fa fa-copy fa-before"></i>
                       {t('copy contract address')}
                     </a>

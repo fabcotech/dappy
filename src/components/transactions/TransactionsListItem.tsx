@@ -11,6 +11,8 @@ import {
   RChainTokenDeployBoxPayload,
 } from '/models';
 
+import { copyToClipboard } from '/interProcess';
+
 interface TransactionListItemProps {
   transactionState: TransactionState;
   blockchains: {
@@ -30,7 +32,7 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
     Value = (
       <span>
         {`Address is ${value.address} `}
-        <a type="button" onClick={() => window.copyToClipboard(value.address)}>
+        <a type="button" onClick={() => copyToClipboard(value.address)}>
           {t('copy address')}
         </a>
       </span>
@@ -46,7 +48,7 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
     Value = (
       <span>
         {`Box address is ${value.boxId} `}
-        <a type="button" onClick={() => window.copyToClipboard(value.boxId)}>
+        <a type="button" onClick={() => copyToClipboard(value.boxId)}>
           {t('copy box id')}
         </a>
       </span>
@@ -64,11 +66,11 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
     Value = (
       <span>
         {`Contract address is ${value.masterRegistryUri}.${value.contractId} `}
-        <a type="button" onClick={() => window.copyToClipboard(value.masterRegistryUri + '.' + value.contractId)}>
+        <a type="button" onClick={() => copyToClipboard(value.masterRegistryUri + '.' + value.contractId)}>
           {t('copy address')}
         </a>
         {' or '}
-        <a type="button" onClick={() => window.copyToClipboard(value.contractId)}>
+        <a type="button" onClick={() => copyToClipboard(value.contractId)}>
           {t('copy contract id')}
         </a>
       </span>
