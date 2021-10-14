@@ -9,7 +9,7 @@ interface ContractMetadataProps {
 
 const ContractMetadataComponent = ({ contractConfig }: ContractMetadataProps) => {
   return (
-    <div className="mb-5">
+    <div>
       <span
         className={`${contractConfig.locked ? 'has-text-success' : 'has-text-danger'}`}
         title={contractConfig.locked ? t('locked title') : t('not locked title')}>

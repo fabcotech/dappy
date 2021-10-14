@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import * as fromBlockchain from '/store/blockchain';
 import { getPursesAndContractConfig } from '/api/rchain-token';
 import { Blockchain, RChainInfos, Account, RChainContractConfig, RChainTokenPurse } from '/models';
-import { ContractHeader } from '/components/utils/ContractHeader'
+import { ContractHeader } from '/components/utils/ContractHeader';
 import { ValidationError } from '/store/decoders';
 
 import { ViewPurse } from './ViewPurse';
@@ -116,10 +116,12 @@ export class ViewContractComponent extends React.Component<ViewContractProps, Vi
       const contractConfig = this.state.contractConfig as RChainContractConfig;
       return (
         <Fragment>
-          <ContractHeader contractConfig={contractConfig} />
-          {this.props.pursesIds.length > 100 && (
-            <div className="x-by-100-purses">Purses 100 / {this.props.pursesIds.length}</div>
-          )}
+          <div className="block is-size-5">
+            <ContractHeader contractConfig={contractConfig} />
+            {this.props.pursesIds.length > 100 && (
+              <div className="x-by-100-purses">Purses 100 / {this.props.pursesIds.length}</div>
+            )}
+          </div>
           <div className="view-purses">
             {this.props.pursesIds.length === 0 ? (
               <div>

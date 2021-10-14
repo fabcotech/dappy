@@ -322,16 +322,19 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
                     <span className="fa fa-check"></span> d network
                   </div>
                 )}
-                <div className="you-will-purchase-purse">
-                  <span className="fa fa-check"></span> {t('name is available')}
+                <div className="block box has-background-success-light">
+                  <i className="fa fa-check" />
+                  <span className="ml-1 subtitle is-5">{t('name is available')}</span>
+                  <div className="current-price-existing-purse">
+                    {t('at price')}
+                    <span className="ml-1">{formatAmount(this.state.loadedPurse.price / LOGREV_TO_REV_RATE)}</span>
+                    <span className="ml-1">{t('rev', true)} / </span>
+                    <span>{formatAmountNoDecimal(this.state.loadedPurse.price)} dust</span>
+                  </div>
                 </div>
-                <div className="current-price-existing-purse">
-                  {t('at price')}
-                  <span className="num">{formatAmount(this.state.loadedPurse.price / LOGREV_TO_REV_RATE)}</span>
-                  <span className="unit">{t('rev', true)} / </span>
-                  <span className="dust">{formatAmountNoDecimal(this.state.loadedPurse.price)} dust</span>
+                <div className="block box has-background-info-light">
+                  {this.state.contractConfig && <ContractHeader contractConfig={this.state.contractConfig} />}
                 </div>
-                <div>{this.state.contractConfig && <ContractHeader contractConfig={this.state.contractConfig} />}</div>
               </div>
             </div>
           )}
@@ -347,9 +350,9 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
                     <span className="fa  fa-check"></span> d network
                   </h4>
                 )}
-                <h4 className="you-will-purchase-purse">
+                <h4>
                   {' '}
-                  <span className="fa  fa-check"></span> {t('name is for sale')}
+                  <span className="fa fa-check"></span> {t('name is for sale')}
                 </h4>
                 <h5 className="current-price-existing-purse">
                   {t('at price')}
@@ -366,7 +369,7 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
             <div className="field is-horizontal is-grouped">
               <label className="label"></label>
               <div className="control">
-                <h4 className="you-will-purchase-purse">{t('name is not for sale')}</h4>
+                <h4>{t('name is not for sale')}</h4>
               </div>
             </div>
           )}
