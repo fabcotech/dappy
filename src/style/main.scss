@@ -1,4 +1,3 @@
-
 html, body {
   height: 100vh;
   background: #fafafa;
@@ -249,4 +248,29 @@ noscript {
 
 .color-aaa {
   color: #AAA;
+}
+
+.is-rounded-1 {
+  border-radius: $size-1;
+}
+.is-rounded-2 {
+  border-radius: $size-2;
+}
+.is-rounded-3 {
+  border-radius: $size-3;
+}
+.is-rounded-4 {
+  border-radius: $size-4;
+}
+.is-rounded-5 {
+  border-radius: $size-5;
+}
+.is-rounded-6 {
+  border-radius: $size-6;
+}
+.is-rounded-7 {
+  border-radius: $size-7;
+}
+.is-rounded-8 {
+  border-radius: $size-7 / 2;
 }

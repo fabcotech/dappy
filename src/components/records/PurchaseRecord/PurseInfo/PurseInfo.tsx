@@ -7,8 +7,8 @@ import { ContractHeader } from '/components/utils/ContractHeader';
 
 import './PurseInfo.scss';
 
-export const isPurchasable = (nft: RChainTokenPurse) => typeof nft.price === 'number';
-const isAvailable = (nft: RChainTokenPurse) => isPurchasable(nft) && nft.id === '0';
+export const isPurchasable = (purse: RChainTokenPurse) => typeof purse.price === 'number';
+const isAvailable = (purse: RChainTokenPurse) => isPurchasable(purse) && purse.id === '0';
 
 export const PurseInfoComponent = ({
   purse,
@@ -27,7 +27,7 @@ export const PurseInfoComponent = ({
           {dNetwork && (
             <div className="message d-network">
               <div className="message-body">
-                <span className="fa fa-check has-text-white"></span> 
+                <span className="fa fa-check has-text-white"></span>
                 <span className="subtitle is-5 ml-1 has-text-white">d network</span>
               </div>
             </div>
@@ -46,10 +46,8 @@ export const PurseInfoComponent = ({
               </div>
             </div>
           </div>
-          <div className="message is-info">
-            <div className="message-body">
-              <ContractHeader contractConfig={contractConfig} />
-            </div>
+          <div className="is-rounded-8 p-4 has-background-light">
+            <ContractHeader contractConfig={contractConfig} />
           </div>
         </div>
       </div>
