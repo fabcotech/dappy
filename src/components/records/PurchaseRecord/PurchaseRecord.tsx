@@ -224,7 +224,7 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
         <p className="limited-width">{t('purchase a name 2')} </p>
         <br />
         <TransactionForm
-          chooseBox={true}
+          chooseBox
           accounts={this.props.accounts}
           filledTransactionData={this.onFilledTransactionData}
         />
