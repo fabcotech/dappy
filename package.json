@@ -7,7 +7,7 @@
   "version": "0.4.7",
   "main": "main.js",
   "scripts": {
-    "lint": "tsc --pretty --jsx react --noEmit  src/index.tsx",
+    "check": "tsc --pretty --jsx react --noEmit",
     "start:parcel": "npx parcel serve src/indexdev.html -p 3033 --target browser",
     "start:electron": "export NODE_ENV=development && electron --trace-warnings .",
     "build": "export NODE_ENV=production && rm -rf dist/ && npx parcel build src/index.html src/dapp-sandboxed.html --public-url . && cp -r dapp-libs/* dist/",
