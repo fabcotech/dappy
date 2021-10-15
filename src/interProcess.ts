@@ -1,6 +1,6 @@
 import { Store } from 'redux';
 
-import { MultiCallBody, MultiCallError, MultiCallParameters, MultiCallResult } from '/models';
+import { MultiCallBody, MultiCallError, MultiCallParameters, MultiCallResult, BlockchainNode } from '/models';
 import * as fromDapps from './store/dapps';
 import * as fromMain from './store/main';
 import { BeesLoadError } from 'beesjs';
@@ -48,7 +48,7 @@ export const interProcess = (store: Store) => {
     interProcess.send();
     interProcess.onload = (a) => {
       try {
-        const r = JSON.parse(a.target.responseText);
+        const r: {actions: []} = JSON.parse(interProcess.responseText);
         r.actions.forEach((action) => {
           store.dispatch(action);
         });
@@ -63,7 +63,7 @@ export const interProcess = (store: Store) => {
     interProcess.open('POST', 'interprocess://ask-unique-ephemeral-token');
     interProcess.send('');
     interProcess.onload = (a) => {
-      const r = JSON.parse(a.target.responseText);
+      const r = JSON.parse(interProcess.responseText);
       window.uniqueEphemeralToken = r.uniqueEphemeralToken;
       uniqueEphemeralToken = r.uniqueEphemeralToken;
       if (actionsAwaitingEphemeralToken.length) {
@@ -171,14 +171,14 @@ export const interProcess = (store: Store) => {
       interProcess.send();
       interProcess.onload = (a) => {
         try {
-          const r = JSON.parse(a.target.responseText);
+          const r = JSON.parse(interProcess.responseText);
           if (r.success) {
             resolve(r.data);
           } else {
             reject(r.error || { message: 'Unknown error' });
           }
         } catch (e) {
-          console.log(a.target.responseText);
+          console.log(interProcess.responseText);
           console.log(e);
           reject({ message: 'could not parse response' });
         }
@@ -208,7 +208,7 @@ export const interProcess = (store: Store) => {
       };
       interProcess.onload = (a) => {
         try {
-          const r = JSON.parse(a.target.responseText);
+          const r = JSON.parse(interProcess.responseText);
           console.log(r);
           if (r.success) {
             resolve(r.data as MultiCallResult);
@@ -216,7 +216,7 @@ export const interProcess = (store: Store) => {
             reject(r as MultiCallError);
           }
         } catch (e) {
-          console.log(a.target.responseText);
+          console.log(interProcess.responseText);
           console.log(e);
           reject({ error: { error: BeesLoadError.FailedToParseResponse, args: {} }, loadState: {} } as MultiCallError);
         }
@@ -240,7 +240,7 @@ export const interProcess = (store: Store) => {
       interProcess.send();
       interProcess.onload = (a) => {
         try {
-          const r = JSON.parse(a.target.responseText);
+          const r = JSON.parse(interProcess.responseText);
           resolve(r);
         } catch (e) {
           reject({ message: 'could not parse response' });
@@ -265,7 +265,7 @@ export const interProcess = (store: Store) => {
       interProcess.send();
       interProcess.onload = (a) => {
         try {
-          const r = JSON.parse(a.target.responseText);
+          const r = JSON.parse(interProcess.responseText);
           if (r.success) {
             resolve(r.data);
           } else {
