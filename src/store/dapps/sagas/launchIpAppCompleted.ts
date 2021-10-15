@@ -36,8 +36,8 @@ const launchIpAppCompleted = function* (action: Action) {
   let currentUrl = `https://${payload.ipApp.record.servers[serverIndex].host}`;
   // todo ????????
   // First check if we are navigating
-  if (sessionItem && sessionItem.url) {
-    currentUrl = sessionItem.url;
+  if (sessionItem && sessionItem.address) {
+    currentUrl = sessionItem.address;
     // if not, check if there is a path ex: rchain/alphanetwork/dappy/contact (/contact is the path)
   } else if (payload.ipApp.path) {
     currentUrl = currentUrl + payload.ipApp.path;

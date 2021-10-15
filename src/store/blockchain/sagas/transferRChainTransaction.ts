@@ -24,7 +24,9 @@ const transferRChainTransaction = function* (action: Action) {
     return;
   }
 
-  const transactions = yield select(fromBlockchain.getTransactions);
+  const transactions: {
+    [transactionId: string]: TransactionState;
+  } = yield select(fromBlockchain.getTransactions);
   const transaction: TransactionState = transactions[payload.id];
   if (transaction.origin.origin === 'dapp') {
     dispatchInMain({

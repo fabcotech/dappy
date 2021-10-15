@@ -5,10 +5,12 @@ import * as fromSettings from '..';
 import * as fromMain from '/store/main';
 import { Action } from '/store';
 
-const createAccount = function*(action: Action) {
+const createAccount = function* (action: Action) {
   const payload: fromSettings.CreateAccountPayload = action.payload;
   let account = payload.account;
-  const accounts = yield select(fromSettings.getAccounts);
+  const accounts: {
+    [key: string]: Account;
+  } = yield select(fromSettings.getAccounts);
   if (Object.keys(accounts).length === 0) {
     account = {
       ...account,
@@ -31,6 +33,6 @@ const createAccount = function*(action: Action) {
   yield put(fromSettings.createAccountCompletedAction({ account: account }));
 };
 
-export const createAccountSaga = function*() {
+export const createAccountSaga = function* () {
   yield takeEvery(fromSettings.CREATE_ACCOUNT, createAccount);
 };

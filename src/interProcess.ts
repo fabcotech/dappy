@@ -48,7 +48,7 @@ export const interProcess = (store: Store) => {
     interProcess.send();
     interProcess.onload = (a) => {
       try {
-        const r: {actions: []} = JSON.parse(interProcess.responseText);
+        const r: { actions: [] } = JSON.parse(interProcess.responseText);
         r.actions.forEach((action) => {
           store.dispatch(action);
         });
@@ -209,7 +209,6 @@ export const interProcess = (store: Store) => {
       interProcess.onload = (a) => {
         try {
           const r = JSON.parse(interProcess.responseText);
-          console.log(r);
           if (r.success) {
             resolve(r.data as MultiCallResult);
           } else {

@@ -27,6 +27,7 @@ import {
   RChainInfo,
   LoadedFile,
   Tab,
+  IpApp,
 } from '../../../models';
 import { Action } from '../../';
 import { ipRecordSchema, dappRecordSchema, validateRecordFromNetwork } from '../../decoders';

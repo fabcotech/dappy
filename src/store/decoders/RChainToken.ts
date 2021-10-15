@@ -3,8 +3,8 @@ import Ajv from 'ajv';
 import { validate, ValidationError } from './Validate';
 
 const ajv = new Ajv();
-const readBox1201 = {
-  schemaId: 'read-box-12.0.1',
+const readBox1400 = {
+  schemaId: 'read-box-14.0.0',
   type: 'object',
   properties: {
     version: { type: 'string' },
@@ -19,8 +19,8 @@ const readBox1201 = {
   },
   required: ['purses', 'superKeys', 'version', 'publicKey'],
 };
-const purses1201 = {
-  schemaId: 'purses-12.0.1',
+const purses1400 = {
+  schemaId: 'purses-14.0.0',
   type: 'object',
   patternProperties: {
     '.{1,}': {
@@ -37,8 +37,8 @@ const purses1201 = {
   },
 };
 
-const contractConfig1201 = {
-  schemaId: 'contract-config-12.0.1',
+const contractConfig1400 = {
+  schemaId: 'contract-config-14.0.0',
   type: 'object',
   properties: {
     contractId: { type: 'string' },
@@ -55,8 +55,8 @@ const contractConfig1201 = {
   required: ['contractId', 'counter', 'fungible', 'locked', 'version'],
 };
 
-const createPursePayload1201 = {
-  schemaId: 'create-purse-payload-12.0.1',
+const createPursePayload1400 = {
+  schemaId: 'create-purse-payload-14.0.0',
   type: 'object',
   properties: {
     boxId: { type: 'string' },
@@ -98,13 +98,13 @@ interface RChainTokenTypes {
   createPursePayload: (obj: any) => ValidationError[] | undefined;
 }
 
-export const LATEST_PROTOCOL_VERSION = '12.0.1';
+export const LATEST_PROTOCOL_VERSION = '14.0.0';
 
 export const rchainTokenValidators: { [k: string]: RChainTokenTypes } = {
-  ['12.0.1']: {
-    readBox: validate(readBox1201),
-    purses: validate(purses1201),
-    contractConfig: validate(contractConfig1201),
-    createPursePayload: validate(createPursePayload1201),
+  ['14.0.0']: {
+    readBox: validate(readBox1400),
+    purses: validate(purses1400),
+    contractConfig: validate(contractConfig1400),
+    createPursePayload: validate(createPursePayload1400),
   },
 };

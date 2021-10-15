@@ -96,7 +96,7 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
       contractId: this.state.contractId || (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesContractId,
       pursesIds: [this.state.name, '0'],
       blockchain: this.props.namesBlockchain,
-      version: '12.0.1', // Who give the version to use ?
+      version: '14.0.0', // Who give the version to use ?
     });
 
     const validationErrors = [pursesRequest.validationErrors, contractConfigRequest.validationErrors]
