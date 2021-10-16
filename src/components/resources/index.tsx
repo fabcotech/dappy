@@ -1,4 +1,4 @@
-export * from './DappsSandboxed';
+export * from './Resources';
 export * from './DisplayError';
 export * from './NavigationBar';
 export * from './NavigationBarHome';

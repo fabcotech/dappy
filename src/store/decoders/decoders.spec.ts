@@ -9,7 +9,7 @@ describe('decoders', () => {
     const validator = rchainTokenValidators[LATEST_PROTOCOL_VERSION].contractConfig;
 
     const contractConfig = {
-      contractId: "contract 1",
+      contractId: 'contract 1',
       counter: 1,
       fungible: true,
       locked: true,
@@ -26,32 +26,32 @@ describe('decoders', () => {
 
     const purses = {
       1: {
-        id: "foo",
-        boxId: "foo",
+        id: 'foo',
+        boxId: 'foo',
         quantity: 1,
         timestamp: 1,
-        price: 1
+        price: 1,
       },
-      "aaa": {
-        id: "foo",
-        boxId: "foo",
+      aaa: {
+        id: 'foo',
+        boxId: 'foo',
         quantity: 1,
         timestamp: 1,
-        price: 1
+        price: 1,
       },
     };
 
     var errors = validator(purses);
     expect(errors).toBe(undefined);
   });
-  it("shoud validate Ui", () => {
+  it('shoud validate Ui', () => {
     const uiObj = {
-      dappsListDisplay: 1,
+      tabsListDisplay: 1,
       devMode: true,
-      gcu: "1.0",
-      language: "en",
+      gcu: '1.0',
+      language: 'en',
       menuCollapsed: false,
-      navigationUrl: "/names",  
+      navigationUrl: '/names',
     };
 
     expect(() => uiSchema.validateSync(uiObj)).not.toThrowError();

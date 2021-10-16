@@ -5,7 +5,7 @@ import './Menu.scss';
 import { MenuMobile } from '.';
 
 interface MenuComponentProps {
-  dappsListDisplay: number;
+  tabsListDisplay: number;
   menuCollapsed: boolean;
   isNavigationInDapps: boolean;
   isNavigationInSettings: boolean;
@@ -26,7 +26,7 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
     if (this.props.isMobile) {
       return (
         <MenuMobile
-          dappsListDisplay={this.props.dappsListDisplay}
+          tabsListDisplay={this.props.tabsListDisplay}
           isAwaitingUpdate={this.props.isAwaitingUpdate}
           currentVersion={this.props.currentVersion}
           isBeta={this.props.isBeta}
@@ -124,9 +124,9 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
               onClick={() => this.props.navigate('/dapps')}>
               <i className="fa fa-globe-europe fa-before" />
               {t('menu browse')}
-              {this.props.dappsListDisplay === 1 ? <i className="fa fa-eye-slash fa-after"></i> : undefined}
-              {this.props.dappsListDisplay === 2 ? <i className="fa fa-eye fa-after"></i> : undefined}
-              {this.props.dappsListDisplay === 3 ? <i className="fa fa-eye fa-after"></i> : undefined}
+              {this.props.tabsListDisplay === 1 ? <i className="fa fa-eye-slash fa-after"></i> : undefined}
+              {this.props.tabsListDisplay === 2 ? <i className="fa fa-eye fa-after"></i> : undefined}
+              {this.props.tabsListDisplay === 3 ? <i className="fa fa-eye fa-after"></i> : undefined}
             </a>
           </li>
           <li>

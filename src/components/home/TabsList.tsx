@@ -79,7 +79,7 @@ export const TabsList = connect(
       dapps: fromDapps.getDapps(state),
       isMobile: fromUi.getIsMobile(state),
       isSearchFocused: fromDapps.getIsSearchFocused(state),
-      onlyIcons: fromUi.getDappsListDisplay(state) === 3,
+      onlyIcons: fromUi.getTabsListDisplay(state) === 3,
     };
   },
   (dispatch) => ({

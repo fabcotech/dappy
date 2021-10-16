@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import './DappsSandboxed.scss';
+import './Resources.scss';
 import * as fromDapps from '/store/dapps';
 import * as fromMain from '/store/main';
 import { Dapp, TransitoryState, Tab, LastLoadError, IpApp, LoadedFile } from '/models';
-import { DisplayError, DownloadFile, NavigationBar } from './';
+import { DisplayError, DownloadFile, NavigationBar } from '.';
 import { Modal } from '../utils';
 
-interface DappsSandboxedComponentProps {
+interface ResourcesComponentProps {
   activeTabs: { [tabId: string]: Tab };
   loadedFiles: { [fileId: string]: LoadedFile };
   ipApps: { [appId: string]: IpApp };
@@ -21,10 +21,10 @@ interface DappsSandboxedComponentProps {
   loadResource: (address: string, tabId: string) => void;
 }
 
-class DappsSandboxedComponent extends React.Component<DappsSandboxedComponentProps, {}> {
+class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
   render() {
     return (
-      <div className={`dapps-sandboxed ${Object.keys(this.props.activeTabs).length ? '' : 'hidden'}`}>
+      <div className={`resources ${Object.keys(this.props.activeTabs).length ? '' : 'hidden'}`}>
         {Object.keys(this.props.activeTabs).map((tabId, index) => {
           const tab = this.props.activeTabs[tabId];
           if (this.props.dappModals[tab.resourceId] && this.props.dappModals[tab.resourceId][0]) {
@@ -108,7 +108,7 @@ class DappsSandboxedComponent extends React.Component<DappsSandboxedComponentPro
   }
 }
 
-export const DappsSandboxed = connect(
+export const Resources = connect(
   (state) => {
     return {
       activeTabs: fromDapps.getActiveTabs(state),
@@ -134,4 +134,4 @@ export const DappsSandboxed = connect(
         ),
     };
   }
-)(DappsSandboxedComponent);
+)(ResourcesComponent);

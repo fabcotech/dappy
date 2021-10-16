@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import './Root.scss';
 import * as fromUi from '/store/ui';
 import * as fromMain from '/store/main';
-import { Dapps } from './dapps';
+import { Home } from './home';
 import { Root as DeployRoot } from './deploy';
 import { Root as SettingsRoot } from './settings';
 import { Root as RecordRoot } from './records';
@@ -18,7 +18,7 @@ import { GCU_TEXT, GCU_VERSION } from '/GCU';
 import { initTranslate } from '/utils/translate';
 
 interface RootComponentProps {
-  dappsListDisplay: number;
+  tabsListDisplay: number;
   menuCollapsed: boolean;
   navigationUrl: NavigationUrl;
   isMobile: boolean;
@@ -82,7 +82,7 @@ class RootComponent extends React.Component<RootComponentProps, {}> {
       <div className={klasses}>
         {this.props.modal ? <Modal /> : undefined}
         <Menu
-          dappsListDisplay={this.props.dappsListDisplay}
+          tabsListDisplay={this.props.tabsListDisplay}
           menuCollapsed={this.props.menuCollapsed}
           toggleMenuCollapsed={this.props.toggleMenuCollapsed}
           isNavigationInDapps={this.props.isNavigationInDapps}
@@ -101,16 +101,14 @@ class RootComponent extends React.Component<RootComponentProps, {}> {
           {this.props.isNavigationInSettings ? (
             <SettingsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
           ) : undefined}
-          {this.props.isNavigationInNames ? (
-            <RecordRoot />
-          ) :undefined}
+          {this.props.isNavigationInNames ? <RecordRoot /> : undefined}
           {this.props.isNavigationInAccounts ? (
             <AccountsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
           ) : undefined}
           {this.props.isNavigationInDeploy ? (
             <DeployRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
           ) : undefined}
-          <Dapps />
+          <Home />
           {this.props.isNavigationInTransactions ? <TransactionsRoot /> : undefined}
         </div>
       </div>
@@ -120,7 +118,7 @@ class RootComponent extends React.Component<RootComponentProps, {}> {
 
 export const Root = connect(
   (state) => ({
-    dappsListDisplay: fromUi.getDappsListDisplay(state),
+    tabsListDisplay: fromUi.getTabsListDisplay(state),
     menuCollapsed: fromUi.getMenuCollapsed(state),
     isNavigationInDapps: fromUi.getIsNavigationInDapps(state),
     isNavigationInSettings: fromUi.getIsNavigationInSettings(state),

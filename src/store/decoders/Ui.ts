@@ -18,7 +18,7 @@ export const uiSchema = yup
   .object()
   .shape({
     menuCollapsed: yup.boolean().required(),
-    dappsListDisplay: yup.number().required(),
+    tabsListDisplay: yup.number().required(),
     devMode: yup.boolean().required(),
     gcu: yup.string(),
     navigationUrl: yup

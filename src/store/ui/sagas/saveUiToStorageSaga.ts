@@ -14,14 +14,14 @@ const saveUiToStorage = function* (action: Action) {
   const uiStateToSave = {
     menuCollapsed: uiState.menuCollapsed,
     devMode: uiState.devMode,
-    dappsListDisplay: uiState.dappsListDisplay,
+    tabsListDisplay: uiState.tabsListDisplay,
     navigationUrl: uiState.navigationUrl,
     language: uiState.language,
     gcu: uiState.gcu,
   };
 
   let dappsTabsWidth = 0;
-  if (uiState.dappsListDisplay === 2) {
+  if (uiState.tabsListDisplay === 2) {
     if (isMobile) {
       dappsTabsWidth = 160;
     } else if (isTablet) {
@@ -29,7 +29,7 @@ const saveUiToStorage = function* (action: Action) {
     } else {
       dappsTabsWidth = 320;
     }
-  } else if (uiState.dappsListDisplay === 3) {
+  } else if (uiState.tabsListDisplay === 3) {
     dappsTabsWidth = 28;
   }
 

@@ -7,7 +7,7 @@ import * as fromSettings from '/store/settings';
 import * as fromUi from '/store/ui';
 import { Blockchain, NavigationUrl } from '/models';
 
-import { NavigationBarHome } from '../dapp/';
+import { NavigationBarHome } from '../resources';
 
 interface FetchContractProps {
   availableBlockchains: {

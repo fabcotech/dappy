@@ -1,4 +1,4 @@
-export * from './Dapps';
+export * from './Home';
 export * from './FetchContract';
 export * from './TabsList';
 export * from './TabListItem';

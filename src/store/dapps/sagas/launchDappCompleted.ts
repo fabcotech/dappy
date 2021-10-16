@@ -22,7 +22,7 @@ const launchDappCompleted = function* (action: Action) {
   dispatchInMain({
     type: '[MAIN] Load or reload browser view',
     payload: {
-      currentUrl: `dist/dapp-sandboxed.html`,
+      currentUrl: `dist/dappsandboxed.html`,
       resourceId: payload.dapp.id,
       tabId: tab.id,
       muted: tab.muted,

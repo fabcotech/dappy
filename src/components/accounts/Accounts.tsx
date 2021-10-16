@@ -113,7 +113,7 @@ export function AccountsComponent(props: AccountsProps) {
                     </div>
                   </div>
                   <div className="boxes">
-                    {a.boxes.length ? <b className="token-boxes">{t('token box', 's')}</b> : undefined}
+                    {a.boxes.length ? <b className="token-boxes">{t('token box', true)}</b> : undefined}
                     {a.boxes.map((b) => {
                       return (
                         <Fragment key={b}>

@@ -316,6 +316,10 @@ dbReq.onsuccess = (event) => {
     } else if (ui.navigationUrl === '/settings/names') {
       ui.navigationUrl = '/names';
     }
+    if (ui.hasOwnProperty('tabsListDisplay')) {
+      ui = { ...ui, tabsListDisplay: ui.tabsListDisplay };
+      delete ui.dappsListDisplay;
+    }
 
     validateUi(ui)
       .then(() => {

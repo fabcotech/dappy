@@ -1,16 +1,16 @@
 import { createStore } from 'redux';
 import * as rchainToolkit from 'rchain-toolkit';
 
-import * as fromCommon from './common';
+import * as fromCommon from '../src/common';
 import {
   sendRChainTransactionFromSandboxAction,
   identifyFromSandboxAction,
   sendRChainPaymentRequestFromSandboxAction,
-} from './common';
-import { TransactionState, Identification } from './models';
-import { buildUnforgeableNameQuery } from './utils/buildUnforgeableNameQuery';
-import { generateSignature } from './utils/generateSignature';
-import { generateNonce } from './utils/generateNonce';
+} from '../src/common';
+import { TransactionState, Identification } from '../src/models';
+import { buildUnforgeableNameQuery } from '../src/utils/buildUnforgeableNameQuery';
+import { generateSignature } from '../src/utils/generateSignature';
+import { generateNonce } from '../src/utils/generateNonce';
 
 const blockchainUtils = {
   rhoValToJs: rchainToolkit.utils.rhoValToJs,
