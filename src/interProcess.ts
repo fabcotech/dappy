@@ -1,6 +1,13 @@
 import { Store } from 'redux';
 
-import { MultiCallBody, MultiCallError, MultiCallParameters, MultiCallResult, BlockchainNode } from '/models';
+import {
+  MultiCallBody,
+  MultiCallError,
+  MultiCallParameters,
+  MultiCallResult,
+  BlockchainNode,
+  SingleCallResult,
+} from '/models';
 import * as fromDapps from './store/dapps';
 import * as fromMain from './store/main';
 import { BeesLoadError } from 'beesjs';
@@ -8,7 +15,7 @@ import { Action } from '/store';
 
 const actionsAwaitingEphemeralToken: any[] = [];
 
-export const singleCall = (body: { [key: string]: any }, node: BlockchainNode) => {
+export const singleCall = (body: { [key: string]: any }, node: BlockchainNode): Promise<SingleCallResult> => {
   return window.singleDappyCall(body, node);
 };
 
@@ -30,6 +37,10 @@ export const triggerCommand = (command: string, payload?: { [key: string]: strin
 
 export const openExternal = (url: string) => {
   window.openExternal(url);
+};
+
+export const getIpAddressAndCert = (a: { host: string }) => {
+  return window.getIpAddressAndCert(a);
 };
 
 export const interProcess = (store: Store) => {
@@ -173,7 +184,7 @@ export const interProcess = (store: Store) => {
         try {
           const r = JSON.parse(interProcess.responseText);
           if (r.success) {
-            resolve(r.data);
+            resolve(r);
           } else {
             reject(r.error || { message: 'Unknown error' });
           }

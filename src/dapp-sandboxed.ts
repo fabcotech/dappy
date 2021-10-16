@@ -386,6 +386,9 @@ window.messageFromMain = (action) => {
         }
       }, 0);
     });
+  } else {
+    console.error('Unknown action');
+    console.log(action);
   }
 };
 
@@ -411,7 +414,8 @@ interProcess.onload = (a) => {
       window.messageFromMain(r);
     }
   } catch (e) {
-    reject({ message: 'could not parse response' });
+    console.log(e);
+    window.messageFromMain({ message: 'could not parse response' });
   }
 };
 

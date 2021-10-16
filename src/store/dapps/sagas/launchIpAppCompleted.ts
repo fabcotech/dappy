@@ -21,7 +21,9 @@ const launchIpAppCompleted = function* (action: Action) {
   // used as identifier for session, indexeddb etc..., do not put path
   const dappyDomain = searchToAddress(payload.ipApp.search, payload.ipApp.chainId, '');
 
-  const serverIndex = (payload.ipApp.record.servers as IPServer[]).findIndex((s) => s.primary);
+  // we know there are IP servers if it is an IP application
+  const ipServers = payload.ipApp.record.servers as IPServer[];
+  const serverIndex = ipServers.findIndex((s) => s.primary);
 
   let sessionItem: undefined | SessionItem = undefined;
   if (
@@ -33,7 +35,7 @@ const launchIpAppCompleted = function* (action: Action) {
     sessionItem = sessions[tab.id].items[sessions[tab.id].cursor];
   }
 
-  let currentUrl = `https://${payload.ipApp.record.servers[serverIndex].host}`;
+  let currentUrl = `https://${ipServers[serverIndex].host}`;
   // todo ????????
   // First check if we are navigating
   if (sessionItem && sessionItem.address) {

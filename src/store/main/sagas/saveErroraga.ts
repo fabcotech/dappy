@@ -15,7 +15,7 @@ const saveError = function* (action: Action) {
     });
   }
 
-  return yield undefined;
+  return undefined;
 };
 
 export const saveErrorSaga = function* () {

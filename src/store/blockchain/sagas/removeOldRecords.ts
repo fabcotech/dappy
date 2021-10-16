@@ -4,21 +4,22 @@ import * as fromBlockchain from '..';
 import * as fromMain from '/store/main';
 import { browserUtils } from '/store/browser-utils';
 import { Action, db, store } from '/store/';
+import { Record } from '/models';
 
-const removeOldRecords = function*(action: Action) {
+const removeOldRecords = function* (action: Action) {
   const payload: fromBlockchain.RemoveOldRecordsPayload = action.payload;
   const state = store.getState();
 
-  const records = yield fromBlockchain.getRecords(state);
+  const records: { [name: string]: Record } = yield fromBlockchain.getRecords(state);
   const oldRecordsNames: string[] = [];
-  Object.keys(records).forEach(k => {
+  Object.keys(records).forEach((k) => {
     const record = records[k];
     if (record.origin === 'blockchain' && new Date(record.loadedAt).getTime() < new Date(payload.before).getTime()) {
       oldRecordsNames.push(k);
     }
   });
 
-  browserUtils.deleteStorageIndexed('records', oldRecordsNames).catch(err => {
+  browserUtils.deleteStorageIndexed('records', oldRecordsNames).catch((err) => {
     store.dispatch(
       fromMain.saveErrorAction({
         errorCode: 2046,
@@ -33,6 +34,6 @@ const removeOldRecords = function*(action: Action) {
   return true;
 };
 
-export const removeOldRecordsSaga = function*() {
+export const removeOldRecordsSaga = function* () {
   yield takeEvery(fromBlockchain.REMOVE_OLD_RECORDS, removeOldRecords);
 };

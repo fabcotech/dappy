@@ -2,10 +2,7 @@ import { BlockchainNode } from '../src/models';
 import { httpBrowserToNode } from './httpBrowserToNode';
 
 /* browser to node */
-export const performSingleRequest = (
-  body: { [key: string]: any },
-  node: BlockchainNode
-): Promise<{ success: boolean; error?: { message: string }; data?: any }> => {
+export const performSingleRequest = (body: { [key: string]: any }, node: BlockchainNode): Promise<string> => {
   return new Promise((resolve, reject) => {
     let over = false;
     setTimeout(() => {
@@ -22,7 +19,7 @@ export const performSingleRequest = (
       .then((result) => {
         if (!over) {
           over = true;
-          resolve(result);
+          resolve(result as string);
         }
       })
       .catch((err) => {

@@ -79,7 +79,7 @@ export const validateAndReturnFile = async (
     return parsedFile as DappyFile;
   }
   return parsedFile as DappyFile;
-  // todo verify file signature
+  /* // todo verify file signature
   const toVerify = new Uint8Array(
     Buffer.from(
       JSON.stringify({
@@ -112,5 +112,5 @@ export const validateAndReturnFile = async (
     );
   }
 
-  return parsedFile as DappyFile;
+  return parsedFile as DappyFile; */
 };

@@ -28,3 +28,9 @@ export interface MultiCallError {
   error: BeesLoadErrorWithArgs;
   loadState: BeesLoadCompleted;
 }
+
+export interface SingleCallResult {
+  success: boolean;
+  error?: { message: string };
+  data?: any;
+}

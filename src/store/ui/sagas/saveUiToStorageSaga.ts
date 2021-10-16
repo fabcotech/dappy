@@ -43,17 +43,19 @@ const saveUiToStorage = function* (action: Action) {
   }
   const x = menuWidth + dappsTabsWidth;
   const y = 50;
-  const browserViewsPosition = {
-    x,
-    y,
-    width: uiState.windowDimensions[0] - x,
-    height: uiState.windowDimensions[1] - y,
-  };
+  if (uiState.windowDimensions) {
+    const browserViewsPosition = {
+      x,
+      y,
+      width: uiState.windowDimensions[0] - x,
+      height: uiState.windowDimensions[1] - y,
+    };
 
-  dispatchInMain({
-    type: '[MAIN] Update browser views position',
-    payload: browserViewsPosition,
-  });
+    dispatchInMain({
+      type: '[MAIN] Update browser views position',
+      payload: browserViewsPosition,
+    });
+  }
 
   try {
     yield browserUtils.saveStorage('ui', uiStateToSave);

@@ -50,9 +50,10 @@ declare global {
   interface Window {
     Sentry: any;
     uniqueEphemeralToken: string;
+    messageFromMain: (a: any) => void;
     singleDappyCall: (body: any, parameters: any) => Promise<any>;
     multiDappyCall: (body: any, parameters: any) => Promise<MultiCallResult>;
-    getIpAddressAndCert: (string) => Promise<{ cert: string; ip: string }>;
+    getIpAddressAndCert: (a: { host: string }) => Promise<{ cert: string; ip: string }>;
     generateCertificateAndKey: () => Promise<{ key: string; certificate: string }>;
     triggerCommand: (command: string, payload?: { [key: string]: string }) => void;
     initContextMenu: () => void;

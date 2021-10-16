@@ -1,7 +1,7 @@
 import { takeEvery, put, select } from 'redux-saga/effects';
 import { rhoValToJs } from 'rchain-toolkit/dist/utils';
 
-import { Blockchain, TransactionStatus, BlockchainNode, MultiCallError } from '/models';
+import { Blockchain, TransactionStatus, BlockchainNode, MultiCallError, SingleCallResult } from '/models';
 import * as fromBlockchain from '..';
 import { buildUnforgeableNameQuery } from '/utils/buildUnforgeableNameQuery';
 import * as fromMain from '/store/main';
@@ -64,13 +64,15 @@ const sendRChainTransaction = function* (action: Action) {
         nameQty: 1,
       };
 
-      const prepareDeployResponse = yield singleCall(
+      let prepareDeployResponse: undefined | SingleCallResult;
+      prepareDeployResponse = yield singleCall(
         { type: 'api/prepare-deploy', body: channelRequest },
         node as BlockchainNode
       );
 
-      // TODO random node / multiple nodes
-      unforgeableName = JSON.parse(prepareDeployResponse).names[0];
+      // TODO random node / multiple nodes to avoid failing if
+      // downtime on a single node
+      unforgeableName = JSON.parse((prepareDeployResponse as SingleCallResult).data).names[0];
     } catch (err) {
       const p: fromBlockchain.RChainTransactionErrorPayload = {
         id: payload.id,
@@ -85,11 +87,10 @@ const sendRChainTransaction = function* (action: Action) {
     }
   }
 
-  let deployResponse = '';
+  let deployResponse: undefined | SingleCallResult = undefined;
   try {
     deployResponse = yield singleCall({ type: 'api/deploy', body: payload.transaction }, node as BlockchainNode);
-
-    if (!deployResponse.startsWith('"Success')) {
+    if (!(deployResponse as SingleCallResult).data.startsWith('"Success')) {
       yield put(
         fromBlockchain.rChainTransactionErrorAction({
           id: payload.id,
@@ -130,13 +131,13 @@ const sendRChainTransaction = function* (action: Action) {
       fromBlockchain.updateRChainTransactionStatusAction({
         id: payload.id,
         status: TransactionStatus.Aired,
-        value: deployResponse as string,
+        value: (deployResponse as SingleCallResult).data as string,
       })
     );
 
     if (previewPrivateName) {
       const unforgeableNameQuery = buildUnforgeableNameQuery(unforgeableName);
-      let interval: NodeJS.Timeout;
+      let interval: NodeJS.Timeout | undefined;
       let dataAtNameResponseExpr: { [key: string]: any } | undefined;
       try {
         dataAtNameResponseExpr = yield new Promise((resolve, reject) => {
@@ -173,7 +174,7 @@ const sendRChainTransaction = function* (action: Action) {
                   const parsedResp = JSON.parse(resp.result.data);
                   if (parsedResp && parsedResp.data && parsedResp.data.expr) {
                     resolve(parsedResp.data.expr);
-                    clearInterval(interval);
+                    if (interval) clearInterval(interval);
                   } else {
                     console.log('Did not find transaction data (unforgeable name), will try again in 15 seconds');
                   }
@@ -187,7 +188,7 @@ const sendRChainTransaction = function* (action: Action) {
           }, 15000);
         });
       } catch (err) {
-        clearInterval(interval);
+        if (interval) clearInterval(interval);
         store.dispatch(
           fromBlockchain.rChainTransactionErrorAction({
             id: payload.id,

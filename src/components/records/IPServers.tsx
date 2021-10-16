@@ -5,6 +5,7 @@ import { IPServer } from '/models';
 import { ServerConfig } from './ServerConfig';
 
 import './IPServers.scss';
+import { getIpAddressAndCert } from '/interProcess';
 
 interface IPServersComponentProps {
   ipServers: IPServer[];
@@ -59,8 +60,7 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
     setFieldTouched: (a: string, b: boolean) => void
   ) => {
     if (typeof host === 'string') {
-      window
-        .getIpAddressAndCert({ host: host })
+      getIpAddressAndCert({ host: host })
         .then((a: { ip: string; cert: string }) => {
           if (a.ip && a.cert && typeof a.ip === 'string' && typeof a.cert === 'string') {
             setFieldValue(`servers.${index}.key`, '');
