@@ -2,7 +2,7 @@ import * as React from 'react';
 import xs, { Subscription } from 'xstream';
 
 import { DappImage } from '../utils';
-import { ActionsComponent } from '.';
+import { TabActions } from '.';
 import { TransitoryState, Tab, Dapp } from '/models';
 import './TabListItem.scss';
 
@@ -105,7 +105,7 @@ export class TabListItem extends React.Component<TabListItemProps, {}> {
           {this.props.tab.active &&
           (!this.props.transitoryState ||
             !['launching', 'stopping', 'loading', 'reloading'].includes(this.props.transitoryState)) ? (
-            <ActionsComponent
+            <TabActions
               dapp={this.props.dapp}
               tab={this.props.tab}
               loadResource={() => this.props.loadResource('', this.props.tab.id)}

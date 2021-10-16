@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Dapp, Tab } from '/models';
 
-interface ActionsProps {
+interface TabActionsProps {
   dapp: undefined | Dapp;
   tab: Tab;
   stopTab: () => void;
@@ -10,7 +10,7 @@ interface ActionsProps {
   onSetMuteResource: (tabId: string, a: boolean) => void;
 }
 
-export class ActionsComponent extends React.Component<ActionsProps, {}> {
+export class TabActions extends React.Component<TabActionsProps, {}> {
   state = {
     active: false,
   };
