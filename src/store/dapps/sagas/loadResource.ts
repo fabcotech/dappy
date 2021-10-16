@@ -1,6 +1,6 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
 import { readPursesDataTerm } from 'rchain-token';
-import { BeesLoadError, BeesLoadErrorWithArgs } from 'beesjs';
+import { BeesLoadCompleted, BeesLoadError, BeesLoadErrors, BeesLoadErrorWithArgs } from 'beesjs';
 
 import { multiCall } from '/interProcess';
 import { MultiCallResult } from '/models/MultiCall';
@@ -452,13 +452,15 @@ const loadResource = function* (action: Action) {
 
     multiCallResult = yield multiCall(
       {
-        type: 'api/explore-deploy',
+        type: 'explore-deploy-x',
         body: {
-          term: readPursesDataTerm({
-            masterRegistryUri: masterRegistryUri,
-            contractId: fileContractId,
-            pursesIds: [filePurseId],
-          }),
+          terms: [
+            readPursesDataTerm({
+              masterRegistryUri: masterRegistryUri,
+              contractId: fileContractId,
+              pursesIds: [filePurseId],
+            }),
+          ],
         },
       },
       {
@@ -482,29 +484,15 @@ const loadResource = function* (action: Action) {
   }
 
   const dataFromBlockchain = (multiCallResult as MultiCallResult).result.data;
-  let verifyError: BeesLoadErrorWithArgs | null = null;
-  try {
-    verifyError = validateBlockchainResponse(dataFromBlockchain, `Address "${searchSplitted.search}"`);
-  } catch (e) {
-    yield put(
-      fromDapps.loadResourceFailedAction({
-        tabId: tabId,
-        search: address,
-        error: { error: BeesLoadError.FailedToParseResponse, args: { message: 'Invalid response' } },
-      })
-    );
-    return;
-  }
-
-  if (verifyError) {
-    yield put(fromDapps.loadResourceFailedAction({ tabId: tabId, search: address, error: verifyError }));
-    return;
-  }
-
-  const dataFromBlockchainParsed: { data: object } = JSON.parse(dataFromBlockchain);
+  const dataFromBlockchainParsed: { data: { results: { data: string }[] } } = JSON.parse(dataFromBlockchain);
   let verifiedDappyFile: DappyFile | undefined = undefined;
   try {
-    verifiedDappyFile = yield validateAndReturnFile(dataFromBlockchainParsed, filePurseId, '', checkSignature);
+    verifiedDappyFile = yield validateAndReturnFile(
+      dataFromBlockchainParsed.data.results[0].data,
+      filePurseId,
+      '',
+      checkSignature
+    );
   } catch (e) {
     let error;
     try {
@@ -525,7 +513,7 @@ const loadResource = function* (action: Action) {
   const dappyFile = verifiedDappyFile as DappyFile;
 
   if (dappyFile.mimeType !== 'application/dappy') {
-    const block = JSON.parse(dataFromBlockchainParsed.data).block;
+    const block = JSON.parse(dataFromBlockchainParsed.data.results[0].data).block;
     yield put(
       fromDapps.launchFileCompletedAction({
         file: {
@@ -579,7 +567,13 @@ const loadResource = function* (action: Action) {
     version: '',
   };
 
-  const loadStates = yield select(fromDapps.getLoadStates);
+  const loadStates: {
+    [dappId: string]: {
+      completed: BeesLoadCompleted;
+      errors: BeesLoadErrors;
+      pending: string[];
+    };
+  } = yield select(fromDapps.getLoadStates);
   const dapp: Dapp = {
     ...dappFromNetwork,
     id: resourceId,

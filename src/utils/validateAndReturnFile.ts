@@ -9,7 +9,7 @@ import { validateDpy, validateFile } from '/store/decoders/Dpy';
 const ec = new elliptic.ec('secp256k1');
 
 export const validateAndReturnFile = async (
-  dataFromBlockchainParsed: { data: object },
+  dataNotParsed: string,
   purseId: string,
   publicKeyFromRequest: string,
   checkSignature: boolean
@@ -17,7 +17,7 @@ export const validateAndReturnFile = async (
   let file;
   let parsed;
   try {
-    parsed = JSON.parse(dataFromBlockchainParsed.data);
+    parsed = JSON.parse(dataNotParsed);
     if (!parsed.expr[0]) {
       throw new Error();
     }

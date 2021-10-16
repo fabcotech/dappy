@@ -67,12 +67,14 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
       const indexes = this.props.namesBlockchain.nodes.filter((n) => n.readyState === 1).map(getNodeIndex);
       multiCallResult = await multiCall(
         {
-          type: 'api/explore-deploy',
+          type: 'explore-deploy-x',
           body: {
-            term: readBoxTerm({
-              masterRegistryUri: this.props.rchainInfos.info.rchainNamesMasterRegistryUri,
-              boxId: this.props.boxId,
-            }),
+            terms: [
+              readBoxTerm({
+                masterRegistryUri: this.props.rchainInfos.info.rchainNamesMasterRegistryUri,
+                boxId: this.props.boxId,
+              }),
+            ],
           },
         },
         {
@@ -94,9 +96,9 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
     }
 
     try {
-      const dataFromBlockchain = (multiCallResult as MultiCallResult).result.data;
-      const dataFromBlockchainParsed: { data: string } = JSON.parse(dataFromBlockchain);
-      const val = rchainToolkit.utils.rhoValToJs(JSON.parse(dataFromBlockchainParsed.data).expr[0]);
+      const dataFromBlockchain = multiCallResult.result.data;
+      const dataFromBlockchainParsed: { data: { results: { data: string }[] } } = JSON.parse(dataFromBlockchain);
+      const val = rchainToolkit.utils.rhoValToJs(JSON.parse(dataFromBlockchainParsed.data.results[0].data).expr[0]);
       if (!RCHAIN_TOKEN_SUPPORTED_VERSIONS.includes(val.version)) {
         this.setState({
           refreshing: false,
