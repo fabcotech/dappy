@@ -31,7 +31,7 @@
   "dependencies": {
     "@sentry/browser": "6.7.1",
     "ajv": "^6.12.6",
-    "beesjs": "fabcotech/beesjs#0bab81e5727aea49f7247e3a496de54107d489f6",
+    "beesjs": "fabcotech/beesjs#1.0.5",
     "blakejs": "^1.1.0",
     "bulma": "0.9.3",
     "bulma-extensions": "^6.2.7",

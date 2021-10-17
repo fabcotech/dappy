@@ -134,7 +134,7 @@ export const performMultiRequest = (
         console.log(e);
         reject({
           error: {
-            error: BeesLoadError.UnknownError,
+            error: BeesLoadError.UnknownCriticalError,
             args: {},
           },
           loadState: {},
