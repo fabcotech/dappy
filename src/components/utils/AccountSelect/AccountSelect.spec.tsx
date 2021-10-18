@@ -34,11 +34,9 @@ describe('AccountSelect', () => {
       chooseBox: true,
       accounts: { [accountWithoutBoxes.name]: accountWithoutBoxes }
     });
-    const { debug } = render(<AccountSelectComponent {...props} />);
+    render(<AccountSelectComponent {...props} />);
     await waitFor(() => {
       screen.getByText('box not found');
     });
-
-    debug();
   })
 });

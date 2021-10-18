@@ -18,7 +18,7 @@ describe('utils/account', () => {
       passwordBytes,
       new Uint8Array(
         JSON.parse(`{ "a": [227,248,121,177,84,240,192,100,204,112,65,150,94,241,40,162,24,71,92,105,104,232,253,1]}`).a
-      )
+      ),
     );
     expect(encrypted).toEqual('4/h5sVTwwGTMcEGWXvEoohhHXGlo6P0B/BgM4dgvv3nNDkQFBvkLQ++ldYKwaJXwq4jnmRrkDF8TKT8e');
   });

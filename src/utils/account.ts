@@ -13,7 +13,8 @@ export const account = {
   encrypt: (message: string, password: Uint8Array, nonceDoNotProvideThisParameter?: Uint8Array): string => {
     let nonce: Uint8Array | undefined;
     if (nonceDoNotProvideThisParameter) {
-      console.warn('nonce should be provided as parameter only for testing, hope you are testing');
+      if (process.env.NODE_ENV !== 'test')
+        console.warn('nonce should be provided as parameter only for testing, hope you are testing');
       nonce = nonceDoNotProvideThisParameter;
     } else {
       nonce = nacl.randomBytes(nacl.secretbox.nonceLength);
