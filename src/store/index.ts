@@ -104,6 +104,8 @@ const errorCatcherMiddleware = () => (next: (a: Action) => void) => (action: Act
 const sagaMiddleware = createSagaMiddleware();
 let middlewares = [errorCatcherMiddleware, sagaMiddleware];
 
+const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || ((a: any) => a);
+
 export const store: Store<State> = createStore(
   combineReducers({
     main: fromMain.reducer,
@@ -114,7 +116,9 @@ export const store: Store<State> = createStore(
     history: fromHistory.reducer,
     cookies: fromCookies.reducer,
   }),
-  applyMiddleware(...middlewares)
+  composeEnhancers(
+    applyMiddleware(...middlewares)
+  )
 );
 
 const sagas = function* rootSaga() {

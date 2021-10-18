@@ -12,6 +12,7 @@ var crypto = _interopDefault(require('crypto'));
 var net = _interopDefault(require('net'));
 var child_process = _interopDefault(require('child_process'));
 var dns = _interopDefault(require('dns'));
+require('os');
 
 var DAPP_INITIAL_SETUP = '[Common] dapp initial setup';
 var SEND_RCHAIN_TRANSACTION_FROM_SANDBOX = '[Common] Send RChain transaction from sandbox';
@@ -3339,6 +3340,42 @@ var src = {
 var src_17 = src.readConfigTerm;
 var src_18 = src.readPursesDataTerm;
 
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+
+var __assign$1 = function() {
+    __assign$1 = Object.assign || function __assign(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign$1.apply(this, arguments);
+};
+
+var commonjsGlobal$1 = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+function unwrapExports$1 (x) {
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+}
+
+function createCommonjsModule$1(fn, module) {
+	return module = { exports: {} }, fn(module, module.exports), module.exports;
+}
+
 function symbolObservablePonyfill(root) {
 	var result;
 	var Symbol = root.Symbol;
@@ -3375,8 +3412,8 @@ if (typeof self !== 'undefined') {
 
 var result = symbolObservablePonyfill(root);
 
-var xstream = createCommonjsModule(function (module, exports) {
-var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+var xstream = createCommonjsModule$1(function (module, exports) {
+var __extends = (commonjsGlobal$1 && commonjsGlobal$1.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
         function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
@@ -4786,7 +4823,7 @@ var Stream = /** @class */ (function () {
      * @return {Stream}
      */
     Stream.prototype.flatten = function () {
-        var p = this._prod;
+        this._prod;
         return new Stream(new Flatten(this));
     };
     /**
@@ -5123,11 +5160,11 @@ exports.default = xs;
 
 });
 
-var xs = unwrapExports(xstream);
-var xstream_1 = xstream.NO;
-var xstream_2 = xstream.NO_IL;
-var xstream_3 = xstream.Stream;
-var xstream_4 = xstream.MemoryStream;
+var xs = unwrapExports$1(xstream);
+xstream.NO;
+xstream.NO_IL;
+xstream.Stream;
+xstream.MemoryStream;
 
 var BeesLoadStatus;
 (function (BeesLoadStatus) {
@@ -5158,6 +5195,8 @@ var BeesLoadError;
     BeesLoadError["InvalidRecords"] = "Invalid records";
     BeesLoadError["InvalidNodes"] = "Invalid nodes";
     BeesLoadError["InvalidServers"] = "Invalid servers";
+    BeesLoadError["PostParseError"] = "Parse error after multicall";
+    BeesLoadError["UnknownCriticalError"] = "Unknown critical error";
 })(BeesLoadError || (BeesLoadError = {}));
 var indexData = function (data, existingData, comparer) {
     var _a;
@@ -5175,14 +5214,14 @@ var indexData = function (data, existingData, comparer) {
         var _a;
         if (stringToCompare === existingData[key].stringToCompare) {
             found = true;
-            existingData = __assign(__assign({}, existingData), (_a = {}, _a[key] = __assign(__assign({}, existingData[key]), { nodeUrls: existingData[key].nodeUrls.concat(data.nodeUrl) }), _a));
+            existingData = __assign$1(__assign$1({}, existingData), (_a = {}, _a[key] = __assign$1(__assign$1({}, existingData[key]), { nodeUrls: existingData[key].nodeUrls.concat(data.nodeUrl) }), _a));
         }
     });
     if (!found) {
-        existingData = __assign(__assign({}, existingData), (_a = {}, _a[Object.keys(existingData).length + 1] = {
+        existingData = __assign$1(__assign$1({}, existingData), (_a = {}, _a[Object.keys(existingData).length + 1] = {
             nodeUrls: [data.nodeUrl],
             data: data.data,
-            stringToCompare: stringToCompare
+            stringToCompare: stringToCompare,
         }, _a));
     }
     if (!Object.keys(existingData).length) {
@@ -5190,8 +5229,8 @@ var indexData = function (data, existingData, comparer) {
             "1": {
                 nodeUrls: [data.nodeUrl],
                 data: data.data || "",
-                stringToCompare: stringToCompare
-            }
+                stringToCompare: stringToCompare,
+            },
         };
     }
     return existingData;
@@ -5212,7 +5251,7 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                 loadErrors: loadErrors,
                 loadState: loadState,
                 loadPending: loadPending,
-                status: BeesLoadStatus.Loading
+                status: BeesLoadStatus.Loading,
             });
             if (resolverMode === "absolute") {
                 if (resolverAbsolute > nodeUrls.length) {
@@ -5224,10 +5263,10 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                             error: BeesLoadError.InsufficientNumberOfNodes,
                             args: {
                                 expected: resolverAbsolute,
-                                got: nodeUrls.length
-                            }
+                                got: nodeUrls.length,
+                            },
                         },
-                        status: BeesLoadStatus.Failed
+                        status: BeesLoadStatus.Failed,
                     });
                     listener.complete();
                     return;
@@ -5244,10 +5283,10 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                                 error: BeesLoadError.OutOfNodes,
                                 args: {
                                     alreadyQueried: i - Object.keys(loadErrors).length,
-                                    resolverAbsolute: resolverAbsolute
-                                }
+                                    resolverAbsolute: resolverAbsolute,
+                                },
                             },
-                            status: BeesLoadStatus.Failed
+                            status: BeesLoadStatus.Failed,
                         });
                         listener.complete();
                         return;
@@ -5258,7 +5297,7 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                         loadErrors: loadErrors,
                         loadState: loadState,
                         loadPending: loadPending,
-                        status: BeesLoadStatus.Loading
+                        status: BeesLoadStatus.Loading,
                     });
                     var stream = createStream(queryHandler, urlsToQuery);
                     stream.take(urlsToQuery.length).subscribe({
@@ -5271,23 +5310,23 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                                     loadState = newLoadState;
                                 }
                                 catch (err) {
-                                    loadErrors = __assign(__assign({}, loadErrors), (_a = {}, _a[data.nodeUrl] = {
+                                    loadErrors = __assign$1(__assign$1({}, loadErrors), (_a = {}, _a[data.nodeUrl] = {
                                         nodeUrl: data.nodeUrl,
-                                        status: err.message ? parseInt(err.message, 10) : 400
+                                        status: err.message ? parseInt(err.message, 10) : 400,
                                     }, _a));
                                 }
                             }
                             else {
-                                loadErrors = __assign(__assign({}, loadErrors), (_b = {}, _b[data.nodeUrl] = {
+                                loadErrors = __assign$1(__assign$1({}, loadErrors), (_b = {}, _b[data.nodeUrl] = {
                                     nodeUrl: data.nodeUrl,
-                                    status: data.status
+                                    status: data.status,
                                 }, _b));
                             }
                             listener.next({
                                 loadErrors: loadErrors,
                                 loadState: loadState,
                                 loadPending: loadPending,
-                                status: BeesLoadStatus.Loading
+                                status: BeesLoadStatus.Loading,
                             });
                         },
                         error: function (e) {
@@ -5304,10 +5343,10 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                                     loadError: {
                                         error: BeesLoadError.ServerError,
                                         args: {
-                                            numberOfLoadErrors: Object.keys(loadErrors).length
-                                        }
+                                            numberOfLoadErrors: Object.keys(loadErrors).length,
+                                        },
                                     },
-                                    status: BeesLoadStatus.Failed
+                                    status: BeesLoadStatus.Failed,
                                 });
                                 listener.complete();
                                 return;
@@ -5321,10 +5360,10 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                                     loadError: {
                                         error: BeesLoadError.UnstableState,
                                         args: {
-                                            numberOfLoadStates: Object.keys(loadState).length
-                                        }
+                                            numberOfLoadStates: Object.keys(loadState).length,
+                                        },
                                     },
-                                    status: BeesLoadStatus.Failed
+                                    status: BeesLoadStatus.Failed,
                                 });
                                 listener.complete();
                                 return;
@@ -5355,12 +5394,12 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                                                                 okResponses: loadState[k].nodeUrls.length,
                                                                 percent: Math.round((100 *
                                                                     (100 * loadState[k].nodeUrls.length)) /
-                                                                    totalOkResponses_1) / 100
+                                                                    totalOkResponses_1) / 100,
                                                             };
-                                                        })
-                                                    }
+                                                        }),
+                                                    },
                                                 },
-                                                status: BeesLoadStatus.Failed
+                                                status: BeesLoadStatus.Failed,
                                             });
                                             listener.complete();
                                             return;
@@ -5369,7 +5408,7 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                                             loadErrors: loadErrors,
                                             loadState: loadState,
                                             loadPending: loadPending,
-                                            status: BeesLoadStatus.Completed
+                                            status: BeesLoadStatus.Completed,
                                         });
                                         listener.complete();
                                         return;
@@ -5377,13 +5416,13 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                                 }
                             }
                             callBatch_1(i);
-                        }
+                        },
                     });
                 };
                 callBatch_1(i);
             }
         },
-        stop: function () { }
+        stop: function () { },
     });
 };
 
@@ -5407,7 +5446,7 @@ var httpBrowserToNode = function (data, node, timeout) {
             var ip = node.ip.split(':')[0];
             var host = node.host;
             var port = node.ip.indexOf(':') === -1 ? 443 : node.ip.split(':')[1];
-            var cert = node.cert ? decodeURI(node.cert) : node.origin === 'user' ? undefined : 'INVALIDCERT';
+            var cert = node.cert ? decodeURI(decodeURI(node.cert)) : node.origin === 'user' ? undefined : 'INVALIDCERT';
             if (!dappyNetworkAgents[ip + "-" + cert]) {
                 dappyNetworkAgents[ip + "-" + cert] = new https.Agent({
                     /* no dns */
@@ -5462,7 +5501,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
     return new Promise(function (resolve, reject) {
         resolver(function (index) {
             var a = getNodeFromIndex(index);
-            return new Promise(function (resolve2, reject) { return __awaiter(void 0, void 0, void 0, function () {
+            return new Promise(function (resolve2, reject2) { return __awaiter(void 0, void 0, void 0, function () {
                 var node, over_1, requestId, newBodyForRequest, resp, err_1;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
@@ -5581,7 +5620,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
                 console.log(e);
                 reject({
                     error: {
-                        error: BeesLoadError.UnknownError,
+                        error: BeesLoadError.UnknownCriticalError,
                         args: {},
                     },
                     loadState: {},
@@ -12120,7 +12159,7 @@ var overrideHttpProtocols = function (session, getState, development, dispatchFr
                                 /* no dns */
                                 host: s.ip,
                                 rejectUnauthorized: false,
-                                cert: decodeURI(s.cert),
+                                cert: decodeURI(decodeURI(s.cert)),
                                 minVersion: 'TLSv1.2',
                                 ca: [], // we don't want to rely on CA
                             });
@@ -17636,7 +17675,7 @@ var openDappModalAction = function (values) { return ({
 var getUiState = lib_4(function (state) { return state; }, function (state) { return state.ui; });
 var getLanguage = lib_4(getUiState, function (state) { return state.language; });
 var getMenuCollapsed = lib_4(getUiState, function (state) { return state.menuCollapsed; });
-var getDappsListDisplay = lib_4(getUiState, function (state) { return state.dappsListDisplay; });
+var getTabsListDisplay = lib_4(getUiState, function (state) { return state.tabsListDisplay; });
 var getDevMode = lib_4(getUiState, function (state) { return state.devMode; });
 var getNavigationUrl = lib_4(getUiState, function (state) { return state.navigationUrl; });
 var getGcu = lib_4(getUiState, function (state) { return state.gcu; });
@@ -17646,6 +17685,9 @@ var getIsMobile = lib_4(getBodyDimensions, function (dimensions) { return !!(dim
 var getIsTablet = lib_4(getBodyDimensions, function (dimensions) { return !!(dimensions && dimensions[0] <= 959); });
 var getIsNavigationInSettings = lib_4(getNavigationUrl, function (navigationUrl) {
     return navigationUrl.startsWith('/settings');
+});
+var getIsNavigationInNames = lib_4(getNavigationUrl, function (navigationUrl) {
+    return navigationUrl.startsWith('/names');
 });
 var getIsNavigationInAccounts = lib_4(getNavigationUrl, function (navigationUrl) {
     return navigationUrl.startsWith('/accounts');
@@ -18164,8 +18206,8 @@ var loadOrReloadBrowserView = function (action) {
                 view.setBounds(position);
                 /* browser to server */
                 // In the case of IP apps, payload.currentUrl is a https://xx address
-                view.webContents.loadURL(payload.currentUrl === 'dist/dapp-sandboxed.html'
-                    ? path.join('file://', electron.app.getAppPath(), 'dist/dapp-sandboxed.html') + payload.path
+                view.webContents.loadURL(payload.currentUrl === 'dist/dappsandboxed.html'
+                    ? path.join('file://', electron.app.getAppPath(), 'dist/dappsandboxed.html') + payload.path
                     : payload.currentUrl);
                 currentPathAndParameters = '';
                 view.webContents.addListener('did-navigate', function (a, currentUrl, httpResponseCode, httpStatusText) {
@@ -18226,7 +18268,7 @@ var loadOrReloadBrowserView = function (action) {
                                     /* no dns */
                                     host: serverAuthorized.ip,
                                     rejectUnauthorized: false,
-                                    cert: decodeURI(serverAuthorized.cert),
+                                    cert: decodeURI(decodeURI(serverAuthorized.cert)),
                                     minVersion: 'TLSv1.2',
                                     ca: [], // we don't want to rely on CA
                                 });
@@ -18572,6 +18614,13 @@ var store = createStore(combineReducers({
 sagaMiddleware.run(rootSagas);
 
 // Modules to control application life and create native browser window
+/*
+  CAREFUL
+  Partition is the cold storage identifier on the OS where dappy is installed,
+  changing this will remove everything that is in dappy localStorage
+  PRIVATE KEYS LOST, ACCOUNTS LOST, TABS LOST etc.....
+*/
+var partition = "persist:dappy0.3.0";
 electron.protocol.registerSchemesAsPrivileged([
     { scheme: 'dappy', privileges: { standard: true, secure: true, bypassCSP: true } },
 ]);
@@ -18671,13 +18720,6 @@ function createWindow() {
     setInterval(function () {
         benchmarkCron(store.getState, dispatchFromMain);
     }, WS_RECONNECT_PERIOD);
-    /*
-      CAREFUL
-      Partition is the cold storage identifier on the OS where dappy is installed,
-      changing this will remove everything that is in dappy localStorage
-      PRIVATE KEYS LOST, ACCOUNTS LOST, TABS LOST etc.....
-    */
-    var partition = "persist:dappy0.3.0";
     // Create the browser window.
     browserWindow = new electron.BrowserWindow({
         width: 1200,

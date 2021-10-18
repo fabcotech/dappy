@@ -13,6 +13,15 @@ import { overrideHttpProtocols } from './overrideHttpProtocols';
 import { registerInterProcessProtocol } from './registerInterProcessProtocol';
 import { benchmarkCron } from './benchmarkCron';
 import { store } from './store';
+import { installDevToolsExtensionsOnlyForDev } from './devTools';
+
+/*
+  CAREFUL
+  Partition is the cold storage identifier on the OS where dappy is installed,
+  changing this will remove everything that is in dappy localStorage
+  PRIVATE KEYS LOST, ACCOUNTS LOST, TABS LOST etc.....
+*/
+const partition = `persist:dappy0.3.0`;
 
 protocol.registerSchemesAsPrivileged([
   { scheme: 'dappy', privileges: { standard: true, secure: true, bypassCSP: true } },
@@ -118,6 +127,8 @@ if (!isSingleInstance) {
   app.quit();
 }
 
+installDevToolsExtensionsOnlyForDev(partition);
+
 app.on('second-instance', (event, argv, cwd) => {
   const a = validateAndProcessAddresses(argv);
   if (typeof a === 'string') {
@@ -135,13 +146,7 @@ function createWindow() {
     benchmarkCron(store.getState, dispatchFromMain);
   }, WS_RECONNECT_PERIOD);
 
-  /*
-    CAREFUL
-    Partition is the cold storage identifier on the OS where dappy is installed,
-    changing this will remove everything that is in dappy localStorage
-    PRIVATE KEYS LOST, ACCOUNTS LOST, TABS LOST etc.....
-  */
-  const partition = `persist:dappy0.3.0`;
+
 
   // Create the browser window.
   browserWindow = new BrowserWindow({
