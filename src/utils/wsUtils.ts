@@ -7,7 +7,7 @@ interface ValidationError {
 }
 
 export interface Request {
-  execute: () => any;
+  query: () => any;
   parse: (obj: any) => any;
   validate: (obj: any) => ValidationError[];
 }
@@ -25,7 +25,7 @@ export const multiCallParseAndValidate = async (
     {
       type: 'explore-deploy-x',
       body: {
-        terms: requests.map((r) => r.execute()),
+        terms: requests.map((r) => r.query()),
       },
     },
     options

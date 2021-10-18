@@ -23,12 +23,12 @@ export const getPursesAndContractConfig = async ({
   multiCallParseAndValidate(
     [
       {
-        execute: () => readPursesTerm({ masterRegistryUri, contractId, pursesIds }),
+        query: () => readPursesTerm({ masterRegistryUri, contractId, pursesIds }),
         parse: parseRhoValToJs,
         validate: rchainTokenValidators[version].purses,
       },
       {
-        execute: () => readConfigTerm({ masterRegistryUri, contractId }),
+        query: () => readConfigTerm({ masterRegistryUri, contractId }),
         parse: parseRhoValToJs,
         validate: rchainTokenValidators[version].contractConfig,
       },
@@ -52,7 +52,7 @@ export const getPurses = async ({
   multiCallParseAndValidate(
     [
       {
-        execute: () => readPursesTerm({ masterRegistryUri, contractId, pursesIds }),
+        query: () => readPursesTerm({ masterRegistryUri, contractId, pursesIds }),
         parse: parseRhoValToJs,
         validate: rchainTokenValidators[version].purses,
       },
@@ -72,7 +72,7 @@ export const getContractConfig = async ({
   multiCallParseAndValidate(
     [
       {
-        execute: () => readConfigTerm({ masterRegistryUri, contractId }),
+        query: () => readConfigTerm({ masterRegistryUri, contractId }),
         parse: parseRhoValToJs,
         validate: (payload: any) => rchainTokenValidators[payload.version].contractConfig(payload),
       },
