@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
-import { Record, RecordFromNetwork, TransactionState, RChainInfos, Account, Blockchain } from '/models';
+import { Record as RChainRecord, RecordFromNetwork, RChainContractConfig, TransactionState, RChainInfos, Account, Blockchain } from '/models';
 import * as fromBlockchain from '/store/blockchain';
 import * as fromSettings from '/store/settings';
+import { getContractConfig } from '/api/rchain-token';
 
 import { AddRecord } from './AddRecord';
 import { PurchaseRecord } from './PurchaseRecord';
@@ -15,7 +16,7 @@ import './Records.scss';
 
 interface RecordsRootProps {
   namesBlockchain: Blockchain | undefined;
-  records: { [name: string]: Record };
+  records: Record<string, RChainRecord>;
   recordNamesInAlphaOrder: string[];
   transactions: { [id: string]: TransactionState };
   rchainInfos: { [chainId: string]: RChainInfos };
@@ -27,6 +28,28 @@ interface RecordsRootProps {
 
 export function RootComponent(props: RecordsRootProps) {
   const [tab, setTab] = useState('names');
+  const [contractConfigs, setContractConfigs ] = useState<Record<string, RChainContractConfig>>({});
+  
+  const queryAndCacheContractConfig = async (contractId: string) => {
+    if (contractConfigs[contractId]) {
+      return;
+    }
+
+    if (props.namesBlockchainInfos?.info.rchainNamesMasterRegistryUri && props.namesBlockchain) {
+      const [req] = await getContractConfig({
+        masterRegistryUri: props.namesBlockchainInfos?.info.rchainNamesMasterRegistryUri,
+        blockchain: props.namesBlockchain,
+        contractId,
+      });
+      
+      if (req.validationErrors.length === 0) {
+        setContractConfigs({
+          ...contractConfigs,
+          [req.result.contractId]: req.result
+        });
+      }
+    }
+  }
 
   if (
     !props.namesBlockchainInfos ||
@@ -83,6 +106,9 @@ export function RootComponent(props: RecordsRootProps) {
           accounts={props.accounts}
           sendRChainTransaction={props.sendRChainTransaction}
           namesBlockchain={props.namesBlockchain}
+          contractConfigs={contractConfigs}
+          defaultContractId={props.namesBlockchainInfos.info.rchainNamesContractId}
+          queryAndCacheContractConfig={queryAndCacheContractConfig}
         />
       ) : undefined}
       {tab === 'update-name' ? (

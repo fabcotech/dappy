@@ -9,12 +9,12 @@ interface ValidationError {
 export interface Request {
   execute: () => any;
   parse: (obj: any) => any;
-  validate: (obj: any) => ValidationError[] | undefined;
+  validate: (obj: any) => ValidationError[];
 }
 
 export interface RequestResult<TResult> {
   result: TResult;
-  validationErrors?: ValidationError[];
+  validationErrors: ValidationError[];
 }
 
 export const multiCallParseAndValidate = async (

@@ -5,11 +5,12 @@ export interface ValidationError {
     message: string;
 }
   
-export const validate = (jsonSchema: any) => (obj: object): ValidationError[] | undefined => {
+export const validate = (jsonSchema: any) => (obj: object): ValidationError[] => {
     const ajv = new Ajv();
     const validator = ajv.compile(jsonSchema);
 
     if (!validator(obj)) {
         return validator.errors as ValidationError[];
     }
+    return [];
 }

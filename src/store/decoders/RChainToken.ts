@@ -92,15 +92,15 @@ const createPursePayload1400 = {
 ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
 
 interface RChainTokenTypes {
-  readBox: (obj: any) => ValidationError[] | undefined;
-  purses: (obj: any) => ValidationError[] | undefined;
-  contractConfig: (obj: any) => ValidationError[] | undefined;
-  createPursePayload: (obj: any) => ValidationError[] | undefined;
+  readBox: (obj: any) => ValidationError[];
+  purses: (obj: any) => ValidationError[];
+  contractConfig: (obj: any) => ValidationError[];
+  createPursePayload: (obj: any) => ValidationError[];
 }
 
 export const LATEST_PROTOCOL_VERSION = '14.0.0';
 
-export const rchainTokenValidators: { [k: string]: RChainTokenTypes } = {
+export const rchainTokenValidators: Record<string,RChainTokenTypes> = {
   ['14.0.0']: {
     readBox: validate(readBox1400),
     purses: validate(purses1400),

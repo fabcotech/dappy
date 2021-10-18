@@ -18,7 +18,7 @@ describe('decoders', () => {
     };
 
     var errors = validator(contractConfig);
-    expect(errors).toBe(undefined);
+    expect(errors).toEqual([]);
   });
   it('should validate Purses', () => {
     const ajv = new Ajv();
@@ -42,7 +42,7 @@ describe('decoders', () => {
     };
 
     var errors = validator(purses);
-    expect(errors).toBe(undefined);
+    expect(errors).toEqual([]);
   });
   it('shoud validate Ui', () => {
     const uiObj = {

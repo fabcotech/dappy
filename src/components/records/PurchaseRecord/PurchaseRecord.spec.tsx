@@ -31,16 +31,19 @@ describe('PurchaseRecord', () => {
     const purse0 = getFakePurse({
       id: '0'
     });
+    const contract = getFakeRChainContractConfig();
     const props = getFakePurchaseRecordProps({
-      getPursesAndContractConfig: () =>
-        Promise.resolve([
-          {
-            result: { [purse0.id]: purse0 },
-          } as RequestResult<Record<string, RChainTokenPurse>>,
-          {
-            result: getFakeRChainContractConfig(),
-          } as RequestResult<RChainContractConfig>,
-        ]),
+      defaultContractId: contract.contractId,
+      queryAndCacheContractConfig: () => {},
+      contractConfigs: {
+        [contract.contractId]: contract,
+      },
+      getPurses: () => Promise.resolve([
+        {
+          result: { [purse0.id]: purse0 },
+          validationErrors: [],
+        } as RequestResult<Record<string, RChainTokenPurse>>,
+      ])
     });
 
     render(<PurchaseRecordComponent {...props} />);
@@ -65,18 +68,22 @@ describe('PurchaseRecord', () => {
     const purseFoo = getFakePurse({
       id: 'foo'
     });
+    const contract = getFakeRChainContractConfig();
     const props = getFakePurchaseRecordProps({
+      defaultContractId: contract.contractId,
+      queryAndCacheContractConfig: () => {},
+      contractConfigs: {
+        [contract.contractId]: contract,
+      },
       namesBlockchain: getFakeBlockChain({
         chainId: 'd'
       }),
-      getPursesAndContractConfig: () =>
+      getPurses: () =>
         Promise.resolve([
           {
             result: { [purse0.id]: purse0, [purseFoo.id]: purseFoo },
-          } as RequestResult<Record<string, RChainTokenPurse>>,
-          {
-            result: getFakeRChainContractConfig(),
-          } as RequestResult<RChainContractConfig>,
+            validationErrors: [],
+          } as RequestResult<Record<string, RChainTokenPurse>>
         ]),
     });
 

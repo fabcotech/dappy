@@ -4,19 +4,18 @@ import { purchaseTerm } from 'rchain-token';
 
 import {
   TransactionState,
-  RChainInfos,
   Account,
   PartialRecord,
   TransactionStatus,
   Blockchain,
   RChainTokenPurse,
   RChainContractConfig,
+  RChainInfos,
 } from '/models';
-import { getPursesAndContractConfig } from '/api/rchain-token';
+import { getPurses } from '/api/rchain-token';
 import { blockchain as blockchainUtils } from '/utils';
 import { validateName } from '/utils/validateSearch';
 import * as fromBlockchain from '/store/blockchain';
-import { ValidationError } from '/store/decoders';
 
 import { TransactionForm } from '../../utils';
 import { RecordForm } from '..';
@@ -26,8 +25,11 @@ export interface PurchaseRecordProps {
   accounts: Record<string, Account>;
   namesBlockchain: Blockchain;
   transactions: { [id: string]: TransactionState };
+  defaultContractId: string | undefined;
   namesBlockchainInfos: RChainInfos;
-  getPursesAndContractConfig: typeof getPursesAndContractConfig;
+  contractConfigs: Record<string, RChainContractConfig>;
+  getPurses: typeof getPurses;
+  queryAndCacheContractConfig: (contractId: string) => void, 
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
 }
 
@@ -56,6 +58,15 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
 
   setTouched: undefined | (() => void);
 
+  componentDidMount() {
+    if (this.props.defaultContractId) {
+      this.setState({
+        contractId: this.props.defaultContractId,
+      });
+      this.props.queryAndCacheContractConfig(this.props.defaultContractId);
+    }
+  }
+
   state: {
     privatekey: string;
     publickey: string;
@@ -69,7 +80,6 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
     loadNameError: undefined | string;
     loadedPurse: undefined | RChainTokenPurse;
     loadingPurse: boolean;
-    contractConfig: RChainContractConfig | undefined;
   } = defaultState;
 
   transactionId = '';
@@ -91,20 +101,16 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
       loadedPurse: undefined,
     });
 
-    const [pursesRequest, contractConfigRequest] = await this.props.getPursesAndContractConfig({
+    const [pursesRequest] = await this.props.getPurses({
       masterRegistryUri: this.props.namesBlockchainInfos.info.rchainNamesMasterRegistryUri,
-      contractId: this.state.contractId || (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesContractId,
+      contractId: this.state.contractId, 
       pursesIds: [this.state.name, '0'],
       blockchain: this.props.namesBlockchain,
-      version: '14.0.0', // Who give the version to use ?
+      version: this.props.contractConfigs[this.state.contractId].version,
     });
 
-    const validationErrors = [pursesRequest.validationErrors, contractConfigRequest.validationErrors]
-      .filter((v) => !!v)
-      .flatMap((e) => e) as ValidationError[];
-
-    if (validationErrors.length) {
-      const errorMsg = validationErrors.map((e) => `${t('error')} ${e.dataPath}: ${e.message}`).join(', ');
+    if (pursesRequest.validationErrors.length) {
+      const errorMsg = pursesRequest.validationErrors.map((e) => `${t('error')} ${e.dataPath}: ${e.message}`).join(', ');
       this.setState({
         loadedPurse: undefined,
         loadingPurse: false,
@@ -121,7 +127,6 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
       loadingPurse: false,
       loadedPurse: recordOnChain || recordZero,
       loadNameError: undefined,
-      contractConfig: contractConfigRequest.result,
     });
   };
 
@@ -136,14 +141,14 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
     this.transactionId = id;
 
     const term = purchaseTerm({
-      masterRegistryUri: (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesMasterRegistryUri,
-      contractId: (this.props.namesBlockchainInfos as RChainInfos).info.rchainNamesContractId,
-      purseId: (this.state.loadedPurse as RChainTokenPurse).id,
+      masterRegistryUri: this.props.namesBlockchainInfos.info.rchainNamesMasterRegistryUri,
+      contractId: this.state.contractId,
+      purseId: this.state.loadedPurse?.id,
       boxId: this.state.box,
       newId: this.state.name,
       merge: false,
       quantity: 1,
-      price: (this.state.loadedPurse as RChainTokenPurse).price,
+      price: this.state.loadedPurse?.price,
       publicKey: this.state.publickey,
       data: Buffer.from(
         JSON.stringify({
@@ -157,11 +162,11 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
     });
 
     let validAfterBlockNumber = 0;
-    if ((this.props.namesBlockchainInfos as RChainInfos).info) {
-      validAfterBlockNumber = (this.props.namesBlockchainInfos as RChainInfos).info.lastFinalizedBlockNumber;
+    if (this.props.namesBlockchainInfos.info) {
+      validAfterBlockNumber = this.props.namesBlockchainInfos.info.lastFinalizedBlockNumber;
     }
 
-    let special = (this.props.namesBlockchainInfos as RChainInfos).info.special;
+    let special = this.props.namesBlockchainInfos.info.special;
     if (!special || !['special1'].includes(special.name)) {
       special = undefined;
     }
@@ -180,7 +185,7 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
       transaction: deployOptions,
       origin: { origin: 'record', recordName: partialRecord.name, accountName: this.state.accountName as string },
       platform: 'rchain',
-      blockchainId: (this.props.namesBlockchainInfos as RChainInfos).chainId,
+      blockchainId: this.props.namesBlockchainInfos.chainId,
       id: id,
       alert: false,
       sentAt: new Date().toISOString(),
@@ -188,7 +193,7 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
   };
 
   render() {
-    const info = (this.props.namesBlockchainInfos as RChainInfos).info;
+    const info = this.props.namesBlockchainInfos.info;
 
     if (
       this.transactionId &&
@@ -231,12 +236,13 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
         {this.state.privatekey && !this.state.box && <p className="text-danger pt10">{t('you need box')}</p>}
         <br />
         <div className="field is-horizontal">
-          <label className="label">{t('contract ID')}</label>
+          <label className="label" htmlFor="contract id">{t('contract ID')}</label>
           <div className="control">
             <input
+              id='contract id'
               disabled={true}
               placeholder={'dappynamesystem'}
-              defaultValue={info.rchainNamesContractId}
+              value={this.state.contractId}
               className="input name-input"
               onChange={(e) => {
                 if (e.target.value) {
@@ -297,7 +303,7 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
               className="button is-link"
               name="lookup"
               disabled={
-                !!this.state.loadedPurse || !this.state.name || this.state.name === '0' || this.state.loadingPurse
+                !!this.state.loadedPurse || !this.state.name || this.state.name === '0' || this.state.loadingPurse || !this.props.contractConfigs[this.state.contractId]
               }
               onClick={(a) => {
                 this.onLookup();
@@ -307,9 +313,9 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
             </button>
           </div>
         </div>
-        {this.state.loadedPurse && this.state.contractConfig && (
+        {this.state.loadedPurse && (
           <Fragment>
-            <PurseInfo purse={this.state.loadedPurse} contractConfig={this.state.contractConfig} dNetwork={dNetwork} />
+            <PurseInfo purse={this.state.loadedPurse} contractConfig={this.props.contractConfigs[this.state.contractId]} dNetwork={dNetwork} />
             {isPurchasable(this.state.loadedPurse) && (
               <RecordForm
                 special={info.special}
@@ -344,5 +350,5 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
 }
 
 export const PurchaseRecord = connect(null, () => ({
-  getPursesAndContractConfig,
+  getPurses,
 }))(PurchaseRecordComponent);
