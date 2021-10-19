@@ -29,7 +29,7 @@ export interface PurchaseRecordProps {
   namesBlockchainInfos: RChainInfos;
   contractConfigs: Record<string, RChainContractConfig>;
   getPurses: typeof getPurses;
-  queryAndCacheContractConfig: (contractId: string) => void, 
+  queryAndCacheContractConfig: (contractId: string) => void;
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
 }
 
@@ -103,14 +103,16 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
 
     const [pursesRequest] = await this.props.getPurses({
       masterRegistryUri: this.props.namesBlockchainInfos.info.rchainNamesMasterRegistryUri,
-      contractId: this.state.contractId, 
+      contractId: this.state.contractId,
       pursesIds: [this.state.name, '0'],
       blockchain: this.props.namesBlockchain,
       version: this.props.contractConfigs[this.state.contractId].version,
     });
 
     if (pursesRequest.validationErrors.length) {
-      const errorMsg = pursesRequest.validationErrors.map((e) => `${t('error')} ${e.dataPath}: ${e.message}`).join(', ');
+      const errorMsg = pursesRequest.validationErrors
+        .map((e) => `${t('error')} ${e.dataPath}: ${e.message}`)
+        .join(', ');
       this.setState({
         loadedPurse: undefined,
         loadingPurse: false,
@@ -236,10 +238,12 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
         {this.state.privatekey && !this.state.box && <p className="text-danger pt10">{t('you need box')}</p>}
         <br />
         <div className="field is-horizontal">
-          <label className="label" htmlFor="contract id">{t('contract ID')}</label>
+          <label className="label" htmlFor="contract id">
+            {t('contract id')}
+          </label>
           <div className="control">
             <input
-              id='contract id'
+              id="contract id"
               disabled={true}
               placeholder={'dappynamesystem'}
               value={this.state.contractId}
@@ -303,7 +307,11 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
               className="button is-link"
               name="lookup"
               disabled={
-                !!this.state.loadedPurse || !this.state.name || this.state.name === '0' || this.state.loadingPurse || !this.props.contractConfigs[this.state.contractId]
+                !!this.state.loadedPurse ||
+                !this.state.name ||
+                this.state.name === '0' ||
+                this.state.loadingPurse ||
+                !this.props.contractConfigs[this.state.contractId]
               }
               onClick={(a) => {
                 this.onLookup();
@@ -315,7 +323,11 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
         </div>
         {this.state.loadedPurse && (
           <Fragment>
-            <PurseInfo purse={this.state.loadedPurse} contractConfig={this.props.contractConfigs[this.state.contractId]} dNetwork={dNetwork} />
+            <PurseInfo
+              purse={this.state.loadedPurse}
+              contractConfig={this.props.contractConfigs[this.state.contractId]}
+              dNetwork={dNetwork}
+            />
             {isPurchasable(this.state.loadedPurse) && (
               <RecordForm
                 special={info.special}

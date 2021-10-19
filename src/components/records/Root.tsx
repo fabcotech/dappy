@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
-import { Record as RChainRecord, RecordFromNetwork, RChainContractConfig, TransactionState, RChainInfos, Account, Blockchain } from '/models';
+import {
+  Record as RChainRecord,
+  RecordFromNetwork,
+  RChainContractConfig,
+  TransactionState,
+  RChainInfos,
+  Account,
+  Blockchain,
+} from '/models';
 import * as fromBlockchain from '/store/blockchain';
 import * as fromSettings from '/store/settings';
 import { getContractConfig } from '/api/rchain-token';
@@ -28,8 +36,8 @@ interface RecordsRootProps {
 
 export function RootComponent(props: RecordsRootProps) {
   const [tab, setTab] = useState('names');
-  const [contractConfigs, setContractConfigs ] = useState<Record<string, RChainContractConfig>>({});
-  
+  const [contractConfigs, setContractConfigs] = useState<Record<string, RChainContractConfig>>({});
+
   const queryAndCacheContractConfig = async (contractId: string) => {
     if (contractConfigs[contractId]) {
       return;
@@ -41,15 +49,15 @@ export function RootComponent(props: RecordsRootProps) {
         blockchain: props.namesBlockchain,
         contractId,
       });
-      
+
       if (req.validationErrors.length === 0) {
         setContractConfigs({
           ...contractConfigs,
-          [req.result.contractId]: req.result
+          [req.result.contractId]: req.result,
         });
       }
     }
-  }
+  };
 
   if (
     !props.namesBlockchainInfos ||
@@ -72,7 +80,7 @@ export function RootComponent(props: RecordsRootProps) {
 
   return (
     <div className="settings-names p20 has-background-white">
-      <h3 className="subtitle is-3">{t('name system')}</h3>      
+      <h3 className="subtitle is-3">{t('name system')}</h3>
       <div className="tabs">
         <ul>
           <li className={tab === 'names' ? 'is-active' : ''}>

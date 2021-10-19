@@ -797,6 +797,9 @@ module.exports.translations = {
   "add local name dev": {
     "one": "Add local name (development)"
   },
+  "purchase name fee": {
+    "one": "As of now, every names purchased from the dappy name system is subjected to a 1% fee to help grow the team and secure the platform. 99% of the REV price will go to the current name owner, 1% to the owner of the name system contract."
+  },
   "update name price": {
     "one": "Update name price"
   },
@@ -935,5 +938,29 @@ module.exports.translations = {
   },
   "locked title": {
     "one": "The contract is locked, owner cannot delete tokens or create tokens"
+  },
+  "locked": {
+    "one": "Locked"
+  },
+  "name system": {
+    "one": "Name system"
+  },
+  "name system not available": {
+    "one": "The name system is not available, you cannot purchase a name, update a name that you own, or consult the list. Make sure you are connected to a network (for example d network or gamma network), and that this network is linked to a name system."
+  },
+  "contract id": {
+    "one": "Contract ID"
+  },
+  "counter": {
+    "one": "Counter"
+  },
+  "name lookup placeholder": {
+    "one": "Purse ID / NFT ID"
+  },
+  "box": {
+    "one": "Token box"
+  },
+  "name / id": {
+    "one": "Name / ID"
   }
 }

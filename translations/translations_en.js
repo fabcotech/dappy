@@ -2165,6 +2165,14 @@ module.exports.translations = [
     "comment": ""
   },
   {
+    "term": "purchase name fee",
+    "definition": "As of now, every names purchased from the dappy name system is subjected to a 1% fee to help grow the team and secure the platform. 99% of the REV price will go to the current name owner, 1% to the owner of the name system contract.",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
     "term": "update name price",
     "definition": "Update name price",
     "context": "Settings > Names > Update name",
@@ -2532,6 +2540,86 @@ module.exports.translations = [
     "term": "locked title",
     "definition": "The contract is locked, owner cannot delete tokens or create tokens",
     "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "locked",
+    "definition": "Locked",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name system",
+    "definition": "Name system",
+    "context": "Name system",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name system not available",
+    "definition": "The name system is not available, you cannot purchase a name, update a name that you own, or consult the list. Make sure you are connected to a network (for example d network or gamma network), and that this network is linked to a name system.",
+    "context": "Settings > Name system",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name system",
+    "definition": "Name system",
+    "context": "",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "contract id",
+    "definition": "Contract ID",
+    "context": "RChain token",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "counter",
+    "definition": "Counter",
+    "context": "RChain token",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name lookup placeholder",
+    "definition": "Purse ID / NFT ID",
+    "context": "RChain token",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "box",
+    "definition": "Token box",
+    "context": "RChain token",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "locked",
+    "definition": "Locked",
+    "context": "RChain token",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name / id",
+    "definition": "Name / ID",
+    "context": "RChain token",
     "term_plural": "",
     "reference": "",
     "comment": ""

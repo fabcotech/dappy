@@ -89,7 +89,7 @@ class FetchContractComponent extends React.Component<FetchContractProps, {}> {
               <div className="dapp-right">
                 <span onClick={this.onNavigateToAccounts} className="link">
                   <i className="fa fa-money-check fa-before"></i>
-                  {t('check wallets ')}
+                  {t('check accounts')}
                 </span>
                 <span onClick={this.onNavigateToDeploy} className="link ">
                   <i className="fa fa-angle-double-up fa-before"></i>
