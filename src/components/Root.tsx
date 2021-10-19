@@ -69,7 +69,7 @@ class RootComponent extends React.Component<RootComponentProps, {}> {
       initTranslate(this.props.language);
     }
 
-    let klasses = 'root';
+    let klasses = 'root theme-default';
     if (this.props.isMobile) {
       klasses += ' is-mobile';
     }

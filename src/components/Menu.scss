@@ -29,7 +29,6 @@ li.dappy {
 }
 
 .root-left.menu {
-  background: linear-gradient(20deg, $menu-bottom, $primary);
   &.menu-dev {
     padding-top: 10px;
     // background: linear-gradient(20deg, #000, #002);
@@ -51,9 +50,6 @@ li.dappy {
       justify-content: center;
       flex-direction: column;
     }
-  }
-  .menu-list li a.is-active {
-    background-color: darken($primary, 10%);
   }
   &.collapsed {
     a {

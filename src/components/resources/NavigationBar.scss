@@ -20,23 +20,6 @@
         margin: 0px;
       }
     }
-
-    & > div.disabled {
-      i {
-        color: #AAA;
-      }
-    }
-    & > div:not(.disabled) {
-      i {
-        color: #555;
-        &:hover {
-          color: #111;
-        }
-      }
-      i.disabled {
-        color: #AAA;
-      }
-    }
   }
   &.inactive {
     .form {
@@ -79,12 +62,10 @@
         width: 2.5rem;
         i {
           cursor: default;
-          color: #888;
         }
         &.resource-loaded {
           i {
             cursor: pointer;
-            color: #555;
           }
         }
       }
@@ -93,25 +74,19 @@
       user-select: none;
       &.resource-loaded:hover {
         cursor: pointer;
-        background: #eaeaea;
-        &:active {
-          background: #e0e0e0;
-        }
       }
       height: 2.25em;
       display: flex;
       align-items: center;
       justify-content: space-evenly;
-      border-color: rgba($primary, 0.4);
       .app-type {
         border-radius: 0.25rem;
         min-width: 18px;
         font-weight: 600;
-        color: #777;
+        color: #eee;
       }
       i {
         font-size: 0.9rem;
-        color: $primary;
       }
     }
     .reset {
@@ -121,15 +96,7 @@
       cursor: default;
     }
     input {
-      background: #fafafa;
-      border: 1px solid #eee;
       font-weight: 500;
-      color: #444;
-      &.pristine {
-        background: #fafafa;
-        color: #555;
-        border: 1px solid #eee;
-      }
       &:focus {
         box-shadow: 0px 0px 5px rgba(0,0,0,0.15) inset !important;
       }
