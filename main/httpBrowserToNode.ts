@@ -1,6 +1,6 @@
 import https from 'https';
 
-import { WS_PAYLOAD_PAX_SIZE } from '../src/CONSTANTS';
+import { VERSION, WS_PAYLOAD_PAX_SIZE } from '../src/CONSTANTS';
 import { BlockchainNode } from '../src/models';
 
 const dappyNetworkAgents: { [key: string]: https.Agent } = {};
@@ -39,6 +39,7 @@ export const httpBrowserToNode = (data: { [key: string]: any }, node: Blockchain
         path: `/${data.type}`,
         headers: {
           'Content-Type': 'application/json',
+          'Dappy-Browser': VERSION,
           Host: host,
         },
       };
