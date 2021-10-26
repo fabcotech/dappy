@@ -3,7 +3,7 @@ import { readPursesDataTerm } from 'rchain-token';
 import { BeesLoadCompleted, BeesLoadError, BeesLoadErrors, BeesLoadErrorWithArgs } from 'beesjs';
 
 import { multiCall } from '/interProcess';
-import { MultiCallResult } from '/models/MultiCall';
+import { MultiCallError, MultiCallResult } from '/models/MultiCall';
 import * as fromDapps from '..';
 import * as fromSettings from '../../settings';
 import * as fromBlockchain from '../../blockchain';
@@ -483,10 +483,12 @@ const loadResource = function* (action: Action) {
     return;
   }
 
-  const dataFromBlockchain = (multiCallResult as MultiCallResult).result.data;
-  const dataFromBlockchainParsed: { data: { results: { data: string }[] } } = JSON.parse(dataFromBlockchain);
+  let dataFromBlockchain;
+  let dataFromBlockchainParsed: undefined | { data: { results: { data: string }[] } };
   let verifiedDappyFile: DappyFile | undefined = undefined;
   try {
+    dataFromBlockchain = (multiCallResult as MultiCallResult).result.data;
+    dataFromBlockchainParsed = JSON.parse(dataFromBlockchain) as { data: { results: { data: string }[] } };
     verifiedDappyFile = yield validateAndReturnFile(
       dataFromBlockchainParsed.data.results[0].data,
       filePurseId,

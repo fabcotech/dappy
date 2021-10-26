@@ -45,6 +45,10 @@ export const httpBrowserToNode = (data: { [key: string]: any }, node: Blockchain
       };
 
       const req = https.request(options, (res) => {
+        if (res.statusCode !== 200) {
+          reject(res.statusCode);
+          return;
+        }
         let data = '';
         res.on('data', (chunk) => {
           data += chunk;
