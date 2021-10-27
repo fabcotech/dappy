@@ -112,7 +112,7 @@ rm -rf dist/ && git rm -rf dist/
 
 npm run build
 npm run build:main
-npm run build:dapp-sandboxed
+npm run build:dappsandboxed
 
 git add -f main.js dist/*
 ```

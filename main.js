@@ -292,6 +292,7 @@ var getBrowserViewsPositionMain = lib_4(getBrowserViewsMainState, function (stat
 
 var WS_PAYLOAD_PAX_SIZE = 512000; // bits
 var WS_RECONNECT_PERIOD = 10000;
+var VERSION = '0.4.8';
 
 var LOAD_RESOURCE = '[Dapps] Load resource';
 var UPDATE_TRANSITORY_STATE = '[Dapps] Update transitory state';
@@ -3280,10 +3281,10 @@ var logs = {
 	logs: logs_1
 };
 
-var VERSION = '12.0.1';
+var VERSION$1 = '12.0.1';
 
 var constants = {
-	VERSION: VERSION
+	VERSION: VERSION$1
 };
 
 // rholang terms
@@ -3309,10 +3310,10 @@ const { readLogsTerm: readLogsTerm$1 } = readLogsTerm;
 const { decodePurses: decodePurses$1 } = decodePurses;
 const { logs: logs$1 } = logs;
 
-const { VERSION: VERSION$1 } = constants;
+const { VERSION: VERSION$2 } = constants;
 
 var src = {
-  version: VERSION$1,
+  version: VERSION$2,
 
   masterTerm: masterTerm$1,
   deployBoxTerm: deployBoxTerm$1,
@@ -5466,10 +5467,15 @@ var httpBrowserToNode = function (data, node, timeout) {
                 path: "/" + data.type,
                 headers: {
                     'Content-Type': 'application/json',
+                    'Dappy-Browser': VERSION,
                     Host: host,
                 },
             };
             var req = https.request(options, function (res) {
+                if (res.statusCode !== 200) {
+                    reject(res.statusCode);
+                    return;
+                }
                 var data = '';
                 res.on('data', function (chunk) {
                     data += chunk;
