@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 
 const navigationPaths = [
+  '/',
   '/settings',
   '/settings/blockchain',
   '/settings/gcu',

@@ -292,7 +292,7 @@ var getBrowserViewsPositionMain = lib_4(getBrowserViewsMainState, function (stat
 
 var WS_PAYLOAD_PAX_SIZE = 512000; // bits
 var WS_RECONNECT_PERIOD = 10000;
-var VERSION = '0.4.8';
+var VERSION = '0.4.9';
 
 var LOAD_RESOURCE = '[Dapps] Load resource';
 var UPDATE_TRANSITORY_STATE = '[Dapps] Update transitory state';
