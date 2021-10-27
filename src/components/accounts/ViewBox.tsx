@@ -110,7 +110,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
         return;
       }
       const valid = rchainTokenValidators[val.version].readBox(val);
-      if (valid !== undefined) {
+      if (valid.length > 0) {
         this.setState({
           refreshing: false,
           error: valid.map((e) => e.message).join(', '),
