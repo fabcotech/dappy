@@ -116,9 +116,7 @@ export const store: Store<State> = createStore(
     history: fromHistory.reducer,
     cookies: fromCookies.reducer,
   }),
-  composeEnhancers(
-    applyMiddleware(...middlewares)
-  )
+  composeEnhancers(applyMiddleware(...middlewares))
 );
 
 const sagas = function* rootSaga() {
@@ -320,8 +318,8 @@ dbReq.onsuccess = (event) => {
     } else if (ui.navigationUrl === '/settings/names') {
       ui.navigationUrl = '/names';
     }
-    if (ui.hasOwnProperty('tabsListDisplay')) {
-      ui = { ...ui, tabsListDisplay: ui.tabsListDisplay };
+    if (ui.hasOwnProperty('dappsListDisplay')) {
+      ui = { ...ui, tabsListDisplay: ui.dappsListDisplay };
       delete ui.dappsListDisplay;
     }
 
