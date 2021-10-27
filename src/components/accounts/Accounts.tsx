@@ -3,18 +3,19 @@ import { connect } from 'react-redux';
 import { deployBoxTerm } from 'rchain-token';
 
 import './Accounts.scss';
-import { Account, Blockchain, RChainInfo, RChainInfos } from '../../models';
-import * as fromSettings from '../../store/settings';
-import * as fromBlockchain from '../../store/blockchain';
-import * as fromMain from '../../store/main';
-import * as fromCommon from '../../common';
-import { blockchain as blockchainUtils } from '../../utils/blockchain';
+import { Account, Blockchain, RChainInfo, RChainInfos } from '/models';
+import * as fromSettings from '/store/settings';
+import * as fromBlockchain from '/store/blockchain';
+import * as fromMain from '/store/main';
+import * as fromCommon from '/common';
+import { blockchain as blockchainUtils } from '/utils/blockchain';
 import { AddAccount } from './AddAccount';
-import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '../../CONSTANTS';
+import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '/CONSTANTS';
 import { AccountPassword } from './AccountPassword';
 import { AccountBox } from './AccountBox';
 import { ViewBox } from './ViewBox';
-import { formatAmount } from '../../utils/formatAmount';
+import { formatAmount } from '/utils/formatAmount';
+import { copyToClipboard } from '/interProcess';
 
 interface AccountsProps {
   accounts: { [name: string]: Account };
@@ -71,7 +72,7 @@ export function AccountsComponent(props: AccountsProps) {
       {tab === 'accounts' ? (
         <div>
           <h3 className="subtitle is-4"></h3>
-          <p className="smaller-text" dangerouslySetInnerHTML={{ __html: t('add account paragraph') }}></p>
+          <p className="limited-width mw42rem" dangerouslySetInnerHTML={{ __html: t('add account paragraph') }}></p>
           <br />
           {props.executingAccountsCronJobs ? (
             <a title={t('update balances')} className="disabled underlined-link">
@@ -112,7 +113,7 @@ export function AccountsComponent(props: AccountsProps) {
                     </div>
                   </div>
                   <div className="boxes">
-                    {a.boxes.length ? <b className="token-boxes">{t('token box', 's')}</b> : undefined}
+                    {a.boxes.length ? <b className="token-boxes">{t('token box', true)}</b> : undefined}
                     {a.boxes.map((b) => {
                       return (
                         <Fragment key={b}>
@@ -128,7 +129,7 @@ export function AccountsComponent(props: AccountsProps) {
                               {b}
                             </div>
                           </button>
-                          <a className="underlined-link" onClick={() => window.copyToClipboard(b)}>
+                          <a className="underlined-link" onClick={() => copyToClipboard(b)}>
                             <i className="fa fa-copy fa-before"></i>
                             {t('copy box id')}
                           </a>

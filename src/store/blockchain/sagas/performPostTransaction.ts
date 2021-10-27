@@ -1,12 +1,12 @@
 import { takeEvery, select } from 'redux-saga/effects';
 
-import { TransactionStatus, TransactionState } from '../../../models';
+import { TransactionStatus, TransactionState } from '/models';
 import * as fromBlockchain from '..';
-import * as fromMain from '../../main';
-import * as fromDapps from '../../dapps';
-import * as fromUi from '../../ui';
-import { Action, store } from '../../';
-import { searchToAddress } from '../../../utils/searchToAddress';
+import * as fromMain from '/store/main';
+import * as fromDapps from '/store/dapps';
+import * as fromUi from '/store/ui';
+import { Action, store } from '/store/';
+import { searchToAddress } from '/utils/searchToAddress';
 
 const performPostTransaction = function* (action: Action) {
   const payload: fromBlockchain.UpdateRChainTransactionStatusPayload = action.payload;

@@ -1,10 +1,10 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
 
 import * as fromBlockchain from '..';
-import * as fromMain from '../../main';
-import { browserUtils } from '../../browser-utils';
-import { RChainInfos } from '../../../models';
-import { Action } from '../../';
+import * as fromMain from '/store/main';
+import { browserUtils } from '/store/browser-utils';
+import { RChainInfos } from '/models';
+import { Action } from '/store/';
 
 const saveRChainBlockchainInfoToStorage = function*(action: Action) {
   const payload: fromBlockchain.UpdateRChainBlockchainInfoCompletedPayload = action.payload;

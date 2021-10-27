@@ -2,14 +2,14 @@ import { createSelector } from 'reselect';
 
 import * as fromActions from './actions';
 import { Action } from '../';
-import { NavigationUrl, Language } from '../../models';
+import { NavigationUrl, Language } from '/models';
 
 export interface State {
   gcu: undefined | string;
   language: Language;
   menuCollapsed: boolean;
   devMode: boolean;
-  dappsListDisplay: number;
+  tabsListDisplay: number;
   navigationUrl: NavigationUrl;
   windowDimensions: undefined | [number, number];
   navigationSuggestionsDisplayed: boolean;
@@ -20,7 +20,7 @@ export const initialState: State = {
   language: 'en',
   menuCollapsed: false,
   devMode: false,
-  dappsListDisplay: 1,
+  tabsListDisplay: 1,
   navigationUrl: '/',
   windowDimensions: undefined,
   navigationSuggestionsDisplayed: false,
@@ -55,18 +55,18 @@ export const reducer = (state = initialState, action: Action): State => {
     case fromActions.NAVIGATE: {
       const payload = action.payload as fromActions.NavigatePayload;
 
-      let newDappsListDisplay = state.dappsListDisplay;
+      let newTabsListDisplay = state.tabsListDisplay;
       if (payload.navigationUrl === '/dapps' && state.navigationUrl === '/dapps') {
-        newDappsListDisplay += 1;
-        if (newDappsListDisplay > 3) {
-          newDappsListDisplay = 1;
+        newTabsListDisplay += 1;
+        if (newTabsListDisplay > 3) {
+          newTabsListDisplay = 1;
         }
       }
       return {
         ...state,
         windowDimensions: state.windowDimensions,
         navigationUrl: payload.navigationUrl,
-        dappsListDisplay: newDappsListDisplay,
+        tabsListDisplay: newTabsListDisplay,
       };
     }
 
@@ -113,7 +113,7 @@ export const getLanguage = createSelector(getUiState, (state: State) => state.la
 
 export const getMenuCollapsed = createSelector(getUiState, (state: State) => state.menuCollapsed);
 
-export const getDappsListDisplay = createSelector(getUiState, (state: State) => state.dappsListDisplay);
+export const getTabsListDisplay = createSelector(getUiState, (state: State) => state.tabsListDisplay);
 
 export const getDevMode = createSelector(getUiState, (state: State) => state.devMode);
 
@@ -132,23 +132,27 @@ export const getIsMobile = createSelector(getBodyDimensions, (dimensions) => !!(
 
 export const getIsTablet = createSelector(getBodyDimensions, (dimensions) => !!(dimensions && dimensions[0] <= 959));
 
-export const getIsNavigationInSettings = createSelector(getNavigationUrl, (navigationUrl) =>
+export const getIsNavigationInSettings = createSelector(getNavigationUrl, (navigationUrl: string) =>
   navigationUrl.startsWith('/settings')
 );
 
-export const getIsNavigationInAccounts = createSelector(getNavigationUrl, (navigationUrl) =>
+export const getIsNavigationInNames = createSelector(getNavigationUrl, (navigationUrl: string) =>
+  navigationUrl.startsWith('/names')
+);
+
+export const getIsNavigationInAccounts = createSelector(getNavigationUrl, (navigationUrl: string) =>
   navigationUrl.startsWith('/accounts')
 );
 
 export const getIsNavigationInDapps = createSelector(
   getNavigationUrl,
-  (navigationUrl) => navigationUrl === '/' || navigationUrl.startsWith('/dapps')
+  (navigationUrl: string) => navigationUrl === '/' || navigationUrl.startsWith('/dapps')
 );
 
-export const getIsNavigationInDeploy = createSelector(getNavigationUrl, (navigationUrl) =>
+export const getIsNavigationInDeploy = createSelector(getNavigationUrl, (navigationUrl: string) =>
   navigationUrl.startsWith('/deploy')
 );
 
-export const getIsNavigationInTransactions = createSelector(getNavigationUrl, (navigationUrl) =>
+export const getIsNavigationInTransactions = createSelector(getNavigationUrl, (navigationUrl: string) =>
   navigationUrl.startsWith('/transactions')
 );

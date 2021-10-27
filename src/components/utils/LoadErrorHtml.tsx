@@ -29,7 +29,9 @@ const TITLES: { [key: string]: string } = {
 
 const DESCRIPTIONS: { [key: string]: (args: { [key: string]: any }) => string } = {
   [BeesLoadError.IncompleteAddress]: (args) =>
-    `The address ${args.search} is incomplete or invalid. It must have the following structure : network/xxx ${args.plus || ''}`,
+    `The address ${args.search} is incomplete or invalid. It must have the following structure : network:xxx ${
+      args.plus || ''
+    }`,
   [BeesLoadError.ChainNotFound]: (args) => `Could not find a network to query for network ID ${args.chainId}`,
   [BeesLoadError.ResourceNotFound]: (args) =>
     `The resource on the blockchain was not found, make sure that the following resource exists : ${args.search}`,
@@ -48,8 +50,7 @@ const DESCRIPTIONS: { [key: string]: (args: { [key: string]: any }) => string } 
       .join(', ')}`,
   [BeesLoadError.MissingBlockchainData]: (args) =>
     `Data is missing from the blockchain, please run the benchmaks for blockchain ${args.chainId}`,
-  [BeesLoadError.InvalidServers]: (args) =>
-    `Did not find a primary server to address the request to : ${args.search}`,
+  [BeesLoadError.InvalidServers]: (args) => `Did not find a primary server to address the request to : ${args.search}`,
   [BeesLoadError.FailedToParseResponse]: (args) =>
     `Response received from the blockchain could not be parsed : ${args.message}`,
   [BeesLoadError.InvalidManifest]: (args) =>

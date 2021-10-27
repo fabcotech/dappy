@@ -17,7 +17,7 @@ export const translate = (term: string, plural = false) => {
 };
 
 export const initTranslate = (lang: string) => {
-  window['t'] = translate;
+  (window as any)['t'] = translate;
   if (lang === 'en') {
     window.translations = require(`../translations_en`).translations;
   } else if (lang === 'cn') {
@@ -27,3 +27,8 @@ export const initTranslate = (lang: string) => {
     window.translations = require(`../translations_en`).translations;
   }
 };
+
+
+declare global {
+  var t: (term: string, plural?: boolean) => string;
+}

@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Formik, Field } from 'formik';
 
-import { JsLibraries, CssLibraries, PredefinedDapp } from '../../../models';
+import { JsLibraries, CssLibraries, PredefinedDapp } from '/models';
 import './Deploy.scss';
-import { PREDEFINED_DAPPS } from '../../../DAPPS';
-import { RESSOURCES } from '../../../RESSOURCES';
+import { PREDEFINED_DAPPS } from '/DAPPS';
+import { RESSOURCES } from '/RESSOURCES';
 import { PartialManifest } from './Deploy';
-import * as fromMain from '../../../store/main';
+import * as fromMain from '/store/main';
 
 const ERRORS: { [key: string]: string } = {
   REQUIRED: 'This field is required',

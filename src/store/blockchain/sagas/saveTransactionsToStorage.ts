@@ -1,10 +1,10 @@
 import { takeEvery, select } from 'redux-saga/effects';
 
 import * as fromBlockchain from '..';
-import * as fromMain from '../../main';
-import { browserUtils } from '../../browser-utils';
-import { Action, store } from '../../';
-import { TransactionState } from '../../../models';
+import * as fromMain from '/store/main';
+import { browserUtils } from '/store/browser-utils';
+import { Action, store } from '/store/';
+import { TransactionState } from '/models';
 
 const saveTransactionsToStorage = function* (action: Action) {
   const payload: fromBlockchain.SaveFailedRChainTransactionPayload | fromBlockchain.SendRChainTransactionPayload =

@@ -1,7 +1,4 @@
 .settings-resolver, .settings-names {
-  & > form {
-    max-width: 700px;
-  }
   .message {
     margin-bottom: 0.75rem;
   }
@@ -50,6 +47,6 @@
   display: block;
   font-size: 0.9rem;
 }
-.smaller-text {
+.limited-width {
   white-space: pre-line;
 }

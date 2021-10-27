@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 import { loadStateSchema } from '.';
-import { Dapp } from '../../models';
+import { Dapp } from '/models';
 
 // todo remove this file ?
 

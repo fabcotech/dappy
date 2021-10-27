@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Formik, Field, FieldArray } from 'formik';
 
 import './Blockchains.scss';
+import { getIpAddressAndCert } from '/interProcess';
 
 const REGEXP_HOST = /^(?!\.)^[a-z0-9.]*$/;
 
@@ -22,8 +23,7 @@ export class AddNode extends React.Component<AddNodeProps, {}> {
 
   retrieveIpAddressAndCert = (host: string, setFieldValue: (a: string, b: string) => void) => {
     if (typeof host === 'string') {
-      window
-        .getIpAddressAndCert({ host: host })
+      getIpAddressAndCert({ host: host })
         .then((a: { ip: string; cert: string }) => {
           if (a.ip && a.cert && typeof a.ip === 'string' && typeof a.cert === 'string') {
             setFieldValue(`cert`, a.cert);

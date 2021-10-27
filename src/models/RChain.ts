@@ -1,3 +1,10 @@
+import {
+  RChainTokenDeployPayload,
+  RChainTokenDeployBoxPayload,
+  RChainTokenUpdatePursePriceReturn,
+  RChainTokenCreatePursesReturn,
+} from './RChainToken';
+
 export interface RChainInfos {
   chainId: string;
   date: string;
@@ -98,30 +105,13 @@ export type TransactionOrigin =
   | TransactionOriginRholang
   | TransactionOriginRChainToken;
 
-export interface RChainTokenCreatePursesReturn {
-  status: string;
-  values: { [purseId: string]: true | string };
-}
-export interface RChainTokenUpdatePursePriceReturn {
-  status: string;
-}
-export interface RChainTokenDeploy {
-  status: string;
-  masterRegistryUri: string;
-  contractId: string;
-}
-export interface RChainTokenDeployBox {
-  status: string;
-  boxId: string;
-}
-
 export type TransactionValue =
   | string
   | undefined
   | { status: string; address: string }
   | { message: string }
-  | RChainTokenDeploy
-  | RChainTokenDeployBox
+  | RChainTokenDeployPayload
+  | RChainTokenDeployBoxPayload
   | RChainTokenUpdatePursePriceReturn
   | RChainTokenCreatePursesReturn;
 

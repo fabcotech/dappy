@@ -3,13 +3,13 @@ import * as zlib from 'zlib';
 import * as elliptic from 'elliptic';
 import { BeesLoadError } from 'beesjs';
 
-import { DappyFile } from '../models';
-import { validateDpy, validateFile } from '../store/decoders/Dpy';
+import { DappyFile } from '/models';
+import { validateDpy, validateFile } from '/store/decoders/Dpy';
 
 const ec = new elliptic.ec('secp256k1');
 
 export const validateAndReturnFile = async (
-  dataFromBlockchainParsed: { data: object },
+  dataNotParsed: string,
   purseId: string,
   publicKeyFromRequest: string,
   checkSignature: boolean
@@ -17,7 +17,7 @@ export const validateAndReturnFile = async (
   let file;
   let parsed;
   try {
-    parsed = JSON.parse(dataFromBlockchainParsed.data);
+    parsed = JSON.parse(dataNotParsed);
     if (!parsed.expr[0]) {
       throw new Error();
     }
@@ -79,7 +79,7 @@ export const validateAndReturnFile = async (
     return parsedFile as DappyFile;
   }
   return parsedFile as DappyFile;
-  // todo verify file signature
+  /* // todo verify file signature
   const toVerify = new Uint8Array(
     Buffer.from(
       JSON.stringify({
@@ -112,5 +112,5 @@ export const validateAndReturnFile = async (
     );
   }
 
-  return parsedFile as DappyFile;
+  return parsedFile as DappyFile; */
 };

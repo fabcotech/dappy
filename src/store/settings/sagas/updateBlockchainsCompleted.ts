@@ -1,10 +1,11 @@
 import { takeEvery, select, put } from 'redux-saga/effects';
 
 import * as fromSettings from '..';
-import * as fromMain from '../../main';
-import * as fromDapps from '../../dapps';
-import { Action } from '../..';
-import { Blockchain } from '../../../models';
+import * as fromMain from '/store/main';
+import * as fromDapps from '/store/dapps';
+import { Action } from '/store';
+import { Blockchain } from '/models';
+import { triggerCommand, dispatchInMain } from '/interProcess';
 
 const updateBlockchainsCompleted = function* (action: Action) {
   const blockchains: {
@@ -12,7 +13,7 @@ const updateBlockchainsCompleted = function* (action: Action) {
   } = yield select(fromSettings.getBlockchains);
   const loadResourceWhenReady: string | undefined = yield select(fromMain.getLoadResourceWhenReady);
 
-  window.dispatchInMain({
+  dispatchInMain({
     type: '[MAIN] Sync blockchains',
     payload: blockchains,
   });
@@ -24,7 +25,7 @@ const updateBlockchainsCompleted = function* (action: Action) {
       fromSettings.UPDATE_NODE_ACTIVE,
     ].includes(action.type)
   ) {
-    window.triggerCommand('run-ws-cron');
+    triggerCommand('run-ws-cron');
   }
 
   if (loadResourceWhenReady && [fromSettings.UPDATE_NODE_READY_STATE].includes(action.type)) {

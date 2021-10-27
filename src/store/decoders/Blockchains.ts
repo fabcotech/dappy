@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import { blockchainNodeSchema } from './Nodes';
-import { Blockchain } from '../../models';
+import { Blockchain } from '/models';
 
 export const blockchainSchema = yup
   .object()

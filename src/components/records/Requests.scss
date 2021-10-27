@@ -1,0 +1,25 @@
+.settings-requests {
+  tbody tr th {
+    font-weight: normal;
+    &.name {
+      font-weight: bold;
+    }
+    span {
+      text-overflow: ellipsis;
+      overflow: hidden;
+      display: block;
+    }
+    .date {
+      width: 140px;
+    }
+    .duration {
+      width: 80px;
+    }
+    .nodes-reached, .nodes-not-reached, .chainid {
+      width: 180px;
+    }
+    .error {
+      width: 300px;
+    }
+  }
+}

@@ -3,14 +3,14 @@ import { BeesLoadCompleted, BeesLoadErrorWithArgs, BeesLoadError } from 'beesjs'
 import Ajv from 'ajv';
 
 import * as fromSettings from '..';
-import * as fromBlockchain from '../../blockchain/';
+import * as fromBlockchain from '/store/blockchain/';
 
-import { LOGREV_TO_REV_RATE } from '../../../CONSTANTS';
-import { blockchain as blockchainUtils } from '../../../utils/blockchain';
-import { getNodeIndex } from '../../../utils/getNodeIndex';
-import { Account, Blockchain, MultiCallResult } from '../../../models';
+import { LOGREV_TO_REV_RATE } from '/CONSTANTS';
+import { blockchain as blockchainUtils } from '/utils/blockchain';
+import { getNodeIndex } from '/utils/getNodeIndex';
+import { Account, Blockchain, MultiCallResult } from '/models';
 import { Action } from '../actions';
-import { multiCall } from '../../../utils/wsUtils';
+import { multiCall } from '/interProcess';
 
 const ajv = new Ajv();
 const balancesSchema = {

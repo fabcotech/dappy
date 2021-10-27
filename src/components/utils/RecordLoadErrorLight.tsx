@@ -1,25 +1,16 @@
 import React from 'react';
 import { BeesLoadError } from 'beesjs';
 
-import { LoadRecordsError } from '../../models';
+import { LoadRecordsError } from '/models';
 
 export function RecordLoadErrorLight(props: { loadError: LoadRecordsError; instance: string }) {
-  let couldNotGetLoadState = false;
-  let loadStatesNumber;
-  try {
-    loadStatesNumber = Object.keys(props.loadError.loadState).length;
-  } catch (e) {
-    couldNotGetLoadState = true;
-  }
-
-  if (couldNotGetLoadState) {
-    return <span>{props.loadError.error.error}</span>;
-  }
-
+  let loadStatesNumber = Object.keys(props.loadError.loadState).length;
   let nodeUrlsReached = 0;
+
   Object.keys(props.loadError.loadState).forEach((k) => {
     nodeUrlsReached += props.loadError.loadState[k].nodeUrls.length;
   });
+  
   if (loadStatesNumber === 0) {
     return <span>Could not reach any node</span>;
   }

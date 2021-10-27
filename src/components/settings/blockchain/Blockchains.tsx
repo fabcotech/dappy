@@ -389,7 +389,7 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
               this.props.rchainInfos[selectedBlockchain.chainId].info;
 
             return (
-              <Form className="nodes-form">
+              <Form className="nodes-form limited-width">
                 <h3 className="subtitle is-4 blockchain-title">
                   {t('network')} &nbsp;
                   {selectedBlockchain.platform === 'rchain' && <i className="rchain20 fa-after" />}
@@ -431,7 +431,7 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                   </div>
                 ) : undefined}
                 <br />
-                <p className="smaller-text" dangerouslySetInnerHTML={{ __html: t('nodes paragraph') }}></p>
+                <p className="limited-width" dangerouslySetInnerHTML={{ __html: t('nodes paragraph') }}></p>
                 <FieldArray
                   name="formNodes"
                   render={(arrayHelpers) => (
@@ -623,7 +623,7 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
         ) : undefined}
         {/* this.state.defaultNodes && this.state.defaultNodes.length ? (
           <div>
-            <p className="smaller-text">
+            <p className="limited-width">
               Found
               {` ${this.state.defaultNodes.length} `}
               default nodes to load (hardcoded in the application)

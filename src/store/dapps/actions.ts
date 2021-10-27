@@ -7,7 +7,7 @@ import {
   IpApp,
   TransitoryState,
   SplitSearch,
-} from '../../models';
+} from '/models';
 
 export const UPDATE_TABS_FROM_STORAGE = '[Dapps] Update tabs from storage';
 

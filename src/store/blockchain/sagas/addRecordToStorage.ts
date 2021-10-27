@@ -1,9 +1,9 @@
 import { takeEvery, put } from 'redux-saga/effects';
 
 import * as fromBlockchain from '..';
-import * as fromMain from '../../main';
-import { browserUtils } from '../../browser-utils';
-import { Action } from '../../';
+import * as fromMain from '/store/main';
+import { browserUtils } from '/store/browser-utils';
+import { Action } from '/store';
 
 const addRecordToStorage = function* (action: Action) {
   const payload: fromBlockchain.AddRecordPayload = action.payload;

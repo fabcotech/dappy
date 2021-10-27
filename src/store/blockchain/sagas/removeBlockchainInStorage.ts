@@ -1,9 +1,9 @@
 import { put, takeEvery } from 'redux-saga/effects';
 
-import * as fromMain from '../../main';
-import * as fromSettings from '../../settings';
-import { browserUtils } from '../../browser-utils';
-import { Action } from '../../';
+import * as fromMain from '/store/main';
+import * as fromSettings from '/store/settings';
+import { browserUtils } from '/store/browser-utils';
+import { Action } from '/store/';
 
 const removeBlockchainInStorage = function* (action: Action) {
   const payload: fromSettings.RemoveBlockchainPayload = action.payload;

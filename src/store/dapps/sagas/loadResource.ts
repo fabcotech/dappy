@@ -1,9 +1,9 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
 import { readPursesDataTerm } from 'rchain-token';
-import { BeesLoadError, BeesLoadErrorWithArgs } from 'beesjs';
+import { BeesLoadCompleted, BeesLoadError, BeesLoadErrors, BeesLoadErrorWithArgs } from 'beesjs';
 
-import { multiCall } from '../../../utils/wsUtils';
-import { MultiCallResult } from '../../../models/WebSocket';
+import { multiCall } from '/interProcess';
+import { MultiCallError, MultiCallResult } from '/models/MultiCall';
 import * as fromDapps from '..';
 import * as fromSettings from '../../settings';
 import * as fromBlockchain from '../../blockchain';
@@ -27,6 +27,7 @@ import {
   RChainInfo,
   LoadedFile,
   Tab,
+  IpApp,
 } from '../../../models';
 import { Action } from '../../';
 import { ipRecordSchema, dappRecordSchema, validateRecordFromNetwork } from '../../decoders';
@@ -317,10 +318,14 @@ const loadResource = function* (action: Action) {
           const servers = JSON.parse(`{ "value": ${recordFromBlockchain.servers}}`).value;
           recordFromBlockchain.servers = servers;
         }
-        if (recordFromBlockchain.badges) {
+        if (recordFromBlockchain && recordFromBlockchain.badges) {
           recordFromBlockchain.badges = JSON.parse(recordFromBlockchain.badges);
         }
-        if (typeof recordFromBlockchain.price === 'string' && recordFromBlockchain.price.length) {
+        if (
+          recordFromBlockchain &&
+          typeof recordFromBlockchain.price === 'string' &&
+          recordFromBlockchain.price.length
+        ) {
           recordFromBlockchain.price = parseInt(recordFromBlockchain.price, 10);
         }
         yield validateRecordFromNetwork(recordFromBlockchain);
@@ -447,13 +452,15 @@ const loadResource = function* (action: Action) {
 
     multiCallResult = yield multiCall(
       {
-        type: 'api/explore-deploy',
+        type: 'explore-deploy-x',
         body: {
-          term: readPursesDataTerm({
-            masterRegistryUri: masterRegistryUri,
-            contractId: fileContractId,
-            pursesIds: [filePurseId],
-          }),
+          terms: [
+            readPursesDataTerm({
+              masterRegistryUri: masterRegistryUri,
+              contractId: fileContractId,
+              pursesIds: [filePurseId],
+            }),
+          ],
         },
       },
       {
@@ -476,30 +483,18 @@ const loadResource = function* (action: Action) {
     return;
   }
 
-  const dataFromBlockchain = (multiCallResult as MultiCallResult).result.data;
-  let verifyError: BeesLoadErrorWithArgs | null = null;
-  try {
-    verifyError = validateBlockchainResponse(dataFromBlockchain, `Address "${searchSplitted.search}"`);
-  } catch (e) {
-    yield put(
-      fromDapps.loadResourceFailedAction({
-        tabId: tabId,
-        search: address,
-        error: { error: BeesLoadError.FailedToParseResponse, args: { message: 'Invalid response' } },
-      })
-    );
-    return;
-  }
-
-  if (verifyError) {
-    yield put(fromDapps.loadResourceFailedAction({ tabId: tabId, search: address, error: verifyError }));
-    return;
-  }
-
-  const dataFromBlockchainParsed: { data: object } = JSON.parse(dataFromBlockchain);
+  let dataFromBlockchain;
+  let dataFromBlockchainParsed: undefined | { data: { results: { data: string }[] } };
   let verifiedDappyFile: DappyFile | undefined = undefined;
   try {
-    verifiedDappyFile = yield validateAndReturnFile(dataFromBlockchainParsed, filePurseId, '', checkSignature);
+    dataFromBlockchain = (multiCallResult as MultiCallResult).result.data;
+    dataFromBlockchainParsed = JSON.parse(dataFromBlockchain) as { data: { results: { data: string }[] } };
+    verifiedDappyFile = yield validateAndReturnFile(
+      dataFromBlockchainParsed.data.results[0].data,
+      filePurseId,
+      '',
+      checkSignature
+    );
   } catch (e) {
     let error;
     try {
@@ -520,7 +515,7 @@ const loadResource = function* (action: Action) {
   const dappyFile = verifiedDappyFile as DappyFile;
 
   if (dappyFile.mimeType !== 'application/dappy') {
-    const block = JSON.parse(dataFromBlockchainParsed.data).block;
+    const block = JSON.parse(dataFromBlockchainParsed.data.results[0].data).block;
     yield put(
       fromDapps.launchFileCompletedAction({
         file: {
@@ -574,7 +569,13 @@ const loadResource = function* (action: Action) {
     version: '',
   };
 
-  const loadStates = yield select(fromDapps.getLoadStates);
+  const loadStates: {
+    [dappId: string]: {
+      completed: BeesLoadCompleted;
+      errors: BeesLoadErrors;
+      pending: string[];
+    };
+  } = yield select(fromDapps.getLoadStates);
   const dapp: Dapp = {
     ...dappFromNetwork,
     id: resourceId,

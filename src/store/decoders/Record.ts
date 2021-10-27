@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { Record } from '../../models';
+import { Record } from '/models';
 
 export const recordServerSchema = yup
   .object()
@@ -72,6 +72,7 @@ export const dappRecordSchema = yup
     address: yup.string().required(),
     loadedAt: yup.string().required(),
     servers: yup.array(recordServerSchema),
+    csp: yup.string(),
     badges: yup.object(),
     origin: yup
       .string()

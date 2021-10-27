@@ -1,8 +1,10 @@
 import Ajv from 'ajv';
 
+import { validate, ValidationError } from './Validate';
+
 const ajv = new Ajv();
-const readBox1201 = {
-  schemaId: 'read-box-12.0.1',
+const readBox1400 = {
+  schemaId: 'read-box-14.0.0',
   type: 'object',
   properties: {
     version: { type: 'string' },
@@ -17,26 +19,92 @@ const readBox1201 = {
   },
   required: ['purses', 'superKeys', 'version', 'publicKey'],
 };
-const purses1201 = {
-  schemaId: 'purses-12.0.1',
-  type: 'array',
-  items: {
-    type: 'object',
-    properties: {
-      id: { type: 'string' },
-      boxId: { type: 'string' },
-      quantity: { type: 'number' },
-      timestamp: { type: 'number' },
-      price: { type: 'number', nullable: true },
+const purses1400 = {
+  schemaId: 'purses-14.0.0',
+  type: 'object',
+  patternProperties: {
+    '.{1,}': {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        boxId: { type: 'string' },
+        quantity: { type: 'integer' },
+        timestamp: { type: 'integer' },
+        price: { type: 'integer', nullable: true },
+      },
+      required: ['id', 'quantity', 'boxId', 'timestamp'],
     },
-    required: ['id', 'quantity', 'boxId', 'timestamp'],
   },
 };
 
+const contractConfig1400 = {
+  schemaId: 'contract-config-14.0.0',
+  type: 'object',
+  properties: {
+    contractId: { type: 'string' },
+    counter: { type: 'integer' },
+    fungible: { type: 'boolean' },
+    locked: { type: 'boolean' },
+    version: { type: 'string' },
+    fee: {
+      type: 'array',
+      items: [{ type: 'string' }, { type: 'integer' }],
+    },
+    expires: { type: 'integer', nullable: true },
+  },
+  required: ['contractId', 'counter', 'fungible', 'locked', 'version'],
+};
+
+const createPursePayload1400 = {
+  schemaId: 'create-purse-payload-14.0.0',
+  type: 'object',
+  properties: {
+    boxId: { type: 'string' },
+    contractId: { type: 'string' },
+    masterRegistryUri: { type: 'string' },
+    data: {
+      type: 'object',
+      patternProperties: {
+        '.{1,}': {
+          type: 'string',
+        },
+      },
+    },
+    purses: {
+      type: 'object',
+      patternProperties: {
+        '.{1,}': {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            boxId: { type: 'string' },
+            quantity: { type: 'integer' },
+            price: { type: 'integer', nullable: true },
+          },
+          required: ['id', 'quantity', 'boxId'],
+        },
+      },
+    },
+  },
+  required: ['contractId', 'boxId', 'masterRegistryUri', 'purses'],
+};
+
 ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
-export const rchainTokenValidators = {
-  ['12.0.1']: {
-    readBox: readBox1201,
-    purses: purses1201,
+
+interface RChainTokenTypes {
+  readBox: (obj: any) => ValidationError[];
+  purses: (obj: any) => ValidationError[];
+  contractConfig: (obj: any) => ValidationError[];
+  createPursePayload: (obj: any) => ValidationError[];
+}
+
+export const LATEST_PROTOCOL_VERSION = '14.0.0';
+
+export const rchainTokenValidators: Record<string,RChainTokenTypes> = {
+  ['14.0.0']: {
+    readBox: validate(readBox1400),
+    purses: validate(purses1400),
+    contractConfig: validate(contractConfig1400),
+    createPursePayload: validate(createPursePayload1400),
   },
 };

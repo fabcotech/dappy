@@ -7,9 +7,11 @@ import {
   TransactionOriginRecord,
   Blockchain,
   TransactionStatus,
-  RChainTokenDeploy,
-  RChainTokenDeployBox,
-} from '../../models';
+  RChainTokenDeployPayload,
+  RChainTokenDeployBoxPayload,
+} from '/models';
+
+import { copyToClipboard } from '/interProcess';
 
 interface TransactionListItemProps {
   transactionState: TransactionState;
@@ -30,7 +32,7 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
     Value = (
       <span>
         {`Address is ${value.address} `}
-        <a type="button" onClick={() => window.copyToClipboard(value.address)}>
+        <a type="button" onClick={() => copyToClipboard(value.address)}>
           {t('copy address')}
         </a>
       </span>
@@ -42,11 +44,11 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
     props.transactionState.value &&
     props.transactionState.value.hasOwnProperty('boxId')
   ) {
-    const value: RChainTokenDeployBox = props.transactionState.value as RChainTokenDeployBox;
+    const value: RChainTokenDeployBoxPayload = props.transactionState.value as RChainTokenDeployBoxPayload;
     Value = (
       <span>
         {`Box address is ${value.boxId} `}
-        <a type="button" onClick={() => window.copyToClipboard(value.boxId)}>
+        <a type="button" onClick={() => copyToClipboard(value.boxId)}>
           {t('copy box id')}
         </a>
       </span>
@@ -60,15 +62,15 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
     props.transactionState.value.hasOwnProperty('contractId')
   ) {
     console.log(props.transactionState);
-    const value: RChainTokenDeploy = props.transactionState.value as RChainTokenDeploy;
+    const value: RChainTokenDeployPayload = props.transactionState.value as RChainTokenDeployPayload;
     Value = (
       <span>
         {`Contract address is ${value.masterRegistryUri}.${value.contractId} `}
-        <a type="button" onClick={() => window.copyToClipboard(value.masterRegistryUri + '.' + value.contractId)}>
+        <a type="button" onClick={() => copyToClipboard(value.masterRegistryUri + '.' + value.contractId)}>
           {t('copy address')}
         </a>
         {' or '}
-        <a type="button" onClick={() => window.copyToClipboard(value.contractId)}>
+        <a type="button" onClick={() => copyToClipboard(value.contractId)}>
           {t('copy contract id')}
         </a>
       </span>

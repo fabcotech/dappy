@@ -1,0 +1,12 @@
+@import "/style/variables.scss";
+
+.d-network {
+  background: linear-gradient( 20deg, $dNetwork, rgb(205, 170, 238));
+  border: 1px solid $dNetwork;
+  .message-body {
+    border-color: darken($dNetwork, 20%);
+    .d-network-font {
+      font-size: 1.2rem;
+    }
+  }
+}

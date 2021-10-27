@@ -29,7 +29,6 @@ li.dappy {
 }
 
 .root-left.menu {
-  background: linear-gradient(20deg, $menu-bottom, $primary);
   &.menu-dev {
     padding-top: 10px;
     // background: linear-gradient(20deg, #000, #002);
@@ -52,16 +51,23 @@ li.dappy {
       flex-direction: column;
     }
   }
-  .menu-list li a.is-active {
-    background-color: darken($primary, 10%);
-  }
   &.collapsed {
     a {
       text-align: center;
+      i.rotated-d {
+        transform: rotate(-15deg) !important;
+      }
     }
   }
   .menu-list li {
     position: relative;
+    i.rotated-d {
+      font-family: fira;
+      font-weight: 700;
+      font-style: normal;
+      transform: rotate(-15deg) translateX(0.25rem);
+      font-size: 1.4rem !important;
+    }
     i.fa {
       font-size: 1.3em;
       width: 26px;

@@ -1,8 +1,8 @@
 import * as React from 'react';
 
-import * as fromBlockchain from '../../store/blockchain';
-import * as fromSettings from '../../store/settings';
-import { TransactionState, Blockchain } from '../../models';
+import * as fromBlockchain from '/store/blockchain';
+import * as fromSettings from '/store/settings';
+import { TransactionState, Blockchain } from '/models';
 import './Transactions.scss';
 import { connect } from 'react-redux';
 import { TransactionsListItem } from '.';

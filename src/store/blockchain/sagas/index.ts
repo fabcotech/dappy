@@ -6,7 +6,6 @@ import { removeBlockchainInStorageSaga } from './removeBlockchainInStorage';
 import { executeRChainCronJobsInfoSaga } from './executeRChainCronJobsInfo';
 import { executeRecordsByPublicKeyCronJobsSaga } from './executeRecordsByPublicKeyCronJobs';
 import { executeNodesCronJobsSaga } from './executeNodesCronJobs';
-import { saveRecordsToStorageSaga } from './saveRecordsToStorage';
 import { addRecordToStorageSaga } from './addRecordToStorage';
 import { sendRChainTransactionSaga } from './sendRChainTransaction';
 import { saveTransactionsToStorageSaga } from './saveTransactionsToStorage';
@@ -23,7 +22,6 @@ export const sagas = function* rootSaga() {
     executeRChainCronJobsInfoSaga(),
     executeNodesCronJobsSaga(),
     executeRecordsByPublicKeyCronJobsSaga(),
-    saveRecordsToStorageSaga(),
     addRecordToStorageSaga(),
     sendRChainTransactionSaga(),
     performPostTransactionSaga(),

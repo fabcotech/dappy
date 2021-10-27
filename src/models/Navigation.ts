@@ -1,7 +1,6 @@
 export type NavigationUrl =
   | '/settings'
   | '/settings/blockchains'
-  | '/settings/names'
   | '/settings/gcu'
   | '/accounts'
   | '/deploy/file-upload'
@@ -9,4 +8,5 @@ export type NavigationUrl =
   | '/deploy/rholang'
   | '/'
   | '/dapps'
-  | '/transactions';
+  | '/transactions'
+  | '/names';

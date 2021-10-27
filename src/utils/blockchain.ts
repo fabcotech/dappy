@@ -70,7 +70,8 @@ export const blockchain = {
     const keyPair = ec.keyFromPrivate(privateKey);
     const signature = keyPair.sign(blake2Hash64);
     const signatureHex = Buffer.from(signature.toDER()).toString('hex');
-    if (!ec.verify(blake2Hash64, signature, keyPair.getPublic().encode('hex'), 'hex')) {
+    const pub: any = keyPair.getPublic().encode('hex', false);
+    if (!ec.verify(blake2Hash64, signature, pub , 'hex')) {
       throw new Error('dpy signature verification failed');
     }
 

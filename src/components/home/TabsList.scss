@@ -1,0 +1,62 @@
+@import "../../style/variables.scss";
+
+.tabs-list {
+  max-height: 100%;
+  height: 100%;
+  overflow: auto;
+  &.only-icons {
+    overflow: hidden;
+  }
+  &.is-mobile {
+    padding-top: 70px;
+    .buttons {
+      display: none;
+    }
+  }
+  .buttons {
+    height: 55px;
+    margin: 0px;
+    padding-right: 5px;
+    justify-content: flex-end;
+  }
+  .no-dapps {
+    height: 30px;
+    margin-top: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+.search-dapps {
+  padding: 10px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  cursor: pointer;
+  &:hover {
+    background: rgba(0,0,0,0.05);
+  }
+  &:active {
+    background: rgba(0,0,0,0.1);
+  }
+  &.active {
+    // background: $tab-active;
+  }
+}
+
+.search-dapps-small {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 26px;
+  &:hover {
+    background: rgba(0,0,0,0.05);
+  }
+  &:active {
+    background: rgba(0,0,0,0.1);
+  }
+  i {
+    margin:0
+  }
+}

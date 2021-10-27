@@ -3,13 +3,14 @@ import { readBoxTerm } from 'rchain-token';
 import * as rchainToolkit from 'rchain-toolkit';
 import Ajv from 'ajv';
 
-import * as fromBlockchain from '../../store/blockchain';
-import { Blockchain, MultiCallResult, RChainInfos, Account } from '../../models';
-import { multiCall } from '../../utils/wsUtils';
-import { DAPPY_TOKEN_CONTRACT_ID, RCHAIN_TOKEN_SUPPORTED_VERSIONS } from '../../CONSTANTS';
-import { getNodeIndex } from '../../utils/getNodeIndex';
-import { rchainTokenValidators } from '../../store/decoders';
-import { ViewPurses } from './ViewPurses';
+import * as fromBlockchain from '/store/blockchain';
+import { Blockchain, MultiCallResult, RChainInfos, Account } from '/models';
+import { multiCall, copyToClipboard } from '/interProcess';
+import { toRGB } from '/utils/color';
+import { DAPPY_TOKEN_CONTRACT_ID, RCHAIN_TOKEN_SUPPORTED_VERSIONS } from '/CONSTANTS';
+import { getNodeIndex } from '/utils/getNodeIndex';
+import { rchainTokenValidators } from '/store/decoders';
+import { ViewContract } from './ViewContract';
 import './ViewBox.scss';
 import { AccountPassword } from './AccountPassword';
 
@@ -29,21 +30,6 @@ interface BoxState {
   privateKey: undefined | string;
   refreshing: boolean;
 }
-
-export const toRGB = (s: string) => {
-  var hash = 0;
-  if (s.length === 0) return hash;
-  for (var i = 0; i < s.length; i++) {
-    hash = s.charCodeAt(i) + ((hash << 5) - hash);
-    hash = hash & hash;
-  }
-  var rgb = [0, 0, 0];
-  for (var i = 0; i < 3; i++) {
-    var value = (hash >> (i * 8)) & 255;
-    rgb[i] = value;
-  }
-  return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
-};
 
 export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
   constructor(props: BoxProps) {
@@ -81,12 +67,14 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
       const indexes = this.props.namesBlockchain.nodes.filter((n) => n.readyState === 1).map(getNodeIndex);
       multiCallResult = await multiCall(
         {
-          type: 'api/explore-deploy',
+          type: 'explore-deploy-x',
           body: {
-            term: readBoxTerm({
-              masterRegistryUri: this.props.rchainInfos.info.rchainNamesMasterRegistryUri,
-              boxId: this.props.boxId,
-            }),
+            terms: [
+              readBoxTerm({
+                masterRegistryUri: this.props.rchainInfos.info.rchainNamesMasterRegistryUri,
+                boxId: this.props.boxId,
+              }),
+            ],
           },
         },
         {
@@ -108,9 +96,9 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
     }
 
     try {
-      const dataFromBlockchain = (multiCallResult as MultiCallResult).result.data;
-      const dataFromBlockchainParsed: { data: string } = JSON.parse(dataFromBlockchain);
-      const val = rchainToolkit.utils.rhoValToJs(JSON.parse(dataFromBlockchainParsed.data).expr[0]);
+      const dataFromBlockchain = multiCallResult.result.data;
+      const dataFromBlockchainParsed: { data: { results: { data: string }[] } } = JSON.parse(dataFromBlockchain);
+      const val = rchainToolkit.utils.rhoValToJs(JSON.parse(dataFromBlockchainParsed.data.results[0].data).expr[0]);
       if (!RCHAIN_TOKEN_SUPPORTED_VERSIONS.includes(val.version)) {
         this.setState({
           refreshing: false,
@@ -121,14 +109,11 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
         });
         return;
       }
-      const validate = ajv.compile(rchainTokenValidators[val.version].readBox);
-      const valid = validate(val);
-      if (!valid) {
+      const valid = rchainTokenValidators[val.version].readBox(val);
+      if (valid !== undefined) {
         this.setState({
           refreshing: false,
-          error: (validate.errors as { dataPath: string; message: string }[])
-            .map((e) => `body${e.dataPath} ${e.message}`)
-            .join(', '),
+          error: valid.map((e) => e.message).join(', '),
         });
         return;
       }
@@ -224,7 +209,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
           {Object.keys(this.state.readBox.purses).map((k) => {
             return (
               <div className={`view-box ${k === DAPPY_TOKEN_CONTRACT_ID ? 'special' : ''}`} key={k}>
-                <ViewPurses
+                <ViewContract
                   version={this.state.readBox.version}
                   namesBlockchain={this.props.namesBlockchain}
                   rchainInfos={this.props.rchainInfos}
@@ -232,7 +217,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
                   account={this.props.account}
                   privateKey={this.state.privateKey}
                   pursesIds={this.state.readBox.purses[k]}
-                  sendRChainTransaction={this.props.sendRChainTransaction}></ViewPurses>
+                  sendRChainTransaction={this.props.sendRChainTransaction}></ViewContract>
               </div>
             );
           })}
@@ -250,7 +235,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
                     <a
                       type="button"
                       className="underlined-link"
-                      onClick={() => window.copyToClipboard(sk.replace('rho:id:', ''))}>
+                      onClick={() => copyToClipboard(sk.replace('rho:id:', ''))}>
                       <i className="fa fa-copy fa-before"></i>
                       {t('copy contract address')}
                     </a>

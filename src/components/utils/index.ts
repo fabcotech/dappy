@@ -6,6 +6,7 @@ export * from './TransactionForm';
 export * from './Pagination';
 export * from './RecordLoadErrorLight';
 export * from './AccountModal';
+export * from './AccountSelect';
 export * from './IdentificationModal';
 export * from './IdentificationForm';
 export * from './PrivateKeyWarning';

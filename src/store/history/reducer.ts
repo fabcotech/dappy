@@ -3,7 +3,7 @@ import { createSelector } from 'reselect';
 import { Action } from '../';
 import * as fromDapps from '../dapps';
 import * as fromActions from './actions';
-import { Session, Preview, SessionItem } from '../../models';
+import { Session, Preview, SessionItem } from '/models';
 import { getFocusedTabId } from '../dapps';
 
 export interface State {

@@ -4,8 +4,7 @@ import * as fromDapps from '../dapps';
 import * as fromUi from '../ui';
 import * as fromActions from './actions';
 import { Action } from '../';
-import { VERSION } from '../../CONSTANTS';
-import { Language } from '../../models';
+import { VERSION } from '/CONSTANTS';
 
 export interface ModalButton {
   classNames: string;

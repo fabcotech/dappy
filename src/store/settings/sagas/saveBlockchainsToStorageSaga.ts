@@ -1,11 +1,11 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
 
-import { Blockchain, RChainInfos } from '../../../models';
-import { browserUtils } from '../../browser-utils';
+import { Blockchain, RChainInfos } from '/models';
+import { browserUtils } from '/store/browser-utils';
 import * as fromSettings from '..';
-import * as fromBlockchain from '../../blockchain';
-import * as fromMain from '../../main';
-import { Action } from '../../';
+import * as fromBlockchain from '/store/blockchain';
+import * as fromMain from '/store/main';
+import { Action } from '/store/';
 
 const saveBlockchainsToStorage = function* (action: Action) {
   const rchainInfos: { [chainId: string]: RChainInfos } = yield select(fromBlockchain.getRChainInfos);

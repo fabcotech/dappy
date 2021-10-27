@@ -4,19 +4,19 @@ import debounce from 'xstream/extra/debounce';
 import { connect } from 'react-redux';
 import * as rchainToolkit from 'rchain-toolkit';
 
-import * as fromMain from '../../store/main';
-import * as fromUi from '../../store/ui';
-import * as fromSettings from '../../store/settings';
-import * as fromBlockchain from '../../store/blockchain';
-import * as fromCommon from '../../common';
+import * as fromMain from '/store/main';
+import * as fromUi from '/store/ui';
+import * as fromSettings from '/store/settings';
+import * as fromBlockchain from '/store/blockchain';
+import * as fromCommon from '/common';
 import { TransactionForm } from './TransactionForm';
-import { blockchain as blockchainUtils } from '../../utils/blockchain';
-import { LOGREV_TO_REV_RATE, DEFAULT_PHLO_LIMIT } from '../../CONSTANTS';
-import { formatAmount } from '../../utils/formatAmount';
+import { blockchain as blockchainUtils } from '/utils/blockchain';
+import { LOGREV_TO_REV_RATE, DEFAULT_PHLO_LIMIT } from '/CONSTANTS';
+import { formatAmount } from '/utils/formatAmount';
 
 import './TransactionModal.scss';
-import { TransactionState, Account, RChainInfos, Record, TransactionOrigin } from '../../models';
-import { REV_TRANSFER_PHLO_LIMIT } from '../../CONSTANTS';
+import { TransactionState, Account, RChainInfos, Record, TransactionOrigin } from '/models';
+import { REV_TRANSFER_PHLO_LIMIT } from '/CONSTANTS';
 
 interface PaymentRequestModalComponentProps {
   modal: undefined | fromMain.Modal;

@@ -901,5 +901,66 @@ module.exports.translations = {
   },
   "check account": {
     "one": "check account"
+  },
+  "not locked title": {
+    "one": "The contract is not locked, the owner can delete tokens and create tokens"
+  },
+  "not locked": {
+    "one": "Not locked"
+  },
+  "expiration": {
+    "one": "Expiry duration"
+  },
+  "hours": {
+    "one": "hour",
+    "other": "hours"
+  },
+  "rchain token fee": {
+    "one": "Fee/charge on resale"
+  },
+  "and": {
+    "one": "and"
+  },
+  "share image": {
+    "one": "Share image"
+  },
+  "days": {
+    "one": "day",
+    "other": "days"
+  },
+  "minutes": {
+    "one": "minute",
+    "other": "minutes"
+  },
+  "seconds": {
+    "one": "second",
+    "other": "seconds"
+  },
+  "locked title": {
+    "one": "The contract is locked, owner cannot delete tokens or create tokens"
+  },
+  "locked": {
+    "one": "Locked"
+  },
+  "name system": {
+    "one": "Name system"
+  },
+  "name system not available": {
+    "one": "The name system is not available, you cannot purchase a name, update a name that you own, or consult the list. Make sure you are connected to a network (for example d network or gamma network), and that this network is linked to a name system."
+  },
+  "contract id": {
+    "one": "Contract ID"
+  },
+  "counter": {
+    "one": "Counter"
+  },
+  "name lookup placeholder": {
+    "one": "Purse ID / NFT ID"
+  },
+  "box": {
+    "one": "Token box"
+  },
+  "name / id": {
+    "one": "Name / ID"
   }
 }

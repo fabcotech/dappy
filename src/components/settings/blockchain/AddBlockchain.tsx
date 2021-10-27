@@ -167,7 +167,7 @@ export class AddBlockchain extends React.Component<AddBlockchainProps, {}> {
           }) => (
             <form className="add-blockchain-form" onSubmit={handleSubmit}>
               <h3 className="subtitle is-4">Add network</h3>
-              <p className="smaller-text">
+              <p className="limited-width">
                 Dappy can handle dapps from multiple networks, currently only RChain platform is supported.
                 <br />
                 <br />

@@ -149,8 +149,8 @@ const loadOrReloadBrowserView = function* (action: any) {
   /* browser to server */
   // In the case of IP apps, payload.currentUrl is a https://xx address
   view.webContents.loadURL(
-    payload.currentUrl === 'dist/dapp-sandboxed.html'
-      ? path.join('file://', app.getAppPath(), 'dist/dapp-sandboxed.html') + payload.path
+    payload.currentUrl === 'dist/dappsandboxed.html'
+      ? path.join('file://', app.getAppPath(), 'dist/dappsandboxed.html') + payload.path
       : payload.currentUrl
   );
 
@@ -221,7 +221,7 @@ const loadOrReloadBrowserView = function* (action: any) {
             /* no dns */
             host: serverAuthorized.ip,
             rejectUnauthorized: false, // cert does not have to be signed by CA (self-signed)
-            cert: decodeURI(serverAuthorized.cert),
+            cert: decodeURI(decodeURI(serverAuthorized.cert)),
             minVersion: 'TLSv1.2',
             ca: [], // we don't want to rely on CA
           });

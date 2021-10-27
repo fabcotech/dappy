@@ -40,18 +40,21 @@ export class DevelopmentComponent extends React.Component<DevelopmentProps, {}> 
           onSubmit={(values) => {}}
           render={({ setFieldValue, values }) => {
             return (
-              <form>
+              <form className="limited-width">
                 <h3 className="subtitle is-4">{t('development')}</h3>
-                <p className="smaller-text">
+                <p className="limited-width">
                   {t('settings development paragraph')}
                   <br />
                   <br />
                 </p>
                 <br />
-                <CheckBoxComponent setFieldValue={(key: string, value: boolean) => {
-                  setFieldValue(key, value);
-                  this.props.updateDevMode(value);
-                }} values={values} name="devMode"></CheckBoxComponent>
+                <CheckBoxComponent
+                  setFieldValue={(key: string, value: boolean) => {
+                    setFieldValue(key, value);
+                    this.props.updateDevMode(value);
+                  }}
+                  values={values}
+                  name="devMode"></CheckBoxComponent>
               </form>
             );
           }}
@@ -62,12 +65,12 @@ export class DevelopmentComponent extends React.Component<DevelopmentProps, {}> 
 }
 
 export const Development = connect(
-  state => {
+  (state) => {
     return {
       settings: fromSettings.getSettings(state),
     };
   },
-  dispatch => ({
+  (dispatch) => ({
     updateDevMode: (flag: boolean) => dispatch(fromSettings.updateDevModeAction({ flag: flag })),
   })
 )(DevelopmentComponent);

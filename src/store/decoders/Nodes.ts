@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { NodeFromNetwork } from '../../models';
+import { NodeFromNetwork } from '/models';
 
 const nodeFromNetworkSchema = yup
   .object()

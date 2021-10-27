@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 import { BeesLoadErrors, BeesLoadCompleted } from 'beesjs';
-import { Dapp, TransitoryState, Tab, LastLoadError, Identification, LoadedFile, IpApp } from '../../models';
+import { Dapp, TransitoryState, Tab, LastLoadError, Identification, LoadedFile, IpApp } from '/models';
 import * as fromActions from './actions';
 import * as fromHistory from '../history';
 import { Action } from '../';

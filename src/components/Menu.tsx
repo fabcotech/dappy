@@ -1,13 +1,15 @@
 import * as React from 'react';
+import { NavigationUrl } from '/models';
+
 import './Menu.scss';
-import { NavigationUrl } from '../models';
 import { MenuMobile } from '.';
 
 interface MenuComponentProps {
-  dappsListDisplay: number;
+  tabsListDisplay: number;
   menuCollapsed: boolean;
   isNavigationInDapps: boolean;
   isNavigationInSettings: boolean;
+  isNavigationInNames: boolean;
   isNavigationInAccounts: boolean;
   isNavigationInDeploy: boolean;
   isNavigationInTransactions: boolean;
@@ -24,12 +26,13 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
     if (this.props.isMobile) {
       return (
         <MenuMobile
-          dappsListDisplay={this.props.dappsListDisplay}
+          tabsListDisplay={this.props.tabsListDisplay}
           isAwaitingUpdate={this.props.isAwaitingUpdate}
           currentVersion={this.props.currentVersion}
           isBeta={this.props.isBeta}
           isNavigationInDapps={this.props.isNavigationInDapps}
           isNavigationInSettings={this.props.isNavigationInSettings}
+          isNavigationInNames={this.props.isNavigationInNames}
           isNavigationInAccounts={this.props.isNavigationInAccounts}
           isNavigationInDeploy={this.props.isNavigationInDeploy}
           isNavigationInTransactions={this.props.isNavigationInTransactions}
@@ -66,6 +69,13 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
             </li>
             <li>
               <a
+                className={this.props.isNavigationInNames ? 'is-active' : ''}
+                onClick={() => this.props.navigate('/names')}>
+                <i className="fa fa-before rotated-d">d</i>
+              </a>
+            </li>
+            <li>
+              <a
                 className={this.props.isNavigationInAccounts ? 'is-active' : ''}
                 onClick={() => this.props.navigate('/accounts')}>
                 <i className="fa fa-money-check fa-before" />
@@ -91,7 +101,7 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
     }
 
     return (
-      <aside className={`root-left menu ${this.props.menuCollapsed ? 'collaped' : 'not-collapsed'}`}>
+      <aside className={`root-left menu not-collapsed`}>
         <ul className="menu-list top not-collapsed">
           <li className="dappy">
             dappy <br />
@@ -114,9 +124,9 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
               onClick={() => this.props.navigate('/dapps')}>
               <i className="fa fa-globe-europe fa-before" />
               {t('menu browse')}
-              {this.props.dappsListDisplay === 1 ? <i className="fa fa-eye-slash fa-after"></i> : undefined}
-              {this.props.dappsListDisplay === 2 ? <i className="fa fa-eye fa-after"></i> : undefined}
-              {this.props.dappsListDisplay === 3 ? <i className="fa fa-eye fa-after"></i> : undefined}
+              {this.props.tabsListDisplay === 1 ? <i className="fa fa-eye-slash fa-after"></i> : undefined}
+              {this.props.tabsListDisplay === 2 ? <i className="fa fa-eye fa-after"></i> : undefined}
+              {this.props.tabsListDisplay === 3 ? <i className="fa fa-eye fa-after"></i> : undefined}
             </a>
           </li>
           <li>
@@ -125,6 +135,14 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
               onClick={() => this.props.navigate('/settings')}>
               <i className="fa fa-wrench fa-before" />
               {t('menu settings')}
+            </a>
+          </li>
+          <li>
+            <a
+              className={this.props.isNavigationInNames ? 'is-active' : ''}
+              onClick={() => this.props.navigate('/names')}>
+              <i className="fa fa-before rotated-d">d</i>
+              {t('name system')}
             </a>
           </li>
           <li>

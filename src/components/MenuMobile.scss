@@ -75,6 +75,13 @@ li.dappy {
     li {
       a {
         font-size: 1.2rem;
+        i.rotated-d {
+          font-family: fira;
+          font-weight: 700;
+          font-style: normal;
+          transform: rotate(-15deg);
+          font-size: 1.4rem !important;
+        }
         &.is-active {
           background-color: #023b41;
         }

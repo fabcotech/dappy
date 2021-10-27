@@ -3,8 +3,8 @@ import { Formik, Field } from 'formik';
 import * as elliptic from 'elliptic';
 import * as rchainToolkit from 'rchain-toolkit';
 
-import { Account } from '../../models';
-import { account as accountUtils } from '../../utils/account';
+import { Account } from '/models';
+import { account as accountUtils } from '/utils/account';
 import './AccountForm.scss';
 import { PrivateKeyWarning } from '../utils';
 

@@ -1,5 +1,5 @@
 import * as fromReducer from './reducer';
-import { NavigationUrl, Language } from '../../models';
+import { NavigationUrl, Language } from '/models';
 
 export const UPDATE_UI_FROM_STORAGE = '[Ui] Update Ui from storage';
 export const TOGGLE_MENU_COLLAPSED = '[Ui] Toggle menu colapsed';

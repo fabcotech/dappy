@@ -2443,5 +2443,185 @@ module.exports.translations = [
     "term_plural": "",
     "reference": "",
     "comment": ""
+  },
+  {
+    "term": "not locked title",
+    "definition": "The contract is not locked, the owner can delete tokens and create tokens",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "not locked",
+    "definition": "Not locked",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "expiration",
+    "definition": "Expiry duration",
+    "context": "Expiration",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "hours",
+    "definition": {
+      "one": "hour",
+      "other": ""
+    },
+    "context": "Settings > Account",
+    "term_plural": "hours",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "rchain token fee",
+    "definition": "Fee/charge on resale",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "and",
+    "definition": "and",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "share image",
+    "definition": "Share image",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "days",
+    "definition": {
+      "one": "day",
+      "other": ""
+    },
+    "context": "Settings > Account",
+    "term_plural": "days",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "minutes",
+    "definition": {
+      "one": "minute",
+      "other": ""
+    },
+    "context": "Settings > Account",
+    "term_plural": "minutes",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "seconds",
+    "definition": {
+      "one": "second",
+      "other": ""
+    },
+    "context": "Settings > Account",
+    "term_plural": "seconds",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "locked title",
+    "definition": "The contract is locked, owner cannot delete tokens or create tokens",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "locked",
+    "definition": "Locked",
+    "context": "Settings > Account",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name system",
+    "definition": "Name system",
+    "context": "Name system",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name system not available",
+    "definition": "The name system is not available, you cannot purchase a name, update a name that you own, or consult the list. Make sure you are connected to a network (for example d network or gamma network), and that this network is linked to a name system.",
+    "context": "Settings > Name system",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name system",
+    "definition": "Name system",
+    "context": "",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "contract id",
+    "definition": "Contract ID",
+    "context": "RChain token",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "counter",
+    "definition": "Counter",
+    "context": "RChain token",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name lookup placeholder",
+    "definition": "Purse ID / NFT ID",
+    "context": "RChain token",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "box",
+    "definition": "Token box",
+    "context": "RChain token",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "locked",
+    "definition": "Locked",
+    "context": "RChain token",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name / id",
+    "definition": "Name / ID",
+    "context": "RChain token",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
   }
 ]

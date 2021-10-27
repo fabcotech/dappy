@@ -113,7 +113,7 @@ export class ResolverComponent extends React.Component<ResolverProps, {}> {
       <div className="settings-resolver">
         <Formik
           initialValues={this.props.settings}
-          validate={values => {
+          validate={(values) => {
             // same as above, but feel free to move this into a class method now.
             let errors: {
               resolver?: string;
@@ -162,9 +162,9 @@ export class ResolverComponent extends React.Component<ResolverProps, {}> {
               });
           }}
           render={({ values, errors, touched, setFieldValue, handleSubmit, isSubmitting }) => (
-            <form onSubmit={handleSubmit}>
+            <form className="limited-width" onSubmit={handleSubmit}>
               <h3 className="subtitle is-4">{t('network')}</h3>
-              <p className="smaller-text" dangerouslySetInnerHTML={{ __html: t('settings network paragraph') }}></p>
+              <p className="limited-width" dangerouslySetInnerHTML={{ __html: t('settings network paragraph') }}></p>
 
               <br />
               <FormResolverComponent values={values} setFieldValue={setFieldValue} />
@@ -196,12 +196,12 @@ export class ResolverComponent extends React.Component<ResolverProps, {}> {
 }
 
 export const Resolver = connect(
-  state => {
+  (state) => {
     return {
       settings: fromSettings.getSettings(state),
     };
   },
-  dispatch => ({
+  (dispatch) => ({
     updateResolverSettingsAction: (settings: fromSettings.Settings) =>
       dispatch(fromSettings.updateResolverSettingsAction(settings)),
   })

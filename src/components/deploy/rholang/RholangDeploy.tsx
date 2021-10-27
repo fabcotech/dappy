@@ -2,16 +2,16 @@ import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { rhoValToJs } from 'rchain-toolkit/dist/utils';
 
-import { buildUnforgeableDeployQuery } from '../../../utils/buildUnforgeableDeployQuery';
-import { buildUnforgeableNameQuery } from '../../../utils/buildUnforgeableNameQuery';
-import { multiCall } from '../../../utils/wsUtils';
-import { Account, Blockchain, RChainInfos, TransactionState, TransactionStatus, MultiCallError } from '../../../models';
-import * as fromBlockchain from '../../../store/blockchain';
-import * as fromMain from '../../../store/main';
-import * as fromSettings from '../../../store/settings';
+import { buildUnforgeableDeployQuery } from '/utils/buildUnforgeableDeployQuery';
+import { buildUnforgeableNameQuery } from '/utils/buildUnforgeableNameQuery';
+import { multiCall } from '/interProcess';
+import { Account, Blockchain, RChainInfos, TransactionState, TransactionStatus, MultiCallError } from '/models';
+import * as fromBlockchain from '/store/blockchain';
+import * as fromMain from '/store/main';
+import * as fromSettings from '/store/settings';
 import { TransactionForm } from '../../utils';
-import { blockchain as blockchainUtils } from '../../../utils';
-import { getNodeIndex } from '../../../utils/getNodeIndex';
+import { blockchain as blockchainUtils } from '/utils';
+import { getNodeIndex } from '/utils/getNodeIndex';
 import './RholangDeploy.scss';
 
 const defaultRholang = `new stdout(\`rho:io:stdout\`), deployId(\`rho:rchain:deployId\`) in {\n  stdout!("bonjour !")|\n  deployId!("bonjour !")\n}`;
@@ -128,11 +128,10 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
           multiCallId: fromBlockchain.LISTEN_FOR_DATA_AT_NAME,
         })
           .then((resp) => {
-            console.log(resp);
             const parsedResp = JSON.parse(resp.result.data);
             let p;
             try {
-              p = JSON.parse(parsedResp.data);
+              p = JSON.parse(parsedResp.data.results[0].data);
             } catch (e) {}
 
             // get data at name
@@ -147,7 +146,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
                 clearInterval(this.interval);
                 this.interval = undefined;
               }
-            } else if (parsedResp && parsedResp.data && p && p.expr) {
+            } else if (parsedResp && parsedResp.data && parsedResp.data.results[0] && p && p.expr) {
               const expr = p.expr;
               this.setState({
                 parsedResp: expr[0] ? JSON.stringify(expr[0], null, 2) : 'No data',
@@ -327,10 +326,10 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
     let runningGetDataAtName = false;
     let getDataAtName = this.query && this.query.type === 'api/listen-for-data-at-name';
     let runningExploreDeploy = false;
-    let exploreDeploy = this.query && this.query.type === 'api/explore-deploy';
+    let exploreDeploy = this.query && this.query.type === 'explore-deploy-x';
     if (this.state.run > 0 && !this.state.parsedResp && this.query) {
       runningGetDataAtName = this.query.type === 'api/listen-for-data-at-name';
-      runningExploreDeploy = this.query.type === 'api/explore-deploy';
+      runningExploreDeploy = this.query.type === 'explore-deploy-x';
     }
 
     return (
@@ -433,9 +432,9 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
                 type="button"
                 onClick={() => {
                   this.initStep3({
-                    type: 'api/explore-deploy',
+                    type: 'explore-deploy-x',
                     body: {
-                      term: this.state.rholang,
+                      terms: [this.state.rholang],
                     },
                   });
                 }}
@@ -470,7 +469,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
                 {getDataAtName
                   ? `Now trying to get data every 15 seconds, note that depth is limited to ${depth} blocks in the past (run ${this.state.run})`
                   : undefined}
-                {this.query && this.query.type === 'api/explore-deploy' ? `Running explore deploy` : undefined}
+                {this.query && this.query.type === 'explore-deploy-x' ? `Running explore deploy` : undefined}
               </p>
               <br />
               {getDataAtName && this.deployId && (

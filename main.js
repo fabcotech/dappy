@@ -12,6 +12,7 @@ var crypto = _interopDefault(require('crypto'));
 var net = _interopDefault(require('net'));
 var child_process = _interopDefault(require('child_process'));
 var dns = _interopDefault(require('dns'));
+require('os');
 
 var DAPP_INITIAL_SETUP = '[Common] dapp initial setup';
 var SEND_RCHAIN_TRANSACTION_FROM_SANDBOX = '[Common] Send RChain transaction from sandbox';
@@ -19,10 +20,10 @@ var SEND_RCHAIN_PAYMENT_REQUEST_FROM_SANDBOX = '[Common] Send RChain payment req
 var IDENTIFY_FROM_SANDBOX = '[Common] Identify from sandbox';
 
 var validateSearch = function (search) {
-    return /[a-z]*\/(\w[A-Za-z0-9]*)(\w[A-Za-z0-9?%&()*+-_.\/:.@=\[\]{}]*)?$/gs.test(search);
+    return /[a-z]*:(\w[A-Za-z0-9]*)(\w[A-Za-z0-9?%&()*+-_.\/:.@=\[\]{}]*)?$/gs.test(search);
 };
 var validateSearchWithProtocol = function (search) {
-    return /^dappy:\/\/\w[a-z]*\/(\w[A-Za-z0-9]*)(\w[A-Za-z0-9?%&()*+-_.\/:.@=\[\]{}]*)?$/gs.test(search);
+    return /^dappy:\/\/\w[a-z]*:(\w[A-Za-z0-9]*)(\w[A-Za-z0-9?%&()*+-_.\/:.@=\[\]{}]*)?$/gs.test(search);
 };
 var validateShortcutSearchWithProtocol = function (search) {
     return /^dappy:\/\/(\w[A-Za-z0-9]*)(\w[A-Za-z0-9?%&()*+-_.\/:.@=\[\]{}]*)?$/gs.test(search);
@@ -450,8 +451,8 @@ var masterTerm_1 = (payload) => {
     have the following structure:
     pursesThm, example of FT purses:
     {
-      "1": { quantity: 2, timestamp: 12562173658, type: "0", boxId: "box1", price: Nil},
-      "2": { quantity: 12, timestamp: 12562173658, type: "0", boxId: "box1", price: 2},
+      "1": { quantity: 2, timestamp: 12562173658, boxId: "box1", price: Nil},
+      "2": { quantity: 12, timestamp: 12562173658, boxId: "box1", price: 2},
     }
   */
   boxesReadyCh,
@@ -946,7 +947,7 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
     @(*vault, "CONTRACT_LOCK", contractId)!(Nil)
   } |
 
-  // validate string, used for .type , purse ID, box ID, contract ID
+  // validate string, used for purse ID, box ID, contract ID
   for (@(str, ret) <= validateStringCh) {
     match (str, Set("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y", "z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9")) {
       (String, valids) => {
@@ -1118,8 +1119,9 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
             }
           }
         } |
+
         // if contract is fungible, we may find a
-        // purse with same .price and .type property
+        // purse with same .price property
         // if found, then merge and delete current purse
         for (@(box, pursesThm) <- iterateAndMergePursesCh) {
           new tmpCh, itCh in {
@@ -1134,8 +1136,8 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
                   new ch4, ch5, ch6, ch7 in {
                     TreeHashMap!("get", pursesThm, last, *ch4) |
                     for (@purse2 <- ch4) {
-                      match (purse2.get("type") == purse.get("type"), purse2.get("price") == purse.get("price")) {
-                        (true, true) => {
+                      match purse2.get("price") == purse.get("price") {
+                        true => {
                           TreeHashMap!(
                             "set",
                             pursesThm,
@@ -1182,8 +1184,8 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
                   new ch4, ch5, ch6, ch7 in {
                     TreeHashMap!("get", pursesThm, first, *ch4) |
                     for (@purse2 <- ch4) {
-                      match (purse2.get("type") == purse.get("type"), purse2.get("price") == purse.get("price")) {
-                        (true, true) => {
+                      match purse2.get("price") == purse.get("price") {
+                        true => {
                           TreeHashMap!(
                             "set",
                             pursesThm,
@@ -1293,7 +1295,6 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
                 ({
                   "quantity": Int,
                   "timestamp": Int,
-                  "type": String,
                   "boxId": String,
                   "id": String,
                   "price": Nil \\/ Int
@@ -1351,7 +1352,7 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
           } else {
             for (@superKeys <<- @(*vault, "boxesSuperKeys", boxId)) {
               for (@config <<- @(*vault, "boxConfig", boxId)) {
-                @return!(config.union({ "superKeys": superKeys, "purses": box, "version": "11.0.0" }))
+                @return!(config.union({ "superKeys": superKeys, "purses": box, "version": "12.0.1" }))
               }
             }
           }
@@ -1571,7 +1572,7 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
 
                     // config
                     @(*vault, "contractConfig", payload.get("contractId"))!(
-                      payload.set("locked", false).set("counter", 1).set("version", "11.0.0").set("fee", payload.get("fee"))
+                      payload.set("locked", false).set("counter", 1).set("version", "12.0.1").set("fee", payload.get("fee"))
                     ) |
 
                     new superKeyCh in {
@@ -1611,13 +1612,12 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
                                     ({
                                       "data": _,
                                       "quantity": Int,
-                                      "type": String,
                                       "id": String,
                                       "price": Nil \\/ Int,
                                       "boxId": String
                                     }, false) => {
                                       getBoxCh!((createPursePayload.get("boxId"), *ch1)) |
-                                      validateStringCh!((createPursePayload.get("id") ++ createPursePayload.get("type"), *ch3)) |
+                                      validateStringCh!((createPursePayload.get("id"), *ch3)) |
                                       for (@box <- ch1; @valid <- ch3) {
                                         if (valid == true) {
                                           if (box == Nil) {
@@ -1644,7 +1644,7 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
                                             }
                                           }
                                         } else {
-                                          @return2!("error: invalid id or type property") |
+                                          @return2!("error: invalid id property") |
                                           @(*vault, "CONTRACT_LOCK", payload.get("contractId"))!(Nil)
                                         }
                                       }
@@ -2228,7 +2228,7 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
                   for (_ <- ch40; _ <- ch41; _ <- ch42) {
                     makePurseCh!((
                       payload.get("contractId"),
-                      // keep quantity and type of existing purse
+                      // keep quantity of existing purse
                       purse
                         .set("boxId", boxId)
                         .set("price", Nil)
@@ -2407,61 +2407,6 @@ var createPursesTerm_1 = (payload) => {
       ${rholang}
     }
   }`;
-  /* 
-  const ids = Object.keys(payload.purses);
-  ids.forEach((id) => {
-    payload.purses[id].data = payload.data[id] || null;
-  });
-
-  return `new basket,
-  returnCh,
-  boxCh,
-  itCh,
-  idsCh,
-  resultsCh,
-  stdout(\`rho:io:stdout\`),
-  deployerId(\`rho:rchain:deployerId\`),
-  registryLookup(\`rho:registry:lookup\`)
-in {
-
-  for (superKey <<- @(*deployerId, "rchain-token-contract", "${
-    payload.masterRegistryUri
-  }", "${payload.contractId}")) {
-
-    for (@ids <- idsCh) {
-      for (@i <= itCh) {
-        match i {
-          ${ids.length} => {
-            for (@results <- resultsCh) {
-              stdout!("completed, purses created, check results to see errors/successes") |
-              basket!({ "status": "completed", "results": results})
-            }
-          }
-          _ => {
-            new x in {
-              superKey!(("CREATE_PURSE", ${JSON.stringify(
-                payload.purses
-              ).replace(
-                new RegExp(': null|:null', 'g'),
-                ': Nil'
-              )}.get(ids.nth(i)), *x)) |
-              for (@y <- x) {
-                for (@results <- resultsCh) {
-                  resultsCh!(results.set(ids.nth(i), y)) |
-                  itCh!(i + 1)
-                }
-              }
-            }
-          }
-        }
-      }
-    } |
-    idsCh!([${ids.map((id) => `"${id}"`).join(', ')}]) |
-    itCh!(0) |
-    resultsCh!({})
-  }
-}
-`; */
 };
 
 var createPursesTerm = {
@@ -3318,7 +3263,7 @@ var logs_1 = {
         if (split[5] === '0') {
           return ` ${ts} box ${split[2]} minted new NFT ${split[7]} at price ${split[5]}`;
         } else {
-          return ` ${ts} box ${split[2]} purchased NFT ${split[7]} from box ${split[3]} at price ${split[4]}`;
+          return ` ${ts} box ${split[2]} purchased NFT ${split[7]} from box ${split[3]} at price ${split[5]}`;
         }
       } else {
         return ` ${ts} box ${split[2]} purchased ${split[4]} token${
@@ -3335,7 +3280,7 @@ var logs = {
 	logs: logs_1
 };
 
-var VERSION = '11.0.0';
+var VERSION = '12.0.1';
 
 var constants = {
 	VERSION: VERSION
@@ -3395,6 +3340,42 @@ var src = {
 var src_17 = src.readConfigTerm;
 var src_18 = src.readPursesDataTerm;
 
+/*! *****************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+
+var __assign$1 = function() {
+    __assign$1 = Object.assign || function __assign(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign$1.apply(this, arguments);
+};
+
+var commonjsGlobal$1 = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+function unwrapExports$1 (x) {
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+}
+
+function createCommonjsModule$1(fn, module) {
+	return module = { exports: {} }, fn(module, module.exports), module.exports;
+}
+
 function symbolObservablePonyfill(root) {
 	var result;
 	var Symbol = root.Symbol;
@@ -3431,8 +3412,8 @@ if (typeof self !== 'undefined') {
 
 var result = symbolObservablePonyfill(root);
 
-var xstream = createCommonjsModule(function (module, exports) {
-var __extends = (commonjsGlobal && commonjsGlobal.__extends) || (function () {
+var xstream = createCommonjsModule$1(function (module, exports) {
+var __extends = (commonjsGlobal$1 && commonjsGlobal$1.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
         function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
@@ -4842,7 +4823,7 @@ var Stream = /** @class */ (function () {
      * @return {Stream}
      */
     Stream.prototype.flatten = function () {
-        var p = this._prod;
+        this._prod;
         return new Stream(new Flatten(this));
     };
     /**
@@ -5179,11 +5160,11 @@ exports.default = xs;
 
 });
 
-var xs = unwrapExports(xstream);
-var xstream_1 = xstream.NO;
-var xstream_2 = xstream.NO_IL;
-var xstream_3 = xstream.Stream;
-var xstream_4 = xstream.MemoryStream;
+var xs = unwrapExports$1(xstream);
+xstream.NO;
+xstream.NO_IL;
+xstream.Stream;
+xstream.MemoryStream;
 
 var BeesLoadStatus;
 (function (BeesLoadStatus) {
@@ -5214,6 +5195,8 @@ var BeesLoadError;
     BeesLoadError["InvalidRecords"] = "Invalid records";
     BeesLoadError["InvalidNodes"] = "Invalid nodes";
     BeesLoadError["InvalidServers"] = "Invalid servers";
+    BeesLoadError["PostParseError"] = "Parse error after multicall";
+    BeesLoadError["UnknownCriticalError"] = "Unknown critical error";
 })(BeesLoadError || (BeesLoadError = {}));
 var indexData = function (data, existingData, comparer) {
     var _a;
@@ -5231,14 +5214,14 @@ var indexData = function (data, existingData, comparer) {
         var _a;
         if (stringToCompare === existingData[key].stringToCompare) {
             found = true;
-            existingData = __assign(__assign({}, existingData), (_a = {}, _a[key] = __assign(__assign({}, existingData[key]), { nodeUrls: existingData[key].nodeUrls.concat(data.nodeUrl) }), _a));
+            existingData = __assign$1(__assign$1({}, existingData), (_a = {}, _a[key] = __assign$1(__assign$1({}, existingData[key]), { nodeUrls: existingData[key].nodeUrls.concat(data.nodeUrl) }), _a));
         }
     });
     if (!found) {
-        existingData = __assign(__assign({}, existingData), (_a = {}, _a[Object.keys(existingData).length + 1] = {
+        existingData = __assign$1(__assign$1({}, existingData), (_a = {}, _a[Object.keys(existingData).length + 1] = {
             nodeUrls: [data.nodeUrl],
             data: data.data,
-            stringToCompare: stringToCompare
+            stringToCompare: stringToCompare,
         }, _a));
     }
     if (!Object.keys(existingData).length) {
@@ -5246,8 +5229,8 @@ var indexData = function (data, existingData, comparer) {
             "1": {
                 nodeUrls: [data.nodeUrl],
                 data: data.data || "",
-                stringToCompare: stringToCompare
-            }
+                stringToCompare: stringToCompare,
+            },
         };
     }
     return existingData;
@@ -5268,7 +5251,7 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                 loadErrors: loadErrors,
                 loadState: loadState,
                 loadPending: loadPending,
-                status: BeesLoadStatus.Loading
+                status: BeesLoadStatus.Loading,
             });
             if (resolverMode === "absolute") {
                 if (resolverAbsolute > nodeUrls.length) {
@@ -5280,10 +5263,10 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                             error: BeesLoadError.InsufficientNumberOfNodes,
                             args: {
                                 expected: resolverAbsolute,
-                                got: nodeUrls.length
-                            }
+                                got: nodeUrls.length,
+                            },
                         },
-                        status: BeesLoadStatus.Failed
+                        status: BeesLoadStatus.Failed,
                     });
                     listener.complete();
                     return;
@@ -5300,10 +5283,10 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                                 error: BeesLoadError.OutOfNodes,
                                 args: {
                                     alreadyQueried: i - Object.keys(loadErrors).length,
-                                    resolverAbsolute: resolverAbsolute
-                                }
+                                    resolverAbsolute: resolverAbsolute,
+                                },
                             },
-                            status: BeesLoadStatus.Failed
+                            status: BeesLoadStatus.Failed,
                         });
                         listener.complete();
                         return;
@@ -5314,7 +5297,7 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                         loadErrors: loadErrors,
                         loadState: loadState,
                         loadPending: loadPending,
-                        status: BeesLoadStatus.Loading
+                        status: BeesLoadStatus.Loading,
                     });
                     var stream = createStream(queryHandler, urlsToQuery);
                     stream.take(urlsToQuery.length).subscribe({
@@ -5327,23 +5310,23 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                                     loadState = newLoadState;
                                 }
                                 catch (err) {
-                                    loadErrors = __assign(__assign({}, loadErrors), (_a = {}, _a[data.nodeUrl] = {
+                                    loadErrors = __assign$1(__assign$1({}, loadErrors), (_a = {}, _a[data.nodeUrl] = {
                                         nodeUrl: data.nodeUrl,
-                                        status: err.message ? parseInt(err.message, 10) : 400
+                                        status: err.message ? parseInt(err.message, 10) : 400,
                                     }, _a));
                                 }
                             }
                             else {
-                                loadErrors = __assign(__assign({}, loadErrors), (_b = {}, _b[data.nodeUrl] = {
+                                loadErrors = __assign$1(__assign$1({}, loadErrors), (_b = {}, _b[data.nodeUrl] = {
                                     nodeUrl: data.nodeUrl,
-                                    status: data.status
+                                    status: data.status,
                                 }, _b));
                             }
                             listener.next({
                                 loadErrors: loadErrors,
                                 loadState: loadState,
                                 loadPending: loadPending,
-                                status: BeesLoadStatus.Loading
+                                status: BeesLoadStatus.Loading,
                             });
                         },
                         error: function (e) {
@@ -5360,10 +5343,10 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                                     loadError: {
                                         error: BeesLoadError.ServerError,
                                         args: {
-                                            numberOfLoadErrors: Object.keys(loadErrors).length
-                                        }
+                                            numberOfLoadErrors: Object.keys(loadErrors).length,
+                                        },
                                     },
-                                    status: BeesLoadStatus.Failed
+                                    status: BeesLoadStatus.Failed,
                                 });
                                 listener.complete();
                                 return;
@@ -5377,10 +5360,10 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                                     loadError: {
                                         error: BeesLoadError.UnstableState,
                                         args: {
-                                            numberOfLoadStates: Object.keys(loadState).length
-                                        }
+                                            numberOfLoadStates: Object.keys(loadState).length,
+                                        },
                                     },
-                                    status: BeesLoadStatus.Failed
+                                    status: BeesLoadStatus.Failed,
                                 });
                                 listener.complete();
                                 return;
@@ -5411,12 +5394,12 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                                                                 okResponses: loadState[k].nodeUrls.length,
                                                                 percent: Math.round((100 *
                                                                     (100 * loadState[k].nodeUrls.length)) /
-                                                                    totalOkResponses_1) / 100
+                                                                    totalOkResponses_1) / 100,
                                                             };
-                                                        })
-                                                    }
+                                                        }),
+                                                    },
                                                 },
-                                                status: BeesLoadStatus.Failed
+                                                status: BeesLoadStatus.Failed,
                                             });
                                             listener.complete();
                                             return;
@@ -5425,7 +5408,7 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                                             loadErrors: loadErrors,
                                             loadState: loadState,
                                             loadPending: loadPending,
-                                            status: BeesLoadStatus.Completed
+                                            status: BeesLoadStatus.Completed,
                                         });
                                         listener.complete();
                                         return;
@@ -5433,13 +5416,13 @@ var resolver = function (queryHandler, nodeUrls, resolverMode, resolverAccuracy,
                                 }
                             }
                             callBatch_1(i);
-                        }
+                        },
                     });
                 };
                 callBatch_1(i);
             }
         },
-        stop: function () { }
+        stop: function () { },
     });
 };
 
@@ -5463,7 +5446,7 @@ var httpBrowserToNode = function (data, node, timeout) {
             var ip = node.ip.split(':')[0];
             var host = node.host;
             var port = node.ip.indexOf(':') === -1 ? 443 : node.ip.split(':')[1];
-            var cert = node.cert ? decodeURI(node.cert) : node.origin === 'user' ? undefined : 'INVALIDCERT';
+            var cert = node.cert ? decodeURI(decodeURI(node.cert)) : node.origin === 'user' ? undefined : 'INVALIDCERT';
             if (!dappyNetworkAgents[ip + "-" + cert]) {
                 dappyNetworkAgents[ip + "-" + cert] = new https.Agent({
                     /* no dns */
@@ -5518,7 +5501,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
     return new Promise(function (resolve, reject) {
         resolver(function (index) {
             var a = getNodeFromIndex(index);
-            return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+            return new Promise(function (resolve2, reject2) { return __awaiter(void 0, void 0, void 0, function () {
                 var node, over_1, requestId, newBodyForRequest, resp, err_1;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
@@ -5529,7 +5512,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
                             over_1 = false;
                             setTimeout(function () {
                                 if (!over_1) {
-                                    resolve({
+                                    resolve2({
                                         type: 'ERROR',
                                         status: 500,
                                         nodeUrl: index,
@@ -5546,7 +5529,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
                         case 2:
                             resp = _a.sent();
                             if (!over_1) {
-                                resolve({
+                                resolve2({
                                     type: 'SUCCESS',
                                     data: resp,
                                     nodeUrl: index,
@@ -5556,7 +5539,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
                             return [3 /*break*/, 4];
                         case 3:
                             err_1 = _a.sent();
-                            resolve({
+                            resolve2({
                                 type: 'ERROR',
                                 status: 500,
                                 nodeUrl: index,
@@ -5575,7 +5558,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
                                     });
                                     resp.on('end', function () {
                                         console.log('[get-nodes] Successfully fell back on HTTP for ' + index);
-                                        resolve({
+                                        resolve2({
                                             type: 'SUCCESS',
                                             data: data,
                                             nodeUrl: index,
@@ -5583,7 +5566,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
                                     });
                                 })
                                     .on('error', function (err) {
-                                    resolve({
+                                    resolve2({
                                         type: 'ERROR',
                                         status: 500,
                                         nodeUrl: index,
@@ -5591,7 +5574,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
                                 });
                             }
                             else {
-                                resolve({
+                                resolve2({
                                     type: 'ERROR',
                                     status: 500,
                                     nodeUrl: index,
@@ -5637,7 +5620,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
                 console.log(e);
                 reject({
                     error: {
-                        error: BeesLoadError.UnknownError,
+                        error: BeesLoadError.UnknownCriticalError,
                         args: {},
                     },
                     loadState: {},
@@ -11536,7 +11519,7 @@ var registerDappyProtocol = function (session, getState) {
             valid = true;
             // dappy://aaa.bbb.ccc -> dappy://aaa.bbb.ccc,
             if (!url.includes('%2C')) {
-                url += "%2C";
+                url += '%2C';
             }
         }
         var randomId = '';
@@ -11579,30 +11562,29 @@ var registerDappyProtocol = function (session, getState) {
                 return;
             }
         }
-        // todo if multi, limit to n
-        var multipleResources = false;
         var exploreDeploys = false;
         if (url.includes('explore-deploys')) {
             valid = true;
             exploreDeploys = true;
         }
-        else if (url.includes('%2C')) {
-            valid = true;
-            multipleResources = true;
+        else {
+            console.error('dappy://aaa.b,aaa.c notation is not supported, please use dappy://explore-deploys');
+            callback();
+            return;
         }
         if (!valid) {
             console.error('Wrong dappy url, must be dappy://aaa/bbb or dappy://aaa/bbb.yy,ccc.aa,ddd');
             callback();
             return;
         }
-        var split = url.replace('dappy://', '').split('/');
+        var split = url.replace('dappy://', '').split(':');
         var chainId = split[0];
         // todo
         // how to return errors ?
         var blockchains = getBlockchains$1(getState());
         var blockchain = blockchains[chainId];
         if (!blockchain) {
-            console.error('[dappy://] blockchain not found');
+            console.error("[dappy://] blockchain not found " + url);
             callback();
             return;
         }
@@ -11620,20 +11602,6 @@ var registerDappyProtocol = function (session, getState) {
                 callback();
                 return;
             }
-        }
-        else if (multipleResources) {
-            // if address is dappy://d/aaa.bbb.ccc,ddd.eee.fff
-            // the two
-            type = 'explore-deploy-x';
-            query = {
-                terms: split[1]
-                    .split('%2C')
-                    // filter in the case of only one unf : dappy://aaa/bbb,
-                    .filter(function (a) { return !!a; })
-                    .map(function (u) {
-                    return readPursesDataOrContractConfig(u.split('.')[0], u.split('.')[1], u.split('.')[2]);
-                }),
-            };
         }
         else {
             type = 'api/explore-deploy';
@@ -11668,17 +11636,17 @@ var registerDappyProtocol = function (session, getState) {
                             return [2 /*return*/];
                         }
                         dataFromBlockchainParsed = void 0;
-                        if (!multipleResources && !exploreDeploys) {
+                        if ( !exploreDeploys) {
                             dataFromBlockchainParsed = JSON.parse(json.data);
                         }
-                        if (!((multipleResources || exploreDeploys) && request.headers.Accept === 'rholang/term')) return [3 /*break*/, 1];
+                        if (!(( exploreDeploys) && request.headers.Accept === 'rholang/term')) return [3 /*break*/, 1];
                         callback({
                             mimeType: 'application/json',
                             data: Buffer.from(JSON.stringify(json.data)),
                         });
                         return [3 /*break*/, 12];
                     case 1:
-                        if (!(multipleResources || exploreDeploys)) return [3 /*break*/, 2];
+                        if (!( exploreDeploys)) return [3 /*break*/, 2];
                         // todo
                         callback();
                         return [3 /*break*/, 12];
@@ -12191,7 +12159,7 @@ var overrideHttpProtocols = function (session, getState, development, dispatchFr
                                 /* no dns */
                                 host: s.ip,
                                 rejectUnauthorized: false,
-                                cert: decodeURI(s.cert),
+                                cert: decodeURI(decodeURI(s.cert)),
                                 minVersion: 'TLSv1.2',
                                 ca: [], // we don't want to rely on CA
                             });
@@ -14758,6 +14726,7 @@ var getIpAddressAndCert = function (hostname) {
             }
             var options = {
                 host: hostname,
+                rejectUnauthorized: false,
                 port: 443,
                 method: 'GET',
             };
@@ -15178,7 +15147,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
             }
             catch (err) {
                 console.log(err);
-                callback(Buffer.from(err));
+                callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when multi-dappy-call'));
             }
         }
         /* browser to node */
@@ -15197,7 +15166,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
             }
             catch (err) {
                 console.log(err);
-                callback(Buffer.from(err));
+                callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when single-dappy-call'));
             }
         }
         if (request.url === 'interprocess://dispatch-in-main') {
@@ -15227,7 +15196,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
             }
             catch (err) {
                 console.log(err);
-                callback(Buffer.from(err));
+                callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when dispatch-in-main'));
             }
         }
         if (request.url === 'interprocess://open-external') {
@@ -15238,7 +15207,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
             }
             catch (err) {
                 console.log(err);
-                callback(err);
+                callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when open-external'));
             }
         }
         if (request.url === 'interprocess://copy-to-clipboard') {
@@ -15249,7 +15218,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
             }
             catch (err) {
                 console.log(err);
-                callback(Buffer.from(err));
+                callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when copy-to-clipboard'));
             }
         }
         if (request.url === 'interprocess://trigger-command') {
@@ -15283,7 +15252,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
             }
             catch (err) {
                 console.log(err);
-                callback(err);
+                callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when trigger-command'));
             }
         }
         if (request.url === 'interprocess://get-dispatches-from-main-awaiting') {
@@ -15295,7 +15264,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
             pem.createCertificate({ days: 1000000, selfSigned: true }, function (err, keys) {
                 if (err) {
                     console.log(err);
-                    callback(Buffer.from(err));
+                    callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when generate-certificate-and-key'));
                     return;
                 }
                 callback(Buffer.from(JSON.stringify({
@@ -15306,6 +15275,75 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
         }
     });
 };
+
+function _defineProperty$1(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function ownKeys(object, enumerableOnly) {
+  var keys = Object.keys(object);
+
+  if (Object.getOwnPropertySymbols) {
+    var symbols = Object.getOwnPropertySymbols(object);
+
+    if (enumerableOnly) {
+      symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+    }
+
+    keys.push.apply(keys, symbols);
+  }
+
+  return keys;
+}
+
+function _objectSpread2(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+
+    if (i % 2) {
+      ownKeys(Object(source), true).forEach(function (key) {
+        _defineProperty$1(target, key, source[key]);
+      });
+    } else if (Object.getOwnPropertyDescriptors) {
+      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    } else {
+      ownKeys(Object(source)).forEach(function (key) {
+        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+      });
+    }
+  }
+
+  return target;
+}
+
+/**
+ * Adapted from React: https://github.com/facebook/react/blob/master/packages/shared/formatProdErrorMessage.js
+ *
+ * Do not require this module directly! Use normal throw error calls. These messages will be replaced with error codes
+ * during build.
+ * @param {number} code
+ */
+function formatProdErrorMessage(code) {
+  return "Minified Redux error #" + code + "; visit https://redux.js.org/Errors?code=" + code + " for the full message or " + 'use the non-minified dev environment for full errors. ';
+}
+
+// Inlined version of the `symbol-observable` polyfill
+var $$observable = (function () {
+  return typeof Symbol === 'function' && Symbol.observable || '@@observable';
+})();
 
 /**
  * These are private action types reserved by Redux.
@@ -15340,6 +15378,65 @@ function isPlainObject(obj) {
   return Object.getPrototypeOf(obj) === proto;
 }
 
+// Inlined / shortened version of `kindOf` from https://github.com/jonschlinkert/kind-of
+function miniKindOf(val) {
+  if (val === void 0) return 'undefined';
+  if (val === null) return 'null';
+  var type = typeof val;
+
+  switch (type) {
+    case 'boolean':
+    case 'string':
+    case 'number':
+    case 'symbol':
+    case 'function':
+      {
+        return type;
+      }
+  }
+
+  if (Array.isArray(val)) return 'array';
+  if (isDate(val)) return 'date';
+  if (isError(val)) return 'error';
+  var constructorName = ctorName(val);
+
+  switch (constructorName) {
+    case 'Symbol':
+    case 'Promise':
+    case 'WeakMap':
+    case 'WeakSet':
+    case 'Map':
+    case 'Set':
+      return constructorName;
+  } // other
+
+
+  return type.slice(8, -1).toLowerCase().replace(/\s/g, '');
+}
+
+function ctorName(val) {
+  return typeof val.constructor === 'function' ? val.constructor.name : null;
+}
+
+function isError(val) {
+  return val instanceof Error || typeof val.message === 'string' && val.constructor && typeof val.constructor.stackTraceLimit === 'number';
+}
+
+function isDate(val) {
+  if (val instanceof Date) return true;
+  return typeof val.toDateString === 'function' && typeof val.getDate === 'function' && typeof val.setDate === 'function';
+}
+
+function kindOf(val) {
+  var typeOfVal = typeof val;
+
+  if (process.env.NODE_ENV !== 'production') {
+    typeOfVal = miniKindOf(val);
+  }
+
+  return typeOfVal;
+}
+
 /**
  * Creates a Redux store that holds the state tree.
  * The only way to change the data in the store is to call `dispatch()` on it.
@@ -15370,7 +15467,7 @@ function createStore(reducer, preloadedState, enhancer) {
   var _ref2;
 
   if (typeof preloadedState === 'function' && typeof enhancer === 'function' || typeof enhancer === 'function' && typeof arguments[3] === 'function') {
-    throw new Error('It looks like you are passing several store enhancers to ' + 'createStore(). This is not supported. Instead, compose them ' + 'together to a single function.');
+    throw new Error(process.env.NODE_ENV === "production" ? formatProdErrorMessage(0) : 'It looks like you are passing several store enhancers to ' + 'createStore(). This is not supported. Instead, compose them ' + 'together to a single function. See https://redux.js.org/tutorials/fundamentals/part-4-store#creating-a-store-with-enhancers for an example.');
   }
 
   if (typeof preloadedState === 'function' && typeof enhancer === 'undefined') {
@@ -15380,14 +15477,14 @@ function createStore(reducer, preloadedState, enhancer) {
 
   if (typeof enhancer !== 'undefined') {
     if (typeof enhancer !== 'function') {
-      throw new Error('Expected the enhancer to be a function.');
+      throw new Error(process.env.NODE_ENV === "production" ? formatProdErrorMessage(1) : "Expected the enhancer to be a function. Instead, received: '" + kindOf(enhancer) + "'");
     }
 
     return enhancer(createStore)(reducer, preloadedState);
   }
 
   if (typeof reducer !== 'function') {
-    throw new Error('Expected the reducer to be a function.');
+    throw new Error(process.env.NODE_ENV === "production" ? formatProdErrorMessage(2) : "Expected the root reducer to be a function. Instead, received: '" + kindOf(reducer) + "'");
   }
 
   var currentReducer = reducer;
@@ -15417,7 +15514,7 @@ function createStore(reducer, preloadedState, enhancer) {
 
   function getState() {
     if (isDispatching) {
-      throw new Error('You may not call store.getState() while the reducer is executing. ' + 'The reducer has already received the state as an argument. ' + 'Pass it down from the top reducer instead of reading it from the store.');
+      throw new Error(process.env.NODE_ENV === "production" ? formatProdErrorMessage(3) : 'You may not call store.getState() while the reducer is executing. ' + 'The reducer has already received the state as an argument. ' + 'Pass it down from the top reducer instead of reading it from the store.');
     }
 
     return currentState;
@@ -15449,11 +15546,11 @@ function createStore(reducer, preloadedState, enhancer) {
 
   function subscribe(listener) {
     if (typeof listener !== 'function') {
-      throw new Error('Expected the listener to be a function.');
+      throw new Error(process.env.NODE_ENV === "production" ? formatProdErrorMessage(4) : "Expected the listener to be a function. Instead, received: '" + kindOf(listener) + "'");
     }
 
     if (isDispatching) {
-      throw new Error('You may not call store.subscribe() while the reducer is executing. ' + 'If you would like to be notified after the store has been updated, subscribe from a ' + 'component and invoke store.getState() in the callback to access the latest state. ' + 'See https://redux.js.org/api-reference/store#subscribelistener for more details.');
+      throw new Error(process.env.NODE_ENV === "production" ? formatProdErrorMessage(5) : 'You may not call store.subscribe() while the reducer is executing. ' + 'If you would like to be notified after the store has been updated, subscribe from a ' + 'component and invoke store.getState() in the callback to access the latest state. ' + 'See https://redux.js.org/api/store#subscribelistener for more details.');
     }
 
     var isSubscribed = true;
@@ -15465,7 +15562,7 @@ function createStore(reducer, preloadedState, enhancer) {
       }
 
       if (isDispatching) {
-        throw new Error('You may not unsubscribe from a store listener while the reducer is executing. ' + 'See https://redux.js.org/api-reference/store#subscribelistener for more details.');
+        throw new Error(process.env.NODE_ENV === "production" ? formatProdErrorMessage(6) : 'You may not unsubscribe from a store listener while the reducer is executing. ' + 'See https://redux.js.org/api/store#subscribelistener for more details.');
       }
 
       isSubscribed = false;
@@ -15504,15 +15601,15 @@ function createStore(reducer, preloadedState, enhancer) {
 
   function dispatch(action) {
     if (!isPlainObject(action)) {
-      throw new Error('Actions must be plain objects. ' + 'Use custom middleware for async actions.');
+      throw new Error(process.env.NODE_ENV === "production" ? formatProdErrorMessage(7) : "Actions must be plain objects. Instead, the actual type was: '" + kindOf(action) + "'. You may need to add middleware to your store setup to handle dispatching other values, such as 'redux-thunk' to handle dispatching functions. See https://redux.js.org/tutorials/fundamentals/part-4-store#middleware and https://redux.js.org/tutorials/fundamentals/part-6-async-logic#using-the-redux-thunk-middleware for examples.");
     }
 
     if (typeof action.type === 'undefined') {
-      throw new Error('Actions may not have an undefined "type" property. ' + 'Have you misspelled a constant?');
+      throw new Error(process.env.NODE_ENV === "production" ? formatProdErrorMessage(8) : 'Actions may not have an undefined "type" property. You may have misspelled an action type string constant.');
     }
 
     if (isDispatching) {
-      throw new Error('Reducers may not dispatch actions.');
+      throw new Error(process.env.NODE_ENV === "production" ? formatProdErrorMessage(9) : 'Reducers may not dispatch actions.');
     }
 
     try {
@@ -15545,7 +15642,7 @@ function createStore(reducer, preloadedState, enhancer) {
 
   function replaceReducer(nextReducer) {
     if (typeof nextReducer !== 'function') {
-      throw new Error('Expected the nextReducer to be a function.');
+      throw new Error(process.env.NODE_ENV === "production" ? formatProdErrorMessage(10) : "Expected the nextReducer to be a function. Instead, received: '" + kindOf(nextReducer));
     }
 
     currentReducer = nextReducer; // This action has a similiar effect to ActionTypes.INIT.
@@ -15580,7 +15677,7 @@ function createStore(reducer, preloadedState, enhancer) {
        */
       subscribe: function subscribe(observer) {
         if (typeof observer !== 'object' || observer === null) {
-          throw new TypeError('Expected the observer to be an object.');
+          throw new Error(process.env.NODE_ENV === "production" ? formatProdErrorMessage(11) : "Expected the observer to be an object. Instead, received: '" + kindOf(observer) + "'");
         }
 
         function observeState() {
@@ -15595,7 +15692,7 @@ function createStore(reducer, preloadedState, enhancer) {
           unsubscribe: unsubscribe
         };
       }
-    }, _ref[result] = function () {
+    }, _ref[$$observable] = function () {
       return this;
     }, _ref;
   } // When a store is created, an "INIT" action is dispatched so that every
@@ -15611,7 +15708,7 @@ function createStore(reducer, preloadedState, enhancer) {
     subscribe: subscribe,
     getState: getState,
     replaceReducer: replaceReducer
-  }, _ref2[result] = observable, _ref2;
+  }, _ref2[$$observable] = observable, _ref2;
 }
 
 /**
@@ -15637,12 +15734,6 @@ function warning(message) {
 
 }
 
-function getUndefinedStateErrorMessage(key, action) {
-  var actionType = action && action.type;
-  var actionDescription = actionType && "action \"" + String(actionType) + "\"" || 'an action';
-  return "Given " + actionDescription + ", reducer \"" + key + "\" returned undefined. " + "To ignore an action, you must explicitly return the previous state. " + "If you want this reducer to hold no value, you can return null instead of undefined.";
-}
-
 function getUnexpectedStateShapeWarningMessage(inputState, reducers, action, unexpectedKeyCache) {
   var reducerKeys = Object.keys(reducers);
   var argumentName = action && action.type === ActionTypes.INIT ? 'preloadedState argument passed to createStore' : 'previous state received by the reducer';
@@ -15652,7 +15743,7 @@ function getUnexpectedStateShapeWarningMessage(inputState, reducers, action, une
   }
 
   if (!isPlainObject(inputState)) {
-    return "The " + argumentName + " has unexpected type of \"" + {}.toString.call(inputState).match(/\s([a-z|A-Z]+)/)[1] + "\". Expected argument to be an object with the following " + ("keys: \"" + reducerKeys.join('", "') + "\"");
+    return "The " + argumentName + " has unexpected type of \"" + kindOf(inputState) + "\". Expected argument to be an object with the following " + ("keys: \"" + reducerKeys.join('", "') + "\"");
   }
 
   var unexpectedKeys = Object.keys(inputState).filter(function (key) {
@@ -15676,13 +15767,13 @@ function assertReducerShape(reducers) {
     });
 
     if (typeof initialState === 'undefined') {
-      throw new Error("Reducer \"" + key + "\" returned undefined during initialization. " + "If the state passed to the reducer is undefined, you must " + "explicitly return the initial state. The initial state may " + "not be undefined. If you don't want to set a value for this reducer, " + "you can use null instead of undefined.");
+      throw new Error(process.env.NODE_ENV === "production" ? formatProdErrorMessage(12) : "The slice reducer for key \"" + key + "\" returned undefined during initialization. " + "If the state passed to the reducer is undefined, you must " + "explicitly return the initial state. The initial state may " + "not be undefined. If you don't want to set a value for this reducer, " + "you can use null instead of undefined.");
     }
 
     if (typeof reducer(undefined, {
       type: ActionTypes.PROBE_UNKNOWN_ACTION()
     }) === 'undefined') {
-      throw new Error("Reducer \"" + key + "\" returned undefined when probed with a random type. " + ("Don't try to handle " + ActionTypes.INIT + " or other actions in \"redux/*\" ") + "namespace. They are considered private. Instead, you must return the " + "current state for any unknown actions, unless it is undefined, " + "in which case you must return the initial state, regardless of the " + "action type. The initial state may not be undefined, but can be null.");
+      throw new Error(process.env.NODE_ENV === "production" ? formatProdErrorMessage(13) : "The slice reducer for key \"" + key + "\" returned undefined when probed with a random type. " + ("Don't try to handle '" + ActionTypes.INIT + "' or other actions in \"redux/*\" ") + "namespace. They are considered private. Instead, you must return the " + "current state for any unknown actions, unless it is undefined, " + "in which case you must return the initial state, regardless of the " + "action type. The initial state may not be undefined, but can be null.");
     }
   });
 }
@@ -15766,8 +15857,8 @@ function combineReducers(reducers) {
       var nextStateForKey = reducer(previousStateForKey, action);
 
       if (typeof nextStateForKey === 'undefined') {
-        var errorMessage = getUndefinedStateErrorMessage(_key, action);
-        throw new Error(errorMessage);
+        var actionType = action && action.type;
+        throw new Error(process.env.NODE_ENV === "production" ? formatProdErrorMessage(14) : "When called with an action of type " + (actionType ? "\"" + String(actionType) + "\"" : '(unknown type)') + ", the slice reducer for key \"" + _key + "\" returned undefined. " + "To ignore an action, you must explicitly return the previous state. " + "If you want this reducer to hold no value, you can return null instead of undefined.");
       }
 
       nextState[_key] = nextStateForKey;
@@ -15777,54 +15868,6 @@ function combineReducers(reducers) {
     hasChanged = hasChanged || finalReducerKeys.length !== Object.keys(state).length;
     return hasChanged ? nextState : state;
   };
-}
-
-function _defineProperty$1(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-
-  return obj;
-}
-
-function ownKeys(object, enumerableOnly) {
-  var keys = Object.keys(object);
-
-  if (Object.getOwnPropertySymbols) {
-    keys.push.apply(keys, Object.getOwnPropertySymbols(object));
-  }
-
-  if (enumerableOnly) keys = keys.filter(function (sym) {
-    return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-  });
-  return keys;
-}
-
-function _objectSpread2(target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i] != null ? arguments[i] : {};
-
-    if (i % 2) {
-      ownKeys(source, true).forEach(function (key) {
-        _defineProperty$1(target, key, source[key]);
-      });
-    } else if (Object.getOwnPropertyDescriptors) {
-      Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-    } else {
-      ownKeys(source).forEach(function (key) {
-        Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-      });
-    }
-  }
-
-  return target;
 }
 
 /**
@@ -15886,7 +15929,7 @@ function applyMiddleware() {
       var store = createStore.apply(void 0, arguments);
 
       var _dispatch = function dispatch() {
-        throw new Error('Dispatching while constructing your middleware is not allowed. ' + 'Other middleware would not be applied to this dispatch.');
+        throw new Error(process.env.NODE_ENV === "production" ? formatProdErrorMessage(15) : 'Dispatching while constructing your middleware is not allowed. ' + 'Other middleware would not be applied to this dispatch.');
       };
 
       var middlewareAPI = {
@@ -15899,7 +15942,7 @@ function applyMiddleware() {
         return middleware(middlewareAPI);
       });
       _dispatch = compose.apply(void 0, chain)(store.dispatch);
-      return _objectSpread2({}, store, {
+      return _objectSpread2(_objectSpread2({}, store), {}, {
         dispatch: _dispatch
       });
     };
@@ -17632,7 +17675,7 @@ var openDappModalAction = function (values) { return ({
 var getUiState = lib_4(function (state) { return state; }, function (state) { return state.ui; });
 var getLanguage = lib_4(getUiState, function (state) { return state.language; });
 var getMenuCollapsed = lib_4(getUiState, function (state) { return state.menuCollapsed; });
-var getDappsListDisplay = lib_4(getUiState, function (state) { return state.dappsListDisplay; });
+var getTabsListDisplay = lib_4(getUiState, function (state) { return state.tabsListDisplay; });
 var getDevMode = lib_4(getUiState, function (state) { return state.devMode; });
 var getNavigationUrl = lib_4(getUiState, function (state) { return state.navigationUrl; });
 var getGcu = lib_4(getUiState, function (state) { return state.gcu; });
@@ -17642,6 +17685,9 @@ var getIsMobile = lib_4(getBodyDimensions, function (dimensions) { return !!(dim
 var getIsTablet = lib_4(getBodyDimensions, function (dimensions) { return !!(dimensions && dimensions[0] <= 959); });
 var getIsNavigationInSettings = lib_4(getNavigationUrl, function (navigationUrl) {
     return navigationUrl.startsWith('/settings');
+});
+var getIsNavigationInNames = lib_4(getNavigationUrl, function (navigationUrl) {
+    return navigationUrl.startsWith('/names');
 });
 var getIsNavigationInAccounts = lib_4(getNavigationUrl, function (navigationUrl) {
     return navigationUrl.startsWith('/accounts');
@@ -17684,9 +17730,9 @@ var getShouldBrowserViewsBeDisplayed = lib_4(getIsNavigationInDapps, getNavigati
 });
 
 var splitSearch = function (address) {
-    var split = address.split('/');
+    var split = address.split(':');
     var chainId = split[0];
-    var search = split.slice(1).join('/');
+    var search = split.slice(1).join(':');
     var path = '';
     var ioSlash = search.indexOf('/');
     var ioInt = search.indexOf('?');
@@ -18054,7 +18100,7 @@ var decomposeUrl = function (url) {
 
 var searchToAddress = function (search, chainId, path) {
     if (path === void 0) { path = ''; }
-    return chainId + "/" + search + path;
+    return chainId + ":" + search + path;
 };
 
 var development = !!process.defaultApp;
@@ -18160,8 +18206,8 @@ var loadOrReloadBrowserView = function (action) {
                 view.setBounds(position);
                 /* browser to server */
                 // In the case of IP apps, payload.currentUrl is a https://xx address
-                view.webContents.loadURL(payload.currentUrl === 'dist/dapp-sandboxed.html'
-                    ? path.join('file://', electron.app.getAppPath(), 'dist/dapp-sandboxed.html') + payload.path
+                view.webContents.loadURL(payload.currentUrl === 'dist/dappsandboxed.html'
+                    ? path.join('file://', electron.app.getAppPath(), 'dist/dappsandboxed.html') + payload.path
                     : payload.currentUrl);
                 currentPathAndParameters = '';
                 view.webContents.addListener('did-navigate', function (a, currentUrl, httpResponseCode, httpStatusText) {
@@ -18222,7 +18268,7 @@ var loadOrReloadBrowserView = function (action) {
                                     /* no dns */
                                     host: serverAuthorized.ip,
                                     rejectUnauthorized: false,
-                                    cert: decodeURI(serverAuthorized.cert),
+                                    cert: decodeURI(decodeURI(serverAuthorized.cert)),
                                     minVersion: 'TLSv1.2',
                                     ca: [], // we don't want to rely on CA
                                 });
@@ -18568,6 +18614,13 @@ var store = createStore(combineReducers({
 sagaMiddleware.run(rootSagas);
 
 // Modules to control application life and create native browser window
+/*
+  CAREFUL
+  Partition is the cold storage identifier on the OS where dappy is installed,
+  changing this will remove everything that is in dappy localStorage
+  PRIVATE KEYS LOST, ACCOUNTS LOST, TABS LOST etc.....
+*/
+var partition = "persist:dappy0.3.0";
 electron.protocol.registerSchemesAsPrivileged([
     { scheme: 'dappy', privileges: { standard: true, secure: true, bypassCSP: true } },
 ]);
@@ -18667,13 +18720,6 @@ function createWindow() {
     setInterval(function () {
         benchmarkCron(store.getState, dispatchFromMain);
     }, WS_RECONNECT_PERIOD);
-    /*
-      CAREFUL
-      Partition is the cold storage identifier on the OS where dappy is installed,
-      changing this will remove everything that is in dappy localStorage
-      PRIVATE KEYS LOST, ACCOUNTS LOST, TABS LOST etc.....
-    */
-    var partition = "persist:dappy0.3.0";
     // Create the browser window.
     browserWindow = new electron.BrowserWindow({
         width: 1200,

@@ -1,11 +1,12 @@
 import * as React from 'react';
 import './MenuMobile.scss';
-import { NavigationUrl } from '../models';
+import { NavigationUrl } from '/models';
 
 interface MenuMobileComponentProps {
-  dappsListDisplay: number;
+  tabsListDisplay: number;
   isNavigationInDapps: boolean;
   isNavigationInSettings: boolean;
+  isNavigationInNames: boolean;
   isNavigationInAccounts: boolean;
   isNavigationInDeploy: boolean;
   isNavigationInTransactions: boolean;
@@ -59,7 +60,7 @@ class MenuMobileComponent extends React.Component<MenuMobileComponentProps, {}> 
                 onClick={() => this.onCollapseMobileMenuAndNavigate('/dapps')}>
                 <i className="fa fa-globe-europe fa-before" />
                 {t('menu browse')}
-                { this.props.dappsListDisplay === 0 ? <i className="fa fa-eye fa-after"></i> : undefined}
+                {this.props.tabsListDisplay === 0 ? <i className="fa fa-eye fa-after"></i> : undefined}
               </a>
             </li>
             <li>
@@ -68,6 +69,14 @@ class MenuMobileComponent extends React.Component<MenuMobileComponentProps, {}> 
                 onClick={() => this.onCollapseMobileMenuAndNavigate('/settings')}>
                 <i className="fa fa-wrench fa-before" />
                 {t('menu settings')}
+              </a>
+            </li>
+            <li>
+              <a
+                className={this.props.isNavigationInNames ? 'is-active' : ''}
+                onClick={() => this.onCollapseMobileMenuAndNavigate('/names')}>
+                <i className="fa fa-before rotated-d">d</i>
+                {t('name system')}
               </a>
             </li>
             <li>

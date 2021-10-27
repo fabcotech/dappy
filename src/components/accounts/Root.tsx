@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { NavigationUrl } from '../../models';
+import { NavigationUrl } from '/models';
 import './Root.scss';
 import { Accounts } from './Accounts';
 

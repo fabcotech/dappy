@@ -1,0 +1,204 @@
+.theme-default {
+  .root-left.menu {
+    background: linear-gradient(20deg, $menu-bottom, $primary);
+    .menu-list li {
+      a {
+        color: #f2f2f2;
+      }
+      a.is-active {
+        background-color: darken(#555, 10%);
+        color: #fff;
+      }
+    }
+  }
+  .navigation-bar {
+    border-bottom: 1px solid #eaeaea;
+    background-color: #fafafa;
+    & > div.disabled {
+      i {
+        color: #AAA;
+      }
+    }
+    & > div:not(.disabled) {
+      i {
+        color: #555;
+        &:hover {
+          color: #111;
+        }
+      }
+      i.disabled {
+        color: #AAA;
+      }
+    }
+    .form {
+      input {
+        background: #fafafa;
+        color: #555;
+        border: 1px solid #eee;
+      }
+      .lock-div {
+        border-color: rgba($primary, 0.4);
+        .app-type {
+          color: #555;
+        }
+        &.resource-loaded:hover {
+          cursor: pointer;
+          background: #eaeaea;
+          &:active {
+            background: #e0e0e0;
+          }
+          .app-type {
+            color: #555;
+          }
+        }
+        i {
+          color: $primary;
+        }
+      }
+      .tip-div {
+        i {
+          color: #888;
+        }
+        &.resource-loaded {
+          i {
+            color: #555;
+          }
+        }
+      }
+    }
+  }
+}
+.theme-black {
+  .root-left.menu {
+    background: linear-gradient(20deg, #000, #333);
+    .menu-list li {
+      a {
+        color: #f2f2f2;
+      }
+      a.is-active {
+        background-color: darken(#555, 10%);
+        color: #fff;
+      }
+    }
+  }
+  .navigation-bar {
+    background-color: #333;
+    border-color: #222;
+    & > div.disabled {
+      i {
+        color: #666;
+      }
+    }
+    & > div:not(.disabled) {
+      i {
+        color: #ddd;
+        &:hover {
+          color: #fff;
+        }
+      }
+      i.disabled {
+        color: #666;
+      }
+    }
+    .form {
+      input {
+        background-color: #555;
+        color: #fff;
+        border: 1px solid #555;
+      }
+      .lock-div {
+        border-color: rgba(#000, 0.4);
+        &.resource-loaded:hover {
+          cursor: pointer;
+          background: #222;
+          &:active {
+            background: #222;
+          }
+          .app-type {
+            color: #fff;
+          }
+        }
+        i {
+          color: #fff;
+        }
+      }
+      .tip-div {
+        i {
+          color: #aaa;
+        }
+        &.resource-loaded {
+          i {
+            color: #eee;
+          }
+        }
+      }
+    }
+  }
+}
+.theme-pink {
+  .root-left.menu {
+    background: linear-gradient(20deg, $themePinkDark, $themePink);
+    .menu-list li {
+      a {
+        color: rgba(0,0,0,0.7);
+      }
+      a.is-active {
+        background-color: darken($themePink, 10%);
+        color: #222;
+      }
+    }
+  }
+  .navigation-bar {
+    background-color: $themePink;
+    border-color: $themePinkDark;
+    & > div.disabled {
+      i {
+        color: $themePinkDisabled;
+      }
+    }
+    & > div:not(.disabled) {
+      i {
+        color: #333;
+        &:hover {
+          color: #222;
+        }
+      }
+      i.disabled {
+        color: $themePinkDisabled;
+      }
+    }
+    .form {
+      input {
+        background-color: $themePinkDark;
+        color: #fff;
+        border: 1px solid $themePinkDark;
+      }
+      .lock-div {
+        border-color: rgba(#000, 0.4);
+        &.resource-loaded:hover {
+          cursor: pointer;
+          background: $themePinkDark;
+          &:active {
+            background: $themePinkDark;
+          }
+          .app-type {
+            color: #000;
+          }
+        }
+        i {
+          color: #000;
+        }
+      }
+      .tip-div {
+        i {
+          color: rgba(0,0,0.7);
+        }
+        &.resource-loaded {
+          i {
+            color: #222;
+          }
+        }
+      }
+    }
+  }
+}

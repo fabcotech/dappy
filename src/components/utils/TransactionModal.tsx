@@ -2,17 +2,17 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { blake2b } from 'blakejs';
 
-import * as fromMain from '../../store/main';
-import * as fromUi from '../../store/ui';
-import * as fromSettings from '../../store/settings';
-import * as fromBlockchain from '../../store/blockchain';
-import * as fromCommon from '../../common';
+import * as fromMain from '/store/main';
+import * as fromUi from '/store/ui';
+import * as fromSettings from '/store/settings';
+import * as fromBlockchain from '/store/blockchain';
+import * as fromCommon from '/common';
 import { TransactionForm } from '.';
-import { blockchain as blockchainUtils } from '../../utils/blockchain';
-import { signSecp256k1 } from '../../utils/signSecp256k1';
+import { blockchain as blockchainUtils } from '/utils/blockchain';
+import { signSecp256k1 } from '/utils/signSecp256k1';
 
 import './TransactionModal.scss';
-import { TransactionState, TransactionStatus, Account, RChainInfos } from '../../models';
+import { TransactionState, TransactionStatus, Account, RChainInfos } from '/models';
 
 interface TransactionModalComponentProps {
   modal: undefined | fromMain.Modal;
@@ -103,7 +103,7 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
         if (!payload.parameters.signatures || !payload.parameters.signatures[k]) {
           return;
         }
-        const uInt8Array = new Uint8Array(payload.parameters.signatures[k].split(','));
+        const uInt8Array = new Uint8Array(payload.parameters.signatures[k].split(',').map(v => parseInt(v, 10)));
         const blake2bHash = blake2b(uInt8Array, 0, 32);
         const signature = signSecp256k1(blake2bHash, this.state.privatekey);
         const signatureHex = Buffer.from(signature).toString('hex');

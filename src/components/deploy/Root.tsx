@@ -3,7 +3,7 @@ import * as React from 'react';
 import { SettingsDapps } from './dapps/';
 import { FileUpload } from './file-upload/FileUpload';
 import { RholangDeploy } from './rholang/RholangDeploy';
-import { NavigationUrl } from '../../models';
+import { NavigationUrl } from '/models';
 import './Root.scss';
 
 interface RootProps {

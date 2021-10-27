@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { Cookie } from '../../models';
+import { Cookie } from '/models';
 
 export const cookieSchema = yup
   .object()
@@ -48,7 +48,7 @@ export const validateCookies = (cookies: any): Promise<{ dappyDomain: string; co
     const cookiesMigrated: { dappyDomain: string; cookies: Cookie[] }[] = cookies.map((c) => {
       return {
         ...c,
-        cookies: c.cookies.map((c) => {
+        cookies: c.cookies.map((c: any) => {
           return {
             ...c,
             sameSite: c.sameSite || 'lax',

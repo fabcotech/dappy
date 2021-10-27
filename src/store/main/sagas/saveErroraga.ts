@@ -1,8 +1,8 @@
 import { takeEvery } from 'redux-saga/effects';
 
 import * as fromMain from '..';
-import { Action } from '../../';
-import { DEVELOPMENT } from '../../../CONSTANTS';
+import { Action } from '/store/';
+import { DEVELOPMENT } from '/CONSTANTS';
 
 const saveError = function* (action: Action) {
   const payload: fromMain.SaveErrorPayload = action.payload;
@@ -15,7 +15,7 @@ const saveError = function* (action: Action) {
     });
   }
 
-  return yield undefined;
+  return undefined;
 };
 
 export const saveErrorSaga = function* () {

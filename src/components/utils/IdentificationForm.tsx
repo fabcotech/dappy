@@ -4,10 +4,10 @@ import { Formik, Field } from 'formik';
 
 const ec = new elliptic.ec('secp256k1');
 
-import { Account, Identification } from '../../models';
+import { Account, Identification } from '/models';
 
-import './TransactionForm.scss';
-import { AccountSelectComponent } from './TransactionForm';
+import './TransactionForm/TransactionForm.scss'; // todo: extract style and create IdentificationForm.scss or use bulma css classes and remove import
+import { AccountSelect } from './AccountSelect';
 import { PrivateKeyWarning } from '.';
 
 interface IdentificationFormProps {
@@ -139,14 +139,8 @@ export class IdentificationForm extends React.Component<IdentificationFormProps,
               ) : undefined}
 
               {this.state.atLeastOneAccount && !this.state.usePrivateKey ? (
-                <AccountSelectComponent
+                <AccountSelect
                   chooseBox={true}
-                  usePrivateKey={() => {
-                    setFieldValue('privateKey', '');
-                    this.setState({
-                      usePrivateKey: true,
-                    });
-                  }}
                   updatePrivateKey={(a) => {
                     console.log(a);
                     setFieldValue('privateKey', a.privatekey);

@@ -13,6 +13,7 @@ export const getIpAddressAndCert = (hostname: string): Promise<{ cert: string; i
       }
       var options = {
         host: hostname,
+        rejectUnauthorized: false,
         port: 443,
         method: 'GET',
       };

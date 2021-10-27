@@ -1,14 +1,15 @@
 import { takeEvery, select } from 'redux-saga/effects';
 
-import * as fromDapps from '../../dapps';
-import * as fromUi from '../../ui';
+import * as fromDapps from '/store/dapps';
+import * as fromUi from '/store/ui';
 import * as fromMain from '../';
-import { Action } from '../..';
+import { Action } from '/store';
+import { dispatchInMain } from '/interProcess';
 
 // todo can it be triggered not for every actions ????
 const browserViewToBeDisplayed = function* (action: Action) {
   const shouldBrowserViewsBeDisplayed: undefined | string = yield select(fromMain.getShouldBrowserViewsBeDisplayed);
-  window.dispatchInMain({
+  dispatchInMain({
     type: '[MAIN] Display only browser view x',
     payload: {
       resourceId: shouldBrowserViewsBeDisplayed,

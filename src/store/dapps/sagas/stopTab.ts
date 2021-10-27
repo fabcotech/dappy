@@ -4,6 +4,7 @@ import * as fromDapps from '..';
 import * as fromMain from '../../main';
 import { Tab } from '../../../models';
 import { Action } from '../..';
+import { dispatchInMain } from '/interProcess';
 
 const stop = function* (action: Action) {
   const payload: fromDapps.StopTabPayload = action.payload;
@@ -21,7 +22,7 @@ const stop = function* (action: Action) {
     return;
   }
 
-  window.dispatchInMain({
+  dispatchInMain({
     type: '[MAIN] Destroy browser view',
     payload: { resourceId: tab.resourceId },
   });

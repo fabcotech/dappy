@@ -2,13 +2,13 @@ import React, { Fragment } from 'react';
 import zlib from 'zlib';
 import { connect } from 'react-redux';
 
-import { DappyFile, Account, Blockchain, RChainInfos, TransactionState, TransactionStatus } from '../../../models';
-import * as fromBlockchain from '../../../store/blockchain';
-import * as fromMain from '../../../store/main';
-import * as fromSettings from '../../../store/settings';
-import { account as accountUtils } from '../../../utils/account';
+import { DappyFile, Account, Blockchain, RChainInfos, TransactionState, TransactionStatus } from '/models';
+import * as fromBlockchain from '/store/blockchain';
+import * as fromMain from '/store/main';
+import * as fromSettings from '/store/settings';
+import { account as accountUtils } from '/utils/account';
 import { TransactionForm } from '../../utils';
-import { blockchain as blockchainUtils } from '../../../utils';
+import { blockchain as blockchainUtils } from '/utils';
 import './FileUpload.scss';
 
 interface FileUploadProps {

@@ -1,8 +1,47 @@
 import { Store } from 'redux';
+
+import {
+  MultiCallBody,
+  MultiCallError,
+  MultiCallParameters,
+  MultiCallResult,
+  BlockchainNode,
+  SingleCallResult,
+} from '/models';
 import * as fromDapps from './store/dapps';
 import * as fromMain from './store/main';
+import { BeesLoadError } from 'beesjs';
+import { Action } from '/store';
 
 const actionsAwaitingEphemeralToken: any[] = [];
+
+export const singleCall = (body: { [key: string]: any }, node: BlockchainNode): Promise<SingleCallResult> => {
+  return window.singleDappyCall(body, node);
+};
+
+export const multiCall = (body: MultiCallBody, parameters: MultiCallParameters): Promise<MultiCallResult> => {
+  return window.multiDappyCall(body, parameters);
+};
+
+export const copyToClipboard = (a: string) => {
+  return window.copyToClipboard(a);
+};
+
+export const dispatchInMain = (a: Action) => {
+  return window.dispatchInMain(a);
+};
+
+export const triggerCommand = (command: string, payload?: { [key: string]: string }) => {
+  return window.triggerCommand(command, payload);
+};
+
+export const openExternal = (url: string) => {
+  window.openExternal(url);
+};
+
+export const getIpAddressAndCert = (a: { host: string }) => {
+  return window.getIpAddressAndCert(a);
+};
 
 export const interProcess = (store: Store) => {
   let uniqueEphemeralToken = '';
@@ -20,7 +59,7 @@ export const interProcess = (store: Store) => {
     interProcess.send();
     interProcess.onload = (a) => {
       try {
-        const r = JSON.parse(a.target.responseText);
+        const r: { actions: [] } = JSON.parse(interProcess.responseText);
         r.actions.forEach((action) => {
           store.dispatch(action);
         });
@@ -35,7 +74,7 @@ export const interProcess = (store: Store) => {
     interProcess.open('POST', 'interprocess://ask-unique-ephemeral-token');
     interProcess.send('');
     interProcess.onload = (a) => {
-      const r = JSON.parse(a.target.responseText);
+      const r = JSON.parse(interProcess.responseText);
       window.uniqueEphemeralToken = r.uniqueEphemeralToken;
       uniqueEphemeralToken = r.uniqueEphemeralToken;
       if (actionsAwaitingEphemeralToken.length) {
@@ -143,14 +182,14 @@ export const interProcess = (store: Store) => {
       interProcess.send();
       interProcess.onload = (a) => {
         try {
-          const r = JSON.parse(a.target.responseText);
+          const r = JSON.parse(interProcess.responseText);
           if (r.success) {
-            resolve(r.data);
+            resolve(r);
           } else {
             reject(r.error || { message: 'Unknown error' });
           }
         } catch (e) {
-          console.log(a.target.responseText);
+          console.log(interProcess.responseText);
           console.log(e);
           reject({ message: 'could not parse response' });
         }
@@ -180,16 +219,16 @@ export const interProcess = (store: Store) => {
       };
       interProcess.onload = (a) => {
         try {
-          const r = JSON.parse(a.target.responseText);
+          const r = JSON.parse(interProcess.responseText);
           if (r.success) {
-            resolve(r.data);
+            resolve(r.data as MultiCallResult);
           } else {
-            reject(r);
+            reject(r as MultiCallError);
           }
         } catch (e) {
-          console.log(a.target.responseText);
+          console.log(interProcess.responseText);
           console.log(e);
-          reject({ message: 'could not parse response' });
+          reject({ error: { error: BeesLoadError.FailedToParseResponse, args: {} }, loadState: {} } as MultiCallError);
         }
       };
     });
@@ -211,7 +250,7 @@ export const interProcess = (store: Store) => {
       interProcess.send();
       interProcess.onload = (a) => {
         try {
-          const r = JSON.parse(a.target.responseText);
+          const r = JSON.parse(interProcess.responseText);
           resolve(r);
         } catch (e) {
           reject({ message: 'could not parse response' });
@@ -236,7 +275,7 @@ export const interProcess = (store: Store) => {
       interProcess.send();
       interProcess.onload = (a) => {
         try {
-          const r = JSON.parse(a.target.responseText);
+          const r = JSON.parse(interProcess.responseText);
           if (r.success) {
             resolve(r.data);
           } else {

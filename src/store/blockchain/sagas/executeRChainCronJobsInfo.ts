@@ -1,17 +1,16 @@
 import { takeEvery, select, put } from 'redux-saga/effects';
 import { BeesLoadError } from 'beesjs';
 
-import { store } from '../..';
+import { store } from '/store';
 import * as fromBlockchain from '..';
-import * as fromSettings from '../../settings';
-import * as fromMain from '../../main';
-import { Blockchain, RChainInfos, RChainInfo } from '../../../models';
-import { Action } from '../../';
-import { validateDappyNodeInfo } from '../../../store/decoders';
-import { multiCall } from '../../../utils/wsUtils';
-import { getNodeIndex } from '../../../utils/getNodeIndex';
-import { MultiCallError } from '../../../models/WebSocket';
-import { RCHAIN_INFOS_EXPIRATION } from '../../../CONSTANTS';
+import * as fromSettings from '/store/settings';
+import * as fromMain from '/store/main';
+import { Blockchain, RChainInfos, RChainInfo, MultiCallError } from '/models';
+import { Action } from '/store/';
+import { validateDappyNodeInfo } from '/store/decoders';
+import { multiCall } from '/interProcess';
+import { getNodeIndex } from '/utils/getNodeIndex';
+import { RCHAIN_INFOS_EXPIRATION } from '/CONSTANTS';
 
 const executeRChainCronJobsInfo = function* (action: Action) {
   const rchainInfos: { [chainId: string]: RChainInfos } = yield select(fromBlockchain.getRChainInfos);

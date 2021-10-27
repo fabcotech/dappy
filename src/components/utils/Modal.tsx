@@ -1,11 +1,11 @@
 import * as React from 'react';
 
-import * as fromMain from '../../store/main';
-import { LoadState } from '../dapps/';
+import * as fromMain from '/store/main';
+import { LoadState } from '../home';
 import { connect } from 'react-redux';
 import { TransactionModal, AccountModal, IdentificationModal } from '.';
 import { PaymentRequestModal } from './PaymentRequestModal';
-import { LoadInfo } from '../dapp';
+import { LoadInfo } from '../resources';
 
 interface ModalComponentProps {
   modal: undefined | fromMain.Modal;

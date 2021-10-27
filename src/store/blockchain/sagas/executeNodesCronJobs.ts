@@ -1,16 +1,16 @@
 import { takeEvery, select } from 'redux-saga/effects';
 import { BeesLoadError } from 'beesjs';
 
-import { store } from '../..';
+import { store } from '/store/';
 import * as fromBlockchain from '..';
-import * as fromSettings from '../../settings';
-import * as fromMain from '../../main';
-import { Blockchain, NodeFromNetwork } from '../../../models';
-import { Action } from '../../';
-import { validateNodesFromNetwork } from '../../decoders';
-import { MultiCallError } from '../../../models/WebSocket';
-import { multiCall } from '../../../utils/wsUtils';
-import { getNodeIndex } from '../../../utils/getNodeIndex';
+import * as fromSettings from '/store/settings';
+import * as fromMain from '/store/main';
+import { Blockchain, NodeFromNetwork } from '/models';
+import { Action } from '/store/';
+import { validateNodesFromNetwork } from '/store/decoders';
+import { MultiCallError } from '/models/MultiCall';
+import { multiCall } from '/interProcess';
+import { getNodeIndex } from '/utils/getNodeIndex';
 
 const executeNodesCronJobs = function* (action: Action) {
   const namesBlockchain: Blockchain | undefined = yield select(fromSettings.getNamesBlockchain);
@@ -43,10 +43,9 @@ const executeNodesCronJobs = function* (action: Action) {
     )
       .then((a) => {
         const u = new Date().getTime() - t;
-        const resultFromBlockchain = JSON.parse(a.result.data);
-        const result = resultFromBlockchain.data;
-
         try {
+          const resultFromBlockchain = JSON.parse(a.result.data);
+          const result = resultFromBlockchain.data;
           validateNodesFromNetwork(Object.values(result as { [key: string]: NodeFromNetwork }))
             .then((nodes: NodeFromNetwork[]) => {
               // todo maybe this can go when problem is solved in dappy-node

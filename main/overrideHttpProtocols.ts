@@ -224,7 +224,7 @@ export const overrideHttpProtocols = (
           /* no dns */
           host: s.ip,
           rejectUnauthorized: false, // cert does not have to be signed by CA (self-signed)
-          cert: decodeURI(s.cert),
+          cert: decodeURI(decodeURI(s.cert)),
           minVersion: 'TLSv1.2',
           ca: [], // we don't want to rely on CA
         });

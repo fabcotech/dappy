@@ -1,0 +1,112 @@
+@import "/style/variables.scss";
+
+.record-form, .ip-servers-form {
+/*    border: 1px solid #99D;
+     padding: 20px 5px 20px 5px;;
+    border-radius: 3px;
+    background: linear-gradient(20deg,  rgba(26, 91, 134, 0.5),  rgba(69, 167, 233, 0.5));
+    box-shadow: 1px 1px 5px rgba(69, 167, 233, 0.5) inset; */
+    border-left : 2px solid $record-color;
+    padding-left: 10px;
+    max-width: 700px;
+  label, h5 {
+    color: $record-color;
+  }
+  .field {
+    display: grid;
+    grid-template-columns: 230px calc(100% - 230px);
+    grid-template-rows: 100%;
+  }
+  .control {
+    width: 100%;
+    input[type=text], input[type=number], input[type=password] {
+      width: 100%;
+    }
+  }
+  .server-ro {
+    border: 1px solid #bbb;
+    background: linear-gradient(20deg, #dfdfdf, #efefef);
+    color: #222;
+    border-radius: 2px;
+    padding: 5px;
+    margin-bottom: 10px;
+    font-weight: 400;
+    & > span {
+      display: block;
+    }
+  }
+  .badges-field {
+    .badge-line {
+      display: grid;
+      grid-template-columns: 140px 280px 60px;
+      margin-bottom: 5px;
+    }
+    .remove-badge {
+      cursor: pointer;
+    }
+    .control {
+      display: flex;
+    }
+    .badge-input {
+      width: 160px !important;
+    }
+    .badge-appreciation {
+      margin-left: 5px;
+    }
+    .badge-appreciation-input {
+      margin-left: 5px;
+    }
+    button {
+      margin-left: 5px;
+    }
+  }
+}
+
+.record-form {
+  .control {
+    input[type=text], input[type=number], input[type=password] {
+      border: 1px solid $record-color;
+      background: rgba($record-color, 0.05);
+      color: darken($record-color, 20%);
+    }
+  }
+  input.name-input {
+    margin-top: 5px;
+  }
+  .name-error {
+    padding-left: 0px;
+    padding-top: 6px;
+  }
+  .special-offer {
+    margin-top: 5px;
+    padding: 10px;
+    border: 1px solid $primary;
+    font-size: 1.2em;
+    border-radius: 2px;
+    .activate {
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    .small {
+      margin-top: 5px;
+      display: block;
+      font-size: 0.9em;
+    }
+  }
+}
+
+.ip-servers-form {
+  .back-button {
+    margin-right: 10px;
+    margin-bottom: 20px;
+  }
+  & > h5 {
+    display: inline;
+  }
+  .ip-server {
+    margin-bottom: 20px;
+    textarea {
+      min-height: 250px;
+    }
+  }
+}

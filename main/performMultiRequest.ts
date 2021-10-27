@@ -1,8 +1,8 @@
 import http from 'http';
-import { resolver,  BeesLoadError } from 'beesjs';
+import { resolver, BeesLoadError } from 'beesjs';
 
 import { getNodeFromIndex } from '../src/utils/getNodeFromIndex';
-import { MultiCallBody, MultiCallParameters, MultiCallResult, MultiCallError } from '../src/models/WebSocket';
+import { MultiCallBody, MultiCallParameters, MultiCallResult, MultiCallError } from '../src/models/';
 import * as fromBlockchains from './store/blockchains';
 import { httpBrowserToNode } from './httpBrowserToNode';
 
@@ -16,7 +16,7 @@ export const performMultiRequest = (
     resolver(
       (index) => {
         const a = getNodeFromIndex(index);
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async (resolve2, reject2) => {
           if (
             blockchains[parameters.chainId] &&
             blockchains[parameters.chainId].nodes.find((n) => n.ip === a.ip && n.host === a.host)
@@ -25,7 +25,7 @@ export const performMultiRequest = (
             let over = false;
             setTimeout(() => {
               if (!over) {
-                resolve({
+                resolve2({
                   type: 'ERROR',
                   status: 500,
                   nodeUrl: index,
@@ -41,7 +41,7 @@ export const performMultiRequest = (
               };
               const resp = await httpBrowserToNode(newBodyForRequest, node, 50000);
               if (!over) {
-                resolve({
+                resolve2({
                   type: 'SUCCESS',
                   data: resp as string,
                   nodeUrl: index,
@@ -49,7 +49,7 @@ export const performMultiRequest = (
                 over = true;
               }
             } catch (err) {
-              resolve({
+              resolve2({
                 type: 'ERROR',
                 status: 500,
                 nodeUrl: index,
@@ -69,7 +69,7 @@ export const performMultiRequest = (
 
                   resp.on('end', () => {
                     console.log('[get-nodes] Successfully fell back on HTTP for ' + index);
-                    resolve({
+                    resolve2({
                       type: 'SUCCESS',
                       data: data as string,
                       nodeUrl: index,
@@ -77,14 +77,14 @@ export const performMultiRequest = (
                   });
                 })
                 .on('error', (err) => {
-                  resolve({
+                  resolve2({
                     type: 'ERROR',
                     status: 500,
                     nodeUrl: index,
                   });
                 });
             } else {
-              resolve({
+              resolve2({
                 type: 'ERROR',
                 status: 500,
                 nodeUrl: index,
@@ -134,7 +134,7 @@ export const performMultiRequest = (
         console.log(e);
         reject({
           error: {
-            error: BeesLoadError.UnknownError,
+            error: BeesLoadError.UnknownCriticalError,
             args: {},
           },
           loadState: {},

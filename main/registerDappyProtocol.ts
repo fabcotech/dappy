@@ -32,7 +32,7 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
       valid = true;
       // dappy://aaa.bbb.ccc -> dappy://aaa.bbb.ccc,
       if (!url.includes('%2C')) {
-        url += "%2C";
+        url += '%2C';
       }
     }
 
@@ -82,9 +82,10 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
     if (url.includes('explore-deploys')) {
       valid = true;
       exploreDeploys = true;
-    } else if (url.includes('%2C')) {
-      valid = true;
-      multipleResources = true;
+    } else {
+      console.error('dappy://aaa.b,aaa.c notation is not supported, please use dappy://explore-deploys');
+      callback();
+      return;
     }
 
     if (!valid) {
@@ -93,7 +94,7 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
       return;
     }
 
-    const split = url.replace('dappy://', '').split('/');
+    const split = url.replace('dappy://', '').split(':');
     const chainId = split[0];
     // todo
     // how to return errors ?
@@ -101,7 +102,7 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
     const blockchain = blockchains[chainId];
 
     if (!blockchain) {
-      console.error('[dappy://] blockchain not found');
+      console.error(`[dappy://] blockchain not found ${url}`);
       callback();
       return;
     }
@@ -126,11 +127,12 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
       type = 'explore-deploy-x';
       query = {
         terms: split[1]
+          .split('/')[0]
           .split('%2C')
           // filter in the case of only one unf : dappy://aaa/bbb,
           .filter((a) => !!a)
           .map((u) => {
-            return readPursesDataOrContractConfig(u.split('.')[0], u.split('.')[1], u.split('.')[2])
+            return readPursesDataOrContractConfig(u.split('.')[0], u.split('.')[1], u.split('.')[2]);
           }),
       };
     } else {

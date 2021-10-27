@@ -1,9 +1,10 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
 
-import { browserUtils } from '../../browser-utils';
+import { browserUtils } from '/store/browser-utils';
 import * as fromUi from '..';
-import * as fromMain from '../../main';
-import { Action } from '../../';
+import * as fromMain from '/store/main';
+import { Action } from '/store/';
+import { dispatchInMain } from '/interProcess';
 
 const saveUiToStorage = function* (action: Action) {
   const uiState: fromUi.State = yield select(fromUi.getUiState);
@@ -13,14 +14,14 @@ const saveUiToStorage = function* (action: Action) {
   const uiStateToSave = {
     menuCollapsed: uiState.menuCollapsed,
     devMode: uiState.devMode,
-    dappsListDisplay: uiState.dappsListDisplay,
+    tabsListDisplay: uiState.tabsListDisplay,
     navigationUrl: uiState.navigationUrl,
     language: uiState.language,
     gcu: uiState.gcu,
   };
 
   let dappsTabsWidth = 0;
-  if (uiState.dappsListDisplay === 2) {
+  if (uiState.tabsListDisplay === 2) {
     if (isMobile) {
       dappsTabsWidth = 160;
     } else if (isTablet) {
@@ -28,7 +29,7 @@ const saveUiToStorage = function* (action: Action) {
     } else {
       dappsTabsWidth = 320;
     }
-  } else if (uiState.dappsListDisplay === 3) {
+  } else if (uiState.tabsListDisplay === 3) {
     dappsTabsWidth = 28;
   }
 
@@ -42,17 +43,19 @@ const saveUiToStorage = function* (action: Action) {
   }
   const x = menuWidth + dappsTabsWidth;
   const y = 50;
-  const browserViewsPosition = {
-    x,
-    y,
-    width: uiState.windowDimensions[0] - x,
-    height: uiState.windowDimensions[1] - y,
-  };
+  if (uiState.windowDimensions) {
+    const browserViewsPosition = {
+      x,
+      y,
+      width: uiState.windowDimensions[0] - x,
+      height: uiState.windowDimensions[1] - y,
+    };
 
-  window.dispatchInMain({
-    type: '[MAIN] Update browser views position',
-    payload: browserViewsPosition,
-  });
+    dispatchInMain({
+      type: '[MAIN] Update browser views position',
+      payload: browserViewsPosition,
+    });
+  }
 
   try {
     yield browserUtils.saveStorage('ui', uiStateToSave);
