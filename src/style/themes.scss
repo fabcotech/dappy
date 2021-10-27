@@ -38,6 +38,9 @@
       }
       .lock-div {
         border-color: rgba($primary, 0.4);
+        .app-type {
+          color: #555;
+        }
         &.resource-loaded:hover {
           cursor: pointer;
           background: #eaeaea;
@@ -45,7 +48,7 @@
             background: #e0e0e0;
           }
           .app-type {
-            color: #777;
+            color: #555;
           }
         }
         i {
