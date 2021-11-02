@@ -61,13 +61,32 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
     props.transactionState.value.hasOwnProperty('masterRegistryUri') &&
     props.transactionState.value.hasOwnProperty('contractId')
   ) {
-    console.log(props.transactionState);
     const value: RChainTokenDeployPayload = props.transactionState.value as RChainTokenDeployPayload;
     Value = (
       <span>
         {`Contract address is ${value.masterRegistryUri}.${value.contractId} `}
         <a type="button" onClick={() => copyToClipboard(value.masterRegistryUri + '.' + value.contractId)}>
           {t('copy address')}
+        </a>
+        {' or '}
+        <a type="button" onClick={() => copyToClipboard(value.contractId)}>
+          {t('copy contract id')}
+        </a>
+      </span>
+    );
+  } else if (
+    props.transactionState.origin.origin === 'rchain-token' &&
+    props.transactionState.origin.operation === 'tips' &&
+    props.transactionState.status === 'completed' &&
+    props.transactionState.value &&
+    props.transactionState.value.hasOwnProperty('contractId')
+  ) {
+    const value: RChainTokenDeployPayload = props.transactionState.value as RChainTokenDeployPayload;
+    Value = (
+      <span>
+        {`Dapp address is tips?contract=${value.contractId} `}
+        <a type="button" onClick={() => copyToClipboard(`tips?contract=${value.contractId}`)}>
+          {t('copy dapp address')}
         </a>
         {' or '}
         <a type="button" onClick={() => copyToClipboard(value.contractId)}>

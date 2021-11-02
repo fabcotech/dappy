@@ -1,5 +1,5 @@
 .deploy-contract-form {
-  max-width: 800px;
+  max-width: 1100px;
   .terms {
     .term {
       &.selected {
@@ -12,7 +12,8 @@
       color: #fff;
       border-radius: 2px;
       cursor: pointer;
-      width: 500px;
+      width: 100%;
+      max-width: 900px;
       &:hover:not(.selected) {
         background: linear-gradient(45deg, #444, #555);
       }
@@ -23,106 +24,6 @@
       p {
         font-size: 0.9rem;
       }
-    }
-  }
-}
-.deploy-dapp-form {
-  max-width: 800px;
-  .label {
-    padding-right: 5px;
-    .label-description {
-      display: block;
-      font-size: 0.9rem;
-    }
-  }
-  .message {
-    margin-bottom: 0.75rem;
-  }
-  .control-inline {
-    display: flex;
-    align-items: flex-start;
-  }
-  .text-danger {
-    transform: translateY(-0.3rem);
-    margin-left: 230px;
-  }
-  .field {
-    display: grid;
-    grid-template-columns: 230px calc(100% - 230px);
-    grid-template-rows: 100%;
-    label {
-      grid-row: 1;
-      grid-column: 1;
-    }
-    .control {
-      grid-row: 1;
-      grid-column: 2;
-    }
-  }
-  .text-danger {
-    padding-top: 6px;
-  }
-
-  .meta {
-    padding-top: 5px;
-    display: grid;
-    grid-template-columns: 50px auto;
-    .dapp-img {
-      padding-right: 5px;
-      width: 44px;
-      height: 44px;
-      background-size: cover;
-    }
-  }
-  .predefined-dapps {
-    display: grid;
-    grid-template-columns: repeat(3, 120px);
-    grid-auto-rows: 120px;
-    & > div {
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      .predefined-dapp {
-        width:  110px;
-        height: 110px;
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 3px;
-        &.selected {
-          outline: 2px solid #1576d5;
-          background: #1576d5;
-          color: #fff;
-          font-weight: 800;
-        }
-        cursor: pointer;
-        div.dapp-img {
-          width: 80px;
-          height: 80px;
-          background-position: center;
-          background-size: contain;
-        }
-        span.name {
-
-        }
-      }
-    }
-  }
-
-
-  @media screen and (max-width: 768px) {
-    p.control {
-      display: none;
-    }
-  }
-  @media screen and (min-width: 769px) {
-    .field.is-horizontal > label {
-      width: 230px;
-    }
-  }
-
-  @media screen and (min-width: 992px) {
-    input[type=text] {
-        width: 540px;
     }
   }
 }

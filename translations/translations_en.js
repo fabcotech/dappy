@@ -1925,8 +1925,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "check wallets",
-    "definition": "Check your wallets / accounts",
+    "term": "check accounts",
+    "definition": "Check your accounts",
     "context": "Home",
     "term_plural": "",
     "reference": "",
@@ -2055,14 +2055,6 @@ module.exports.translations = [
   {
     "term": "deploy ft contract",
     "definition": "Deploy a FT contract if the tokens that will be created, traded and exchanged are fungible, for example they could represent shares in a company, gold tokens, ERC-20-like tokens etc.",
-    "context": "Deploy > Dapps",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "ft contract for tipboard",
-    "definition": "If you want to use the tipboard, deploy a FT contract.",
     "context": "Deploy > Dapps",
     "term_plural": "",
     "reference": "",
@@ -2620,6 +2612,22 @@ module.exports.translations = [
     "term": "name / id",
     "definition": "Name / ID",
     "context": "RChain token",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "deploy ft and tips contract",
+    "definition": "Deploy a unique board where you can receive tips / funding from your friends and fans. You can precisly choose the unit price of the tokens, and the amount of tokens to release.",
+    "context": "Settings > Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "tips",
+    "definition": "Tips with RChain token",
+    "context": "Settings > Deploy",
     "term_plural": "",
     "reference": "",
     "comment": ""

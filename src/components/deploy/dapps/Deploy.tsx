@@ -8,9 +8,8 @@ import { Blockchain, TransactionState, Account, TransactionStatus, Variables, RC
 import './Deploy.scss';
 import { blockchain as blockchainUtils } from '/utils/blockchain';
 import { TransactionForm } from '../../utils';
-import { account as accountUtils } from '/utils/account';
-import { manifest as manifestUtils } from '/utils';
 import { RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '/CONSTANTS';
+import { DeployTips } from './';
 
 interface DeployProps {
   transactions: { [id: string]: TransactionState };
@@ -34,10 +33,7 @@ export class Deploy extends React.Component<DeployProps, {}> {
 
   state: {
     term: undefined | string;
-    selected: undefined | 'nft' | 'ft';
-    manifest: undefined | PartialManifest; // step 1
-    manifestWithVariables: undefined | PartialManifest; // step 2
-    variables: undefined | Variables; // step 2
+    selected: undefined | 'nft' | 'ft' | 'tips';
     privatekey: string; // step 3
     box: string | undefined; // step 3
     accountName: string | undefined; // step 3
@@ -47,9 +43,6 @@ export class Deploy extends React.Component<DeployProps, {}> {
   } = {
     term: undefined,
     selected: undefined,
-    manifest: undefined,
-    manifestWithVariables: undefined,
-    variables: undefined,
     privatekey: '',
     box: undefined,
     accountName: undefined,
@@ -68,71 +61,8 @@ export class Deploy extends React.Component<DeployProps, {}> {
     });
   };
 
-  onBackToStep2 = () => {
-    if (
-      this.state.variables &&
-      (this.state.variables.js.length || this.state.variables.css.length || this.state.variables.html.length)
-    ) {
-      this.setState({
-        step: 2,
-      });
-    } else {
-      this.setState({
-        step: 1,
-      });
-    }
-  };
-
-  onChoseTerm = (term: string, selected: 'nft' | 'ft') => {
+  onChoseTerm = (term: string, selected: 'nft' | 'ft' | 'tips') => {
     this.setState({ term: term, selected: selected });
-  };
-
-  onFilledManifestData = (t: { js: string; css: string; html: string; publickey: string }) => {
-    const variables: Variables = {
-      js: manifestUtils.getMatchesInAssets(t.js || ''),
-      css: manifestUtils.getMatchesInAssets(t.css || ''),
-      html: manifestUtils.getMatchesInAssets(t.html || ''),
-    };
-
-    if (variables.js.length || variables.css.length || variables.html.length) {
-      this.setState({
-        manifest: { js: t.js, css: t.css, html: t.html },
-        variables: variables,
-        step: 2,
-      });
-    } else {
-      this.setState({
-        manifest: { js: t.js, css: t.css, html: t.html },
-        manifestWithVariables: { js: t.js, css: t.css, html: t.html },
-        step: 3,
-      });
-    }
-  };
-
-  onFilledVariablesData = (variablesWithValues: Variables) => {
-    let js = (this.state.manifest as PartialManifest).js || '';
-    let css = (this.state.manifest as PartialManifest).css || '';
-    let html = (this.state.manifest as PartialManifest).html || '';
-    variablesWithValues.js.forEach((v) => {
-      js = js.replace(v.match, v.value);
-    });
-    variablesWithValues.css.forEach((v) => {
-      css = css.replace(v.match, v.value);
-    });
-    variablesWithValues.html.forEach((v) => {
-      html = html.replace(v.match, v.value);
-    });
-    const manifestWithVariables = {
-      ...this.state.manifest,
-      js: js,
-      css: css,
-      html: html,
-    };
-    this.setState({
-      variables: variablesWithValues,
-      step: 3,
-      manifestWithVariables: manifestWithVariables,
-    });
   };
 
   onFilledTransactionData = (t: {
@@ -168,98 +98,17 @@ export class Deploy extends React.Component<DeployProps, {}> {
 
     this.props.sendRChainTransaction({
       transaction: deployOptions,
-      origin: { origin: 'rchain-token', operation: 'deploy', accountName: this.state.accountName },
+      origin: {
+        origin: 'rchain-token',
+        operation: this.state.selected === 'tips' ? 'tips' : 'deploy',
+        accountName: this.state.accountName,
+      },
       platform: 'rchain',
       blockchainId: (this.props.namesBlockchain as Blockchain).chainId,
       id: id,
       alert: false,
       sentAt: new Date().toISOString(),
     });
-  };
-
-  onDeployDapp = () => {
-    const id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
-    this.transactionId = id;
-
-    const name = 'dapp.dpy';
-    const mimeType = 'application/dappy';
-    let dappHtml = (this.state.manifestWithVariables as PartialManifest).html;
-
-    try {
-      const css = (this.state.manifestWithVariables as PartialManifest).css;
-      if (css) {
-        const headClosesIndex = dappHtml.indexOf('</head>');
-        let cssTag;
-        if (css) {
-          cssTag = `<style>${css}</style>`;
-          dappHtml = dappHtml.substr(0, headClosesIndex) + cssTag + dappHtml.substr(headClosesIndex);
-        }
-      }
-
-      const js = (this.state.manifestWithVariables as PartialManifest).js;
-      if (js) {
-        const headClosesIndex = dappHtml.indexOf('</head>');
-        let jsTag;
-        if (js) {
-          jsTag = `<script type="text/javascript">${js}</script>`;
-          dappHtml = dappHtml.substr(0, headClosesIndex) + jsTag + dappHtml.substr(headClosesIndex);
-        }
-      }
-
-      if (!this.props.namesBlockchain) {
-        this.props.openModal({
-          title: 'Failed to deploy',
-          text: 'No network found, cannot deploy',
-          buttons: [
-            {
-              classNames: 'is-link',
-              text: 'Ok',
-              action: fromMain.closeModalAction(),
-            },
-          ],
-        });
-        return;
-      }
-
-      /*
-        Avoid sending private key in clear through redux logs
-        Encrypting it with window.uniqueEphemeralToken
-      */
-      const passwordBytes = accountUtils.passwordFromStringToBytes(
-        (window.uniqueEphemeralToken as string).substr(0, 32)
-      );
-
-      this.props.sendRChainTransactionWithFile({
-        data: {
-          file: dappHtml,
-          mimeType: mimeType,
-          name: name,
-        },
-        encrypted: accountUtils.encrypt(this.state.privatekey, passwordBytes),
-        publicKey: this.state.publickey,
-        phloLimit: this.state.phloLimit,
-        origin: { origin: 'deploy', accountName: this.state.accountName as string },
-        platform: 'rchain',
-        blockchainId: this.props.namesBlockchain.chainId,
-        id: id,
-        alert: true,
-        sentAt: new Date().toISOString(),
-        fileAsBase64: undefined,
-      });
-    } catch (err) {
-      console.log(err);
-      this.props.openModal({
-        title: 'Failed to build file',
-        text: 'Unable to build the dpy file, the private key might be invalid',
-        buttons: [
-          {
-            classNames: 'is-link',
-            text: 'Ok',
-            action: fromMain.closeModalAction(),
-          },
-        ],
-      });
-    }
   };
 
   render() {
@@ -300,7 +149,6 @@ export class Deploy extends React.Component<DeployProps, {}> {
     ) {
       this.transactionId = '';
       this.setState({
-        manifest: undefined,
         step: 1,
       });
       this.props.openModal({
@@ -362,12 +210,7 @@ export class Deploy extends React.Component<DeployProps, {}> {
               );
             }}>
             <span className="term-title">{t('rchain token ft')}</span>
-            <p className="pt5">
-              {t('deploy ft contract')}
-              <br />
-              <br />
-              {t('ft contract for tipboard')}
-            </p>
+            <p className="pt5">{t('deploy ft contract')}</p>
           </div>
           <div
             className={`term rchain-token-non-fungible ${this.state.selected === 'nft' ? 'selected' : ''}`}
@@ -388,6 +231,14 @@ export class Deploy extends React.Component<DeployProps, {}> {
             <span className="term-title">{t('rchain token nft')}</span>
             <p className="pt5">{t('deploy nft contract')}</p>
           </div>
+          <DeployTips
+            rchainNamesMasterRegistryUri={
+              this.props.rchainInfos[this.props.namesBlockchain.chainId].info.rchainNamesMasterRegistryUri
+            }
+            box={this.state.box as string}
+            onChoseTerm={this.onChoseTerm}
+            selected={this.state.selected}
+          />
         </div>
         <button type="button" className="button is-light" onClick={this.onBackToStep1}>
           {t('back')}
