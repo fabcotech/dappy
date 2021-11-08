@@ -11,7 +11,7 @@ export function installDevToolsExtensionsOnlyForDev(partition: string) {
 
     const reactDevTools = path.join(
       os.homedir(),
-      '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.20.2_0'
+      '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.21.0_1'
     );
 
     app.whenReady().then(() => {
