@@ -13,6 +13,9 @@ export interface State {
   navigationUrl: NavigationUrl;
   windowDimensions: undefined | [number, number];
   navigationSuggestionsDisplayed: boolean;
+  contractLogs: {
+    [name: string]: string[];
+  };
 }
 
 export const initialState: State = {
@@ -24,7 +27,10 @@ export const initialState: State = {
   navigationUrl: '/',
   windowDimensions: undefined,
   navigationSuggestionsDisplayed: false,
+  contractLogs: {},
 };
+
+const onlyUnique = (value: string, index: number, self: string[]) => self.indexOf(value) === index;
 
 export const reducer = (state = initialState, action: Action): State => {
   switch (action.type) {
@@ -94,6 +100,18 @@ export const reducer = (state = initialState, action: Action): State => {
       return {
         ...state,
         gcu: payload.gcu,
+      };
+    }
+
+    case fromActions.UPDATE_CONTRACT_LOGS: {
+      const { contract, logs }: fromActions.UpdateContractLogsPayload = action.payload;
+
+      return {
+        ...state,
+        contractLogs: {
+          ...state.contractLogs,
+          [contract]: [...(state.contractLogs[contract] || []), ...logs].filter(onlyUnique),
+        },
       };
     }
 

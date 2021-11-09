@@ -9,6 +9,7 @@ export const SET_BODY_DIMENSIONS = '[Ui] Set body dimensions';
 export const UPDATE_NAVIGATION_SUGGESTIONS_DISPLAY = '[Ui] Update navigation suggestions display';
 export const UPDATE_LANGUAGE = '[Ui] Update language';
 export const UPDATE_GCU = '[Ui] Update gcu';
+export const UPDATE_CONTRACT_LOGS = '[Ui] Update contract logs';
 
 export interface UpdateUiFromStoragePayload {
   uiState: fromReducer.State;
@@ -59,5 +60,15 @@ export interface UpdateGcuPayload {
 }
 export const updateGcuAction = (values: UpdateGcuPayload) => ({
   type: UPDATE_GCU,
+  payload: values,
+});
+
+export interface UpdateContractLogsPayload {
+  contract: string;
+  logs: string[];
+}
+
+export const updateContractLogs = (values: UpdateContractLogsPayload) => ({
+  type: UPDATE_CONTRACT_LOGS,
   payload: values,
 });
