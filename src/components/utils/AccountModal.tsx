@@ -4,6 +4,7 @@ import xs, { Stream } from 'xstream';
 import debounce from 'xstream/extra/debounce';
 import { Field, Formik } from 'formik';
 
+import { State as StoreState } from '/store';
 import { copyToClipboard } from '/interProcess';
 import * as fromMain from '/store/main';
 import * as fromUi from '/store/ui';
@@ -177,7 +178,7 @@ export class AccountModalComponent extends React.Component<AccountModalComponent
 }
 
 export const AccountModal = connect(
-  (state) => ({
+  (state: StoreState) => ({
     isMobile: fromUi.getIsMobile(state),
     isTablet: fromUi.getIsTablet(state),
   }),

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
+import { State as StoreState } from '/store';
 import './Home.scss';
 import * as fromDapps from '/store/dapps';
 import * as fromUi from '/store/ui';
@@ -32,7 +33,7 @@ class HomeComponent extends React.Component<HomeComponentProps, {}> {
   }
 }
 
-export const Home = connect((state) => {
+export const Home = connect((state: StoreState) => {
   return {
     tabsListDisplay: fromUi.getTabsListDisplay(state),
     isSearchFocused: fromDapps.getIsSearchFocused(state),

@@ -13,6 +13,7 @@ import * as fromHistory from '/store/history';
 import * as fromUi from '/store/ui';
 import * as fromMain from '/store/main';
 import { Tab, LoadCompletedData } from '/models';
+import { State as StoreState } from '/store';
 import './NavigationBar.scss';
 
 class NavigationBarComponent extends WithSuggestions {
@@ -110,7 +111,8 @@ class NavigationBarComponent extends WithSuggestions {
             className={`${this.state.pristine ? 'pristine' : ''} input`}
             value={this.state.search || ''}
             onChange={this.onChange}
-            onKeyDown={this.onKeyDown} />
+            onKeyDown={this.onKeyDown}
+          />
           <div
             className={`fc tip-div ${
               this.props.resourceLoaded && this.props.publicKey && this.props.chainId && this.props.resourceId
@@ -148,7 +150,7 @@ class NavigationBarComponent extends WithSuggestions {
 }
 
 export const NavigationBar = connect(
-  (state, ownProps: { tab: Tab }) => {
+  (state: StoreState, ownProps: { tab: Tab }) => {
     const tab = ownProps.tab;
 
     const transitoryStates = fromDapps.getDappsTransitoryStates(state);

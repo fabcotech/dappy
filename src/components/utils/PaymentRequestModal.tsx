@@ -4,6 +4,7 @@ import debounce from 'xstream/extra/debounce';
 import { connect } from 'react-redux';
 import * as rchainToolkit from 'rchain-toolkit';
 
+import { State as StoreState } from '/store';
 import * as fromMain from '/store/main';
 import * as fromUi from '/store/ui';
 import * as fromSettings from '/store/settings';
@@ -417,7 +418,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
 }
 
 export const PaymentRequestModal = connect(
-  (state) => ({
+  (state: StoreState) => ({
     isMobile: fromUi.getIsMobile(state),
     isTablet: fromUi.getIsTablet(state),
     transactions: fromBlockchain.getTransactions(state),
