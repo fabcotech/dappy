@@ -3,6 +3,7 @@ import { createSelector } from 'reselect';
 import * as fromActions from './actions';
 import { Action } from '../';
 import { NavigationUrl, Language } from '/models';
+import { init } from '@sentry/browser';
 
 export interface State {
   gcu: undefined | string;
@@ -31,6 +32,18 @@ export const initialState: State = {
 };
 
 const onlyUnique = (value: string, index: number, self: string[]) => self.indexOf(value) === index;
+
+export const updateContractLogsReducer = (state = initialState, action: Action) => {
+  const { contract, logs }: fromActions.UpdateContractLogsPayload = action.payload;
+
+  return {
+    ...state,
+    contractLogs: {
+      ...state.contractLogs,
+      [contract]: [...logs, ...(state.contractLogs[contract] || [])].filter(onlyUnique),
+    },
+  };
+};
 
 export const reducer = (state = initialState, action: Action): State => {
   switch (action.type) {
@@ -104,17 +117,8 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.UPDATE_CONTRACT_LOGS: {
-      const { contract, logs }: fromActions.UpdateContractLogsPayload = action.payload;
-
-      return {
-        ...state,
-        contractLogs: {
-          ...state.contractLogs,
-          [contract]: [...(state.contractLogs[contract] || []), ...logs].filter(onlyUnique),
-        },
-      };
+      return updateContractLogsReducer(state, action);
     }
-
     default:
       return state;
   }
