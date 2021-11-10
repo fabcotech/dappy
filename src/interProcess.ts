@@ -234,7 +234,7 @@ export const interProcess = (store: Store) => {
     });
   };
 
-  window.generateCertificateAndKey = () => {
+  window.generateCertificateAndKey = (altNames: string[]) => {
     return new Promise((resolve, reject) => {
       const interProcess = new XMLHttpRequest();
       interProcess.open('POST', 'interprocess://generate-certificate-and-key');
@@ -243,7 +243,9 @@ export const interProcess = (store: Store) => {
         encodeURI(
           JSON.stringify({
             uniqueEphemeralToken: uniqueEphemeralToken,
-            parameters: {},
+            parameters: {
+              altNames: altNames,
+            },
           })
         )
       );

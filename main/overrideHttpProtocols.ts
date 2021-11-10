@@ -223,10 +223,9 @@ export const overrideHttpProtocols = (
         agents[`${s.ip}-${s.cert}`] = new https.Agent({
           /* no dns */
           host: s.ip,
-          rejectUnauthorized: false, // cert does not have to be signed by CA (self-signed)
-          cert: decodeURI(decodeURI(s.cert)),
+          rejectUnauthorized: true, // true by default
           minVersion: 'TLSv1.2',
-          ca: [], // we don't want to rely on CA
+          ca: decodeURI(decodeURI(s.cert)),
         });
       }
 
