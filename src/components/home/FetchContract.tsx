@@ -6,6 +6,7 @@ import './FetchContract.scss';
 import * as fromSettings from '/store/settings';
 import * as fromUi from '/store/ui';
 import { Blockchain, NavigationUrl } from '/models';
+import { ContractLogs } from '/components/utils/ContractLogs';
 
 import { NavigationBarHome } from '../resources';
 
@@ -58,32 +59,38 @@ class FetchContractComponent extends React.Component<FetchContractProps, {}> {
     return (
       <div className="fetch-contract">
         <NavigationBarHome />
-        <div className="home-page">
-          <div className="froggy">
-            <div className="img">
-              <div className="froggy-01"></div>
-            </div>
-            <div className="text">
-              <div>
-                <h3 className="title is-1">dappy</h3>
-                <h4 className="title is-2">release {VERSION}</h4>
+        <div className="home-page p-1">
+          <div className="header">
+            <div className="froggy">
+              <div className="img">
+                <div className="froggy-01"></div>
+              </div>
+              <div className="text">
+                <div>
+                  <h3 className="title is-1">dappy</h3>
+                  <h4 className="title is-2">release {VERSION}</h4>
+                </div>
               </div>
             </div>
+            {/* {dNetwork ? ( */}
+            <div className="dnetwork">
+              <h4 className="d-network-font">{t('d network is live')}</h4>
+              <p>
+                {t('d network definition')}
+                <a></a>
+              </p>
+              <p className="purchase">
+                <a onClick={this.onNavigateToNames}>purchase a name</a>
+              </p>
+            </div>
+            {/* ) : undefined} */}
           </div>
-          <div className="topright fc">
-            {dNetwork ? (
-              <div className="dnetwork">
-                <h4 className="d-network-font">{t('d network is live')}</h4>
-                <p>
-                  {t('d network definition')}
-                  <a></a>
-                </p>
-                <p className="purchase">
-                  <a onClick={this.onNavigateToNames}>purchase a name</a>
-                </p>
-              </div>
-            ) : undefined}
+
+          <div className="content">
+            <ContractLogs />
           </div>
+
+          <div className="topright fc"></div>
           <div className="botleft">
             <div className="deploy-dapp hexagons">
               <div className="dapp-right">

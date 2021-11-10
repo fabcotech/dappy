@@ -2,6 +2,7 @@ import { createSelector } from 'reselect';
 
 import * as fromActions from './actions';
 import { Action } from '../';
+import { State as StoreState } from '../';
 import { NavigationUrl, Language } from '/models';
 import { init } from '@sentry/browser';
 
@@ -126,10 +127,7 @@ export const reducer = (state = initialState, action: Action): State => {
 
 // SELECTORS
 
-export const getUiState = createSelector(
-  (state) => state,
-  (state: any) => state.ui
-);
+export const getUiState = (state: StoreState) => state.ui;
 
 export const getLanguage = createSelector(getUiState, (state: State) => state.language);
 
@@ -178,3 +176,5 @@ export const getIsNavigationInDeploy = createSelector(getNavigationUrl, (navigat
 export const getIsNavigationInTransactions = createSelector(getNavigationUrl, (navigationUrl: string) =>
   navigationUrl.startsWith('/transactions')
 );
+
+export const getContractLogs = createSelector(getUiState, (ui) => ui.contractLogs);

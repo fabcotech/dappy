@@ -1,0 +1,21 @@
+@import "/style/variables.scss";
+
+.contract-logs {
+  .table {
+    height: 20rem;
+  }
+  .tbody {
+    display: grid;
+    overflow-y: scroll;
+    max-height: 20rem;
+    grid-template-columns: min-content auto;
+    column-gap: 1rem;
+  }
+  .tbody > div {
+    justify-self: start;
+  }
+  code {
+    color: $code;
+    padding: 0;
+  }
+} 
