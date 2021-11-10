@@ -2,25 +2,27 @@ import { delay, call, put, takeEvery, select } from 'redux-saga/effects';
 import { CRON_JOBS_LOG_CONTRACT_PERIOD } from '/CONSTANTS';
 
 import { singleCall } from '/interProcess';
-import { BlockchainNode, SingleCallResult } from '/models';
+import { BlockchainNode, RChainInfo, SingleCallResult } from '/models';
 import { getFirstReadyNode } from '/store/settings';
+import { getNameSystemContractId } from '/store/blockchain';
 import { updateContractLogs } from '../actions';
 
-const fetchContractLogs = function* (contract: string) {
+export const fetchContractLogs = function* (contractId: string) {
   const node: BlockchainNode | undefined = yield select(getFirstReadyNode);
   if (node) {
     try {
-      const r: SingleCallResult = yield singleCall(
+      const r: SingleCallResult = yield call(
+        singleCall,
         {
           type: 'get-contract-logs',
-          body: { contract },
+          body: { contract: contractId },
         },
         node
       );
 
       yield put(
         updateContractLogs({
-          contract,
+          contract: contractId,
           logs: r.data,
         })
       );
@@ -31,7 +33,9 @@ const fetchContractLogs = function* (contract: string) {
 export const cronJobContractLogs = function* () {
   while (true) {
     yield delay(CRON_JOBS_LOG_CONTRACT_PERIOD);
-    const nameSystemContract = 'dappynamesystem';
-    yield call(fetchContractLogs, nameSystemContract);
+    const nameSystemContractId: string | undefined = yield select(getNameSystemContractId);
+    if (nameSystemContractId) {
+      yield call(fetchContractLogs, nameSystemContractId);
+    }
   }
 };
