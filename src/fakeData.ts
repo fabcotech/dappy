@@ -72,4 +72,4 @@ export const getFakeExistingNamePurchaseLog = (
   nbToken = 1,
   dustPrice = 100000000,
   purse = 'foo'
-) => `p,${date.getTime()},aaa,aaa,${nbToken},${dustPrice},1,${purse}`;
+) => `p,${date.getTime()},aaa,aaa,${nbToken},${dustPrice},foo,${purse}`;

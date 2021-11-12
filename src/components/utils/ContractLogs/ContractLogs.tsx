@@ -16,7 +16,7 @@ const parseLogTs = (l: string) => {
   return t('no timestamp');
 };
 
-const logRegExp = /^(.+),(\d+),(\w+),(\w+),(\d+),(\d+),(\d+),(\w+)$/;
+const logRegExp = /^(.+),(\d+),(\w+),(\w+),(\d+),(\d+),(\w+),(\w+)$/;
 
 const toLogMessage = ([type, ts, boxDest, boxFrom, nbTokens, dustPrice, purseName, newPurseName]: string[]) => {
   if (purseName === '0') {
