@@ -12,6 +12,8 @@ const parseLogTs = (l: string) => {
   if (match && match[1]) {
     return new Date(parseInt(match[1])).toISOString();
   }
+  process.env.JEST_WORKER_ID === undefined && console.info(`Could not parse log timestamp for log ${l}`);
+  return t('no timestamp');
 };
 
 const logRegExp = /^(.+),(\d+),(\w+),(\w+),(\d+),(\d+),(\d+),(\w+)$/;
@@ -29,6 +31,7 @@ const parseLogMessage = (l: string) => {
   if (match) {
     return toLogMessage(match.slice(1));
   }
+  return l;
 };
 
 const containsContractLogs = (contractLogs: ReturnType<typeof getContractLogs>, contractId: string | undefined) =>

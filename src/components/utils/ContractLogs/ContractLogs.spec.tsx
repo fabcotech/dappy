@@ -81,4 +81,29 @@ describe('ContractLogs', () => {
     );
     expect(screen.queryAllByText('1970-01-01T00:00:00.000Z')).toHaveLength(4);
   });
+  it('should display logs without message parsing if not recognized', () => {
+    const d = new Date('01 Jan 1970 00:00:00 GMT');
+    const m = `x,${d.getTime()},unknown message`;
+    render(
+      <ContractLogsComponent
+        nameSystemContractId="bar"
+        contractLogs={{
+          bar: [m],
+        }}
+      />
+    );
+    expect(screen.queryByText(m)).not.toBeNull();
+  });
+  it("should display no timestamp if it can't be parsed", () => {
+    const m = `x,NOT_A_TIMESTAMP,unknown message`;
+    render(
+      <ContractLogsComponent
+        nameSystemContractId="bar"
+        contractLogs={{
+          bar: [m],
+        }}
+      />
+    );
+    expect(screen.queryByText('no timestamp')).not.toBeNull();
+  });
 });
