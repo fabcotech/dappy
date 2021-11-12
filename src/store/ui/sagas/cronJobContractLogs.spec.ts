@@ -1,23 +1,28 @@
 import { cronJobContractLogs, fetchContractLogs } from './cronJobContractLogs';
 import { CRON_JOBS_LOG_CONTRACT_PERIOD } from '/CONSTANTS';
+import { EXECUTE_NODES_CRON_JOBS } from '/store/blockchain';
 import { getNameSystemContractId } from '/store/blockchain';
-import { delay, select, call, put } from 'redux-saga/effects';
+import { delay, select, call, put, take } from 'redux-saga/effects';
 import { singleCall } from '/interProcess';
 import { getFirstReadyNode } from '/store/settings';
-import { BlockchainNode } from '/models';
 import { updateContractLogs } from '../actions';
 import { getFakeBlockChainNode } from '/fakeData';
 
 describe('saga ui cronJobContractLogs', () => {
+  it('should wait for nodes cron jobs before anything', () => {
+    const saga = cronJobContractLogs();
+    expect(saga.next().value).toEqual(take(EXECUTE_NODES_CRON_JOBS));
+  });
   it('should fetch dappynamesystem contract logs with a delay', () => {
     const saga = cronJobContractLogs();
-    expect(saga.next().value).toEqual(delay(CRON_JOBS_LOG_CONTRACT_PERIOD));
+    expect(saga.next().value).toEqual(take(EXECUTE_NODES_CRON_JOBS));
     expect(saga.next().value).toEqual(select(getNameSystemContractId));
     expect(saga.next('dappynamesystem').value).toEqual(call(fetchContractLogs, 'dappynamesystem'));
+    expect(saga.next().value).toEqual(delay(CRON_JOBS_LOG_CONTRACT_PERIOD));
   });
   it('should not fetch contract logs if no name system contract is found', () => {
     const saga = cronJobContractLogs();
-    expect(saga.next().value).toEqual(delay(CRON_JOBS_LOG_CONTRACT_PERIOD));
+    expect(saga.next().value).toEqual(take(EXECUTE_NODES_CRON_JOBS));
     expect(saga.next().value).toEqual(select(getNameSystemContractId));
     expect(saga.next(undefined).value).toEqual(delay(CRON_JOBS_LOG_CONTRACT_PERIOD));
   });
