@@ -5,9 +5,9 @@ import { ContractLogsComponent } from './ContractLogs';
 import { getFakeNewNamePurchaseLog, getFakeExistingNamePurchaseLog } from '/fakeData';
 
 describe('ContractLogs', () => {
-  it('should display empty if contract has no logs', () => {
+  it('should not display if contract has no logs', () => {
     render(<ContractLogsComponent nameSystemContractId="bar" contractLogs={{}} />);
-    expect(screen.queryByText(/empty/)).not.toBeNull();
+    expect(screen.queryByText(/Contract logs/)).toBeNull();
     cleanup();
 
     render(
@@ -18,7 +18,7 @@ describe('ContractLogs', () => {
         }}
       />
     );
-    expect(screen.queryByText(/empty/)).not.toBeNull();
+    expect(screen.queryByText(/Contract logs/)).toBeNull();
     cleanup();
 
     render(
@@ -29,7 +29,7 @@ describe('ContractLogs', () => {
         }}
       />
     );
-    expect(screen.queryByText(/empty/)).toBeNull();
+    expect(screen.queryByText(/Contract logs/)).not.toBeNull();
   });
   it('should display log timestamp in ISO format', () => {
     render(

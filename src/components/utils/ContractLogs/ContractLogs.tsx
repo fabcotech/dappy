@@ -43,21 +43,20 @@ export interface ContractLogsProps {
 }
 
 export const ContractLogsComponent = ({ contractLogs, nameSystemContractId }: ContractLogsProps): JSX.Element => {
+  if (!containsContractLogs(contractLogs, nameSystemContractId)) {
+    return <Fragment />;
+  }
   return (
     <div className="p-4 contract-logs">
       <p className="title has-text-white">{t('Contract logs')}</p>
       <div className="table">
         <div className="tbody pl-2 pr-2">
-          {containsContractLogs(contractLogs, nameSystemContractId) ? (
-            contractLogs[nameSystemContractId as string].map((l: string, i: number) => (
-              <Fragment key={`l-${i}`}>
-                <code style={{ whiteSpace: 'nowrap' }}>{parseLogTs(l)}</code>
-                <code>{parseLogMessage(l)}</code>
-              </Fragment>
-            ))
-          ) : (
-            <code>({t('empty')})</code>
-          )}
+          {contractLogs[nameSystemContractId as string].map((l: string, i: number) => (
+            <Fragment key={`l-${i}`}>
+              <code style={{ whiteSpace: 'nowrap' }}>{parseLogTs(l)}</code>
+              <code>{parseLogMessage(l)}</code>
+            </Fragment>
+          ))}
         </div>
       </div>
     </div>
