@@ -20,9 +20,23 @@ const logRegExp = /^(.+),(\d+),(\w+),(\w+),(\d+),(\d+),(\w+),(\w+)$/;
 
 const toLogMessage = ([type, ts, boxDest, boxFrom, nbTokens, dustPrice, purseName, newPurseName]: string[]) => {
   if (purseName === '0') {
-    return `${t('New name')} ${newPurseName} ${t('was purchased for')} ${dustToRev(parseInt(dustPrice))} REV`;
+    return (
+      <Fragment>
+        <span>{`${t('New name')} `}</span>
+        <span>{`${t(newPurseName)} `}</span>
+        <span>{`${t('was purchased for')} `}</span>
+        <span>{`${dustToRev(parseInt(dustPrice))} REV`}</span>
+      </Fragment>
+    );
   } else {
-    return `${t('Name')} ${newPurseName} ${t('was sold for')} ${dustToRev(parseInt(dustPrice))} REV`;
+    return (
+      <Fragment>
+        <span>{t('Name')} </span>
+        <span>{newPurseName} </span>
+        <span>{t('was sold for')} </span>
+        <span>{dustToRev(parseInt(dustPrice))} REV</span>
+      </Fragment>
+    );
   }
 };
 
@@ -49,12 +63,12 @@ export const ContractLogsComponent = ({ contractLogs, nameSystemContractId }: Co
   return (
     <div className="p-4 contract-logs">
       <p className="title has-text-white">{t('Contract logs')}</p>
-      <div className="table">
-        <div className="tbody pl-2 pr-2">
+      <div className="has-background-white logs">
+        <div className="tbody pl-2 pr-2" data-testid="logs">
           {contractLogs[nameSystemContractId as string].map((l: string, i: number) => (
             <Fragment key={`l-${i}`}>
-              <code style={{ whiteSpace: 'nowrap' }}>{parseLogTs(l)}</code>
-              <code>{parseLogMessage(l)}</code>
+              <span style={{ whiteSpace: 'nowrap' }}>{parseLogTs(l)}</span>
+              {parseLogMessage(l)}
             </Fragment>
           ))}
         </div>
