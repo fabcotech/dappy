@@ -1,4 +1,4 @@
-import { RChainTokenPurse, Account, RChainInfos, Blockchain, RChainContractConfig, Record } from '/models';
+import { RChainTokenPurse, Account, RChainInfos, Blockchain, RChainContractConfig, BlockchainNode } from '/models';
 
 export const getFakeAccount = (account: Partial<Account> = {}): Account => ({
   platform: 'rchain',
@@ -43,9 +43,8 @@ export const getFakeBlockChain = (blockChain: Partial<Blockchain> = {}): Blockch
   chainId: 'chain1',
   chainName: 'chain1',
   nodes: [],
-  ...blockChain
+  ...blockChain,
 });
-
 
 export const getFakeRChainContractConfig = (contractConfig: Partial<RChainContractConfig> = {}) => ({
   contractId: 'contract1',
@@ -55,3 +54,22 @@ export const getFakeRChainContractConfig = (contractConfig: Partial<RChainContra
   version: 'x.y.z',
   ...contractConfig,
 });
+
+export const getFakeBlockChainNode = (blockChainNode: Partial<BlockchainNode> = {}) => ({
+  ip: '127.0.0.1',
+  host: 'dappy.dev',
+  origin: 'user' as BlockchainNode['origin'],
+  active: true,
+  readyState: 1 as BlockchainNode['readyState'],
+  ssl: true,
+  ...blockChainNode,
+});
+
+export const getFakeNewNamePurchaseLog = (date: Date = new Date(), nbToken = 1, dustPrice = 100000000, purse = 'foo') =>
+  `p,${date.getTime()},aaa,aaa,${nbToken},${dustPrice},0,${purse}`;
+export const getFakeExistingNamePurchaseLog = (
+  date: Date = new Date(),
+  nbToken = 1,
+  dustPrice = 100000000,
+  purse = 'foo'
+) => `p,${date.getTime()},aaa,aaa,${nbToken},${dustPrice},1,${purse}`;

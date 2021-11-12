@@ -6,6 +6,7 @@ import { singleCall } from '/interProcess';
 import { getFirstReadyNode } from '/store/settings';
 import { BlockchainNode } from '/models';
 import { updateContractLogs } from '../actions';
+import { getFakeBlockChainNode } from '/fakeData';
 
 describe('saga ui cronJobContractLogs', () => {
   it('should fetch dappynamesystem contract logs with a delay', () => {
@@ -21,14 +22,7 @@ describe('saga ui cronJobContractLogs', () => {
     expect(saga.next(undefined).value).toEqual(delay(CRON_JOBS_LOG_CONTRACT_PERIOD));
   });
   it('should fetch and save logs', () => {
-    const fakeNode: BlockchainNode = {
-      ip: '127.0.0.1',
-      host: 'dappy.dev',
-      origin: 'user',
-      active: true,
-      readyState: 1,
-      ssl: true,
-    };
+    const fakeNode = getFakeBlockChainNode();
     const contractId = 'dappynamesystem';
     const saga = fetchContractLogs(contractId);
     const r = { data: ['a', 'b', 'c'] };

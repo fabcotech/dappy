@@ -5,16 +5,7 @@ import './ContractLogs.scss';
 import { State } from '/store';
 import { getContractLogs } from '/store/ui';
 import { getNameSystemContractId } from '/store/blockchain';
-
-// const msg1 = 'New name x was purchased for x REV';
-// const msg2 = 'Name x was sold for x REV';
-
-// const log = (message: string) => ({
-//   date: new Date().toISOString(),
-//   msg: message,
-//   type: 'Purchase',
-// });
-// p,1636020905821,aaa,aaa,1,50000000,0,baz
+import { dustToRev } from '/utils/unit';
 
 const parseLogTs = (l: string) => {
   const match = l.match(/^[^,]+,(\d+),/);
@@ -23,14 +14,27 @@ const parseLogTs = (l: string) => {
   }
 };
 
+const logRegExp = /^(.+),(\d+),(\w+),(\w+),(\d+),(\d+),(\d+),(\w+)$/;
+
+const toLogMessage = ([type, ts, boxDest, boxFrom, nbTokens, dustPrice, purseName, newPurseName]: string[]) => {
+  if (purseName === '0') {
+    return `${t('New name')} ${newPurseName} ${t('was purchased for')} ${dustToRev(parseInt(dustPrice))} REV`;
+  } else {
+    return `${t('Name')} ${newPurseName} ${t('was sold for')} ${dustToRev(parseInt(dustPrice))} REV`;
+  }
+};
+
 const parseLogMessage = (l: string) => {
-  return l;
+  const match = l.match(logRegExp);
+  if (match) {
+    return toLogMessage(match.slice(1));
+  }
 };
 
 const containsContractLogs = (contractLogs: ReturnType<typeof getContractLogs>, contractId: string | undefined) =>
   contractId && contractLogs && contractLogs[contractId];
 
-interface ContractLogsProps {
+export interface ContractLogsProps {
   contractLogs: ReturnType<typeof getContractLogs>;
   nameSystemContractId: string | undefined;
 }
