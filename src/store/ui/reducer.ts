@@ -1,10 +1,10 @@
 import { createSelector } from 'reselect';
 
 import * as fromActions from './actions';
+import { LOGS_PER_CONTRACT } from '/CONSTANTS';
 import { Action } from '../';
 import { State as StoreState } from '../';
 import { NavigationUrl, Language } from '/models';
-import { init } from '@sentry/browser';
 
 export interface State {
   gcu: undefined | string;
@@ -41,7 +41,7 @@ export const updateContractLogsReducer = (state = initialState, action: Action) 
     ...state,
     contractLogs: {
       ...state.contractLogs,
-      [contract]: [...logs, ...(state.contractLogs[contract] || [])].filter(onlyUnique),
+      [contract]: [...logs, ...(state.contractLogs[contract] || [])].filter(onlyUnique).slice(0, LOGS_PER_CONTRACT),
     },
   };
 };

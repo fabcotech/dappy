@@ -28,3 +28,5 @@ export const CHAIN_IDS: { [chainId: string]: { name: string; platform: 'rchain' 
 };
 
 export const DEVELOPMENT = typeof location !== 'undefined' && location.host === 'localhost:3033';
+
+export const LOGS_PER_CONTRACT = 200;
