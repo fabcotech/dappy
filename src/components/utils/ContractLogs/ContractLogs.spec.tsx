@@ -6,12 +6,21 @@ import { getFakeNewNamePurchaseLog, getFakeExistingNamePurchaseLog } from '/fake
 
 describe('ContractLogs', () => {
   it('should not display if contract has no logs', () => {
-    render(<ContractLogsComponent nameSystemContractId="bar" contractLogs={{}} />);
+    render(
+      <ContractLogsComponent
+        nameSystemContractId="bar"
+        contractLogs={{}}
+        loadResource={(a) => null}
+        namesBlockchain={undefined}
+      />
+    );
     expect(screen.queryByText(/Contract logs/)).toBeNull();
     cleanup();
 
     render(
       <ContractLogsComponent
+        loadResource={(a) => null}
+        namesBlockchain={undefined}
         nameSystemContractId={undefined}
         contractLogs={{
           bar: [getFakeNewNamePurchaseLog()],
@@ -23,69 +32,85 @@ describe('ContractLogs', () => {
 
     render(
       <ContractLogsComponent
+        loadResource={(a) => null}
+        namesBlockchain={undefined}
         nameSystemContractId="bar"
         contractLogs={{
           bar: [getFakeNewNamePurchaseLog()],
         }}
       />
     );
-    expect(screen.queryByText(/Contract logs/)).not.toBeNull();
+    expect(screen.queryByText(/name system logs/)).not.toBeNull();
   });
-  it('should display log timestamp in ISO format', () => {
+  it('should display log timestamp in a given format', () => {
+    const d = new Date(0);
     render(
       <ContractLogsComponent
+        loadResource={(a) => null}
+        namesBlockchain={undefined}
         nameSystemContractId="bar"
         contractLogs={{
-          bar: [getFakeNewNamePurchaseLog(new Date('01 Jan 1970 00:00:00 GMT'))],
+          bar: [getFakeNewNamePurchaseLog(d)],
         }}
       />
     );
-    expect(screen.queryByText('1970-01-01T00:00:00.000Z')).not.toBeNull();
+    expect(screen.queryByText('01/01/1970, 01:00')).not.toBeNull();
   });
   it('should display new name purchase', () => {
     render(
       <ContractLogsComponent
+        loadResource={(a) => null}
+        namesBlockchain={undefined}
         nameSystemContractId="bar"
         contractLogs={{
-          bar: [getFakeNewNamePurchaseLog()],
+          bar: [getFakeNewNamePurchaseLog(new Date(0))],
         }}
       />
     );
-    expect(screen.queryByTestId('logs')).toHaveTextContent('New name foo was purchased for 1 REV');
+    expect(screen.queryByTestId('logs')).toHaveTextContent('01/01/1970, 01:00new name foowas purchased for 1 REV');
   });
   it('should display existing name purchase', () => {
     render(
       <ContractLogsComponent
+        loadResource={(a) => null}
+        namesBlockchain={undefined}
         nameSystemContractId="bar"
         contractLogs={{
           bar: [getFakeExistingNamePurchaseLog()],
         }}
       />
     );
-    expect(screen.queryByTestId('logs')).toHaveTextContent('Name foo was sold for 1 REV');
+    expect(screen.queryByTestId('logs')).toHaveTextContent('01/01/1970, 01:00name foo was traded for 1 REV');
   });
   it('should display multiple logs', () => {
-    const d = new Date('01 Jan 1970 00:00:00 GMT');
+    const d = new Date(0);
+    const d2 = new Date(d.getTime() + 1000);
+    const d3 = new Date(d.getTime() + 2000);
+    const d4 = new Date(d.getTime() + 3000);
     render(
       <ContractLogsComponent
+        loadResource={(a) => null}
+        namesBlockchain={undefined}
         nameSystemContractId="bar"
         contractLogs={{
           bar: [
             getFakeExistingNamePurchaseLog(d),
-            getFakeExistingNamePurchaseLog(d),
-            getFakeExistingNamePurchaseLog(d),
-            getFakeNewNamePurchaseLog(d),
+            getFakeExistingNamePurchaseLog(d2),
+            getFakeExistingNamePurchaseLog(d3),
+            getFakeNewNamePurchaseLog(d4),
           ],
         }}
       />
     );
-    expect(screen.queryAllByText('1970-01-01T00:00:00.000Z')).toHaveLength(4);
+    expect(screen.queryAllByText('01/01/1970, 01:00')).toHaveLength(4);
   });
   it('should display logs without message parsing if not recognized', () => {
     const d = new Date('01 Jan 1970 00:00:00 GMT');
     const m = `x,${d.getTime()},unknown message`;
     render(
       <ContractLogsComponent
+        loadResource={(a) => null}
+        namesBlockchain={undefined}
         nameSystemContractId="bar"
         contractLogs={{
           bar: [m],
@@ -102,6 +127,8 @@ describe('ContractLogs', () => {
         contractLogs={{
           bar: [m],
         }}
+        loadResource={(a) => null}
+        namesBlockchain={undefined}
       />
     );
     expect(screen.queryByText('no timestamp')).not.toBeNull();

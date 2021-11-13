@@ -9,7 +9,6 @@ export const addContractLogsOneByOne = function* (payload: { newLogs: string[]; 
     over when next cron jobs i sexecuted, to avoid superpositions
   */
   let average = (CRON_JOBS_LOG_CONTRACT_PERIOD * 0.7) / payload.newLogs.length;
-  console.log('average', average / 1000, 's');
   let logs: string[] = [...payload.newLogs];
   while (logs.length !== 0) {
     const d = average + ((Math.random() - 1) * average) / 3;
@@ -21,6 +20,5 @@ export const addContractLogsOneByOne = function* (payload: { newLogs: string[]; 
       })
     );
     logs = logs.slice(0, logs.length - 1);
-    console.log(logs);
   }
 };

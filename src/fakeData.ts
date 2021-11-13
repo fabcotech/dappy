@@ -65,10 +65,18 @@ export const getFakeBlockChainNode = (blockChainNode: Partial<BlockchainNode> = 
   ...blockChainNode,
 });
 
-export const getFakeNewNamePurchaseLog = (date: Date = new Date(), nbToken = 1, dustPrice = 100000000, purse = 'foo') =>
-  `p,${date.getTime()},aaa,aaa,${nbToken},${dustPrice},0,${purse}`;
+export const getFakeLogs = (contractId: string = 'foo') => ({
+  [contractId]: [],
+});
+
+export const getFakeNewNamePurchaseLog = (
+  date: Date = new Date(0),
+  nbToken = 1,
+  dustPrice = 100000000,
+  purse = 'foo'
+) => `p,${date.getTime()},aaa,aaa,${nbToken},${dustPrice},0,${purse}`;
 export const getFakeExistingNamePurchaseLog = (
-  date: Date = new Date(),
+  date: Date = new Date(0),
   nbToken = 1,
   dustPrice = 100000000,
   purse = 'foo'

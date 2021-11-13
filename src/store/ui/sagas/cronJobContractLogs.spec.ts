@@ -6,7 +6,8 @@ import { delay, select, call, put, take } from 'redux-saga/effects';
 import { singleCall } from '/interProcess';
 import { getFirstReadyNode } from '/store/settings';
 import { updateContractLogs } from '../actions';
-import { getFakeBlockChainNode } from '/fakeData';
+import { getFakeBlockChainNode, getFakeLogs } from '/fakeData';
+import { getContractLogs } from '../reducer';
 
 describe('saga ui cronJobContractLogs', () => {
   it('should wait for nodes cron jobs before anything', () => {
@@ -43,7 +44,8 @@ describe('saga ui cronJobContractLogs', () => {
         fakeNode
       )
     );
-    expect(saga.next(r as any).value).toEqual(
+    expect(saga.next(r as any).value).toEqual(select(getContractLogs));
+    expect(saga.next(getFakeLogs(contractId) as any).value).toEqual(
       put(
         updateContractLogs({
           contract: contractId,
