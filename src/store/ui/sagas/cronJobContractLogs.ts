@@ -4,9 +4,11 @@ import { CRON_JOBS_LOG_CONTRACT_PERIOD } from '/CONSTANTS';
 import { singleCall } from '/interProcess';
 import { BlockchainNode, SingleCallResult } from '/models';
 import { getFirstReadyNode } from '/store/settings';
+import { getContractLogs } from '/store/ui';
 import { EXECUTE_NODES_CRON_JOBS } from '/store/blockchain';
 import { getNameSystemContractId } from '/store/blockchain';
 import { updateContractLogs } from '../actions';
+import { addContractLogsOneByOne } from './addContractLogsOneByOne';
 
 export const fetchContractLogs = function* (contractId: string) {
   const node: BlockchainNode | undefined = yield select(getFirstReadyNode);
@@ -20,13 +22,26 @@ export const fetchContractLogs = function* (contractId: string) {
         },
         node
       );
+      const logs: {
+        [name: string]: string[];
+      } = yield select(getContractLogs);
 
-      yield put(
-        updateContractLogs({
-          contract: contractId,
-          logs: r.data,
-        })
-      );
+      const contractLogs: string[] = logs[contractId];
+      if (contractLogs && contractLogs.length) {
+        const newLogs: string[] = r.data.filter((l: string) => {
+          return !contractLogs.find((cl) => cl === l);
+        });
+        if (newLogs.length) {
+          yield call(addContractLogsOneByOne, { contractId: contractId, newLogs: newLogs });
+        }
+      } else {
+        yield put(
+          updateContractLogs({
+            contract: contractId,
+            logs: r.data,
+          })
+        );
+      }
     } catch (e) {}
   }
 };

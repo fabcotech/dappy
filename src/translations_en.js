@@ -965,5 +965,17 @@ module.exports.translations = {
   },
   "tips": {
     "one": "Tips with RChain token"
+  },
+  "name system logs": {
+    "one": "Recent activity on the name system contract"
+  },
+  "new name": {
+    "one": "New name"
+  },
+  "was purchased for": {
+    "one": "was purchased for"
+  },
+  "was traded for": {
+    "one": "was traded for"
   }
 }

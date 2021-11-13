@@ -1,16 +1,21 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
+import { DateTime } from 'luxon';
 
 import './ContractLogs.scss';
 import { State } from '/store';
+import * as fromDapps from '/store/dapps';
 import { getContractLogs } from '/store/ui';
 import { getNameSystemContractId } from '/store/blockchain';
+import { getNamesBlockchain } from '/store/settings';
 import { dustToRev } from '/utils/unit';
+import { Blockchain } from '/models';
+import { searchToAddress } from '/utils/searchToAddress';
 
 const parseLogTs = (l: string) => {
   const match = l.match(/^[^,]+,(\d+),/);
   if (match && match[1]) {
-    return new Date(parseInt(match[1])).toISOString();
+    return DateTime.fromMillis(parseInt(match[1])).toLocaleString(DateTime.DATETIME_SHORT);
   }
   process.env.JEST_WORKER_ID === undefined && console.info(`Could not parse log timestamp for log ${l}`);
   return t('no timestamp');
@@ -18,34 +23,50 @@ const parseLogTs = (l: string) => {
 
 const logRegExp = /^(.+),(\d+),(\w+),(\w+),(\d+),(\d+),(\w+),(\w+)$/;
 
-const toLogMessage = ([type, ts, boxDest, boxFrom, nbTokens, dustPrice, purseName, newPurseName]: string[]) => {
+const toLogMessage = (
+  [type, ts, boxDest, boxFrom, nbTokens, dustPrice, purseName, newPurseName]: string[],
+  namesBlockchain: undefined | Blockchain,
+  loadResource: (a: fromDapps.LoadResourcePayload) => void
+) => {
   if (purseName === '0') {
     return (
       <Fragment>
-        <span>{`${t('New name')} `}</span>
-        <span>{`${t(newPurseName)} `}</span>
-        <span>{`${t('was purchased for')} `}</span>
+        <span className="pr-1">{`${t('new name')} `}</span>
+        <span
+          onClick={(a) => {
+            if (namesBlockchain) {
+              loadResource({
+                address: searchToAddress(newPurseName, namesBlockchain.chainId),
+              });
+            }
+          }}
+          className="purse-id">
+          {newPurseName}
+        </span>
+        <span className="pr-1">{`${t('was purchased for')} `}</span>
         <span>{`${dustToRev(parseInt(dustPrice))} REV`}</span>
       </Fragment>
     );
   } else {
     return (
       <Fragment>
-        <span>{t('Name')} </span>
-        <span>{newPurseName} </span>
-        <span>{t('was sold for')} </span>
+        <span className="pr-1">{t('name')} </span>
+        <span
+          onClick={(a) => {
+            if (namesBlockchain) {
+              loadResource({
+                address: searchToAddress(newPurseName, namesBlockchain.chainId),
+              });
+            }
+          }}
+          className="purse-id">
+          {newPurseName}{' '}
+        </span>
+        <span className="pr-1">{t('was traded for')} </span>
         <span>{dustToRev(parseInt(dustPrice))} REV</span>
       </Fragment>
     );
   }
-};
-
-const parseLogMessage = (l: string) => {
-  const match = l.match(logRegExp);
-  if (match) {
-    return toLogMessage(match.slice(1));
-  }
-  return l;
 };
 
 const containsContractLogs = (contractLogs: ReturnType<typeof getContractLogs>, contractId: string | undefined) =>
@@ -54,32 +75,46 @@ const containsContractLogs = (contractLogs: ReturnType<typeof getContractLogs>, 
 export interface ContractLogsProps {
   contractLogs: ReturnType<typeof getContractLogs>;
   nameSystemContractId: string | undefined;
+  namesBlockchain: Blockchain | undefined;
+  loadResource: (a: fromDapps.LoadResourcePayload) => void;
 }
 
-export const ContractLogsComponent = ({ contractLogs, nameSystemContractId }: ContractLogsProps): JSX.Element => {
+export const ContractLogsComponent = ({
+  contractLogs,
+  nameSystemContractId,
+  namesBlockchain,
+  loadResource,
+}: ContractLogsProps): JSX.Element => {
   if (!containsContractLogs(contractLogs, nameSystemContractId)) {
     return <Fragment />;
   }
   return (
     <div className="p-4 contract-logs">
-      <p className="title has-text-white">{t('Contract logs')}</p>
-      <div className="has-background-white logs">
-        <div className="tbody pl-2 pr-2" data-testid="logs">
-          {contractLogs[nameSystemContractId as string].map((l: string, i: number) => (
-            <Fragment key={`l-${i}`}>
-              <span style={{ whiteSpace: 'nowrap' }}>{parseLogTs(l)}</span>
-              {parseLogMessage(l)}
-            </Fragment>
-          ))}
+      <p className="title is-5 has-text-white">{t('name system logs')}</p>
+      <div className="p-2 logs">
+        <div className="tbody p-2" data-testid="logs">
+          {contractLogs[nameSystemContractId as string].map((l: string, i: number) => {
+            const match = l.match(logRegExp);
+            return (
+              <div className="line" key={`l-${l}`}>
+                <span style={{ whiteSpace: 'nowrap' }}>{parseLogTs(l)}</span>
+                {match ? toLogMessage(match.slice(1), namesBlockchain, loadResource) : l}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
   );
 };
 
-const mapStateToProps = (state: State) => ({
-  contractLogs: getContractLogs(state),
-  nameSystemContractId: getNameSystemContractId(state),
-});
-
-export const ContractLogs = connect(mapStateToProps)(ContractLogsComponent);
+export const ContractLogs = connect(
+  (state: State) => ({
+    contractLogs: getContractLogs(state),
+    nameSystemContractId: getNameSystemContractId(state),
+    namesBlockchain: getNamesBlockchain(state),
+  }),
+  (dispatch) => ({
+    loadResource: (a: fromDapps.LoadResourcePayload) => dispatch(fromDapps.loadResourceAction(a)),
+  })
+)(ContractLogsComponent);

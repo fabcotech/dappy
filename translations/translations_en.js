@@ -2631,5 +2631,37 @@ module.exports.translations = [
     "term_plural": "",
     "reference": "",
     "comment": ""
+  },
+  {
+    "term": "name system logs",
+    "definition": "Recent activity on the name system contract",
+    "context": "logs",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "new name",
+    "definition": "New name",
+    "context": "logs",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "was purchased for",
+    "definition": "was purchased for",
+    "context": "logs",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "was traded for",
+    "definition": "was traded for",
+    "context": "logs",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
   }
 ]
