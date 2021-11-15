@@ -8,6 +8,7 @@ import { getFakeNewNamePurchaseLog, getFakeExistingNamePurchaseLog } from '/fake
 describe('ContractLogs', () => {
   beforeAll(() => {
     Settings.defaultLocale = 'en-GB';
+    Settings.defaultZoneName = 'utc';
   });
   it('should not display if contract has no logs', () => {
     render(
@@ -48,7 +49,7 @@ describe('ContractLogs', () => {
   });
   it('should display log timestamp in a given format', () => {
     const d = new Date(0);
-    const { debug } = render(
+    render(
       <ContractLogsComponent
         loadResource={(a) => null}
         namesBlockchain={undefined}
@@ -58,8 +59,7 @@ describe('ContractLogs', () => {
         }}
       />
     );
-    debug();
-    expect(screen.queryByText('01/01/1970, 01:00')).not.toBeNull();
+    expect(screen.queryByText('01/01/1970, 00:00')).not.toBeNull();
   });
   it('should display new name purchase', () => {
     render(
@@ -72,7 +72,7 @@ describe('ContractLogs', () => {
         }}
       />
     );
-    expect(screen.queryByTestId('logs')).toHaveTextContent('01/01/1970, 01:00 new name foo was purchased for 1 REV');
+    expect(screen.queryByTestId('logs')).toHaveTextContent('01/01/1970, 00:00 new name foo was purchased for 1 REV');
   });
   it('should display existing name purchase', () => {
     render(
@@ -85,7 +85,7 @@ describe('ContractLogs', () => {
         }}
       />
     );
-    expect(screen.queryByTestId('logs')).toHaveTextContent('01/01/1970, 01:00 name foo was traded for 1 REV');
+    expect(screen.queryByTestId('logs')).toHaveTextContent('01/01/1970, 00:00 name foo was traded for 1 REV');
   });
   it('should display multiple logs', () => {
     const d = new Date(0);
@@ -107,7 +107,7 @@ describe('ContractLogs', () => {
         }}
       />
     );
-    expect(screen.queryAllByText('01/01/1970, 01:00')).toHaveLength(4);
+    expect(screen.queryAllByText('01/01/1970, 00:00')).toHaveLength(4);
   });
   it('should display logs without message parsing if not recognized', () => {
     const d = new Date('01 Jan 1970 00:00:00 GMT');
