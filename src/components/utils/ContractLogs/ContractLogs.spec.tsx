@@ -48,7 +48,7 @@ describe('ContractLogs', () => {
   });
   it('should display log timestamp in a given format', () => {
     const d = new Date(0);
-    render(
+    const { debug } = render(
       <ContractLogsComponent
         loadResource={(a) => null}
         namesBlockchain={undefined}
@@ -58,6 +58,7 @@ describe('ContractLogs', () => {
         }}
       />
     );
+    debug();
     expect(screen.queryByText('01/01/1970, 01:00')).not.toBeNull();
   });
   it('should display new name purchase', () => {
