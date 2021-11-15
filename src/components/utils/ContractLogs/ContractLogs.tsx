@@ -11,6 +11,7 @@ import { getNamesBlockchain } from '/store/settings';
 import { dustToRev } from '/utils/unit';
 import { Blockchain } from '/models';
 import { searchToAddress } from '/utils/searchToAddress';
+import { LoadResourcePayload } from '/store/dapps';
 
 const parseLogTs = (l: string) => {
   const match = l.match(/^[^,]+,(\d+),/);
@@ -25,24 +26,15 @@ const logRegExp = /^(.+),(\d+),(\w+),(\w+),(\d+),(\d+),(\w+),(\w+)$/;
 
 const toLogMessage = (
   [type, ts, boxDest, boxFrom, nbTokens, dustPrice, purseName, newPurseName]: string[],
-  namesBlockchain: undefined | Blockchain,
-  loadResource: (a: fromDapps.LoadResourcePayload) => void
+  goToPurse: (purseName: string) => void
 ) => {
   if (purseName === '0') {
     return (
       <Fragment>
         <span className="pr-1">{`${t('new name')} `}</span>
-        <span
-          onClick={(a) => {
-            if (namesBlockchain) {
-              loadResource({
-                address: searchToAddress(newPurseName, namesBlockchain.chainId),
-              });
-            }
-          }}
-          className="purse-id">
-          {newPurseName}
-        </span>
+        <a onClick={() => goToPurse(newPurseName)} className="purse-id">
+          {newPurseName}{' '}
+        </a>
         <span className="pr-1">{`${t('was purchased for')} `}</span>
         <span>{`${dustToRev(parseInt(dustPrice))} REV`}</span>
       </Fragment>
@@ -51,17 +43,9 @@ const toLogMessage = (
     return (
       <Fragment>
         <span className="pr-1">{t('name')} </span>
-        <span
-          onClick={(a) => {
-            if (namesBlockchain) {
-              loadResource({
-                address: searchToAddress(newPurseName, namesBlockchain.chainId),
-              });
-            }
-          }}
-          className="purse-id">
+        <a onClick={() => goToPurse(newPurseName)} className="purse-id">
           {newPurseName}{' '}
-        </span>
+        </a>
         <span className="pr-1">{t('was traded for')} </span>
         <span>{dustToRev(parseInt(dustPrice))} REV</span>
       </Fragment>
@@ -78,6 +62,15 @@ export interface ContractLogsProps {
   namesBlockchain: Blockchain | undefined;
   loadResource: (a: fromDapps.LoadResourcePayload) => void;
 }
+
+const goToPurse =
+  (namesBlockchain: Blockchain | undefined, loadResource: (a: LoadResourcePayload) => void) => (purseName: string) => {
+    if (namesBlockchain) {
+      loadResource({
+        address: searchToAddress(purseName, namesBlockchain.chainId),
+      });
+    }
+  };
 
 export const ContractLogsComponent = ({
   contractLogs,
@@ -97,8 +90,8 @@ export const ContractLogsComponent = ({
             const match = l.match(logRegExp);
             return (
               <div className="line" key={`l-${l}`}>
-                <span style={{ whiteSpace: 'nowrap' }}>{parseLogTs(l)}</span>
-                {match ? toLogMessage(match.slice(1), namesBlockchain, loadResource) : l}
+                <span style={{ whiteSpace: 'nowrap' }}>{`${parseLogTs(l)} `}</span>
+                {match ? toLogMessage(match.slice(1), goToPurse(namesBlockchain, loadResource)) : l}
               </div>
             );
           })}

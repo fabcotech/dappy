@@ -1,10 +1,14 @@
 import React from 'react';
 
+import { Settings } from 'luxon';
 import { render, screen, cleanup } from '@testing-library/react';
 import { ContractLogsComponent } from './ContractLogs';
 import { getFakeNewNamePurchaseLog, getFakeExistingNamePurchaseLog } from '/fakeData';
 
 describe('ContractLogs', () => {
+  beforeAll(() => {
+    Settings.defaultLocale = 'en-GB';
+  });
   it('should not display if contract has no logs', () => {
     render(
       <ContractLogsComponent
@@ -67,7 +71,7 @@ describe('ContractLogs', () => {
         }}
       />
     );
-    expect(screen.queryByTestId('logs')).toHaveTextContent('01/01/1970, 01:00new name foowas purchased for 1 REV');
+    expect(screen.queryByTestId('logs')).toHaveTextContent('01/01/1970, 01:00 new name foo was purchased for 1 REV');
   });
   it('should display existing name purchase', () => {
     render(
@@ -80,7 +84,7 @@ describe('ContractLogs', () => {
         }}
       />
     );
-    expect(screen.queryByTestId('logs')).toHaveTextContent('01/01/1970, 01:00name foo was traded for 1 REV');
+    expect(screen.queryByTestId('logs')).toHaveTextContent('01/01/1970, 01:00 name foo was traded for 1 REV');
   });
   it('should display multiple logs', () => {
     const d = new Date(0);
