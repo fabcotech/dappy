@@ -45,7 +45,14 @@ interface RootComponentProps {
   navigate: (navigationUrl: NavigationUrl) => void;
 }
 
-class RootComponent extends React.Component<RootComponentProps, {}> {
+interface RootComponentState {
+  accountCreationFormClosed: boolean;
+}
+
+class RootComponent extends React.Component<RootComponentProps, RootComponentState> {
+  state = {
+    accountCreationFormClosed: false,
+  };
   componentDidCatch(error: Error) {
     console.error('An error occured in components');
     if (DEVELOPMENT) {
@@ -55,6 +62,13 @@ class RootComponent extends React.Component<RootComponentProps, {}> {
     }
   }
   render() {
+    /*
+      Init window.t once
+    */
+    if (!window.t) {
+      initTranslate(this.props.language);
+    }
+
     if (!this.props.initializationOver) {
       return (
         <div className="root loading">
@@ -67,15 +81,18 @@ class RootComponent extends React.Component<RootComponentProps, {}> {
       return <Gcu version={GCU_VERSION} text={GCU_TEXT} continue={this.props.updateGcu}></Gcu>;
     }
 
-    if (this.props.shouldDisplayAccountCreationForm) {
-      return <AccountCreationForm />;
-    }
+    // const self = this;
 
-    /*
-      Init window.t once
-    */
-    if (!window.t) {
-      initTranslate(this.props.language);
+    if (this.props.shouldDisplayAccountCreationForm && !this.state.accountCreationFormClosed) {
+      return (
+        <AccountCreationForm
+          onClose={() => {
+            this.setState({
+              accountCreationFormClosed: true,
+            });
+          }}
+        />
+      );
     }
 
     let klasses = 'root theme-default';
@@ -146,6 +163,7 @@ export const Root = connect(
     language: fromUi.getLanguage(state),
     currentVersion: fromMain.getCurrentVersion(state),
     gcu: fromUi.getGcu(state),
+    // gcu: true,
     shouldDisplayAccountCreationForm: shouldDisplayAccountCreationForm(state),
     isAwaitingUpdate: false,
     isBeta: fromMain.getIsBeta(state),
