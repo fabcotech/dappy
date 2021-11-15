@@ -34,7 +34,7 @@ export const AskingAccountCreationComponent = ({
         <i className="fa fa-user fa-8x"></i>
         <div>
           <div className="title">{t("Don't have a Dappy account ?")}</div>
-          <div className="container pb-4">{t('Dappy account description')}</div>
+          <div className="container pb-4">{t('dappy account description')}</div>
           <Formik
             initialValues={{
               dontAskAgain: false,
@@ -46,7 +46,7 @@ export const AskingAccountCreationComponent = ({
                   <div className="control">
                     <label className="checkbox">
                       <Field type="checkbox" name="dontAskAgain" />
-                      {t("Don't ask again")}
+                      {t("don't ask again")}
                     </label>
                   </div>
                 </div>
@@ -58,11 +58,11 @@ export const AskingAccountCreationComponent = ({
                         e.preventDefault();
                       }}
                       className="button is-link">
-                      {t('Cancel')}
+                      {t('skip')}
                     </button>
                   </div>
                   <div className="control">
-                    <button className="button is-link is-light">{t('Create account')}</button>
+                    <button className="button is-link is-light">{t('create account')}</button>
                   </div>
                 </div>
               </Form>
@@ -102,7 +102,7 @@ export const NoAccountFormComponent = ({ onClose, createAccount }: NoAccountForm
                   e.preventDefault();
                 }}
                 className="button is-link">
-                {t('Cancel')}
+                {t('skip')}
               </button>
             </div>
             <div className="control">
@@ -115,7 +115,7 @@ export const NoAccountFormComponent = ({ onClose, createAccount }: NoAccountForm
                     onClose();
                   }
                 }}>
-                {t('Create account')}
+                {t('create account')}
               </button>
             </div>
           </div>
