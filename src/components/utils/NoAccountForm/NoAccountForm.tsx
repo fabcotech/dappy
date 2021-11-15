@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Formik, Field, Form } from 'formik';
 
 import { updateShowAccountCreationAtStartup } from '/store/ui/actions';
-import './AccountCreationForm.scss';
+import './NoAccountForm.scss';
 
 interface Values {
   dontAskAgain: boolean;
@@ -18,16 +18,16 @@ const cancel = (updateShowAccount: typeof updateShowAccountCreationAtStartup, on
   onClose();
 };
 
-interface AccountCreationFormProps {
+interface NoAccountFormComponentProps {
   updateShowAccount: typeof updateShowAccountCreationAtStartup;
   onClose: () => void;
 }
 
-export const AccountCreationFormComponent = ({ updateShowAccount, onClose }: AccountCreationFormProps) => {
+export const NoAccountFormComponent = ({ updateShowAccount, onClose }: NoAccountFormComponentProps) => {
   return (
-    <div className="acf p-6">
-      <div className="acf-popin p-5">
-        <div className="acf-content">
+    <div className="naf p-6">
+      <div className="naf-popin p-5">
+        <div className="naf-content">
           <i className="fa fa-user fa-8x"></i>
           <div>
             <div className="title">{t("Don't have a Dappy account ?")}</div>
@@ -72,6 +72,6 @@ export const AccountCreationFormComponent = ({ updateShowAccount, onClose }: Acc
   );
 };
 
-export const AccountCreationForm = connect(undefined, {
+export const NoAccountForm = connect(undefined, {
   updateShowAccount: updateShowAccountCreationAtStartup,
-})(AccountCreationFormComponent);
+})(NoAccountFormComponent);

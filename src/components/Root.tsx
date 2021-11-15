@@ -18,7 +18,7 @@ import { Modal, Gcu } from './utils';
 import { NavigationUrl, Language } from '/models';
 import { DEVELOPMENT } from '/CONSTANTS';
 import { GCU_TEXT, GCU_VERSION } from '/GCU';
-import { AccountCreationForm } from './utils/AccountCreationForm';
+import { NoAccountForm } from './utils/NoAccountForm';
 import { initTranslate } from '/utils/translate';
 
 interface RootComponentProps {
@@ -81,11 +81,9 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
       return <Gcu version={GCU_VERSION} text={GCU_TEXT} continue={this.props.updateGcu}></Gcu>;
     }
 
-    // const self = this;
-
     if (this.props.shouldDisplayAccountCreationForm && !this.state.accountCreationFormClosed) {
       return (
-        <AccountCreationForm
+        <NoAccountForm
           onClose={() => {
             this.setState({
               accountCreationFormClosed: true,

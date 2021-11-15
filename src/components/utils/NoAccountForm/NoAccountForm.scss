@@ -1,6 +1,6 @@
 @import "/style/variables.scss";
 
-.acf {
+.naf {
   background: darken($primary, 10%);
   color: white;
   width: 100%;
@@ -20,11 +20,11 @@
   }
 }
 
-.acf-popin {
+.naf-popin {
   width: 40rem;
 }
 
-.acf-content {
+.naf-content {
   display: grid;
   grid-template-columns: min-content auto;
   column-gap: 2rem;
