@@ -38,4 +38,4 @@ export const Home = connect((state: StoreState) => {
     tabsListDisplay: fromUi.getTabsListDisplay(state),
     isSearchFocused: fromDapps.getIsSearchFocused(state),
   };
-}, undefined)(HomeComponent);
+})(HomeComponent);

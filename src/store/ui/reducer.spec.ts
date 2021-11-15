@@ -1,5 +1,11 @@
-import { updateContractLogsReducer, initialState } from './reducer';
-import { updateContractLogs } from './actions';
+import {
+  updateContractLogsReducer,
+  initialState,
+  updateShowAccountCreationAtStartupReducer,
+  showAccountCreationAtStartup,
+  State,
+} from './reducer';
+import { updateContractLogs, updateShowAccountCreationAtStartup } from './actions';
 
 import { LOGS_PER_CONTRACT } from '/CONSTANTS';
 
@@ -66,5 +72,18 @@ describe('reducer ui', () => {
     expect(newState.contractLogs).toEqual({
       [contractId]: logs.slice(0, LOGS_PER_CONTRACT),
     });
+  });
+
+  it('should update show account creation form', () => {
+    const state: State = JSON.parse(JSON.stringify(initialState));
+    const newState = updateShowAccountCreationAtStartupReducer(
+      state,
+      updateShowAccountCreationAtStartup({ show: true })
+    );
+    expect(
+      showAccountCreationAtStartup({
+        ui: newState,
+      })
+    ).toBeTruthy();
   });
 });

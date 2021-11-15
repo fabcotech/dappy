@@ -10,7 +10,7 @@ export const UPDATE_NAVIGATION_SUGGESTIONS_DISPLAY = '[Ui] Update navigation sug
 export const UPDATE_LANGUAGE = '[Ui] Update language';
 export const UPDATE_GCU = '[Ui] Update gcu';
 export const UPDATE_CONTRACT_LOGS = '[Ui] Update contract logs';
-
+export const UPDATE_SHOW_ACCOUNT_CREATION_AT_STARTUP = '[Ui] Update show account creation at startup';
 export interface UpdateUiFromStoragePayload {
   uiState: fromReducer.State;
 }
@@ -70,5 +70,14 @@ export interface UpdateContractLogsPayload {
 
 export const updateContractLogs = (values: UpdateContractLogsPayload) => ({
   type: UPDATE_CONTRACT_LOGS,
+  payload: values,
+});
+
+export interface updateShowAccountCreationAtStartupPayload {
+  show: boolean;
+}
+
+export const updateShowAccountCreationAtStartup = (values: updateShowAccountCreationAtStartupPayload) => ({
+  type: UPDATE_SHOW_ACCOUNT_CREATION_AT_STARTUP,
   payload: values,
 });

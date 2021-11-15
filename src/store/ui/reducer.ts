@@ -3,7 +3,6 @@ import { createSelector } from 'reselect';
 import * as fromActions from './actions';
 import { LOGS_PER_CONTRACT } from '/CONSTANTS';
 import { Action } from '../';
-import { State as StoreState } from '../';
 import { NavigationUrl, Language } from '/models';
 
 export interface State {
@@ -18,6 +17,7 @@ export interface State {
   contractLogs: {
     [name: string]: string[];
   };
+  showAccountCreationAtStartup: boolean;
 }
 
 export const initialState: State = {
@@ -30,6 +30,7 @@ export const initialState: State = {
   windowDimensions: undefined,
   navigationSuggestionsDisplayed: false,
   contractLogs: {},
+  showAccountCreationAtStartup: true,
 };
 
 const onlyUnique = (value: string, index: number, self: string[]) => self.indexOf(value) === index;
@@ -43,6 +44,15 @@ export const updateContractLogsReducer = (state = initialState, action: Action) 
       ...state.contractLogs,
       [contract]: [...logs, ...(state.contractLogs[contract] || [])].filter(onlyUnique).slice(0, LOGS_PER_CONTRACT),
     },
+  };
+};
+
+export const updateShowAccountCreationAtStartupReducer = (state = initialState, action: Action) => {
+  const { show }: fromActions.updateShowAccountCreationAtStartupPayload = action.payload;
+
+  return {
+    ...state,
+    showAccountCreationAtStartup: show,
   };
 };
 
@@ -120,6 +130,11 @@ export const reducer = (state = initialState, action: Action): State => {
     case fromActions.UPDATE_CONTRACT_LOGS: {
       return updateContractLogsReducer(state, action);
     }
+
+    case fromActions.UPDATE_SHOW_ACCOUNT_CREATION_AT_STARTUP: {
+      return updateShowAccountCreationAtStartupReducer(state, action);
+    }
+
     default:
       return state;
   }
@@ -127,7 +142,11 @@ export const reducer = (state = initialState, action: Action): State => {
 
 // SELECTORS
 
-export const getUiState = (state: StoreState) => state.ui;
+interface PartialRootState {
+  ui: State;
+}
+
+export const getUiState = (state: PartialRootState) => state.ui;
 
 export const getLanguage = createSelector(getUiState, (state: State) => state.language);
 
@@ -178,3 +197,5 @@ export const getIsNavigationInTransactions = createSelector(getNavigationUrl, (n
 );
 
 export const getContractLogs = createSelector(getUiState, (ui) => ui.contractLogs);
+
+export const showAccountCreationAtStartup = createSelector(getUiState, (ui) => ui.showAccountCreationAtStartup);
