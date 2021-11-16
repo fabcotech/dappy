@@ -54,7 +54,8 @@ const toLogMessage = (
 };
 
 const containsContractLogs = (contractLogs: ReturnType<typeof getContractLogs>, contractId: string | undefined) =>
-  contractId && contractLogs && contractLogs[contractId];
+  contractId && contractLogs && (contractLogs[contractId] || []).length > 0;
+// contractId && contractLogs && contractLogs[contractId];
 
 export interface ContractLogsProps {
   contractLogs: ReturnType<typeof getContractLogs>;

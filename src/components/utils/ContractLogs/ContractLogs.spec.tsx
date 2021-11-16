@@ -39,6 +39,19 @@ describe('ContractLogs', () => {
       <ContractLogsComponent
         loadResource={(a) => null}
         namesBlockchain={undefined}
+        nameSystemContractId={'bar'}
+        contractLogs={{
+          bar: [],
+        }}
+      />
+    );
+    expect(screen.queryByText(/Contract logs/)).toBeNull();
+    cleanup();
+
+    render(
+      <ContractLogsComponent
+        loadResource={(a) => null}
+        namesBlockchain={undefined}
         nameSystemContractId="bar"
         contractLogs={{
           bar: [getFakeNewNamePurchaseLog()],
