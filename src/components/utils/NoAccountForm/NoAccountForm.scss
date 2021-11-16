@@ -15,6 +15,11 @@
   .checkbox:hover {
     color: white;
   }
+
+  label::after, 
+  .is-checkradio[type=checkbox]:hover:not([disabled]) + label::before {
+    border-color: white !important;
+  }
   .title {
     color: white;
   }

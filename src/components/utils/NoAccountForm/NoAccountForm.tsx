@@ -42,11 +42,11 @@ export const AskingAccountCreationComponent = ({
             {({ values }) => (
               <Form>
                 <div className="field">
-                  <div className="control"></div>
-
                   <div className="control">
-                    <Field type="checkbox" name="dontAskAgain" className="is-checkradio is-link is-inverted" />
-                    <label className="checkbox">{t("don't ask again")}</label>
+                    <Field type="checkbox" name="dontAskAgain" id="dontAskAgain" className="is-checkradio" />
+                    <label className="checkbox" htmlFor="dontAskAgain">
+                      {t("don't ask again")}
+                    </label>
                   </div>
                 </div>
                 <div className="field is-grouped is-grouped-right">
