@@ -143,7 +143,7 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
 export const shouldDisplayAccountCreationForm = createSelector(
   fromSettings.getAccounts,
   fromUi.showAccountCreationAtStartup,
-  (accounts, showAtStartup) => Object.values(accounts) && showAtStartup
+  (accounts, showAtStartup) => !Object.values(accounts) && showAtStartup
 );
 
 export const Root = connect(
