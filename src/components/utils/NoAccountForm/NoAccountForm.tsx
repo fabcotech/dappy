@@ -31,7 +31,6 @@ export const AskingAccountCreationComponent = ({
   return (
     <div className="naf-popin p-5">
       <div className="naf-content">
-        <i className="fa fa-user fa-8x"></i>
         <div>
           <div className="title">{t("Don't have a Dappy account ?")}</div>
           <div className="container pb-4">{t('dappy account description')}</div>
@@ -43,11 +42,11 @@ export const AskingAccountCreationComponent = ({
             {({ values }) => (
               <Form>
                 <div className="field">
+                  <div className="control"></div>
+
                   <div className="control">
-                    <label className="checkbox">
-                      <Field type="checkbox" name="dontAskAgain" />
-                      {t("don't ask again")}
-                    </label>
+                    <Field type="checkbox" name="dontAskAgain" className="is-checkradio is-link is-inverted" />
+                    <label className="checkbox">{t("don't ask again")}</label>
                   </div>
                 </div>
                 <div className="field is-grouped is-grouped-right">

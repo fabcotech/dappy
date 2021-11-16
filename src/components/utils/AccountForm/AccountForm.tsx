@@ -12,7 +12,7 @@ const ec = new elliptic.ec('secp256k1');
 
 interface AccountFormProps {
   names: string[];
-  filledAccount: (a: Account) => void;
+  filledAccount: (a: undefined | Account) => void;
 }
 
 const PASSWORD_REGEXP_UPPER = /^(?=.*?[A-Z])/;
@@ -71,7 +71,8 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
               const keyPair = ec.keyFromPrivate(values.privatekey);
               this.publicKey = keyPair.getPublic().encode('hex', false) as string;
               this.address = rchainToolkit.utils.revAddressFromPublicKey(this.publicKey);
-            } catch {
+            } catch (err) {
+              console.log(err);
               errors.privatekey = t('private key invalid');
             }
           }
@@ -91,7 +92,9 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
           }
           this.passwordWarnings = ([] as string[]).concat(passwordWarnings);
 
-          if (!Object.keys(errors).length) {
+          if (Object.keys(errors).length) {
+            this.props.filledAccount(undefined);
+          } else {
             try {
               const passwordBytes = accountUtils.passwordFromStringToBytes(values.password);
               const encrypted = accountUtils.encrypt(values.privatekey, passwordBytes);
