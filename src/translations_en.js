@@ -977,5 +977,23 @@ module.exports.translations = {
   },
   "was traded for": {
     "one": "was traded for"
+  },
+  "don't ask again": {
+    "one": "Do not ask again"
+  },
+  "skip": {
+    "one": "Skip"
+  },
+  "dappy account description": {
+    "one": "Dappy accounts or wallets allow you to own and send REV, the native currency of RChain blockchain. You will also be able to sign transactions, deploy token contracts and interact with other blockchain applications."
+  },
+  "create account": {
+    "one": "Create account"
+  },
+  "no accounts configured": {
+    "one": "No accounts is configured"
+  },
+  "box not found": {
+    "one": "No token boxes found"
   }
 }

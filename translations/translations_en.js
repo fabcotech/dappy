@@ -2663,5 +2663,53 @@ module.exports.translations = [
     "term_plural": "",
     "reference": "",
     "comment": ""
+  },
+  {
+    "term": "don't ask again",
+    "definition": "Do not ask again",
+    "context": "Settings > Accounts",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "skip",
+    "definition": "Skip",
+    "context": "Settings > Accounts",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "dappy account description",
+    "definition": "Dappy accounts or wallets allow you to own and send REV, the native currency of RChain blockchain. You will also be able to sign transactions, deploy token contracts and interact with other blockchain applications.",
+    "context": "Settings > Accounts",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "create account",
+    "definition": "Create account",
+    "context": "Settings > Accounts",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "no accounts configured",
+    "definition": "No accounts is configured",
+    "context": "Settings > Accounts",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "box not found",
+    "definition": "No token boxes found",
+    "context": "Settings > Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
   }
 ]

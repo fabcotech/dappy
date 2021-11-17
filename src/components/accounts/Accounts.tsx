@@ -89,8 +89,9 @@ export function AccountsComponent(props: AccountsProps) {
           <br />
           <div>
             {Object.keys(props.accounts).length === 0 ? (
-              <button onClick={() => setTab('add-account')} className="button is-small is-link">
+              <button onClick={() => setTab('add-account')} className="button is-link">
                 {t('add account')}
+                <i className="fa fa-plus fa-after"></i>
               </button>
             ) : undefined}
             {Object.keys(props.accounts).map((k) => {

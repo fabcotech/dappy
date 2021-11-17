@@ -22,13 +22,8 @@ export class UpdateLanguageComponent extends React.Component<UpdateLanguageProps
           initialValues={{ language: this.props.language }}
           onSubmit={(values, { setSubmitting }) => {
             this.props.updateLanguage(values.language);
-            xs.periodic(500)
-              .endWhen(xs.periodic(600).take(1))
-              .subscribe({
-                complete: () => setSubmitting(false),
-              });
           }}
-          render={({ handleSubmit, isSubmitting }) => {
+          render={({ handleSubmit, values }) => {
             return (
               <form onSubmit={handleSubmit}>
                 <h3 className="subtitle is-4">{t('language')}</h3>
@@ -44,10 +39,8 @@ export class UpdateLanguageComponent extends React.Component<UpdateLanguageProps
                 </div>
                 <div className="field is-horizontal is-grouped pt20">
                   <div className="control">
-                    <button type="submit" className="button is-link" disabled={isSubmitting}>
-                      {!isSubmitting && t('submit')}
-                      {isSubmitting && t('submitting')}
-                      {isSubmitting && <i className="fa fa-spin fa-spinner fa-after" />}
+                    <button disabled={values.language === this.props.language} type="submit" className="button is-link">
+                      {t('submit')}
                     </button>
                   </div>
                 </div>
@@ -61,12 +54,12 @@ export class UpdateLanguageComponent extends React.Component<UpdateLanguageProps
 }
 
 export const UpdateLanguage = connect(
-  state => {
+  (state) => {
     return {
       language: fromUi.getLanguage(state),
     };
   },
-  dispatch => ({
+  (dispatch) => ({
     updateLanguage: (language: Language) => dispatch(fromUi.updateLanguageAction({ language: language })),
   })
 )(UpdateLanguageComponent);

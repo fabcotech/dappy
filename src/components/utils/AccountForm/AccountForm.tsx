@@ -168,7 +168,7 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
               {touched.password && errors.password && <p className="text-danger">{(errors as any).password}</p>}
               {touched.password && this.passwordWarnings.length
                 ? this.passwordWarnings.map((p) => (
-                    <p key={p} className="text-warning">
+                    <p key={p} className="text-danger">
                       {p}
                     </p>
                   ))

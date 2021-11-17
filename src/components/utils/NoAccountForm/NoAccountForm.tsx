@@ -29,11 +29,13 @@ export const AskingAccountCreationComponent = ({
   showAccountCreationForm,
 }: NoAccountFormComponentProps) => {
   return (
-    <div className="naf-popin p-5">
+    <div className="theme-default naf-popin p-5">
       <div className="naf-content">
         <div>
-          <div className="title">{t("Don't have a Dappy account ?")}</div>
-          <div className="container pb-4">{t('dappy account description')}</div>
+          <div className="title">{t('no accounts configured')}</div>
+          <div className="container pb-4">
+            <p>{t('dappy account description')}</p>
+          </div>
           <Formik
             initialValues={{
               dontAskAgain: false,
@@ -56,12 +58,12 @@ export const AskingAccountCreationComponent = ({
                         cancel(updateShowAccount, onClose, values);
                         e.preventDefault();
                       }}
-                      className="button is-link">
+                      className="button is-light is-medium">
                       {t('skip')}
                     </button>
                   </div>
                   <div className="control">
-                    <button className="button is-link is-light">{t('create account')}</button>
+                    <button className="button is-link is-medium">{t('create account')}</button>
                   </div>
                 </div>
               </Form>
@@ -87,7 +89,7 @@ export const NoAccountFormComponent = ({ onClose, createAccount }: NoAccountForm
   const [account, setAccount] = useState<Account | undefined>(undefined);
 
   return (
-    <div className="naf p-6">
+    <div className="theme-default naf p-6">
       {showAccountCreationForm ? (
         <div>
           <div className="field">
@@ -100,14 +102,14 @@ export const NoAccountFormComponent = ({ onClose, createAccount }: NoAccountForm
                   onClose();
                   e.preventDefault();
                 }}
-                className="button is-link">
+                className="button is-light">
                 {t('skip')}
               </button>
             </div>
             <div className="control">
               <button
                 disabled={!account}
-                className="button is-link is-light"
+                className="button is-link"
                 onClick={() => {
                   if (account) {
                     createAccount({ account });
