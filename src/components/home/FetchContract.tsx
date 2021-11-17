@@ -72,18 +72,18 @@ class FetchContractComponent extends React.Component<FetchContractProps, {}> {
                 </div>
               </div>
             </div>
-            {/* {dNetwork ? ( */}
-            <div className="dnetwork">
-              <h4 className="d-network-font">{t('d network is live')}</h4>
-              <p>
-                {t('d network definition')}
-                <a></a>
-              </p>
-              <p className="purchase">
-                <a onClick={this.onNavigateToNames}>purchase a name</a>
-              </p>
-            </div>
-            {/* ) : undefined} */}
+            {dNetwork ? (
+              <div className="dnetwork">
+                <h4 className="d-network-font">{t('d network is live')}</h4>
+                <p>
+                  {t('d network definition')}
+                  <a></a>
+                </p>
+                <p className="purchase">
+                  <a onClick={this.onNavigateToNames}>purchase a name</a>
+                </p>
+              </div>
+            ) : undefined}
           </div>
 
           <div className="content">
