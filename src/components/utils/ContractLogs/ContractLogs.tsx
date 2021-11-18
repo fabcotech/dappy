@@ -90,10 +90,10 @@ export const ContractLogsComponent = ({
           {contractLogs[nameSystemContractId as string].map((l: string, i: number) => {
             const match = l.match(logRegExp);
             return (
-              <div className="line" key={`l-${l}`}>
+              <Fragment key={`l-${l}`}>
                 <span style={{ whiteSpace: 'nowrap' }}>{`${parseLogTs(l)} `}</span>
                 {match ? toLogMessage(match.slice(1), goToPurse(namesBlockchain, loadResource)) : l}
-              </div>
+              </Fragment>
             );
           })}
         </div>

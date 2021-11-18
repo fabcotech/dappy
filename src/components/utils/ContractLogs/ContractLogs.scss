@@ -16,15 +16,13 @@
   .tbody {
     max-height: 20rem;
     width: fit-content;
-  }
-  .tbody > .line {
-    width: fit-content;
-    display: grid;
-    grid-template-columns: 120px auto 90px auto 70px;
+    grid-template-columns: 120px auto min-content auto auto;
     column-gap: 1rem;
-    animation: 0.8s appear;
-  }
-  .tbody > .line {
+    display: grid;
+
+    span, a {
+      animation: 0.8s appear;
+    }
     span {
       white-space: nowrap;
       padding: 0;  
@@ -35,12 +33,13 @@
       text-overflow: ellipsis;
       overflow: hidden;
       text-decoration: underline;
-      cursor: pointer;
       &:hover {
         color: rgba(255,255,255,0.8);
       }
     }
   }
+  
+
   tbody > tr > td:nth-child(5n) {
     justify-self: end;
   }
