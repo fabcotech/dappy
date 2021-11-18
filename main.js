@@ -292,7 +292,7 @@ var getBrowserViewsPositionMain = lib_4(getBrowserViewsMainState, function (stat
 
 var WS_PAYLOAD_PAX_SIZE = 512000; // bits
 var WS_RECONNECT_PERIOD = 10000;
-var VERSION = '0.4.9';
+var VERSION = '0.5.0';
 
 var LOAD_RESOURCE = '[Dapps] Load resource';
 var UPDATE_TRANSITORY_STATE = '[Dapps] Update transitory state';
@@ -379,8 +379,10 @@ in {
         }
         (true, box) => {
           @(*deployerId, "rchain-token-box", "${payload.masterRegistryUri}", "${payload.boxId}")!(box) |
+          // OP_PUBLIC_REGISTER_BOX_COMPLETED_BEGIN
           basket!({ "status": "completed", "boxId": "${payload.boxId}" }) |
           stdout!("completed, box registered")
+          // OP_PUBLIC_REGISTER_BOX_COMPLETED_END
         }
       }
     }
@@ -1060,11 +1062,11 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
     for (@(boxId, contractId, purseId, return) <= removePurseInBoxCh) {
       for (@box <- @(*vault, "boxes", boxId)) {
         if (box.get(contractId) == Nil) {
-          @return!("error: CRITICAL purse not found") |
+          @return!("error: CRITICAL contract id not found in box") |
           @(*vault, "boxes", boxId)!(box)
         } else {
           if (box.get(contractId).contains(purseId) == false) {
-            @return!("error: CRITICAL purse already exists in box") |
+            @return!("error: CRITICAL purse does not exists in box") |
             @(*vault, "boxes", boxId)!(box)
           } else {
             stdout!(contractId ++ "/" ++ boxId ++ " purse " ++ purseId ++ " removed from box") |
@@ -1353,7 +1355,7 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
           } else {
             for (@superKeys <<- @(*vault, "boxesSuperKeys", boxId)) {
               for (@config <<- @(*vault, "boxConfig", boxId)) {
-                @return!(config.union({ "superKeys": superKeys, "purses": box, "version": "12.0.1" }))
+                @return!(config.union({ "superKeys": superKeys, "purses": box, "version": "14.0.0" }))
               }
             }
           }
@@ -1573,7 +1575,7 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
 
                     // config
                     @(*vault, "contractConfig", payload.get("contractId"))!(
-                      payload.set("locked", false).set("counter", 1).set("version", "12.0.1").set("fee", payload.get("fee"))
+                      payload.set("locked", false).set("counter", 1).set("version", "14.0.0").set("fee", payload.get("fee"))
                     ) |
 
                     new superKeyCh in {
@@ -1593,6 +1595,53 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
                                 @(*vault, "contractConfig", payload.get("contractId"))!(contractConfig.set("locked", true)) |
                                 @return2!((true, Nil)) |
                                 @(*vault, "CONTRACT_LOCK", payload.get("contractId"))!(Nil)
+                              }
+                            }
+                          }
+                        }
+                      } |
+
+                      for (@("DELETE_PURSE", payload2, return2) <= superKeyCh) {
+                        for (_ <- @(*vault, "CONTRACT_LOCK", payload.get("contractId"))) {
+                          for (@contractConfig <<- @(*vault, "contractConfig", payload.get("contractId"))) {
+                            if (contractConfig.get("locked") == true) {
+                              @return2!("error: contract is locked") |
+                              @(*vault, "CONTRACT_LOCK", payload.get("contractId"))!(Nil)
+                            } else {
+                              match payload2 {
+                                { "purseId": String } => {
+                                  new ch1, ch2, ch3, ch4 in {
+                                    for (@pursesThm <<- @(*vault, "purses", payload.get("contractId"))) {
+                                      TreeHashMap!("get", pursesThm, payload2.get("purseId"), *ch2) |
+                                      for (@purseToDelete <- ch2) {
+                                        if (purseToDelete == Nil) {
+                                          @return2!("error: purse does not exist") |
+                                          @(*vault, "CONTRACT_LOCK", payload.get("contractId"))!(Nil)
+                                        } else {
+                                          removePurseInBoxCh!((purseToDelete.get("boxId"), payload.get("contractId"), payload2.get("purseId"), *ch4)) |
+                                          TreeHashMap!("set", pursesThm, payload2.get("purseId"), Nil, *ch3) |
+                                          for (@a <- ch3; @b <- ch4) {
+                                            @(*vault, "CONTRACT_LOCK", payload.get("contractId"))!(Nil) |
+                                            match (a, b) {
+                                              (Nil, (true, Nil)) => {
+                                                @return2!((true, Nil))
+                                              }
+                                              _ => {
+                                                stdout!(a) |
+                                                stdout!(b) |
+                                                @return2!("error: CRITICAL purse removal went wrong")
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                                _ => {
+                                  @return2!("error: payload.purseId should be a string") |
+                                  @(*vault, "CONTRACT_LOCK", payload.get("contractId"))!(Nil)
+                                }
                               }
                             }
                           }
@@ -1698,7 +1747,7 @@ new MakeNode, ByteArrayToNybbleList, TreeHashMapSetter, TreeHashMapGetter, TreeH
                       }
                     }
                   } else {
-                    unlock!("error: CRITICAL box not found")
+                    unlock!("error: CRITICAL purse removal went wrong box not found")
                   }
                 }
               }
@@ -2360,12 +2409,14 @@ in {
         }
         (true, superKey) => {
           @(*deployerId, "rchain-token-contract", "${payload.masterRegistryUri}", "${payload.contractId}")!(superKey) |
+          // OP_REGISTER_CONTRACT_COMPLETED_BEGIN
           basket!({
             "status": "completed",
             "masterRegistryUri": "${payload.masterRegistryUri}",
             "contractId": "${payload.contractId}",
           }) |
           stdout!("completed, contract registered")
+          // OP_REGISTER_CONTRACT_COMPLETED_END
         }
       }
     }
@@ -2397,13 +2448,13 @@ var createPursesTerm_1 = (payload) => {
   rholang += `for (${ids
     .map((p, i) => '@value' + i + ' <- channel' + i)
     .join('; ')}) {\n`;
-  rholang += `  stdout!("purses created, check results to see successes/failures") |
-  return!({ "status": "completed", "results": {}${ids
+  rholang += `  // OP_CREATE_PURSES_COMPLETED_BEGIN\n   stdout!("purses created, check results to see successes/failures") |
+  basket!({ "status": "completed", "results": {}${ids
     .map((p, i) => `.union({ "${p}": value${i} })`)
-    .join('')}})\n`;
+    .join('')}}) // OP_CREATE_PURSES_COMPLETED_END\n`;
   rholang += `}\n}`;
 
-  return `new return, entryCh, readCh, stdout(\`rho:io:stdout\`), deployerId(\`rho:rchain:deployerId\`), lookup(\`rho:registry:lookup\`) in {
+  return `new basket, entryCh, readCh, stdout(\`rho:io:stdout\`), deployerId(\`rho:rchain:deployerId\`), lookup(\`rho:registry:lookup\`) in {
     for (superKey <<- @(*deployerId, "rchain-token-contract", "${payload.masterRegistryUri}", "${payload.contractId}")) {
       ${rholang}
     }
@@ -2437,8 +2488,10 @@ in {
           stdout!(("failed", r))
         }
         _ => {
+          // OP_LOCK_COMPLETED_BEGIN
           stdout!("completed, contract locked") |
           basket!({ "status": "completed" })
+          // OP_LOCK_COMPLETED_END
         }
       }
     }
@@ -2467,8 +2520,10 @@ var deleteExpiredPurseTerm_1 = (
             stdout!(("failed", r))
           }
           _ => {
+            // OP_PUBLIC_DELETE_EXPIRED_PURSE_COMPLETED_BEGIN
             stdout!("completed, expired purses deleted") |
             basket!({ "status": "completed" })
+            // OP_PUBLIC_DELETE_EXPIRED_PURSE_COMPLETED_END
           }
         }
       }
@@ -2481,7 +2536,50 @@ var deleteExpiredPurseTerm = {
 	deleteExpiredPurseTerm: deleteExpiredPurseTerm_1
 };
 
+/* GENERATED CODE, only edit rholang/*.rho files*/
+var deletePurseTerm_1 = (
+  payload
+) => {
+  return `new basket,
+  returnCh,
+  stdout(\`rho:io:stdout\`),
+  deployerId(\`rho:rchain:deployerId\`),
+  registryLookup(\`rho:registry:lookup\`)
+in {
+
+  for (superKey <<- @(*deployerId, "rchain-token-contract", "${payload.masterRegistryUri}", "${payload.contractId}")) {
+    superKey!((
+      "DELETE_PURSE",
+      { "purseId": "${payload.purseId}" },
+      *returnCh
+    )) |
+    for (@r <- returnCh) {
+      match r {
+        String => {
+          basket!({ "status": "failed", "message": r }) |
+          stdout!(("failed", r))
+        }
+        _ => {
+          // OP_DELETE_PURSE_COMPLETED_BEGIN
+          stdout!("completed, purse deleted") |
+          basket!({ "status": "completed" })
+          // OP_DELETE_PURSE_COMPLETED_END
+        }
+      }
+    }
+  }
+}
+`;
+};
+
+var deletePurseTerm = {
+	deletePurseTerm: deletePurseTerm_1
+};
+
 var readPursesTerm_1 = (payload) => {
+  if (payload.pursesIds.length === 0) {
+    return `new return in { return!({}) }`;
+  }
   let rholang = `new ${payload.pursesIds.map((id, i) => 'channel' + i)} in {`;
   payload.pursesIds.forEach((p, i) => {
     rholang +=
@@ -2621,8 +2719,10 @@ in {
           stdout!(("failed", r))
         }
         _ => {
+          // OP_UPDATE_PURSE_DATA_COMPLETED_BEGIN
           basket!({ "status": "completed" }) |
           stdout!("completed, data updated")
+          // OP_UPDATE_PURSE_DATA_COMPLETED_END
         }
       }
     }
@@ -2636,6 +2736,9 @@ var updatePurseDataTerm = {
 };
 
 var readPursesDataTerm_1 = (payload) => {
+  if (payload.pursesIds.length === 0) {
+    return `new return in { return!({}) }`;
+  }
   let rholang = `new ${payload.pursesIds.map((id, i) => 'channel' + i)} in {`;
   payload.pursesIds.forEach((p, i) => {
     rholang +=
@@ -2684,8 +2787,10 @@ in {
           stdout!(("failed", r))
         }
         _ => {
+          // OP_UPDATE_PURSE_PRICE_COMPLETED_BEGIN
           basket!({ "status": "completed" }) |
           stdout!("completed, price updated")
+          // OP_UPDATE_PURSE_PRICE_COMPLETED_END
         }
       }
     }
@@ -2848,8 +2953,10 @@ in {
                                 }
                               }
                               _ => {
+                                // OP_RENEW_COMPLETED_BEGIN
                                 basket!({ "status": "completed" }) |
                                 stdout!("completed, renew successful")
+                                // OP_RENEW_COMPLETED_END
                               }
                             }
                           }
@@ -3051,8 +3158,10 @@ in {
                                 }
                               }
                               _ => {
+                                // OP_PURCHASE_COMPLETED_BEGIN
                                 basket!({ "status": "completed" }) |
                                 stdout!("completed, purchase successful")
+                                // OP_PURCHASE_COMPLETED_END
                               }
                             }
                           }
@@ -3100,8 +3209,10 @@ in {
           stdout!(("failed", r))
         }
         _ => {
+          // OP_WITHDRAW_COMPLETED_BEGIN
           basket!({ "status": "completed" }) |
           stdout!("completed, withdraw successful")
+          // OP_WITHDRAW_COMPLETED_END
         }
       }
     }
@@ -3281,7 +3392,7 @@ var logs = {
 	logs: logs_1
 };
 
-var VERSION$1 = '12.0.1';
+var VERSION$1 = '14.0.0';
 
 var constants = {
 	VERSION: VERSION$1
@@ -3294,6 +3405,7 @@ const { deployTerm: deployTerm$1 } = deployTerm;
 const { createPursesTerm: createPursesTerm$1 } = createPursesTerm;
 const { lockTerm: lockTerm$1 } = lockTerm;
 const { deleteExpiredPurseTerm: deleteExpiredPurseTerm$1 } = deleteExpiredPurseTerm;
+const { deletePurseTerm: deletePurseTerm$1 } = deletePurseTerm;
 const { readPursesTerm: readPursesTerm$1 } = readPursesTerm;
 const { readAllPursesTerm: readAllPursesTerm$1 } = readAllPursesTerm;
 const { readBoxTerm: readBoxTerm$1 } = readBoxTerm;
@@ -3320,6 +3432,7 @@ var src = {
   deployTerm: deployTerm$1,
   createPursesTerm: createPursesTerm$1,
   lockTerm: lockTerm$1,
+  deletePurseTerm: deletePurseTerm$1,
   deleteExpiredPurseTerm: deleteExpiredPurseTerm$1,
   updatePurseDataTerm: updatePurseDataTerm$1,
   updatePursePriceTerm: updatePursePriceTerm$1,
@@ -3338,8 +3451,8 @@ var src = {
   decodePurses: decodePurses$1,
   logs: logs$1,
 };
-var src_17 = src.readConfigTerm;
-var src_18 = src.readPursesDataTerm;
+var src_18 = src.readConfigTerm;
+var src_19 = src.readPursesDataTerm;
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -5452,18 +5565,15 @@ var httpBrowserToNode = function (data, node, timeout) {
                 dappyNetworkAgents[ip + "-" + cert] = new https.Agent({
                     /* no dns */
                     host: ip,
-                    rejectUnauthorized: false,
-                    cert: cert,
+                    rejectUnauthorized: true,
                     minVersion: 'TLSv1.3',
-                    ca: [], // we don't want to rely on CA
+                    ca: cert,
                 });
             }
             var options = {
-                agent: dappyNetworkAgents[node.ip + "-" + node.cert],
+                agent: dappyNetworkAgents[ip + "-" + cert],
                 method: 'POST',
                 port: port,
-                host: ip,
-                rejectUnauthorized: false,
                 path: "/" + data.type,
                 headers: {
                     'Content-Type': 'application/json',
@@ -5652,7 +5762,7 @@ var initialState$1 = {
     executingAccountsCronJobs: false,
 };
 // SELECTORS
-var getSettingsState = lib_4(function (state) { return state; }, function (state) { return state.settings; });
+var getSettingsState = function (state) { return state.settings; };
 var getSettings = lib_4(getSettingsState, function (state) { return state.settings; });
 var getBlockchains = lib_4(getSettingsState, function (state) { return state.blockchains; });
 var getAccounts = lib_4(getSettingsState, function (state) { return state.accounts; });
@@ -5684,17 +5794,24 @@ var getAvailableRChainBlockchains = lib_4(getAvailableBlockchains, function (ava
     });
     return rchainBlockchains;
 });
+var nodeActiveAndReady = function (n) { return n.active && n.readyState === 1; };
 // if modified, must be modified in main also
 var getOkBlockchains = lib_4(getBlockchains, function (blockchains) {
     var okBlockchains = {};
     Object.keys(blockchains).forEach(function (chainId) {
-        var nodes = blockchains[chainId].nodes.filter(function (n) { return n.active && n.readyState === 1; });
+        var nodes = blockchains[chainId].nodes.filter(nodeActiveAndReady);
         if (!nodes.length) {
             return;
         }
         okBlockchains[chainId] = __assign(__assign({}, blockchains[chainId]), { nodes: nodes.filter(function (n) { return n.readyState === 1; }) });
     });
     return okBlockchains;
+});
+var getFirstReadyNode = lib_4(getBlockchains, function (blockchains) {
+    var bc = Object.values(blockchains).find(function (bc) {
+        return bc.nodes.some(nodeActiveAndReady);
+    });
+    return bc === null || bc === void 0 ? void 0 : bc.nodes.find(nodeActiveAndReady);
 });
 var getIsLoadReady = lib_4(getBlockchains, getSettings, function (blockchains, settings) {
     var key = Object.keys(blockchains)[0];
@@ -11512,10 +11629,10 @@ var getNodeIndex = function (node) {
 var readPursesDataOrContractConfig = function (masterRegistryUri, contractId, purseId) {
     // read purse data if purseId
     if (contractId && purseId) {
-        return src_18({ masterRegistryUri: masterRegistryUri, contractId: contractId, pursesIds: [purseId] });
+        return src_19({ masterRegistryUri: masterRegistryUri, contractId: contractId, pursesIds: [purseId] });
     }
     // read config values { fungible: ..., fee: ...} if no contract id AND purse id
-    return src_17({ masterRegistryUri: masterRegistryUri, contractId: contractId });
+    return src_18({ masterRegistryUri: masterRegistryUri, contractId: contractId });
 };
 var registerDappyProtocol = function (session, getState) {
     session.protocol.registerBufferProtocol('dappy', function (request, callback) {
@@ -12164,10 +12281,9 @@ var overrideHttpProtocols = function (session, getState, development, dispatchFr
                             agents[s.ip + "-" + s.cert] = new https.Agent({
                                 /* no dns */
                                 host: s.ip,
-                                rejectUnauthorized: false,
-                                cert: decodeURI(decodeURI(s.cert)),
+                                rejectUnauthorized: true,
                                 minVersion: 'TLSv1.2',
-                                ca: [], // we don't want to rely on CA
+                                ca: decodeURI(decodeURI(s.cert)),
                             });
                         }
                         var randomIdIndex = request.headers['User-Agent'].indexOf('randomId=');
@@ -14802,6 +14918,7 @@ var getNamesBlockchainInfos = lib_4(getNamesBlockchain, getRChainInfos, function
         return undefined;
     }
 });
+var getNameSystemContractId = lib_4(getNamesBlockchainInfos, function (i) { return i === null || i === void 0 ? void 0 : i.info.rchainNamesContractId; });
 var getRecordNamesInAlphaOrder = lib_4(getRecords, function (records) {
     return Object.keys(records).sort(function (a, b) {
         if (a < b) {
@@ -15267,17 +15384,24 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
             })));
         }
         if (request.url === 'interprocess://generate-certificate-and-key') {
-            pem.createCertificate({ days: 1000000, selfSigned: true }, function (err, keys) {
-                if (err) {
-                    console.log(err);
-                    callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when generate-certificate-and-key'));
-                    return;
-                }
-                callback(Buffer.from(JSON.stringify({
-                    key: keys.clientKey,
-                    certificate: keys.certificate,
-                })));
-            });
+            try {
+                var data = JSON.parse(decodeURI(request.headers['Data']));
+                pem.createCertificate({ days: 1000000, selfSigned: true, altNames: data.parameters.altNames }, function (err, keys) {
+                    if (err) {
+                        console.log(err);
+                        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when generate-certificate-and-key'));
+                        return;
+                    }
+                    callback(Buffer.from(JSON.stringify({
+                        key: keys.clientKey,
+                        certificate: keys.certificate,
+                    })));
+                });
+            }
+            catch (err) {
+                console.log(err);
+                callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when generate-certificate-and-key'));
+            }
         }
     });
 };
@@ -15966,223 +16090,334 @@ if (process.env.NODE_ENV !== 'production' && typeof isCrushed.name === 'string' 
   warning('You are currently using minified code outside of NODE_ENV === "production". ' + 'This means that you are running a slower development build of Redux. ' + 'You can use loose-envify (https://github.com/zertosh/loose-envify) for browserify ' + 'or setting mode to production in webpack (https://webpack.js.org/concepts/mode/) ' + 'to ensure you have the correct code for your production build.');
 }
 
-var _extends$4 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var sym = function sym(id) {
-  return '@@redux-saga/' + id;
+var createSymbol = function createSymbol(name) {
+  return "@@redux-saga/" + name;
 };
 
-var TASK = /*#__PURE__*/sym('TASK');
-var HELPER = /*#__PURE__*/sym('HELPER');
-var MATCH = /*#__PURE__*/sym('MATCH');
-var CANCEL = /*#__PURE__*/sym('CANCEL_PROMISE');
-var SAGA_ACTION = /*#__PURE__*/sym('SAGA_ACTION');
-var SELF_CANCELLATION = /*#__PURE__*/sym('SELF_CANCELLATION');
+var CANCEL =
+/*#__PURE__*/
+createSymbol('CANCEL_PROMISE');
+var CHANNEL_END_TYPE =
+/*#__PURE__*/
+createSymbol('CHANNEL_END');
+var IO =
+/*#__PURE__*/
+createSymbol('IO');
+var MATCH =
+/*#__PURE__*/
+createSymbol('MATCH');
+var MULTICAST =
+/*#__PURE__*/
+createSymbol('MULTICAST');
+var SAGA_ACTION =
+/*#__PURE__*/
+createSymbol('SAGA_ACTION');
+var SELF_CANCELLATION =
+/*#__PURE__*/
+createSymbol('SELF_CANCELLATION');
+var TASK =
+/*#__PURE__*/
+createSymbol('TASK');
+var TASK_CANCEL =
+/*#__PURE__*/
+createSymbol('TASK_CANCEL');
+var TERMINATE =
+/*#__PURE__*/
+createSymbol('TERMINATE');
+var SAGA_LOCATION =
+/*#__PURE__*/
+createSymbol('LOCATION');
+
+function _extends$4() {
+  _extends$4 = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return _extends$4.apply(this, arguments);
+}
+
+function _objectWithoutPropertiesLoose$1(source, excluded) {
+  if (source == null) return {};
+  var target = {};
+  var sourceKeys = Object.keys(source);
+  var key, i;
+
+  for (i = 0; i < sourceKeys.length; i++) {
+    key = sourceKeys[i];
+    if (excluded.indexOf(key) >= 0) continue;
+    target[key] = source[key];
+  }
+
+  return target;
+}
+
+var undef = function undef(v) {
+  return v === null || v === undefined;
+};
+var notUndef = function notUndef(v) {
+  return v !== null && v !== undefined;
+};
+var func = function func(f) {
+  return typeof f === 'function';
+};
+var string$1 = function string(s) {
+  return typeof s === 'string';
+};
+var array$2 = Array.isArray;
+var object$1 = function object(obj) {
+  return obj && !array$2(obj) && typeof obj === 'object';
+};
+var promise = function promise(p) {
+  return p && func(p.then);
+};
+var iterator = function iterator(it) {
+  return it && func(it.next) && func(it.throw);
+};
+var buffer = function buffer(buf) {
+  return buf && func(buf.isEmpty) && func(buf.take) && func(buf.put);
+};
+var pattern = function pattern(pat) {
+  return pat && (string$1(pat) || symbol(pat) || func(pat) || array$2(pat) && pat.every(pattern));
+};
+var channel = function channel(ch) {
+  return ch && func(ch.take) && func(ch.close);
+};
+var stringableFunc = function stringableFunc(f) {
+  return func(f) && f.hasOwnProperty('toString');
+};
+var symbol = function symbol(sym) {
+  return Boolean(sym) && typeof Symbol === 'function' && sym.constructor === Symbol && sym !== Symbol.prototype;
+};
+var multicast = function multicast(ch) {
+  return channel(ch) && ch[MULTICAST];
+};
+var effect = function effect(eff) {
+  return eff && eff[IO];
+};
+
 var konst = function konst(v) {
   return function () {
     return v;
   };
 };
-var kTrue = /*#__PURE__*/konst(true);
+var kTrue =
+/*#__PURE__*/
+konst(true);
+
 var noop = function noop() {};
-var ident = function ident(v) {
+
+if (process.env.NODE_ENV !== 'production' && typeof Proxy !== 'undefined') {
+  noop =
+  /*#__PURE__*/
+  new Proxy(noop, {
+    set: function set() {
+      throw internalErr('There was an attempt to assign a property to internal `noop` function.');
+    }
+  });
+}
+var identity$1 = function identity(v) {
   return v;
 };
-
+var hasSymbol = typeof Symbol === 'function';
+var asyncIteratorSymbol = hasSymbol && Symbol.asyncIterator ? Symbol.asyncIterator : '@@asyncIterator';
 function check(value, predicate, error) {
   if (!predicate(value)) {
-    log('error', 'uncaught at check', error);
     throw new Error(error);
   }
 }
+var assignWithSymbols = function assignWithSymbols(target, source) {
+  _extends$4(target, source);
 
-var hasOwnProperty$a = Object.prototype.hasOwnProperty;
-function hasOwn(object, property) {
-  return is.notUndef(object) && hasOwnProperty$a.call(object, property);
-}
-
-var is = {
-  undef: function undef(v) {
-    return v === null || v === undefined;
-  },
-  notUndef: function notUndef(v) {
-    return v !== null && v !== undefined;
-  },
-  func: function func(f) {
-    return typeof f === 'function';
-  },
-  number: function number(n) {
-    return typeof n === 'number';
-  },
-  string: function string(s) {
-    return typeof s === 'string';
-  },
-  array: Array.isArray,
-  object: function object(obj) {
-    return obj && !is.array(obj) && (typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object';
-  },
-  promise: function promise(p) {
-    return p && is.func(p.then);
-  },
-  iterator: function iterator(it) {
-    return it && is.func(it.next) && is.func(it.throw);
-  },
-  iterable: function iterable(it) {
-    return it && is.func(Symbol) ? is.func(it[Symbol.iterator]) : is.array(it);
-  },
-  task: function task(t) {
-    return t && t[TASK];
-  },
-  observable: function observable(ob) {
-    return ob && is.func(ob.subscribe);
-  },
-  buffer: function buffer(buf) {
-    return buf && is.func(buf.isEmpty) && is.func(buf.take) && is.func(buf.put);
-  },
-  pattern: function pattern(pat) {
-    return pat && (is.string(pat) || (typeof pat === 'undefined' ? 'undefined' : _typeof(pat)) === 'symbol' || is.func(pat) || is.array(pat));
-  },
-  channel: function channel(ch) {
-    return ch && is.func(ch.take) && is.func(ch.close);
-  },
-  helper: function helper(it) {
-    return it && it[HELPER];
-  },
-  stringableFunc: function stringableFunc(f) {
-    return is.func(f) && hasOwn(f, 'toString');
+  if (Object.getOwnPropertySymbols) {
+    Object.getOwnPropertySymbols(source).forEach(function (s) {
+      target[s] = source[s];
+    });
   }
 };
+var flatMap = function flatMap(mapper, arr) {
+  var _ref;
 
-var object$1 = {
-  assign: function assign(target, source) {
-    for (var i in source) {
-      if (hasOwn(source, i)) {
-        target[i] = source[i];
-      }
-    }
-  }
+  return (_ref = []).concat.apply(_ref, arr.map(mapper));
 };
-
 function remove(array, item) {
   var index = array.indexOf(item);
+
   if (index >= 0) {
     array.splice(index, 1);
   }
 }
-
-var array$2 = {
-  from: function from(obj) {
-    var arr = Array(obj.length);
-    for (var i in obj) {
-      if (hasOwn(obj, i)) {
-        arr[i] = obj[i];
-      }
-    }
-    return arr;
-  }
-};
-
-function deferred() {
-  var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-  var def = _extends$4({}, props);
-  var promise = new Promise(function (resolve, reject) {
-    def.resolve = resolve;
-    def.reject = reject;
-  });
-  def.promise = promise;
-  return def;
-}
-
-function autoInc() {
-  var seed = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-
+function once$1(fn) {
+  var called = false;
   return function () {
-    return ++seed;
+    if (called) {
+      return;
+    }
+
+    called = true;
+    fn();
   };
 }
-
-var uid = /*#__PURE__*/autoInc();
 
 var kThrow = function kThrow(err) {
   throw err;
 };
+
 var kReturn = function kReturn(value) {
-  return { value: value, done: true };
+  return {
+    value: value,
+    done: true
+  };
 };
-function makeIterator(next) {
-  var thro = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : kThrow;
-  var name = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-  var isHelper = arguments[3];
 
-  var iterator = { name: name, next: next, throw: thro, return: kReturn };
-
-  if (isHelper) {
-    iterator[HELPER] = true;
+function makeIterator(next, thro, name) {
+  if (thro === void 0) {
+    thro = kThrow;
   }
+
+  if (name === void 0) {
+    name = 'iterator';
+  }
+
+  var iterator = {
+    meta: {
+      name: name
+    },
+    next: next,
+    throw: thro,
+    return: kReturn,
+    isSagaIterator: true
+  };
+
   if (typeof Symbol !== 'undefined') {
     iterator[Symbol.iterator] = function () {
       return iterator;
     };
   }
+
   return iterator;
 }
-
-/**
-  Print error in a useful way whether in a browser environment
-  (with expandable error stack traces), or in a node.js environment
-  (text-only log output)
- **/
-function log(level, message) {
-  var error = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+function logError(error, _ref2) {
+  var sagaStack = _ref2.sagaStack;
 
   /*eslint-disable no-console*/
-  if (typeof window === 'undefined') {
-    console.log('redux-saga ' + level + ': ' + message + '\n' + (error && error.stack || error));
-  } else {
-    console[level](message, error);
-  }
+  console.error(error);
+  console.error(sagaStack);
 }
-
-function deprecate(fn, deprecationWarning) {
-  return function () {
-    if (process.env.NODE_ENV === 'development') log('warn', deprecationWarning);
-    return fn.apply(undefined, arguments);
-  };
-}
-
-var updateIncentive = function updateIncentive(deprecated, preferred) {
-  return deprecated + ' has been deprecated in favor of ' + preferred + ', please update your code';
-};
-
 var internalErr = function internalErr(err) {
-  return new Error('\n  redux-saga: Error checking hooks detected an inconsistent state. This is likely a bug\n  in redux-saga code and not yours. Thanks for reporting this in the project\'s github repo.\n  Error: ' + err + '\n');
+  return new Error("\n  redux-saga: Error checking hooks detected an inconsistent state. This is likely a bug\n  in redux-saga code and not yours. Thanks for reporting this in the project's github repo.\n  Error: " + err + "\n");
 };
-
 var createSetContextWarning = function createSetContextWarning(ctx, props) {
-  return (ctx ? ctx + '.' : '') + 'setContext(props): argument ' + props + ' is not a plain object';
+  return (ctx ? ctx + '.' : '') + "setContext(props): argument " + props + " is not a plain object";
 };
+var FROZEN_ACTION_ERROR = "You can't put (a.k.a. dispatch from saga) frozen actions.\nWe have to define a special non-enumerable property on those actions for scheduling purposes.\nOtherwise you wouldn't be able to communicate properly between sagas & other subscribers (action ordering would become far less predictable).\nIf you are using redux and you care about this behaviour (frozen actions),\nthen you might want to switch to freezing actions in a middleware rather than in action creator.\nExample implementation:\n\nconst freezeActions = store => next => action => next(Object.freeze(action))\n"; // creates empty, but not-holey array
 
+var createEmptyArray = function createEmptyArray(n) {
+  return Array.apply(null, new Array(n));
+};
 var wrapSagaDispatch = function wrapSagaDispatch(dispatch) {
   return function (action) {
-    return dispatch(Object.defineProperty(action, SAGA_ACTION, { value: true }));
+    if (process.env.NODE_ENV !== 'production') {
+      check(action, function (ac) {
+        return !Object.isFrozen(ac);
+      }, FROZEN_ACTION_ERROR);
+    }
+
+    return dispatch(Object.defineProperty(action, SAGA_ACTION, {
+      value: true
+    }));
   };
 };
+var shouldTerminate = function shouldTerminate(res) {
+  return res === TERMINATE;
+};
+var shouldCancel = function shouldCancel(res) {
+  return res === TASK_CANCEL;
+};
+var shouldComplete = function shouldComplete(res) {
+  return shouldTerminate(res) || shouldCancel(res);
+};
+function createAllStyleChildCallbacks(shape, parentCallback) {
+  var keys = Object.keys(shape);
+  var totalCount = keys.length;
+
+  if (process.env.NODE_ENV !== 'production') {
+    check(totalCount, function (c) {
+      return c > 0;
+    }, 'createAllStyleChildCallbacks: get an empty array or object');
+  }
+
+  var completedCount = 0;
+  var completed;
+  var results = array$2(shape) ? createEmptyArray(totalCount) : {};
+  var childCallbacks = {};
+
+  function checkEnd() {
+    if (completedCount === totalCount) {
+      completed = true;
+      parentCallback(results);
+    }
+  }
+
+  keys.forEach(function (key) {
+    var chCbAtKey = function chCbAtKey(res, isErr) {
+      if (completed) {
+        return;
+      }
+
+      if (isErr || shouldComplete(res)) {
+        parentCallback.cancel();
+        parentCallback(res, isErr);
+      } else {
+        results[key] = res;
+        completedCount++;
+        checkEnd();
+      }
+    };
+
+    chCbAtKey.cancel = noop;
+    childCallbacks[key] = chCbAtKey;
+  });
+
+  parentCallback.cancel = function () {
+    if (!completed) {
+      completed = true;
+      keys.forEach(function (key) {
+        return childCallbacks[key].cancel();
+      });
+    }
+  };
+
+  return childCallbacks;
+}
+function getMetaInfo(fn) {
+  return {
+    name: fn.name || 'anonymous',
+    location: getLocation(fn)
+  };
+}
+function getLocation(instrumented) {
+  return instrumented[SAGA_LOCATION];
+}
 
 var BUFFER_OVERFLOW = "Channel's Buffer overflow!";
-
 var ON_OVERFLOW_THROW = 1;
-var ON_OVERFLOW_DROP = 2;
 var ON_OVERFLOW_SLIDE = 3;
 var ON_OVERFLOW_EXPAND = 4;
 
-var zeroBuffer = { isEmpty: kTrue, put: noop, take: noop };
-
-function ringBuffer() {
-  var limit = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 10;
-  var overflowAction = arguments[1];
+function ringBuffer(limit, overflowAction) {
+  if (limit === void 0) {
+    limit = 10;
+  }
 
   var arr = new Array(limit);
   var length = 0;
@@ -16207,9 +16442,11 @@ function ringBuffer() {
 
   var flush = function flush() {
     var items = [];
+
     while (length) {
       items.push(take());
     }
+
     return items;
   };
 
@@ -16221,30 +16458,29 @@ function ringBuffer() {
       if (length < limit) {
         push(it);
       } else {
-        var doubledLimit = void 0;
+        var doubledLimit;
+
         switch (overflowAction) {
           case ON_OVERFLOW_THROW:
             throw new Error(BUFFER_OVERFLOW);
+
           case ON_OVERFLOW_SLIDE:
             arr[pushIndex] = it;
             pushIndex = (pushIndex + 1) % limit;
             popIndex = pushIndex;
             break;
+
           case ON_OVERFLOW_EXPAND:
             doubledLimit = 2 * limit;
-
             arr = flush();
-
             length = arr.length;
             pushIndex = arr.length;
             popIndex = 0;
-
             arr.length = doubledLimit;
             limit = doubledLimit;
-
             push(it);
             break;
-          // DROP
+
         }
       }
     },
@@ -16252,286 +16488,10 @@ function ringBuffer() {
     flush: flush
   };
 }
-
-var buffers = {
-  none: function none() {
-    return zeroBuffer;
-  },
-  fixed: function fixed(limit) {
-    return ringBuffer(limit, ON_OVERFLOW_THROW);
-  },
-  dropping: function dropping(limit) {
-    return ringBuffer(limit, ON_OVERFLOW_DROP);
-  },
-  sliding: function sliding(limit) {
-    return ringBuffer(limit, ON_OVERFLOW_SLIDE);
-  },
-  expanding: function expanding(initialSize) {
-    return ringBuffer(initialSize, ON_OVERFLOW_EXPAND);
-  }
+var expanding = function expanding(initialSize) {
+  return ringBuffer(initialSize, ON_OVERFLOW_EXPAND);
 };
 
-var queue = [];
-/**
-  Variable to hold a counting semaphore
-  - Incrementing adds a lock and puts the scheduler in a `suspended` state (if it's not
-    already suspended)
-  - Decrementing releases a lock. Zero locks puts the scheduler in a `released` state. This
-    triggers flushing the queued tasks.
-**/
-var semaphore = 0;
-
-/**
-  Executes a task 'atomically'. Tasks scheduled during this execution will be queued
-  and flushed after this task has finished (assuming the scheduler endup in a released
-  state).
-**/
-function exec$1(task) {
-  try {
-    suspend();
-    task();
-  } finally {
-    release();
-  }
-}
-
-/**
-  Executes or queues a task depending on the state of the scheduler (`suspended` or `released`)
-**/
-function asap(task) {
-  queue.push(task);
-
-  if (!semaphore) {
-    suspend();
-    flush();
-  }
-}
-
-/**
-  Puts the scheduler in a `suspended` state. Scheduled tasks will be queued until the
-  scheduler is released.
-**/
-function suspend() {
-  semaphore++;
-}
-
-/**
-  Puts the scheduler in a `released` state.
-**/
-function release() {
-  semaphore--;
-}
-
-/**
-  Releases the current lock. Executes all queued tasks if the scheduler is in the released state.
-**/
-function flush() {
-  release();
-
-  var task = void 0;
-  while (!semaphore && (task = queue.shift()) !== undefined) {
-    exec$1(task);
-  }
-}
-
-var _extends$5 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var CHANNEL_END_TYPE = '@@redux-saga/CHANNEL_END';
-var END = { type: CHANNEL_END_TYPE };
-var isEnd = function isEnd(a) {
-  return a && a.type === CHANNEL_END_TYPE;
-};
-
-function emitter() {
-  var subscribers = [];
-
-  function subscribe(sub) {
-    subscribers.push(sub);
-    return function () {
-      return remove(subscribers, sub);
-    };
-  }
-
-  function emit(item) {
-    var arr = subscribers.slice();
-    for (var i = 0, len = arr.length; i < len; i++) {
-      arr[i](item);
-    }
-  }
-
-  return {
-    subscribe: subscribe,
-    emit: emit
-  };
-}
-
-var INVALID_BUFFER = 'invalid buffer passed to channel factory function';
-var UNDEFINED_INPUT_ERROR = 'Saga was provided with an undefined action';
-
-if (process.env.NODE_ENV !== 'production') {
-  UNDEFINED_INPUT_ERROR += '\nHints:\n    - check that your Action Creator returns a non-undefined value\n    - if the Saga was started using runSaga, check that your subscribe source provides the action to its listeners\n  ';
-}
-
-function channel() {
-  var buffer = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : buffers.fixed();
-
-  var closed = false;
-  var takers = [];
-
-  check(buffer, is.buffer, INVALID_BUFFER);
-
-  function checkForbiddenStates() {
-    if (closed && takers.length) {
-      throw internalErr('Cannot have a closed channel with pending takers');
-    }
-    if (takers.length && !buffer.isEmpty()) {
-      throw internalErr('Cannot have pending takers with non empty buffer');
-    }
-  }
-
-  function put(input) {
-    checkForbiddenStates();
-    check(input, is.notUndef, UNDEFINED_INPUT_ERROR);
-    if (closed) {
-      return;
-    }
-    if (!takers.length) {
-      return buffer.put(input);
-    }
-    for (var i = 0; i < takers.length; i++) {
-      var cb = takers[i];
-      if (!cb[MATCH] || cb[MATCH](input)) {
-        takers.splice(i, 1);
-        return cb(input);
-      }
-    }
-  }
-
-  function take(cb) {
-    checkForbiddenStates();
-    check(cb, is.func, "channel.take's callback must be a function");
-
-    if (closed && buffer.isEmpty()) {
-      cb(END);
-    } else if (!buffer.isEmpty()) {
-      cb(buffer.take());
-    } else {
-      takers.push(cb);
-      cb.cancel = function () {
-        return remove(takers, cb);
-      };
-    }
-  }
-
-  function flush(cb) {
-    checkForbiddenStates(); // TODO: check if some new state should be forbidden now
-    check(cb, is.func, "channel.flush' callback must be a function");
-    if (closed && buffer.isEmpty()) {
-      cb(END);
-      return;
-    }
-    cb(buffer.flush());
-  }
-
-  function close() {
-    checkForbiddenStates();
-    if (!closed) {
-      closed = true;
-      if (takers.length) {
-        var arr = takers;
-        takers = [];
-        for (var i = 0, len = arr.length; i < len; i++) {
-          arr[i](END);
-        }
-      }
-    }
-  }
-
-  return {
-    take: take,
-    put: put,
-    flush: flush,
-    close: close,
-    get __takers__() {
-      return takers;
-    },
-    get __closed__() {
-      return closed;
-    }
-  };
-}
-
-function eventChannel(subscribe) {
-  var buffer = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : buffers.none();
-  var matcher = arguments[2];
-
-  /**
-    should be if(typeof matcher !== undefined) instead?
-    see PR #273 for a background discussion
-  **/
-  if (arguments.length > 2) {
-    check(matcher, is.func, 'Invalid match function passed to eventChannel');
-  }
-
-  var chan = channel(buffer);
-  var close = function close() {
-    if (!chan.__closed__) {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-      chan.close();
-    }
-  };
-  var unsubscribe = subscribe(function (input) {
-    if (isEnd(input)) {
-      close();
-      return;
-    }
-    if (matcher && !matcher(input)) {
-      return;
-    }
-    chan.put(input);
-  });
-  if (chan.__closed__) {
-    unsubscribe();
-  }
-
-  if (!is.func(unsubscribe)) {
-    throw new Error('in eventChannel: subscribe should return a function to unsubscribe');
-  }
-
-  return {
-    take: chan.take,
-    flush: chan.flush,
-    close: close
-  };
-}
-
-function stdChannel(subscribe) {
-  var chan = eventChannel(function (cb) {
-    return subscribe(function (input) {
-      if (input[SAGA_ACTION]) {
-        cb(input);
-        return;
-      }
-      asap(function () {
-        return cb(input);
-      });
-    });
-  });
-
-  return _extends$5({}, chan, {
-    take: function take(cb, matcher) {
-      if (arguments.length > 1) {
-        check(matcher, is.func, "channel.take's matcher argument must be a function");
-        cb[MATCH] = matcher;
-      }
-      chan.take(cb);
-    }
-  });
-}
-
-var IO = /*#__PURE__*/sym('IO');
 var TAKE = 'TAKE';
 var PUT = 'PUT';
 var ALL = 'ALL';
@@ -16548,202 +16508,930 @@ var FLUSH = 'FLUSH';
 var GET_CONTEXT = 'GET_CONTEXT';
 var SET_CONTEXT = 'SET_CONTEXT';
 
-var effect = function effect(type, payload) {
+var makeEffect = function makeEffect(type, payload) {
   var _ref;
 
-  return _ref = {}, _ref[IO] = true, _ref[type] = payload, _ref;
+  return _ref = {}, _ref[IO] = true, _ref.combinator = false, _ref.type = type, _ref.payload = payload, _ref;
 };
+function take(patternOrChannel, multicastPattern) {
+  if (patternOrChannel === void 0) {
+    patternOrChannel = '*';
+  }
 
-function take() {
-  var patternOrChannel = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '*';
+  if (process.env.NODE_ENV !== 'production' && arguments.length) {
+    check(arguments[0], notUndef, 'take(patternOrChannel): patternOrChannel is undefined');
+  }
 
-  if (arguments.length) {
-    check(arguments[0], is.notUndef, 'take(patternOrChannel): patternOrChannel is undefined');
+  if (pattern(patternOrChannel)) {
+    return makeEffect(TAKE, {
+      pattern: patternOrChannel
+    });
   }
-  if (is.pattern(patternOrChannel)) {
-    return effect(TAKE, { pattern: patternOrChannel });
+
+  if (multicast(patternOrChannel) && notUndef(multicastPattern) && pattern(multicastPattern)) {
+    return makeEffect(TAKE, {
+      channel: patternOrChannel,
+      pattern: multicastPattern
+    });
   }
-  if (is.channel(patternOrChannel)) {
-    return effect(TAKE, { channel: patternOrChannel });
+
+  if (channel(patternOrChannel)) {
+    return makeEffect(TAKE, {
+      channel: patternOrChannel
+    });
   }
-  throw new Error('take(patternOrChannel): argument ' + String(patternOrChannel) + ' is not valid channel or a valid pattern');
+
+  if (process.env.NODE_ENV !== 'production') {
+    throw new Error("take(patternOrChannel): argument " + patternOrChannel + " is not valid channel or a valid pattern");
+  }
 }
-
-take.maybe = function () {
-  var eff = take.apply(undefined, arguments);
-  eff[TAKE].maybe = true;
-  return eff;
-};
-
-function put(channel, action) {
-  if (arguments.length > 1) {
-    check(channel, is.notUndef, 'put(channel, action): argument channel is undefined');
-    check(channel, is.channel, 'put(channel, action): argument ' + channel + ' is not a valid channel');
-    check(action, is.notUndef, 'put(channel, action): argument action is undefined');
-  } else {
-    check(channel, is.notUndef, 'put(action): argument action is undefined');
-    action = channel;
-    channel = null;
+function put(channel$1, action) {
+  if (process.env.NODE_ENV !== 'production') {
+    if (arguments.length > 1) {
+      check(channel$1, notUndef, 'put(channel, action): argument channel is undefined');
+      check(channel$1, channel, "put(channel, action): argument " + channel$1 + " is not a valid channel");
+      check(action, notUndef, 'put(channel, action): argument action is undefined');
+    } else {
+      check(channel$1, notUndef, 'put(action): argument action is undefined');
+    }
   }
-  return effect(PUT, { channel: channel, action: action });
+
+  if (undef(action)) {
+    action = channel$1; // `undefined` instead of `null` to make default parameter work
+
+    channel$1 = undefined;
+  }
+
+  return makeEffect(PUT, {
+    channel: channel$1,
+    action: action
+  });
 }
-
-put.resolve = function () {
-  var eff = put.apply(undefined, arguments);
-  eff[PUT].resolve = true;
-  return eff;
-};
-
-put.sync = /*#__PURE__*/deprecate(put.resolve, /*#__PURE__*/updateIncentive('put.sync', 'put.resolve'));
-
 function all(effects) {
-  return effect(ALL, effects);
+  var eff = makeEffect(ALL, effects);
+  eff.combinator = true;
+  return eff;
 }
 
-function getFnCallDesc(meth, fn, args) {
-  check(fn, is.notUndef, meth + ': argument fn is undefined');
+var validateFnDescriptor = function validateFnDescriptor(effectName, fnDescriptor) {
+  check(fnDescriptor, notUndef, effectName + ": argument fn is undefined or null");
+
+  if (func(fnDescriptor)) {
+    return;
+  }
 
   var context = null;
-  if (is.array(fn)) {
-    var _fn = fn;
-    context = _fn[0];
-    fn = _fn[1];
-  } else if (fn.fn) {
-    var _fn2 = fn;
-    context = _fn2.context;
-    fn = _fn2.fn;
-  }
-  if (context && is.string(fn) && is.func(context[fn])) {
-    fn = context[fn];
-  }
-  check(fn, is.func, meth + ': argument ' + fn + ' is not a function');
+  var fn;
 
-  return { context: context, fn: fn, args: args };
+  if (array$2(fnDescriptor)) {
+    context = fnDescriptor[0];
+    fn = fnDescriptor[1];
+    check(fn, notUndef, effectName + ": argument of type [context, fn] has undefined or null `fn`");
+  } else if (object$1(fnDescriptor)) {
+    context = fnDescriptor.context;
+    fn = fnDescriptor.fn;
+    check(fn, notUndef, effectName + ": argument of type {context, fn} has undefined or null `fn`");
+  } else {
+    check(fnDescriptor, func, effectName + ": argument fn is not function");
+    return;
+  }
+
+  if (context && string$1(fn)) {
+    check(context[fn], func, effectName + ": context arguments has no such method - \"" + fn + "\"");
+    return;
+  }
+
+  check(fn, func, effectName + ": unpacked fn argument (from [context, fn] or {context, fn}) is not a function");
+};
+
+function getFnCallDescriptor(fnDescriptor, args) {
+  var context = null;
+  var fn;
+
+  if (func(fnDescriptor)) {
+    fn = fnDescriptor;
+  } else {
+    if (array$2(fnDescriptor)) {
+      context = fnDescriptor[0];
+      fn = fnDescriptor[1];
+    } else {
+      context = fnDescriptor.context;
+      fn = fnDescriptor.fn;
+    }
+
+    if (context && string$1(fn) && func(context[fn])) {
+      fn = context[fn];
+    }
+  }
+
+  return {
+    context: context,
+    fn: fn,
+    args: args
+  };
 }
+function fork(fnDescriptor) {
+  if (process.env.NODE_ENV !== 'production') {
+    validateFnDescriptor('fork', fnDescriptor);
+    check(fnDescriptor, function (arg) {
+      return !effect(arg);
+    }, 'fork: argument must not be an effect');
+  }
 
-function fork(fn) {
-  for (var _len3 = arguments.length, args = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+  for (var _len3 = arguments.length, args = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
     args[_key3 - 1] = arguments[_key3];
   }
 
-  return effect(FORK, getFnCallDesc('fork', fn, args));
+  return makeEffect(FORK, getFnCallDescriptor(fnDescriptor, args));
 }
-
 function select(selector) {
-  for (var _len7 = arguments.length, args = Array(_len7 > 1 ? _len7 - 1 : 0), _key7 = 1; _key7 < _len7; _key7++) {
-    args[_key7 - 1] = arguments[_key7];
+  if (selector === void 0) {
+    selector = identity$1;
   }
 
-  if (arguments.length === 0) {
-    selector = ident;
-  } else {
-    check(selector, is.notUndef, 'select(selector,[...]): argument selector is undefined');
-    check(selector, is.func, 'select(selector,[...]): argument ' + selector + ' is not a function');
+  for (var _len5 = arguments.length, args = new Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
+    args[_key5 - 1] = arguments[_key5];
   }
-  return effect(SELECT, { selector: selector, args: args });
+
+  if (process.env.NODE_ENV !== 'production' && arguments.length) {
+    check(arguments[0], notUndef, 'select(selector, [...]): argument selector is undefined');
+    check(selector, func, "select(selector, [...]): argument " + selector + " is not a function");
+  }
+
+  return makeEffect(SELECT, {
+    selector: selector,
+    args: args
+  });
 }
 
-var createAsEffectType = function createAsEffectType(type) {
-  return function (effect) {
-    return effect && effect[IO] && effect[type];
+function deferred() {
+  var def = {};
+  def.promise = new Promise(function (resolve, reject) {
+    def.resolve = resolve;
+    def.reject = reject;
+  });
+  return def;
+}
+
+var queue = [];
+/**
+  Variable to hold a counting semaphore
+  - Incrementing adds a lock and puts the scheduler in a `suspended` state (if it's not
+    already suspended)
+  - Decrementing releases a lock. Zero locks puts the scheduler in a `released` state. This
+    triggers flushing the queued tasks.
+**/
+
+var semaphore = 0;
+/**
+  Executes a task 'atomically'. Tasks scheduled during this execution will be queued
+  and flushed after this task has finished (assuming the scheduler endup in a released
+  state).
+**/
+
+function exec$1(task) {
+  try {
+    suspend();
+    task();
+  } finally {
+    release();
+  }
+}
+/**
+  Executes or queues a task depending on the state of the scheduler (`suspended` or `released`)
+**/
+
+
+function asap(task) {
+  queue.push(task);
+
+  if (!semaphore) {
+    suspend();
+    flush();
+  }
+}
+/**
+ * Puts the scheduler in a `suspended` state and executes a task immediately.
+ */
+
+function immediately(task) {
+  try {
+    suspend();
+    return task();
+  } finally {
+    flush();
+  }
+}
+/**
+  Puts the scheduler in a `suspended` state. Scheduled tasks will be queued until the
+  scheduler is released.
+**/
+
+function suspend() {
+  semaphore++;
+}
+/**
+  Puts the scheduler in a `released` state.
+**/
+
+
+function release() {
+  semaphore--;
+}
+/**
+  Releases the current lock. Executes all queued tasks if the scheduler is in the released state.
+**/
+
+
+function flush() {
+  release();
+  var task;
+
+  while (!semaphore && (task = queue.shift()) !== undefined) {
+    exec$1(task);
+  }
+}
+
+var array$3 = function array(patterns) {
+  return function (input) {
+    return patterns.some(function (p) {
+      return matcher(p)(input);
+    });
   };
 };
-
-var asEffect = {
-  take: /*#__PURE__*/createAsEffectType(TAKE),
-  put: /*#__PURE__*/createAsEffectType(PUT),
-  all: /*#__PURE__*/createAsEffectType(ALL),
-  race: /*#__PURE__*/createAsEffectType(RACE),
-  call: /*#__PURE__*/createAsEffectType(CALL),
-  cps: /*#__PURE__*/createAsEffectType(CPS),
-  fork: /*#__PURE__*/createAsEffectType(FORK),
-  join: /*#__PURE__*/createAsEffectType(JOIN),
-  cancel: /*#__PURE__*/createAsEffectType(CANCEL$1),
-  select: /*#__PURE__*/createAsEffectType(SELECT),
-  actionChannel: /*#__PURE__*/createAsEffectType(ACTION_CHANNEL),
-  cancelled: /*#__PURE__*/createAsEffectType(CANCELLED),
-  flush: /*#__PURE__*/createAsEffectType(FLUSH),
-  getContext: /*#__PURE__*/createAsEffectType(GET_CONTEXT),
-  setContext: /*#__PURE__*/createAsEffectType(SET_CONTEXT)
+var predicate = function predicate(_predicate) {
+  return function (input) {
+    return _predicate(input);
+  };
 };
-
-var _extends$6 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-var _typeof$1 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-function _defineEnumerableProperties(obj, descs) { for (var key in descs) { var desc = descs[key]; desc.configurable = desc.enumerable = true; if ("value" in desc) desc.writable = true; Object.defineProperty(obj, key, desc); } return obj; }
-
-var NOT_ITERATOR_ERROR = 'proc first argument (Saga function result) must be an iterator';
-
-var CHANNEL_END = {
-  toString: function toString() {
-    return '@@redux-saga/CHANNEL_END';
-  }
+var string$2 = function string(pattern) {
+  return function (input) {
+    return input.type === String(pattern);
+  };
 };
-var TASK_CANCEL = {
-  toString: function toString() {
-    return '@@redux-saga/TASK_CANCEL';
-  }
+var symbol$1 = function symbol(pattern) {
+  return function (input) {
+    return input.type === pattern;
+  };
 };
-
-var matchers = {
-  wildcard: function wildcard() {
-    return kTrue;
-  },
-  default: function _default(pattern) {
-    return (typeof pattern === 'undefined' ? 'undefined' : _typeof$1(pattern)) === 'symbol' ? function (input) {
-      return input.type === pattern;
-    } : function (input) {
-      return input.type === String(pattern);
-    };
-  },
-  array: function array(patterns) {
-    return function (input) {
-      return patterns.some(function (p) {
-        return matcher(p)(input);
-      });
-    };
-  },
-  predicate: function predicate(_predicate) {
-    return function (input) {
-      return _predicate(input);
-    };
-  }
+var wildcard = function wildcard() {
+  return kTrue;
 };
-
 function matcher(pattern) {
   // prettier-ignore
-  return (pattern === '*' ? matchers.wildcard : is.array(pattern) ? matchers.array : is.stringableFunc(pattern) ? matchers.default : is.func(pattern) ? matchers.predicate : matchers.default)(pattern);
+  var matcherCreator = pattern === '*' ? wildcard : string$1(pattern) ? string$2 : array$2(pattern) ? array$3 : stringableFunc(pattern) ? string$2 : func(pattern) ? predicate : symbol(pattern) ? symbol$1 : null;
+
+  if (matcherCreator === null) {
+    throw new Error("invalid pattern: " + pattern);
+  }
+
+  return matcherCreator(pattern);
 }
 
-/**
-  Used to track a parent task and its forks
-  In the new fork model, forked tasks are attached by default to their parent
-  We model this using the concept of Parent task && main Task
-  main task is the main flow of the current Generator, the parent tasks is the
-  aggregation of the main tasks + all its forked tasks.
-  Thus the whole model represents an execution tree with multiple branches (vs the
-  linear execution tree in sequential (non parallel) programming)
+var END = {
+  type: CHANNEL_END_TYPE
+};
+var isEnd = function isEnd(a) {
+  return a && a.type === CHANNEL_END_TYPE;
+};
+var CLOSED_CHANNEL_WITH_TAKERS = 'Cannot have a closed channel with pending takers';
+var INVALID_BUFFER = 'invalid buffer passed to channel factory function';
+var UNDEFINED_INPUT_ERROR = "Saga or channel was provided with an undefined action\nHints:\n  - check that your Action Creator returns a non-undefined value\n  - if the Saga was started using runSaga, check that your subscribe source provides the action to its listeners";
+function channel$1(buffer$1) {
+  if (buffer$1 === void 0) {
+    buffer$1 = expanding();
+  }
 
-  A parent tasks has the following semantics
-  - It completes if all its forks either complete or all cancelled
-  - If it's cancelled, all forks are cancelled as well
-  - It aborts if any uncaught error bubbles up from forks
-  - If it completes, the return value is the one returned by the main task
-**/
-function forkQueue(name, mainTask, cb) {
-  var tasks = [],
-      result = void 0,
-      completed = false;
+  var closed = false;
+  var takers = [];
+
+  if (process.env.NODE_ENV !== 'production') {
+    check(buffer$1, buffer, INVALID_BUFFER);
+  }
+
+  function checkForbiddenStates() {
+    if (closed && takers.length) {
+      throw internalErr(CLOSED_CHANNEL_WITH_TAKERS);
+    }
+
+    if (takers.length && !buffer$1.isEmpty()) {
+      throw internalErr('Cannot have pending takers with non empty buffer');
+    }
+  }
+
+  function put(input) {
+    if (process.env.NODE_ENV !== 'production') {
+      checkForbiddenStates();
+      check(input, notUndef, UNDEFINED_INPUT_ERROR);
+    }
+
+    if (closed) {
+      return;
+    }
+
+    if (takers.length === 0) {
+      return buffer$1.put(input);
+    }
+
+    var cb = takers.shift();
+    cb(input);
+  }
+
+  function take(cb) {
+    if (process.env.NODE_ENV !== 'production') {
+      checkForbiddenStates();
+      check(cb, func, "channel.take's callback must be a function");
+    }
+
+    if (closed && buffer$1.isEmpty()) {
+      cb(END);
+    } else if (!buffer$1.isEmpty()) {
+      cb(buffer$1.take());
+    } else {
+      takers.push(cb);
+
+      cb.cancel = function () {
+        remove(takers, cb);
+      };
+    }
+  }
+
+  function flush(cb) {
+    if (process.env.NODE_ENV !== 'production') {
+      checkForbiddenStates();
+      check(cb, func, "channel.flush' callback must be a function");
+    }
+
+    if (closed && buffer$1.isEmpty()) {
+      cb(END);
+      return;
+    }
+
+    cb(buffer$1.flush());
+  }
+
+  function close() {
+    if (process.env.NODE_ENV !== 'production') {
+      checkForbiddenStates();
+    }
+
+    if (closed) {
+      return;
+    }
+
+    closed = true;
+    var arr = takers;
+    takers = [];
+
+    for (var i = 0, len = arr.length; i < len; i++) {
+      var taker = arr[i];
+      taker(END);
+    }
+  }
+
+  return {
+    take: take,
+    put: put,
+    flush: flush,
+    close: close
+  };
+}
+function multicastChannel() {
+  var _ref;
+
+  var closed = false;
+  var currentTakers = [];
+  var nextTakers = currentTakers;
+
+  function checkForbiddenStates() {
+    if (closed && nextTakers.length) {
+      throw internalErr(CLOSED_CHANNEL_WITH_TAKERS);
+    }
+  }
+
+  var ensureCanMutateNextTakers = function ensureCanMutateNextTakers() {
+    if (nextTakers !== currentTakers) {
+      return;
+    }
+
+    nextTakers = currentTakers.slice();
+  };
+
+  var close = function close() {
+    if (process.env.NODE_ENV !== 'production') {
+      checkForbiddenStates();
+    }
+
+    closed = true;
+    var takers = currentTakers = nextTakers;
+    nextTakers = [];
+    takers.forEach(function (taker) {
+      taker(END);
+    });
+  };
+
+  return _ref = {}, _ref[MULTICAST] = true, _ref.put = function put(input) {
+    if (process.env.NODE_ENV !== 'production') {
+      checkForbiddenStates();
+      check(input, notUndef, UNDEFINED_INPUT_ERROR);
+    }
+
+    if (closed) {
+      return;
+    }
+
+    if (isEnd(input)) {
+      close();
+      return;
+    }
+
+    var takers = currentTakers = nextTakers;
+
+    for (var i = 0, len = takers.length; i < len; i++) {
+      var taker = takers[i];
+
+      if (taker[MATCH](input)) {
+        taker.cancel();
+        taker(input);
+      }
+    }
+  }, _ref.take = function take(cb, matcher) {
+    if (matcher === void 0) {
+      matcher = wildcard;
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      checkForbiddenStates();
+    }
+
+    if (closed) {
+      cb(END);
+      return;
+    }
+
+    cb[MATCH] = matcher;
+    ensureCanMutateNextTakers();
+    nextTakers.push(cb);
+    cb.cancel = once$1(function () {
+      ensureCanMutateNextTakers();
+      remove(nextTakers, cb);
+    });
+  }, _ref.close = close, _ref;
+}
+function stdChannel() {
+  var chan = multicastChannel();
+  var put = chan.put;
+
+  chan.put = function (input) {
+    if (input[SAGA_ACTION]) {
+      put(input);
+      return;
+    }
+
+    asap(function () {
+      put(input);
+    });
+  };
+
+  return chan;
+}
+
+var RUNNING = 0;
+var CANCELLED$1 = 1;
+var ABORTED = 2;
+var DONE = 3;
+
+function resolvePromise(promise, cb) {
+  var cancelPromise = promise[CANCEL];
+
+  if (func(cancelPromise)) {
+    cb.cancel = cancelPromise;
+  }
+
+  promise.then(cb, function (error) {
+    cb(error, true);
+  });
+}
+
+var current = 0;
+var nextSagaId = (function () {
+  return ++current;
+});
+
+var _effectRunnerMap;
+
+function getIteratorMetaInfo(iterator, fn) {
+  if (iterator.isSagaIterator) {
+    return {
+      name: iterator.meta.name
+    };
+  }
+
+  return getMetaInfo(fn);
+}
+
+function createTaskIterator(_ref) {
+  var context = _ref.context,
+      fn = _ref.fn,
+      args = _ref.args;
+
+  // catch synchronous failures; see #152 and #441
+  try {
+    var result = fn.apply(context, args); // i.e. a generator function returns an iterator
+
+    if (iterator(result)) {
+      return result;
+    }
+
+    var resolved = false;
+
+    var next = function next(arg) {
+      if (!resolved) {
+        resolved = true; // Only promises returned from fork will be interpreted. See #1573
+
+        return {
+          value: result,
+          done: !promise(result)
+        };
+      } else {
+        return {
+          value: arg,
+          done: true
+        };
+      }
+    };
+
+    return makeIterator(next);
+  } catch (err) {
+    // do not bubble up synchronous failures for detached forks
+    // instead create a failed task. See #152 and #441
+    return makeIterator(function () {
+      throw err;
+    });
+  }
+}
+
+function runPutEffect(env, _ref2, cb) {
+  var channel = _ref2.channel,
+      action = _ref2.action,
+      resolve = _ref2.resolve;
+
+  /**
+   Schedule the put in case another saga is holding a lock.
+   The put will be executed atomically. ie nested puts will execute after
+   this put has terminated.
+   **/
+  asap(function () {
+    var result;
+
+    try {
+      result = (channel ? channel.put : env.dispatch)(action);
+    } catch (error) {
+      cb(error, true);
+      return;
+    }
+
+    if (resolve && promise(result)) {
+      resolvePromise(result, cb);
+    } else {
+      cb(result);
+    }
+  }); // Put effects are non cancellables
+}
+
+function runTakeEffect(env, _ref3, cb) {
+  var _ref3$channel = _ref3.channel,
+      channel = _ref3$channel === void 0 ? env.channel : _ref3$channel,
+      pattern = _ref3.pattern,
+      maybe = _ref3.maybe;
+
+  var takeCb = function takeCb(input) {
+    if (input instanceof Error) {
+      cb(input, true);
+      return;
+    }
+
+    if (isEnd(input) && !maybe) {
+      cb(TERMINATE);
+      return;
+    }
+
+    cb(input);
+  };
+
+  try {
+    channel.take(takeCb, notUndef(pattern) ? matcher(pattern) : null);
+  } catch (err) {
+    cb(err, true);
+    return;
+  }
+
+  cb.cancel = takeCb.cancel;
+}
+
+function runCallEffect(env, _ref4, cb, _ref5) {
+  var context = _ref4.context,
+      fn = _ref4.fn,
+      args = _ref4.args;
+  var task = _ref5.task;
+
+  // catch synchronous failures; see #152
+  try {
+    var result = fn.apply(context, args);
+
+    if (promise(result)) {
+      resolvePromise(result, cb);
+      return;
+    }
+
+    if (iterator(result)) {
+      // resolve iterator
+      proc(env, result, task.context, current, getMetaInfo(fn),
+      /* isRoot */
+      false, cb);
+      return;
+    }
+
+    cb(result);
+  } catch (error) {
+    cb(error, true);
+  }
+}
+
+function runCPSEffect(env, _ref6, cb) {
+  var context = _ref6.context,
+      fn = _ref6.fn,
+      args = _ref6.args;
+
+  // CPS (ie node style functions) can define their own cancellation logic
+  // by setting cancel field on the cb
+  // catch synchronous failures; see #152
+  try {
+    var cpsCb = function cpsCb(err, res) {
+      if (undef(err)) {
+        cb(res);
+      } else {
+        cb(err, true);
+      }
+    };
+
+    fn.apply(context, args.concat(cpsCb));
+
+    if (cpsCb.cancel) {
+      cb.cancel = cpsCb.cancel;
+    }
+  } catch (error) {
+    cb(error, true);
+  }
+}
+
+function runForkEffect(env, _ref7, cb, _ref8) {
+  var context = _ref7.context,
+      fn = _ref7.fn,
+      args = _ref7.args,
+      detached = _ref7.detached;
+  var parent = _ref8.task;
+  var taskIterator = createTaskIterator({
+    context: context,
+    fn: fn,
+    args: args
+  });
+  var meta = getIteratorMetaInfo(taskIterator, fn);
+  immediately(function () {
+    var child = proc(env, taskIterator, parent.context, current, meta, detached, undefined);
+
+    if (detached) {
+      cb(child);
+    } else {
+      if (child.isRunning()) {
+        parent.queue.addTask(child);
+        cb(child);
+      } else if (child.isAborted()) {
+        parent.queue.abort(child.error());
+      } else {
+        cb(child);
+      }
+    }
+  }); // Fork effects are non cancellables
+}
+
+function runJoinEffect(env, taskOrTasks, cb, _ref9) {
+  var task = _ref9.task;
+
+  var joinSingleTask = function joinSingleTask(taskToJoin, cb) {
+    if (taskToJoin.isRunning()) {
+      var joiner = {
+        task: task,
+        cb: cb
+      };
+
+      cb.cancel = function () {
+        if (taskToJoin.isRunning()) remove(taskToJoin.joiners, joiner);
+      };
+
+      taskToJoin.joiners.push(joiner);
+    } else {
+      if (taskToJoin.isAborted()) {
+        cb(taskToJoin.error(), true);
+      } else {
+        cb(taskToJoin.result());
+      }
+    }
+  };
+
+  if (array$2(taskOrTasks)) {
+    if (taskOrTasks.length === 0) {
+      cb([]);
+      return;
+    }
+
+    var childCallbacks = createAllStyleChildCallbacks(taskOrTasks, cb);
+    taskOrTasks.forEach(function (t, i) {
+      joinSingleTask(t, childCallbacks[i]);
+    });
+  } else {
+    joinSingleTask(taskOrTasks, cb);
+  }
+}
+
+function cancelSingleTask(taskToCancel) {
+  if (taskToCancel.isRunning()) {
+    taskToCancel.cancel();
+  }
+}
+
+function runCancelEffect(env, taskOrTasks, cb, _ref10) {
+  var task = _ref10.task;
+
+  if (taskOrTasks === SELF_CANCELLATION) {
+    cancelSingleTask(task);
+  } else if (array$2(taskOrTasks)) {
+    taskOrTasks.forEach(cancelSingleTask);
+  } else {
+    cancelSingleTask(taskOrTasks);
+  }
+
+  cb(); // cancel effects are non cancellables
+}
+
+function runAllEffect(env, effects, cb, _ref11) {
+  var digestEffect = _ref11.digestEffect;
+  var effectId = current;
+  var keys = Object.keys(effects);
+
+  if (keys.length === 0) {
+    cb(array$2(effects) ? [] : {});
+    return;
+  }
+
+  var childCallbacks = createAllStyleChildCallbacks(effects, cb);
+  keys.forEach(function (key) {
+    digestEffect(effects[key], effectId, childCallbacks[key], key);
+  });
+}
+
+function runRaceEffect(env, effects, cb, _ref12) {
+  var digestEffect = _ref12.digestEffect;
+  var effectId = current;
+  var keys = Object.keys(effects);
+  var response = array$2(effects) ? createEmptyArray(keys.length) : {};
+  var childCbs = {};
+  var completed = false;
+  keys.forEach(function (key) {
+    var chCbAtKey = function chCbAtKey(res, isErr) {
+      if (completed) {
+        return;
+      }
+
+      if (isErr || shouldComplete(res)) {
+        // Race Auto cancellation
+        cb.cancel();
+        cb(res, isErr);
+      } else {
+        cb.cancel();
+        completed = true;
+        response[key] = res;
+        cb(response);
+      }
+    };
+
+    chCbAtKey.cancel = noop;
+    childCbs[key] = chCbAtKey;
+  });
+
+  cb.cancel = function () {
+    // prevents unnecessary cancellation
+    if (!completed) {
+      completed = true;
+      keys.forEach(function (key) {
+        return childCbs[key].cancel();
+      });
+    }
+  };
+
+  keys.forEach(function (key) {
+    if (completed) {
+      return;
+    }
+
+    digestEffect(effects[key], effectId, childCbs[key], key);
+  });
+}
+
+function runSelectEffect(env, _ref13, cb) {
+  var selector = _ref13.selector,
+      args = _ref13.args;
+
+  try {
+    var state = selector.apply(void 0, [env.getState()].concat(args));
+    cb(state);
+  } catch (error) {
+    cb(error, true);
+  }
+}
+
+function runChannelEffect(env, _ref14, cb) {
+  var pattern = _ref14.pattern,
+      buffer = _ref14.buffer;
+  var chan = channel$1(buffer);
+  var match = matcher(pattern);
+
+  var taker = function taker(action) {
+    if (!isEnd(action)) {
+      env.channel.take(taker, match);
+    }
+
+    chan.put(action);
+  };
+
+  var close = chan.close;
+
+  chan.close = function () {
+    taker.cancel();
+    close();
+  };
+
+  env.channel.take(taker, match);
+  cb(chan);
+}
+
+function runCancelledEffect(env, data, cb, _ref15) {
+  var task = _ref15.task;
+  cb(task.isCancelled());
+}
+
+function runFlushEffect(env, channel, cb) {
+  channel.flush(cb);
+}
+
+function runGetContextEffect(env, prop, cb, _ref16) {
+  var task = _ref16.task;
+  cb(task.context[prop]);
+}
+
+function runSetContextEffect(env, props, cb, _ref17) {
+  var task = _ref17.task;
+  assignWithSymbols(task.context, props);
+  cb();
+}
+
+var effectRunnerMap = (_effectRunnerMap = {}, _effectRunnerMap[TAKE] = runTakeEffect, _effectRunnerMap[PUT] = runPutEffect, _effectRunnerMap[ALL] = runAllEffect, _effectRunnerMap[RACE] = runRaceEffect, _effectRunnerMap[CALL] = runCallEffect, _effectRunnerMap[CPS] = runCPSEffect, _effectRunnerMap[FORK] = runForkEffect, _effectRunnerMap[JOIN] = runJoinEffect, _effectRunnerMap[CANCEL$1] = runCancelEffect, _effectRunnerMap[SELECT] = runSelectEffect, _effectRunnerMap[ACTION_CHANNEL] = runChannelEffect, _effectRunnerMap[CANCELLED] = runCancelledEffect, _effectRunnerMap[FLUSH] = runFlushEffect, _effectRunnerMap[GET_CONTEXT] = runGetContextEffect, _effectRunnerMap[SET_CONTEXT] = runSetContextEffect, _effectRunnerMap);
+
+/**
+ Used to track a parent task and its forks
+ In the fork model, forked tasks are attached by default to their parent
+ We model this using the concept of Parent task && main Task
+ main task is the main flow of the current Generator, the parent tasks is the
+ aggregation of the main tasks + all its forked tasks.
+ Thus the whole model represents an execution tree with multiple branches (vs the
+ linear execution tree in sequential (non parallel) programming)
+
+ A parent tasks has the following semantics
+ - It completes if all its forks either complete or all cancelled
+ - If it's cancelled, all forks are cancelled as well
+ - It aborts if any uncaught error bubbles up from forks
+ - If it completes, the return value is the one returned by the main task
+ **/
+
+function forkQueue(mainTask, onAbort, cont) {
+  var tasks = [];
+  var result;
+  var completed = false;
   addTask(mainTask);
 
+  var getTasks = function getTasks() {
+    return tasks;
+  };
+
   function abort(err) {
+    onAbort();
     cancelAll();
-    cb(err, true);
+    cont(err, true);
   }
 
   function addTask(task) {
     tasks.push(task);
+
     task.cont = function (res, isErr) {
       if (completed) {
         return;
@@ -16751,25 +17439,27 @@ function forkQueue(name, mainTask, cb) {
 
       remove(tasks, task);
       task.cont = noop;
+
       if (isErr) {
         abort(res);
       } else {
         if (task === mainTask) {
           result = res;
         }
+
         if (!tasks.length) {
           completed = true;
-          cb(result);
+          cont(result);
         }
       }
     };
-    // task.cont.cancel = task.cancel
   }
 
   function cancelAll() {
     if (completed) {
       return;
     }
+
     completed = true;
     tasks.forEach(function (t) {
       t.cont = noop;
@@ -16782,262 +17472,378 @@ function forkQueue(name, mainTask, cb) {
     addTask: addTask,
     cancelAll: cancelAll,
     abort: abort,
-    getTasks: function getTasks() {
-      return tasks;
-    },
-    taskNames: function taskNames() {
-      return tasks.map(function (t) {
-        return t.name;
-      });
-    }
+    getTasks: getTasks
   };
 }
 
-function createTaskIterator(_ref) {
-  var context = _ref.context,
-      fn = _ref.fn,
-      args = _ref.args;
+// there can be only a single saga error created at any given moment
 
-  if (is.iterator(fn)) {
-    return fn;
-  }
-
-  // catch synchronous failures; see #152 and #441
-  var result = void 0,
-      error = void 0;
-  try {
-    result = fn.apply(context, args);
-  } catch (err) {
-    error = err;
-  }
-
-  // i.e. a generator function returns an iterator
-  if (is.iterator(result)) {
-    return result;
-  }
-
-  // do not bubble up synchronous failures for detached forks
-  // instead create a failed task. See #152 and #441
-  return error ? makeIterator(function () {
-    throw error;
-  }) : makeIterator(function () {
-    var pc = void 0;
-    var eff = { done: false, value: result };
-    var ret = function ret(value) {
-      return { done: true, value: value };
-    };
-    return function (arg) {
-      if (!pc) {
-        pc = true;
-        return eff;
-      } else {
-        return ret(arg);
-      }
-    };
-  }());
+function formatLocation(fileName, lineNumber) {
+  return fileName + "?" + lineNumber;
 }
 
-var wrapHelper = function wrapHelper(helper) {
-  return { fn: helper };
+function effectLocationAsString(effect) {
+  var location = getLocation(effect);
+
+  if (location) {
+    var code = location.code,
+        fileName = location.fileName,
+        lineNumber = location.lineNumber;
+    var source = code + "  " + formatLocation(fileName, lineNumber);
+    return source;
+  }
+
+  return '';
+}
+
+function sagaLocationAsString(sagaMeta) {
+  var name = sagaMeta.name,
+      location = sagaMeta.location;
+
+  if (location) {
+    return name + "  " + formatLocation(location.fileName, location.lineNumber);
+  }
+
+  return name;
+}
+
+function cancelledTasksAsString(sagaStack) {
+  var cancelledTasks = flatMap(function (i) {
+    return i.cancelledTasks;
+  }, sagaStack);
+
+  if (!cancelledTasks.length) {
+    return '';
+  }
+
+  return ['Tasks cancelled due to error:'].concat(cancelledTasks).join('\n');
+}
+
+var crashedEffect = null;
+var sagaStack = [];
+var addSagaFrame = function addSagaFrame(frame) {
+  frame.crashedEffect = crashedEffect;
+  sagaStack.push(frame);
+};
+var clear = function clear() {
+  crashedEffect = null;
+  sagaStack.length = 0;
+}; // this sets crashed effect for the soon-to-be-reported saga frame
+// this slightly streatches the singleton nature of this module into wrong direction
+// as it's even less obvious what's the data flow here, but it is what it is for now
+
+var setCrashedEffect = function setCrashedEffect(effect) {
+  crashedEffect = effect;
+};
+/**
+  @returns {string}
+
+  @example
+  The above error occurred in task errorInPutSaga {pathToFile}
+  when executing effect put({type: 'REDUCER_ACTION_ERROR_IN_PUT'}) {pathToFile}
+      created by fetchSaga {pathToFile}
+      created by rootSaga {pathToFile}
+*/
+
+var toString$2 = function toString() {
+  var firstSaga = sagaStack[0],
+      otherSagas = sagaStack.slice(1);
+  var crashedEffectLocation = firstSaga.crashedEffect ? effectLocationAsString(firstSaga.crashedEffect) : null;
+  var errorMessage = "The above error occurred in task " + sagaLocationAsString(firstSaga.meta) + (crashedEffectLocation ? " \n when executing effect " + crashedEffectLocation : '');
+  return [errorMessage].concat(otherSagas.map(function (s) {
+    return "    created by " + sagaLocationAsString(s.meta);
+  }), [cancelledTasksAsString(sagaStack)]).join('\n');
 };
 
-function proc(iterator) {
-  var subscribe = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : function () {
-    return noop;
-  };
-  var dispatch = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : noop;
-  var getState = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : noop;
-  var parentContext = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : {};
-  var options = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : {};
-  var parentEffectId = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : 0;
-  var name = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : 'anonymous';
-  var cont = arguments[8];
+function newTask(env, mainTask, parentContext, parentEffectId, meta, isRoot, cont) {
+  var _task;
 
-  check(iterator, is.iterator, NOT_ITERATOR_ERROR);
+  if (cont === void 0) {
+    cont = noop;
+  }
 
-  var effectsString = '[...effects]';
-  var runParallelEffect = deprecate(runAllEffect, updateIncentive(effectsString, 'all(' + effectsString + ')'));
+  var status = RUNNING;
+  var taskResult;
+  var taskError;
+  var deferredEnd = null;
+  var cancelledDueToErrorTasks = [];
+  var context = Object.create(parentContext);
+  var queue = forkQueue(mainTask, function onAbort() {
+    cancelledDueToErrorTasks.push.apply(cancelledDueToErrorTasks, queue.getTasks().map(function (t) {
+      return t.meta.name;
+    }));
+  }, end);
+  /**
+   This may be called by a parent generator to trigger/propagate cancellation
+   cancel all pending tasks (including the main task), then end the current task.
+    Cancellation propagates down to the whole execution tree held by this Parent task
+   It's also propagated to all joiners of this task and their execution tree/joiners
+    Cancellation is noop for terminated/Cancelled tasks tasks
+   **/
 
-  var sagaMonitor = options.sagaMonitor,
-      logger = options.logger,
-      onError = options.onError;
+  function cancel() {
+    if (status === RUNNING) {
+      // Setting status to CANCELLED does not necessarily mean that the task/iterators are stopped
+      // effects in the iterator's finally block will still be executed
+      status = CANCELLED$1;
+      queue.cancelAll(); // Ending with a TASK_CANCEL will propagate the Cancellation to all joiners
 
-  var log$1 = logger || log;
-  var logError = function logError(err) {
-    var message = err.sagaStack;
+      end(TASK_CANCEL, false);
+    }
+  }
 
-    if (!message && err.stack) {
-      message = err.stack.split('\n')[0].indexOf(err.message) !== -1 ? err.stack : 'Error: ' + err.message + '\n' + err.stack;
+  function end(result, isErr) {
+    if (!isErr) {
+      // The status here may be RUNNING or CANCELLED
+      // If the status is CANCELLED, then we do not need to change it here
+      if (result === TASK_CANCEL) {
+        status = CANCELLED$1;
+      } else if (status !== CANCELLED$1) {
+        status = DONE;
+      }
+
+      taskResult = result;
+      deferredEnd && deferredEnd.resolve(result);
+    } else {
+      status = ABORTED;
+      addSagaFrame({
+        meta: meta,
+        cancelledTasks: cancelledDueToErrorTasks
+      });
+
+      if (task.isRoot) {
+        var sagaStack = toString$2(); // we've dumped the saga stack to string and are passing it to user's code
+        // we know that it won't be needed anymore and we need to clear it
+
+        clear();
+        env.onError(result, {
+          sagaStack: sagaStack
+        });
+      }
+
+      taskError = result;
+      deferredEnd && deferredEnd.reject(result);
     }
 
-    log$1('error', 'uncaught at ' + name, message || err.message || err);
-  };
-  var stdChannel$1 = stdChannel(subscribe);
-  var taskContext = Object.create(parentContext);
+    task.cont(result, isErr);
+    task.joiners.forEach(function (joiner) {
+      joiner.cb(result, isErr);
+    });
+    task.joiners = null;
+  }
+
+  function setContext(props) {
+    if (process.env.NODE_ENV !== 'production') {
+      check(props, object$1, createSetContextWarning('task', props));
+    }
+
+    assignWithSymbols(context, props);
+  }
+
+  function toPromise() {
+    if (deferredEnd) {
+      return deferredEnd.promise;
+    }
+
+    deferredEnd = deferred();
+
+    if (status === ABORTED) {
+      deferredEnd.reject(taskError);
+    } else if (status !== RUNNING) {
+      deferredEnd.resolve(taskResult);
+    }
+
+    return deferredEnd.promise;
+  }
+
+  var task = (_task = {}, _task[TASK] = true, _task.id = parentEffectId, _task.meta = meta, _task.isRoot = isRoot, _task.context = context, _task.joiners = [], _task.queue = queue, _task.cancel = cancel, _task.cont = cont, _task.end = end, _task.setContext = setContext, _task.toPromise = toPromise, _task.isRunning = function isRunning() {
+    return status === RUNNING;
+  }, _task.isCancelled = function isCancelled() {
+    return status === CANCELLED$1 || status === RUNNING && mainTask.status === CANCELLED$1;
+  }, _task.isAborted = function isAborted() {
+    return status === ABORTED;
+  }, _task.result = function result() {
+    return taskResult;
+  }, _task.error = function error() {
+    return taskError;
+  }, _task);
+  return task;
+}
+
+function proc(env, iterator$1, parentContext, parentEffectId, meta, isRoot, cont) {
+  if (process.env.NODE_ENV !== 'production' && iterator$1[asyncIteratorSymbol]) {
+    throw new Error("redux-saga doesn't support async generators, please use only regular ones");
+  }
+
+  var finalRunEffect = env.finalizeRunEffect(runEffect);
   /**
     Tracks the current effect cancellation
     Each time the generator progresses. calling runEffect will set a new value
     on it. It allows propagating cancellation to child effects
   **/
+
   next.cancel = noop;
+  /** Creates a main task to track the main flow */
 
+  var mainTask = {
+    meta: meta,
+    cancel: cancelMain,
+    status: RUNNING
+  };
   /**
-    Creates a new task descriptor for this generator, We'll also create a main task
-    to track the main flow (besides other forked tasks)
-  **/
-  var task = newTask(parentEffectId, name, iterator, cont);
-  var mainTask = { name: name, cancel: cancelMain, isRunning: true };
-  var taskQueue = forkQueue(name, mainTask, end);
+   Creates a new task descriptor for this generator.
+   A task is the aggregation of it's mainTask and all it's forked tasks.
+   **/
 
+  var task = newTask(env, mainTask, parentContext, parentEffectId, meta, isRoot, cont);
+  var executingContext = {
+    task: task,
+    digestEffect: digestEffect
+  };
   /**
-    cancellation of the main task. We'll simply resume the Generator with a Cancel
+    cancellation of the main task. We'll simply resume the Generator with a TASK_CANCEL
   **/
+
   function cancelMain() {
-    if (mainTask.isRunning && !mainTask.isCancelled) {
-      mainTask.isCancelled = true;
+    if (mainTask.status === RUNNING) {
+      mainTask.status = CANCELLED$1;
       next(TASK_CANCEL);
-    }
-  }
-
-  /**
-    This may be called by a parent generator to trigger/propagate cancellation
-    cancel all pending tasks (including the main task), then end the current task.
-     Cancellation propagates down to the whole execution tree holded by this Parent task
-    It's also propagated to all joiners of this task and their execution tree/joiners
-     Cancellation is noop for terminated/Cancelled tasks tasks
-  **/
-  function cancel() {
-    /**
-      We need to check both Running and Cancelled status
-      Tasks can be Cancelled but still Running
-    **/
-    if (iterator._isRunning && !iterator._isCancelled) {
-      iterator._isCancelled = true;
-      taskQueue.cancelAll();
-      /**
-        Ending with a Never result will propagate the Cancellation to all joiners
-      **/
-      end(TASK_CANCEL);
     }
   }
   /**
     attaches cancellation logic to this task's continuation
     this will permit cancellation to propagate down the call chain
   **/
-  cont && (cont.cancel = cancel);
 
-  // tracks the running status
-  iterator._isRunning = true;
 
-  // kicks up the generator
-  next();
+  if (cont) {
+    cont.cancel = task.cancel;
+  } // kicks up the generator
 
-  // then return the task descriptor to the caller
+
+  next(); // then return the task descriptor to the caller
+
   return task;
-
   /**
-    This is the generator driver
-    It's a recursive async/continuation function which calls itself
-    until the generator terminates or throws
-  **/
-  function next(arg, isErr) {
-    // Preventive measure. If we end up here, then there is really something wrong
-    if (!mainTask.isRunning) {
-      throw new Error('Trying to resume an already finished generator');
-    }
+   * This is the generator driver
+   * It's a recursive async/continuation function which calls itself
+   * until the generator terminates or throws
+   * @param {internal commands(TASK_CANCEL | TERMINATE) | any} arg - value, generator will be resumed with.
+   * @param {boolean} isErr - the flag shows if effect finished with an error
+   *
+   * receives either (command | effect result, false) or (any thrown thing, true)
+   */
 
+  function next(arg, isErr) {
     try {
-      var result = void 0;
+      var result;
+
       if (isErr) {
-        result = iterator.throw(arg);
-      } else if (arg === TASK_CANCEL) {
+        result = iterator$1.throw(arg); // user handled the error, we can clear bookkept values
+
+        clear();
+      } else if (shouldCancel(arg)) {
         /**
           getting TASK_CANCEL automatically cancels the main task
           We can get this value here
            - By cancelling the parent task manually
           - By joining a Cancelled task
         **/
-        mainTask.isCancelled = true;
+        mainTask.status = CANCELLED$1;
         /**
           Cancels the current effect; this will propagate the cancellation down to any called tasks
         **/
+
         next.cancel();
         /**
           If this Generator has a `return` method then invokes it
           This will jump to the finally block
         **/
-        result = is.func(iterator.return) ? iterator.return(TASK_CANCEL) : { done: true, value: TASK_CANCEL };
-      } else if (arg === CHANNEL_END) {
-        // We get CHANNEL_END by taking from a channel that ended using `take` (and not `takem` used to trap End of channels)
-        result = is.func(iterator.return) ? iterator.return() : { done: true };
+
+        result = func(iterator$1.return) ? iterator$1.return(TASK_CANCEL) : {
+          done: true,
+          value: TASK_CANCEL
+        };
+      } else if (shouldTerminate(arg)) {
+        // We get TERMINATE flag, i.e. by taking from a channel that ended using `take` (and not `takem` used to trap End of channels)
+        result = func(iterator$1.return) ? iterator$1.return() : {
+          done: true
+        };
       } else {
-        result = iterator.next(arg);
+        result = iterator$1.next(arg);
       }
 
       if (!result.done) {
-        runEffect(result.value, parentEffectId, '', next);
+        digestEffect(result.value, parentEffectId, next);
       } else {
         /**
           This Generator has ended, terminate the main task and notify the fork queue
         **/
-        mainTask.isMainRunning = false;
-        mainTask.cont && mainTask.cont(result.value);
+        if (mainTask.status !== CANCELLED$1) {
+          mainTask.status = DONE;
+        }
+
+        mainTask.cont(result.value);
       }
     } catch (error) {
-      if (mainTask.isCancelled) {
-        logError(error);
+      if (mainTask.status === CANCELLED$1) {
+        throw error;
       }
-      mainTask.isMainRunning = false;
+
+      mainTask.status = ABORTED;
       mainTask.cont(error, true);
     }
   }
 
-  function end(result, isErr) {
-    iterator._isRunning = false;
-    stdChannel$1.close();
-    if (!isErr) {
-      iterator._result = result;
-      iterator._deferredEnd && iterator._deferredEnd.resolve(result);
+  function runEffect(effect, effectId, currCb) {
+    /**
+      each effect runner must attach its own logic of cancellation to the provided callback
+      it allows this generator to propagate cancellation downward.
+       ATTENTION! effect runners must setup the cancel logic by setting cb.cancel = [cancelMethod]
+      And the setup must occur before calling the callback
+       This is a sort of inversion of control: called async functions are responsible
+      of completing the flow by calling the provided continuation; while caller functions
+      are responsible for aborting the current flow by calling the attached cancel function
+       Library users can attach their own cancellation logic to promises by defining a
+      promise[CANCEL] method in their returned promises
+      ATTENTION! calling cancel must have no effect on an already completed or cancelled effect
+    **/
+    if (promise(effect)) {
+      resolvePromise(effect, currCb);
+    } else if (iterator(effect)) {
+      // resolve iterator
+      proc(env, effect, task.context, effectId, meta,
+      /* isRoot */
+      false, currCb);
+    } else if (effect && effect[IO]) {
+      var effectRunner = effectRunnerMap[effect.type];
+      effectRunner(env, effect.payload, currCb, executingContext);
     } else {
-      if (result instanceof Error) {
-        Object.defineProperty(result, 'sagaStack', {
-          value: 'at ' + name + ' \n ' + (result.sagaStack || result.stack),
-          configurable: true
-        });
-      }
-      if (!task.cont) {
-        if (result instanceof Error && onError) {
-          onError(result);
-        } else {
-          logError(result);
-        }
-      }
-      iterator._error = result;
-      iterator._isAborted = true;
-      iterator._deferredEnd && iterator._deferredEnd.reject(result);
+      // anything else returned as is
+      currCb(effect);
     }
-    task.cont && task.cont(result, isErr);
-    task.joiners.forEach(function (j) {
-      return j.cb(result, isErr);
-    });
-    task.joiners = null;
   }
 
-  function runEffect(effect, parentEffectId) {
-    var label = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-    var cb = arguments[3];
+  function digestEffect(effect, parentEffectId, cb, label) {
+    if (label === void 0) {
+      label = '';
+    }
 
-    var effectId = uid();
-    sagaMonitor && sagaMonitor.effectTriggered({ effectId: effectId, parentEffectId: parentEffectId, label: label, effect: effect });
-
+    var effectId = nextSagaId();
+    env.sagaMonitor && env.sagaMonitor.effectTriggered({
+      effectId: effectId,
+      parentEffectId: parentEffectId,
+      label: label,
+      effect: effect
+    });
     /**
       completion callback and cancel callback are mutually exclusive
       We can't cancel an already completed effect
       And We can't complete an already cancelled effectId
     **/
-    var effectSettled = void 0;
 
-    // Completion callback passed to the appropriate effect runner
+    var effectSettled; // Completion callback passed to the appropriate effect runner
+
     function currCb(res, isErr) {
       if (effectSettled) {
         return;
@@ -17045,15 +17851,25 @@ function proc(iterator) {
 
       effectSettled = true;
       cb.cancel = noop; // defensive measure
-      if (sagaMonitor) {
-        isErr ? sagaMonitor.effectRejected(effectId, res) : sagaMonitor.effectResolved(effectId, res);
-      }
-      cb(res, isErr);
-    }
-    // tracks down the current cancel
-    currCb.cancel = noop;
 
-    // setup cancellation logic on the parent cb
+      if (env.sagaMonitor) {
+        if (isErr) {
+          env.sagaMonitor.effectRejected(effectId, res);
+        } else {
+          env.sagaMonitor.effectResolved(effectId, res);
+        }
+      }
+
+      if (isErr) {
+        setCrashedEffect(effect);
+      }
+
+      cb(res, isErr);
+    } // tracks down the current cancel
+
+
+    currCb.cancel = noop; // setup cancellation logic on the parent cb
+
     cb.cancel = function () {
       // prevents cancelling an already completed effect
       if (effectSettled) {
@@ -17061,580 +17877,286 @@ function proc(iterator) {
       }
 
       effectSettled = true;
-      /**
-        propagates cancel downward
-        catch uncaught cancellations errors; since we can no longer call the completion
-        callback, log errors raised during cancellations into the console
-      **/
-      try {
-        currCb.cancel();
-      } catch (err) {
-        logError(err);
-      }
+      currCb.cancel(); // propagates cancel downward
+
       currCb.cancel = noop; // defensive measure
 
-      sagaMonitor && sagaMonitor.effectCancelled(effectId);
+      env.sagaMonitor && env.sagaMonitor.effectCancelled(effectId);
     };
 
-    /**
-      each effect runner must attach its own logic of cancellation to the provided callback
-      it allows this generator to propagate cancellation downward.
-       ATTENTION! effect runners must setup the cancel logic by setting cb.cancel = [cancelMethod]
-      And the setup must occur before calling the callback
-       This is a sort of inversion of control: called async functions are responsible
-      for completing the flow by calling the provided continuation; while caller functions
-      are responsible for aborting the current flow by calling the attached cancel function
-       Library users can attach their own cancellation logic to promises by defining a
-      promise[CANCEL] method in their returned promises
-      ATTENTION! calling cancel must have no effect on an already completed or cancelled effect
-    **/
-    var data = void 0;
-    // prettier-ignore
-    return (
-      // Non declarative effect
-      is.promise(effect) ? resolvePromise(effect, currCb) : is.helper(effect) ? runForkEffect(wrapHelper(effect), effectId, currCb) : is.iterator(effect) ? resolveIterator(effect, effectId, name, currCb)
-
-      // declarative effects
-      : is.array(effect) ? runParallelEffect(effect, effectId, currCb) : (data = asEffect.take(effect)) ? runTakeEffect(data, currCb) : (data = asEffect.put(effect)) ? runPutEffect(data, currCb) : (data = asEffect.all(effect)) ? runAllEffect(data, effectId, currCb) : (data = asEffect.race(effect)) ? runRaceEffect(data, effectId, currCb) : (data = asEffect.call(effect)) ? runCallEffect(data, effectId, currCb) : (data = asEffect.cps(effect)) ? runCPSEffect(data, currCb) : (data = asEffect.fork(effect)) ? runForkEffect(data, effectId, currCb) : (data = asEffect.join(effect)) ? runJoinEffect(data, currCb) : (data = asEffect.cancel(effect)) ? runCancelEffect(data, currCb) : (data = asEffect.select(effect)) ? runSelectEffect(data, currCb) : (data = asEffect.actionChannel(effect)) ? runChannelEffect(data, currCb) : (data = asEffect.flush(effect)) ? runFlushEffect(data, currCb) : (data = asEffect.cancelled(effect)) ? runCancelledEffect(data, currCb) : (data = asEffect.getContext(effect)) ? runGetContextEffect(data, currCb) : (data = asEffect.setContext(effect)) ? runSetContextEffect(data, currCb) : /* anything else returned as is */currCb(effect)
-    );
-  }
-
-  function resolvePromise(promise, cb) {
-    var cancelPromise = promise[CANCEL];
-    if (is.func(cancelPromise)) {
-      cb.cancel = cancelPromise;
-    } else if (is.func(promise.abort)) {
-      cb.cancel = function () {
-        return promise.abort();
-      };
-      // TODO: add support for the fetch API, whenever they get around to
-      // adding cancel support
-    }
-    promise.then(cb, function (error) {
-      return cb(error, true);
-    });
-  }
-
-  function resolveIterator(iterator, effectId, name, cb) {
-    proc(iterator, subscribe, dispatch, getState, taskContext, options, effectId, name, cb);
-  }
-
-  function runTakeEffect(_ref2, cb) {
-    var channel = _ref2.channel,
-        pattern = _ref2.pattern,
-        maybe = _ref2.maybe;
-
-    channel = channel || stdChannel$1;
-    var takeCb = function takeCb(inp) {
-      return inp instanceof Error ? cb(inp, true) : isEnd(inp) && !maybe ? cb(CHANNEL_END) : cb(inp);
-    };
-    try {
-      channel.take(takeCb, matcher(pattern));
-    } catch (err) {
-      return cb(err, true);
-    }
-    cb.cancel = takeCb.cancel;
-  }
-
-  function runPutEffect(_ref3, cb) {
-    var channel = _ref3.channel,
-        action = _ref3.action,
-        resolve = _ref3.resolve;
-
-    /**
-      Schedule the put in case another saga is holding a lock.
-      The put will be executed atomically. ie nested puts will execute after
-      this put has terminated.
-    **/
-    asap(function () {
-      var result = void 0;
-      try {
-        result = (channel ? channel.put : dispatch)(action);
-      } catch (error) {
-        // If we have a channel or `put.resolve` was used then bubble up the error.
-        if (channel || resolve) return cb(error, true);
-        logError(error);
-      }
-
-      if (resolve && is.promise(result)) {
-        resolvePromise(result, cb);
-      } else {
-        return cb(result);
-      }
-    });
-    // Put effects are non cancellables
-  }
-
-  function runCallEffect(_ref4, effectId, cb) {
-    var context = _ref4.context,
-        fn = _ref4.fn,
-        args = _ref4.args;
-
-    var result = void 0;
-    // catch synchronous failures; see #152
-    try {
-      result = fn.apply(context, args);
-    } catch (error) {
-      return cb(error, true);
-    }
-    return is.promise(result) ? resolvePromise(result, cb) : is.iterator(result) ? resolveIterator(result, effectId, fn.name, cb) : cb(result);
-  }
-
-  function runCPSEffect(_ref5, cb) {
-    var context = _ref5.context,
-        fn = _ref5.fn,
-        args = _ref5.args;
-
-    // CPS (ie node style functions) can define their own cancellation logic
-    // by setting cancel field on the cb
-
-    // catch synchronous failures; see #152
-    try {
-      var cpsCb = function cpsCb(err, res) {
-        return is.undef(err) ? cb(res) : cb(err, true);
-      };
-      fn.apply(context, args.concat(cpsCb));
-      if (cpsCb.cancel) {
-        cb.cancel = function () {
-          return cpsCb.cancel();
-        };
-      }
-    } catch (error) {
-      return cb(error, true);
-    }
-  }
-
-  function runForkEffect(_ref6, effectId, cb) {
-    var context = _ref6.context,
-        fn = _ref6.fn,
-        args = _ref6.args,
-        detached = _ref6.detached;
-
-    var taskIterator = createTaskIterator({ context: context, fn: fn, args: args });
-
-    try {
-      suspend();
-      var _task = proc(taskIterator, subscribe, dispatch, getState, taskContext, options, effectId, fn.name, detached ? null : noop);
-
-      if (detached) {
-        cb(_task);
-      } else {
-        if (taskIterator._isRunning) {
-          taskQueue.addTask(_task);
-          cb(_task);
-        } else if (taskIterator._error) {
-          taskQueue.abort(taskIterator._error);
-        } else {
-          cb(_task);
-        }
-      }
-    } finally {
-      flush();
-    }
-    // Fork effects are non cancellables
-  }
-
-  function runJoinEffect(t, cb) {
-    if (t.isRunning()) {
-      var joiner = { task: task, cb: cb };
-      cb.cancel = function () {
-        return remove(t.joiners, joiner);
-      };
-      t.joiners.push(joiner);
-    } else {
-      t.isAborted() ? cb(t.error(), true) : cb(t.result());
-    }
-  }
-
-  function runCancelEffect(taskToCancel, cb) {
-    if (taskToCancel === SELF_CANCELLATION) {
-      taskToCancel = task;
-    }
-    if (taskToCancel.isRunning()) {
-      taskToCancel.cancel();
-    }
-    cb();
-    // cancel effects are non cancellables
-  }
-
-  function runAllEffect(effects, effectId, cb) {
-    var keys = Object.keys(effects);
-
-    if (!keys.length) {
-      return cb(is.array(effects) ? [] : {});
-    }
-
-    var completedCount = 0;
-    var completed = void 0;
-    var results = {};
-    var childCbs = {};
-
-    function checkEffectEnd() {
-      if (completedCount === keys.length) {
-        completed = true;
-        cb(is.array(effects) ? array$2.from(_extends$6({}, results, { length: keys.length })) : results);
-      }
-    }
-
-    keys.forEach(function (key) {
-      var chCbAtKey = function chCbAtKey(res, isErr) {
-        if (completed) {
-          return;
-        }
-        if (isErr || isEnd(res) || res === CHANNEL_END || res === TASK_CANCEL) {
-          cb.cancel();
-          cb(res, isErr);
-        } else {
-          results[key] = res;
-          completedCount++;
-          checkEffectEnd();
-        }
-      };
-      chCbAtKey.cancel = noop;
-      childCbs[key] = chCbAtKey;
-    });
-
-    cb.cancel = function () {
-      if (!completed) {
-        completed = true;
-        keys.forEach(function (key) {
-          return childCbs[key].cancel();
-        });
-      }
-    };
-
-    keys.forEach(function (key) {
-      return runEffect(effects[key], effectId, key, childCbs[key]);
-    });
-  }
-
-  function runRaceEffect(effects, effectId, cb) {
-    var completed = void 0;
-    var keys = Object.keys(effects);
-    var childCbs = {};
-
-    keys.forEach(function (key) {
-      var chCbAtKey = function chCbAtKey(res, isErr) {
-        if (completed) {
-          return;
-        }
-
-        if (isErr) {
-          // Race Auto cancellation
-          cb.cancel();
-          cb(res, true);
-        } else if (!isEnd(res) && res !== CHANNEL_END && res !== TASK_CANCEL) {
-          var _response;
-
-          cb.cancel();
-          completed = true;
-          var response = (_response = {}, _response[key] = res, _response);
-          cb(is.array(effects) ? [].slice.call(_extends$6({}, response, { length: keys.length })) : response);
-        }
-      };
-      chCbAtKey.cancel = noop;
-      childCbs[key] = chCbAtKey;
-    });
-
-    cb.cancel = function () {
-      // prevents unnecessary cancellation
-      if (!completed) {
-        completed = true;
-        keys.forEach(function (key) {
-          return childCbs[key].cancel();
-        });
-      }
-    };
-    keys.forEach(function (key) {
-      if (completed) {
-        return;
-      }
-      runEffect(effects[key], effectId, key, childCbs[key]);
-    });
-  }
-
-  function runSelectEffect(_ref7, cb) {
-    var selector = _ref7.selector,
-        args = _ref7.args;
-
-    try {
-      var state = selector.apply(undefined, [getState()].concat(args));
-      cb(state);
-    } catch (error) {
-      cb(error, true);
-    }
-  }
-
-  function runChannelEffect(_ref8, cb) {
-    var pattern = _ref8.pattern,
-        buffer = _ref8.buffer;
-
-    var match = matcher(pattern);
-    match.pattern = pattern;
-    cb(eventChannel(subscribe, buffer || buffers.fixed(), match));
-  }
-
-  function runCancelledEffect(data, cb) {
-    cb(!!mainTask.isCancelled);
-  }
-
-  function runFlushEffect(channel, cb) {
-    channel.flush(cb);
-  }
-
-  function runGetContextEffect(prop, cb) {
-    cb(taskContext[prop]);
-  }
-
-  function runSetContextEffect(props, cb) {
-    object$1.assign(taskContext, props);
-    cb();
-  }
-
-  function newTask(id, name, iterator, cont) {
-    var _done, _ref9, _mutatorMap;
-
-    iterator._deferredEnd = null;
-    return _ref9 = {}, _ref9[TASK] = true, _ref9.id = id, _ref9.name = name, _done = 'done', _mutatorMap = {}, _mutatorMap[_done] = _mutatorMap[_done] || {}, _mutatorMap[_done].get = function () {
-      if (iterator._deferredEnd) {
-        return iterator._deferredEnd.promise;
-      } else {
-        var def = deferred();
-        iterator._deferredEnd = def;
-        if (!iterator._isRunning) {
-          iterator._error ? def.reject(iterator._error) : def.resolve(iterator._result);
-        }
-        return def.promise;
-      }
-    }, _ref9.cont = cont, _ref9.joiners = [], _ref9.cancel = cancel, _ref9.isRunning = function isRunning() {
-      return iterator._isRunning;
-    }, _ref9.isCancelled = function isCancelled() {
-      return iterator._isCancelled;
-    }, _ref9.isAborted = function isAborted() {
-      return iterator._isAborted;
-    }, _ref9.result = function result() {
-      return iterator._result;
-    }, _ref9.error = function error() {
-      return iterator._error;
-    }, _ref9.setContext = function setContext(props) {
-      check(props, is.object, createSetContextWarning('task', props));
-      object$1.assign(taskContext, props);
-    }, _defineEnumerableProperties(_ref9, _mutatorMap), _ref9;
+    finalRunEffect(effect, effectId, currCb);
   }
 }
 
-var RUN_SAGA_SIGNATURE = 'runSaga(storeInterface, saga, ...args)';
-var NON_GENERATOR_ERR = RUN_SAGA_SIGNATURE + ': saga argument must be a Generator function!';
+var RUN_SAGA_SIGNATURE = 'runSaga(options, saga, ...args)';
+var NON_GENERATOR_ERR = RUN_SAGA_SIGNATURE + ": saga argument must be a Generator function!";
+function runSaga(_ref, saga) {
+  var _ref$channel = _ref.channel,
+      channel = _ref$channel === void 0 ? stdChannel() : _ref$channel,
+      dispatch = _ref.dispatch,
+      getState = _ref.getState,
+      _ref$context = _ref.context,
+      context = _ref$context === void 0 ? {} : _ref$context,
+      sagaMonitor = _ref.sagaMonitor,
+      effectMiddlewares = _ref.effectMiddlewares,
+      _ref$onError = _ref.onError,
+      onError = _ref$onError === void 0 ? logError : _ref$onError;
 
-function runSaga(storeInterface, saga) {
-  for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+  if (process.env.NODE_ENV !== 'production') {
+    check(saga, func, NON_GENERATOR_ERR);
+  }
+
+  for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
     args[_key - 2] = arguments[_key];
   }
 
-  var iterator = void 0;
+  var iterator$1 = saga.apply(void 0, args);
 
-  if (is.iterator(storeInterface)) {
-    if (process.env.NODE_ENV === 'development') {
-      log('warn', 'runSaga(iterator, storeInterface) has been deprecated in favor of ' + RUN_SAGA_SIGNATURE);
-    }
-    iterator = storeInterface;
-    storeInterface = saga;
-  } else {
-    check(saga, is.func, NON_GENERATOR_ERR);
-    iterator = saga.apply(undefined, args);
-    check(iterator, is.iterator, NON_GENERATOR_ERR);
+  if (process.env.NODE_ENV !== 'production') {
+    check(iterator$1, iterator, NON_GENERATOR_ERR);
   }
 
-  var _storeInterface = storeInterface,
-      subscribe = _storeInterface.subscribe,
-      dispatch = _storeInterface.dispatch,
-      getState = _storeInterface.getState,
-      context = _storeInterface.context,
-      sagaMonitor = _storeInterface.sagaMonitor,
-      logger = _storeInterface.logger,
-      onError = _storeInterface.onError;
-
-
-  var effectId = uid();
+  var effectId = nextSagaId();
 
   if (sagaMonitor) {
     // monitors are expected to have a certain interface, let's fill-in any missing ones
+    sagaMonitor.rootSagaStarted = sagaMonitor.rootSagaStarted || noop;
     sagaMonitor.effectTriggered = sagaMonitor.effectTriggered || noop;
     sagaMonitor.effectResolved = sagaMonitor.effectResolved || noop;
     sagaMonitor.effectRejected = sagaMonitor.effectRejected || noop;
     sagaMonitor.effectCancelled = sagaMonitor.effectCancelled || noop;
     sagaMonitor.actionDispatched = sagaMonitor.actionDispatched || noop;
-
-    sagaMonitor.effectTriggered({ effectId: effectId, root: true, parentEffectId: 0, effect: { root: true, saga: saga, args: args } });
+    sagaMonitor.rootSagaStarted({
+      effectId: effectId,
+      saga: saga,
+      args: args
+    });
   }
 
-  var task = proc(iterator, subscribe, wrapSagaDispatch(dispatch), getState, context, { sagaMonitor: sagaMonitor, logger: logger, onError: onError }, effectId, saga.name);
+  if (process.env.NODE_ENV !== 'production') {
+    if (notUndef(dispatch)) {
+      check(dispatch, func, 'dispatch must be a function');
+    }
 
-  if (sagaMonitor) {
-    sagaMonitor.effectResolved(effectId, task);
+    if (notUndef(getState)) {
+      check(getState, func, 'getState must be a function');
+    }
+
+    if (notUndef(effectMiddlewares)) {
+      var MIDDLEWARE_TYPE_ERROR = 'effectMiddlewares must be an array of functions';
+      check(effectMiddlewares, array$2, MIDDLEWARE_TYPE_ERROR);
+      effectMiddlewares.forEach(function (effectMiddleware) {
+        return check(effectMiddleware, func, MIDDLEWARE_TYPE_ERROR);
+      });
+    }
+
+    check(onError, func, 'onError passed to the redux-saga is not a function!');
   }
 
-  return task;
+  var finalizeRunEffect;
+
+  if (effectMiddlewares) {
+    var middleware = compose.apply(void 0, effectMiddlewares);
+
+    finalizeRunEffect = function finalizeRunEffect(runEffect) {
+      return function (effect, effectId, currCb) {
+        var plainRunEffect = function plainRunEffect(eff) {
+          return runEffect(eff, effectId, currCb);
+        };
+
+        return middleware(plainRunEffect)(effect);
+      };
+    };
+  } else {
+    finalizeRunEffect = identity$1;
+  }
+
+  var env = {
+    channel: channel,
+    dispatch: wrapSagaDispatch(dispatch),
+    getState: getState,
+    sagaMonitor: sagaMonitor,
+    onError: onError,
+    finalizeRunEffect: finalizeRunEffect
+  };
+  return immediately(function () {
+    var task = proc(env, iterator$1, context, effectId, getMetaInfo(saga),
+    /* isRoot */
+    true, undefined);
+
+    if (sagaMonitor) {
+      sagaMonitor.effectResolved(effectId, task);
+    }
+
+    return task;
+  });
 }
 
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+function sagaMiddlewareFactory(_temp) {
+  var _ref = _temp === void 0 ? {} : _temp,
+      _ref$context = _ref.context,
+      context = _ref$context === void 0 ? {} : _ref$context,
+      _ref$channel = _ref.channel,
+      channel$1 = _ref$channel === void 0 ? stdChannel() : _ref$channel,
+      sagaMonitor = _ref.sagaMonitor,
+      options = _objectWithoutPropertiesLoose$1(_ref, ["context", "channel", "sagaMonitor"]);
 
-function sagaMiddlewareFactory() {
-  var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var boundRunSaga;
 
-  var _ref$context = _ref.context,
-      context = _ref$context === undefined ? {} : _ref$context,
-      options = _objectWithoutProperties(_ref, ['context']);
-
-  var sagaMonitor = options.sagaMonitor,
-      logger = options.logger,
-      onError = options.onError;
-
-
-  if (is.func(options)) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('Saga middleware no longer accept Generator functions. Use sagaMiddleware.run instead');
-    } else {
-      throw new Error('You passed a function to the Saga middleware. You are likely trying to start a        Saga by directly passing it to the middleware. This is no longer possible starting from 0.10.0.        To run a Saga, you must do it dynamically AFTER mounting the middleware into the store.\n        Example:\n          import createSagaMiddleware from \'redux-saga\'\n          ... other imports\n\n          const sagaMiddleware = createSagaMiddleware()\n          const store = createStore(reducer, applyMiddleware(sagaMiddleware))\n          sagaMiddleware.run(saga, ...args)\n      ');
-    }
-  }
-
-  if (logger && !is.func(logger)) {
-    throw new Error('`options.logger` passed to the Saga middleware is not a function!');
-  }
-
-  if (process.env.NODE_ENV === 'development' && options.onerror) {
-    throw new Error('`options.onerror` was removed. Use `options.onError` instead.');
-  }
-
-  if (onError && !is.func(onError)) {
-    throw new Error('`options.onError` passed to the Saga middleware is not a function!');
-  }
-
-  if (options.emitter && !is.func(options.emitter)) {
-    throw new Error('`options.emitter` passed to the Saga middleware is not a function!');
+  if (process.env.NODE_ENV !== 'production') {
+    check(channel$1, channel, 'options.channel passed to the Saga middleware is not a channel');
   }
 
   function sagaMiddleware(_ref2) {
     var getState = _ref2.getState,
         dispatch = _ref2.dispatch;
-
-    var sagaEmitter = emitter();
-    sagaEmitter.emit = (options.emitter || ident)(sagaEmitter.emit);
-
-    sagaMiddleware.run = runSaga.bind(null, {
+    boundRunSaga = runSaga.bind(null, _extends$4({}, options, {
       context: context,
-      subscribe: sagaEmitter.subscribe,
+      channel: channel$1,
       dispatch: dispatch,
       getState: getState,
-      sagaMonitor: sagaMonitor,
-      logger: logger,
-      onError: onError
-    });
-
+      sagaMonitor: sagaMonitor
+    }));
     return function (next) {
       return function (action) {
         if (sagaMonitor && sagaMonitor.actionDispatched) {
           sagaMonitor.actionDispatched(action);
         }
+
         var result = next(action); // hit reducers
-        sagaEmitter.emit(action);
+
+        channel$1.put(action);
         return result;
       };
     };
   }
 
   sagaMiddleware.run = function () {
-    throw new Error('Before running a Saga, you must mount the Saga middleware on the Store using applyMiddleware');
+    if (process.env.NODE_ENV !== 'production' && !boundRunSaga) {
+      throw new Error('Before running a Saga, you must mount the Saga middleware on the Store using applyMiddleware');
+    }
+
+    return boundRunSaga.apply(void 0, arguments);
   };
 
   sagaMiddleware.setContext = function (props) {
-    check(props, is.object, createSetContextWarning('sagaMiddleware', props));
-    object$1.assign(context, props);
+    if (process.env.NODE_ENV !== 'production') {
+      check(props, object$1, createSetContextWarning('sagaMiddleware', props));
+    }
+
+    assignWithSymbols(context, props);
   };
 
   return sagaMiddleware;
 }
 
-var done = { done: true, value: undefined };
-var qEnd = {};
+var done = function done(value) {
+  return {
+    done: true,
+    value: value
+  };
+};
 
+var qEnd = {};
 function safeName(patternOrChannel) {
-  if (is.channel(patternOrChannel)) {
+  if (channel(patternOrChannel)) {
     return 'channel';
-  } else if (Array.isArray(patternOrChannel)) {
-    return String(patternOrChannel.map(function (entry) {
-      return String(entry);
-    }));
-  } else {
+  }
+
+  if (stringableFunc(patternOrChannel)) {
     return String(patternOrChannel);
   }
+
+  if (func(patternOrChannel)) {
+    return patternOrChannel.name;
+  }
+
+  return String(patternOrChannel);
 }
-
-function fsmIterator(fsm, q0) {
-  var name = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'iterator';
-
-  var updateState = void 0,
-      qNext = q0;
+function fsmIterator(fsm, startState, name) {
+  var stateUpdater,
+      errorState,
+      effect,
+      nextState = startState;
 
   function next(arg, error) {
-    if (qNext === qEnd) {
-      return done;
+    if (nextState === qEnd) {
+      return done(arg);
     }
 
-    if (error) {
-      qNext = qEnd;
+    if (error && !errorState) {
+      nextState = qEnd;
       throw error;
     } else {
-      updateState && updateState(arg);
-
-      var _fsm$qNext = fsm[qNext](),
-          q = _fsm$qNext[0],
-          output = _fsm$qNext[1],
-          _updateState = _fsm$qNext[2];
-
-      qNext = q;
-      updateState = _updateState;
-      return qNext === qEnd ? done : output;
+      stateUpdater && stateUpdater(arg);
+      var currentState = error ? fsm[errorState](error) : fsm[nextState]();
+      nextState = currentState.nextState;
+      effect = currentState.effect;
+      stateUpdater = currentState.stateUpdater;
+      errorState = currentState.errorState;
+      return nextState === qEnd ? done(arg) : effect;
     }
   }
 
   return makeIterator(next, function (error) {
     return next(null, error);
-  }, name, true);
+  }, name);
 }
 
 function takeEvery(patternOrChannel, worker) {
-  for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+  for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
     args[_key - 2] = arguments[_key];
   }
 
-  var yTake = { done: false, value: take(patternOrChannel) };
-  var yFork = function yFork(ac) {
-    return { done: false, value: fork.apply(undefined, [worker].concat(args, [ac])) };
+  var yTake = {
+    done: false,
+    value: take(patternOrChannel)
   };
 
-  var action = void 0,
+  var yFork = function yFork(ac) {
+    return {
+      done: false,
+      value: fork.apply(void 0, [worker].concat(args, [ac]))
+    };
+  };
+
+  var action,
       setAction = function setAction(ac) {
     return action = ac;
   };
 
   return fsmIterator({
     q1: function q1() {
-      return ['q2', yTake, setAction];
+      return {
+        nextState: 'q2',
+        effect: yTake,
+        stateUpdater: setAction
+      };
     },
     q2: function q2() {
-      return action === END ? [qEnd] : ['q1', yFork(action)];
+      return {
+        nextState: 'q1',
+        effect: yFork(action)
+      };
     }
-  }, 'q1', 'takeEvery(' + safeName(patternOrChannel) + ', ' + worker.name + ')');
+  }, 'q1', "takeEvery(" + safeName(patternOrChannel) + ", " + worker.name + ")");
 }
 
+var validateTakeEffect = function validateTakeEffect(fn, patternOrChannel, worker) {
+  check(patternOrChannel, notUndef, fn.name + " requires a pattern or channel");
+  check(worker, notUndef, fn.name + " requires a saga parameter");
+};
+
 function takeEvery$1(patternOrChannel, worker) {
-  for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+  if (process.env.NODE_ENV !== 'production') {
+    validateTakeEffect(takeEvery$1, patternOrChannel, worker);
+  }
+
+  for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
     args[_key - 2] = arguments[_key];
   }
 
-  return fork.apply(undefined, [takeEvery, patternOrChannel, worker].concat(args));
+  return fork.apply(void 0, [takeEvery, patternOrChannel, worker].concat(args));
 }
 
 var TRANSFER_TRANSACTIONS = '[MAIN] Transfer transactions';
@@ -17677,8 +18199,7 @@ var openDappModalAction = function (values) { return ({
     payload: values,
 }); };
 
-// SELECTORS
-var getUiState = lib_4(function (state) { return state; }, function (state) { return state.ui; });
+var getUiState = function (state) { return state.ui; };
 var getLanguage = lib_4(getUiState, function (state) { return state.language; });
 var getMenuCollapsed = lib_4(getUiState, function (state) { return state.menuCollapsed; });
 var getTabsListDisplay = lib_4(getUiState, function (state) { return state.tabsListDisplay; });
@@ -17705,6 +18226,8 @@ var getIsNavigationInDeploy = lib_4(getNavigationUrl, function (navigationUrl) {
 var getIsNavigationInTransactions = lib_4(getNavigationUrl, function (navigationUrl) {
     return navigationUrl.startsWith('/transactions');
 });
+var getContractLogs = lib_4(getUiState, function (ui) { return ui.contractLogs; });
+var showAccountCreationAtStartup = lib_4(getUiState, function (ui) { return ui.showAccountCreationAtStartup; });
 
 // SELECTORS
 var getMainState = lib_4(function (state) { return state; }, function (state) { return state.main; });
