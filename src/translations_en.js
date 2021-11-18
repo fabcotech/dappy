@@ -707,8 +707,8 @@ module.exports.translations = {
   "quantity": {
     "one": "Quantity"
   },
-  "check wallets": {
-    "one": "Check your wallets / accounts"
+  "check accounts": {
+    "one": "Check your accounts"
   },
   "deploy ft": {
     "one": "Deploy a contract for fungibles (FT)"
@@ -757,9 +757,6 @@ module.exports.translations = {
   },
   "deploy ft contract": {
     "one": "Deploy a FT contract if the tokens that will be created, traded and exchanged are fungible, for example they could represent shares in a company, gold tokens, ERC-20-like tokens etc."
-  },
-  "ft contract for tipboard": {
-    "one": "If you want to use the tipboard, deploy a FT contract."
   },
   "deploy nft contract": {
     "one": "Deploy a NFT contract if the tokens represent unique objects, like a specific seat in a movie theatre, a rare or unique item in a video game, or a unique name in a name system (like the dappy name system) etc."
@@ -962,5 +959,41 @@ module.exports.translations = {
   },
   "name / id": {
     "one": "Name / ID"
+  },
+  "deploy ft and tips contract": {
+    "one": "Deploy a unique board where you can receive tips / funding from your friends and fans. You can precisly choose the unit price of the tokens, and the amount of tokens to release."
+  },
+  "tips": {
+    "one": "Tips with RChain token"
+  },
+  "name system logs": {
+    "one": "Recent activity on the name system contract"
+  },
+  "new name": {
+    "one": "New name"
+  },
+  "was purchased for": {
+    "one": "was purchased for"
+  },
+  "was traded for": {
+    "one": "was traded for"
+  },
+  "don't ask again": {
+    "one": "Do not ask again"
+  },
+  "skip": {
+    "one": "Skip"
+  },
+  "dappy account description": {
+    "one": "Dappy accounts or wallets allow you to own and send REV, the native currency of RChain blockchain. You will also be able to sign transactions, deploy token contracts and interact with other blockchain applications."
+  },
+  "create account": {
+    "one": "Create account"
+  },
+  "no accounts configured": {
+    "one": "No accounts is configured"
+  },
+  "box not found": {
+    "one": "No token boxes found"
   }
 }

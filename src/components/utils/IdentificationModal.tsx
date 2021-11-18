@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
+import { State as StoreState } from '/store';
 import * as fromMain from '/store/main';
 import * as fromUi from '/store/ui';
 import * as fromSettings from '/store/settings';
@@ -112,7 +113,7 @@ export class IdentificationModalComponent extends React.Component<Identification
 }
 
 export const IdentificationModal = connect(
-  (state) => ({
+  (state: StoreState) => ({
     isMobile: fromUi.getIsMobile(state),
     isTablet: fromUi.getIsTablet(state),
     accounts: fromSettings.getAccounts(state),

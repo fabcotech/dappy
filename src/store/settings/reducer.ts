@@ -347,17 +347,17 @@ export const reducer = (state = initialState, action: Action): State => {
 
 // SELECTORS
 
-export const getSettingsState = createSelector(
-  (state) => state,
-  (state: any) => state.settings
-);
+export const getSettingsState = (state: any): State => state.settings;
 
 export const getSettings = createSelector(getSettingsState, (state: State) => state.settings);
 export const getBlockchains = createSelector(getSettingsState, (state: State) => state.blockchains);
 
 export const getAccounts = createSelector(getSettingsState, (state: State) => state.accounts);
 
-export const getExecutingAccountsCronJobs = createSelector(getSettingsState, (state: State) => state.executingAccountsCronJobs);
+export const getExecutingAccountsCronJobs = createSelector(
+  getSettingsState,
+  (state: State) => state.executingAccountsCronJobs
+);
 
 export const getAvailableBlockchains = createSelector(getBlockchains, (blockchains) => {
   const availableBlockchains: { [chainId: string]: Blockchain } = {};
@@ -370,16 +370,17 @@ export const getAvailableBlockchains = createSelector(getBlockchains, (blockchai
   return availableBlockchains;
 });
 
-export const getNamesBlockchain = createSelector(getAvailableBlockchains, (availableBlockchains):
-  | undefined
-  | Blockchain => {
-  const chainId = Object.keys(availableBlockchains)[0];
-  if (chainId) {
-    return availableBlockchains[chainId];
-  } else {
-    return undefined;
+export const getNamesBlockchain = createSelector(
+  getAvailableBlockchains,
+  (availableBlockchains): undefined | Blockchain => {
+    const chainId = Object.keys(availableBlockchains)[0];
+    if (chainId) {
+      return availableBlockchains[chainId];
+    } else {
+      return undefined;
+    }
   }
-});
+);
 
 export const getAvailableRChainBlockchains = createSelector(getAvailableBlockchains, (availableBlockchains) => {
   const rchainBlockchains: { [chainId: string]: Blockchain } = {};
@@ -392,11 +393,13 @@ export const getAvailableRChainBlockchains = createSelector(getAvailableBlockcha
   return rchainBlockchains;
 });
 
+const nodeActiveAndReady = (n: BlockchainNode) => n.active && n.readyState === 1;
+
 // if modified, must be modified in main also
 export const getOkBlockchains = createSelector(getBlockchains, (blockchains) => {
   const okBlockchains: { [chainId: string]: Blockchain } = {};
   Object.keys(blockchains).forEach((chainId) => {
-    let nodes = blockchains[chainId].nodes.filter((n) => n.active && n.readyState === 1);
+    let nodes = blockchains[chainId].nodes.filter(nodeActiveAndReady);
     if (!nodes.length) {
       return;
     }
@@ -408,6 +411,13 @@ export const getOkBlockchains = createSelector(getBlockchains, (blockchains) => 
   });
 
   return okBlockchains;
+});
+
+export const getFirstReadyNode = createSelector(getBlockchains, (blockchains) => {
+  const bc = Object.values(blockchains).find((bc) => {
+    return bc.nodes.some(nodeActiveAndReady);
+  });
+  return bc?.nodes.find(nodeActiveAndReady);
 });
 
 export const getIsLoadReady = createSelector(getBlockchains, getSettings, (blockchains, settings) => {

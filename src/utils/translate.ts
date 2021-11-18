@@ -28,7 +28,6 @@ export const initTranslate = (lang: string) => {
   }
 };
 
-
 declare global {
   var t: (term: string, plural?: boolean) => string;
 }

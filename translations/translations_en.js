@@ -1925,8 +1925,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "check wallets",
-    "definition": "Check your wallets / accounts",
+    "term": "check accounts",
+    "definition": "Check your accounts",
     "context": "Home",
     "term_plural": "",
     "reference": "",
@@ -2055,14 +2055,6 @@ module.exports.translations = [
   {
     "term": "deploy ft contract",
     "definition": "Deploy a FT contract if the tokens that will be created, traded and exchanged are fungible, for example they could represent shares in a company, gold tokens, ERC-20-like tokens etc.",
-    "context": "Deploy > Dapps",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "ft contract for tipboard",
-    "definition": "If you want to use the tipboard, deploy a FT contract.",
     "context": "Deploy > Dapps",
     "term_plural": "",
     "reference": "",
@@ -2620,6 +2612,102 @@ module.exports.translations = [
     "term": "name / id",
     "definition": "Name / ID",
     "context": "RChain token",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "deploy ft and tips contract",
+    "definition": "Deploy a unique board where you can receive tips / funding from your friends and fans. You can precisly choose the unit price of the tokens, and the amount of tokens to release.",
+    "context": "Settings > Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "tips",
+    "definition": "Tips with RChain token",
+    "context": "Settings > Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name system logs",
+    "definition": "Recent activity on the name system contract",
+    "context": "logs",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "new name",
+    "definition": "New name",
+    "context": "logs",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "was purchased for",
+    "definition": "was purchased for",
+    "context": "logs",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "was traded for",
+    "definition": "was traded for",
+    "context": "logs",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "don't ask again",
+    "definition": "Do not ask again",
+    "context": "Settings > Accounts",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "skip",
+    "definition": "Skip",
+    "context": "Settings > Accounts",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "dappy account description",
+    "definition": "Dappy accounts or wallets allow you to own and send REV, the native currency of RChain blockchain. You will also be able to sign transactions, deploy token contracts and interact with other blockchain applications.",
+    "context": "Settings > Accounts",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "create account",
+    "definition": "Create account",
+    "context": "Settings > Accounts",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "no accounts configured",
+    "definition": "No accounts is configured",
+    "context": "Settings > Accounts",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "box not found",
+    "definition": "No token boxes found",
+    "context": "Settings > Deploy",
     "term_plural": "",
     "reference": "",
     "comment": ""

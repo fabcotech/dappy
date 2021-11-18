@@ -54,7 +54,7 @@ declare global {
     singleDappyCall: (body: any, parameters: any) => Promise<any>;
     multiDappyCall: (body: any, parameters: any) => Promise<MultiCallResult>;
     getIpAddressAndCert: (a: { host: string }) => Promise<{ cert: string; ip: string }>;
-    generateCertificateAndKey: () => Promise<{ key: string; certificate: string }>;
+    generateCertificateAndKey: (altNames: string[]) => Promise<{ key: string; certificate: string }>;
     triggerCommand: (command: string, payload?: { [key: string]: string }) => void;
     initContextMenu: () => void;
     copyToClipboard: (a: string) => void;

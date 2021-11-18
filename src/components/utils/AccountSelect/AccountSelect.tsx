@@ -68,8 +68,7 @@ export class AccountSelectComponent extends React.Component<AccountSelectProps, 
     });
   }
 
-  getCurrentBoxName = (selectAccountName: string) => 
-    this.props.accounts[selectAccountName]?.boxes[0]
+  getCurrentBoxName = (selectAccountName: string) => this.props.accounts[selectAccountName]?.boxes[0];
 
   render() {
     if (!this.stream) {
@@ -134,7 +133,7 @@ export class AccountSelectComponent extends React.Component<AccountSelectProps, 
                       <span className="tag is-light">{this.getCurrentBoxName(values.account)}</span>
                     </div>
                   ) : (
-                    <p className="">{t('box not found')}</p>
+                    <p>{t('box not found')}</p>
                   )}
                 </div>
               ) : undefined}

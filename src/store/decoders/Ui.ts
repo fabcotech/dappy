@@ -29,6 +29,7 @@ export const uiSchema = yup
         navigationPaths.some((path: string) => new RegExp(path).test(`^${currentPath}/?$`))
       ),
     language: yup.string().matches(/en|cn/).required().strict(true),
+    showAccountCreationAtStartup: yup.bool(),
   })
   .required()
   .noUnknown(true)

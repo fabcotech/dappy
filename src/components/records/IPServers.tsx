@@ -23,11 +23,12 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
 
   generateCertificateAndKey = (
     index: number,
+    altName: string,
     setFieldValue: (a: string, b: string) => void,
     setFieldTouched: (a: string, b: boolean) => void
   ) => {
     window
-      .generateCertificateAndKey()
+      .generateCertificateAndKey([altName])
       .then((a: { key: string; certificate: string }) => {
         if (a.key && a.certificate && typeof a.key === 'string' && typeof a.certificate === 'string') {
           setFieldValue(`servers.${index}.cert`, a.certificate);
@@ -208,18 +209,6 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                               name={`servers.${index}.host`}
                               placeholder="dappy.tech"
                             />
-                            <a
-                              className="underlined-link"
-                              onClick={() =>
-                                this.retrieveIpAddressAndCert(
-                                  index,
-                                  values.servers[index].host,
-                                  setFieldValue,
-                                  setFieldTouched
-                                )
-                              }>
-                              Try to retrieve IP and certificate from DNS
-                            </a>
                           </div>
                         </div>
                         {retrieveError && <p className="text-danger">{retrieveError}</p>}
@@ -251,8 +240,17 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                               placeholder="-----BEGIN CERTIFICATE-----"
                             />
                             <a
-                              className="underlined-link"
-                              onClick={() => this.generateCertificateAndKey(index, setFieldValue, setFieldTouched)}>
+                              className={`underlined-link ${!values.servers[index].host && 'disabled'}`}
+                              onClick={() => {
+                                if (values.servers[index].host) {
+                                  this.generateCertificateAndKey(
+                                    index,
+                                    values.servers[index].host,
+                                    setFieldValue,
+                                    setFieldTouched
+                                  );
+                                }
+                              }}>
                               <i className="fa fa-before fa-key"></i>
                               Generate TLS certificate and key
                             </a>

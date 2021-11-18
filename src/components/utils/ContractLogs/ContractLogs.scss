@@ -1,0 +1,51 @@
+@import "/style/variables.scss";
+
+.contract-logs {
+  .title {
+    font-weight: 400;
+  }
+  .logs {
+    height: 20rem;
+    overflow-y: auto;
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    font-weight: 400;
+    border-radius: 0.2rem;
+  }
+
+  .tbody {
+    max-height: 20rem;
+    width: fit-content;
+    grid-template-columns: 120px auto min-content auto auto;
+    column-gap: 1rem;
+    display: grid;
+
+    span, a {
+      animation: 0.8s appear;
+    }
+    span {
+      white-space: nowrap;
+      padding: 0;  
+    }
+    a.purse-id {
+      color: white;
+      max-width: 90px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      text-decoration: underline;
+      &:hover {
+        color: rgba(255,255,255,0.8);
+      }
+    }
+  }
+  
+
+  tbody > tr > td:nth-child(5n) {
+    justify-self: end;
+  }
+}
+
+@keyframes appear {
+  from { transform: scaleY(0); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 1; }
+}

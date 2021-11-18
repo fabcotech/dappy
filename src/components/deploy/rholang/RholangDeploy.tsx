@@ -14,7 +14,7 @@ import { blockchain as blockchainUtils } from '/utils';
 import { getNodeIndex } from '/utils/getNodeIndex';
 import './RholangDeploy.scss';
 
-const defaultRholang = `new stdout(\`rho:io:stdout\`), deployId(\`rho:rchain:deployId\`) in {\n  stdout!("bonjour !")|\n  deployId!("bonjour !")\n}`;
+const defaultRholang = `new a, stdout(\`rho:io:stdout\`), deployId(\`rho:rchain:deployId\`) in {\n  a!("bonjour !") |\n  stdout!("bonjour !") |\n  deployId!("bonjour !")\n}`;
 const depth = 5;
 
 interface RholangDeployProps {

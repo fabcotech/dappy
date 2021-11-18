@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
+import { State as StoreState } from '/store';
 import * as fromDapps from '/store/dapps';
 import * as fromUi from '/store/ui';
 import { blockchain as blockchainUtils } from '/utils/';
@@ -71,7 +72,7 @@ class TabsListComponent extends React.Component<TabsListProps, {}> {
 }
 
 export const TabsList = connect(
-  (state) => {
+  (state: StoreState) => {
     return {
       transitoryStates: fromDapps.getDappsTransitoryStates(state),
       tabs: fromDapps.getTabs(state),

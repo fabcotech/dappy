@@ -1,9 +1,12 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { createSelector } from 'reselect';
 
 import './Root.scss';
+import { State as RootState } from '/store';
 import * as fromUi from '/store/ui';
 import * as fromMain from '/store/main';
+import * as fromSettings from '/store/settings';
 import { Home } from './home';
 import { Root as DeployRoot } from './deploy';
 import { Root as SettingsRoot } from './settings';
@@ -15,6 +18,7 @@ import { Modal, Gcu } from './utils';
 import { NavigationUrl, Language } from '/models';
 import { DEVELOPMENT } from '/CONSTANTS';
 import { GCU_TEXT, GCU_VERSION } from '/GCU';
+import { NoAccountForm } from './utils/NoAccountForm';
 import { initTranslate } from '/utils/translate';
 
 interface RootComponentProps {
@@ -32,6 +36,7 @@ interface RootComponentProps {
   isBeta: boolean;
   currentVersion: undefined | string;
   gcu: undefined | string;
+  shouldDisplayAccountCreationForm: boolean;
   isAwaitingUpdate: boolean;
   modal: fromMain.Modal | undefined;
   initializationOver: boolean;
@@ -40,7 +45,14 @@ interface RootComponentProps {
   navigate: (navigationUrl: NavigationUrl) => void;
 }
 
-class RootComponent extends React.Component<RootComponentProps, {}> {
+interface RootComponentState {
+  accountCreationFormClosed: boolean;
+}
+
+class RootComponent extends React.Component<RootComponentProps, RootComponentState> {
+  state = {
+    accountCreationFormClosed: false,
+  };
   componentDidCatch(error: Error) {
     console.error('An error occured in components');
     if (DEVELOPMENT) {
@@ -50,6 +62,13 @@ class RootComponent extends React.Component<RootComponentProps, {}> {
     }
   }
   render() {
+    /*
+      Init window.t once
+    */
+    if (!window.t) {
+      initTranslate(this.props.language);
+    }
+
     if (!this.props.initializationOver) {
       return (
         <div className="root loading">
@@ -62,11 +81,16 @@ class RootComponent extends React.Component<RootComponentProps, {}> {
       return <Gcu version={GCU_VERSION} text={GCU_TEXT} continue={this.props.updateGcu}></Gcu>;
     }
 
-    /*
-      Init window.t once
-    */
-    if (!window.t) {
-      initTranslate(this.props.language);
+    if (this.props.shouldDisplayAccountCreationForm && !this.state.accountCreationFormClosed) {
+      return (
+        <NoAccountForm
+          onClose={() => {
+            this.setState({
+              accountCreationFormClosed: true,
+            });
+          }}
+        />
+      );
     }
 
     let klasses = 'root theme-default';
@@ -116,8 +140,16 @@ class RootComponent extends React.Component<RootComponentProps, {}> {
   }
 }
 
+export const shouldDisplayAccountCreationForm = createSelector(
+  fromSettings.getAccounts,
+  fromUi.showAccountCreationAtStartup,
+  (accounts, showAtStartup) => {
+    return Object.values(accounts).length === 0 && showAtStartup;
+  }
+);
+
 export const Root = connect(
-  (state) => ({
+  (state: RootState) => ({
     tabsListDisplay: fromUi.getTabsListDisplay(state),
     menuCollapsed: fromUi.getMenuCollapsed(state),
     isNavigationInDapps: fromUi.getIsNavigationInDapps(state),
@@ -131,6 +163,8 @@ export const Root = connect(
     language: fromUi.getLanguage(state),
     currentVersion: fromMain.getCurrentVersion(state),
     gcu: fromUi.getGcu(state),
+    // gcu: true,
+    shouldDisplayAccountCreationForm: shouldDisplayAccountCreationForm(state),
     isAwaitingUpdate: false,
     isBeta: fromMain.getIsBeta(state),
     modal: fromMain.getModal(state),

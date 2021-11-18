@@ -427,6 +427,8 @@ export const getNamesBlockchainInfos = createSelector(
   }
 );
 
+export const getNameSystemContractId = createSelector(getNamesBlockchainInfos, (i) => i?.info.rchainNamesContractId);
+
 export const getRecordNamesInAlphaOrder = createSelector(getRecords, (records: { [name: string]: Record }) => {
   return Object.keys(records).sort((a, b) => {
     if (a < b) {

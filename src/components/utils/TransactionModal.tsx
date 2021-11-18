@@ -2,6 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { blake2b } from 'blakejs';
 
+import { State as StoreState } from '/store';
 import * as fromMain from '/store/main';
 import * as fromUi from '/store/ui';
 import * as fromSettings from '/store/settings';
@@ -103,7 +104,7 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
         if (!payload.parameters.signatures || !payload.parameters.signatures[k]) {
           return;
         }
-        const uInt8Array = new Uint8Array(payload.parameters.signatures[k].split(',').map(v => parseInt(v, 10)));
+        const uInt8Array = new Uint8Array(payload.parameters.signatures[k].split(',').map((v) => parseInt(v, 10)));
         const blake2bHash = blake2b(uInt8Array, 0, 32);
         const signature = signSecp256k1(blake2bHash, this.state.privatekey);
         const signatureHex = Buffer.from(signature).toString('hex');
@@ -245,7 +246,7 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
 }
 
 export const TransactionModal = connect(
-  (state) => ({
+  (state: StoreState) => ({
     isMobile: fromUi.getIsMobile(state),
     isTablet: fromUi.getIsTablet(state),
     transactions: fromBlockchain.getTransactions(state),

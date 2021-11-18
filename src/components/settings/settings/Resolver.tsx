@@ -26,6 +26,8 @@ const FormResolverComponent = (props: any) => (
       <label
         onClick={() => {
           props.setFieldValue('resolver', 'auto');
+          props.setFieldValue('resolverAbsolute', AUTO_RESOLVER_ABSOLUTE);
+          props.setFieldValue('resolverAccuracy', 100);
         }}>
         Auto
       </label>
@@ -150,45 +152,40 @@ export class ResolverComponent extends React.Component<ResolverProps, {}> {
             return errors;
           }}
           onSubmit={(values, { setSubmitting }) => {
-            if (values.resolver === 'auto') {
-              values.resolverAbsolute = AUTO_RESOLVER_ABSOLUTE;
-              values.resolverAccuracy = 100;
-            }
             this.props.updateResolverSettingsAction(values);
-            xs.periodic(500)
-              .endWhen(xs.periodic(600).take(1))
-              .subscribe({
-                complete: () => setSubmitting(false),
-              });
           }}
-          render={({ values, errors, touched, setFieldValue, handleSubmit, isSubmitting }) => (
-            <form className="limited-width" onSubmit={handleSubmit}>
-              <h3 className="subtitle is-4">{t('network')}</h3>
-              <p className="limited-width" dangerouslySetInnerHTML={{ __html: t('settings network paragraph') }}></p>
+          render={({ values, errors, touched, setFieldValue, handleSubmit, isSubmitting }) => {
+            return (
+              <form className="limited-width" onSubmit={handleSubmit}>
+                <h3 className="subtitle is-4">{t('network')}</h3>
+                <p className="limited-width" dangerouslySetInnerHTML={{ __html: t('settings network paragraph') }}></p>
 
-              <br />
-              <FormResolverComponent values={values} setFieldValue={setFieldValue} />
+                <br />
+                <FormResolverComponent values={values} setFieldValue={setFieldValue} />
 
-              {values.resolver === 'auto' && <ResolverAutoComponent />}
+                {values.resolver === 'auto' && <ResolverAutoComponent />}
 
-              {/*
-            Resolver === 'custom'
-          */}
-              {values.resolver === 'custom' && values.resolverMode === 'absolute' && (
-                <ResolveAbsoluteComponent touched={touched} errors={errors} />
-              )}
+                {values.resolver === 'custom' && values.resolverMode === 'absolute' && (
+                  <ResolveAbsoluteComponent touched={touched} errors={errors} />
+                )}
 
-              <div className="field is-horizontal is-grouped pt20">
-                <div className="control">
-                  <button type="submit" className="button is-link" disabled={isSubmitting}>
-                    {!isSubmitting && t('submit')}
-                    {isSubmitting && t('submitting')}
-                    {isSubmitting && <i className="fa fa-spin fa-spinner fa-after" />}
-                  </button>
+                <div className="field is-horizontal is-grouped pt20">
+                  <div className="control">
+                    <button
+                      disabled={
+                        !!(errors && Object.keys(errors).length) ||
+                        (values.resolverAbsolute === this.props.settings.resolverAbsolute &&
+                          values.resolverAccuracy === this.props.settings.resolverAccuracy)
+                      }
+                      type="submit"
+                      className="button is-link">
+                      {t('submit')}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </form>
-          )}
+              </form>
+            );
+          }}
         />
       </div>
     );

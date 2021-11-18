@@ -555,47 +555,35 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                           }}
                           addNode={(values: { ip: string; host: string; cert: undefined | string }) => {
                             arrayHelpers.push(values);
+                            this.setState({ addNodeFormDisplayed: false });
+                            if (!errors || Object.keys(errors).length === 0) {
+                              submitForm();
+                            }
                           }}></AddNode>
                       ) : undefined}
                       <br />
-                      {/* (PREDEFINED_BLOCKCHAINS).map((b) => {
-                        return (
-                          <React.Fragment key={b.chainId + b.chainName}>
-                            <button
-                              type="submit"
-                              className="add-node-button button is-black is-small"
-                              onClick={() => {
-                                setFieldValue('formNodes', []);
-                                b.nodes.forEach((n) => {
-                                  arrayHelpers.push({
-                                    host: n.host,
-                                    ip: n.ip,
-                                    cert: n.cert,
-                                  });
-                                });
-                                if (!errors || !Object.keys(errors).length) {
-                                  submitForm();
-                                }
-                              }}>
-                              Add nodes for {b.chainName}
-                              <i className="fa fa-plus fa-after"></i>
-                            </button>
-                            <br />
-                          </React.Fragment>
-                        );
-                      }) */}
                       {this.state.addNodeFormDisplayed ? undefined : (
                         <div className="field is-horizontal is-grouped pt20">
                           <div className="control">
-                            <button type="button" className="button is-light" onClick={this.onReloadFormik}>
+                            <button
+                              type="button"
+                              disabled={!touched || !touched.formNodes}
+                              className="button is-light"
+                              onClick={this.onReloadFormik}>
                               {t('cancel')}
                             </button>{' '}
-                            <button
-                              type="submit"
-                              className="button is-black"
-                              disabled={!touched || (errors && !!Object.keys(errors).length)}>
-                              {t('save nodes')}
-                            </button>{' '}
+                            {values.formNodes && Object.keys(values.formNodes).length === 0 ? (
+                              <button type="submit" className="button is-black">
+                                {t('save nodes')}
+                              </button>
+                            ) : (
+                              <button
+                                type="submit"
+                                className="button is-black"
+                                disabled={!touched || !touched.formNodes || (errors && !!Object.keys(errors).length)}>
+                                {t('save nodes')}
+                              </button>
+                            )}
                             <br />
                             <br />
                             <br />

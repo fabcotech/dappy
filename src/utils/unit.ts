@@ -1,6 +1,7 @@
 import { Fee } from '/models';
 
 export const feePermillage = (f: Fee) => (f[1] / 100).toFixed(3);
+export const dustToRev = (dust: number) => dust / 100000000;
 
 const MILLISECONDS_IN_ONE_SECOND = 1000;
 const MILLISECONDS_IN_ONE_MINUTE = 60 * MILLISECONDS_IN_ONE_SECOND;
@@ -36,7 +37,11 @@ export const toDuration = (milliseconds: number) => {
 };
 
 export const isEmptyOrNegativeDuration = (duration: Duration) =>
-  duration.days <= 0 && duration.hours <= 0 && duration.minutes <= 0 && duration.seconds <= 0 && duration.milliseconds <= 0;
+  duration.days <= 0 &&
+  duration.hours <= 0 &&
+  duration.minutes <= 0 &&
+  duration.seconds <= 0 &&
+  duration.milliseconds <= 0;
 
 type Duration = ReturnType<typeof toDuration>;
 type TranslationFn = (lbl: string, plural: boolean) => string;
@@ -48,5 +53,7 @@ export const toDurationString = (translate: TranslationFn, duration: Duration) =
   return [
     duration.days >= 1 ? `${duration.days} ${translate('days', duration.days > 1)}` : undefined,
     duration.hours >= 1 ? `${duration.hours} ${translate('hours', duration.hours > 1)}` : undefined,
-  ].filter(v => v).join(` ${translate('and', false)} `);
+  ]
+    .filter((v) => v)
+    .join(` ${translate('and', false)} `);
 };

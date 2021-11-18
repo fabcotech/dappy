@@ -1,0 +1,11 @@
+.term.tips {
+  &.selected {
+    .field .label {
+      color: #fff;
+    }
+    textarea, input {
+      background: linear-gradient(45deg, #bed3eb, #e1fcff);
+      color: #215164;
+    }
+  }
+}

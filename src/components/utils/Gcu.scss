@@ -3,6 +3,9 @@
 
 .gcu {
   padding: 50px 40px 20px 60px;
+  display: grid;
+  align-items: center;
+  justify-items: center; /* adjusted */
   height: 100%;
   overflow: auto;
   background:darken( $primary, 10%);

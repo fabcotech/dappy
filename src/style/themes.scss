@@ -1,4 +1,15 @@
 .theme-default {
+  .button.is-link {
+    background: linear-gradient(45deg, #103373, #204e87);
+    &:hover {
+      background: linear-gradient(45deg, #0d2655, #204e87);
+    }
+    &:active {
+      background: linear-gradient(45deg, #21518b, #11367a);
+      border: 1px solid #21518b;
+    }
+  }
+
   .root-left.menu {
     background: linear-gradient(20deg, $menu-bottom, $primary);
     .menu-list li {

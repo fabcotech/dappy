@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import './Accounts.scss';
 import { Account } from '/models';
 import * as fromSettings from '/store/settings';
-import { AccountForm } from './AccountForm';
+import { AccountForm } from '../utils/AccountForm';
 
 interface AddAccountsProps {
   accounts: { [name: string]: Account };

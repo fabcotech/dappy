@@ -23,19 +23,16 @@ export const httpBrowserToNode = (data: { [key: string]: any }, node: Blockchain
         dappyNetworkAgents[`${ip}-${cert}`] = new https.Agent({
           /* no dns */
           host: ip,
-          rejectUnauthorized: false, // cert does not have to be signed by CA (self-signed)
-          cert: cert,
+          rejectUnauthorized: true, // true by default
           minVersion: 'TLSv1.3',
-          ca: [], // we don't want to rely on CA
+          ca: cert,
         });
       }
 
       const options: https.RequestOptions = {
-        agent: dappyNetworkAgents[`${node.ip}-${node.cert}`],
+        agent: dappyNetworkAgents[`${ip}-${cert}`],
         method: 'POST',
         port: port,
-        host: ip,
-        rejectUnauthorized: false,
         path: `/${data.type}`,
         headers: {
           'Content-Type': 'application/json',

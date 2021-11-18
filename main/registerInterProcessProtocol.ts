@@ -256,21 +256,30 @@ export const registerInterProcessProtocol = (
       );
     }
     if (request.url === 'interprocess://generate-certificate-and-key') {
-      pem.createCertificate({ days: 1000000, selfSigned: true }, function (err, keys) {
-        if (err) {
-          console.log(err);
-          callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when generate-certificate-and-key'));
-          return;
-        }
-        callback(
-          Buffer.from(
-            JSON.stringify({
-              key: keys.clientKey,
-              certificate: keys.certificate,
-            })
-          )
+      try {
+        const data = JSON.parse(decodeURI(request.headers['Data']));
+        pem.createCertificate(
+          { days: 1000000, selfSigned: true, altNames: data.parameters.altNames },
+          function (err, keys) {
+            if (err) {
+              console.log(err);
+              callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when generate-certificate-and-key'));
+              return;
+            }
+            callback(
+              Buffer.from(
+                JSON.stringify({
+                  key: keys.clientKey,
+                  certificate: keys.certificate,
+                })
+              )
+            );
+          }
         );
-      });
+      } catch (err) {
+        console.log(err);
+        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when generate-certificate-and-key'));
+      }
     }
   });
 };

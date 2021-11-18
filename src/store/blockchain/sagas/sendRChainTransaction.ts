@@ -258,6 +258,9 @@ const sendRChainTransaction = function* (action: Action) {
           } else if (payload.origin.operation === 'deploy') {
             value.contractId = jsValue.contractId;
             value.masterRegistryUri = jsValue.masterRegistryUri;
+          } else if (payload.origin.operation === 'tips') {
+            value.contractId = jsValue.contractId;
+            value.masterRegistryUri = jsValue.masterRegistryUri;
           }
           store.dispatch(
             fromBlockchain.updateRChainTransactionStatusAction({

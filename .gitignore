@@ -10,3 +10,4 @@ ipapps
 translations/env.js
 .parcel-cache
 dist
+main.js
