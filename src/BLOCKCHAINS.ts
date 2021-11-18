@@ -4,77 +4,70 @@ import { Blockchain } from './models';
 export const PREDEFINED_BLOCKCHAINS: Blockchain[] = [
   {
     platform: 'rchain',
-    chainId: 'betanetwork',
-    chainName: 'Beta network (mainnet)',
-    /* no dns */
-    nodes: [
-      {
-        name: 'Node 1',
-        host: 'b1.dappy.tech',
-        ip: '51.158.73.100',
-        origin: 'default',
-        active: true,
-        readyState: 3,
-        ssl: false,
-        cert: encodeURI(`-----BEGIN CERTIFICATE-----
-MIIDkzCCAnugAwIBAgIUKsmCdRcA7G6lfYXIaC03HO3BebEwDQYJKoZIhvcNAQEL
-BQAwWTELMAkGA1UEBhMCRlIxDzANBgNVBAgMBkZyYW5jZTERMA8GA1UEBwwIVG91
-bG91c2UxDjAMBgNVBAoMBUZBQkNPMRYwFAYDVQQDDA1iMS5kYXBweS50ZWNoMB4X
-DTIwMDMwNDE3MzUxOVoXDTIxMDMwNDE3MzUxOVowWTELMAkGA1UEBhMCRlIxDzAN
-BgNVBAgMBkZyYW5jZTERMA8GA1UEBwwIVG91bG91c2UxDjAMBgNVBAoMBUZBQkNP
-MRYwFAYDVQQDDA1iMS5kYXBweS50ZWNoMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A
-MIIBCgKCAQEAzMgA4K1KOL5a9CFOhJ7w+K8vWcaVmRyphcysvhNXXb3WqorhG7i5
-HoFztIlDjGvpQFViqQmZUs4KC/QBJ8NDnsHM66eqyamCuohWpXV8yQSyzjH+A67J
-pltRauEU7qQWCj7NXigdfePF1OrkKm/XHnsvwaw1xoNGxKWW/bne/9zeKdwNyOXB
-JGuLm6FgT/TmgRD4bmwvt+H9/07moLjqsimAi802dEQkTxyfTRcpv4x1rKflWyfe
-ABuJrpIaBxAT/LdHMzcRKdGVRvxAV4+rLyQ022FS9X5W3/jZmD6RkKKMhrhXgGLH
-6R6lz5So6B8MYMoOPHwqaGUpTfSv3CDpOQIDAQABo1MwUTAdBgNVHQ4EFgQUhKzA
-v+kUx8S8xc9pC3sPcB9skh0wHwYDVR0jBBgwFoAUhKzAv+kUx8S8xc9pC3sPcB9s
-kh0wDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEARQMsj7QRefXS
-jB2cuPPAlcQnGfnJb239OubUC2k0CtazEhvyypwZkGu38KnUqD8sNw99ACJjXQ1N
-Eu8XxP7NXAAKS7WlPfoxz49H7x26VIcTJRXszFxJ6IzpQb0rcqz3Jpy1iyANb9zz
-ibnuP39ev1lzYfUNmS3k5fsvzl2Yzkwjz3jcr7zWoLxLeoznWC8e0v0eFIp9WwdE
-Q8RJLrV/+OORtjjM8InWI1BhHrxC/BEiR9KGj86pohQ+DbK5xWlJJE5x0FC70jI3
-hYC/xCXfAxQRUfkTmgL0LkTU1T8KqA8IWD1Xx1FZhJQcKfIY+STfgSeqJNoXJFxD
-4/rQesitRw==
------END CERTIFICATE-----`),
-      },
-    ],
-  },
-  {
-    platform: 'rchain',
     chainId: 'gammanetwork',
     chainName: 'Gamma network (testnet)',
     /* no dns */
     nodes: [
       {
         name: 'Node 1',
-        host: 'gammanetwork',
+        host: 'dappygammanetwork',
         ip: '195.154.71.146',
         origin: 'default',
         active: true,
         readyState: 3,
-        ssl: false,
+        ssl: true,
         cert: encodeURI(`-----BEGIN CERTIFICATE-----
-MIIDazCCAlOgAwIBAgIUP9lpeHkBOmp3ldUsrWB5fPKuvBAwDQYJKoZIhvcNAQEL
-BQAwRTELMAkGA1UEBhMCVVMxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoM
-GEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDAeFw0yMTA1MjkxMTA2NThaFw0yOTA4
-MTUxMTA2NThaMEUxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApTb21lLVN0YXRlMSEw
-HwYDVQQKDBhJbnRlcm5ldCBXaWRnaXRzIFB0eSBMdGQwggEiMA0GCSqGSIb3DQEB
-AQUAA4IBDwAwggEKAoIBAQCjk/lCyuy1Q4JKbXL+9D6IN4fPi0uYV8pzciUYGpl8
-7J9jb4lj/fFa1PocFJLj7FtGpZ3jcorZ/jgxDFliGuICOGb2sbIFNgoxVCKwKbmy
-ApmjQAScSuDG7IRORjwUlE9GO8xtGfIUjmY/DH7vLYvCBXvDACIFmNbXhJkKE+Kp
-NtWpcw5am8Nae8iR81CcmyIMaLCrz8zrzAUFWzpi7o9V3vx2S3URDRvaUmOKoWcZ
-ttZ5z+Gg208uFEjfJiyGP2mQ75a2nVV5TzOPkOJgMJlnqZOyAyCA2qatvVuFGwRg
-SDWE4EHttXvJjLR9WdDUIqtBOzQ7EWQbgcqK9aowriMDAgMBAAGjUzBRMB0GA1Ud
-DgQWBBTPmWtYpJOgPDxiwV/paEmXbLbw7DAfBgNVHSMEGDAWgBTPmWtYpJOgPDxi
-wV/paEmXbLbw7DAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQAC
-M1Jy1xdmU3c+5HjohoR7/pSzPVJ/N0znuB213Fc7efRlZ4NrOquT0nLFF+SR7xbo
-7iEIkJZMsP6EyViUEJ0YWrkHPm0XorNxAEc4zsRg+5x1evlaU6OR5KfeBdngVtGC
-q0/EvT6v9jHbW3xqTSnWcFEIfgM7ZvgAVuJRZOMqkNpewpLb8Q/umfWNqsNYNMKx
-Tf5Ny1zHRCP7+k+WFzoyiIzDo+hluLfaKSWwg5tKd2N1bQzzhHTA71vOff7LIinK
-sV4tfUh3rBP5BlEtFHqCeT8Bc8QkFTDm7uJeyTABcgfaYukIwXunp6+Wwge2eRns
-lhrVzIug1mU/MZJNIlCO
+MIIC8TCCAdmgAwIBAgIJALu8Bm6yTRhWMA0GCSqGSIb3DQEBCwUAMBwxGjAYBgNV
+BAMMEWRhcHB5Z2FtbWFuZXR3b3JrMB4XDTIxMTExODA5MjgxNFoXDTMwMDIwNDA5
+MjgxNFowHDEaMBgGA1UEAwwRZGFwcHlnYW1tYW5ldHdvcmswggEiMA0GCSqGSIb3
+DQEBAQUAA4IBDwAwggEKAoIBAQDamMuBdZtWLjtQsjZhMjpz+ue7/t3J/1d6t1qx
+CPBRd5xTP5+seBWbd1SXZM2eT/+hGwcDON8Edm1/5ybBx+3M7YIY20BI7L15VsYK
+imbROSb5XR7UTBAL0uGohgwWxXUpNDrDKWJTi2icivrXsZR54uhOtQ2bR6ITirox
+iPXYOsoXxdr14OFLla3gB5DT9USSen8N3Ej9wuWg4hlhe5rJ/kcrH9Uvf4dTuXe7
+GnqIRHPpqoB323fyQ7r//s2NnNzXoR0WpO1QnahxW5yMRLWRX/n+I8H0xJLkO4Mh
+b8SN4aowrEfX0BonQunO6O6FCuIQ+0pf9bu2//e3l69NtfhLAgMBAAGjNjA0MDIG
+A1UdEQQrMCmCCWxvY2FsaG9zdIIJZGFwcHlub2RlghFkYXBweWdhbW1hbmV0d29y
+azANBgkqhkiG9w0BAQsFAAOCAQEAVy1MAyfJsLCClEwMKqhMa4jUPP8aUH34n1Os
+ewyaI2NFTtKSnL4Tg3nBTcU4Kdkskk4S0YhheLMNx4AktLgyw3c6v/LGo771/9qF
+dGGXGFJRDaITr4/x30XMj7iNLOz0nRybegE4ykxgKsReHSURxfSj13gjYsC3s4xz
+Yjg7bjCfL0F7u4ZTBh462e3jhpOTy43j6SCGp0wHsCQ5J00OerVEA3jGFG16cxCx
+L+7ohgaZy3cpogHOkDXFmz87uPwvtGGEzK451vSI40n7rVxDdJaZlXGAumX7Jr08
+zruDFpDU1/kBrPP/lX/ito1T2IGqUAE3+TXTD3chACkSSVYH+A==
+-----END CERTIFICATE-----`),
+      },
+    ],
+  },
+  {
+    platform: 'rchain',
+    chainId: 'betanetwork',
+    chainName: 'Beta network (mainnet)',
+    /* no dns */
+    nodes: [
+      {
+        name: 'Node 1',
+        host: 'dappybetanetwork',
+        ip: '195.154.70.253',
+        origin: 'default',
+        active: true,
+        readyState: 3,
+        ssl: true,
+        cert: encodeURI(`-----BEGIN CERTIFICATE-----
+MIIC7jCCAdagAwIBAgIJANpjduSnANQKMA0GCSqGSIb3DQEBCwUAMBsxGTAXBgNV
+BAMMEGRhcHB5YmV0YW5ldHdvcmswHhcNMjExMTE4MDkzMzMyWhcNMzAwMjA0MDkz
+MzMyWjAbMRkwFwYDVQQDDBBkYXBweWJldGFuZXR3b3JrMIIBIjANBgkqhkiG9w0B
+AQEFAAOCAQ8AMIIBCgKCAQEAmabi+uIZwG6RDNqErN6HI4fmPCmY1TSurznc6Y7X
+rePLBd92QbTfGFNmAEEa/SPAfxs/fsxxvWtcubCK+ukvbQ9ClXFrFdjmzgtzyHq4
+rsS/ia24bcFSDcqi9eg+f8kUOQJ5NyifKT+4YugAkeD0hUhC7M2afYSMpkj6oEnz
+1f6UidE5hicohqjiV9IyorJCDEZEu5dAI2XkJVKVXpglnMdtKqdu6EJvqdTjhmMj
+058VAJDraic+0xrBZ5AlIZQQ/meiymoW9/6g3X1RBeEcNv5pMj4Qdnox28zmBYGG
+RuAhMgyS0Lmipqc4knkuQxsSJggoWUP/I0kedFULi7eqLwIDAQABozUwMzAxBgNV
+HREEKjAogglsb2NhbGhvc3SCCWRhcHB5bm9kZYIQZGFwcHliZXRhbmV0d29yazAN
+BgkqhkiG9w0BAQsFAAOCAQEAJhvF9Y6nD8Kdj69YVt18EilsFN//STn3bl+gYV7w
+pqLBM2X43BydgKgf5awslFlKa6/BZNJ58aqy94pWE+/HC2LsJ4ku4rNe8OmF9V/Z
+76yyDfOfcPa+BBDZa8j9UFACUWKDUcltP6xuaQfuVOBCX0aTKBFh21LABE3SBDlI
+/Z0rJajtDiWw34/W7LmZYO2eHNdA4VV7uqsoQVB7k5jKQeN1cD9CovQ6uT4pbkXV
+bILn3tVnBjuW1j0/megRsdVRdE2PqsIkPHxsEgIA4cU97H3qXiT2qHkrx65eY4fE
+oOuysz7xmb+VElqaKTWGJXKKC+3IEv8qo3CY1Gdc9UaB9Q==
 -----END CERTIFICATE-----`),
       },
     ],
