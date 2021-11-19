@@ -3,6 +3,7 @@ import resolve from 'rollup-plugin-node-resolve';
 import typescript from 'rollup-plugin-typescript';
 import json from 'rollup-plugin-json';
 import replace from '@rollup/plugin-replace';
+import sourcemaps from 'rollup-plugin-sourcemaps';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -11,6 +12,7 @@ export default {
   output: {
     format: 'cjs',
     file: 'main.js',
+    sourcemap: !production,
   },
   external: [
     'electron',
@@ -32,6 +34,7 @@ export default {
     'string_decoder',
   ],
   plugins: [
+    sourcemaps(),
     typescript(),
     resolve(),
     commonjs(),
