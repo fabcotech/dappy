@@ -149,6 +149,13 @@ On every OS
 npm i -g electron-builder
 ```
 
+To prevent any electron security issue, update electron to the latest version
+```
+npm i electron@latest
+git add package.json package-lock.json
+git commit -m "chore: bump electron to latest version"
+```
+
 Package for windows (on windows)
 ```
 # ENV variables, add the two following environment variables to your system

@@ -1,0 +1,18 @@
+name: Check Outdated
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  electron_version_must_be_the_latest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install npm
+        run: npm install
+      - name: Check outdated
+        run: |
+        ${GITHUB_WORKSPACE}/outdated.sh electron
