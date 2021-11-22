@@ -1,4 +1,4 @@
-name: Check Outdated
+name: Security audit
 
 on:
   push:
@@ -6,12 +6,14 @@ on:
       - master
 
 jobs:
-  electron_version_must_be_the_latest:
+  security_audit:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Install npm
         run: npm install
-      - name: Check outdated
+      - name: electron version must be the latest
         run: ${GITHUB_WORKSPACE}/outdated.sh electron
+      - name: no security issues for production dependencies
+        run: npm audit --production --audit-level=high
