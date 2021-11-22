@@ -14,5 +14,4 @@ jobs:
       - name: Install npm
         run: npm install
       - name: Check outdated
-        run: |
-        ${GITHUB_WORKSPACE}/outdated.sh electron
+        run: ${GITHUB_WORKSPACE}/outdated.sh electron
