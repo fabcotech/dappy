@@ -40,7 +40,7 @@ export default {
     commonjs(),
     json(),
     replace({
-      'process.env': production ? '"production"' : '"dev"',
+      'process.env.PRODUCTION': production ? 'true' : 'false',
     }),
   ],
 };

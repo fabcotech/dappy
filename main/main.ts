@@ -160,6 +160,7 @@ function createWindow() {
       sandbox: true,
       contextIsolation: true,
       partition: partition,
+      devTools: /^true$/i.test(process.env.DAPPY_DEVTOOLS) || !process.env.PRODUCTION,
     },
   });
   registerDappyProtocol(session.fromPartition(partition), store.getState);

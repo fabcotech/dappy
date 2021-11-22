@@ -102,7 +102,7 @@ const loadOrReloadBrowserView = function* (action: any) {
       enableRemoteModule: false,
       sandbox: true,
       contextIsolation: true,
-      devTools: true,
+      devTools: /^true$/i.test(process.env.DAPPY_DEVTOOLS) || !process.env.PRODUCTION,
       disableDialogs: true,
       partition: `persist:${payload.dappyDomain}`,
     },

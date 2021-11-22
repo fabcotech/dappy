@@ -3,7 +3,7 @@ import path from 'path';
 import { app, session } from 'electron';
 
 export function installDevToolsExtensionsOnlyForDev(partition: string) {
-  if ((process.env as any) === 'dev') {
+  if (process.env.PRODUCTION) {
     const reduxDevTools = path.join(
       os.homedir(),
       '/Library/Application Support/Google/Chrome/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.2_18'
