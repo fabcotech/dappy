@@ -19,6 +19,7 @@
     "electron-builder:dist:windows:64": "electron-builder -c build.yml --x64 --publish never --win nsis",
     "electron-builder:dist:windows:32": "electron-builder -c build.yml --ia32 --publish never --win nsis",
     "electron-builder:dist:mac": "./outdated.sh electron && electron-builder -c build.yml --publish never --mac",
+    "security-audit": "./outdated.sh electron && npm audit --production --audit-level=high",
     "test": "jest",
     "prepare": "husky install"
   },

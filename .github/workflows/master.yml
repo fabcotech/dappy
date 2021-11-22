@@ -13,7 +13,5 @@ jobs:
         uses: actions/checkout@v2
       - name: Install npm
         run: npm install
-      - name: electron version must be the latest
-        run: ${GITHUB_WORKSPACE}/outdated.sh electron
-      - name: no security issues for production dependencies
-        run: npm audit --production --audit-level=high
+      - name: Security audit
+        run: npm run security-audit
