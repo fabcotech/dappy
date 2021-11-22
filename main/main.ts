@@ -86,11 +86,15 @@ const dispatchFromMain = (a: DispatchFromMainArg) => {
   dispatchesFromMainAwaiting.push(a.action);
 };
 
+const isHttpsUrl = (uri: string) =>
+  /^https:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/.test(uri);
+
 /*
   Open external link
 */
-const openExternal = (url) => {
-  shell.openExternal(url);
+const openExternal = (url: string) => {
+  if (isHttpsUrl(url)) shell.openExternal(url);
+  else console.error('Only open external https urls');
 };
 
 let loadResourceWhenReady = undefined;
@@ -145,8 +149,6 @@ function createWindow() {
   setInterval(() => {
     benchmarkCron(store.getState, dispatchFromMain);
   }, WS_RECONNECT_PERIOD);
-
-
 
   // Create the browser window.
   browserWindow = new BrowserWindow({
