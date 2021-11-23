@@ -8,6 +8,7 @@ import { DappyBrowserView } from '../../models';
 import { registerDappyProtocol } from '../../registerDappyProtocol';
 import { registerInterProcessDappProtocol } from '../../registerInterProcessDappProtocol';
 import { overrideHttpProtocols } from '../../overrideHttpProtocols';
+import { preventAllPermissionRequests } from '../../preventAllPermissionRequests';
 import { store } from '../';
 
 import * as fromDapps from '../../../src/store/dapps';
@@ -118,20 +119,12 @@ const loadOrReloadBrowserView = function* (action: any) {
     });
   });
 
+  const viewSession = session.fromPartition(`persist:${payload.dappyDomain}`);
+  preventAllPermissionRequests(viewSession);
   // todo, avoid circular ref to "store" (see logs when "npm run build:main")
-  registerDappyProtocol(session.fromPartition(`persist:${payload.dappyDomain}`), store.getState);
-  registerInterProcessDappProtocol(
-    session.fromPartition(`persist:${payload.dappyDomain}`),
-    store,
-    action.meta.dispatchFromMain
-  );
-  overrideHttpProtocols(
-    session.fromPartition(`persist:${payload.dappyDomain}`),
-    store.getState,
-    development,
-    action.meta.dispatchFromMain,
-    false
-  );
+  registerDappyProtocol(viewSession, store.getState);
+  registerInterProcessDappProtocol(viewSession, store, action.meta.dispatchFromMain);
+  overrideHttpProtocols(viewSession, store.getState, development, action.meta.dispatchFromMain, false);
 
   if (payload.devMode) {
     view.webContents.openDevTools();

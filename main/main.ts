@@ -14,6 +14,7 @@ import { registerInterProcessProtocol } from './registerInterProcessProtocol';
 import { benchmarkCron } from './benchmarkCron';
 import { store } from './store';
 import { installDevToolsExtensionsOnlyForDev } from './devTools';
+import { preventAllPermissionRequests } from './preventAllPermissionRequests';
 
 /*
   CAREFUL
@@ -163,10 +164,12 @@ function createWindow() {
       devTools: /^true$/i.test(process.env.DAPPY_DEVTOOLS) || !process.env.PRODUCTION,
     },
   });
-  registerDappyProtocol(session.fromPartition(partition), store.getState);
-  overrideHttpProtocols(session.fromPartition(partition), store.getState, development, dispatchFromMain, true);
+  const browserSession = session.fromPartition(partition);
+  preventAllPermissionRequests(browserSession);
+  registerDappyProtocol(browserSession, store.getState);
+  overrideHttpProtocols(browserSession, store.getState, development, dispatchFromMain, true);
   registerInterProcessProtocol(
-    session.fromPartition(partition),
+    browserSession,
     store,
     getLoadResourceWhenReady,
     openExternal,
