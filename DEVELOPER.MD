@@ -182,7 +182,7 @@ On mac (on macOS)
 npm run electron-builder:dist:mac
 ```
 
-See https://support.comodo.com/index.php?/Knowledgebase/Article/View/1232/7/codesign-digital-signatures-in-mac-os for signing on macOS
+See https://www.electron.build/code-signing.html for signing on macOS
 
 
 Please join us anytime [https://discord.gg/8Cu5UFV](https://discord.gg/8Cu5UFV) if you have question(s)/issue(s).
