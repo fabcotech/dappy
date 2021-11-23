@@ -28,7 +28,7 @@ If you don't understand some terms, please refer first to the [glossary](https:/
 
 **Name system and multi requests**
 
-Dappy is no-DNS, name requests (DNS lookups) are similar to any other request addressed to the dappy network (explore-deploy is an example). See everywhere `multiCall()` or `singleCall()` functions are called in the **browser process**. In the **main process** it resolves to `main/performMultiRequest.ts` and `main/performSingleRequest.ts` and then `main/httpBrowserToNode.ts` which does the HTTP + TLSv1.3 request, it does not use the DNS (directly hits IP `host: server.ip`), neither CAs (`ca: []`).
+Dappy is no-DNS, name requests (DNS lookups) are similar to any other request addressed to the dappy network (explore-deploy is an example). See everywhere `multiCall()` or `singleCall()` functions are called in the **browser process**. In the **main process** it resolves to `main/performMultiRequest.ts` and `main/performSingleRequest.ts` and then `main/httpBrowserToNode.ts` which does the HTTP + TLSv1.3 request, it does not use the DNS (directly hits IP `host: server.ip`).
 
 #### Quick start
 ```
