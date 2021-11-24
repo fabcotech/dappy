@@ -34,41 +34,6 @@ const development = !!process.defaultApp;
 // be closed automatically when the JavaScript object is garbage collected.
 let browserWindow;
 
-/*
-  MESSAGE FROM BROWSER VIEWS / TABS (dapps and IP apps)
-  first message from dapps to get the initial payload
-*/
-/* tab process - main process */
-ipcMain.on('hi-from-dapp-sandboxed', (commEvent, userAgent) => {
-  const browserViews = fromMainBrowserViews.getBrowserViewsMain(store.getState());
-  let randomId = '';
-  try {
-    const io = userAgent.indexOf('randomId=');
-    randomId = userAgent.substring(io + 'randomId='.length);
-    const id = Object.keys(browserViews).find((k) => browserViews[k].randomId === randomId);
-    if (!id) {
-      console.error('Could find browser view from hi-from-dapp-sandboxed message');
-      return;
-    }
-
-    commEvent.reply('hi-from-dapp-sandboxed-reply', {
-      type: fromCommon.DAPP_INITIAL_SETUP,
-      payload: {
-        html: browserViews[id].html,
-        dappyDomain: browserViews[id].dappyDomain,
-        path: browserViews[id].path,
-        title: browserViews[id].title,
-        dappId: browserViews[id].resourceId,
-        randomId: browserViews[id].randomId,
-        appPath: path.join(app.getAppPath(), 'dist/'),
-      },
-    });
-  } catch (err) {
-    console.error('Could not get randomId from hi-from-dapp-sandboxed message');
-    return;
-  }
-});
-
 let dispatchesFromMainAwaiting = [];
 const getDispatchesFromMainAwaiting = () => {
   const t = [].concat(dispatchesFromMainAwaiting);
@@ -166,8 +131,7 @@ function createWindow() {
   });
   const browserSession = session.fromPartition(partition);
   preventAllPermissionRequests(browserSession);
-  registerDappyProtocol(browserSession, store.getState);
-  overrideHttpProtocols(browserSession, store.getState, development, dispatchFromMain, true);
+  overrideHttpProtocols(undefined, browserSession, development, dispatchFromMain, true);
   registerInterProcessProtocol(
     browserSession,
     store,

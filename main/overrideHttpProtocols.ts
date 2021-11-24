@@ -1,20 +1,17 @@
 import https from 'https';
-import http from 'http';
 import fs from 'fs';
 import { Session } from 'electron';
 import setCookie from 'set-cookie-parser';
 
 import * as fromCookies from '../src/store/cookies';
-import * as fromMainBrowserViews from './store/browserViews';
 import { DappyBrowserView } from './models';
 import { Cookie } from '../src/models';
 
-let httpErrorServerUrl = undefined;
 const agents: { [key: string]: https.Agent } = {};
 
 export const overrideHttpProtocols = (
+  dappyBrowserView: DappyBrowserView | undefined,
   session: Session,
-  getState,
   development: boolean,
   dispatchFromMain: (a: any) => void,
   allowSentry: boolean
@@ -23,69 +20,26 @@ export const overrideHttpProtocols = (
   // debug
   let debug = development;
 
-  if (!httpErrorServerUrl) {
-    const httpErrorServer = http.createServer((req, res) => {
-      if (req.url.startsWith('/load-fails')) {
-        try {
-          const p = decodeURIComponent(req.url.substr(14));
-          res.statusCode = 520;
-          res.statusMessage = 'Unknown error';
-          res.end(p);
-        } catch (err) {
-          res.statusCode = 520;
-          res.statusMessage = 'Unknown error';
-          res.end('HTTP/1.1 520 Unknown error');
-        }
-      } else if (req.url.startsWith('/unauthorized-app')) {
-        res.statusCode = 401;
-        res.statusMessage = 'Unauthorized';
-        res.end('HTTP/1.1 401 Unauthorized');
-      } else if (req.url.startsWith('/unauthorized-host')) {
-        res.statusCode = 401;
-        res.statusMessage = 'Unauthorized Host';
-        res.end('HTTP/1.1 401 Unauthorized Host');
-      } else if (req.url.startsWith('/unauthorized-http')) {
-        res.statusCode = 401;
-        res.statusMessage = 'Unauthorized HTTP';
-        res.end('HTTP/1.1 401 Unauthorized HTTP');
-      } else {
-        res.statusCode = 520;
-        res.statusMessage = 'Unknown error';
-        res.end('HTTP/1.1 520 Unknown error');
-      }
-    });
-    httpErrorServer.on('listening', function () {
-      var addr = httpErrorServer.address();
-      httpErrorServerUrl = `http://127.0.0.1:${addr.port}`;
-      console.log(`[https] http error server running on ${httpErrorServerUrl}`);
-    });
-    httpErrorServer.listen(0);
-  }
-
   // Block all HTTP when not development
   if (!development) {
     session.protocol.interceptStreamProtocol('http', (request, callback) => {
-      http
-        .request(`${httpErrorServerUrl}/unauthorized-http`, (resp) => {
-          callback(resp);
-        })
-        .end();
+      console.log(`[http] unauthorized`);
+      callback(null);
       return;
     });
   }
 
-  let browserView: undefined | DappyBrowserView = undefined;
   session.cookies.on('changed', async (e, c, ca, re) => {
-    if (!browserView) {
+    if (!dappyBrowserView) {
       console.log('no browserView, cannot save cookies');
       return;
     }
-    const servers = browserView.record.servers.filter((s) => s.host === c.domain);
+    const servers = dappyBrowserView.record.servers.filter((s) => s.host === c.domain);
     if (!servers.length) {
       console.log('no browserView.record.servers matching cookies domain ' + c.domain);
       return;
     }
-    const cookies = await browserView.browserView.webContents.session.cookies.get({ url: `https://${c.domain}` });
+    const cookies = await dappyBrowserView.browserView.webContents.session.cookies.get({ url: `https://${c.domain}` });
     const cookiesToBeStored = cookies
       .filter((c) => typeof c.expirationDate === 'number')
       .map(
@@ -101,7 +55,7 @@ export const overrideHttpProtocols = (
     if (cookiesToBeStored.length) {
       dispatchFromMain({
         action: fromCookies.saveCookiesForDomainAction({
-          dappyDomain: browserView.dappyDomain,
+          dappyDomain: dappyBrowserView.dappyDomain,
           cookies: cookiesToBeStored,
         }),
       });
@@ -141,57 +95,29 @@ export const overrideHttpProtocols = (
       }
     }
 
-    let randomId = '';
-    try {
-      const userAgent = request.headers['User-Agent'];
-      const io = userAgent.indexOf('randomId=');
-      randomId = userAgent.substring(io + 'randomId='.length);
-    } catch (err) {
-      console.log('[https] An unauthorized app tried to make an https request, randomId: ', randomId);
-      http
-        .request(`${httpErrorServerUrl}/unauthorized-app`, (resp) => {
-          callback(resp);
-        })
-        .end();
+    if (!dappyBrowserView) {
+      console.log('[https] An unauthorized process, maybe BrowserWindow, tried to make an https request');
+      callback(null);
       return;
     }
-
-    const browserViews = fromMainBrowserViews.getBrowserViewsMain(getState());
-
-    const appId = Object.keys(browserViews).find((appId) => browserViews[appId].randomId === randomId);
-    if (!appId) {
-      console.log('[https] An unauthorized app tried to make an https request');
-      http
-        .request(`${httpErrorServerUrl}/unauthorized-app`, (resp) => {
-          callback(resp);
-        })
-        .end();
-      return;
-    }
-    browserView = browserViews[appId];
 
     /* browser to server */
-
     const withoutProtocol = request.url.split('//').slice(1);
     const pathArray = withoutProtocol.join('').split('/');
     const host = pathArray.slice(0, 1)[0];
     const path = pathArray.slice(1).join('/');
 
-    const serversWithSameHost = browserView.record.servers.filter((s) => s.host === host);
+    const serversWithSameHost = dappyBrowserView.record.servers.filter((s) => s.host === host);
     if (!serversWithSameHost.length) {
       console.log(
-        `[https] An app (${browserView.resourceId}) tried to make an https request to an unknown host (${host})`
+        `[https] An app (${dappyBrowserView.resourceId}) tried to make an https request to an unknown host (${host})`
       );
-      http
-        .request(`${httpErrorServerUrl}/unauthorized-host`, (resp) => {
-          callback(resp);
-        })
-        .end();
+      callback(null);
       return;
     }
 
     let cookies: Electron.Cookie[] = [];
-    cookies = await browserView.browserView.webContents.session.cookies.get({
+    cookies = await dappyBrowserView.browserView.webContents.session.cookies.get({
       url: `https://${serversWithSameHost[0].host}`,
     });
 
@@ -240,7 +166,7 @@ export const overrideHttpProtocols = (
           host: s.host,
           'User-Agent': request.headers['User-Agent'].substr(0, randomIdIndex),
           Cookie: cookieHeader,
-          Origin: `dappy://${browserView.dappyDomain}`,
+          Origin: `dappy://${dappyBrowserView.dappyDomain}`,
         },
       };
 
@@ -270,7 +196,7 @@ export const overrideHttpProtocols = (
             if (debug) console.log('[https load] OK', resp.statusCode, request.url, i);
             resp.headers = {
               ...resp.headers,
-              'Content-Security-Policy': browserView.record.csp || "default-src 'self'",
+              'Content-Security-Policy': dappyBrowserView.record.csp || "default-src 'self'",
             };
             if (!over) {
               callback(resp);
@@ -299,16 +225,10 @@ export const overrideHttpProtocols = (
               tryToLoad(i);
             } else {
               if (debug) {
-                console.log(`[https load] Resource for app (${browserView.resourceId}) failed to load (${path})`);
+                console.log(`[https load] Resource for app (${dappyBrowserView.resourceId}) failed to load (${path})`);
               }
-              http
-                .get(`${httpErrorServerUrl}/load-fails?p=${encodeURIComponent(JSON.stringify(loadFails))}`, (resp) => {
-                  if (!over) {
-                    callback(resp);
-                    over = true;
-                  }
-                })
-                .end();
+              over = true;
+              callback(null);
               return;
             }
           });
@@ -350,15 +270,9 @@ export const overrideHttpProtocols = (
           i += 1;
           tryToLoad(i);
         } else {
-          if (debug) console.log(`[https] Resource for app (${browserView.resourceId}) failed to load (${path})`);
-          http
-            .get(`${httpErrorServerUrl}/load-fails?p=${encodeURIComponent(JSON.stringify(loadFails))}`, (resp) => {
-              if (!over) {
-                callback(resp);
-                over = true;
-              }
-            })
-            .end();
+          if (debug) console.log(`[https] Resource for app (${dappyBrowserView.resourceId}) failed to load (${path})`);
+          callback(null);
+          over = true;
           return;
         }
       }

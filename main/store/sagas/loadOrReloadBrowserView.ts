@@ -119,13 +119,6 @@ const loadOrReloadBrowserView = function* (action: any) {
     });
   });
 
-  const viewSession = session.fromPartition(`persist:${payload.dappyDomain}`);
-  preventAllPermissionRequests(viewSession);
-  // todo, avoid circular ref to "store" (see logs when "npm run build:main")
-  registerDappyProtocol(viewSession, store.getState);
-  registerInterProcessDappProtocol(viewSession, store, action.meta.dispatchFromMain);
-  overrideHttpProtocols(viewSession, store.getState, development, action.meta.dispatchFromMain, false);
-
   if (payload.devMode) {
     view.webContents.openDevTools();
   }
@@ -365,6 +358,24 @@ const loadOrReloadBrowserView = function* (action: any) {
       };
     }
   });
+
+  const viewSession = session.fromPartition(`persist:${payload.dappyDomain}`);
+  preventAllPermissionRequests(viewSession);
+  // todo, avoid circular ref to "store" (see logs when "npm run build:main")
+  registerDappyProtocol(newBrowserViews[payload.resourceId], viewSession, store.getState);
+  registerInterProcessDappProtocol(
+    newBrowserViews[payload.resourceId],
+    viewSession,
+    store,
+    action.meta.dispatchFromMain
+  );
+  overrideHttpProtocols(
+    newBrowserViews[payload.resourceId],
+    viewSession,
+    development,
+    action.meta.dispatchFromMain,
+    false
+  );
 
   return yield put({
     type: fromBrowserViews.LOAD_OR_RELOAD_BROWSER_VIEW_COMPLETED,

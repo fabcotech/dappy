@@ -1,8 +1,4 @@
-import {
-  TransactionState,
-  Identification,
-  TransactionOriginDapp,
-} from '/models';
+import { TransactionState, Identification, TransactionOriginDapp } from '/models';
 
 export const DAPP_INITIAL_SETUP = '[Common] dapp initial setup';
 export const EXECUTE_TRANSACTION = '[Common] Execute transaction';
@@ -141,7 +137,6 @@ export interface IdentifyFromSandboxPayload {
   };
   callId: string;
   dappId: string;
-  randomId: string;
 }
 export interface IdentifyFromSandboxAction {
   type: '[SandBox] Identify from sandbox';

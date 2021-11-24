@@ -4,7 +4,6 @@ import * as yup from 'yup';
 import path from 'path';
 
 import * as fromCommon from '../src/common';
-import * as fromBrowserViewsMain from './store/browserViews';
 import * as fromIdentificationsMain from './store/identifications';
 import * as fromTransactionsMain from './store/transactions';
 import * as fromBlockchainsMain from './store/blockchains';
@@ -12,6 +11,7 @@ import * as fromMain from '../src/store/main';
 import * as fromBlockchain from '../src/store/blockchain';
 import { splitSearch } from '../src/utils/splitSearch';
 import { SplitSearch } from '../src/models';
+import { DappyBrowserView } from './models';
 
 const identifyFromSandboxSchema = yup
   .object()
@@ -26,7 +26,6 @@ const identifyFromSandboxSchema = yup
       .required(),
     callId: yup.string().required(),
     dappId: yup.string().required(),
-    randomId: yup.string().required(),
   })
   .noUnknown()
   .strict(true)
@@ -49,7 +48,6 @@ const sendRChainPaymentRequestFromSandboxSchema = yup
       .required(),
     callId: yup.string().required(),
     dappId: yup.string().required(),
-    randomId: yup.string().required(),
   })
   .strict(true)
   .noUnknown()
@@ -69,36 +67,23 @@ const sendRChainTransactionFromSandboxSchema = yup
       .strict(true),
     callId: yup.string().required(),
     dappId: yup.string().required(),
-    randomId: yup.string().required(),
   })
   .strict(true)
   .noUnknown()
   .required();
 
 /* browser process - main process */
-export const registerInterProcessDappProtocol = (session: Session, store: Store, dispatchFromMain) => {
+export const registerInterProcessDappProtocol = (
+  dappyBrowserView: DappyBrowserView,
+  session: Session,
+  store: Store,
+  dispatchFromMain
+) => {
   session.protocol.registerBufferProtocol('interprocessdapp', (request, callback) => {
-    let id;
-    let data: any;
-    const browserViews = fromBrowserViewsMain.getBrowserViewsMain(store.getState());
+    let data: { [a: string]: any } = {};
     try {
       data = JSON.parse(request.headers['Data']);
-      id = Object.keys(browserViews).find((k) => browserViews[k].randomId === data.randomId);
-      if (!id) {
-        console.error('Could not find browser view from hi-from-dapp-sandboxed message');
-        console.log('data.randomId', data.randomId);
-        console.log(Object.keys(browserViews).map((k) => browserViews[k].randomId));
-        callback(Buffer.from(''));
-        return;
-      }
-    } catch (e) {
-      console.error('Error in hi-from-dapp-sandboxed message');
-      console.log(e);
-      callback(Buffer.from(''));
-      return;
-    }
-
-    const browserView = browserViews[id];
+    } catch (e) {}
 
     if (request.url === 'interprocessdapp://hi-from-dapp-sandboxed') {
       try {
@@ -107,32 +92,31 @@ export const registerInterProcessDappProtocol = (session: Session, store: Store,
             JSON.stringify({
               type: fromCommon.DAPP_INITIAL_SETUP,
               payload: {
-                html: browserView.html,
-                dappyDomain: browserView.dappyDomain,
-                path: browserView.path,
-                title: browserView.title,
-                dappId: browserView.resourceId,
-                randomId: browserView.randomId,
+                html: dappyBrowserView.html,
+                dappyDomain: dappyBrowserView.dappyDomain,
+                path: dappyBrowserView.path,
+                title: dappyBrowserView.title,
+                dappId: dappyBrowserView.resourceId,
                 appPath: path.join(app.getAppPath(), 'dist/'),
               },
             })
           )
         );
       } catch (err) {
-        console.error('Could not get randomId from hi-from-dapp-sandboxed message');
-        callback(Buffer.from(''));
+        console.log(err);
+        callback(null);
         return;
       }
     }
 
     if (request.url === 'interprocessdapp://get-identifications') {
       const identifications = fromIdentificationsMain.getIdentificationsMain(store.getState());
-      callback(Buffer.from(JSON.stringify({ identifications: identifications[browserView.resourceId] })));
+      callback(Buffer.from(JSON.stringify({ identifications: identifications[dappyBrowserView.resourceId] })));
     }
 
     if (request.url === 'interprocessdapp://get-transactions') {
       const transactions = fromTransactionsMain.getTransactionsMain(store.getState());
-      callback(Buffer.from(JSON.stringify({ transactions: transactions[browserView.resourceId] })));
+      callback(Buffer.from(JSON.stringify({ transactions: transactions[dappyBrowserView.resourceId] })));
     }
 
     if (request.url === 'interprocessdapp://message-from-dapp-sandboxed') {
@@ -140,15 +124,12 @@ export const registerInterProcessDappProtocol = (session: Session, store: Store,
         const state = store.getState();
         const payloadBeforeValid = data.action.payload;
 
-        if (!payloadBeforeValid || !payloadBeforeValid.randomId || !payloadBeforeValid.dappId) {
+        if (!payloadBeforeValid || !payloadBeforeValid.dappId) {
           if (payloadBeforeValid) {
             console.error('A dapp dispatched a transaction with an invalid payload');
           } else {
             console.error(
-              'A dapp dispatched a transaction with an invalid payload, randomId : ' +
-                payloadBeforeValid.randomId +
-                ', dappId : ' +
-                payloadBeforeValid.dappId
+              'A dapp dispatched a transaction with an invalid payload, dappId : ' + payloadBeforeValid.dappId
             );
           }
           callback(Buffer.from(''));
@@ -168,8 +149,8 @@ export const registerInterProcessDappProtocol = (session: Session, store: Store,
                 platform: 'rchain',
                 origin: {
                   origin: 'dapp',
-                  dappId: browserView.resourceId,
-                  dappTitle: browserView.title,
+                  dappId: dappyBrowserView.resourceId,
+                  dappTitle: dappyBrowserView.title,
                   callId: payloadBeforeValid.callId,
                 },
                 value: { message: `blockchain ${searchSplitted.chainId} not available` },
@@ -182,15 +163,15 @@ export const registerInterProcessDappProtocol = (session: Session, store: Store,
             return;
           }
 
-          if (browserView.resourceId !== payloadBeforeValid.dappId) {
+          if (dappyBrowserView.resourceId !== payloadBeforeValid.dappId) {
             dispatchFromMain({
               action: fromBlockchain.saveFailedRChainTransactionAction({
                 blockchainId: searchSplitted.chainId,
                 platform: 'rchain',
                 origin: {
                   origin: 'dapp',
-                  dappId: browserView.resourceId,
-                  dappTitle: browserView.title,
+                  dappId: dappyBrowserView.resourceId,
+                  dappTitle: dappyBrowserView.title,
                   callId: payloadBeforeValid.callId,
                 },
                 value: { message: `Wrong id, identity theft attempt` },
@@ -203,7 +184,7 @@ export const registerInterProcessDappProtocol = (session: Session, store: Store,
                 'dappId from payload: ' +
                 payloadBeforeValid.dappId +
                 ', dappId found from randomId: ' +
-                browserView.resourceId
+                dappyBrowserView.resourceId
             );
             callback(Buffer.from(''));
             return;
@@ -235,7 +216,7 @@ export const registerInterProcessDappProtocol = (session: Session, store: Store,
                 origin: {
                   origin: 'dapp',
                   dappId: payload.dappId,
-                  dappTitle: browserView.title,
+                  dappTitle: dappyBrowserView.title,
                   callId: payload.callId,
                 },
                 chainId: (searchSplitted as SplitSearch).chainId,
@@ -272,7 +253,7 @@ export const registerInterProcessDappProtocol = (session: Session, store: Store,
                 origin: {
                   origin: 'dapp',
                   dappId: payload.dappId,
-                  dappTitle: browserView.title,
+                  dappTitle: dappyBrowserView.title,
                   callId: payload.callId,
                 },
                 chainId: (searchSplitted as SplitSearch).chainId,
@@ -282,7 +263,7 @@ export const registerInterProcessDappProtocol = (session: Session, store: Store,
 
               dispatchFromMain({
                 action: fromMain.openDappModalAction({
-                  dappId: browserView.resourceId,
+                  dappId: dappyBrowserView.resourceId,
                   title: 'PAYMENT_REQUEST_MODAL',
                   text: '',
                   parameters: payload2,

@@ -6,7 +6,6 @@ import { BeesLoadError } from 'beesjs';
 import { performMultiRequest } from './performMultiRequest';
 import * as fromSettings from './store/settings';
 import * as fromBlockchains from './store/blockchains';
-import * as fromMainBrowserViews from './store/browserViews';
 
 import { DappyFile } from '../src/models';
 import { validateFile } from '../src/store/decoders/Dpy';
@@ -24,7 +23,7 @@ const readPursesDataOrContractConfig = (masterRegistryUri: string, contractId: s
   return readConfigTerm({ masterRegistryUri, contractId });
 };
 
-export const registerDappyProtocol = (session: Session, getState: () => void) => {
+export const registerDappyProtocol = (browserView: DappyBrowserView, session: Session, getState: () => void) => {
   session.protocol.registerBufferProtocol('dappy', (request, callback) => {
     let valid = false;
     let url = request.url;
@@ -36,28 +35,6 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
       }
     }
 
-    let randomId = '';
-    let browserView: DappyBrowserView | undefined = undefined;
-    try {
-      const userAgent = request.headers['User-Agent'];
-      const io = userAgent.indexOf('randomId=');
-      randomId = userAgent.substring(io + 'randomId='.length);
-      const browserViews = fromMainBrowserViews.getBrowserViewsMain(getState());
-      const browserViewId = Object.keys(browserViews).find(
-        (browserViewId) => browserViews[browserViewId].randomId === randomId
-      );
-      if (!browserViewId || !browserViews[browserViewId]) {
-        console.error('[dappy://] browserView not found, unauthorized request');
-        callback();
-        return;
-      }
-      browserView = browserViews[browserViewId];
-    } catch (err) {
-      console.error('[dappy://] could not get browserView, unauthorized request');
-      console.log(err);
-      callback();
-      return;
-    }
     /*
         Shortcut notation
         change dappy://aaa.bbb?page=123 to dappy://betanetwork/aaa.bbb?page=123
@@ -72,7 +49,7 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
       } catch (e) {
         console.log('[dappy://] could not replace shortcut notation');
         console.log(e);
-        callback();
+        callback(null);
         return;
       }
     }
@@ -84,13 +61,13 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
       exploreDeploys = true;
     } else {
       console.error('dappy://aaa.b,aaa.c notation is not supported, please use dappy://explore-deploys');
-      callback();
+      callback(null);
       return;
     }
 
     if (!valid) {
       console.error('Wrong dappy url, must be dappy://aaa/bbb or dappy://aaa/bbb.yy,ccc.aa,ddd');
-      callback();
+      callback(null);
       return;
     }
 
@@ -103,7 +80,7 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
 
     if (!blockchain) {
       console.error(`[dappy://] blockchain not found ${url}`);
-      callback();
+      callback(null);
       return;
     }
 
@@ -118,7 +95,7 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
       } catch (err) {
         console.log('[dappy://] could not parse explore-deploys haders');
         console.log(err);
-        callback();
+        callback(null);
         return;
       }
     } else if (multipleResources) {
@@ -180,7 +157,7 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
             });
           } else if (multipleResources || exploreDeploys) {
             // todo
-            callback();
+            callback(null);
           } else if (request.headers.Accept === 'rholang/term') {
             callback({
               mimeType: 'application/json',
@@ -231,19 +208,19 @@ export const registerDappyProtocol = (session: Session, getState: () => void) =>
             } catch (err) {
               console.log('[dappy://] error when parsing file as base64(gzip)');
               console.log(err);
-              callback();
+              callback(null);
             }
           } else {
-            callback();
+            callback(null);
           }
         } catch (err) {
           console.log('[dappy://] error when handling multiCall result');
           console.log(err);
-          callback();
+          callback(null);
         }
       })
       .catch((err) => {
-        callback();
+        callback(null);
         return;
       });
   });

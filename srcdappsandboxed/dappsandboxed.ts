@@ -33,7 +33,6 @@ const sendMessageToHost = (m) => {
   interProcess2.setRequestHeader(
     'Data',
     JSON.stringify({
-      randomId: randomId,
       action: m,
     })
   );
@@ -82,7 +81,6 @@ const store = createStore((state = initialState, action: any) => {
 window.dappyStore = store;
 
 let dappId: undefined | string = undefined;
-let randomId: undefined | string = undefined;
 
 class DappyRChain {
   identifications: {
@@ -149,12 +147,6 @@ class DappyRChain {
         reject(e);
         return;
       }
-      if (!randomId) {
-        const e = 'Cannot find randomId';
-        console.error(e);
-        reject(e);
-        return;
-      }
 
       let params = parameters;
       if (!params || !params.publicKey) {
@@ -170,7 +162,6 @@ class DappyRChain {
           parameters: params,
           callId: callId,
           dappId: dappId,
-          randomId: randomId,
         })
       );
 
@@ -191,12 +182,6 @@ class DappyRChain {
         reject(e);
         return;
       }
-      if (!randomId) {
-        const e = 'Cannot find randomId';
-        console.error(e);
-        reject(e);
-        return;
-      }
 
       const callId = new Date().valueOf().toString() + Math.round(Math.random() * 1000000).toString();
 
@@ -205,7 +190,6 @@ class DappyRChain {
           parameters: parameters,
           callId: callId,
           dappId: dappId,
-          randomId: randomId,
         })
       );
 
@@ -226,12 +210,6 @@ class DappyRChain {
         reject(e);
         return;
       }
-      if (!randomId) {
-        const e = 'Cannot find randomId';
-        console.error(e);
-        reject(e);
-        return;
-      }
 
       const callId = new Date().valueOf().toString() + Math.round(Math.random() * 1000000).toString();
 
@@ -240,7 +218,6 @@ class DappyRChain {
           parameters: parameters,
           callId: callId,
           dappId: dappId,
-          randomId: randomId,
         })
       );
 
@@ -254,16 +231,8 @@ class DappyRChain {
   }
 
   requestTransactions = () => {
-    const io = navigator.userAgent.indexOf('randomId=');
-    randomId = navigator.userAgent.substring(io + 'randomId='.length);
     const interProcess = new XMLHttpRequest();
     interProcess.open('POST', 'interprocessdapp://get-transactions');
-    interProcess.setRequestHeader(
-      'Data',
-      JSON.stringify({
-        randomId: randomId,
-      })
-    );
     interProcess.send();
     interProcess.onload = (a: any) => {
       try {
@@ -299,16 +268,8 @@ class DappyRChain {
   }
 
   requestIdentifications = () => {
-    const io = navigator.userAgent.indexOf('randomId=');
-    randomId = navigator.userAgent.substring(io + 'randomId='.length);
     const interProcess = new XMLHttpRequest();
     interProcess.open('POST', 'interprocessdapp://get-identifications');
-    interProcess.setRequestHeader(
-      'Data',
-      JSON.stringify({
-        randomId: randomId,
-      })
-    );
     interProcess.send();
     interProcess.onload = (a: any) => {
       try {
@@ -349,11 +310,9 @@ window.messageFromMain = (action) => {
     console.log(payload);
     document.title = payload.title;
     dappId = payload.dappId;
-    randomId = payload.randomId;
     window.dappy = {
       dappyDomain: payload.dappyDomain,
       path: payload.path,
-      randomId: payload.randomId,
       dappId: payload.dappId,
     };
 
@@ -395,16 +354,8 @@ window.messageFromMain = (action) => {
 let DOMContentLoaded = false;
 let initializePayload: any = undefined;
 
-const io = navigator.userAgent.indexOf('randomId=');
-randomId = navigator.userAgent.substring(io + 'randomId='.length);
 const interProcess = new XMLHttpRequest();
 interProcess.open('POST', 'interprocessdapp://hi-from-dapp-sandboxed');
-interProcess.setRequestHeader(
-  'Data',
-  JSON.stringify({
-    randomId: randomId,
-  })
-);
 interProcess.send();
 interProcess.onload = (a) => {
   try {
