@@ -1,3 +1,4 @@
+```mermaid
 sequenceDiagram
     NavigationBarHome->>+BrowserWindow: loadResource (address)
     Note right of BrowserWindow: Create new tab
@@ -10,3 +11,4 @@ sequenceDiagram
     Note right of MainProcess: Restrict permissions like video, audio ...
     Note right of MainProcess: Add Dappy protocol (???)
     Note right of MainProcess: Add Dapps Protocol
+```;
