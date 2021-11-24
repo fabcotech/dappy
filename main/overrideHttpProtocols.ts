@@ -39,7 +39,7 @@ export const overrideHttpProtocols = (
       console.log('no browserView.record.servers matching cookies domain ' + c.domain);
       return;
     }
-    const cookies = await dappyBrowserView.browserView.webContents.session.cookies.get({ url: `https://${c.domain}` });
+    const cookies = await session.cookies.get({ url: `https://${c.domain}` });
     const cookiesToBeStored = cookies
       .filter((c) => typeof c.expirationDate === 'number')
       .map(
@@ -179,7 +179,7 @@ export const overrideHttpProtocols = (
               });
 
               cookies.forEach((c) => {
-                browserViews[appId].browserView.webContents.session.cookies.set({
+                session.cookies.set({
                   name: c.name,
                   value: c.value,
                   url: `https://${serversWithSameHost[0].host}`,
