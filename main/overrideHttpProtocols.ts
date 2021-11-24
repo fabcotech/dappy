@@ -155,7 +155,6 @@ export const overrideHttpProtocols = (
         });
       }
 
-      const randomIdIndex = request.headers['User-Agent'].indexOf('randomId=');
       const options: https.RequestOptions = {
         agent: agents[`${s.ip}-${s.cert}`],
         method: request.method,
@@ -164,7 +163,6 @@ export const overrideHttpProtocols = (
           ...request.headers,
           /* no dns */
           host: s.host,
-          'User-Agent': request.headers['User-Agent'].substr(0, randomIdIndex),
           Cookie: cookieHeader,
           Origin: `dappy://${dappyBrowserView.dappyDomain}`,
         },

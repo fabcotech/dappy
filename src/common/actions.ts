@@ -22,7 +22,6 @@ export interface DappInitialSetupPayload {
   dappyDomain: string;
   path: string;
   dappId: string;
-  randomId: string;
 }
 export const dappInitialSetupAction = (values: DappInitialSetupPayload) => {
   return {
@@ -68,7 +67,6 @@ export interface SendRChainTransactionFromSandboxPayload {
   };
   callId: string;
   dappId: string;
-  randomId: string;
 }
 export interface SendRChainTransactionFromSandboxAction {
   type: '[SandBox] Send RChain transaction from sandbox';
@@ -102,7 +100,6 @@ export interface SendRChainPaymentRequestFromSandboxPayload {
   };
   callId: string;
   dappId: string;
-  randomId: string;
 }
 export interface SendRChainPaymentRequestFromSandboxAction {
   type: '[Common] Send RChain payment request from sandbox';

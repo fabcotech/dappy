@@ -50,7 +50,6 @@ export interface DappFromNetwork {
 export interface Dapp extends DappFromNetwork {
   id: string;
   tabId: string | undefined;
-  randomId: string;
   // the aaa part of aaa/bbb
   // newtork ID / chain ID (only "betanetwork" is possible now)
   chainId: string;

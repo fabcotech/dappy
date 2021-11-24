@@ -14,6 +14,5 @@ export interface IpApp {
   publicKey: string;
   name: string;
   record: Record;
-  randomId: string;
   launchedAt: undefined | string;
 }

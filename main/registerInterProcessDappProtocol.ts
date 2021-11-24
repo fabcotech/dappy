@@ -180,10 +180,10 @@ export const registerInterProcessDappProtocol = (
               }),
             });
             console.error(
-              'A dapp dispatched a transaction with randomId and dappId that do not match ' +
+              'A dapp dispatched a transaction with resourceId and dappId that do not match ' +
                 'dappId from payload: ' +
                 payloadBeforeValid.dappId +
-                ', dappId found from randomId: ' +
+                ', dappId found from resourceId: ' +
                 dappyBrowserView.resourceId
             );
             callback(Buffer.from(''));

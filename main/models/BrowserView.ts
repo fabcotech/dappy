@@ -8,7 +8,6 @@ export interface DappyBrowserView {
   dappyDomain: string;
   path: string;
   tabId: string;
-  randomId: string;
   record: Record;
   browserView: BrowserView;
   // file://dapp-sandboxed for dapps, https://... for IP apps

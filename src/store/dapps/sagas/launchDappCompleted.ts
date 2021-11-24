@@ -26,7 +26,6 @@ const launchDappCompleted = function* (action: Action) {
       resourceId: payload.dapp.id,
       tabId: tab.id,
       muted: tab.muted,
-      randomId: payload.dapp.randomId,
       path: payload.dapp.path,
       title: payload.dapp.title,
       dappyDomain: dappyDomain,

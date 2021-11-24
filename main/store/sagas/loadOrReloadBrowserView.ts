@@ -126,9 +126,6 @@ const loadOrReloadBrowserView = function* (action: any) {
     view.webContents.setAudioMuted(payload.muted);
   }
 
-  const ua = view.webContents.getUserAgent();
-  const newUserAgent = `${ua} randomId=${payload.randomId}`;
-  view.webContents.setUserAgent(newUserAgent);
   action.meta.browserWindow.addBrowserView(view);
   view.setBounds(position);
 

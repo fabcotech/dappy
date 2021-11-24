@@ -55,7 +55,6 @@ const launchIpAppCompleted = function* (action: Action) {
       resourceId: payload.ipApp.id,
       tabId: payload.ipApp.tabId,
       muted: tab.muted,
-      randomId: payload.ipApp.randomId,
       path: payload.ipApp.path,
       dappyDomain: dappyDomain,
       record: payload.ipApp.record,

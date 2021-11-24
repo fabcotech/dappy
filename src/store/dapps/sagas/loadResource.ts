@@ -364,7 +364,6 @@ const loadResource = function* (action: Action) {
     // Check for IP app record
     try {
       yield ipRecordSchema.validate(record);
-      const randomId = window.crypto.getRandomValues(new Uint32Array(12)).join('-');
       let urlOk: string | undefined = undefined;
       /*
       Verify payload.url, to eventually have a different landing
@@ -404,7 +403,6 @@ const loadResource = function* (action: Action) {
             publicKey: record.publicKey,
             name: record.name,
             record: record as Record,
-            randomId: randomId,
             launchedAt: new Date().toISOString(),
           },
         })
@@ -559,7 +557,6 @@ const loadResource = function* (action: Action) {
     return;
   }
 
-  const randomId = window.crypto.getRandomValues(new Uint32Array(12)).join('-');
   const dappFromNetwork: DappFromNetwork = {
     html: dappHtml,
     title: address,
@@ -580,7 +577,6 @@ const loadResource = function* (action: Action) {
     ...dappFromNetwork,
     id: resourceId,
     tabId: tabId,
-    randomId: randomId,
     origin: 'network',
     chainId: searchSplitted.chainId,
     search: searchSplitted.search,
