@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { Formik, Field } from 'formik';
 import { connect } from 'react-redux';
-import xs from 'xstream';
 
 import './Resolver.scss';
+import { State } from '/store';
 import * as fromUi from '../../../store/ui';
 import { Language } from '../../../models';
 
@@ -54,7 +54,7 @@ export class UpdateLanguageComponent extends React.Component<UpdateLanguageProps
 }
 
 export const UpdateLanguage = connect(
-  (state) => {
+  (state: State) => {
     return {
       language: fromUi.getLanguage(state),
     };

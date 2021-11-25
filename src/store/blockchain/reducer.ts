@@ -445,11 +445,11 @@ export const getRecordBadges = createSelector(getRecords, (records: { [name: str
   const recordBadges: { [name: string]: { [name: string]: string } } = {};
 
   Object.keys(records).forEach((name) => {
-    Object.keys(records[name].badges || {}).forEach((n) => {
+    Object.keys(records[name].data.badges || {}).forEach((n) => {
       if (!recordBadges[n]) {
         recordBadges[n] = {};
       }
-      recordBadges[n][name] = records[name].badges[n];
+      recordBadges[n][name] = records[name].data.badges[n];
     });
   });
 
