@@ -4,9 +4,11 @@ export interface RecordFromNetwork {
   id: string;
   boxId: string;
   price: undefined | number;
+  expires: undefined | number;
   publicKey: string;
 
   data: {
+    email?: string;
     address?: string;
     csp?: string;
     expiration?: string;
