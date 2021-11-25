@@ -4,10 +4,12 @@ import {
   updateShowAccountCreationAtStartupReducer,
   showAccountCreationAtStartup,
   State,
+  toggleBalanceVisibilityReducer,
 } from './reducer';
-import { updateContractLogs, updateShowAccountCreationAtStartup } from './actions';
+import { updateContractLogs, updateShowAccountCreationAtStartup, toggleBalanceVisibility } from './actions';
 
 import { LOGS_PER_CONTRACT } from '/CONSTANTS';
+import { getIsBalancesHidden } from '.';
 
 describe('reducer ui', () => {
   it('should update contract logs', () => {
@@ -82,6 +84,16 @@ describe('reducer ui', () => {
     );
     expect(
       showAccountCreationAtStartup({
+        ui: newState,
+      })
+    ).toBeTruthy();
+  });
+
+  it('should toggle balance visibility', () => {
+    const state: State = JSON.parse(JSON.stringify(initialState));
+    const newState = toggleBalanceVisibilityReducer(state, toggleBalanceVisibility());
+    expect(
+      getIsBalancesHidden({
         ui: newState,
       })
     ).toBeTruthy();

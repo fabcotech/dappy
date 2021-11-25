@@ -30,6 +30,7 @@ export const uiSchema = yup
       ),
     language: yup.string().matches(/en|cn/).required().strict(true),
     showAccountCreationAtStartup: yup.bool(),
+    isBalancesHidden: yup.bool(),
   })
   .required()
   .noUnknown(true)

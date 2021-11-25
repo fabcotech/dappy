@@ -51,6 +51,9 @@
       .num {
         font-size: 2.2rem;
         font-weight: bold;
+        &.blur {
+          filter: blur(0.5rem);
+        }
       }
       .unit {
         font-weight: bold;

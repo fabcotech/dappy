@@ -19,6 +19,7 @@ const saveUiToStorage = function* (action: Action) {
     language: uiState.language,
     gcu: uiState.gcu,
     showAccountCreationAtStartup: uiState.showAccountCreationAtStartup,
+    isBalancesHidden: uiState.isBalancesHidden,
   };
 
   let dappsTabsWidth = 0;
@@ -79,4 +80,5 @@ export const saveUiToStorageSaga = function* () {
   yield takeEvery(fromUi.UPDATE_LANGUAGE, saveUiToStorage);
   yield takeEvery(fromUi.UPDATE_GCU, saveUiToStorage);
   yield takeEvery(fromUi.UPDATE_SHOW_ACCOUNT_CREATION_AT_STARTUP, saveUiToStorage);
+  yield takeEvery(fromUi.TOGGLE_BALANCES_VISIBILITY, saveUiToStorage);
 };

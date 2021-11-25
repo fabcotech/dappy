@@ -3,11 +3,13 @@ import { connect } from 'react-redux';
 import { deployBoxTerm } from 'rchain-token';
 
 import './Accounts.scss';
-import { Account, Blockchain, RChainInfo, RChainInfos } from '/models';
+import { Account, Blockchain, RChainInfos } from '/models';
 import * as fromSettings from '/store/settings';
 import * as fromBlockchain from '/store/blockchain';
 import * as fromMain from '/store/main';
 import * as fromCommon from '/common';
+import { State } from '/store';
+import { getIsBalancesHidden, toggleBalanceVisibility } from '/store/ui';
 import { blockchain as blockchainUtils } from '/utils/blockchain';
 import { AddAccount } from './AddAccount';
 import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '/CONSTANTS';
@@ -17,6 +19,34 @@ import { ViewBox } from './ViewBox';
 import { formatAmount } from '/utils/formatAmount';
 import { copyToClipboard } from '/interProcess';
 
+export const UpdateBalancesButton = ({ updating, updateBalances }: { updating: boolean; updateBalances: () => void }) =>
+  updating ? (
+    <a title={t('update balances')} className="disabled underlined-link">
+      <i className="fa fa-before fa-redo rotating"></i>
+      {t('update balances')}
+    </a>
+  ) : (
+    <a title={t('update balances')} className="underlined-link" onClick={() => updateBalances()}>
+      <i className="fa fa-before fa-redo"></i>
+      {t('update balances')}
+    </a>
+  );
+
+export const HideBalancesButton = ({
+  isBalancesHidden,
+  toggleBalancesVisibility,
+}: {
+  isBalancesHidden: boolean;
+  toggleBalancesVisibility: () => void;
+}) => (
+  <a
+    title={t(`${isBalancesHidden ? 'show' : 'hide'} balances`)}
+    className="underlined-link ml-2"
+    onClick={toggleBalancesVisibility}>
+    <i data-testid="hbb-icon" className={`fa fa-before fa-eye${isBalancesHidden ? '' : '-slash'}`}></i>
+    {t(`${isBalancesHidden ? 'show' : 'hide'} balances`)}
+  </a>
+);
 interface AccountsProps {
   accounts: { [name: string]: Account };
   blockchains: {
@@ -25,6 +55,7 @@ interface AccountsProps {
   rchainInfos: { [chainId: string]: RChainInfos };
   namesBlockchain: Blockchain | undefined;
   executingAccountsCronJobs: boolean;
+  isBalancesHidden: boolean;
   updateBalances: () => void;
   deleteAccount: (a: Account) => void;
   saveAccountTokenBox: (p: fromSettings.SaveAccountTokenBoxPayload) => void;
@@ -34,6 +65,7 @@ interface AccountsProps {
   sendRChainPayment: (a: Account, chainId: string) => void;
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
   openModal: (t: fromMain.OpenModalPayload) => void;
+  toggleBalancesVisibility: () => void;
 }
 
 export function AccountsComponent(props: AccountsProps) {
@@ -73,20 +105,13 @@ export function AccountsComponent(props: AccountsProps) {
         <div>
           <h3 className="subtitle is-4"></h3>
           <p className="limited-width mw42rem" dangerouslySetInnerHTML={{ __html: t('add account paragraph') }}></p>
-          <br />
-          {props.executingAccountsCronJobs ? (
-            <a title={t('update balances')} className="disabled underlined-link">
-              <i className="fa fa-before fa-redo rotating"></i>
-              {t('update balances')}
-            </a>
-          ) : (
-            <a title={t('update balances')} className="underlined-link" onClick={() => props.updateBalances()}>
-              <i className="fa fa-before fa-redo"></i>
-              {t('update balances')}
-            </a>
-          )}
-          <br />
-          <br />
+          <div className="my-3">
+            <UpdateBalancesButton updating={props.executingAccountsCronJobs} updateBalances={props.updateBalances} />
+            <HideBalancesButton
+              isBalancesHidden={props.isBalancesHidden}
+              toggleBalancesVisibility={props.toggleBalancesVisibility}
+            />
+          </div>
           <div>
             {Object.keys(props.accounts).length === 0 ? (
               <button onClick={() => setTab('add-account')} className="button is-link">
@@ -105,13 +130,15 @@ export function AccountsComponent(props: AccountsProps) {
                     </b>
                   </div>
                   <div className="balance">
-                    <span title={a.balance.toString()} className="num">
-                      {formatAmount(a.balance)}
+                    <span title={a.balance.toString()} className={`num ${props.isBalancesHidden ? 'blur' : ''}`}>
+                      {formatAmount(props.isBalancesHidden ? 1000000 : a.balance)}
                     </span>
                     <span className="unit">{t('rev', true)}</span>
-                    <div>
-                      <b className="phlo">{a.balance * LOGREV_TO_REV_RATE}</b>
-                    </div>
+                    {!props.isBalancesHidden && (
+                      <div>
+                        <b className="phlo">{a.balance * LOGREV_TO_REV_RATE}</b>
+                      </div>
+                    )}
                   </div>
                   <div className="boxes">
                     {a.boxes.length ? <b className="token-boxes">{t('token box', true)}</b> : undefined}
@@ -283,13 +310,14 @@ export function AccountsComponent(props: AccountsProps) {
 }
 
 export const Accounts = connect(
-  (state) => {
+  (state: State) => {
     return {
       blockchains: fromSettings.getOkBlockchains(state),
       rchainInfos: fromBlockchain.getRChainInfos(state),
       accounts: fromSettings.getAccounts(state),
       namesBlockchain: fromSettings.getNamesBlockchain(state),
       executingAccountsCronJobs: fromSettings.getExecutingAccountsCronJobs(state),
+      isBalancesHidden: getIsBalancesHidden(state),
     };
   },
   (dispatch) => ({
@@ -376,5 +404,6 @@ export const Accounts = connect(
           ],
         })
       ),
+    toggleBalancesVisibility: () => dispatch(toggleBalanceVisibility()),
   })
 )(AccountsComponent);

@@ -18,6 +18,7 @@ export interface State {
     [name: string]: string[];
   };
   showAccountCreationAtStartup: boolean;
+  isBalancesHidden: boolean;
 }
 
 export const initialState: State = {
@@ -31,6 +32,7 @@ export const initialState: State = {
   navigationSuggestionsDisplayed: false,
   contractLogs: {},
   showAccountCreationAtStartup: true,
+  isBalancesHidden: false,
 };
 
 const onlyUnique = (value: string, index: number, self: string[]) => self.indexOf(value) === index;
@@ -53,6 +55,13 @@ export const updateShowAccountCreationAtStartupReducer = (state = initialState, 
   return {
     ...state,
     showAccountCreationAtStartup: show,
+  };
+};
+
+export const toggleBalanceVisibilityReducer = (state = initialState, action: Action) => {
+  return {
+    ...state,
+    isBalancesHidden: !state.isBalancesHidden,
   };
 };
 
@@ -135,6 +144,10 @@ export const reducer = (state = initialState, action: Action): State => {
       return updateShowAccountCreationAtStartupReducer(state, action);
     }
 
+    case fromActions.TOGGLE_BALANCES_VISIBILITY: {
+      return toggleBalanceVisibilityReducer(state, action);
+    }
+
     default:
       return state;
   }
@@ -199,3 +212,5 @@ export const getIsNavigationInTransactions = createSelector(getNavigationUrl, (n
 export const getContractLogs = createSelector(getUiState, (ui) => ui.contractLogs);
 
 export const showAccountCreationAtStartup = createSelector(getUiState, (ui) => ui.showAccountCreationAtStartup);
+
+export const getIsBalancesHidden = createSelector(getUiState, (ui) => ui.isBalancesHidden);

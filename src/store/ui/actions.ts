@@ -11,6 +11,8 @@ export const UPDATE_LANGUAGE = '[Ui] Update language';
 export const UPDATE_GCU = '[Ui] Update gcu';
 export const UPDATE_CONTRACT_LOGS = '[Ui] Update contract logs';
 export const UPDATE_SHOW_ACCOUNT_CREATION_AT_STARTUP = '[Ui] Update show account creation at startup';
+export const TOGGLE_BALANCES_VISIBILITY = '[Ui] Toggle balance visibility';
+
 export interface UpdateUiFromStoragePayload {
   uiState: fromReducer.State;
 }
@@ -80,4 +82,9 @@ export interface updateShowAccountCreationAtStartupPayload {
 export const updateShowAccountCreationAtStartup = (values: updateShowAccountCreationAtStartupPayload) => ({
   type: UPDATE_SHOW_ACCOUNT_CREATION_AT_STARTUP,
   payload: values,
+});
+
+export const toggleBalanceVisibility = () => ({
+  type: TOGGLE_BALANCES_VISIBILITY,
+  payload: undefined,
 });
