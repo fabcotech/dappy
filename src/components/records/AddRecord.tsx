@@ -48,6 +48,7 @@ export const AddRecord = (props: AddRecordProps) => {
                 boxId: 'box',
                 publicKey: 'abc',
                 price: 1,
+                expires: undefined,
                 data: {
                   badges: partialRecord && partialRecord.badges ? partialRecord.badges : {},
                 },
