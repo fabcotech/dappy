@@ -12,7 +12,7 @@ import { getNodeIndex } from '/utils/getNodeIndex';
 import { rchainTokenValidators } from '/store/decoders';
 import { ViewContract } from './ViewContract';
 import './ViewBox.scss';
-import { AccountPassword } from './AccountPassword';
+import { AccountPassword } from '/components/utils/AccountPassword';
 
 const ajv = new Ajv();
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { account as accountUtils } from '../../utils';
+import { account as accountUtils } from '/utils';
 import './AccountPassword.scss';
 
 interface AccountPasswordProps {

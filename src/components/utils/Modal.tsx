@@ -4,6 +4,7 @@ import * as fromMain from '/store/main';
 import { LoadState } from '../home';
 import { connect } from 'react-redux';
 import { TransactionModal, AccountModal, IdentificationModal } from '.';
+import { RemoveAccountModal } from './RemoveAccountModal';
 import { PaymentRequestModal } from './PaymentRequestModal';
 import { LoadInfo } from '../resources';
 
@@ -31,37 +32,38 @@ class ModalComponent extends React.Component<ModalComponentProps, {}> {
     }
 
     /*
-      The three following modal are rendered in the DOM aside from the DappSandboxed component
+      The following modals are rendered in the DOM aside from the DappSandboxed component
       because they are dapp modals
     */
-    if (this.props.modal.title === 'TRANSACTION_MODAL') {
-      return <TransactionModal modal={this.props.modal} />;
-    }
-
-    if (this.props.modal.title === 'PAYMENT_REQUEST_MODAL') {
-      return <PaymentRequestModal modal={this.props.modal} />;
-    }
-
-    if (this.props.modal.title === 'IDENTIFICATION_MODAL') {
-      return <IdentificationModal modal={this.props.modal} />;
-    }
-
-    if (this.props.modal.title === 'ACCOUNT_MODAL') {
-      return <AccountModal modal={this.props.modal} />;
-    }
-
-    if (this.props.modal.title === 'LOAD_INFO_MODAL') {
-      return (
-        <LoadInfo
-          appType={this.props.modal.parameters.appType}
-          address={this.props.modal.parameters.address}
-          tabId={this.props.modal.parameters.tabId}
-          badges={this.props.modal.parameters.badges}
-          loadState={this.props.modal.parameters.loadState}
-          resourceId={this.props.modal.parameters.resourceId}
-          servers={this.props.modal.parameters.servers}
-        />
-      );
+    switch (this.props.modal.title) {
+      case 'TRANSACTION_MODAL':
+        return <TransactionModal modal={this.props.modal} />;
+      case 'PAYMENT_REQUEST_MODAL':
+        return <PaymentRequestModal modal={this.props.modal} />;
+      case 'IDENTIFICATION_MODAL':
+        return <IdentificationModal modal={this.props.modal} />;
+      case 'ACCOUNT_MODAL':
+        return <AccountModal modal={this.props.modal} />;
+      case 'LOAD_INFO_MODAL':
+        return (
+          <LoadInfo
+            appType={this.props.modal.parameters.appType}
+            address={this.props.modal.parameters.address}
+            tabId={this.props.modal.parameters.tabId}
+            badges={this.props.modal.parameters.badges}
+            loadState={this.props.modal.parameters.loadState}
+            resourceId={this.props.modal.parameters.resourceId}
+            servers={this.props.modal.parameters.servers}
+          />
+        );
+      case 'REMOVE_ACCOUNT_MODAL':
+        return (
+          <RemoveAccountModal
+            onClose={this.onCloseModal}
+            dispatchModalAction={this.props.dispatchModalAction}
+            account={this.props.modal.parameters.account}
+          />
+        );
     }
 
     return (

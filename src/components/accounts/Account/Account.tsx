@@ -11,7 +11,7 @@ import { State } from '/store';
 import { getIsBalancesHidden } from '/store/ui';
 import { blockchain as blockchainUtils } from '/utils/blockchain';
 import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '/CONSTANTS';
-import { AccountPassword } from '../AccountPassword';
+import { AccountPassword } from '/components/utils/AccountPassword';
 import { AccountBox } from './AccountBox';
 import { formatAmount } from '/utils/formatAmount';
 import { copyToClipboard } from '/interProcess';
@@ -305,29 +305,12 @@ export const Account = connect(
     deleteAccount: (a: AccountModel) =>
       dispatch(
         fromMain.openModalAction({
-          title: 'Remove account',
-          text:
-            'Are you sure you want to remove the account ' +
-            a.name +
-            ' ? ' +
-            'The corresponding private key will not be recoverable, make sure you have saved the corresponding private key in a safe place .',
-          buttons: [
-            {
-              text: 'Cancel',
-              classNames: 'is-light',
-              action: [fromMain.closeModalAction()],
-            },
-            {
-              text: `Yes I want to delete the account ${a.name} forever`,
-              classNames: 'is-link',
-              action: [
-                fromSettings.deleteAccountAction({
-                  account: a,
-                }),
-                fromMain.closeModalAction(),
-              ],
-            },
-          ],
+          title: 'REMOVE_ACCOUNT_MODAL',
+          text: '',
+          parameters: {
+            account: a,
+          },
+          buttons: [],
         })
       ),
   })
