@@ -7,7 +7,7 @@ import * as fromMain from '/store/main';
 import { Blockchain } from '/models';
 import { Action } from '/store/';
 import { validateRecordFromNetwork } from '/store/decoders';
-import { MultiCallError, Account } from '/models/';
+import { MultiCallError, Account, Record } from '/models/';
 import { multiCall } from '/interProcess';
 import { getNodeIndex } from '/utils/getNodeIndex';
 
@@ -54,19 +54,18 @@ const executeRecordsByPublicKeyCronJobs = function* (action: Action) {
         const records = resultFromBlockchain.records;
 
         records.forEach(async (recordFromBlockchain: any) => {
-          if (recordFromBlockchain && recordFromBlockchain.servers) {
-            const servers = JSON.parse(`{ "value": ${recordFromBlockchain.servers}}`).value;
-            recordFromBlockchain.servers = servers;
-          }
-          if (recordFromBlockchain.badges) {
-            recordFromBlockchain.badges = JSON.parse(recordFromBlockchain.badges);
+          if (recordFromBlockchain) {
+            recordFromBlockchain.data = JSON.parse(recordFromBlockchain.data);
           }
           if (typeof recordFromBlockchain.price === 'string' && recordFromBlockchain.price.length) {
             recordFromBlockchain.price = parseInt(recordFromBlockchain.price, 10);
           }
+          if (typeof recordFromBlockchain.expires === 'string' && recordFromBlockchain.expires.length) {
+            recordFromBlockchain.expires = parseInt(recordFromBlockchain.expires, 10);
+          }
           try {
             await validateRecordFromNetwork(recordFromBlockchain);
-            const record = {
+            const record: Record = {
               ...recordFromBlockchain,
               loadedAt: new Date().toString(),
               origin: 'blockchain',

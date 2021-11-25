@@ -142,6 +142,15 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
     const id = blockchainUtils.getUniqueTransactionId();
     this.transactionId = id;
 
+    const data: { [key: string]: any } = {
+      email: partialRecord.email,
+      csp: partialRecord.csp,
+      badges: partialRecord.badges || {},
+      servers: partialRecord.servers || [],
+    };
+    if (partialRecord.address) {
+      data.address = partialRecord.address;
+    }
     const term = purchaseTerm({
       masterRegistryUri: this.props.namesBlockchainInfos.info.rchainNamesMasterRegistryUri,
       contractId: this.state.contractId,
@@ -152,15 +161,7 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
       quantity: 1,
       price: this.state.loadedPurse?.price,
       publicKey: this.state.publickey,
-      data: Buffer.from(
-        JSON.stringify({
-          csp: partialRecord.csp,
-          address: partialRecord.address,
-          badges: partialRecord.badges || {},
-          servers: partialRecord.servers || [],
-        }),
-        'utf8'
-      ).toString('hex'),
+      data: Buffer.from(JSON.stringify(data), 'utf8').toString('hex'),
     });
 
     let validAfterBlockNumber = 0;
@@ -185,7 +186,7 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
 
     this.props.sendRChainTransaction({
       transaction: deployOptions,
-      origin: { origin: 'record', recordName: partialRecord.name, accountName: this.state.accountName as string },
+      origin: { origin: 'record', recordName: partialRecord.id, accountName: this.state.accountName as string },
       platform: 'rchain',
       blockchainId: this.props.namesBlockchainInfos.chainId,
       id: id,

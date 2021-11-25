@@ -995,5 +995,11 @@ module.exports.translations = {
   },
   "box not found": {
     "one": "No token boxes found"
+  },
+  "email for record help": {
+    "one": "Email address is used to send warning emails before the expiration of the name. It is not mandatory and you can ignore it. This email is public and stored the blockchain."
+  },
+  "email for record": {
+    "one": "Public email address (expiration warning)"
   }
 }

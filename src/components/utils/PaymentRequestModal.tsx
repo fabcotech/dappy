@@ -345,7 +345,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
                   {this.state.foundRecord && (
                     <div className="found-record">
                       <span>
-                        Found record <b>{this.state.foundRecord.name}</b>
+                        Found record <b>{this.state.foundRecord.id}</b>
                       </span>
                       <br />
                       <span>Origin: {this.state.foundRecord.origin}</span>

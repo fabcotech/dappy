@@ -2711,5 +2711,21 @@ module.exports.translations = [
     "term_plural": "",
     "reference": "",
     "comment": ""
+  },
+  {
+    "term": "email for record help",
+    "definition": "Email address is used to send warning emails before the expiration of the name. It is not mandatory and you can ignore it. This email is public and stored the blockchain.",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "email for record",
+    "definition": "Public email address (expiration warning)",
+    "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
   }
 ]

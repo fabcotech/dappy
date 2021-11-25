@@ -1,16 +1,18 @@
 import { BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
 
-
 export interface RecordFromNetwork {
-  name: string;
-  box: string;
+  id: string;
+  boxId: string;
   price: undefined | number;
   publicKey: string;
-  address?: string;
-  csp?: string;
-  expiration?: string;
-  servers?: IPServer[];
-  badges: { [key: string]: string };
+
+  data: {
+    address?: string;
+    csp?: string;
+    expiration?: string;
+    servers?: IPServer[];
+    badges: { [key: string]: string };
+  };
 }
 
 export interface Record extends RecordFromNetwork {
@@ -35,8 +37,10 @@ export interface LoadRecordsError {
 }
 
 export interface PartialRecord {
-  name: string;
+  id: string;
+  boxId: string;
   address?: string | undefined;
+  email?: string | undefined;
   csp?: string | undefined;
   servers?: IPServer[] | undefined;
   badges?: { [key: string]: string };

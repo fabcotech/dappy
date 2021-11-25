@@ -12,7 +12,6 @@ export interface IpApp {
   path: string;
   url: undefined | string;
   publicKey: string;
-  name: string;
   record: Record;
   launchedAt: undefined | string;
 }

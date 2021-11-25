@@ -5,7 +5,7 @@ import * as fromSettings from '../../settings';
 import * as fromCookies from '../../cookies';
 import * as fromHistory from '../../history';
 import { searchToAddress } from '../../../utils/searchToAddress';
-import { Session, Cookie, Tab, IPServer, Record, SessionItem } from '../../../models';
+import { Session, Cookie, Tab, IPServer, SessionItem } from '../../../models';
 import { Action } from '../../';
 import { dispatchInMain } from '/interProcess';
 
@@ -22,7 +22,7 @@ const launchIpAppCompleted = function* (action: Action) {
   const dappyDomain = searchToAddress(payload.ipApp.search, payload.ipApp.chainId, '');
 
   // we know there are IP servers if it is an IP application
-  const ipServers = payload.ipApp.record.servers as IPServer[];
+  const ipServers = payload.ipApp.record.data.servers as IPServer[];
   const serverIndex = ipServers.findIndex((s) => s.primary);
 
   let sessionItem: undefined | SessionItem = undefined;
@@ -60,7 +60,7 @@ const launchIpAppCompleted = function* (action: Action) {
       record: payload.ipApp.record,
       devMode: settings.devMode,
       html: undefined,
-      title: payload.ipApp.name,
+      title: payload.ipApp.record.id,
       cookies: cookies[dappyDomain] || [],
     },
   });

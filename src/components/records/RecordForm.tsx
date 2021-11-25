@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Formik, Field } from 'formik';
 
-import { IPServer, RChainInfo, PartialRecord, Blockchain } from '/models';
+import { IPServer, RChainInfo, PartialRecord } from '/models';
 import { BadgeAppreciation } from '../utils/BadgeAppreciation';
 import { IPServersComponent } from './IPServers';
 
@@ -42,7 +42,6 @@ const buildCSPFromIPServers = (a: IPServer[]) => {
 };
 
 export class RecordForm extends React.Component<RecordFormProps, {}> {
-
   badgeInput: undefined | HTMLInputElement = undefined;
   badgeAppreciationInput: undefined | HTMLInputElement = undefined;
 
@@ -87,8 +86,9 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                 ...this.props.partialRecord,
                 type: this.props.partialRecord.address ? 'dapp' : 'ip',
                 badges: this.props.partialRecord.badges || ({} as { [key: string]: string }),
-                names: [this.props.partialRecord.name],
-                csp: " default-src 'self'",
+                names: [this.props.partialRecord.id],
+                csp: this.props.partialRecord.csp || " default-src 'self'",
+                email: this.props.partialRecord.email,
               }
             : {
                 names: this.props.nameDisabledAndForced ? [this.props.nameDisabledAndForced] : [''],
@@ -97,11 +97,12 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                 csp: " default-src 'self'",
                 servers: [],
                 badges: {} as { [key: string]: string },
+                email: '',
               }
         }
         validate={(values) => {
           let errors: {
-            name?: string;
+            email?: string;
             names: string[];
             address?: string;
             servers?: string;
@@ -141,17 +142,21 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
           if (Object.keys(errors).length === 1 && errors.names.length === 0) {
             if (this.state.special && this.props.special) {
               this.props.filledRecord({
+                id: [this.props.special.name].concat(values.names).join(','),
+                boxId: 'willbeignored',
                 servers: this.state.servers,
-                name: [this.props.special.name].concat(values.names).join(','),
                 address: values.address,
+                email: values.email,
                 csp: values.csp,
                 badges: values.badges,
               });
             } else {
               this.props.filledRecord({
+                id: values.names[0],
+                boxId: 'willbeignored',
                 servers: this.state.servers,
-                name: values.names[0],
                 address: values.address,
+                email: values.email,
                 csp: values.csp,
                 badges: values.badges,
               });
@@ -439,6 +444,14 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                     </button>
                   </div>
                 </div>
+                <div className="field is-horizontal">
+                  <label className="label">{t('email for record')}</label>
+                  <div className="control">
+                    <Field className="input" type="text" name="email" placeholder="" />
+                    <p className="help">{t('email for record help')}</p>
+                  </div>
+                </div>
+                {touched.email && errors.email && <p className="text-danger">{(errors as any).email}</p>}
               </div>
             </form>
           );

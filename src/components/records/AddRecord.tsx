@@ -13,8 +13,8 @@ export const AddRecord = (props: AddRecordProps) => {
   const [publicKey, setPublicKey] = useState<string>('');
   const [resetForm, setResetForm] = useState<string>('___');
 
-  if (partialRecord && partialRecord.name && partialRecord.name !== resetForm && props.records[partialRecord.name]) {
-    setResetForm(partialRecord.name);
+  if (partialRecord && partialRecord.id && partialRecord.id !== resetForm && props.records[partialRecord.id]) {
+    setResetForm(partialRecord.id);
     setPartialRecord(undefined);
   }
 
@@ -43,28 +43,25 @@ export const AddRecord = (props: AddRecordProps) => {
           <button
             type="button"
             onClick={() => {
-              const r: PartialRecord = {
-                name: (partialRecord as PartialRecord).name,
-              };
-              if (partialRecord && partialRecord.badges) {
-                r.badges = partialRecord.badges;
-              }
-              if (partialRecord && partialRecord.address) {
-                r.address = partialRecord.address;
-              }
-              if (partialRecord && partialRecord.csp) {
-                r.csp = partialRecord.csp;
-              }
-              if (partialRecord && partialRecord.servers) {
-                r.servers = partialRecord.servers;
-              }
-              props.addRecord({
-                ...r,
-                box: 'box',
-                badges: {},
+              const r: RecordFromNetwork = {
+                id: (partialRecord as PartialRecord).id,
+                boxId: 'box',
                 publicKey: 'abc',
                 price: 1,
-              });
+                data: {
+                  badges: partialRecord && partialRecord.badges ? partialRecord.badges : {},
+                },
+              };
+              if (partialRecord && partialRecord.address) {
+                r.data.address = partialRecord.address;
+              }
+              if (partialRecord && partialRecord.csp) {
+                r.data.csp = partialRecord.csp;
+              }
+              if (partialRecord && partialRecord.servers) {
+                r.data.servers = partialRecord.servers;
+              }
+              props.addRecord(r);
             }}
             className="button is-link"
             disabled={!publicKey || !partialRecord}>

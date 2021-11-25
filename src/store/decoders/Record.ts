@@ -17,14 +17,21 @@ export const recordServerSchema = yup
 export const recordFromNetworkSchema = yup
   .object()
   .shape({
-    name: yup.string().required(),
+    // rchain-token purse
+    id: yup.string().required(),
     publicKey: yup.string().required(),
-    box: yup.string().required(),
+    boxId: yup.string().required(),
     price: yup.number(),
-    address: yup.string(),
-    csp: yup.string(),
-    servers: yup.array(recordServerSchema),
-    badges: yup.object(),
+    expires: yup.number(),
+
+    // rchain-token data
+    data: yup.object().shape({
+      address: yup.string(),
+      csp: yup.string(),
+      email: yup.string(),
+      servers: yup.array(recordServerSchema),
+      badges: yup.object(),
+    }),
   })
   .required()
   .noUnknown(true)
@@ -45,14 +52,25 @@ export const validateRecordFromNetwork = (record: any) =>
 export const ipRecordSchema = yup
   .object()
   .shape({
-    name: yup.string().required(),
+    // rchain-token purse
+    id: yup.string().required(),
     publicKey: yup.string().required(),
-    box: yup.string().required(),
+    boxId: yup.string().required(),
     price: yup.number(),
+    expires: yup.number(),
+
+    // rchain-token data
+    data: yup
+      .object()
+      .shape({
+        csp: yup.string(),
+        email: yup.string(),
+        servers: yup.array(recordServerSchema),
+        badges: yup.object(),
+      })
+      .noUnknown(true),
+
     loadedAt: yup.string().required(),
-    servers: yup.array(recordServerSchema),
-    csp: yup.string(),
-    badges: yup.object(),
     origin: yup
       .string()
       .matches(/blockchain|user/)
@@ -65,15 +83,26 @@ export const ipRecordSchema = yup
 export const dappRecordSchema = yup
   .object()
   .shape({
-    name: yup.string().required(),
+    // rchain-token purse
+    id: yup.string().required(),
     publicKey: yup.string().required(),
-    box: yup.string().required(),
+    boxId: yup.string().required(),
     price: yup.number(),
-    address: yup.string().required(),
+    expires: yup.number(),
+
+    // rchain-token data
+    data: yup
+      .object()
+      .shape({
+        address: yup.string().required(),
+        csp: yup.string(),
+        email: yup.string(),
+        servers: yup.array(recordServerSchema),
+        badges: yup.object(),
+      })
+      .noUnknown(true),
+
     loadedAt: yup.string().required(),
-    servers: yup.array(recordServerSchema),
-    csp: yup.string(),
-    badges: yup.object(),
     origin: yup
       .string()
       .matches(/blockchain|user/)
@@ -86,15 +115,26 @@ export const dappRecordSchema = yup
 export const recordSchema = yup
   .object()
   .shape({
-    name: yup.string().required(),
+    // rchain-token purse
+    id: yup.string().required(),
     publicKey: yup.string().required(),
-    box: yup.string().required(),
+    boxId: yup.string().required(),
     price: yup.number(),
-    address: yup.string(),
-    csp: yup.string(),
+    expires: yup.number(),
+
+    // rchain-token data
+    data: yup
+      .object()
+      .shape({
+        address: yup.string(),
+        csp: yup.string(),
+        email: yup.string(),
+        servers: yup.array(recordServerSchema),
+        badges: yup.object(),
+      })
+      .noUnknown(true),
+
     loadedAt: yup.string().required(),
-    servers: yup.array(recordServerSchema),
-    badges: yup.object(),
     origin: yup
       .string()
       .matches(/blockchain|user/)

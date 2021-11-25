@@ -29,7 +29,6 @@ const defaultState = {
   publickey: '',
   phloLimit: 0,
   name: '',
-  record: undefined,
   newRecord: undefined,
   loadRecordError: undefined,
   loadedRecord: undefined,
@@ -52,10 +51,9 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
     publickey: string;
     phloLimit: number;
     name: string;
-    record: PartialRecord | undefined;
     newRecord: PartialRecord | undefined;
     loadRecordError: undefined | string;
-    loadedRecord: undefined | Record;
+    loadedRecord: undefined | PartialRecord;
     loadedRecordPrice: undefined | number;
     loadingRecord: boolean;
   } = defaultState;
@@ -117,20 +115,23 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
       const record = dataFromBlockchainParsed.records[0];
 
       if (record) {
-        if (record && record.servers) {
-          const servers = JSON.parse(`{ "value": ${record.servers}}`).value;
-          record.servers = servers;
-        }
-        if (record.badges) {
-          record.badges = JSON.parse(record.badges);
-        }
-        if (typeof record.price === 'string' && record.price.length) {
-          record.price = parseInt(record.price, 10);
+        if (record.data) {
+          record.data = JSON.parse(record.data);
         }
         await validateRecordFromNetwork(record);
+        console.log('record.data');
+        console.log(record.data);
         this.setState({
           loadingRecord: false,
-          loadedRecord: record,
+          loadedRecord: {
+            id: record.id,
+            boxId: record.boxId,
+            servers: record.data.servers,
+            badges: record.data.badges,
+            address: record.data.address,
+            email: record.data.email,
+            csp: record.data.csp,
+          } as PartialRecord,
           loadedRecordPrice: record.price,
           loadRecordError: undefined,
         });
@@ -245,7 +246,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
           {!this.state.privatekey && <p className="text-danger">{t('input your password')}</p>}
           {this.state.loadedRecord &&
             this.state.box &&
-            this.state.box !== this.state.loadedRecord.box.replace('rho:id:', '') && (
+            this.state.box !== this.state.loadedRecord.boxId.replace('rho:id:', '') && (
               <p className="text-danger">{t('name box address and box address different')}</p>
             )}
         </>
@@ -307,7 +308,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
                   onClick={() => {
                     if (this.props.records[this.state.name]) {
                       this.setState({
-                        record: undefined,
+                        loadedRecord: undefined,
                         loadedRecordPrice: (this.state.loadedRecord as Record).price,
                         newRecord: undefined,
                       });
@@ -327,7 +328,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
                 <i className="fa fa-before fa-bars"></i> {t('update name properties')}
               </h4>
               <RecordForm
-                nameDisabledAndForced={this.state.loadedRecord.name}
+                nameDisabledAndForced={this.state.loadedRecord.id}
                 partialRecord={this.state.loadedRecord}
                 filledRecord={(a) => this.setState({ newRecord: a })}
                 special={undefined}
@@ -340,21 +341,24 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
             <div className="field is-horizontal is-grouped pt20">
               <div className="control">
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
+
+                    const data: { [key: string]: any } = {
+                      csp: (this.state.newRecord as PartialRecord).csp,
+                      email: (this.state.newRecord as PartialRecord).email,
+                      badges: (this.state.newRecord as PartialRecord).badges || {},
+                      servers: (this.state.newRecord as PartialRecord).servers || [],
+                    };
+                    if ((this.state.newRecord as PartialRecord).address) {
+                      data.address = (this.state.newRecord as PartialRecord).address;
+                    }
                     const payload = {
                       masterRegistryUri: info.rchainNamesMasterRegistryUri,
                       contractId: info.rchainNamesContractId,
                       purseId: this.state.name,
                       boxId: this.state.box,
-                      data: Buffer.from(
-                        JSON.stringify({
-                          csp: (this.state.newRecord as PartialRecord).csp,
-                          address: (this.state.newRecord as PartialRecord).address,
-                          badges: (this.state.newRecord as PartialRecord).badges || {},
-                          servers: (this.state.newRecord as PartialRecord).servers || [],
-                        }),
-                        'utf8'
-                      ).toString('hex'),
+                      data: Buffer.from(JSON.stringify(data), 'utf8').toString('hex'),
                     };
                     const term = updatePurseDataTerm(payload);
                     this.onSubmit(term);

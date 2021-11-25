@@ -34,9 +34,9 @@ export const overrideHttpProtocols = (
       console.log('no browserView, cannot save cookies');
       return;
     }
-    const servers = dappyBrowserView.record.servers.filter((s) => s.host === c.domain);
+    const servers = dappyBrowserView.record.data.servers.filter((s) => s.host === c.domain);
     if (!servers.length) {
-      console.log('no browserView.record.servers matching cookies domain ' + c.domain);
+      console.log('no browserView.record.data.servers matching cookies domain ' + c.domain);
       return;
     }
     const cookies = await session.cookies.get({ url: `https://${c.domain}` });
@@ -107,7 +107,7 @@ export const overrideHttpProtocols = (
     const host = pathArray.slice(0, 1)[0];
     const path = pathArray.slice(1).join('/');
 
-    const serversWithSameHost = dappyBrowserView.record.servers.filter((s) => s.host === host);
+    const serversWithSameHost = dappyBrowserView.record.data.servers.filter((s) => s.host === host);
     if (!serversWithSameHost.length) {
       console.log(
         `[https] An app (${dappyBrowserView.resourceId}) tried to make an https request to an unknown host (${host})`
@@ -194,7 +194,7 @@ export const overrideHttpProtocols = (
             if (debug) console.log('[https load] OK', resp.statusCode, request.url, i);
             resp.headers = {
               ...resp.headers,
-              'Content-Security-Policy': dappyBrowserView.record.csp || "default-src 'self'",
+              'Content-Security-Policy': dappyBrowserView.record.data.csp || "default-src 'self'",
             };
             if (!over) {
               callback(resp);

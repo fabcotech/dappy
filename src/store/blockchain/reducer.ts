@@ -151,7 +151,7 @@ export const reducer = (state = initialState, action: any): State => {
 
       const records: { [name: string]: Record } = {};
       payload.records.forEach((record) => {
-        records[record.name] = record;
+        records[record.id] = record;
       });
 
       return {
@@ -184,7 +184,7 @@ export const reducer = (state = initialState, action: any): State => {
           ...state.records,
           records: {
             ...state.records.records,
-            [payload.record.name]: payload.record,
+            [payload.record.id]: payload.record,
           },
         },
       };
@@ -196,7 +196,7 @@ export const reducer = (state = initialState, action: any): State => {
       const newRecords: { [key: string]: Record } = {};
       Object.keys(state.records.records).forEach((k) => {
         const record = state.records.records[k];
-        if (!payload.names.includes(record.name)) {
+        if (!payload.names.includes(record.id)) {
           newRecords[k] = record;
         }
       });
@@ -219,7 +219,7 @@ export const reducer = (state = initialState, action: any): State => {
           ...state.records,
           records: {
             ...state.records.records,
-            [payload.record.name]: payload.record,
+            [payload.record.id]: payload.record,
           },
         },
       };

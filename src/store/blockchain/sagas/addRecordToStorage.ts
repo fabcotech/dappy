@@ -9,7 +9,7 @@ const addRecordToStorage = function* (action: Action) {
   const payload: fromBlockchain.AddRecordPayload = action.payload;
 
   try {
-    yield browserUtils.saveStorageIndexed('records', { [payload.record.name]: payload.record });
+    yield browserUtils.saveStorageIndexed('records', { [payload.record.id]: payload.record });
   } catch (e) {
     yield put(
       fromMain.saveErrorAction({

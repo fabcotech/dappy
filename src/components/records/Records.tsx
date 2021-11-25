@@ -24,7 +24,7 @@ export const Records = (props: RecordsProps) => {
   let recordsNamesFiltered: string[] = props.recordNamesInAlphaOrder;
   if (showOnlyOwnNames) {
     recordsNamesFiltered = recordsNamesFiltered.filter((n) => {
-      return accountsBoxes.includes(props.records[n].box);
+      return accountsBoxes.includes(props.records[n].boxId);
     });
   }
 
@@ -79,41 +79,41 @@ export const Records = (props: RecordsProps) => {
           {recordsNamesFiltered.map((n) => {
             const record = props.records[n];
             let foundAccount;
-            if (accountsBoxes.includes(record.box)) {
-              foundAccount = Object.values(props.accounts).find((a) => a.boxes[0] === record.box);
+            if (accountsBoxes.includes(record.boxId)) {
+              foundAccount = Object.values(props.accounts).find((a) => a.boxes[0] === record.boxId);
             }
 
             let RecordType = () => <span>?</span>;
-            if (record.address) {
+            if (record.data.address) {
               RecordType = () => <span className="tag is-dark">{t('dapp')}</span>;
-            } else if (!record.address && record.servers && record.servers.length) {
+            } else if (!record.data.address && record.data.servers && record.data.servers.length) {
               RecordType = () => <span className="tag is-dark">{t('ip app')}</span>;
             }
 
             let ServersLabel = () => <span style={{ display: 'none' }}></span>;
             let ServersEl = () => <div style={{ display: 'none' }}></div>;
-            if (record.servers && record.servers.length) {
+            if (record.data.servers && record.data.servers.length) {
               ServersLabel = () => (
                 <span
-                  onClick={() => setServersEl(serversEl === record.name ? '' : record.name)}
+                  onClick={() => setServersEl(serversEl === record.id ? '' : record.id)}
                   className="server-label tag is-dark ">
                   <i className="fa fa-lock fa-before"></i>
-                  {`${record.servers && record.servers.length} ${t(
+                  {`${record.data.servers && record.data.servers.length} ${t(
                     'server',
-                    record.servers && record.servers.length > 1
+                    record.data.servers && record.data.servers.length > 1
                   )}`}
                 </span>
               );
-              const p = `${record.servers.length} ${t('server', record.servers.length > 1)}${
-                record.servers.length === 1 ? ' is' : ' are'
+              const p = `${record.data.servers.length} ${t('server', record.data.servers.length > 1)}${
+                record.data.servers.length === 1 ? ' is' : ' are'
               } linked to this name`;
-              if (serversEl === record.name) {
+              if (serversEl === record.id) {
                 ServersEl = () => {
                   return (
                     <div className="server-el">
                       <h5>{p}</h5>
-                      {record.servers &&
-                        record.servers.map((s: IPServer) => (
+                      {record.data.servers &&
+                        record.data.servers.map((s: IPServer) => (
                           <div className="server-ro" key={s.ip}>
                             <span className="ip">
                               {t('ip')} : {s.ip}
@@ -133,10 +133,10 @@ export const Records = (props: RecordsProps) => {
             }
 
             return (
-              <tr key={record.name} className={`${accountsBoxes.includes(record.box) ? 'belongs-to-an-account' : ''}`}>
+              <tr key={record.id} className={`${accountsBoxes.includes(record.boxId) ? 'belongs-to-an-account' : ''}`}>
                 <th>
                   {!!foundAccount ? <span className="tag is-light">{foundAccount.name}</span> : undefined}
-                  {record.name}
+                  {record.id}
                 </th>
                 <th>
                   <RecordType />
@@ -145,7 +145,7 @@ export const Records = (props: RecordsProps) => {
                   <span className="publicKey">{record.publicKey}</span>
                 </th>
                 <th>
-                  <span className="address">{record.address}</span>
+                  <span className="address">{record.data.address}</span>
                 </th>
                 <th className="servers">
                   <ServersLabel /> <ServersEl />

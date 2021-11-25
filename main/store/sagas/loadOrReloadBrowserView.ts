@@ -194,7 +194,7 @@ const loadOrReloadBrowserView = function* (action: any) {
       } else if (favicons[0].startsWith('https://')) {
         try {
           const urlDecomposed = decomposeUrl(favicons[0]);
-          const serverAuthorized = payload.record.servers.find((s) => s.host === urlDecomposed.host);
+          const serverAuthorized = payload.record.data.servers.find((s) => s.host === urlDecomposed.host);
           if (!serverAuthorized) {
             console.error(`Could not get favicon, no servers authorized to reach https address ${favicons[0]}`);
             return;
@@ -272,7 +272,7 @@ const loadOrReloadBrowserView = function* (action: any) {
         }),
       });
     } else {
-      const serverAuthorized = payload.record.servers.find((s) => s.primary && s.host === urlDecomposed.host);
+      const serverAuthorized = payload.record.data.servers.find((s) => s.primary && s.host === urlDecomposed.host);
       // If the navigation url is not bound to an authorized server
       if (!serverAuthorized) {
         console.error('[dapp] navigation/redirect did not find server ' + url);

@@ -484,7 +484,7 @@ export const reducer = (state = initialState, action: Action): State => {
             return {
               ...tab,
               active: tab.active,
-              title: ipApp.name,
+              title: ipApp.record.id,
               img: undefined,
               index: i,
             };

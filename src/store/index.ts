@@ -172,7 +172,7 @@ const dispatchInitActions = () => {
   }
 };
 
-const DB_MIGRATION_NUMBER = 20;
+const DB_MIGRATION_NUMBER = 21;
 export const dbReq: IDBOpenDBRequest = window.indexedDB.open('dappy', DB_MIGRATION_NUMBER);
 export let db: undefined | IDBDatabase;
 
@@ -209,9 +209,6 @@ dbReq.onupgradeneeded = (event) => {
   if (!db.objectStoreNames.contains('rchainInfos')) {
     db.createObjectStore('rchainInfos', { keyPath: 'chainId' });
   }
-  if (!db.objectStoreNames.contains('records')) {
-    db.createObjectStore('records', { keyPath: 'name' });
-  }
   if (!db.objectStoreNames.contains('accounts')) {
     db.createObjectStore('accounts', { keyPath: 'name' });
   }
@@ -229,6 +226,21 @@ dbReq.onupgradeneeded = (event) => {
     }
   } else {
     db.createObjectStore('cookies', { keyPath: 'dappyDomain' });
+  }
+
+  if (db.objectStoreNames.contains('records')) {
+    // change keyPath from address to dappyDomain
+
+    const store = (dbReq.transaction as IDBTransaction).objectStore('records');
+    if (store.keyPath !== 'id') {
+      const a = db.deleteObjectStore('records');
+      const b = db.createObjectStore('records', { keyPath: 'id' });
+      console.log(a);
+      console.log(b);
+      console.log('[migration] Migration from records.name to records.id ok');
+    }
+  } else {
+    db.createObjectStore('records', { keyPath: 'id' });
   }
 };
 
@@ -546,14 +558,14 @@ dbReq.onsuccess = (event) => {
   requestRecords.onsuccess = (e) => {
     let records = requestRecords.result;
     const recordsWithoutBox = records.filter((r) => {
-      return typeof r.box !== 'string';
+      return typeof r.boxId !== 'string';
     });
     if (recordsWithoutBox.length) {
-      console.log(`[migration] found ${recordsWithoutBox.length} records with no .box property, removing them now`);
+      console.log(`[migration] found ${recordsWithoutBox.length} records with no .boxId property, removing them now`);
       browserUtils
         .deleteStorageIndexed(
           'records',
-          recordsWithoutBox.map((r) => r.name)
+          recordsWithoutBox.map((r) => r.id)
         )
         .then((a) => {
           console.log('[migration] successfully deleted invalid records');
@@ -578,7 +590,7 @@ dbReq.onsuccess = (event) => {
         return r;
       })
       .filter((r) => {
-        return typeof r.box === 'string';
+        return typeof r.boxId === 'string';
       });
 
     validateRecords(records)

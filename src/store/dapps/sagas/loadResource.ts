@@ -1,9 +1,9 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
 import { readPursesDataTerm } from 'rchain-token';
-import { BeesLoadCompleted, BeesLoadError, BeesLoadErrors, BeesLoadErrorWithArgs } from 'beesjs';
+import { BeesLoadCompleted, BeesLoadError, BeesLoadErrors } from 'beesjs';
 
 import { multiCall } from '/interProcess';
-import { MultiCallError, MultiCallResult } from '/models/MultiCall';
+import { MultiCallResult } from '/models/MultiCall';
 import * as fromDapps from '..';
 import * as fromSettings from '../../settings';
 import * as fromBlockchain from '../../blockchain';
@@ -23,7 +23,6 @@ import {
   RChainInfos,
   DappyFile,
   Dapp,
-  IPServer,
   RChainInfo,
   LoadedFile,
   Tab,
@@ -313,13 +312,9 @@ const loadResource = function* (action: Action) {
       const dataFromBlockchain = (multiCallResultRecordLookup as MultiCallResult).result.data;
       try {
         let recordFromBlockchain: any = JSON.parse(dataFromBlockchain).records[0];
-        // .servers is always stringified
-        if (recordFromBlockchain && recordFromBlockchain.servers) {
-          const servers = JSON.parse(`{ "value": ${recordFromBlockchain.servers}}`).value;
-          recordFromBlockchain.servers = servers;
-        }
-        if (recordFromBlockchain && recordFromBlockchain.badges) {
-          recordFromBlockchain.badges = JSON.parse(recordFromBlockchain.badges);
+        // .data is always stringified
+        if (recordFromBlockchain && recordFromBlockchain.data) {
+          recordFromBlockchain.data = JSON.parse(recordFromBlockchain.data);
         }
         if (
           recordFromBlockchain &&
@@ -328,10 +323,17 @@ const loadResource = function* (action: Action) {
         ) {
           recordFromBlockchain.price = parseInt(recordFromBlockchain.price, 10);
         }
+        if (
+          recordFromBlockchain &&
+          typeof recordFromBlockchain.expires === 'string' &&
+          recordFromBlockchain.expires.length
+        ) {
+          recordFromBlockchain.expires = parseInt(recordFromBlockchain.expires, 10);
+        }
         yield validateRecordFromNetwork(recordFromBlockchain);
         record = {
           ...recordFromBlockchain,
-          loadedAt: new Date().toString(),
+          loadedAt: new Date().toISOString(),
           origin: 'blockchain',
         };
         yield put(fromBlockchain.getOneRecordCompletedAction({ record: record }));
@@ -370,15 +372,15 @@ const loadResource = function* (action: Action) {
       page than https://${ipApp.servers[0].host}
       See launchIpAppCompleted.ts
       */
-      if (url && record.servers) {
-        record.servers.forEach((s) => {
+      if (url && record.data.servers) {
+        record.data.servers.forEach((s) => {
           if ((url as string).startsWith(`https://${s.host}`)) {
             urlOk = url;
           }
         });
       }
 
-      const serverIndex = (record.servers || []).findIndex((s) => s.primary);
+      const serverIndex = (record.data.servers || []).findIndex((s) => s.primary);
       if (serverIndex === -1) {
         // todo handled better: dispatch error
         yield put(
@@ -401,7 +403,6 @@ const loadResource = function* (action: Action) {
             path: searchSplitted.path,
             url: urlOk,
             publicKey: record.publicKey,
-            name: record.name,
             record: record as Record,
             launchedAt: new Date().toISOString(),
           },
@@ -424,8 +425,8 @@ const loadResource = function* (action: Action) {
         return;
       }
     }
-    const s = (record.address || '').split('.');
-    console.log('address resolved by name system ' + record.address);
+    const s = (record.data.address || '').split('.');
+    console.log('address resolved by name system ' + record.data.address);
     fileContractId = s[0];
     filePurseId = s[1] || 'index';
   }
