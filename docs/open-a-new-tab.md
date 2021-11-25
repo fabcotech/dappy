@@ -9,6 +9,6 @@ sequenceDiagram
     MainProcess->>+MainProcess: Create BrowserView
     Note right of MainProcess: Restrict network requests 
     Note right of MainProcess: Restrict permissions like video, audio ...
-    Note right of MainProcess: Add Dappy protocol (???)
     Note right of MainProcess: Add Dapps Protocol
+    Note right of MainProcess: Add Dappy protocol (built on top of Dapps protocol, deprecated ?)
 ```;
