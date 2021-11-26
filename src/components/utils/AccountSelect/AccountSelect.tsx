@@ -5,7 +5,7 @@ import xs, { Stream } from 'xstream';
 import debounce from 'xstream/extra/debounce';
 
 import { Account } from '/models';
-import { account as accountUtils } from '/utils';
+import { decrypt, passwordFromStringToBytes } from '/utils/crypto';
 
 const ec = new elliptic.ec('secp256k1');
 
@@ -44,8 +44,8 @@ export class AccountSelectComponent extends React.Component<AccountSelectProps, 
     this.stream.compose(debounce(800)).subscribe({
       next: (data) => {
         try {
-          const password = accountUtils.passwordFromStringToBytes(data.password);
-          const decrypted = accountUtils.decrypt(data.account.encrypted, password);
+          const password = passwordFromStringToBytes(data.password);
+          const decrypted = decrypt(data.account.encrypted, password);
           this.setState({
             boxFound: data.account.boxes[0],
             passwordSuccess: true,

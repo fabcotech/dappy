@@ -8,7 +8,7 @@ import { State as StoreState } from '/store';
 import { copyToClipboard } from '/interProcess';
 import * as fromMain from '/store/main';
 import * as fromUi from '/store/ui';
-import { account as accountUtils } from '/utils';
+import { decrypt, passwordFromStringToBytes } from '/utils/crypto';
 
 import './TransactionModal.scss';
 import { Account } from '/models';
@@ -45,8 +45,8 @@ export class AccountModalComponent extends React.Component<AccountModalComponent
     this.stream.compose(debounce(800)).subscribe({
       next: (data) => {
         try {
-          const password = accountUtils.passwordFromStringToBytes(data.password);
-          const decrypted = accountUtils.decrypt(data.account.encrypted, password);
+          const password = passwordFromStringToBytes(data.password);
+          const decrypted = decrypt(data.account.encrypted, password);
           this.setState({
             passwordSuccess: true,
             passwordError: undefined,

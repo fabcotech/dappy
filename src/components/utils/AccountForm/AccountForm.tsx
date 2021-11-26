@@ -4,7 +4,7 @@ import * as elliptic from 'elliptic';
 import * as rchainToolkit from 'rchain-toolkit';
 
 import { Account } from '/models';
-import { account as accountUtils } from '/utils/account';
+import { encrypt, decrypt, passwordFromStringToBytes } from '/utils/crypto';
 import './AccountForm.scss';
 import { PrivateKeyWarning } from '../';
 
@@ -96,9 +96,9 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
             this.props.filledAccount(undefined);
           } else {
             try {
-              const passwordBytes = accountUtils.passwordFromStringToBytes(values.password);
-              const encrypted = accountUtils.encrypt(values.privatekey, passwordBytes);
-              const decrypted = accountUtils.decrypt(encrypted, passwordBytes);
+              const passwordBytes = passwordFromStringToBytes(values.password);
+              const encrypted = encrypt(values.privatekey, passwordBytes);
+              const decrypted = decrypt(encrypted, passwordBytes);
 
               if (decrypted !== values.privatekey) {
                 throw new Error('unable to create a valid encrypted string');

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { account as accountUtils } from '/utils';
+import { passwordFromStringToBytes, decrypt } from '/utils/crypto';
 import './AccountPassword.scss';
 
 interface AccountPasswordProps {
@@ -22,8 +22,8 @@ export class AccountPassword extends React.Component<
 
   onTryPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
-      const password = accountUtils.passwordFromStringToBytes(e.currentTarget.value);
-      const decrypted = accountUtils.decrypt(this.props.encrypted, password);
+      const password = passwordFromStringToBytes(e.currentTarget.value);
+      const decrypted = decrypt(this.props.encrypted, password);
       this.setState({
         passwordError: undefined,
         success: true,

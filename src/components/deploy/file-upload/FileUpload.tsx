@@ -6,7 +6,7 @@ import { DappyFile, Account, Blockchain, RChainInfos, TransactionState, Transact
 import * as fromBlockchain from '/store/blockchain';
 import * as fromMain from '/store/main';
 import * as fromSettings from '/store/settings';
-import { account as accountUtils } from '/utils/account';
+import { passwordFromStringToBytes, encrypt } from '/utils/crypto';
 import { TransactionForm } from '../../utils';
 import { blockchain as blockchainUtils } from '/utils';
 import './FileUpload.scss';
@@ -184,10 +184,10 @@ export class FileUploadComponent extends React.Component<FileUploadProps, {}> {
           Avoid sending private key in clear through redux logs
           Encrypting it with window.uniqueEphemeralToken
         */
-        const passwordBytes = accountUtils.passwordFromStringToBytes(window.uniqueEphemeralToken.substr(0, 32));
+        const passwordBytes = passwordFromStringToBytes(window.uniqueEphemeralToken.substr(0, 32));
         this.props.sendRChainTransactionWithFile({
           fileAsBase64: dappyFileAsBase64,
-          encrypted: accountUtils.encrypt(this.state.privatekey, passwordBytes),
+          encrypted: encrypt(this.state.privatekey, passwordBytes),
           publicKey: this.state.publickey,
           phloLimit: this.state.phloLimit,
           origin: { origin: 'deploy' },
