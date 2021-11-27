@@ -6,6 +6,7 @@ import './Root.scss';
 import { State as RootState } from '/store';
 import * as fromUi from '/store/ui';
 import * as fromMain from '/store/main';
+import * as fromBlockchain from '/store/blockchain';
 import * as fromSettings from '/store/settings';
 import { Home } from './home';
 import { Root as DeployRoot } from './deploy';
@@ -40,6 +41,7 @@ interface RootComponentProps {
   isAwaitingUpdate: boolean;
   modal: fromMain.Modal | undefined;
   initializationOver: boolean;
+  namesBlockchainInfos: RChainInfos | undefined;
   toggleMenuCollapsed: () => void;
   updateGcu: () => void;
   navigate: (navigationUrl: NavigationUrl) => void;
@@ -119,6 +121,7 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
           isBeta={this.props.isBeta}
           currentVersion={this.props.currentVersion}
           isAwaitingUpdate={this.props.isAwaitingUpdate}
+          namesBlockchainInfos={this.props.namesBlockchainInfos}
           navigate={this.props.navigate}
         />
         <div className="root-right">
@@ -163,12 +166,12 @@ export const Root = connect(
     language: fromUi.getLanguage(state),
     currentVersion: fromMain.getCurrentVersion(state),
     gcu: fromUi.getGcu(state),
-    // gcu: true,
     shouldDisplayAccountCreationForm: shouldDisplayAccountCreationForm(state),
     isAwaitingUpdate: false,
     isBeta: fromMain.getIsBeta(state),
     modal: fromMain.getModal(state),
     initializationOver: fromMain.getInitializationOver(state),
+    namesBlockchainInfos: fromBlockchain.getNamesBlockchainInfos(state),
   }),
   (dispatch) => ({
     navigate: (navigationUrl: NavigationUrl) => dispatch(fromUi.navigateAction({ navigationUrl: navigationUrl })),

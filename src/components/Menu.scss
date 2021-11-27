@@ -6,12 +6,9 @@ li.dappy {
   align-items: flex-start;
   flex-direction: column;
   justify-content: space-between;
-  padding-left: 10px;
   color: #fff;
   font-weight: 600;
   font-size: 2rem;
-  height: 66px;
-  padding-bottom: 5px;
   .version {
     padding-left: 2px;
     font-weight: 600;
@@ -27,6 +24,13 @@ li.dappy {
     }
   }
 }
+li.update-available {
+  color: #fff;
+  font-size: 0.9rem;
+  .warning {
+    color: $warning !important;
+  }
+}
 
 .root-left.menu {
   &.menu-dev {
@@ -37,18 +41,25 @@ li.dappy {
     }
   }
   .menu-list.top {
-    width: 55px;
-    height: 55px;
-    a {
-      text-align: center;
+    &.collapsed {
+      flex-direction: column;
     }
     &.not-collapsed {
-      width: 55px;
-      height: 120px;
+      width: 100%;
+      height: auto;
       display: flex;
       align-items: flex-start;
       justify-content: center;
       flex-direction: column;
+      li.update-available {
+        a {
+          padding: 0px;
+          margin: 0px;
+        }
+        a:hover {
+          background-color: transparent;
+        }
+      }
     }
   }
   &.collapsed {

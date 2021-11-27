@@ -11,3 +11,4 @@ export * from './IdentificationModal';
 export * from './IdentificationForm';
 export * from './PrivateKeyWarning';
 export * from './Gcu';
+export * from './UpdateBrowserLink';

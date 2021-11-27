@@ -12,6 +12,8 @@ export interface RChainInfos {
 }
 export interface RChainInfo {
   dappyNodeVersion: string;
+  dappyBrowserMinVersion: string;
+  dappyBrowserDownloadLink: string;
   lastFinalizedBlockNumber: number;
   rnodeVersion: string;
   rchainNamesMasterRegistryUri: string;

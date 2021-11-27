@@ -3,6 +3,8 @@ import { NavigationUrl } from '/models';
 
 import './Menu.scss';
 import { MenuMobile } from '.';
+import { UpdateBrowserLink } from '/components/utils';
+import { VERSION } from '/CONSTANTS';
 
 interface MenuComponentProps {
   tabsListDisplay: number;
@@ -17,6 +19,7 @@ interface MenuComponentProps {
   currentVersion: undefined | string;
   isAwaitingUpdate: boolean;
   isMobile: boolean;
+  namesBlockchainInfos: RChainInfos | undefined;
   navigate: (navigationUrl: NavigationUrl) => void;
   toggleMenuCollapsed: () => void;
 }
@@ -36,6 +39,7 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
           isNavigationInAccounts={this.props.isNavigationInAccounts}
           isNavigationInDeploy={this.props.isNavigationInDeploy}
           isNavigationInTransactions={this.props.isNavigationInTransactions}
+          namesBlockchainInfos={this.props.namesBlockchainInfos}
           navigate={this.props.navigate}
         />
       );
@@ -44,7 +48,15 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
     if (this.props.menuCollapsed) {
       return (
         <aside className={`root-left menu collapsed`}>
-          <ul className="menu-list top fc">
+          <ul className="menu-list collapsed top pt-2">
+            <li className="update-available">
+              <UpdateBrowserLink
+                light={true}
+                version={VERSION}
+                namesBlockchainInfos={this.props.namesBlockchainInfos}
+                clickWarning={this.props.toggleMenuCollapsed}
+              />
+            </li>
             <li>
               <a onClick={this.props.toggleMenuCollapsed} className="menu-icon">
                 <i className="fa fa-bars" />
@@ -103,12 +115,20 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
     return (
       <aside className={`root-left menu not-collapsed`}>
         <ul className="menu-list top not-collapsed">
-          <li className="dappy">
+          <li className="dappy pl-2 pt-1">
             dappy <br />
             <span className="version">
               v{this.props.currentVersion} {this.props.isBeta ? '(beta)' : undefined}
               {this.props.isAwaitingUpdate ? undefined : undefined}
             </span>
+          </li>
+          <li className="update-available pl-2 pt-1 pb-2">
+            <UpdateBrowserLink
+              clickWarning={() => {}}
+              light={false}
+              version={VERSION}
+              namesBlockchainInfos={this.props.namesBlockchainInfos}
+            />
           </li>
           <li>
             <a onClick={this.props.toggleMenuCollapsed} className="menu-icon">

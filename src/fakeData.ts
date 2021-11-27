@@ -28,6 +28,8 @@ export const getFakeRChainInfos = (rchainInfos: Partial<RChainInfos> = {}): RCha
   date: '2021-10-11T13:00:00.000Z',
   info: {
     dappyNodeVersion: 'x.x.x',
+    dappyBrowserMinVersion: '0.5.1',
+    dappyBrowserDownloadLink: 'https://download',
     lastFinalizedBlockNumber: 12,
     namePrice: 100000,
     rchainNamesContractId: 'contract1',

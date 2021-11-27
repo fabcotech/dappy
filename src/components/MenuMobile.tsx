@@ -13,6 +13,7 @@ interface MenuMobileComponentProps {
   isBeta: boolean;
   currentVersion: undefined | string;
   isAwaitingUpdate: boolean;
+  namesBlockchainInfos: RChainInfos | undefined;
   navigate: (navigationUrl: NavigationUrl) => void;
 }
 
