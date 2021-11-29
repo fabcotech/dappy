@@ -349,7 +349,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                       className="underlined-link">
                       Openned
                     </a>
-                    <Field className="input" type="text" name="csp" placeholder="default-src 'self'" />
+                    <Field className="textarea" as="textarea" name="csp" placeholder="default-src 'self'" />
                     <p className="help">
                       See <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP">documentation from Mozilla</a>
                     </p>
