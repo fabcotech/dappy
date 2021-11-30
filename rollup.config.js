@@ -5,7 +5,7 @@ import json from 'rollup-plugin-json';
 import replace from '@rollup/plugin-replace';
 import sourcemaps from 'rollup-plugin-sourcemaps';
 
-const production = !process.env.ROLLUP_WATCH;
+const production = process.env.NODE_ENV === 'production';
 
 export default {
   input: 'main/main.ts',
