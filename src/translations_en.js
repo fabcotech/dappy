@@ -997,9 +997,18 @@ module.exports.translations = {
     "one": "No token boxes found"
   },
   "email for record help": {
-    "one": "Email address is used to send warning emails before the expiration of the name. It is not mandatory and you can ignore it. This email is public and stored the blockchain."
+    "one": "Email address is used to send warning emails before the expiration of the name. It is not mandatory and you can ignore it. This email address is public and stored the blockchain."
   },
   "email for record": {
     "one": "Public email address (expiration warning)"
+  },
+  "update available": {
+    "one": "Update available"
+  },
+  "download page": {
+    "one": "Download page"
+  },
+  "hide balances": {
+    "one": "Hide balances"
   }
 }

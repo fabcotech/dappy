@@ -2714,7 +2714,7 @@ module.exports.translations = [
   },
   {
     "term": "email for record help",
-    "definition": "Email address is used to send warning emails before the expiration of the name. It is not mandatory and you can ignore it. This email is public and stored the blockchain.",
+    "definition": "Email address is used to send warning emails before the expiration of the name. It is not mandatory and you can ignore it. This email address is public and stored the blockchain.",
     "context": "Settings > Names > Purchase name",
     "term_plural": "",
     "reference": "",
@@ -2724,6 +2724,30 @@ module.exports.translations = [
     "term": "email for record",
     "definition": "Public email address (expiration warning)",
     "context": "Settings > Names > Purchase name",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "update available",
+    "definition": "Update available",
+    "context": "Download",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "download page",
+    "definition": "Download page",
+    "context": "Download",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "hide balances",
+    "definition": "Hide balances",
+    "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
     "comment": ""
