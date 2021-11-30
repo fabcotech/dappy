@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { updatePurseDataTerm } from 'rchain-token';
 
-import { Record, TransactionState, RChainInfos, Account, PartialRecord, Blockchain, MultiCallResult } from '/models';
+import { Record, TransactionState, RChainInfos, Account, PartialRecord, Blockchain, MultiCallResult, IPServer } from '/models';
 import { blockchain as blockchainUtils } from '/utils';
 import { validateRecordFromNetwork } from '/store/decoders';
 import * as fromBlockchain from '/store/blockchain';
@@ -118,9 +118,16 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
         if (record.data) {
           record.data = JSON.parse(record.data);
         }
+
         await validateRecordFromNetwork(record);
-        console.log('record.data');
-        console.log(record.data);
+
+        if (record.data.servers) {
+          record.data.servers = record.data.servers.map((s: IPServer) => ({
+            ...s,
+            cert: decodeURI(s.cert)
+          }))
+        }
+
         this.setState({
           loadingRecord: false,
           loadedRecord: {
