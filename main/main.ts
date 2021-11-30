@@ -28,8 +28,6 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'dappy', privileges: { standard: true, secure: true, bypassCSP: true } },
 ]);
 
-const development = !!process.defaultApp;
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let browserWindow;
@@ -131,7 +129,11 @@ function createWindow() {
   });
   const browserSession = session.fromPartition(partition);
   preventAllPermissionRequests(browserSession);
-  overrideHttpProtocols(undefined, browserSession, development, dispatchFromMain, true);
+  overrideHttpProtocols({
+    dappyBrowserView: undefined,
+    session: browserSession,
+    dispatchFromMain,
+  });
   registerInterProcessProtocol(
     browserSession,
     store,
@@ -145,10 +147,10 @@ function createWindow() {
   browserWindow.setMenuBarVisibility(false);
 
   // and load the index.html of the app.
-  if (development) {
-    browserWindow.loadURL('http://localhost:3033');
-  } else {
+  if (process.env.PRODUCTION) {
     browserWindow.loadFile('dist/index.html');
+  } else {
+    browserWindow.loadURL('http://localhost:3033');
   }
 
   // Open the DevTools.

@@ -366,13 +366,11 @@ const loadOrReloadBrowserView = function* (action: any) {
     store,
     action.meta.dispatchFromMain
   );
-  overrideHttpProtocols(
-    newBrowserViews[payload.resourceId],
-    viewSession,
-    development,
-    action.meta.dispatchFromMain,
-    false
-  );
+  overrideHttpProtocols({
+    dappyBrowserView: newBrowserViews[payload.resourceId],
+    dispatchFromMain: action.meta.dispatchFromMain,
+    session: viewSession,
+  });
 
   return yield put({
     type: fromBrowserViews.LOAD_OR_RELOAD_BROWSER_VIEW_COMPLETED,

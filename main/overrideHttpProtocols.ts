@@ -1,7 +1,7 @@
 import https from 'https';
 import fs from 'fs';
-import { Session } from 'electron';
-import setCookie from 'set-cookie-parser';
+import { Session, CookiesSetDetails, CookiesGetFilter, ProtocolRequest } from 'electron';
+import cookieParser from 'set-cookie-parser';
 
 import * as fromCookies from '../src/store/cookies';
 import { DappyBrowserView } from './models';
@@ -9,90 +9,47 @@ import { Cookie } from '../src/models';
 
 const agents: { [key: string]: https.Agent } = {};
 
-export const overrideHttpProtocols = (
-  dappyBrowserView: DappyBrowserView | undefined,
-  session: Session,
-  development: boolean,
-  dispatchFromMain: (a: any) => void,
-  allowSentry: boolean
-) => {
-  let topLevelNavigation = true;
-  // debug
-  let debug = development;
-
-  // Block all HTTP when not development
-  if (!development) {
-    session.protocol.interceptStreamProtocol('http', (request, callback) => {
-      console.log(`[http] unauthorized`);
-      callback(null);
-      return;
+const executeSentryRequest = (request: ProtocolRequest) => {
+  return new Promise((resolve, reject) => {
+    const options = {
+      method: request.method,
+      host: 'sentry.io',
+      port: 443,
+      rejectUnauthorized: true,
+      path: request.url.replace('https://sentry.io', '') || '/',
+      headers: request.headers,
+    };
+    https.request(options, resolve).on('error', (er) => {
+      console.log(er);
+      reject(er); // TODO: A valider
     });
-  }
-
-  session.cookies.on('changed', async (e, c, ca, re) => {
-    if (!dappyBrowserView) {
-      console.log('no browserView, cannot save cookies');
-      return;
-    }
-    const servers = dappyBrowserView.record.data.servers.filter((s) => s.host === c.domain);
-    if (!servers.length) {
-      console.log('no browserView.record.data.servers matching cookies domain ' + c.domain);
-      return;
-    }
-    const cookies = await session.cookies.get({ url: `https://${c.domain}` });
-    const cookiesToBeStored = cookies
-      .filter((c) => typeof c.expirationDate === 'number')
-      .map(
-        (cook) =>
-          ({
-            sameSite: cook.sameSite === 'strict' ? 'strict' : 'lax',
-            domain: cook.domain,
-            name: cook.name,
-            value: cook.value,
-            expirationDate: cook.expirationDate,
-          } as Cookie)
-      );
-    if (cookiesToBeStored.length) {
-      dispatchFromMain({
-        action: fromCookies.saveCookiesForDomainAction({
-          dappyDomain: dappyBrowserView.dappyDomain,
-          cookies: cookiesToBeStored,
-        }),
-      });
-    }
   });
+};
 
-  session.protocol.interceptStreamProtocol('https', async (request, callback) => {
+const isSentryRequestInDappyApp = (url, dappyBrowserView: DappyBrowserView) =>
+  url.startsWith('https://sentry.io') && !dappyBrowserView;
+
+interface InterceptHttpsRequestsParams {
+  dappyBrowserView: DappyBrowserView;
+  setCookie: (cookieDetails: CookiesSetDetails) => Promise<void>;
+}
+
+const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHttpsRequestsParams) => {
+  let topLevelNavigation = true;
+  const debug = !process.env.PRODUCTION;
+  return async (
+    request: ProtocolRequest,
+    callback: (response: NodeJS.ReadableStream | Electron.ProtocolResponse) => void
+  ) => {
     // todo : cleaner sentry.io handling
     /*
-      todo, forbid third party apps from talking to sentry.io without authorization
-      check the User-Agent to see if it is legit (it should be the User-Agent of main process)
-      */
-    if (allowSentry === true) {
-      if (request.url.startsWith('https://sentry.io')) {
-        try {
-          const options = {
-            method: request.method,
-            host: 'sentry.io',
-            port: 443,
-            rejectUnauthorized: true,
-            path: request.url.replace('https://sentry.io', '') || '/',
-            headers: request.headers,
-          };
-          https
-            .request(options, (resp) => {
-              callback(resp);
-            })
-            .on('error', (er) => {
-              console.log(er);
-            })
-            .end(request.uploadData[0].bytes.toString('utf8'));
-          return;
-        } catch (err) {
-          console.log(err);
-          return;
-        }
-      }
+    todo, forbid third party apps from talking to sentry.io without authorization
+    check the User-Agent to see if it is legit (it should be the User-Agent of main process)
+    TODO: An attack can use sentry.io to export data from DappyApp to a sentry API 
+    */
+    if (isSentryRequestInDappyApp(request.url, dappyBrowserView)) {
+      callback(await executeSentryRequest(request));
+      return;
     }
 
     if (!dappyBrowserView) {
@@ -172,12 +129,12 @@ export const overrideHttpProtocols = (
         const req = https
           .request(options, (resp) => {
             if (resp.headers && resp.headers['set-cookie']) {
-              const cookies = setCookie.parse(resp, {
+              const cookies = cookieParser.parse(resp, {
                 decodeValues: true,
               });
 
               cookies.forEach((c) => {
-                session.cookies.set({
+                setCookie({
                   name: c.name,
                   value: c.value,
                   url: `https://${serversWithSameHost[0].host}`,
@@ -276,5 +233,80 @@ export const overrideHttpProtocols = (
       }
     };
     tryToLoad(i);
-  });
+  };
+};
+
+interface makeCookiesOnChangeParams {
+  dappyBrowserView: DappyBrowserView;
+  getCookies: (filter: CookiesGetFilter) => Promise<Electron.Cookie[]>;
+  dispatchFromMain: (a: any) => void;
+}
+
+const makeCookiesOnChange =
+  ({ dappyBrowserView, getCookies, dispatchFromMain }) =>
+  async (e, c, ca, re) => {
+    if (!dappyBrowserView) {
+      console.log('no browserView, cannot save cookies');
+      return;
+    }
+    const servers = dappyBrowserView.record.data.servers.filter((s) => s.host === c.domain);
+    if (!servers.length) {
+      console.log('no browserView.record.data.servers matching cookies domain ' + c.domain);
+      return;
+    }
+    const cookies = await getCookies({ url: `https://${c.domain}` });
+    const cookiesToBeStored = cookies
+      .filter((c) => typeof c.expirationDate === 'number')
+      .map(
+        (cook) =>
+          ({
+            sameSite: cook.sameSite === 'strict' ? 'strict' : 'lax',
+            domain: cook.domain,
+            name: cook.name,
+            value: cook.value,
+            expirationDate: cook.expirationDate,
+          } as Cookie)
+      );
+    if (cookiesToBeStored.length) {
+      dispatchFromMain({
+        action: fromCookies.saveCookiesForDomainAction({
+          dappyDomain: dappyBrowserView.dappyDomain,
+          cookies: cookiesToBeStored,
+        }),
+      });
+    }
+  };
+
+interface OverrideHttpProtocolsParams {
+  dappyBrowserView: DappyBrowserView | undefined;
+  session: Session;
+  dispatchFromMain: (a: any) => void;
+}
+
+export const overrideHttpProtocols = ({ dappyBrowserView, session, dispatchFromMain }: OverrideHttpProtocolsParams) => {
+  // Block all HTTP when not development
+  if (process.env.PRODUCTION) {
+    session.protocol.interceptStreamProtocol('http', (request, callback) => {
+      console.log(`[http] unauthorized`);
+      callback(null);
+      return;
+    });
+  }
+
+  session.cookies.on(
+    'changed',
+    makeCookiesOnChange({
+      dappyBrowserView,
+      getCookies: (filter: CookiesGetFilter) => session.cookies.get(filter),
+      dispatchFromMain,
+    })
+  );
+
+  session.protocol.interceptStreamProtocol(
+    'https',
+    makeInterceptHttpsRequests({
+      dappyBrowserView,
+      setCookie: (cookieDetails: CookiesSetDetails) => session.cookies.set(cookieDetails),
+    })
+  );
 };
