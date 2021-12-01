@@ -5,8 +5,8 @@ import { BrowserView, app, session } from 'electron';
 
 import * as fromBrowserViews from '../browserViews';
 import { DappyBrowserView } from '../../models';
-import { registerDappyProtocol } from '../../registerDappyProtocol';
 import { registerInterProcessDappProtocol } from '../../registerInterProcessDappProtocol';
+import { registerDappyNetworkProtocol } from '../../registerDappyNetworkProtocol';
 import { overrideHttpProtocols } from '../../overrideHttpProtocols';
 import { preventAllPermissionRequests } from '../../preventAllPermissionRequests';
 import { store } from '../';
@@ -36,7 +36,7 @@ const loadOrReloadBrowserView = function* (action: any) {
     if (development) {
       console.log('reload or self navigation, closing browserView and unregister protocols');
     }
-    const a = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('dappy');
+    const a = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('dappynetwork');
     const b = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('interprocessdapp');
     const c = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.uninterceptProtocol('https');
     let d = true;
@@ -72,7 +72,7 @@ const loadOrReloadBrowserView = function* (action: any) {
       console.log('navigation in tab, closing browserView with same tabId');
     }
     const bv = browserViews[sameTabIdBrowserViewId];
-    const a = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('dappy');
+    const a = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('dappynetwork');
     const b = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('interprocessdapp');
     const c = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.uninterceptProtocol('https');
     let d = true;
@@ -359,7 +359,6 @@ const loadOrReloadBrowserView = function* (action: any) {
   const viewSession = session.fromPartition(`persist:${payload.dappyDomain}`);
   preventAllPermissionRequests(viewSession);
   // todo, avoid circular ref to "store" (see logs when "npm run build:main")
-  registerDappyProtocol(newBrowserViews[payload.resourceId], viewSession, store.getState);
   registerInterProcessDappProtocol(
     newBrowserViews[payload.resourceId],
     viewSession,
@@ -371,6 +370,11 @@ const loadOrReloadBrowserView = function* (action: any) {
     dispatchFromMain: action.meta.dispatchFromMain,
     session: viewSession,
   });
+  registerDappyNetworkProtocol(
+    newBrowserViews[payload.resourceId],
+    viewSession,
+    store
+  );
 
   return yield put({
     type: fromBrowserViews.LOAD_OR_RELOAD_BROWSER_VIEW_COMPLETED,

@@ -43,14 +43,14 @@ export const closeModalAction = () => ({
 });
 
 export interface OpenDappModalPayload extends OpenModalPayload {
-  dappId: string;
+  resourceId: string;
 }
 export const openDappModalAction = (values: OpenDappModalPayload) => ({
   type: OPEN_DAPP_MODAL,
   payload: values,
 });
 export interface CloseDappModalPayload {
-  dappId: string;
+  resourceId: string;
 }
 export const closeDappModalAction = (values: CloseDappModalPayload) => ({
   type: CLOSE_DAPP_MODAL,

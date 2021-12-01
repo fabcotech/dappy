@@ -55,7 +55,7 @@ export interface SendRChainTransactionFromMiddlewarePayload {
     term?: string;
     signatures?: { [expr: string]: string };
   };
-  dappId: string;
+  resourceId: string;
   chainId: string;
   id: string;
   origin: TransactionOriginDapp;
@@ -66,7 +66,6 @@ export interface SendRChainTransactionFromSandboxPayload {
     signatures?: { [expr: string]: string };
   };
   callId: string;
-  dappId: string;
 }
 export interface SendRChainTransactionFromSandboxAction {
   type: '[SandBox] Send RChain transaction from sandbox';
@@ -86,7 +85,7 @@ export interface RChainPaymentRequestParameters {
 }
 export interface SendRChainPaymentRequestFromMiddlewarePayload {
   parameters: RChainPaymentRequestParameters;
-  dappId: string;
+  resourceId: string;
   chainId: string;
   id: string;
   origin: TransactionOriginDapp;
@@ -99,7 +98,6 @@ export interface SendRChainPaymentRequestFromSandboxPayload {
     amount: number;
   };
   callId: string;
-  dappId: string;
 }
 export interface SendRChainPaymentRequestFromSandboxAction {
   type: '[Common] Send RChain payment request from sandbox';
@@ -133,7 +131,7 @@ export interface IdentifyFromSandboxPayload {
     publicKey: undefined | string;
   };
   callId: string;
-  dappId: string;
+  resourceId: string;
 }
 export interface IdentifyFromSandboxAction {
   type: '[SandBox] Identify from sandbox';

@@ -29,7 +29,7 @@ export class IdentificationModalComponent extends React.Component<Identification
     const payload: fromCommon.IdentifyFromSandboxPayload = this.props.modal && this.props.modal.parameters;
 
     this.props.saveIdentification({
-      dappId: payload.dappId,
+      resourceId: payload.resourceId,
       callId: payload.callId,
       identification: {
         publicKey: payload.parameters.publicKey,
@@ -81,7 +81,7 @@ export class IdentificationModalComponent extends React.Component<Identification
               className={`button is-light`}
               onClick={() =>
                 this.props.saveIdentification({
-                  dappId: payload.dappId,
+                  resourceId: payload.resourceId,
                   callId: payload.callId,
                   identification: {
                     publicKey: payload.parameters.publicKey,
@@ -98,7 +98,7 @@ export class IdentificationModalComponent extends React.Component<Identification
               className={`button is-link`}
               onClick={() =>
                 this.props.saveIdentification({
-                  dappId: payload.dappId,
+                  resourceId: payload.resourceId,
                   callId: payload.callId,
                   identification: this.state.identification as Identification,
                 })
@@ -121,7 +121,7 @@ export const IdentificationModal = connect(
   (dispatch) => ({
     saveIdentification: (a: fromDapps.SaveIdentificationPayload) => {
       dispatch(fromDapps.saveIdentificationAction(a));
-      dispatch(fromMain.closeDappModalAction({ dappId: a.dappId }));
+      dispatch(fromMain.closeDappModalAction({ resourceId: a.resourceId }));
     },
   })
 )(IdentificationModalComponent);

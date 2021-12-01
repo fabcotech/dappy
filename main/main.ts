@@ -1,14 +1,10 @@
 // Modules to control application life and create native browser window
-import { app, BrowserWindow, ipcMain, protocol, shell, session } from 'electron';
-import path from 'path';
+import { app, BrowserWindow, protocol, shell, session } from 'electron';
 
-import * as fromCommon from '../src/common';
 import { validateSearch } from '../src/utils/validateSearch';
-
-import * as fromMainBrowserViews from './store/browserViews';
 import { WS_RECONNECT_PERIOD } from '../src/CONSTANTS';
 import * as fromDapps from '../src/store/dapps';
-import { registerDappyProtocol } from './registerDappyProtocol';
+
 import { overrideHttpProtocols } from './overrideHttpProtocols';
 import { registerInterProcessProtocol } from './registerInterProcessProtocol';
 import { benchmarkCron } from './benchmarkCron';

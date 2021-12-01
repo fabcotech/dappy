@@ -448,7 +448,7 @@ export const reducer = (state = initialState, action: Action): State => {
     case fromActions.SAVE_IDENTIFICATION: {
       const payload: fromActions.SaveIdentificationPayload = action.payload;
 
-      let dappIdentifications = state.identifications[payload.dappId];
+      let dappIdentifications = state.identifications[payload.resourceId];
       if (!dappIdentifications) {
         dappIdentifications = {};
       }
@@ -457,7 +457,7 @@ export const reducer = (state = initialState, action: Action): State => {
         ...state,
         identifications: {
           ...state.identifications,
-          [payload.dappId]: {
+          [payload.resourceId]: {
             ...dappIdentifications,
             [payload.callId]: payload.identification,
           },

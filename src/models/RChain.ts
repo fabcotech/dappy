@@ -82,7 +82,7 @@ export interface TransactionOriginRChainToken {
 export interface TransactionOriginDapp {
   origin: 'dapp';
   accountName: undefined | string;
-  dappId: string;
+  resourceId: string;
   dappTitle: string;
   callId: string;
 }

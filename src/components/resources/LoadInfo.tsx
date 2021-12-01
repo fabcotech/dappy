@@ -42,7 +42,7 @@ class LoadInfoComponent extends React.Component<LoadInfoComponentProps> {
                     )
                   }
                 }}>{b} </a>
-                <BadgeAppreciation appreciation={this.props.badges[b]}/>
+                <BadgeAppreciation appreciation={this.props.badges[b]} />
               </p>
             })
           }
@@ -64,10 +64,10 @@ class LoadInfoComponent extends React.Component<LoadInfoComponentProps> {
             <div className="servers">
               {this.props.servers
                 ? this.props.servers.map((s) => (
-                    <div key={s.ip}>
-                      <span className="fa  fa-check"></span> {s.ip} as {s.host}
-                    </div>
-                  ))
+                  <div key={s.ip}>
+                    <span className="fa  fa-check"></span> {s.ip} as {s.host}
+                  </div>
+                ))
                 : undefined}
             </div>
           </div>
@@ -107,7 +107,7 @@ export const LoadInfo = connect(
     }
   },
   (dispatch) => ({
-    closeDappModal: (a: { resourceId: string }) => dispatch(fromMain.closeDappModalAction({ dappId: a.resourceId })),
+    closeDappModal: (a: { resourceId: string }) => dispatch(fromMain.closeDappModalAction({ resourceId: a.resourceId })),
     loadResource: (address: string, tabId: string) =>
       dispatch(
         fromDapps.loadResourceAction({

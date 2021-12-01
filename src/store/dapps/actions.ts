@@ -180,7 +180,7 @@ export const launchFileCompletedAction = (values: LaunchFileCompletedPayload) =>
 });
 
 export interface SaveIdentificationPayload {
-  dappId: string;
+  resourceId: string;
   callId: string;
   identification: Identification;
 }

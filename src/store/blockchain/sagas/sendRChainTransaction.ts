@@ -80,7 +80,7 @@ const sendRChainTransaction = function* (action: Action) {
         alert: payload.alert,
       };
       if (payload.origin.origin === 'dapp') {
-        p.dappId = payload.origin.dappId;
+        p.resourceId = payload.origin.resourceId;
       }
       store.dispatch(fromBlockchain.rChainTransactionErrorAction(p));
       return;
@@ -287,7 +287,7 @@ const sendRChainTransaction = function* (action: Action) {
       alert: payload.alert,
     };
     if (payload.origin.origin === 'dapp') {
-      p.dappId = payload.origin.dappId;
+      p.resourceId = payload.origin.resourceId;
     }
     store.dispatch(fromBlockchain.rChainTransactionErrorAction(p));
   }

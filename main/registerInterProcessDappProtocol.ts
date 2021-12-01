@@ -3,6 +3,9 @@ import { Store } from 'redux';
 import * as yup from 'yup';
 import path from 'path';
 
+// todo, cannot do import, why ?
+const rchainToolkit = require('rchain-toolkit');
+
 import * as fromCommon from '../src/common';
 import * as fromIdentificationsMain from './store/identifications';
 import * as fromTransactionsMain from './store/transactions';
@@ -10,6 +13,7 @@ import * as fromBlockchainsMain from './store/blockchains';
 import * as fromMain from '../src/store/main';
 import * as fromBlockchain from '../src/store/blockchain';
 import { splitSearch } from '../src/utils/splitSearch';
+import { looksLikePublicKey } from '../src/utils/looksLikePublicKey';
 import { SplitSearch } from '../src/models';
 import { DappyBrowserView } from './models';
 
@@ -25,7 +29,6 @@ const identifyFromSandboxSchema = yup
       .strict(true)
       .required(),
     callId: yup.string().required(),
-    dappId: yup.string().required(),
   })
   .noUnknown()
   .strict(true)
@@ -47,7 +50,6 @@ const sendRChainPaymentRequestFromSandboxSchema = yup
       .strict(true)
       .required(),
     callId: yup.string().required(),
-    dappId: yup.string().required(),
   })
   .strict(true)
   .noUnknown()
@@ -66,7 +68,6 @@ const sendRChainTransactionFromSandboxSchema = yup
       .required()
       .strict(true),
     callId: yup.string().required(),
-    dappId: yup.string().required(),
   })
   .strict(true)
   .noUnknown()
@@ -83,7 +84,7 @@ export const registerInterProcessDappProtocol = (
     let data: { [a: string]: any } = {};
     try {
       data = JSON.parse(request.headers['Data']);
-    } catch (e) {}
+    } catch (e) { }
 
     if (request.url === 'interprocessdapp://hi-from-dapp-sandboxed') {
       try {
@@ -96,7 +97,7 @@ export const registerInterProcessDappProtocol = (
                 dappyDomain: dappyBrowserView.dappyDomain,
                 path: dappyBrowserView.path,
                 title: dappyBrowserView.title,
-                dappId: dappyBrowserView.resourceId,
+                resourceId: dappyBrowserView.resourceId,
                 appPath: path.join(app.getAppPath(), 'dist/'),
               },
             })
@@ -124,15 +125,11 @@ export const registerInterProcessDappProtocol = (
         const state = store.getState();
         const payloadBeforeValid = data.action.payload;
 
-        if (!payloadBeforeValid || !payloadBeforeValid.dappId) {
-          if (payloadBeforeValid) {
-            console.error('A dapp dispatched a transaction with an invalid payload');
-          } else {
-            console.error(
-              'A dapp dispatched a transaction with an invalid payload, dappId : ' + payloadBeforeValid.dappId
-            );
-          }
-          callback(Buffer.from(''));
+        if (!payloadBeforeValid) {
+          console.error(
+            '[interprocessdapp://] dapp dispatched a transaction with an invalid payload'
+          );
+          callback(null);
           return;
         }
 
@@ -140,7 +137,7 @@ export const registerInterProcessDappProtocol = (
         let searchSplitted: undefined | SplitSearch = undefined;
 
         try {
-          searchSplitted = splitSearch(payloadBeforeValid.dappId);
+          searchSplitted = splitSearch(dappyBrowserView.dappyDomain);
 
           if (!okBlockchains[searchSplitted.chainId]) {
             dispatchFromMain({
@@ -149,7 +146,8 @@ export const registerInterProcessDappProtocol = (
                 platform: 'rchain',
                 origin: {
                   origin: 'dapp',
-                  dappId: dappyBrowserView.resourceId,
+                  accountName: undefined,
+                  resourceId: dappyBrowserView.resourceId,
                   dappTitle: dappyBrowserView.title,
                   callId: payloadBeforeValid.callId,
                 },
@@ -158,39 +156,12 @@ export const registerInterProcessDappProtocol = (
                 id: new Date().getTime() + Math.round(Math.random() * 10000).toString(),
               }),
             });
-            console.error(`blockchain ${searchSplitted.chainId} not available`);
-            callback(Buffer.from(''));
-            return;
-          }
-
-          if (dappyBrowserView.resourceId !== payloadBeforeValid.dappId) {
-            dispatchFromMain({
-              action: fromBlockchain.saveFailedRChainTransactionAction({
-                blockchainId: searchSplitted.chainId,
-                platform: 'rchain',
-                origin: {
-                  origin: 'dapp',
-                  dappId: dappyBrowserView.resourceId,
-                  dappTitle: dappyBrowserView.title,
-                  callId: payloadBeforeValid.callId,
-                },
-                value: { message: `Wrong id, identity theft attempt` },
-                sentAt: new Date().toISOString(),
-                id: new Date().getTime() + Math.round(Math.random() * 10000).toString(),
-              }),
-            });
-            console.error(
-              'A dapp dispatched a transaction with resourceId and dappId that do not match ' +
-                'dappId from payload: ' +
-                payloadBeforeValid.dappId +
-                ', dappId found from resourceId: ' +
-                dappyBrowserView.resourceId
-            );
+            console.error(`[interprocessdapp://] blockchain ${searchSplitted.chainId} not available`);
             callback(Buffer.from(''));
             return;
           }
         } catch (err) {
-          console.error('Unknown error');
+          console.error('[interprocessdapp://] unknown error');
           console.error(err);
           callback(Buffer.from(''));
           return;
@@ -203,7 +174,7 @@ export const registerInterProcessDappProtocol = (
               if (payloadBeforeValid.parameters.signatures) {
                 Object.keys(payloadBeforeValid.parameters.signatures).forEach((k) => {
                   if (typeof k !== 'string' || typeof payloadBeforeValid.parameters.signatures[k] !== 'string') {
-                    throw new Error('payloadBeforeValid.parameters.signatures is not valid');
+                    throw new Error('[interprocessdapp://] payloadBeforeValid.parameters.signatures is not valid');
                   }
                 });
               }
@@ -215,18 +186,19 @@ export const registerInterProcessDappProtocol = (
                 parameters: payload.parameters,
                 origin: {
                   origin: 'dapp',
-                  dappId: payload.dappId,
+                  accountName: undefined,
+                  resourceId: dappyBrowserView.resourceId,
                   dappTitle: dappyBrowserView.title,
                   callId: payload.callId,
                 },
+                resourceId: dappyBrowserView.resourceId,
                 chainId: (searchSplitted as SplitSearch).chainId,
-                dappId: payload.dappId,
                 id: id,
               };
 
               dispatchFromMain({
                 action: fromMain.openDappModalAction({
-                  dappId: payload.dappId,
+                  resourceId: dappyBrowserView.resourceId,
                   title: 'TRANSACTION_MODAL',
                   text: '',
                   parameters: payload2,
@@ -237,7 +209,7 @@ export const registerInterProcessDappProtocol = (
             })
             .catch((err: Error) => {
               // todo : does the dapp need to have this error returned ?
-              console.error('A dapp tried to send RChain transaction with an invalid schema');
+              console.error('[interprocessdapp://] a dapp tried to send RChain transaction with an invalid schema');
               console.error(err);
               return;
             });
@@ -247,23 +219,34 @@ export const registerInterProcessDappProtocol = (
             .then(() => {
               const payload: fromCommon.SendRChainPaymentRequestFromSandboxPayload = payloadBeforeValid;
 
+              if (looksLikePublicKey(payload.parameters.to)) {
+                try {
+                  payload.parameters.to = rchainToolkit.utils.revAddressFromPublicKey(payload.parameters.to)
+                } catch (err) {
+                  console.error('[interprocessdapp://] failed to generate REV address based on public key');
+                  console.error(err);
+                  callback(null)
+                  return;
+                }
+              }
+
               const id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
               const payload2: fromCommon.SendRChainPaymentRequestFromMiddlewarePayload = {
                 parameters: payload.parameters,
                 origin: {
                   origin: 'dapp',
-                  dappId: payload.dappId,
+                  resourceId: dappyBrowserView.resourceId,
                   dappTitle: dappyBrowserView.title,
                   callId: payload.callId,
                 },
                 chainId: (searchSplitted as SplitSearch).chainId,
-                dappId: payload.dappId,
+                resourceId: dappyBrowserView.resourceId,
                 id: id,
               };
 
               dispatchFromMain({
                 action: fromMain.openDappModalAction({
-                  dappId: dappyBrowserView.resourceId,
+                  resourceId: dappyBrowserView.resourceId,
                   title: 'PAYMENT_REQUEST_MODAL',
                   text: '',
                   parameters: payload2,
@@ -284,10 +267,13 @@ export const registerInterProcessDappProtocol = (
             .then((valid) => {
               dispatchFromMain({
                 action: fromMain.openDappModalAction({
-                  dappId: payloadBeforeValid.dappId,
+                  resourceId: dappyBrowserView.resourceId,
                   title: 'IDENTIFICATION_MODAL',
                   text: '',
-                  parameters: payloadBeforeValid,
+                  parameters: {
+                    resourceId: dappyBrowserView.resourceId,
+                    ...payloadBeforeValid
+                  },
                   buttons: [],
                 }),
               });

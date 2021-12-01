@@ -11,9 +11,9 @@ const transferIdentifications = function* (action: any) {
     [resourceId: string]: DappyBrowserView;
   } = yield select(fromBrowserViews.getBrowserViewsMain);
 
-  if (browserViews[payload.dappId] && browserViews[payload.dappId].browserView) {
+  if (browserViews[payload.resourceId] && browserViews[payload.resourceId].browserView) {
     try {
-      browserViews[payload.dappId].browserView.webContents.executeJavaScript(`
+      browserViews[payload.resourceId].browserView.webContents.executeJavaScript(`
       if (typeof dappyRChain !== 'undefined') { dappyRChain.requestIdentifications() };
       `);
     } catch (e) {

@@ -22,7 +22,7 @@ interface TransactionModalComponentProps {
   transactions: { [id: string]: TransactionState };
   rchainInfos: { [chainId: string]: RChainInfos };
   accounts: { [accountName: string]: Account };
-  closeDappModal: (a: { dappId: string }) => void;
+  closeDappModal: (a: fromMain.CloseDappModalPayload) => void;
   sendRChainTransaction: (a: fromBlockchain.SendRChainTransactionPayload) => void;
   saveFailedRChainTransaction: (a: fromBlockchain.SaveFailedRChainTransactionPayload) => void;
 }
@@ -37,18 +37,18 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
     seeCode: boolean;
     seeSignatures: boolean;
   } = {
-    privatekey: '',
-    box: undefined,
-    accountName: undefined,
-    publickey: '',
-    phloLimit: 1600,
-    seeCode: false,
-    seeSignatures: false,
-  };
+      privatekey: '',
+      box: undefined,
+      accountName: undefined,
+      publickey: '',
+      phloLimit: 1600,
+      seeCode: false,
+      seeSignatures: false,
+    };
 
   onJustCloseModal = () => {
     this.props.closeDappModal({
-      dappId: (this.props.modal as fromMain.Modal).dappId as string,
+      resourceId: (this.props.modal as fromMain.Modal).resourceId as string,
     });
   };
 
@@ -60,7 +60,7 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
       origin: {
         origin: 'dapp',
         accountName: '',
-        dappId: payload.origin.dappId,
+        resourceId: payload.origin.resourceId,
         dappTitle: payload.origin.dappTitle,
         callId: payload.origin.callId,
       },
@@ -69,7 +69,7 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
       id: new Date().getTime() + Math.round(Math.random() * 10000).toString(),
     });
     this.props.closeDappModal({
-      dappId: (this.props.modal as fromMain.Modal).dappId as string,
+      resourceId: (this.props.modal as fromMain.Modal).resourceId as string,
     });
   };
 
@@ -127,7 +127,7 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
       origin: {
         origin: 'dapp',
         accountName: this.state.accountName as string,
-        dappId: payload.origin.dappId,
+        resourceId: payload.origin.resourceId,
         dappTitle: payload.origin.dappTitle,
         callId: payload.origin.callId,
       },
@@ -254,7 +254,7 @@ export const TransactionModal = connect(
     accounts: fromSettings.getAccounts(state),
   }),
   (dispatch) => ({
-    closeDappModal: (a: { dappId: string }) => {
+    closeDappModal: (a: fromMain.CloseDappModalPayload) => {
       dispatch(fromMain.closeDappModalAction(a));
     },
     sendRChainTransaction: (a: fromBlockchain.SendRChainTransactionPayload) =>

@@ -114,11 +114,10 @@ class NavigationBarComponent extends WithSuggestions {
             onKeyDown={this.onKeyDown}
           />
           <div
-            className={`fc tip-div ${
-              this.props.resourceLoaded && this.props.publicKey && this.props.chainId && this.props.resourceId
-                ? 'resource-loaded'
-                : ''
-            }`}>
+            className={`fc tip-div ${this.props.resourceLoaded && this.props.publicKey && this.props.chainId && this.props.resourceId
+              ? 'resource-loaded'
+              : ''
+              }`}>
             {this.props.resourceLoaded && this.props.publicKey && this.props.chainId && this.props.resourceId ? (
               <i
                 title="Tip the owner of this app"
@@ -239,7 +238,7 @@ export const NavigationBar = connect(
             parameters: parameters,
             text: '',
             buttons: [],
-            dappId: resourceId,
+            resourceId: resourceId,
           })
         ),
       loadResource: (a: fromDapps.LoadResourcePayload) => dispatch(fromDapps.loadResourceAction(a)),
@@ -257,7 +256,7 @@ export const NavigationBar = connect(
               parameters: {},
               text: 'Could not get REV address from public key ' + publicKey,
               buttons: [],
-              dappId: resourceId,
+              resourceId: resourceId,
             })
           );
           return;
@@ -278,7 +277,7 @@ export const NavigationBar = connect(
               origin: { origin: 'transfer' },
             },
             buttons: [],
-            dappId: resourceId,
+            resourceId: resourceId,
           })
         );
       },

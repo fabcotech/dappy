@@ -13,7 +13,7 @@ export interface ModalButton {
 }
 
 export interface Modal {
-  dappId?: string;
+  resourceId?: string;
   parameters?: any;
   title: string;
   text: string;
@@ -82,7 +82,7 @@ export const reducer = (state = initialState, action: Action): State => {
     case fromActions.OPEN_DAPP_MODAL: {
       const payload: fromActions.OpenDappModalPayload = action.payload;
 
-      let dappModalsState: Modal[] = state.dappModals[payload.dappId];
+      let dappModalsState: Modal[] = state.dappModals[payload.resourceId];
       if (!dappModalsState) {
         dappModalsState = [];
       }
@@ -98,7 +98,7 @@ export const reducer = (state = initialState, action: Action): State => {
           ...state,
           dappModals: {
             ...state.dappModals,
-            [payload.dappId]: dappModalsState.slice(1).concat([]),
+            [payload.resourceId]: dappModalsState.slice(1).concat([]),
           },
         };
       }
@@ -107,7 +107,7 @@ export const reducer = (state = initialState, action: Action): State => {
         ...state,
         dappModals: {
           ...state.dappModals,
-          [payload.dappId]: dappModalsState.concat(payload),
+          [payload.resourceId]: dappModalsState.concat(payload),
         },
       };
     }
@@ -115,13 +115,13 @@ export const reducer = (state = initialState, action: Action): State => {
     case fromActions.CLOSE_DAPP_MODAL: {
       const payload: fromActions.CloseDappModalPayload = action.payload;
 
-      const dappModalsState: Modal[] = state.dappModals[payload.dappId];
+      const dappModalsState: Modal[] = state.dappModals[payload.resourceId];
 
       return {
         ...state,
         dappModals: {
           ...state.dappModals,
-          [payload.dappId]: dappModalsState.slice(1).concat([]),
+          [payload.resourceId]: dappModalsState.slice(1).concat([]),
         },
       };
     }
@@ -130,7 +130,7 @@ export const reducer = (state = initialState, action: Action): State => {
       const payload: fromActions.CloseDappModalPayload = action.payload;
 
       let newDappModals = state.dappModals;
-      delete newDappModals[payload.dappId];
+      delete newDappModals[payload.resourceId];
 
       return {
         ...state,

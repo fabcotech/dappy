@@ -18,8 +18,8 @@ interface ModalComponentProps {
 class ModalComponent extends React.Component<ModalComponentProps, {}> {
   onCloseModal = () => {
     if (this.props.modal) {
-      if (this.props.modal.dappId) {
-        this.props.dispatchModalAction(fromMain.closeDappModalAction({ dappId: this.props.modal.dappId }));
+      if (this.props.modal.resourceId) {
+        this.props.dispatchModalAction(fromMain.closeDappModalAction({ resourceId: this.props.modal.resourceId }));
       } else {
         this.props.dispatchModalAction(fromMain.closeModalAction());
       }
