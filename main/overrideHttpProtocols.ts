@@ -5,7 +5,7 @@ import cookieParser from 'set-cookie-parser';
 
 import * as fromCookies from '../src/store/cookies';
 import { DappyBrowserView } from './models';
-import { Cookie as DappyCookie } from '/models';
+import { Cookie as DappyCookie, IPServer } from '/models';
 
 const agents: { [key: string]: https.Agent } = {};
 
@@ -34,11 +34,6 @@ const isSentryRequestInDappyApp = (url: string, dappyBrowserView: DappyBrowserVi
 const onlyLaxCookieOnFirstRequest = (isFirstRequest: boolean, cookie: Cookie) =>
   isFirstRequest ? cookie.sameSite === 'lax' : true;
 
-// const withoutProtocol = request.url.split('//').slice(1);
-// const pathArray = withoutProtocol.join('').split('/');
-// const host = pathArray.slice(0, 1)[0];
-// const path = pathArray.slice(1).join('/');
-
 export const parseUrl = (url: string): { host?: string; path?: string } => {
   const urlRegExp = /^.+\/\/([^\/]+)(\/.*)?/;
   if (!urlRegExp.test(url)) return {};
@@ -49,6 +44,38 @@ export const parseUrl = (url: string): { host?: string; path?: string } => {
     path,
   };
 };
+
+const getServersWithSameHost = (dappyBrowserView: DappyBrowserView, url: string) => {
+  const { host } = parseUrl(url);
+
+  return dappyBrowserView.record.data.servers?.filter((s) => s.host === host);
+};
+
+const isHostIsInRecord = (dappyBrowserView: DappyBrowserView, url: string) => {
+  if (!getServersWithSameHost(dappyBrowserView, url)) {
+    const { host } = parseUrl(url);
+    console.log(
+      `[https] An app (${dappyBrowserView.resourceId}) tried to make an https request to an unknown host (${host})`
+    );
+    return false;
+  }
+  return true;
+};
+
+const getCookiesHeader = async (dappyBrowserView: DappyBrowserView, url: string, isFirstRequest: boolean) => {
+  const { host } = parseUrl(url);
+  let cookies: Cookie[] = [];
+  cookies = await dappyBrowserView.browserView.webContents.session.cookies.get({
+    url: `https://${host}`,
+  });
+  const cookieHeader = cookies
+    .filter((c) => !!c.domain && !c.domain.startsWith('.'))
+    .filter((c) => onlyLaxCookieOnFirstRequest(isFirstRequest, c))
+    .map((c) => `${c.name}=${c.value}`)
+    .join('; ');
+  return cookieHeader;
+};
+
 interface InterceptHttpsRequestsParams {
   dappyBrowserView: DappyBrowserView | undefined;
   setCookie: (cookieDetails: CookiesSetDetails) => Promise<void>;
@@ -76,27 +103,10 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
     }
 
     /* browser to server */
-    const { host, path } = parseUrl(request.url);
-
-    const serversWithSameHost = dappyBrowserView.record.data.servers?.filter((s) => s.host === host);
-    if (!serversWithSameHost?.length) {
-      console.log(
-        `[https] An app (${dappyBrowserView.resourceId}) tried to make an https request to an unknown host (${host})`
-      );
+    if (!isHostIsInRecord(dappyBrowserView, request.url)) {
       callback({});
       return;
     }
-
-    let cookies: Cookie[] = [];
-    cookies = await dappyBrowserView.browserView.webContents.session.cookies.get({
-      url: `https://${host}`,
-    });
-
-    const cookieHeader = cookies
-      .filter((c) => !!c.domain && !c.domain.startsWith('.'))
-      .filter((c) => onlyLaxCookieOnFirstRequest(isFirstRequest, c))
-      .map((c) => `${c.name}=${c.value}`)
-      .join('; ');
 
     if (isFirstRequest) {
       if (debug) console.log('[https load] first top level navigation, only lax cookies');
@@ -107,8 +117,10 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
 
     let over = false;
     let i = 0;
-    const tryToLoad = (i: number) => {
+    const tryToLoad = async (i: number) => {
       if (debug) console.log('[https load]', request.url, i);
+      const serversWithSameHost = getServersWithSameHost(dappyBrowserView, request.url) as IPServer[];
+
       const s = serversWithSameHost[i];
       // See https://nodejs.org/docs/latest-v10.x/api/tls.html#tls_tls_createsecurecontext_options
       if (!agents[`${s.ip}-${s.cert}`]) {
@@ -121,6 +133,7 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
         });
       }
 
+      const { path } = parseUrl(request.url);
       const options: https.RequestOptions = {
         agent: agents[`${s.ip}-${s.cert}`],
         method: request.method,
@@ -129,7 +142,7 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
           ...request.headers,
           /* no dns */
           host: s.host,
-          Cookie: cookieHeader,
+          Cookie: await getCookiesHeader(dappyBrowserView, request.url, isFirstRequest),
           Origin: `dappy://${dappyBrowserView.dappyDomain}`,
         },
       };
