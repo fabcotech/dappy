@@ -76,77 +76,49 @@ const getCookiesHeader = async (dappyBrowserView: DappyBrowserView, url: string,
   return cookieHeader;
 };
 
-interface InterceptHttpsRequestsParams {
-  dappyBrowserView: DappyBrowserView | undefined;
+interface makeTryToLoadParams {
+  debug: boolean;
+  request: ProtocolRequest;
+  dappyBrowserView: DappyBrowserView;
+  isFirstRequest: boolean;
   setCookie: (cookieDetails: CookiesSetDetails) => Promise<void>;
 }
 
-const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHttpsRequestsParams) => {
-  let isFirstRequest = true;
-  const debug = !process.env.PRODUCTION;
-  return async (request: ProtocolRequest, callback: (response: Electron.ProtocolResponse) => void) => {
-    // todo : cleaner sentry.io handling
-    /*
-    todo, forbid third party apps from talking to sentry.io without authorization
-    check the User-Agent to see if it is legit (it should be the User-Agent of main process)
-    TODO: An attack can use sentry.io to export data from DappyApp to a sentry API 
-    */
-    if (isSentryRequestInDappyApp(request.url, dappyBrowserView)) {
-      callback(await executeSentryRequest(request));
-      return;
+const tryToLoad = async ({ debug, request, dappyBrowserView, isFirstRequest, setCookie }: makeTryToLoadParams) => {
+  const loadFails: { [key: string]: any } = {};
+  let over = false;
+
+  async function load(i: number = 0) {
+    if (debug) console.log('[https load]', request.url, i);
+    const serversWithSameHost = getServersWithSameHost(dappyBrowserView, request.url) as IPServer[];
+
+    const s = serversWithSameHost[i];
+    // See https://nodejs.org/docs/latest-v10.x/api/tls.html#tls_tls_createsecurecontext_options
+    if (!agents[`${s.ip}-${s.cert}`]) {
+      agents[`${s.ip}-${s.cert}`] = new https.Agent({
+        /* no dns */
+        host: s.ip,
+        rejectUnauthorized: true, // true by default
+        minVersion: 'TLSv1.2',
+        ca: decodeURI(decodeURI(s.cert)),
+      });
     }
 
-    if (!dappyBrowserView) {
-      console.log('[https] An unauthorized process, maybe BrowserWindow, tried to make an https request');
-      callback({});
-      return;
-    }
+    const { path } = parseUrl(request.url);
+    const options: https.RequestOptions = {
+      agent: agents[`${s.ip}-${s.cert}`],
+      method: request.method,
+      path: path ? `/${path}` : '/',
+      headers: {
+        ...request.headers,
+        /* no dns */
+        host: s.host,
+        Cookie: await getCookiesHeader(dappyBrowserView, request.url, isFirstRequest),
+        Origin: `dappy://${dappyBrowserView.dappyDomain}`,
+      },
+    };
 
-    /* browser to server */
-    if (!isHostIsInRecord(dappyBrowserView, request.url)) {
-      callback({});
-      return;
-    }
-
-    if (isFirstRequest) {
-      if (debug) console.log('[https load] first top level navigation, only lax cookies');
-      isFirstRequest = false;
-    }
-
-    const loadFails: { [key: string]: any } = {};
-
-    let over = false;
-    let i = 0;
-    const tryToLoad = async (i: number) => {
-      if (debug) console.log('[https load]', request.url, i);
-      const serversWithSameHost = getServersWithSameHost(dappyBrowserView, request.url) as IPServer[];
-
-      const s = serversWithSameHost[i];
-      // See https://nodejs.org/docs/latest-v10.x/api/tls.html#tls_tls_createsecurecontext_options
-      if (!agents[`${s.ip}-${s.cert}`]) {
-        agents[`${s.ip}-${s.cert}`] = new https.Agent({
-          /* no dns */
-          host: s.ip,
-          rejectUnauthorized: true, // true by default
-          minVersion: 'TLSv1.2',
-          ca: decodeURI(decodeURI(s.cert)),
-        });
-      }
-
-      const { path } = parseUrl(request.url);
-      const options: https.RequestOptions = {
-        agent: agents[`${s.ip}-${s.cert}`],
-        method: request.method,
-        path: path ? `/${path}` : '/',
-        headers: {
-          ...request.headers,
-          /* no dns */
-          host: s.host,
-          Cookie: await getCookiesHeader(dappyBrowserView, request.url, isFirstRequest),
-          Origin: `dappy://${dappyBrowserView.dappyDomain}`,
-        },
-      };
-
+    return new Promise<ProtocolResponse>((resolve) => {
       try {
         const req = https
           .request(options, (resp) => {
@@ -176,7 +148,7 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
               'Content-Security-Policy': dappyBrowserView.record.data.csp || "default-src 'self'",
             };
             if (!over) {
-              callback({ data: resp });
+              resolve({ data: resp });
               over = true;
             }
           })
@@ -198,14 +170,13 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
 
             if (serversWithSameHost[i + 1]) {
               console.log('WILL TRY AGAIN');
-              i += 1;
-              tryToLoad(i);
+              load(i + 1);
             } else {
               if (debug) {
                 console.log(`[https load] Resource for app (${dappyBrowserView.resourceId}) failed to load (${path})`);
               }
               over = true;
-              callback({});
+              resolve({});
               return;
             }
           });
@@ -245,17 +216,58 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
         loadFails[i] = error;
 
         if (serversWithSameHost[i + 1]) {
-          i += 1;
-          tryToLoad(i);
+          load(i + 1);
         } else {
           if (debug) console.log(`[https] Resource for app (${dappyBrowserView.resourceId}) failed to load (${path})`);
-          callback({});
+          resolve({});
           over = true;
           return;
         }
       }
-    };
-    tryToLoad(i);
+    });
+  }
+
+  return load();
+};
+
+interface InterceptHttpsRequestsParams {
+  dappyBrowserView: DappyBrowserView | undefined;
+  setCookie: (cookieDetails: CookiesSetDetails) => Promise<void>;
+}
+
+const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHttpsRequestsParams) => {
+  let isFirstRequest = true;
+  const debug = !process.env.PRODUCTION;
+  return async (request: ProtocolRequest, callback: (response: Electron.ProtocolResponse) => void) => {
+    // todo : cleaner sentry.io handling
+    /*
+    todo, forbid third party apps from talking to sentry.io without authorization
+    check the User-Agent to see if it is legit (it should be the User-Agent of main process)
+    TODO: An attack can use sentry.io to export data from DappyApp to a sentry API 
+    */
+    if (isSentryRequestInDappyApp(request.url, dappyBrowserView)) {
+      callback(await executeSentryRequest(request));
+      return;
+    }
+
+    if (!dappyBrowserView) {
+      console.log('[https] An unauthorized process, maybe BrowserWindow, tried to make an https request');
+      callback({});
+      return;
+    }
+
+    /* browser to server */
+    if (!isHostIsInRecord(dappyBrowserView, request.url)) {
+      callback({});
+      return;
+    }
+
+    if (isFirstRequest) {
+      if (debug) console.log('[https load] first top level navigation, only lax cookies');
+      isFirstRequest = false;
+    }
+
+    callback(await tryToLoad({ debug, dappyBrowserView, isFirstRequest, setCookie, request }));
   };
 };
 
