@@ -1,15 +1,15 @@
 import https from 'https';
 import fs from 'fs';
-import { Session, CookiesSetDetails, CookiesGetFilter, ProtocolRequest } from 'electron';
+import { Session, CookiesSetDetails, CookiesGetFilter, ProtocolRequest, Cookie, ProtocolResponse } from 'electron';
 import cookieParser from 'set-cookie-parser';
 
 import * as fromCookies from '../src/store/cookies';
 import { DappyBrowserView } from './models';
-import { Cookie } from '../src/models';
+import { Cookie as DappyCookie } from '/models';
 
 const agents: { [key: string]: https.Agent } = {};
 
-const executeSentryRequest = (request: ProtocolRequest) => {
+const executeSentryRequest = (request: ProtocolRequest): Promise<ProtocolResponse> => {
   return new Promise((resolve, reject) => {
     const options = {
       method: request.method,
@@ -19,28 +19,45 @@ const executeSentryRequest = (request: ProtocolRequest) => {
       path: request.url.replace('https://sentry.io', '') || '/',
       headers: request.headers,
     };
-    https.request(options, resolve).on('error', (er) => {
-      console.log(er);
-      reject(er); // TODO: A valider
-    });
+    https
+      .request(options, (data) => resolve({ data }))
+      .on('error', (er) => {
+        console.log(er);
+        reject(er); // TODO: A valider
+      });
   });
 };
 
-const isSentryRequestInDappyApp = (url, dappyBrowserView: DappyBrowserView) =>
+const isSentryRequestInDappyApp = (url: string, dappyBrowserView: DappyBrowserView | undefined) =>
   url.startsWith('https://sentry.io') && !dappyBrowserView;
 
+const onlyLaxCookieOnFirstRequest = (isFirstRequest: boolean, cookie: Cookie) =>
+  isFirstRequest ? cookie.sameSite === 'lax' : true;
+
+// const withoutProtocol = request.url.split('//').slice(1);
+// const pathArray = withoutProtocol.join('').split('/');
+// const host = pathArray.slice(0, 1)[0];
+// const path = pathArray.slice(1).join('/');
+
+export const parseUrl = (url: string): { host?: string; path?: string } => {
+  const urlRegExp = /^.+\/\/([^\/]+)(\/.*)?/;
+  if (!urlRegExp.test(url)) return {};
+
+  const [_, host, path] = url.match(urlRegExp) as string[];
+  return {
+    host,
+    path,
+  };
+};
 interface InterceptHttpsRequestsParams {
-  dappyBrowserView: DappyBrowserView;
+  dappyBrowserView: DappyBrowserView | undefined;
   setCookie: (cookieDetails: CookiesSetDetails) => Promise<void>;
 }
 
 const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHttpsRequestsParams) => {
-  let topLevelNavigation = true;
+  let isFirstRequest = true;
   const debug = !process.env.PRODUCTION;
-  return async (
-    request: ProtocolRequest,
-    callback: (response: NodeJS.ReadableStream | Electron.ProtocolResponse) => void
-  ) => {
+  return async (request: ProtocolRequest, callback: (response: Electron.ProtocolResponse) => void) => {
     // todo : cleaner sentry.io handling
     /*
     todo, forbid third party apps from talking to sentry.io without authorization
@@ -54,47 +71,39 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
 
     if (!dappyBrowserView) {
       console.log('[https] An unauthorized process, maybe BrowserWindow, tried to make an https request');
-      callback(null);
+      callback({});
       return;
     }
 
     /* browser to server */
-    const withoutProtocol = request.url.split('//').slice(1);
-    const pathArray = withoutProtocol.join('').split('/');
-    const host = pathArray.slice(0, 1)[0];
-    const path = pathArray.slice(1).join('/');
+    const { host, path } = parseUrl(request.url);
 
-    const serversWithSameHost = dappyBrowserView.record.data.servers.filter((s) => s.host === host);
-    if (!serversWithSameHost.length) {
+    const serversWithSameHost = dappyBrowserView.record.data.servers?.filter((s) => s.host === host);
+    if (!serversWithSameHost?.length) {
       console.log(
         `[https] An app (${dappyBrowserView.resourceId}) tried to make an https request to an unknown host (${host})`
       );
-      callback(null);
+      callback({});
       return;
     }
 
-    let cookies: Electron.Cookie[] = [];
+    let cookies: Cookie[] = [];
     cookies = await dappyBrowserView.browserView.webContents.session.cookies.get({
-      url: `https://${serversWithSameHost[0].host}`,
+      url: `https://${host}`,
     });
 
-    let cookieHeader = '';
-    if (topLevelNavigation) {
+    const cookieHeader = cookies
+      .filter((c) => !!c.domain && !c.domain.startsWith('.'))
+      .filter((c) => onlyLaxCookieOnFirstRequest(isFirstRequest, c))
+      .map((c) => `${c.name}=${c.value}`)
+      .join('; ');
+
+    if (isFirstRequest) {
       if (debug) console.log('[https load] first top level navigation, only lax cookies');
-      cookieHeader = cookies
-        .filter((c) => !!c.domain && !c.domain.startsWith('.'))
-        .filter((c) => c.sameSite === 'lax')
-        .map((c) => `${c.name}=${c.value}`)
-        .join('; ');
-      topLevelNavigation = false;
-    } else {
-      cookieHeader = cookies
-        .filter((c) => !!c.domain && !c.domain.startsWith('.'))
-        .map((c) => `${c.name}=${c.value}`)
-        .join('; ');
+      isFirstRequest = false;
     }
 
-    const loadFails = {};
+    const loadFails: { [key: string]: any } = {};
 
     let over = false;
     let i = 0;
@@ -142,7 +151,7 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
                   secure: true,
                   httpOnly: true,
                   // sameSite is by default 'lax'
-                  sameSite: ['Strict', 'strict'].includes(c.sameSite) ? 'strict' : 'lax',
+                  sameSite: /^strict$/i.test(c.sameSite || '') ? 'strict' : 'lax',
                 });
               });
               if (debug && cookies.length) console.log(`[https load] set ${cookies.length} cookie(s)`);
@@ -154,7 +163,7 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
               'Content-Security-Policy': dappyBrowserView.record.data.csp || "default-src 'self'",
             };
             if (!over) {
-              callback(resp);
+              callback({ data: resp });
               over = true;
             }
           })
@@ -172,7 +181,7 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
                 errorMessage: 'Unknown Error',
               };
             }
-            loadFails[i] = error;
+            loadFails[i.toString()] = error;
 
             if (serversWithSameHost[i + 1]) {
               console.log('WILL TRY AGAIN');
@@ -183,13 +192,14 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
                 console.log(`[https load] Resource for app (${dappyBrowserView.resourceId}) failed to load (${path})`);
               }
               over = true;
-              callback(null);
+              callback({});
               return;
             }
           });
 
         if (request.uploadData && request.uploadData[0]) {
-          request.uploadData.forEach((ud) => {
+          request.uploadData.forEach((ud: any) => {
+            // TODO: remove any if possible
             if (ud.type === 'rawData') {
               req.write(ud.bytes);
             } else {
@@ -205,7 +215,7 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
         } else {
           req.end();
         }
-      } catch (err) {
+      } catch (err: any) {
         if (debug) console.log('[https load] ERR', request.url, err.message, i);
         let error;
         if (err.message.includes('SSL')) {
@@ -226,7 +236,7 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
           tryToLoad(i);
         } else {
           if (debug) console.log(`[https] Resource for app (${dappyBrowserView.resourceId}) failed to load (${path})`);
-          callback(null);
+          callback({});
           over = true;
           return;
         }
@@ -237,20 +247,20 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
 };
 
 interface makeCookiesOnChangeParams {
-  dappyBrowserView: DappyBrowserView;
+  dappyBrowserView: DappyBrowserView | undefined;
   getCookies: (filter: CookiesGetFilter) => Promise<Electron.Cookie[]>;
   dispatchFromMain: (a: any) => void;
 }
 
 const makeCookiesOnChange =
-  ({ dappyBrowserView, getCookies, dispatchFromMain }) =>
-  async (e, c, ca, re) => {
+  ({ dappyBrowserView, getCookies, dispatchFromMain }: makeCookiesOnChangeParams) =>
+  async (_: unknown, c: Cookie) => {
     if (!dappyBrowserView) {
       console.log('no browserView, cannot save cookies');
       return;
     }
-    const servers = dappyBrowserView.record.data.servers.filter((s) => s.host === c.domain);
-    if (!servers.length) {
+    const servers = dappyBrowserView.record.data.servers?.filter((s) => s.host === c.domain);
+    if (!servers?.length) {
       console.log('no browserView.record.data.servers matching cookies domain ' + c.domain);
       return;
     }
@@ -265,7 +275,7 @@ const makeCookiesOnChange =
             name: cook.name,
             value: cook.value,
             expirationDate: cook.expirationDate,
-          } as Cookie)
+          } as DappyCookie)
       );
     if (cookiesToBeStored.length) {
       dispatchFromMain({
@@ -288,7 +298,7 @@ export const overrideHttpProtocols = ({ dappyBrowserView, session, dispatchFromM
   if (process.env.PRODUCTION) {
     session.protocol.interceptStreamProtocol('http', (request, callback) => {
       console.log(`[http] unauthorized`);
-      callback(null);
+      callback({});
       return;
     });
   }

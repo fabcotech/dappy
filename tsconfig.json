@@ -5,7 +5,9 @@
       "*": [
         "types/*"
       ],
-      "/*": ["src/*"],
+      "/*": [
+        "src/*"
+      ],
     },
     "target": "ES5",
     "lib": [
@@ -29,6 +31,7 @@
   },
   "include": [
     "src",
+    "main",
     "./jest/setup.ts",
   ],
   "linterOptions": {
