@@ -14,6 +14,14 @@
     padding: 10px;
     display: grid;
     grid-template-rows: 30px 60px 100px;
+    &.fungible {
+      grid-template-rows: 22px 38px 100px;
+      .id {
+        font-size: 1rem;
+        font-weight: 400;
+        color: rgba(0,0,0,0.5);
+      }
+    }
     grid-template-columns: 100%;
     position: relative;
     .id {
@@ -22,7 +30,8 @@
       grid-row: 1;
       grid-column: 1;
       i {
-        font-size: 0.8rem;
+        font-size: 1rem;
+        font-weight: 400;
       }
     }
     .values {

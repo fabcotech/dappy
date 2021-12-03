@@ -4,12 +4,12 @@ import { deployTerm } from 'rchain-token';
 import * as fromUi from '/store/ui';
 import * as fromMain from '/store/main';
 import * as fromBlockchain from '/store/blockchain';
-import { Blockchain, TransactionState, Account, TransactionStatus, Variables, RChainInfos } from '/models';
+import { Blockchain, TransactionState, Account, TransactionStatus, TransactionOriginRChainToken, RChainInfos, RChainTokenOperation } from '/models';
 import './Deploy.scss';
 import { blockchain as blockchainUtils } from '/utils/blockchain';
 import { TransactionForm } from '../../utils';
 import { RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '/CONSTANTS';
-import { DeployTips } from './';
+import { DeployTips, RChainTokenCreatePurse } from './';
 
 interface DeployProps {
   transactions: { [id: string]: TransactionState };
@@ -33,7 +33,7 @@ export class Deploy extends React.Component<DeployProps, {}> {
 
   state: {
     term: undefined | string;
-    selected: undefined | 'nft' | 'ft' | 'tips';
+    selected: undefined | 'nft' | 'ft' | 'tips' | 'create-purses';
     privatekey: string; // step 3
     box: string | undefined; // step 3
     accountName: string | undefined; // step 3
@@ -41,15 +41,15 @@ export class Deploy extends React.Component<DeployProps, {}> {
     phloLimit: number; // step 3
     step: number;
   } = {
-    term: undefined,
-    selected: undefined,
-    privatekey: '',
-    box: undefined,
-    accountName: undefined,
-    publickey: '',
-    phloLimit: 0,
-    step: 1,
-  };
+      term: undefined,
+      selected: undefined,
+      privatekey: '',
+      box: undefined,
+      accountName: undefined,
+      publickey: '',
+      phloLimit: 0,
+      step: 1,
+    };
 
   onBackToStep1 = () => {
     this.setState({
@@ -61,7 +61,7 @@ export class Deploy extends React.Component<DeployProps, {}> {
     });
   };
 
-  onChoseTerm = (term: string, selected: 'nft' | 'ft' | 'tips') => {
+  onChoseTerm = (term: string, selected: 'nft' | 'ft' | 'tips' | 'create-purses') => {
     this.setState({ term: term, selected: selected });
   };
 
@@ -96,11 +96,17 @@ export class Deploy extends React.Component<DeployProps, {}> {
       validAfterBlockNumber
     );
 
+    let operation: RChainTokenOperation = 'deploy';
+    if (this.state.selected === 'tips') {
+      operation = 'tips'
+    } else if (this.state.selected === 'create-purses') {
+      operation = 'create-purses'
+    }
     this.props.sendRChainTransaction({
       transaction: deployOptions,
       origin: {
         origin: 'rchain-token',
-        operation: this.state.selected === 'tips' ? 'tips' : 'deploy',
+        operation: operation,
         accountName: this.state.accountName,
       },
       platform: 'rchain',
@@ -231,11 +237,19 @@ export class Deploy extends React.Component<DeployProps, {}> {
             <span className="term-title">{t('rchain token nft')}</span>
             <p className="pt5">{t('deploy nft contract')}</p>
           </div>
+          <RChainTokenCreatePurse
+            masterRegistryUri={
+              this.props.rchainInfos[this.props.namesBlockchain.chainId].info.rchainNamesMasterRegistryUri
+            }
+            boxId={this.state.box as string}
+            onChoseTerm={this.onChoseTerm}
+            selected={this.state.selected}
+          />
           <DeployTips
             rchainNamesMasterRegistryUri={
               this.props.rchainInfos[this.props.namesBlockchain.chainId].info.rchainNamesMasterRegistryUri
             }
-            box={this.state.box as string}
+            boxId={this.state.box as string}
             onChoseTerm={this.onChoseTerm}
             selected={this.state.selected}
           />

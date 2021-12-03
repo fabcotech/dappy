@@ -1010,5 +1010,29 @@ module.exports.translations = {
   },
   "hide balances": {
     "one": "Hide balances"
+  },
+  "rchain token create-purses": {
+    "one": "RChain token - create purses (NFT or FT contract)"
+  },
+  "deploy create-purses": {
+    "one": "Quickly create NFT or fungible tokens into one contract that you own. Easy CSV-like syntax."
+  },
+  "nft example": {
+    "one": "Example for non-fungible tokens"
+  },
+  "ft example": {
+    "one": "Example for fungible tokens"
+  },
+  "structure for nft": {
+    "one": "Syntax for NFTs"
+  },
+  "structure for ft": {
+    "one": "Syntax for FTs"
+  },
+  "only rchain-token version": {
+    "one": "Considering only rchain token version"
+  },
+  "rchain-token master": {
+    "one": "RChain token master"
   }
 }

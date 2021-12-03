@@ -5,10 +5,10 @@ import './DeployTips.scss';
 import { formatAmount, formatAmountNoDecimal } from '/utils/formatAmount';
 
 interface DeployTipsProps {
-  selected: undefined | 'nft' | 'ft' | 'tips';
+  selected: undefined | 'nft' | 'ft' | 'tips' | 'create-purses';
   rchainNamesMasterRegistryUri: string;
-  box: string;
-  onChoseTerm: (a: string, b: 'nft' | 'ft' | 'tips') => void;
+  boxId: string;
+  onChoseTerm: (a: string, b: 'nft' | 'ft' | 'tips' | 'create-purses') => void;
 }
 
 export class DeployTips extends React.Component<DeployTipsProps, {}> {
@@ -18,11 +18,11 @@ export class DeployTips extends React.Component<DeployTipsProps, {}> {
     price: undefined | number;
     quantity: undefined | number;
   } = {
-    title: undefined,
-    description: undefined,
-    price: 100000000,
-    quantity: 100,
-  };
+      title: undefined,
+      description: undefined,
+      price: 100000000,
+      quantity: 100,
+    };
 
   onSomethingChanged = (a: { [key: string]: any }) => {
     this.setState(a);
@@ -30,7 +30,7 @@ export class DeployTips extends React.Component<DeployTipsProps, {}> {
       const contractId = 'contract' + new Date().getTime().toString().slice(7);
       let term1 = deployTerm({
         masterRegistryUri: this.props.rchainNamesMasterRegistryUri,
-        boxId: this.props.box,
+        boxId: this.props.boxId,
         fungible: true,
         contractId: contractId,
         fee: null,
@@ -39,17 +39,17 @@ export class DeployTips extends React.Component<DeployTipsProps, {}> {
       const payloadCreatePurse = {
         masterRegistryUri: this.props.rchainNamesMasterRegistryUri,
         contractId: contractId,
-        boxId: this.props.box,
+        boxId: this.props.boxId,
         purses: {
           ['1']: {
             id: '', // will be set by rholang
-            boxId: this.props.box,
+            boxId: this.props.boxId,
             quantity: this.state.quantity,
             price: this.state.price,
           },
           ['2']: {
             id: '', // will be set by rholang
-            boxId: this.props.box,
+            boxId: this.props.boxId,
             quantity: 1,
             price: null,
           },

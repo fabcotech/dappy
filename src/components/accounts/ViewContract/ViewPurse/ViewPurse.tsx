@@ -74,14 +74,14 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
     }
 
     return (
-      <div key={this.props.id} className="view-purse">
+      <div key={this.props.id} className={`view-purse`}>
         {this.props.purse ? (
-          <div>
-            <span className="id">{this.props.purse.id}</span>
+          <div className={this.props.fungible ? "fungible" : "non-fungible"}>
+            <span className={`id`}>{this.props.fungible ? "Purse ID : " : ""} {this.props.purse.id}</span>
             <div className="values">
               {this.props.fungible && (
                 <span>
-                  {t('quantity')}: {this.props.purse.quantity}
+                  {t('quantity')} : {this.props.purse.quantity}
                 </span>
               )}
               {this.isExpirableNFT() && (
@@ -89,9 +89,9 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                   {isExpired(this.props.now)(this.props.purse.timestamp, this.props.contractExpiration!)
                     ? t('expired')
                     : `${t('expires in')} ${expiresIn(this.props.now)(
-                        this.props.purse.timestamp,
-                        this.props.contractExpiration!
-                      )}`}
+                      this.props.purse.timestamp,
+                      this.props.contractExpiration!
+                    )}`}
                 </span>
               )}
             </div>
@@ -121,8 +121,8 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                   {this.props.id === '0'
                     ? t('update cost of minting')
                     : this.props.fungible
-                    ? t('update per token price')
-                    : t('update nft purse price')}
+                      ? t('update per token price')
+                      : t('update nft purse price')}
                 </a>
                 <a
                   onClick={() => {
@@ -475,8 +475,8 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                   {this.props.id === '0'
                     ? 'tokens for sale (mint)'
                     : this.props.fungible
-                    ? t('for sale')
-                    : t('nft for sale')}
+                      ? t('for sale')
+                      : t('nft for sale')}
                 </span>
                 <div className="prices">
                   <span className="formated-amount-rev">

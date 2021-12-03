@@ -2751,5 +2751,69 @@ module.exports.translations = [
     "term_plural": "",
     "reference": "",
     "comment": ""
+  },
+  {
+    "term": "rchain token create-purses",
+    "definition": "RChain token - create purses (NFT or FT contract)",
+    "context": "Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "deploy create-purses",
+    "definition": "Quickly create NFT or fungible tokens into one contract that you own. Easy CSV-like syntax.",
+    "context": "Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "nft example",
+    "definition": "Example for non-fungible tokens",
+    "context": "Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "ft example",
+    "definition": "Example for fungible tokens",
+    "context": "Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "structure for nft",
+    "definition": "Syntax for NFTs",
+    "context": "Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "structure for ft",
+    "definition": "Syntax for FTs",
+    "context": "Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "only rchain-token version",
+    "definition": "Considering only rchain token version",
+    "context": "Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "rchain-token master",
+    "definition": "RChain token master",
+    "context": "Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
   }
 ]
