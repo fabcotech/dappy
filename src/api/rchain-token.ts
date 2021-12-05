@@ -68,8 +68,8 @@ export const getContractConfig = async ({
   blockchain: Blockchain;
   masterRegistryUri: string;
   contractId: string;
-}) =>
-  multiCallParseAndValidate(
+}) => {
+  return multiCallParseAndValidate(
     [
       {
         query: () => readConfigTerm({ masterRegistryUri, contractId }),
@@ -79,6 +79,7 @@ export const getContractConfig = async ({
     ],
     getExploreDeployXOptions(blockchain.chainId, getIndexes(blockchain))
   ) as Promise<[RequestResult<RChainContractConfig>]>;
+}
 
 const parseRhoValToJs = (r: { data: string }) => {
   const data = JSON.parse(r.data);
