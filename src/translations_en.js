@@ -1034,5 +1034,11 @@ module.exports.translations = {
   },
   "rchain-token master": {
     "one": "RChain token master"
+  },
+  "price 0 not for sale": {
+    "one": "Choose price 0 if you don't want tokens to be for sale"
+  },
+  "copy url": {
+    "one": "Copy URL"
   }
 }

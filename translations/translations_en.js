@@ -2815,5 +2815,21 @@ module.exports.translations = [
     "term_plural": "",
     "reference": "",
     "comment": ""
+  },
+  {
+    "term": "price 0 not for sale",
+    "definition": "Choose price 0 if you don't want tokens to be for sale",
+    "context": "Deploy",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "copy url",
+    "definition": "Copy URL",
+    "context": "Download",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
   }
 ]

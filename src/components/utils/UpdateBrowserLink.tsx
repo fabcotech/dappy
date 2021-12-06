@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { RChainInfos } from '/models';
-import { openExternal } from '/interProcess';
+import { openExternal, copyToClipboard } from '/interProcess';
 
 export const UpdateBrowserLink = (props: {
   light: boolean;
@@ -44,9 +44,12 @@ export const UpdateBrowserLink = (props: {
         {t('update available')}
       </span>
       <br />
-      <a className="pt-1 pb-1 underlined-link" onClick={() => openExternal(downloadLink)}>
-        {t('download page')}
-      </a>
+      <div>
+        <a className="pt-1 pb-1 underlined-link" onClick={() => openExternal(downloadLink)}>
+          {t('download page')}
+        </a>
+        <a className="pt-1 pb-1 underlined-link" onClick={() => copyToClipboard(downloadLink)}>{t('copy url')}</a>
+      </div>
     </>
   );
 };
