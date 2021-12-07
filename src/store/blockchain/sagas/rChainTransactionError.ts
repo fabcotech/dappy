@@ -10,7 +10,7 @@ const rChainTransactionError = function* (action: Action) {
   const modals: { [resourceId: string]: fromMain.Modal[] } = yield select(fromMain.getDappModals);
 
   if (payload.resourceId) {
-    // Close modal if the currently openned modal is the transaction modal for this transation
+    // Close modal if the currently opened modal is the transaction modal for this transation
     if (modals[payload.resourceId]) {
       const dappModals = modals[payload.resourceId];
       const displayedModal = dappModals[dappModals.length - 1];

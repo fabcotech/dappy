@@ -74,7 +74,7 @@ const loadResource = function* (action: Action) {
     }
 
     // if dappId is found, it is a reload and not a load
-    // Close all modals if a dapp is openned in tab payload.tabId
+    // Close all modals if a dapp is opened in tab payload.tabId
     const dappId = Object.keys(dapps).find((k) => k === tab.resourceId);
     if (dappId && !payload.address) {
       console.log('reloading dapp', dappId);

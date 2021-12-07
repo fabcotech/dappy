@@ -47,17 +47,17 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
     foundRecord: Record | undefined;
     foundRecordError: string;
   } = {
-      privatekey: '',
-      publickey: '',
-      box: undefined,
-      accountName: undefined,
-      to: '',
-      amount: 0,
-      phloLimit: DEFAULT_PHLO_LIMIT,
-      seeCode: false,
-      foundRecord: undefined,
-      foundRecordError: '',
-    };
+    privatekey: '',
+    publickey: '',
+    box: undefined,
+    accountName: undefined,
+    to: '',
+    amount: 0,
+    phloLimit: DEFAULT_PHLO_LIMIT,
+    seeCode: false,
+    foundRecord: undefined,
+    foundRecordError: '',
+  };
 
   toStream: Stream<{ to: string }> | undefined = undefined;
 
@@ -121,7 +121,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
   onCloseModal = () => {
     const payload: fromCommon.SendRChainTransactionFromMiddlewarePayload = (this.props.modal as any).parameters;
     /*
-      This modal can be openned from a dapp (third party),
+      This modal can be opened from a dapp (third party),
       or from the tipping button (user action). In both cases
       there will be payload.dappId
     */
@@ -200,7 +200,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
     );
 
     /*
-      This modal can be openned from a dapp (third party),
+      This modal can be opened from a dapp (third party),
       or from the tipping button (user action). In both cases
       there will be payload.resourceId
     */

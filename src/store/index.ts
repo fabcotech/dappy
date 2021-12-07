@@ -285,10 +285,10 @@ export const openConnection = () => {
   transaction to indexedDB fails
 */
 setInterval(() => {
-  const opennedDB = getDb();
+  const openedDB = getDb();
   console.log('IndexedDB reload: closing connection');
   try {
-    opennedDB.close();
+    openedDB.close();
   } catch (e) {
     console.log(e);
     store.dispatch(
@@ -309,10 +309,10 @@ dbReq.onsuccess = (event) => {
     return;
   }
   db = (event.target as any).result as IDBDatabase;
-  const opennedDB = getDb();
+  const openedDB = getDb();
 
   // UI
-  const uiTx = opennedDB.transaction('ui', 'readonly');
+  const uiTx = openedDB.transaction('ui', 'readonly');
   var uiObjectStore = uiTx.objectStore('ui');
 
   const requestUI = uiObjectStore.get(0);
@@ -358,7 +358,7 @@ dbReq.onsuccess = (event) => {
   };
 
   // SETTINGS
-  const settingsTx = opennedDB.transaction('settings', 'readonly');
+  const settingsTx = openedDB.transaction('settings', 'readonly');
   var settingsObjectStore = settingsTx.objectStore('settings');
   const requestSettings = settingsObjectStore.get(0);
   requestSettings.onsuccess = (e) => {
@@ -366,7 +366,7 @@ dbReq.onsuccess = (event) => {
     if (typeof settings === 'undefined') {
       console.warn('settings not found in storage, probably first launch');
       asyncActionsOver += 1;
-      const txReadWrite = opennedDB.transaction('settings', 'readwrite');
+      const txReadWrite = openedDB.transaction('settings', 'readwrite');
       const objectStore = txReadWrite.objectStore('settings');
       objectStore.put(fromSettings.initialState.settings, 0);
       dispatchInitActions();
@@ -395,7 +395,7 @@ dbReq.onsuccess = (event) => {
   };
 
   // TABS
-  const tabsTx = opennedDB.transaction('tabs', 'readonly');
+  const tabsTx = openedDB.transaction('tabs', 'readonly');
   var tabsStore = tabsTx.objectStore('tabs');
   const requestTabs = tabsStore.getAll();
   requestTabs.onsuccess = (e) => {
@@ -439,7 +439,7 @@ dbReq.onsuccess = (event) => {
   };
 
   // PREVIEWS
-  const previewsTx = opennedDB.transaction('previews', 'readonly');
+  const previewsTx = openedDB.transaction('previews', 'readonly');
   var previewsStore = previewsTx.objectStore('previews');
   const requestPreviews = previewsStore.getAll();
   requestPreviews.onsuccess = (e) => {
@@ -467,7 +467,7 @@ dbReq.onsuccess = (event) => {
   };
 
   // COOKIES
-  const cookiesTx = opennedDB.transaction('cookies', 'readonly');
+  const cookiesTx = openedDB.transaction('cookies', 'readonly');
   var cookiesStore = cookiesTx.objectStore('cookies');
   const requestCookes = cookiesStore.getAll();
   requestCookes.onsuccess = (e) => {
@@ -492,7 +492,7 @@ dbReq.onsuccess = (event) => {
   };
 
   // BLOCKCHAINS
-  const blockchainsTx = opennedDB.transaction('blockchains', 'readonly');
+  const blockchainsTx = openedDB.transaction('blockchains', 'readonly');
   var blockchainsStore = blockchainsTx.objectStore('blockchains');
   const requestBlockchains = blockchainsStore.getAll();
   requestBlockchains.onsuccess = (e) => {
@@ -522,7 +522,7 @@ dbReq.onsuccess = (event) => {
   };
 
   // TRANSACTIONS
-  const transactionsTx = opennedDB.transaction('transactions', 'readonly');
+  const transactionsTx = openedDB.transaction('transactions', 'readonly');
   var transactionsStore = transactionsTx.objectStore('transactions');
   const requestTransactions = transactionsStore.getAll();
   requestTransactions.onsuccess = (e) => {
@@ -552,7 +552,7 @@ dbReq.onsuccess = (event) => {
   };
 
   // RECORDS
-  const recordsTx = opennedDB.transaction('records', 'readonly');
+  const recordsTx = openedDB.transaction('records', 'readonly');
   var recordsStore = recordsTx.objectStore('records');
   const requestRecords = recordsStore.getAll();
   requestRecords.onsuccess = (e) => {
@@ -616,7 +616,7 @@ dbReq.onsuccess = (event) => {
       });
 
     // ACCOUNTS
-    const accountsTx = opennedDB.transaction('accounts', 'readonly');
+    const accountsTx = openedDB.transaction('accounts', 'readonly');
     var accountsStore = accountsTx.objectStore('accounts');
     const requestAccounts = accountsStore.getAll();
     requestAccounts.onsuccess = (e) => {
@@ -653,7 +653,7 @@ dbReq.onsuccess = (event) => {
     };
 
     // BENCHMARKS
-    const benchmarksTx = opennedDB.transaction('benchmarks', 'readonly');
+    const benchmarksTx = openedDB.transaction('benchmarks', 'readonly');
     var benchmarksStore = benchmarksTx.objectStore('benchmarks');
     const requestBenchmarks = benchmarksStore.getAll();
     requestBenchmarks.onsuccess = (e) => {
@@ -688,7 +688,7 @@ dbReq.onsuccess = (event) => {
     };
 
     // RCHAIN INFOS
-    const rchainInfosTx = opennedDB.transaction('rchainInfos', 'readonly');
+    const rchainInfosTx = openedDB.transaction('rchainInfos', 'readonly');
     var rchainInfosStore = rchainInfosTx.objectStore('rchainInfos');
     const requestRChainInfos = rchainInfosStore.getAll();
     requestRChainInfos.onsuccess = (e) => {

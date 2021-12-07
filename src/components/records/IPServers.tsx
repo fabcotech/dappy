@@ -13,7 +13,7 @@ interface IPServersComponentProps {
   setIpServers: (a: IPServer[]) => void;
 }
 
-const REGEXP_IP = /^(?!\.)^[a-z0-9.-]*$/;
+const REGEXP_IP = /^(?!\.)^[a-z0-9.-]*(:\d+)?$/;
 const REGEXP_HOST = /^(?!\.)^[a-z0-9.-]*$/;
 
 export class IPServersComponent extends React.Component<IPServersComponentProps> {
@@ -146,7 +146,7 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
 
           return errors;
         }}
-        onSubmit={() => { }}
+        onSubmit={() => {}}
         render={({ values, touched, errors, setFieldValue, setFieldTouched }) => (
           <div>
             <FieldArray
@@ -160,9 +160,7 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                     const Top = () => (
                       <React.Fragment>
                         <h5 className="is-6 title">
-                          {s && s.ip
-                            ? s.ip
-                            : `${t('server')} ${index + 1}`}
+                          {s && s.ip ? s.ip : `${t('server')} ${index + 1}`}
                           {index === values.servers.length - 1 ? (
                             <i
                               className="fa fa-after fa-trash"
@@ -230,33 +228,30 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                         {touchedServer && touchedServer.ip && errorsServer && typeof errorsServer !== 'string' && (
                           <p className="text-danger">{errorsServer.ip}</p>
                         )}
-                        {!s.useCA && <div className="field is-horizontal">
-                          <label className="label">{t('certificate')}*</label>
-                          <div className="control">
-                            <Field
-                              className="input"
-                              type="text"
-                              component="textarea"
-                              name={`servers.${index}.cert`}
-                              placeholder="-----BEGIN CERTIFICATE-----"
-                            />
-                            <a
-                              className={`underlined-link ${!s.host && 'disabled'}`}
-                              onClick={() => {
-                                if (s.host) {
-                                  this.generateCertificateAndKey(
-                                    index,
-                                    s.host,
-                                    setFieldValue,
-                                    setFieldTouched
-                                  );
-                                }
-                              }}>
-                              <i className="fa fa-before fa-key"></i>
-                              Generate TLS certificate and key
-                            </a>
+                        {!s.useCA && (
+                          <div className="field is-horizontal">
+                            <label className="label">{t('certificate')}*</label>
+                            <div className="control">
+                              <Field
+                                className="input"
+                                type="text"
+                                component="textarea"
+                                name={`servers.${index}.cert`}
+                                placeholder="-----BEGIN CERTIFICATE-----"
+                              />
+                              <a
+                                className={`underlined-link ${!s.host && 'disabled'}`}
+                                onClick={() => {
+                                  if (s.host) {
+                                    this.generateCertificateAndKey(index, s.host, setFieldValue, setFieldTouched);
+                                  }
+                                }}>
+                                <i className="fa fa-before fa-key"></i>
+                                Generate TLS certificate and key
+                              </a>
+                            </div>
                           </div>
-                        </div>}
+                        )}
                         {touchedServer && touchedServer.cert && errorsServer && typeof errorsServer !== 'string' && (
                           <p className="text-danger">{errorsServer.cert}</p>
                         )}
@@ -265,7 +260,7 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                             className="is-checkradio is-link is-inverted"
                             id="useCA"
                             type="checkbox"
-                            onChange={() => { }}
+                            onChange={() => {}}
                             checked={s.useCA}
                           />
                           <label
@@ -289,7 +284,7 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                             className="is-checkradio is-link is-inverted"
                             id="exampleCheckbox"
                             type="checkbox"
-                            onChange={() => { }}
+                            onChange={() => {}}
                             checked={s.primary}
                           />
                           <label
