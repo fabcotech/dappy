@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { Dapp } from '/models';
 
 interface LoadStateProps {
-  dappId: string;
+  resourceId: string;
   closeModal: () => void;
   dapp: Dapp;
 }
@@ -85,9 +85,9 @@ class LoadStateComponent extends React.Component<LoadStateProps, {}> {
 }
 
 export const LoadState = connect(
-  (state, props: { dappId: string }) => ({
-    dapp: fromDapps.getDapps(state)[props.dappId],
-    dappId: props.dappId,
+  (state, props: { resourceId: string }) => ({
+    dapp: fromDapps.getDapps(state)[props.resourceId],
+    resourceId: props.resourceId,
   }),
   (dispatch) => ({
     closeModal: () => dispatch(fromMain.closeModalAction()),

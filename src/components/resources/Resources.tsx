@@ -12,10 +12,10 @@ interface ResourcesComponentProps {
   activeTabs: { [tabId: string]: Tab };
   loadedFiles: { [fileId: string]: LoadedFile };
   ipApps: { [appId: string]: IpApp };
-  dapps: { [dappId: string]: Dapp };
-  dappModals: { [dappId: string]: fromMain.Modal[] };
+  dapps: { [resourceId: string]: Dapp };
+  dappModals: { [resourceId: string]: fromMain.Modal[] };
   tabsFocusOrder: string[];
-  transitoryStates: { [dappId: string]: TransitoryState };
+  transitoryStates: { [resourceId: string]: TransitoryState };
   lastLoadErrors: { [þabId: string]: LastLoadError };
   clearSearchAndLoadError: (tabId: string, clearSearch: boolean) => void;
   loadResource: (address: string, tabId: string) => void;
@@ -38,7 +38,7 @@ class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
                 key={tab.id}
                 style={{ zIndex: (this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10 + 1 }}
                 className="dapp-modal">
-                <Modal dappId={tab.resourceId} />
+                <Modal resourceId={tab.resourceId} />
               </div>
             );
           }

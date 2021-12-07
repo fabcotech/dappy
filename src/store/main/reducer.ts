@@ -27,7 +27,7 @@ export interface State {
   errors: { errorCode: number; error: string; trace?: string }[];
   modals: Modal[];
   dappModals: {
-    [dappId: string]: Modal[];
+    [resourceId: string]: Modal[];
   };
   initializationOver: boolean;
   dispatchWhenInitializationOver: fromActions.DispatchWhenInitializationOverPayload['payload'][];

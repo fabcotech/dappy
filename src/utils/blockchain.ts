@@ -50,8 +50,8 @@ export const blockchain = {
   getUniqueTransactionId: () => {
     return new Date().getTime() + Math.round(Math.random() * 10000).toString();
   },
-  resourceIdToAddress: (dappId: string): string => {
-    return dappId.split('_')[0];
+  resourceIdToAddress: (resourceId: string): string => {
+    return resourceId.split('_')[0];
   },
   createBase64: (htmlWithTags: string): string => {
     return Buffer.from(htmlWithTags).toString('base64');

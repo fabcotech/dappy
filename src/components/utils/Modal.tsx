@@ -75,7 +75,7 @@ class ModalComponent extends React.Component<ModalComponentProps, {}> {
             <i onClick={this.onCloseModal} className="fa fa-times" />
           </header>
           <section className="modal-card-body">
-            {this.props.modal.title === 'Load report' && <LoadState dappId={this.props.modal.text} />}
+            {this.props.modal.title === 'Load report' && <LoadState resourceId={this.props.modal.text} />}
             {this.props.modal.title !== 'Load report' && this.props.modal.text}
           </section>
           <footer className="modal-card-foot">
@@ -98,8 +98,8 @@ class ModalComponent extends React.Component<ModalComponentProps, {}> {
 
 export const Modal = connect(
   (state, ownProps: any) => {
-    if (ownProps.dappId) {
-      const dappModals = fromMain.getDappModals(state)[ownProps.dappId];
+    if (ownProps.resourceId) {
+      const dappModals = fromMain.getDappModals(state)[ownProps.resourceId];
       return {
         modal: dappModals ? dappModals[0] : undefined,
       };

@@ -273,7 +273,7 @@ export const NavigationBar = connect(
             parameters: {
               parameters: parameters,
               chainId: chainId,
-              dappId: resourceId,
+              resourceId: resourceId,
               origin: { origin: 'transfer' },
             },
             buttons: [],
