@@ -7,7 +7,7 @@ export const recordServerSchema = yup
   .shape({
     ip: yup.string().required(),
     host: yup.string().required(),
-    cert: yup.string().required(),
+    cert: yup.string(),
     primary: yup.boolean().required(),
   })
   .required()

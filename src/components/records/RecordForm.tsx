@@ -24,7 +24,7 @@ const CheckRadio = (props: { humanName: string; value: string; field: any; form:
         name="type"
         type="radio"
         checked={props.field.value === props.value}
-        onChange={() => {}}
+        onChange={() => { }}
       />
       <label
         onClick={() => {
@@ -54,14 +54,14 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
     badgeAppreciationPrefix: 'BS' | 'BW' | 'BD';
     availables: { [key: string]: boolean };
   } = {
-    special: false,
-    servers: [],
-    settingUpIpServers: false,
-    badge: '',
-    badgeAppreciation: '',
-    badgeAppreciationPrefix: 'BS',
-    availables: {},
-  };
+      special: false,
+      servers: [],
+      settingUpIpServers: false,
+      badge: '',
+      badgeAppreciation: '',
+      badgeAppreciationPrefix: 'BS',
+      availables: {},
+    };
 
   componentDidMount() {
     if (this.props.partialRecord && this.props.partialRecord.servers) {
@@ -83,22 +83,22 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
         initialValues={
           this.props.partialRecord
             ? {
-                ...this.props.partialRecord,
-                type: this.props.partialRecord.address ? 'dapp' : 'ip',
-                badges: this.props.partialRecord.badges || ({} as { [key: string]: string }),
-                names: [this.props.partialRecord.id],
-                csp: this.props.partialRecord.csp || " default-src 'self'",
-                email: this.props.partialRecord.email,
-              }
+              ...this.props.partialRecord,
+              type: this.props.partialRecord.address ? 'dapp' : 'ip',
+              badges: this.props.partialRecord.badges || ({} as { [key: string]: string }),
+              names: [this.props.partialRecord.id],
+              csp: this.props.partialRecord.csp || " default-src 'self'",
+              email: this.props.partialRecord.email,
+            }
             : {
-                names: this.props.nameDisabledAndForced ? [this.props.nameDisabledAndForced] : [''],
-                address: '',
-                type: 'dapp',
-                csp: " default-src 'self'",
-                servers: [],
-                badges: {} as { [key: string]: string },
-                email: '',
-              }
+              names: this.props.nameDisabledAndForced ? [this.props.nameDisabledAndForced] : [''],
+              address: '',
+              type: 'dapp',
+              csp: " default-src 'self'",
+              servers: [],
+              badges: {} as { [key: string]: string },
+              email: '',
+            }
         }
         validate={(values) => {
           let errors: {
@@ -168,7 +168,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
           // will be used by the async function
           return errors;
         }}
-        onSubmit={() => {}}>
+        onSubmit={() => { }}>
         {({ values, setFieldValue, setFieldTouched, errors, touched }) => {
           if (this.state.settingUpIpServers) {
             return (
@@ -308,9 +308,16 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                               <span className="host">
                                 {t('host name')} : {s.host}
                               </span>
-                              <span className="cert">
-                                {t('certificate')} : {s.cert.substr(0, 40) + '...'}
-                              </span>
+                              {
+                                s.cert &&
+                                <span className="cert">
+                                  {t('certificate')} : {s.cert.substr(0, 40) + '...'}
+                                </span>
+                              }
+                              {
+                                s.cert &&
+                                <span className="cert">{t('record uses public ca')}</span>
+                              }
                             </div>
                           );
                         })}

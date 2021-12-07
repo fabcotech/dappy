@@ -93,15 +93,26 @@ const tryToLoad = async ({ debug, request, dappyBrowserView, isFirstRequest, set
     const serversWithSameHost = getServersWithSameHost(dappyBrowserView, request.url) as IPServer[];
 
     const s = serversWithSameHost[i];
+    if (!s.cert && debug) console.log('[https load] use CA', request.url, i);
     // See https://nodejs.org/docs/latest-v10.x/api/tls.html#tls_tls_createsecurecontext_options
     if (!agents[`${s.ip}-${s.cert}`]) {
-      agents[`${s.ip}-${s.cert}`] = new https.Agent({
-        /* no dns */
-        host: s.ip,
-        rejectUnauthorized: true, // true by default
-        minVersion: 'TLSv1.2',
-        ca: decodeURI(decodeURI(s.cert)),
-      });
+      if (s.cert) {
+        if (debug) console.log('[https load] creating no-CA agent for ip ', s.ip);
+        agents[`${s.ip}-${s.cert}`] = new https.Agent({
+          /* no dns */
+          host: s.ip,
+          rejectUnauthorized: true, // true by default
+          minVersion: 'TLSv1.2',
+          ca: decodeURI(decodeURI(s.cert)),
+        });
+      } else {
+        if (debug) console.log('[https load] creating CA agent for ip ', s.ip);
+        agents[`${s.ip}-${s.cert}`] = new https.Agent({
+          /* no dns */
+          host: s.ip,
+          rejectUnauthorized: true, // true by default
+        });
+      }
     }
 
     const { path } = parseUrl(request.url);
@@ -279,21 +290,21 @@ interface makeCookiesOnChangeParams {
 
 const makeCookiesOnChange =
   ({ dappyBrowserView, getCookies, dispatchFromMain }: makeCookiesOnChangeParams) =>
-  async (_: unknown, c: Cookie) => {
-    if (!dappyBrowserView) {
-      console.log('no browserView, cannot save cookies');
-      return;
-    }
-    const servers = dappyBrowserView.record.data.servers?.filter((s) => s.host === c.domain);
-    if (!servers?.length) {
-      console.log('no browserView.record.data.servers matching cookies domain ' + c.domain);
-      return;
-    }
-    const cookies = await getCookies({ url: `https://${c.domain}` });
-    const cookiesToBeStored = cookies
-      .filter((c) => typeof c.expirationDate === 'number')
-      .map(
-        (cook) =>
+    async (_: unknown, c: Cookie) => {
+      if (!dappyBrowserView) {
+        console.log('no browserView, cannot save cookies');
+        return;
+      }
+      const servers = dappyBrowserView.record.data.servers?.filter((s) => s.host === c.domain);
+      if (!servers?.length) {
+        console.log('no browserView.record.data.servers matching cookies domain ' + c.domain);
+        return;
+      }
+      const cookies = await getCookies({ url: `https://${c.domain}` });
+      const cookiesToBeStored = cookies
+        .filter((c) => typeof c.expirationDate === 'number')
+        .map(
+          (cook) =>
           ({
             sameSite: cook.sameSite === 'strict' ? 'strict' : 'lax',
             domain: cook.domain,
@@ -301,16 +312,16 @@ const makeCookiesOnChange =
             value: cook.value,
             expirationDate: cook.expirationDate,
           } as DappyCookie)
-      );
-    if (cookiesToBeStored.length) {
-      dispatchFromMain({
-        action: fromCookies.saveCookiesForDomainAction({
-          dappyDomain: dappyBrowserView.dappyDomain,
-          cookies: cookiesToBeStored,
-        }),
-      });
-    }
-  };
+        );
+      if (cookiesToBeStored.length) {
+        dispatchFromMain({
+          action: fromCookies.saveCookiesForDomainAction({
+            dappyDomain: dappyBrowserView.dappyDomain,
+            cookies: cookiesToBeStored,
+          }),
+        });
+      }
+    };
 
 interface OverrideHttpProtocolsParams {
   dappyBrowserView: DappyBrowserView | undefined;

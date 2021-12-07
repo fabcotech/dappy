@@ -51,6 +51,6 @@ export interface PartialRecord {
 export interface IPServer {
   ip: string;
   host: string;
-  cert: string;
+  cert?: string;
   primary: boolean;
 }

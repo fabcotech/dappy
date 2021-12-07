@@ -94,8 +94,8 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
       <Formik
         initialValues={{
           servers: this.props.ipServers.length
-            ? this.props.ipServers.map((a) => ({ ...a, displayConfig: false, key: '' }))
-            : [{ ip: '', host: '', cert: '', primary: true, displayConfig: false, key: '' }],
+            ? this.props.ipServers.map((a) => ({ ...a, displayConfig: false, key: '', useCA: !a.cert }))
+            : [{ ip: '', host: '', cert: '', primary: true, displayConfig: false, key: '', useCA: false }],
         }}
         validate={(values) => {
           const errors: { [key: string]: { [key: string]: { ip?: string; cert?: string; host?: string } } } = {};
@@ -124,9 +124,10 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
               hostError = t('host must be valid');
             }
 
-            if (!s.cert) {
+            if (!s.useCA && !s.cert) {
               certError = t('cert must be set');
             }
+
             if (ipError || hostError || certError) {
               if (!errors.servers) errors.servers = {};
               if (!errors.servers[index]) errors.servers[index] = {};
@@ -145,7 +146,7 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
 
           return errors;
         }}
-        onSubmit={() => {}}
+        onSubmit={() => { }}
         render={({ values, touched, errors, setFieldValue, setFieldTouched }) => (
           <div>
             <FieldArray
@@ -159,8 +160,8 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                     const Top = () => (
                       <React.Fragment>
                         <h5 className="is-6 title">
-                          {values.servers[index] && values.servers[index].ip
-                            ? values.servers[index].ip
+                          {s && s.ip
+                            ? s.ip
                             : `${t('server')} ${index + 1}`}
                           {index === values.servers.length - 1 ? (
                             <i
@@ -169,7 +170,7 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                               onClick={() => arrayHelpers.pop()}></i>
                           ) : undefined}
                         </h5>
-                        {values.servers[index] && values.servers[index] && (
+                        {s && s && (
                           <a
                             type="button"
                             className="underlined-link"
@@ -229,7 +230,7 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                         {touchedServer && touchedServer.ip && errorsServer && typeof errorsServer !== 'string' && (
                           <p className="text-danger">{errorsServer.ip}</p>
                         )}
-                        <div className="field is-horizontal">
+                        {!s.useCA && <div className="field is-horizontal">
                           <label className="label">{t('certificate')}*</label>
                           <div className="control">
                             <Field
@@ -240,12 +241,12 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                               placeholder="-----BEGIN CERTIFICATE-----"
                             />
                             <a
-                              className={`underlined-link ${!values.servers[index].host && 'disabled'}`}
+                              className={`underlined-link ${!s.host && 'disabled'}`}
                               onClick={() => {
-                                if (values.servers[index].host) {
+                                if (s.host) {
                                   this.generateCertificateAndKey(
                                     index,
-                                    values.servers[index].host,
+                                    s.host,
                                     setFieldValue,
                                     setFieldTouched
                                   );
@@ -255,19 +256,40 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                               Generate TLS certificate and key
                             </a>
                           </div>
-                        </div>
+                        </div>}
+                        {touchedServer && touchedServer.cert && errorsServer && typeof errorsServer !== 'string' && (
+                          <p className="text-danger">{errorsServer.cert}</p>
+                        )}
                         <div className="field is-horizontal">
-                          {/*                             <Field
-                              className="is-checkradio is-link is-inverted"
-                              component="input"
-                              type="checkbox"
-                              name={`servers.${index}.primary`}
-                            /> */}
+                          <input
+                            className="is-checkradio is-link is-inverted"
+                            id="useCA"
+                            type="checkbox"
+                            onChange={() => { }}
+                            checked={s.useCA}
+                          />
+                          <label
+                            onClick={() => {
+                              const newUseCA = !s.useCA;
+                              if (newUseCA) {
+                                setFieldValue(`servers.${index}.cert`, '');
+                              }
+                              setFieldValue(`servers.${index}.useCA`, newUseCA);
+                            }}
+                            className="label">
+                            {t('use public ca')}*
+                          </label>
+                          <div className="primary-label-description label-description">
+                            {t('use public ca paragraph')}
+                          </div>
+                        </div>
+
+                        <div className="field is-horizontal">
                           <input
                             className="is-checkradio is-link is-inverted"
                             id="exampleCheckbox"
                             type="checkbox"
-                            onChange={() => {}}
+                            onChange={() => { }}
                             checked={s.primary}
                           />
                           <label
@@ -279,9 +301,6 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                             {t('primary server paragraph')}
                           </div>
                         </div>
-                        {touchedServer && touchedServer.cert && errorsServer && typeof errorsServer !== 'string' && (
-                          <p className="text-danger">{errorsServer.cert}</p>
-                        )}
                       </div>
                     );
                   })}
@@ -299,12 +318,20 @@ export class IPServersComponent extends React.Component<IPServersComponentProps>
                         onClick={() => {
                           this.props.setIpServers(
                             values.servers.map((s) => {
-                              return {
-                                ip: s.ip,
-                                host: s.host,
-                                primary: s.primary,
-                                cert: encodeURI(s.cert),
-                              };
+                              if (s.useCA) {
+                                return {
+                                  ip: s.ip,
+                                  host: s.host,
+                                  primary: s.primary,
+                                };
+                              } else {
+                                return {
+                                  ip: s.ip,
+                                  host: s.host,
+                                  primary: s.primary,
+                                  cert: s.cert ? encodeURI(s.cert) : '',
+                                };
+                              }
                             })
                           );
                           this.props.back();

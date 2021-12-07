@@ -51,7 +51,7 @@ export const Records = (props: RecordsProps) => {
 
       <p className="limited-width"></p>
       <div className="field show-only">
-        <input className="is-checkradio is-link" type="checkbox" checked={showOnlyOwnNames} onChange={() => {}} />
+        <input className="is-checkradio is-link" type="checkbox" checked={showOnlyOwnNames} onChange={() => { }} />
         <label
           onClick={() => {
             setShowOnlyOwnNames(!showOnlyOwnNames);
@@ -104,9 +104,8 @@ export const Records = (props: RecordsProps) => {
                   )}`}
                 </span>
               );
-              const p = `${record.data.servers.length} ${t('server', record.data.servers.length > 1)}${
-                record.data.servers.length === 1 ? ' is' : ' are'
-              } linked to this name`;
+              const p = `${record.data.servers.length} ${t('server', record.data.servers.length > 1)}${record.data.servers.length === 1 ? ' is' : ' are'
+                } linked to this name`;
               if (serversEl === record.id) {
                 ServersEl = () => {
                   return (
@@ -121,9 +120,16 @@ export const Records = (props: RecordsProps) => {
                             <span className="host">
                               {t('host name')} : {s.host}
                             </span>
-                            <span className="cert">
-                              {t('certificate')} : {s.cert.substr(0, 40) + '...'}
-                            </span>
+                            {
+                              s.cert &&
+                              <span className="cert">
+                                {t('certificate')} : {s.cert.substr(0, 40) + '...'}
+                              </span>
+                            }
+                            {
+                              s.cert &&
+                              <span className="cert">{t('record uses public ca')}</span>
+                            }
                           </div>
                         ))}
                     </div>

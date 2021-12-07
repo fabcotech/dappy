@@ -124,7 +124,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
         if (record.data.servers) {
           record.data.servers = record.data.servers.map((s: IPServer) => ({
             ...s,
-            cert: decodeURI(s.cert)
+            cert: s.cert ? decodeURI(s.cert) : ''
           }))
         }
 
