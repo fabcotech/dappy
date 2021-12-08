@@ -86,7 +86,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
           multiCallId: fromBlockchain.EXECUTE_NODES_CRON_JOBS,
         }
       );
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
       this.setState({
         refreshing: false,

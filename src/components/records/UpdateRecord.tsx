@@ -99,7 +99,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
           multiCallId: fromBlockchain.GET_X_RECORDS,
         }
       );
-    } catch (err) {
+    } catch (err: any) {
       console.log(err);
       this.setState({
         loadedRecord: undefined,
