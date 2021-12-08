@@ -9,7 +9,7 @@ window.messageFromMain = (action) => {
     window.dappy = {
       dappyDomain: payload.dappyDomain,
       path: payload.path,
-      dappId: payload.dappId,
+      resourceId: payload.resourceId,
     };
     document.write(payload.html.replace(new RegExp('dappyl://', 'g'), payload.appPath));
     document.close();
