@@ -29,6 +29,7 @@ const identifyFromSandboxSchema = yup
       .strict(true)
       .required(),
     callId: yup.string().required(),
+    resourceId: yup.string(),
   })
   .noUnknown()
   .strict(true)

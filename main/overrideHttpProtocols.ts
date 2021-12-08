@@ -119,7 +119,7 @@ const tryToLoad = async ({ debug, request, dappyBrowserView, isFirstRequest, set
     const options: https.RequestOptions = {
       agent: agents[`${s.ip}-${s.cert}`],
       method: request.method,
-      path: path ? `/${path}` : '/',
+      path: path,
       headers: {
         ...request.headers,
         /* no dns */
