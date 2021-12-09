@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { purchaseTerm } from 'rchain-token';
 
 import {
+  Account as AccountModel,
   TransactionState,
   Account,
   PartialRecord,
@@ -12,6 +13,7 @@ import {
   RChainContractConfig,
   RChainInfos,
 } from '/models';
+import * as fromMain from '/store/main';
 import { getPurses } from '/api/rchain-token';
 import { blockchain as blockchainUtils } from '/utils';
 import { validateName } from '/utils/validateSearch';
@@ -20,6 +22,8 @@ import * as fromBlockchain from '/store/blockchain';
 import { TransactionForm } from '../../utils';
 import { RecordForm } from '..';
 import { isPurchasable, PurseInfo } from './PurseInfo';
+import { OpenModalPayload } from '/store/main';
+import { dustToRev, perMillage } from '/utils/unit';
 
 export interface PurchaseRecordProps {
   accounts: Record<string, Account>;
@@ -31,6 +35,7 @@ export interface PurchaseRecordProps {
   getPurses: typeof getPurses;
   queryAndCacheContractConfig: (contractId: string) => void;
   sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
+  confirmPurchase: (lines: [label: string, values: string][], buttons: OpenModalPayload['buttons']) => void;
 }
 
 const defaultState = {
@@ -174,25 +179,52 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
       special = undefined;
     }
 
+    const phloPrice = 1;
     const deployOptions = blockchainUtils.rchain.getDeployOptions(
       new Date().valueOf(),
       term,
       this.state.privatekey,
       this.state.publickey,
-      1,
+      phloPrice,
       this.state.phloLimit,
       validAfterBlockNumber
     );
 
-    this.props.sendRChainTransaction({
-      transaction: deployOptions,
-      origin: { origin: 'record', recordName: partialRecord.id, accountName: this.state.accountName as string },
-      platform: 'rchain',
-      blockchainId: this.props.namesBlockchainInfos.chainId,
-      id: id,
-      alert: false,
-      sentAt: new Date().toISOString(),
-    });
+    const maxGasCost = phloPrice * this.state.phloLimit;
+
+    this.props.confirmPurchase(
+      [
+        [t('token quantity'), '1'],
+        [t('price per token'), `${perMillage(dustToRev(this.state.loadedPurse?.price!))} REV`],
+        [t('max gas fees'), `${perMillage(dustToRev(maxGasCost))} REV`],
+        [t('max total cost'), `${perMillage(dustToRev(this.state.loadedPurse?.price! + maxGasCost))} REV`],
+        [t('account'), this.state.accountName!],
+        [t('address'), `${this.props.accounts[this.state.accountName!].address}`],
+      ],
+      [
+        {
+          text: t('cancel'),
+          classNames: 'is-light',
+          action: [fromMain.closeModalAction()],
+        },
+        {
+          text: t('confirm purchase'),
+          classNames: '',
+          action: [
+            fromBlockchain.sendRChainTransactionAction({
+              transaction: deployOptions,
+              origin: { origin: 'record', recordName: partialRecord.id, accountName: this.state.accountName as string },
+              platform: 'rchain',
+              blockchainId: this.props.namesBlockchainInfos.chainId,
+              id: id,
+              alert: false,
+              sentAt: new Date().toISOString(),
+            }),
+            fromMain.closeModalAction(),
+          ],
+        },
+      ]
+    );
   };
 
   render() {
@@ -362,6 +394,17 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
   }
 }
 
-export const PurchaseRecord = connect(null, () => ({
+export const PurchaseRecord = connect(null, (dispatch) => ({
   getPurses,
+  confirmPurchase: (lines: [label: string, values: string][], buttons: OpenModalPayload['buttons'] = []) =>
+    dispatch(
+      fromMain.openModalAction({
+        title: t('Confirm purchase'),
+        parameters: {
+          lines,
+        },
+        text: t('You are about to send a transaction and purchase NFT on the blockchain'),
+        buttons,
+      })
+    ),
 }))(PurchaseRecordComponent);

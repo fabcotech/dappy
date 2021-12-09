@@ -1,0 +1,1 @@
+export { GenericModal } from './GenericModal';

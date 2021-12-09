@@ -1,11 +1,11 @@
 import * as React from 'react';
 
 import * as fromMain from '/store/main';
-import { LoadState } from '../home';
 import { connect } from 'react-redux';
 import { TransactionModal, AccountModal, IdentificationModal } from '.';
 import { RemoveAccountModal } from './RemoveAccountModal';
 import { PaymentRequestModal } from './PaymentRequestModal';
+import { GenericModal } from './GenericModal';
 import { LoadInfo } from '../resources';
 
 interface ModalComponentProps {
@@ -16,16 +16,16 @@ interface ModalComponentProps {
 }
 
 class ModalComponent extends React.Component<ModalComponentProps, {}> {
-  onCloseModal = () => {
-    if (this.props.modal) {
-      if (this.props.modal.resourceId) {
-        this.props.dispatchModalAction(fromMain.closeDappModalAction({ resourceId: this.props.modal.resourceId }));
+  onClose() {
+    const { modal, dispatchModalAction } = this.props;
+    if (modal) {
+      if (modal.resourceId) {
+        dispatchModalAction(fromMain.closeDappModalAction({ resourceId: modal.resourceId }));
       } else {
-        this.props.dispatchModalAction(fromMain.closeModalAction());
+        dispatchModalAction(fromMain.closeModalAction());
       }
     }
-  };
-
+  }
   render() {
     if (!this.props.modal) {
       return undefined;
@@ -59,7 +59,7 @@ class ModalComponent extends React.Component<ModalComponentProps, {}> {
       case 'REMOVE_ACCOUNT_MODAL':
         return (
           <RemoveAccountModal
-            onClose={this.onCloseModal}
+            onClose={this.onClose}
             dispatchModalAction={this.props.dispatchModalAction}
             account={this.props.modal.parameters.account}
           />
@@ -67,31 +67,11 @@ class ModalComponent extends React.Component<ModalComponentProps, {}> {
     }
 
     return (
-      <div className="modal fc">
-        <div className="modal-background" />
-        <div className="modal-card">
-          <header className="modal-card-head">
-            <p className="modal-card-title">{this.props.modal.title}</p>
-            <i onClick={this.onCloseModal} className="fa fa-times" />
-          </header>
-          <section className="modal-card-body">
-            {this.props.modal.title === 'Load report' && <LoadState resourceId={this.props.modal.text} />}
-            {this.props.modal.title !== 'Load report' && this.props.modal.text}
-          </section>
-          <footer className="modal-card-foot">
-            {this.props.modal.buttons &&
-              this.props.modal.buttons.map((b) => (
-                <button
-                  key={b.text}
-                  type="button"
-                  className={`button ${b.classNames}`}
-                  onClick={() => this.props.dispatchModalAction(b.action)}>
-                  {b.text}
-                </button>
-              ))}
-          </footer>
-        </div>
-      </div>
+      <GenericModal
+        modal={this.props.modal}
+        dispatchModalAction={this.props.dispatchModalAction}
+        onClose={() => this.onClose()}
+      />
     );
   }
 }

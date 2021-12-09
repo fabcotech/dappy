@@ -1,0 +1,11 @@
+.gm-lines {
+  display: grid;
+  grid-template-columns: auto auto; 
+  padding: 1rem 1rem 0 0;
+  & > div {
+    white-space: nowrap;
+    &:nth-child(2n) {
+      justify-self: right;
+    }
+  }
+}

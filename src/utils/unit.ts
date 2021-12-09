@@ -1,6 +1,8 @@
 import { Fee } from '/models';
 
 export const feePermillage = (f: Fee) => (f[1] / 100).toFixed(3);
+export const perMillage = (n: number) => (Math.round(n * 1000) / 1000).toFixed(3);
+
 export const dustToRev = (dust: number) => dust / 100000000;
 
 const MILLISECONDS_IN_ONE_SECOND = 1000;
