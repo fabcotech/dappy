@@ -93,41 +93,33 @@ const tryToLoad = async ({ debug, request, dappyBrowserView, isFirstRequest, set
     const serversWithSameHost = getServersWithSameHost(dappyBrowserView, request.url) as IPServer[];
 
     const s = serversWithSameHost[i];
-    if (!s.cert && debug) console.log('[https load] use CA', request.url, i);
-    // See https://nodejs.org/docs/latest-v10.x/api/tls.html#tls_tls_createsecurecontext_options
-    if (!agents[`${s.ip}-${s.cert}`]) {
-      if (s.cert) {
-        if (debug) console.log('[https load] creating no-CA agent for ip ', s.ip);
-        agents[`${s.ip}-${s.cert}`] = new https.Agent({
-          /* no dns */
-          host: s.ip,
-          rejectUnauthorized: true, // true by default
-          minVersion: 'TLSv1.2',
-          ca: decodeURI(decodeURI(s.cert)),
-        });
-      } else {
-        if (debug) console.log('[https load] creating CA agent for ip ', s.ip);
-        agents[`${s.ip}-${s.cert}`] = new https.Agent({
-          /* no dns */
-          host: s.ip,
-          rejectUnauthorized: true, // true by default
-        });
-      }
+
+    if (!s) {
+      const { host } = parseUrl(request.url);
+      return Promise.reject(new Error(`Unknown host: ${host}`));
     }
+
+    if (!s.cert && debug) console.log('[https load] use CA', request.url, i);
 
     const { path } = parseUrl(request.url);
     const options: https.RequestOptions = {
-      agent: agents[`${s.ip}-${s.cert}`],
+      host: s.ip,
       method: request.method,
       path: path ? `${path}` : '/',
+      minVersion: 'TLSv1.2',
+      rejectUnauthorized: true,
       headers: {
         ...request.headers,
-        /* no dns */
         host: s.host,
         Cookie: await getCookiesHeader(dappyBrowserView, request.url, isFirstRequest),
         Origin: `dappy://${dappyBrowserView.dappyDomain}`,
       },
     };
+
+    if (s.cert) {
+      options.ca = decodeURI(decodeURI(s.cert));
+    }
+
     if (request.referrer) {
       options.headers!.referrer = request.referrer;
     }

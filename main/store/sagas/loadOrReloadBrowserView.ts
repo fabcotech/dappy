@@ -370,11 +370,7 @@ const loadOrReloadBrowserView = function* (action: any) {
     dispatchFromMain: action.meta.dispatchFromMain,
     session: viewSession,
   });
-  registerDappyNetworkProtocol(
-    newBrowserViews[payload.resourceId],
-    viewSession,
-    store
-  );
+  registerDappyNetworkProtocol(newBrowserViews[payload.resourceId], viewSession, store);
 
   return yield put({
     type: fromBrowserViews.LOAD_OR_RELOAD_BROWSER_VIEW_COMPLETED,
