@@ -70,12 +70,6 @@ export class AddNode extends React.Component<AddNodeProps, {}> {
                 <label className="label">{t('host name')}*</label>
                 <div className="control">
                   <Field className="input" type="text" name={`host`} placeholder="a1.dappy.tech" />
-                  <button
-                    type="button"
-                    className="button is-black is-small"
-                    onClick={() => this.retrieveIpAddressAndCert(values.host, setFieldValue)}>
-                    Try to retrieve IP and certificate
-                  </button>
                 </div>
               </div>
               {this.state.retrieveError && <p className="text-danger">{this.state.retrieveError}</p>}
