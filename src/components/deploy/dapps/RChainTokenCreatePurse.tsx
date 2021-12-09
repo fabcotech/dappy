@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { createPursesTerm } from 'rchain-token';
 
-import { RChainTokenCreatePursePayload } from '/models';
 import { rchainTokenValidators } from '/store/decoders';
 import { RCHAIN_TOKEN_SUPPORTED_VERSIONS } from '/CONSTANTS';
 
@@ -25,10 +24,9 @@ export class RChainTokenCreatePurseComponent extends React.Component<RChainToken
         id: string;
         boxId: string;
         quantity: number;
-        price: number | undefined;
+        price: number | null;
       };
     } = {};
-    console.log(this.state.value)
     try {
       let lines = this.state.value.split('\n');
       lines.forEach((l: string, i: number) => {
@@ -38,7 +36,7 @@ export class RChainTokenCreatePurseComponent extends React.Component<RChainToken
           purses[id] = {
             boxId: elements[2],
             quantity: parseInt(elements[0], 10),
-            price: parseInt(elements[1], 10),
+            price: parseInt(elements[1], 10) || null,
             id: id,
           };
         }
@@ -53,6 +51,7 @@ export class RChainTokenCreatePurseComponent extends React.Component<RChainToken
         error: 'Could not validate',
       });
     }
+    console.log(purses);
     const payload = {
       contractId: this.state.contractId,
       boxId: this.props.boxId,
@@ -62,7 +61,6 @@ export class RChainTokenCreatePurseComponent extends React.Component<RChainToken
     };
     const va = rchainTokenValidators[RCHAIN_TOKEN_SUPPORTED_VERSIONS[0]].createPursePayload(payload);
     if (va === undefined || va.length === 0) {
-      console.log('ok')
       const term = createPursesTerm(payload);
       this.props.onChoseTerm(term, 'create-purses');
       this.setState({

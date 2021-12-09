@@ -79,7 +79,7 @@ const createPursePayload1400 = {
             id: { type: 'string' },
             boxId: { type: 'string' },
             quantity: { type: 'integer' },
-            price: { type: 'integer', nullable: true },
+            price: { type: ['integer', 'null'] },
           },
           required: ['id', 'quantity', 'boxId'],
         },
