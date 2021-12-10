@@ -1040,5 +1040,20 @@ module.exports.translations = {
   },
   "copy url": {
     "one": "Copy URL"
+  },
+  "remove account warning": {
+    "one": "The account/wallet will be removed forever. Private key will be lost if you did not save it anywhere else."
+  },
+  "token quantity": {
+    "one": "Quantity of tokens"
+  },
+  "price per token": {
+    "one": "Price per token"
+  },
+  "max gas fees": {
+    "one": "Max gas fees"
+  },
+  "max total cost": {
+    "one": "Total max cost"
   }
 }

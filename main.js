@@ -19,7 +19,7 @@ var validateSearch = function (search) {
 
 var WS_PAYLOAD_PAX_SIZE = 512000; // bits
 var WS_RECONNECT_PERIOD = 10000;
-var VERSION = '0.5.1';
+var VERSION = '0.5.2';
 
 var LOAD_RESOURCE = '[Dapps] Load resource';
 var UPDATE_TRANSITORY_STATE = '[Dapps] Update transitory state';
@@ -508,7 +508,6 @@ var getCookiesState = lib_4(function (state) { return state; }, function (state)
 var getCookies = lib_4(getCookiesState, function (state) { return state.cookies; });
 // COMBINED SELECTORS
 
-var agents = {};
 var executeSentryRequest = function (request) {
     return new Promise(function (resolve, reject) {
         var options = {
@@ -551,7 +550,7 @@ var getServersWithSameHost = function (dappyBrowserView, url) {
 var isHostIsInRecord = function (dappyBrowserView, url) {
     if (!getServersWithSameHost(dappyBrowserView, url)) {
         var host = parseUrl(url).host;
-        console.log("[https] An app (" + dappyBrowserView.resourceId + ") tried to make an https request to an unknown host (" + host + ")");
+        console.log("[https] An app (".concat(dappyBrowserView.resourceId, ") tried to make an https request to an unknown host (").concat(host, ")"));
         return false;
     }
     return true;
@@ -564,14 +563,14 @@ var getCookiesHeader = function (dappyBrowserView, url, isFirstRequest) { return
                 host = parseUrl(url).host;
                 cookies = [];
                 return [4 /*yield*/, dappyBrowserView.browserView.webContents.session.cookies.get({
-                        url: "https://" + host,
+                        url: "https://".concat(host),
                     })];
             case 1:
                 cookies = _a.sent();
                 cookieHeader = cookies
                     .filter(function (c) { return !!c.domain && !c.domain.startsWith('.'); })
                     .filter(function (c) { return onlyLaxCookieOnFirstRequest(isFirstRequest, c); })
-                    .map(function (c) { return c.name + "=" + c.value; })
+                    .map(function (c) { return "".concat(c.name, "=").concat(c.value); })
                     .join('; ');
                 return [2 /*return*/, cookieHeader];
         }
@@ -583,7 +582,7 @@ var tryToLoad = function (_a) {
         function load(i) {
             if (i === void 0) { i = 0; }
             return __awaiter(this, void 0, void 0, function () {
-                var serversWithSameHost, s, path, options, _a;
+                var serversWithSameHost, s, host, path, options, _a;
                 var _b, _c;
                 return __generator(this, function (_d) {
                     switch (_d.label) {
@@ -592,30 +591,32 @@ var tryToLoad = function (_a) {
                                 console.log('[https load]', request.url, i);
                             serversWithSameHost = getServersWithSameHost(dappyBrowserView, request.url);
                             s = serversWithSameHost[i];
-                            // See https://nodejs.org/docs/latest-v10.x/api/tls.html#tls_tls_createsecurecontext_options
-                            if (!agents[s.ip + "-" + s.cert]) {
-                                agents[s.ip + "-" + s.cert] = new https.Agent({
-                                    /* no dns */
-                                    host: s.ip,
-                                    rejectUnauthorized: true,
-                                    minVersion: 'TLSv1.2',
-                                    ca: decodeURI(decodeURI(s.cert)),
-                                });
+                            if (!s) {
+                                host = parseUrl(request.url).host;
+                                return [2 /*return*/, Promise.reject(new Error("Unknown host: ".concat(host)))];
                             }
+                            if (!s.cert && debug)
+                                console.log('[https load] use CA', request.url, i);
                             path = parseUrl(request.url).path;
                             _b = {
-                                agent: agents[s.ip + "-" + s.cert],
+                                host: s.ip,
                                 method: request.method,
-                                path: path ? "/" + path : '/'
+                                path: path ? "".concat(path) : '/',
+                                minVersion: 'TLSv1.2',
+                                rejectUnauthorized: true
                             };
                             _a = [__assign({}, request.headers)];
-                            _c = { 
-                                /* no dns */
-                                host: s.host };
+                            _c = { host: s.host };
                             return [4 /*yield*/, getCookiesHeader(dappyBrowserView, request.url, isFirstRequest)];
                         case 1:
-                            options = (_b.headers = __assign.apply(void 0, _a.concat([(_c.Cookie = _d.sent(), _c.Origin = "dappy://" + dappyBrowserView.dappyDomain, _c)])),
+                            options = (_b.headers = __assign.apply(void 0, _a.concat([(_c.Cookie = _d.sent(), _c.Origin = "dappy://".concat(dappyBrowserView.dappyDomain), _c)])),
                                 _b);
+                            if (s.cert) {
+                                options.ca = decodeURI(decodeURI(s.cert));
+                            }
+                            if (request.referrer) {
+                                options.headers.referrer = request.referrer;
+                            }
                             return [2 /*return*/, new Promise(function (resolve) {
                                     try {
                                         var req_1 = https
@@ -628,7 +629,7 @@ var tryToLoad = function (_a) {
                                                     setCookie$1({
                                                         name: c.name,
                                                         value: c.value,
-                                                        url: "https://" + serversWithSameHost[0].host,
+                                                        url: "https://".concat(serversWithSameHost[0].host),
                                                         expirationDate: c.expires ? new Date(c.expires).getTime() / 1000 : undefined,
                                                         secure: true,
                                                         httpOnly: true,
@@ -637,7 +638,7 @@ var tryToLoad = function (_a) {
                                                     });
                                                 });
                                                 if (debug && cookies.length)
-                                                    console.log("[https load] set " + cookies.length + " cookie(s)");
+                                                    console.log("[https load] set ".concat(cookies.length, " cookie(s)"));
                                             }
                                             if (debug)
                                                 console.log('[https load] OK', resp.statusCode, request.url, i);
@@ -670,7 +671,7 @@ var tryToLoad = function (_a) {
                                             }
                                             else {
                                                 if (debug) {
-                                                    console.log("[https load] Resource for app (" + dappyBrowserView.resourceId + ") failed to load (" + path + ")");
+                                                    console.log("[https load] Resource for app (".concat(dappyBrowserView.resourceId, ") failed to load (").concat(path, ")"));
                                                 }
                                                 over = true;
                                                 resolve({});
@@ -719,7 +720,7 @@ var tryToLoad = function (_a) {
                                         }
                                         else {
                                             if (debug)
-                                                console.log("[https] Resource for app (" + dappyBrowserView.resourceId + ") failed to load (" + path + ")");
+                                                console.log("[https] Resource for app (".concat(dappyBrowserView.resourceId, ") failed to load (").concat(path, ")"));
                                             resolve({});
                                             over = true;
                                             return;
@@ -793,7 +794,7 @@ var makeCookiesOnChange = function (_a) {
                         console.log('no browserView.record.data.servers matching cookies domain ' + c.domain);
                         return [2 /*return*/];
                     }
-                    return [4 /*yield*/, getCookies({ url: "https://" + c.domain })];
+                    return [4 /*yield*/, getCookies({ url: "https://".concat(c.domain) })];
                 case 1:
                     cookies = _b.sent();
                     cookiesToBeStored = cookies
@@ -5574,7 +5575,7 @@ var httpBrowserToNode = function (data, node, timeout) {
         var s = JSON.stringify(data);
         var l = Buffer.from(s).length;
         if (l > WS_PAYLOAD_PAX_SIZE) {
-            reject("bn payload is " + l / 1000 + "kb, max size is " + WS_PAYLOAD_PAX_SIZE / 1000 + "kb");
+            reject("bn payload is ".concat(l / 1000, "kb, max size is ").concat(WS_PAYLOAD_PAX_SIZE / 1000, "kb"));
             return;
         }
         try {
@@ -5582,8 +5583,8 @@ var httpBrowserToNode = function (data, node, timeout) {
             var host = node.host;
             var port = node.ip.indexOf(':') === -1 ? 443 : node.ip.split(':')[1];
             var cert = node.cert ? decodeURI(decodeURI(node.cert)) : node.origin === 'user' ? undefined : 'INVALIDCERT';
-            if (!dappyNetworkAgents[ip + "-" + cert]) {
-                dappyNetworkAgents[ip + "-" + cert] = new https.Agent({
+            if (!dappyNetworkAgents["".concat(ip, "-").concat(cert)]) {
+                dappyNetworkAgents["".concat(ip, "-").concat(cert)] = new https.Agent({
                     /* no dns */
                     host: ip,
                     rejectUnauthorized: true,
@@ -5592,10 +5593,10 @@ var httpBrowserToNode = function (data, node, timeout) {
                 });
             }
             var options = {
-                agent: dappyNetworkAgents[ip + "-" + cert],
+                agent: dappyNetworkAgents["".concat(ip, "-").concat(cert)],
                 method: 'POST',
                 port: port,
-                path: "/" + data.type,
+                path: "/".concat(data.type),
                 headers: {
                     'Content-Type': 'application/json',
                     'Dappy-Browser': VERSION,
@@ -5688,7 +5689,7 @@ var performMultiRequest = function (body, parameters, blockchains) {
                             // fallback on HTTP
                             if (body.type === 'get-nodes') {
                                 http
-                                    .get("http://" + index.split('---')[0] + "/get-nodes?network=" + body.body.network, function (resp) {
+                                    .get("http://".concat(index.split('---')[0], "/get-nodes?network=").concat(body.body.network), function (resp) {
                                     var data = '';
                                     resp.on('data', function (chunk) {
                                         data += chunk.toString('utf8');
@@ -5798,7 +5799,7 @@ var performSingleRequest = function (body, node) {
 };
 
 var getNodeIndex = function (node) {
-    return node.ip + "---" + node.host;
+    return "".concat(node.ip, "---").concat(node.host);
 };
 
 function asyncForEach(array, callback) {
@@ -5835,7 +5836,7 @@ var ping = function (getState, dispatchFromMain) {
                 .then(function (a) {
                 var resp = JSON.parse(a);
                 if (resp.data !== 'pong') {
-                    console.log("[bn] websocket did not get \"pong\" from server under " + PING_PONG_DELAY + " seconds, will close connection ", getNodeIndex(node));
+                    console.log("[bn] websocket did not get \"pong\" from server under ".concat(PING_PONG_DELAY, " seconds, will close connection "), getNodeIndex(node));
                     dispatchFromMain({
                         action: {
                             type: UPDATE_NODE_READY_STATE,
@@ -6117,7 +6118,7 @@ var registerInterProcessProtocol = function (session, store, getLoadResourceWhen
                     parameters.comparer = function (res) {
                         var json = JSON.parse(res);
                         // do not include json.rnodeVersion that might differ
-                        return json.data.rchainNetwork + "-" + json.data.lastFinalizedBlockNumber + "-" + json.data.rchainNamesRegistryUri;
+                        return "".concat(json.data.rchainNetwork, "-").concat(json.data.lastFinalizedBlockNumber, "-").concat(json.data.rchainNamesRegistryUri);
                     };
                 }
                 else {
@@ -14909,6 +14910,7 @@ var identifyFromSandboxSchema = create$2()
         .strict(true)
         .required(),
     callId: create().required(),
+    resourceId: create(),
 })
     .noUnknown()
     .strict(true)
@@ -15007,12 +15009,12 @@ var registerInterProcessDappProtocol = function (dappyBrowserView, session, stor
                                     dappTitle: dappyBrowserView.title,
                                     callId: payloadBeforeValid_1.callId,
                                 },
-                                value: { message: "blockchain " + searchSplitted_1.chainId + " not available" },
+                                value: { message: "blockchain ".concat(searchSplitted_1.chainId, " not available") },
                                 sentAt: new Date().toISOString(),
                                 id: new Date().getTime() + Math.round(Math.random() * 10000).toString(),
                             }),
                         });
-                        console.error("[interprocessdapp://] blockchain " + searchSplitted_1.chainId + " not available");
+                        console.error("[interprocessdapp://] blockchain ".concat(searchSplitted_1.chainId, " not available"));
                         callback(Buffer.from(''));
                         return;
                     }
@@ -15415,7 +15417,7 @@ var decomposeUrl = function (url) {
 
 var searchToAddress = function (search, chainId, path) {
     if (path === void 0) { path = ''; }
-    return chainId + ":" + search + path;
+    return "".concat(chainId, ":").concat(search).concat(path);
 };
 
 var development = !!process.defaultApp;
@@ -15439,12 +15441,12 @@ var loadOrReloadBrowserView = function (action) {
                     if (development) {
                         console.log('reload or self navigation, closing browserView and unregister protocols');
                     }
-                    a = electron.session.fromPartition("persist:" + payload.dappyDomain).protocol.unregisterProtocol('dappynetwork');
-                    b = electron.session.fromPartition("persist:" + payload.dappyDomain).protocol.unregisterProtocol('interprocessdapp');
-                    c = electron.session.fromPartition("persist:" + payload.dappyDomain).protocol.uninterceptProtocol('https');
+                    a = electron.session.fromPartition("persist:".concat(payload.dappyDomain)).protocol.unregisterProtocol('dappynetwork');
+                    b = electron.session.fromPartition("persist:".concat(payload.dappyDomain)).protocol.unregisterProtocol('interprocessdapp');
+                    c = electron.session.fromPartition("persist:".concat(payload.dappyDomain)).protocol.uninterceptProtocol('https');
                     d = true;
                     if (!development) {
-                        d = electron.session.fromPartition("persist:" + payload.dappyDomain).protocol.uninterceptProtocol('http');
+                        d = electron.session.fromPartition("persist:".concat(payload.dappyDomain)).protocol.uninterceptProtocol('http');
                     }
                     if (development) {
                         console.log(a, b, c, d);
@@ -15467,12 +15469,12 @@ var loadOrReloadBrowserView = function (action) {
                         console.log('navigation in tab, closing browserView with same tabId');
                     }
                     bv = browserViews[sameTabIdBrowserViewId];
-                    a = electron.session.fromPartition("persist:" + payload.dappyDomain).protocol.unregisterProtocol('dappynetwork');
-                    b = electron.session.fromPartition("persist:" + payload.dappyDomain).protocol.unregisterProtocol('interprocessdapp');
-                    c = electron.session.fromPartition("persist:" + payload.dappyDomain).protocol.uninterceptProtocol('https');
+                    a = electron.session.fromPartition("persist:".concat(payload.dappyDomain)).protocol.unregisterProtocol('dappynetwork');
+                    b = electron.session.fromPartition("persist:".concat(payload.dappyDomain)).protocol.unregisterProtocol('interprocessdapp');
+                    c = electron.session.fromPartition("persist:".concat(payload.dappyDomain)).protocol.uninterceptProtocol('https');
                     d = true;
                     if (!development) {
-                        d = electron.session.fromPartition("persist:" + payload.dappyDomain).protocol.uninterceptProtocol('http');
+                        d = electron.session.fromPartition("persist:".concat(payload.dappyDomain)).protocol.uninterceptProtocol('http');
                     }
                     if (development) {
                         console.log(a, b, c, d);
@@ -15497,12 +15499,12 @@ var loadOrReloadBrowserView = function (action) {
                         contextIsolation: true,
                         devTools: /^true$/i.test(process.env.DAPPY_DEVTOOLS) || !true,
                         disableDialogs: true,
-                        partition: "persist:" + payload.dappyDomain,
+                        partition: "persist:".concat(payload.dappyDomain),
                     },
                 });
                 // cookies to start with (from storage)
                 payload.cookies.forEach(function (c) {
-                    view.webContents.session.cookies.set(__assign(__assign({}, c), { url: "https://" + c.domain, secure: true, httpOnly: true }));
+                    view.webContents.session.cookies.set(__assign(__assign({}, c), { url: "https://".concat(c.domain), secure: true, httpOnly: true }));
                 });
                 if (payload.devMode) {
                     view.webContents.openDevTools();
@@ -15533,11 +15535,11 @@ var loadOrReloadBrowserView = function (action) {
                             console.error('Could not parse URL ' + currentUrl);
                         }
                     }
-                    previewId = ("" + payload.dappyDomain + currentPathAndParameters).replace(/\W/g, '');
+                    previewId = "".concat(payload.dappyDomain).concat(currentPathAndParameters).replace(/\W/g, '');
                     action.meta.dispatchFromMain({
                         action: didNavigateInPageAction({
                             previewId: previewId,
-                            address: "" + payload.dappyDomain + currentPathAndParameters,
+                            address: "".concat(payload.dappyDomain).concat(currentPathAndParameters),
                             tabId: payload.tabId,
                             title: view.webContents.getTitle(),
                         }),
@@ -15568,7 +15570,7 @@ var loadOrReloadBrowserView = function (action) {
                                 var urlDecomposed_1 = decomposeUrl(favicons[0]);
                                 var serverAuthorized = payload.record.data.servers.find(function (s) { return s.host === urlDecomposed_1.host; });
                                 if (!serverAuthorized) {
-                                    console.error("Could not get favicon, no servers authorized to reach https address " + favicons[0]);
+                                    console.error("Could not get favicon, no servers authorized to reach https address ".concat(favicons[0]));
                                     return;
                                 }
                                 /* browser to server */
@@ -15587,7 +15589,7 @@ var loadOrReloadBrowserView = function (action) {
                                     method: 'get',
                                 }, function (res) {
                                     if (res.statusCode !== 200) {
-                                        console.error("Could not get favicon (status !== 200) for " + payload.dappyDomain);
+                                        console.error("Could not get favicon (status !== 200) for ".concat(payload.dappyDomain));
                                         console.log(favicons[0]);
                                         return;
                                     }
@@ -15626,8 +15628,8 @@ var loadOrReloadBrowserView = function (action) {
                 handleNavigation = function (urlDecomposed, url, e) {
                     if (urlDecomposed.protocol === 'dappy') {
                         var s = void 0;
-                        if (validateSearch("" + urlDecomposed.host + urlDecomposed.path)) {
-                            s = "" + urlDecomposed.host + urlDecomposed.path;
+                        if (validateSearch("".concat(urlDecomposed.host).concat(urlDecomposed.path))) {
+                            s = "".concat(urlDecomposed.host).concat(urlDecomposed.path);
                         }
                         else {
                             s = searchToAddress(urlDecomposed.path, payload.dappyDomain.split('/')[0]);
@@ -15678,7 +15680,7 @@ var loadOrReloadBrowserView = function (action) {
                     handleNavigation(urlDecomposed, url, e);
                 });
                 view.webContents.addListener('did-finish-load', function (a) {
-                    action.meta.browserWindow.webContents.executeJavaScript("console.log('did-finish-load " + payload.resourceId + "')");
+                    action.meta.browserWindow.webContents.executeJavaScript("console.log('did-finish-load ".concat(payload.resourceId, "')"));
                     action.meta.dispatchFromMain({
                         action: updateTransitoryStateAction({
                             resourceId: payload.resourceId,
@@ -15687,7 +15689,7 @@ var loadOrReloadBrowserView = function (action) {
                     });
                 });
                 view.webContents.addListener('did-stop-loading', function (a) {
-                    action.meta.browserWindow.webContents.executeJavaScript("console.log('did-stop-loading " + payload.resourceId + "')");
+                    action.meta.browserWindow.webContents.executeJavaScript("console.log('did-stop-loading ".concat(payload.resourceId, "')"));
                     action.meta.dispatchFromMain({
                         action: updateTransitoryStateAction({
                             resourceId: payload.resourceId,
@@ -15696,10 +15698,10 @@ var loadOrReloadBrowserView = function (action) {
                     });
                 });
                 view.webContents.addListener('did-start-loading', function (a) {
-                    action.meta.browserWindow.webContents.executeJavaScript("console.log('did-start-loading " + payload.resourceId + "')");
+                    action.meta.browserWindow.webContents.executeJavaScript("console.log('did-start-loading ".concat(payload.resourceId, "')"));
                 });
                 view.webContents.addListener('dom-ready', function (a) {
-                    action.meta.browserWindow.webContents.executeJavaScript("console.log('dom-ready " + payload.resourceId + "')");
+                    action.meta.browserWindow.webContents.executeJavaScript("console.log('dom-ready ".concat(payload.resourceId, "')"));
                 });
                 newBrowserViews = {};
                 newBrowserViews[payload.resourceId] = __assign(__assign({}, payload), { browserView: view, visible: true });
@@ -15713,7 +15715,7 @@ var loadOrReloadBrowserView = function (action) {
                         newBrowserViews = __assign(__assign({}, newBrowserViews), (_a = {}, _a[id] = __assign(__assign({}, browserViews[id]), { visible: false }), _a));
                     }
                 });
-                viewSession = electron.session.fromPartition("persist:" + payload.dappyDomain);
+                viewSession = electron.session.fromPartition("persist:".concat(payload.dappyDomain));
                 preventAllPermissionRequests(viewSession);
                 // todo, avoid circular ref to "store" (see logs when "npm run build:main")
                 registerInterProcessDappProtocol(newBrowserViews[payload.resourceId], viewSession, store, action.meta.dispatchFromMain);

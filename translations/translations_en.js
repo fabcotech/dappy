@@ -2831,5 +2831,45 @@ module.exports.translations = [
     "term_plural": "",
     "reference": "",
     "comment": ""
+  },
+  {
+    "term": "remove account warning",
+    "definition": "The account/wallet will be removed forever. Private key will be lost if you did not save it anywhere else.",
+    "context": "Settings > Accounts",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "token quantity",
+    "definition": "Quantity of tokens",
+    "context": "Purchase record",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "price per token",
+    "definition": "Price per token",
+    "context": "Purchase record",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "max gas fees",
+    "definition": "Max gas fees",
+    "context": "Purchase record",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "max total cost",
+    "definition": "Total max cost",
+    "context": "Purchase record",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
   }
 ]
