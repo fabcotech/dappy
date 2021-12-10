@@ -273,7 +273,12 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
       isFirstRequest = false;
     }
 
-    callback(await tryToLoad({ debug, dappyBrowserView, isFirstRequest, setCookie, request }));
+    try {
+      callback(await tryToLoad({ debug, dappyBrowserView, isFirstRequest, setCookie, request }));
+    } catch (err) {
+      console.log(err);
+      callback({});
+    }
   };
 };
 
