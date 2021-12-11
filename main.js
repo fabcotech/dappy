@@ -744,7 +744,7 @@ var makeInterceptHttpsRequests = function (_a) {
     var isFirstRequest = true;
     var debug = !true;
     return function (request, callback) { return __awaiter(void 0, void 0, void 0, function () {
-        var _a, _b;
+        var _a, _b, err_1;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
@@ -768,11 +768,20 @@ var makeInterceptHttpsRequests = function (_a) {
                     if (isFirstRequest) {
                         isFirstRequest = false;
                     }
+                    _c.label = 3;
+                case 3:
+                    _c.trys.push([3, 5, , 6]);
                     _b = callback;
                     return [4 /*yield*/, tryToLoad({ debug: debug, dappyBrowserView: dappyBrowserView, isFirstRequest: isFirstRequest, setCookie: setCookie, request: request })];
-                case 3:
+                case 4:
                     _b.apply(void 0, [_c.sent()]);
-                    return [2 /*return*/];
+                    return [3 /*break*/, 6];
+                case 5:
+                    err_1 = _c.sent();
+                    console.log(err_1);
+                    callback({});
+                    return [3 /*break*/, 6];
+                case 6: return [2 /*return*/];
             }
         });
     }); };
