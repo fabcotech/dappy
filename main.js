@@ -15513,7 +15513,13 @@ var loadOrReloadBrowserView = function (action) {
                 });
                 // cookies to start with (from storage)
                 payload.cookies.forEach(function (c) {
-                    view.webContents.session.cookies.set(__assign(__assign({}, c), { url: "https://".concat(c.domain), secure: true, httpOnly: true }));
+                    try {
+                        view.webContents.session.cookies.set(__assign(__assign({}, c), { url: "https://".concat(c.domain), secure: true, httpOnly: true }));
+                    }
+                    catch (err) {
+                        console.error(err);
+                        console.error("failed to set cookie " + c.domain);
+                    }
                 });
                 if (payload.devMode) {
                     view.webContents.openDevTools();
@@ -15582,21 +15588,22 @@ var loadOrReloadBrowserView = function (action) {
                                     console.error("Could not get favicon, no servers authorized to reach https address ".concat(favicons[0]));
                                     return;
                                 }
-                                /* browser to server */
-                                var a_1 = new https.Agent({
+                                var options = {
+                                    rejectUnauthorized: true,
+                                    minVersion: 'TLSv1.2',
                                     /* no dns */
                                     host: serverAuthorized.ip,
-                                    rejectUnauthorized: false,
-                                    cert: decodeURI(decodeURI(serverAuthorized.cert)),
-                                    minVersion: 'TLSv1.2',
-                                    ca: [], // we don't want to rely on CA
-                                });
-                                https.get({
-                                    agent: a_1,
-                                    host: urlDecomposed_1.host,
                                     path: urlDecomposed_1.path,
                                     method: 'get',
-                                }, function (res) {
+                                    headers: {
+                                        host: serverAuthorized.host,
+                                        Origin: "dappy://".concat(payload.dappyDomain),
+                                    },
+                                };
+                                if (serverAuthorized.cert) {
+                                    options = __assign(__assign({}, options), { ca: decodeURI(decodeURI(serverAuthorized.cert)) });
+                                }
+                                https.request(options, function (res) {
                                     if (res.statusCode !== 200) {
                                         console.error("Could not get favicon (status !== 200) for ".concat(payload.dappyDomain));
                                         console.log(favicons[0]);
@@ -15607,6 +15614,7 @@ var loadOrReloadBrowserView = function (action) {
                                         s = Buffer.concat([s, a]);
                                     });
                                     res.on('end', function () {
+                                        // todo limit size of favicon ???
                                         var faviconAsBase64 = 'data:' + res.headers['content-type'] + ';base64,' + s.toString('base64');
                                         action.meta.dispatchFromMain({
                                             action: didChangeFaviconAction({
@@ -15616,6 +15624,9 @@ var loadOrReloadBrowserView = function (action) {
                                             }),
                                         });
                                     });
+                                }).on('error', function (err) {
+                                    console.log('[dapp] Could not get favicon ' + favicons[0]);
+                                    console.log(err);
                                 });
                             }
                             catch (err) {

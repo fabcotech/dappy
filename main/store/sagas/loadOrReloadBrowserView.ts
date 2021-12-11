@@ -111,12 +111,17 @@ const loadOrReloadBrowserView = function* (action: any) {
 
   // cookies to start with (from storage)
   payload.cookies.forEach((c) => {
-    view.webContents.session.cookies.set({
-      ...c,
-      url: `https://${c.domain}`,
-      secure: true,
-      httpOnly: true,
-    });
+    try {
+      view.webContents.session.cookies.set({
+        ...c,
+        url: `https://${c.domain}`,
+        secure: true,
+        httpOnly: true,
+      });
+    } catch (err) {
+      console.error(err);
+      console.error("failed to set cookie " + c.domain)
+    }
   });
 
   if (payload.devMode) {
@@ -199,22 +204,26 @@ const loadOrReloadBrowserView = function* (action: any) {
             console.error(`Could not get favicon, no servers authorized to reach https address ${favicons[0]}`);
             return;
           }
-          /* browser to server */
-          const a = new https.Agent({
+          let options: https.RequestOptions = {
+            rejectUnauthorized: true,
+            minVersion: 'TLSv1.2',
             /* no dns */
             host: serverAuthorized.ip,
-            rejectUnauthorized: false, // cert does not have to be signed by CA (self-signed)
-            cert: decodeURI(decodeURI(serverAuthorized.cert)),
-            minVersion: 'TLSv1.2',
-            ca: [], // we don't want to rely on CA
-          });
-          https.get(
-            {
-              agent: a,
-              host: urlDecomposed.host,
-              path: urlDecomposed.path,
-              method: 'get',
+            path: urlDecomposed.path,
+            method: 'get',
+            headers: {
+              host: serverAuthorized.host,
+              Origin: `dappy://${payload.dappyDomain}`,
             },
+          };
+          if (serverAuthorized.cert) {
+            options = {
+              ...options,
+              ca: decodeURI(decodeURI(serverAuthorized.cert)),
+            }
+          }
+          https.request(
+            options,
             (res) => {
               if (res.statusCode !== 200) {
                 console.error(`Could not get favicon (status !== 200) for ${payload.dappyDomain}`);
@@ -226,6 +235,7 @@ const loadOrReloadBrowserView = function* (action: any) {
                 s = Buffer.concat([s, a]);
               });
               res.on('end', () => {
+                // todo limit size of favicon ???
                 const faviconAsBase64 = 'data:' + res.headers['content-type'] + ';base64,' + s.toString('base64');
                 action.meta.dispatchFromMain({
                   action: fromHistory.didChangeFaviconAction({
@@ -236,10 +246,13 @@ const loadOrReloadBrowserView = function* (action: any) {
                 });
               });
             }
-          );
+          ).on('error', err => {
+            console.error('[dapp] Could not get favicon ' + favicons[0]);
+            console.error(err);
+          })
         } catch (err) {
           console.error('[dapp] Could not get favicon ' + favicons[0]);
-          console.log(err);
+          console.error(err);
         }
       }
     }
