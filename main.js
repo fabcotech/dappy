@@ -11,7 +11,7 @@ var net = _interopDefault(require('net'));
 var child_process = _interopDefault(require('child_process'));
 var dns = _interopDefault(require('dns'));
 var http = _interopDefault(require('http'));
-var os = _interopDefault(require('os'));
+require('os');
 
 var validateSearch = function (search) {
     return /[a-z]*:(\w[A-Za-z0-9]*)(\w[A-Za-z0-9?%&()*+-_.\/:.@=\[\]{}]*)?$/gs.test(search);
@@ -742,7 +742,7 @@ var tryToLoad = function (_a) {
 var makeInterceptHttpsRequests = function (_a) {
     var dappyBrowserView = _a.dappyBrowserView, setCookie = _a.setCookie;
     var isFirstRequest = true;
-    var debug = !false;
+    var debug = !true;
     return function (request, callback) { return __awaiter(void 0, void 0, void 0, function () {
         var _a, _b, err_1;
         return __generator(this, function (_c) {
@@ -766,7 +766,6 @@ var makeInterceptHttpsRequests = function (_a) {
                         return [2 /*return*/];
                     }
                     if (isFirstRequest) {
-                        console.log('[https load] first top level navigation, only lax cookies');
                         isFirstRequest = false;
                     }
                     _c.label = 3;
@@ -833,6 +832,14 @@ var makeCookiesOnChange = function (_a) {
 };
 var overrideHttpProtocols = function (_a) {
     var dappyBrowserView = _a.dappyBrowserView, session = _a.session, dispatchFromMain = _a.dispatchFromMain;
+    // Block all HTTP when not development
+    {
+        session.protocol.interceptStreamProtocol('http', function (request, callback) {
+            console.log("[http] unauthorized");
+            callback({});
+            return;
+        });
+    }
     session.cookies.on('changed', makeCookiesOnChange({
         dappyBrowserView: dappyBrowserView,
         getCookies: function (filter) { return session.cookies.get(filter); },
@@ -15499,7 +15506,7 @@ var loadOrReloadBrowserView = function (action) {
                         enableRemoteModule: false,
                         sandbox: true,
                         contextIsolation: true,
-                        devTools: /^true$/i.test(process.env.DAPPY_DEVTOOLS) || !false,
+                        devTools: /^true$/i.test(process.env.DAPPY_DEVTOOLS) || !true,
                         disableDialogs: true,
                         partition: "persist:".concat(payload.dappyDomain),
                     },
@@ -15946,17 +15953,6 @@ var store = createStore(combineReducers({
 }), applyMiddleware(sagaMiddleware));
 sagaMiddleware.run(rootSagas);
 
-function installDevToolsExtensionsOnlyForDev(partition) {
-    {
-        var reduxDevTools_1 = path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.2_18');
-        var reactDevTools_1 = path.join(os.homedir(), '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.21.0_1');
-        electron.app.whenReady().then(function () {
-            electron.session.fromPartition(partition).loadExtension(reduxDevTools_1);
-            electron.session.fromPartition(partition).loadExtension(reactDevTools_1);
-        });
-    }
-}
-
 // Modules to control application life and create native browser window
 /*
   CAREFUL
@@ -16020,7 +16016,6 @@ var isSingleInstance = electron.app.requestSingleInstanceLock();
 if (!isSingleInstance) {
     electron.app.quit();
 }
-installDevToolsExtensionsOnlyForDev(partition);
 electron.app.on('second-instance', function (event, argv, cwd) {
     var a = validateAndProcessAddresses(argv);
     if (typeof a === 'string') {
@@ -16046,7 +16041,7 @@ function createWindow() {
             sandbox: true,
             contextIsolation: true,
             partition: partition,
-            devTools: /^true$/i.test(process.env.DAPPY_DEVTOOLS) || !false,
+            devTools: /^true$/i.test(process.env.DAPPY_DEVTOOLS) || !true,
         },
     });
     var browserSession = electron.session.fromPartition(partition);
@@ -16060,7 +16055,7 @@ function createWindow() {
     browserWindow.setMenuBarVisibility(false);
     // and load the index.html of the app.
     {
-        browserWindow.loadURL('http://localhost:3033');
+        browserWindow.loadFile('dist/index.html');
     }
     // Open the DevTools.
     // browserWindow.webContents.openDevTools()
@@ -16091,4 +16086,3 @@ electron.app.on('activate', function () {
 });
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-//# sourceMappingURL=main.js.map
