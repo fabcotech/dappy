@@ -4,6 +4,7 @@ import { browserUtils } from '/store/browser-utils';
 import * as fromSettings from '..';
 import * as fromMain from '/store/main';
 import { Action } from '/store';
+import { Account } from '/models';
 
 const createAccount = function* (action: Action) {
   const payload: fromSettings.CreateAccountPayload = action.payload;

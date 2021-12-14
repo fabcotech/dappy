@@ -152,7 +152,7 @@ export const Root = connect(
       transactions: fromBlockchain.getTransactions(state),
       rchainInfos: fromBlockchain.getRChainInfos(state),
       namesBlockchainInfos: fromBlockchain.getNamesBlockchainInfos(state),
-      accounts: fromSettings.getAccounts(state),
+      accounts: fromSettings.getRChainAccounts(state),
     };
   },
   (dispatch) => ({

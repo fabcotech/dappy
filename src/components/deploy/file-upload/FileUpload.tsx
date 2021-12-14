@@ -319,7 +319,7 @@ export class FileUploadComponent extends React.Component<FileUploadProps, {}> {
 export const FileUpload = connect(
   (state) => {
     return {
-      accounts: fromSettings.getAccounts(state),
+      accounts: fromSettings.getRChainAccounts(state),
       blockchains: fromSettings.getOkBlockchains(state),
       rchainInfos: fromBlockchain.getRChainInfos(state),
       transactions: fromBlockchain.getTransactions(state),

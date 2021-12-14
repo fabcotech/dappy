@@ -423,7 +423,7 @@ export const PaymentRequestModal = connect(
     isTablet: fromUi.getIsTablet(state),
     transactions: fromBlockchain.getTransactions(state),
     rchainInfos: fromBlockchain.getRChainInfos(state),
-    accounts: fromSettings.getAccounts(state),
+    accounts: fromSettings.getRChainAccounts(state),
     records: fromBlockchain.getRecords(state),
     recordsBlockchain: fromBlockchain.getNamesBlockchainInfos(state),
   }),

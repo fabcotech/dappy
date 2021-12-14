@@ -45,7 +45,7 @@ const validateBalances = ajv.compile(balancesSchema);
 const executeAccountsCronJobs = function* (action: Action) {
   const accounts: {
     [key: string]: Account;
-  } = yield select(fromSettings.getAccounts);
+  } = yield select(fromSettings.getRChainAccounts);
   const blockchains: {
     [key: string]: Blockchain;
   } = yield select(fromSettings.getBlockchains);

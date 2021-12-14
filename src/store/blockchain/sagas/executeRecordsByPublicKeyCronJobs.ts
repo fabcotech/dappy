@@ -15,7 +15,7 @@ const executeRecordsByPublicKeyCronJobs = function* (action: Action) {
   const namesBlockchain: Blockchain | undefined = yield select(fromSettings.getNamesBlockchain);
   const accounts: {
     [key: string]: Account;
-  } = yield select(fromSettings.getAccounts);
+  } = yield select(fromSettings.getRChainAccounts);
 
   const publicKeys: { [a: string]: boolean } = {};
 

@@ -543,7 +543,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
 export const RholangDeploy = connect(
   (state) => {
     return {
-      accounts: fromSettings.getAccounts(state),
+      accounts: fromSettings.getRChainAccounts(state),
       blockchains: fromSettings.getOkBlockchains(state),
       rchainInfos: fromBlockchain.getRChainInfos(state),
       transactions: fromBlockchain.getTransactions(state),

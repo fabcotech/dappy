@@ -251,7 +251,7 @@ export const TransactionModal = connect(
     isTablet: fromUi.getIsTablet(state),
     transactions: fromBlockchain.getTransactions(state),
     rchainInfos: fromBlockchain.getRChainInfos(state),
-    accounts: fromSettings.getAccounts(state),
+    accounts: fromSettings.getRChainAccounts(state),
   }),
   (dispatch) => ({
     closeDappModal: (a: fromMain.CloseDappModalPayload) => {

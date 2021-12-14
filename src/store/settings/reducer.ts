@@ -354,6 +354,17 @@ export const getBlockchains = createSelector(getSettingsState, (state: State) =>
 
 export const getAccounts = createSelector(getSettingsState, (state: State) => state.accounts);
 
+export const getRChainAccounts = createSelector(getSettingsState, (state: State) => {
+  const rchainAccounts: { [key: string]: Account } = {};
+  Object.keys(state.accounts).forEach(name => {
+    if (state.accounts[name].platform === 'rchain') {
+      rchainAccounts[name] = state.accounts[name]
+    }
+  });
+
+  return rchainAccounts;
+});
+
 export const getExecutingAccountsCronJobs = createSelector(
   getSettingsState,
   (state: State) => state.executingAccountsCronJobs
