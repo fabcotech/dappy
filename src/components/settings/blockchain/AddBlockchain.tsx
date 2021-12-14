@@ -6,6 +6,7 @@ import './AddBlockchain.scss';
 import { CHAIN_IDS } from '../../../CONSTANTS';
 import { PREDEFINED_BLOCKCHAINS } from '../../../BLOCKCHAINS';
 import { BlockchainNode } from '../../../models';
+import { GlossaryHint } from '/components/utils/Hint';
 
 const ERRORS: { [key: string]: string } = {
   REQUIRED: 'This fileld is required',
@@ -166,7 +167,10 @@ export class AddBlockchain extends React.Component<AddBlockchainProps, {}> {
             setFieldTouched,
           }) => (
             <form className="add-blockchain-form" onSubmit={handleSubmit}>
-              <h3 className="subtitle is-4">Add network</h3>
+              <h3 className="subtitle is-4">
+                Add network
+                <GlossaryHint term="what is a dappy network ?" />
+              </h3>
               <p className="limited-width">
                 Dappy can handle dapps from multiple networks, currently only RChain platform is supported.
                 <br />

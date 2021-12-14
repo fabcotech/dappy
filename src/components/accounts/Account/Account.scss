@@ -1,17 +1,14 @@
 .settings-accounts {
   .account {
     display: grid;
-    grid-template-columns: 40% 60%;
+    grid-template-columns: 100%;
     grid-template-rows: 4rem 8rem 8rem;
     width: 25rem;
     padding: 0.5rem 1rem;
     position: relative;
-    .left {
-      grid-row: 1;
-      grid-column: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
+    .header {
+      display: grid;
+      justify-content: space-between;
       .name {
         font-weight: 600;
         cursor: pointer;
