@@ -15,7 +15,7 @@ interface ResolverProps {
 
 const FormResolverComponent = (props: any) => (
   <div className="field is-horizontal">
-    <label className="label">Resolver</label>
+    <label className="label">{t('resolver')}</label>
     <div className="control">
       <input
         className="is-checkradio is-link"
@@ -29,7 +29,7 @@ const FormResolverComponent = (props: any) => (
           props.setFieldValue('resolverAbsolute', AUTO_RESOLVER_ABSOLUTE);
           props.setFieldValue('resolverAccuracy', 100);
         }}>
-        Auto
+        {t('auto')}
       </label>
       <input
         className="is-checkradio is-link"
@@ -41,7 +41,7 @@ const FormResolverComponent = (props: any) => (
         onClick={() => {
           props.setFieldValue('resolver', 'custom');
         }}>
-        Custom
+        {t('custom')}
       </label>
     </div>
   </div>

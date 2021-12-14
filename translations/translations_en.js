@@ -8,14 +8,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "menu dapps",
-    "definition": "Dapps",
-    "context": "dapps in main menu",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "menu settings",
     "definition": "Settings",
     "context": "settings in main menu",
@@ -121,14 +113,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "menu names",
-    "definition": "Names",
-    "context": "",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "settings network paragraph",
     "definition": "Dappy performs multiple requests to load resources from the blockchain. Any time a user of third party web application whishes to load a blockchain resource (could be a file or any kind of data). Dappy will query multiple members of the network (blockchain).\n\nYou can configure the rules dappy must apply to accept or reject the result of a resource query.\n\n\n<b>Number of nodes:</b> How many nodes will be queried at each resource load, it must be inferior or equal to the number of available nodes of the blockchain.\n<b>Accuracy:</b> Rules to define if a response will be accepted. If we set it to 100%, if any of the nodes responds with something different than the others, the response and query is discarded. If we set it to 70%, a response will be considered trustable/safe if at least 70% of the queried nodes have sent that same response.",
     "context": "Settings > Settings",
@@ -209,14 +193,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "settings accounts paragraph",
-    "definition": "Accounts allow you to avoid inputing your private key each time you need to send a transaction, and keep track of your REV balances. You can have as many accounts as you wish. The private keys are encrypted using a password you are the only one to know. The main account will be auto-selected when asking to select an account to pay the transaction with.\n\nNote: Block creation and balance update with multi-request takes approximately 10 minutes on mainnet.",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "set as main account",
     "definition": "Set as main account",
     "context": "Settings > Accounts",
@@ -256,14 +232,6 @@ module.exports.translations = [
     },
     "context": "Settings > Accounts",
     "term_plural": "Transactions",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "beta warning",
-    "definition": "This release is a beta/pre-release. Do not reference private keys (ETH or REV) that can unlock large sum of money, tokens or cryptocurrency.\n\nThis program does not interact with any private server of FABCO / DAPPY. It does not rely on any centralized service or server. The private keys are stored on your computer, and encrypted with your password. While we have thoroughly tested the code, it is stilla beta, not-audited software, there is always the possibility something unexpected happens that causes your funds to be lost. Please do not invest more than you are willing to lose, and please be careful.\n\nUSE DAPPY, TRANSFER FUNDS, REFERENCE PRIVATE KEYS AND PUBLIC KEYS AT YOUR OWN RISKS.",
-    "context": "send rev popup or transaction popup",
-    "term_plural": "",
     "reference": "",
     "comment": ""
   },
@@ -311,14 +279,6 @@ module.exports.translations = [
     "term": "from",
     "definition": "From",
     "context": "transfer REV popup",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "add acount",
-    "definition": "Add account",
-    "context": "",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -415,14 +375,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "names registry uri",
-    "definition": "Names registry URI",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "nodes paragraph",
     "definition": "You can add as many nodes as you want. At each request, dappy selects randomly n nodes (n is the <i>Number of nodes</i> value) among the available nodes and performs the call. The more nodes there\nis, the more accurate, secure and decentralized the navigation will be.\n\n\nEach days, dappy runs benchmarks to check available nodes.",
     "context": "Settings > Network",
@@ -455,30 +407,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "download node addresses",
-    "definition": "Download node addresses as CSV",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "import hard coded nodes",
-    "definition": "Import hard coded nodes",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "drop csv file",
-    "definition": "Drop nodes .csv file to add nodes",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "remove network",
     "definition": "Remove network",
     "context": "Settings > Network",
@@ -505,54 +433,6 @@ module.exports.translations = [
   {
     "term": "add network",
     "definition": "Add network",
-    "context": "Settings > Network > Add network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "add network paragraph",
-    "definition": "Dappy can handle dapps from multiple networks, currently only RChain platform is supported.\n\nYou can also configure a custom local/dev chain by filling the Custom chainID field and giving it a name. If you use a local/dev network, don't forget to set your settings accordingly.",
-    "context": "Settings > Network > Add network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "platform",
-    "definition": "Platform",
-    "context": "Settings > Networks > Add network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "network (defaults)",
-    "definition": "Network (defaults)",
-    "context": "Settings > Network > Add network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "or custom network id",
-    "definition": "Or custom network ID",
-    "context": "Settings > Network > Add network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "network name",
-    "definition": "Network name",
-    "context": "Settings > Network > Add network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "auto import nodes",
-    "definition": "Auto import hard-coded nodes",
     "context": "Settings > Network > Add network",
     "term_plural": "",
     "reference": "",
@@ -667,14 +547,6 @@ module.exports.translations = [
     "term_plural": "",
     "reference": "",
     "comment": ""
-  },
-  {
-    "term": "DO NOT TRANSLATE",
-    "definition": "Application type",
-    "context": "Settings > Names > Add local name",
-    "term_plural": "",
-    "reference": "",
-    "comment": "\"DO NOT TRANSLATE\"?"
   },
   {
     "term": "application type",
@@ -800,22 +672,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "dappy beta warning",
-    "definition": "This dappy release is linked to a beta network. Name ownership, even if it requires REV payment, does not come with any guarantee of ownership in the future. The network might be relaunched, some bug could occur, and eventually all ownerships will be lost. The REV price should be ajusted so it stays under $3.",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "use private key",
-    "definition": "Use private key",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "update name",
     "definition": "Update name",
     "context": "Settings > Names > Update name",
@@ -894,22 +750,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "names paragraph 3",
-    "definition": "Of course it must not conflict with an existing name.",
-    "context": "Settings > Names (Of course it must not conflict with an existing name.)",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "dapp (web application)",
-    "definition": "Dapp (web application)",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "deploy (step 1)",
     "definition": "Deploy (step 1)",
     "context": "Deploy > Dapp",
@@ -920,94 +760,6 @@ module.exports.translations = [
   {
     "term": "deploy dapp note",
     "definition": "<b>Note:</b> file upload and block creation on mainnet takes time. Dappy does try do get the address for 15 minutes. You can use dappy-cli JS library to upload any file or web application to the blockchain.",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "predefined dapps",
-    "definition": "Predefined dapps",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "javascript libraries",
-    "definition": "Javascript libraries",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "javascript libraries expl",
-    "definition": "Javascript libraries available locally in the Dappy browser.",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "javascript code",
-    "definition": "Javascript code",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "javascript code expl",
-    "definition": "You can drop a .js file directly",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "css libraries",
-    "definition": "CSS libraries",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "css libraries expl",
-    "definition": "CSS (style) libraries available locally in the Dappy browser.",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "css code",
-    "definition": "CSS code",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "css code expl",
-    "definition": "You can drop a .css file directly",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "html code",
-    "definition": "HTML code",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "html code expl",
-    "definition": "You can drop a .html or .dpy file directly",
     "context": "Deploy > Dapp",
     "term_plural": "",
     "reference": "",
@@ -1030,40 +782,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "file upload (step 1)",
-    "definition": "File upload (step 1)",
-    "context": "Deploy > File",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy file note",
-    "definition": "<b>Note:</b> file upload and block creation on mainnet takes time. Dappy does try do get the address for 15 minutes. You can use dappy-cli JS library to upload any file or web application to the blockchain.",
-    "context": "Deploy > File",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "drop any file",
-    "definition": "Drop any file you wish to upload to the blockchain (max 256kB)",
-    "context": "Deploy > File",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "rholang",
     "definition": "Rholang",
-    "context": "Deploy > Rholang",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy rholang (step 1)",
-    "definition": "Rholang deployment (step 1)",
     "context": "Deploy > Rholang",
     "term_plural": "",
     "reference": "",
@@ -1105,24 +825,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "submitting",
-    "definition": "Submitting",
-    "context": "",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "field required",
     "definition": "This field is required",
-    "context": "error in form",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "value must between 0 and 100",
-    "definition": "Value must be between 0 and 100",
     "context": "error in form",
     "term_plural": "",
     "reference": "",
@@ -1223,14 +927,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "at least one digit",
-    "definition": "Warning : we advise you to have at least one number in your password",
-    "context": "error in form",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "at least one special",
     "definition": "Warning : we advise you to have at least one special character #?!@$%^&*- in your password",
     "context": "error in form",
@@ -1242,14 +938,6 @@ module.exports.translations = [
     "term": "add account",
     "definition": "Add account",
     "context": "Settings > Accounts > Add account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "did not find node",
-    "definition": "Did not find any node to import",
-    "context": "Settings > Network",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1343,14 +1031,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "ip must be unique",
-    "definition": "IP addresses must be unique",
-    "context": "error in form",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "ip must be valid",
     "definition": "IP must be a valid ipv6 or ipv4 address",
     "context": "error in form",
@@ -1383,22 +1063,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "purchase name paragraph short",
-    "definition": "The first step of owning and distributing a web application or file with Dappy is to own a name.\nSimply purchase a name that is available, and link it to a file or web application you have previously\nuploaded on the blockchain.",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "record exists",
-    "definition": "This record already exists",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "at least on ip server",
     "definition": "At least one IP server must be linked to your name",
     "context": "Settings > Names > Purchase name",
@@ -1415,30 +1079,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "record does not exist",
-    "definition": "The record does not exist",
-    "context": "error in form",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "record is local",
-    "definition": "The record is a local record, you can simply delete and re-create it",
-    "context": "error in form",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "current",
-    "definition": "Current",
-    "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "wrong password",
     "definition": "Wrong password",
     "context": "error in form",
@@ -1450,14 +1090,6 @@ module.exports.translations = [
     "term": "private key does not match",
     "definition": "Private key does not match with the public key the dapp requires to identify",
     "context": "error in form",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "private key to identify",
-    "definition": "Public key to identify",
-    "context": "Identification modal",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1511,14 +1143,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "discarded by user",
-    "definition": "Discarded by user",
-    "context": "Payment request modal",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "dapp requests payment",
     "definition": "Dapp requests for a blockchain payment",
     "context": "Payment request modal",
@@ -1554,14 +1178,6 @@ module.exports.translations = [
     "term": "phlo limit superior to one",
     "definition": "Phlo limit must be superior to one",
     "context": "error in form",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "dapp wishes send transaction",
-    "definition": "Dapp wishes to send a transaction",
-    "context": "send rev popup or transaction popup",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1657,14 +1273,6 @@ module.exports.translations = [
   {
     "term": "deploy (step 2)",
     "definition": "Deploy (step 2)",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy (step 3)",
-    "definition": "Deploy (step 3)",
     "context": "Deploy > Dapp",
     "term_plural": "",
     "reference": "",
@@ -1802,7 +1410,7 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "Copy box address",
+    "term": "copy box address",
     "definition": "Copy box address",
     "context": "Settings > Accounts",
     "term_plural": "",
@@ -1863,14 +1471,6 @@ module.exports.translations = [
   {
     "term": "deploy a new token box",
     "definition": "Deploy a new token box",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "set main account",
-    "definition": "Set this account as the main account",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -2029,14 +1629,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "name public key and box public key different",
-    "definition": "Name public key differs from your account's public key, the transaction will likely fail",
-    "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "name box address and box address different",
     "definition": "Name's box differs from your account's box address, the transaction will likely fail",
     "context": "Settings > Names > Update name",
@@ -2152,46 +1744,6 @@ module.exports.translations = [
     "term": "add local name dev",
     "definition": "Add local name (development)",
     "context": "Settings > Names",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "purchase name fee",
-    "definition": "As of now, every names purchased from the dappy name system is subjected to a 1% fee to help grow the team and secure the platform. 99% of the REV price will go to the current name owner, 1% to the owner of the name system contract.",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "update name price",
-    "definition": "Update name price",
-    "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name for sale",
-    "definition": "Name for sale",
-    "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name not for sale",
-    "definition": "Name not for sale",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name price (dust)",
-    "definition": "name price (dust)",
-    "context": "Settings > Names > Update name",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -2507,28 +2059,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "minutes",
-    "definition": {
-      "one": "minute",
-      "other": ""
-    },
-    "context": "Settings > Account",
-    "term_plural": "minutes",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "seconds",
-    "definition": {
-      "one": "second",
-      "other": ""
-    },
-    "context": "Settings > Account",
-    "term_plural": "seconds",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "locked title",
     "definition": "The contract is locked, owner cannot delete tokens or create tokens",
     "context": "Settings > Account",
@@ -2745,14 +2275,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "hide balances",
-    "definition": "Hide balances",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "rchain token create-purses",
     "definition": "RChain token - create purses (NFT or FT contract)",
     "context": "Deploy",
@@ -2868,6 +2390,22 @@ module.exports.translations = [
     "term": "max total cost",
     "definition": "Total max cost",
     "context": "Purchase record",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "hide balances",
+    "definition": "Hide balances",
+    "context": "Settings > Accounts",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "show balances",
+    "definition": "Show balances",
+    "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
     "comment": ""

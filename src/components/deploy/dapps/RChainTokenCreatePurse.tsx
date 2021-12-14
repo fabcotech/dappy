@@ -118,9 +118,9 @@ export class RChainTokenCreatePurseComponent extends React.Component<RChainToken
           <p>
             {t('only rchain-token version')} {RCHAIN_TOKEN_SUPPORTED_VERSIONS[0]}
             <br />
-            {('structure for nft')}: 1, price (dust), recipient box ID, NFT ID
+            {t('structure for nft')}: 1, price (dust), recipient box ID, NFT ID
             <br />
-            {('structure for ft')}: quantity, price (dust), recipient box ID
+            {t('structure for ft')}: quantity, price (dust), recipient box ID
             <br />
             {t('price 0 not for sale')}
           </p>
@@ -133,7 +133,7 @@ export class RChainTokenCreatePurseComponent extends React.Component<RChainToken
                   this.onParse(undefined)
                 });
               }}>
-              {('nft example')}
+              {t('nft example')}
             </button>
             &nbsp;
             <button
@@ -144,7 +144,7 @@ export class RChainTokenCreatePurseComponent extends React.Component<RChainToken
                   this.onParse(undefined);
                 });
               }}>
-              {('ft example')}
+              {t('ft example')}
             </button>
           </div>
           <textarea

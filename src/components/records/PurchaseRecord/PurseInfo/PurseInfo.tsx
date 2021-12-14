@@ -36,7 +36,7 @@ export const PurseInfoComponent = ({
             <div className="message-body">
               <i className="fa fa-check" />
               <span className="ml-1 subtitle is-5">
-                {t(isAvailable(purse) ? 'name is available' : 'name is for sale')}
+                {isAvailable(purse) ? t('name is available') : t('name is for sale')}
               </span>
               <div className="current-price-existing-purse">
                 {t('at price')}

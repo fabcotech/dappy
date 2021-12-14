@@ -2,9 +2,6 @@ module.exports.translations = {
   "menu deploy": {
     "one": "Deploy"
   },
-  "menu dapps": {
-    "one": "Dapps"
-  },
   "menu settings": {
     "one": "Settings"
   },
@@ -44,9 +41,6 @@ module.exports.translations = {
   "menu networks": {
     "one": "Networks"
   },
-  "menu names": {
-    "one": "Names"
-  },
   "settings network paragraph": {
     "one": "Dappy performs multiple requests to load resources from the blockchain. Any time a user of third party web application whishes to load a blockchain resource (could be a file or any kind of data). Dappy will query multiple members of the network (blockchain).\n\nYou can configure the rules dappy must apply to accept or reject the result of a resource query.\n\n\n<b>Number of nodes:</b> How many nodes will be queried at each resource load, it must be inferior or equal to the number of available nodes of the blockchain.\n<b>Accuracy:</b> Rules to define if a response will be accepted. If we set it to 100%, if any of the nodes responds with something different than the others, the response and query is discarded. If we set it to 70%, a response will be considered trustable/safe if at least 70% of the queried nodes have sent that same response."
   },
@@ -77,9 +71,6 @@ module.exports.translations = {
   "development mode": {
     "one": "Development mode"
   },
-  "settings accounts paragraph": {
-    "one": "Accounts allow you to avoid inputing your private key each time you need to send a transaction, and keep track of your REV balances. You can have as many accounts as you wish. The private keys are encrypted using a password you are the only one to know. The main account will be auto-selected when asking to select an account to pay the transaction with.\n\nNote: Block creation and balance update with multi-request takes approximately 10 minutes on mainnet."
-  },
   "set as main account": {
     "one": "Set as main account"
   },
@@ -95,9 +86,6 @@ module.exports.translations = {
   "transaction": {
     "one": "Transaction",
     "other": "Transactions"
-  },
-  "beta warning": {
-    "one": "This release is a beta/pre-release. Do not reference private keys (ETH or REV) that can unlock large sum of money, tokens or cryptocurrency.\n\nThis program does not interact with any private server of FABCO / DAPPY. It does not rely on any centralized service or server. The private keys are stored on your computer, and encrypted with your password. While we have thoroughly tested the code, it is stilla beta, not-audited software, there is always the possibility something unexpected happens that causes your funds to be lost. Please do not invest more than you are willing to lose, and please be careful.\n\nUSE DAPPY, TRANSFER FUNDS, REFERENCE PRIVATE KEYS AND PUBLIC KEYS AT YOUR OWN RISKS."
   },
   "for address": {
     "one": "For address"
@@ -116,9 +104,6 @@ module.exports.translations = {
   },
   "from": {
     "one": "From"
-  },
-  "add acount": {
-    "one": "Add account"
   },
   "forgot password warning": {
     "one": "If you forget your password, there will be no way to recover the private key. Make sure to choose a strong password, and to have saved the private key in another place."
@@ -154,9 +139,6 @@ module.exports.translations = {
   "last known block height": {
     "one": "Last known block height"
   },
-  "names registry uri": {
-    "one": "Names registry URI"
-  },
   "nodes paragraph": {
     "one": "You can add as many nodes as you want. At each request, dappy selects randomly n nodes (n is the <i>Number of nodes</i> value) among the available nodes and performs the call. The more nodes there\nis, the more accurate, secure and decentralized the navigation will be.\n\n\nEach days, dappy runs benchmarks to check available nodes."
   },
@@ -169,15 +151,6 @@ module.exports.translations = {
   "cancel": {
     "one": "Cancel"
   },
-  "download node addresses": {
-    "one": "Download node addresses as CSV"
-  },
-  "import hard coded nodes": {
-    "one": "Import hard coded nodes"
-  },
-  "drop csv file": {
-    "one": "Drop nodes .csv file to add nodes"
-  },
   "remove network": {
     "one": "Remove network"
   },
@@ -189,24 +162,6 @@ module.exports.translations = {
   },
   "add network": {
     "one": "Add network"
-  },
-  "add network paragraph": {
-    "one": "Dappy can handle dapps from multiple networks, currently only RChain platform is supported.\n\nYou can also configure a custom local/dev chain by filling the Custom chainID field and giving it a name. If you use a local/dev network, don't forget to set your settings accordingly."
-  },
-  "platform": {
-    "one": "Platform"
-  },
-  "network (defaults)": {
-    "one": "Network (defaults)"
-  },
-  "or custom network id": {
-    "one": "Or custom network ID"
-  },
-  "network name": {
-    "one": "Network name"
-  },
-  "auto import nodes": {
-    "one": "Auto import hard-coded nodes"
   },
   "request": {
     "one": "Request",
@@ -248,9 +203,6 @@ module.exports.translations = {
   },
   "record": {
     "one": "Record"
-  },
-  "DO NOT TRANSLATE": {
-    "one": "Application type"
   },
   "application type": {
     "one": "Application type"
@@ -298,12 +250,6 @@ module.exports.translations = {
   "password for": {
     "one": "password for"
   },
-  "dappy beta warning": {
-    "one": "This dappy release is linked to a beta network. Name ownership, even if it requires REV payment, does not come with any guarantee of ownership in the future. The network might be relaunched, some bug could occur, and eventually all ownerships will be lost. The REV price should be ajusted so it stays under $3."
-  },
-  "use private key": {
-    "one": "Use private key"
-  },
   "update name": {
     "one": "Update name"
   },
@@ -330,50 +276,11 @@ module.exports.translations = {
     "one": "Success",
     "other": "Successes"
   },
-  "names paragraph 3": {
-    "one": "Of course it must not conflict with an existing name."
-  },
-  "dapp (web application)": {
-    "one": "Dapp (web application)"
-  },
   "deploy (step 1)": {
     "one": "Deploy (step 1)"
   },
   "deploy dapp note": {
     "one": "<b>Note:</b> file upload and block creation on mainnet takes time. Dappy does try do get the address for 15 minutes. You can use dappy-cli JS library to upload any file or web application to the blockchain."
-  },
-  "predefined dapps": {
-    "one": "Predefined dapps"
-  },
-  "javascript libraries": {
-    "one": "Javascript libraries"
-  },
-  "javascript libraries expl": {
-    "one": "Javascript libraries available locally in the Dappy browser."
-  },
-  "javascript code": {
-    "one": "Javascript code"
-  },
-  "javascript code expl": {
-    "one": "You can drop a .js file directly"
-  },
-  "css libraries": {
-    "one": "CSS libraries"
-  },
-  "css libraries expl": {
-    "one": "CSS (style) libraries available locally in the Dappy browser."
-  },
-  "css code": {
-    "one": "CSS code"
-  },
-  "css code expl": {
-    "one": "You can drop a .css file directly"
-  },
-  "html code": {
-    "one": "HTML code"
-  },
-  "html code expl": {
-    "one": "You can drop a .html or .dpy file directly"
   },
   "next": {
     "one": "Next page"
@@ -381,20 +288,8 @@ module.exports.translations = {
   "file": {
     "one": "File"
   },
-  "file upload (step 1)": {
-    "one": "File upload (step 1)"
-  },
-  "deploy file note": {
-    "one": "<b>Note:</b> file upload and block creation on mainnet takes time. Dappy does try do get the address for 15 minutes. You can use dappy-cli JS library to upload any file or web application to the blockchain."
-  },
-  "drop any file": {
-    "one": "Drop any file you wish to upload to the blockchain (max 256kB)"
-  },
   "rholang": {
     "one": "Rholang"
-  },
-  "deploy rholang (step 1)": {
-    "one": "Rholang deployment (step 1)"
   },
   "sent at": {
     "one": "Sent at"
@@ -409,14 +304,8 @@ module.exports.translations = {
     "one": "Network",
     "other": "Networks"
   },
-  "submitting": {
-    "one": "Submitting"
-  },
   "field required": {
     "one": "This field is required"
-  },
-  "value must between 0 and 100": {
-    "one": "Value must be between 0 and 100"
   },
   "value must between 1 and 10": {
     "one": "Value must be between 1 and 10"
@@ -453,17 +342,11 @@ module.exports.translations = {
   "at least one lower": {
     "one": "Warning : we advise you to have at least one lower character in your password"
   },
-  "at least one digit": {
-    "one": "Warning : we advise you to have at least one number in your password"
-  },
   "at least one special": {
     "one": "Warning : we advise you to have at least one special character #?!@$%^&*- in your password"
   },
   "add account": {
     "one": "Add account"
-  },
-  "did not find node": {
-    "one": "Did not find any node to import"
   },
   "import nodes": {
     "one": "Import nodes"
@@ -498,9 +381,6 @@ module.exports.translations = {
   "must set ip": {
     "one": "IP address must be set"
   },
-  "ip must be unique": {
-    "one": "IP addresses must be unique"
-  },
   "ip must be valid": {
     "one": "IP must be a valid ipv6 or ipv4 address"
   },
@@ -513,35 +393,17 @@ module.exports.translations = {
   "cert must be set": {
     "one": "Certificate must be set"
   },
-  "purchase name paragraph short": {
-    "one": "The first step of owning and distributing a web application or file with Dappy is to own a name.\nSimply purchase a name that is available, and link it to a file or web application you have previously\nuploaded on the blockchain."
-  },
-  "record exists": {
-    "one": "This record already exists"
-  },
   "at least on ip server": {
     "one": "At least one IP server must be linked to your name"
   },
   "name request errors": {
     "one": "Name request errors"
   },
-  "record does not exist": {
-    "one": "The record does not exist"
-  },
-  "record is local": {
-    "one": "The record is a local record, you can simply delete and re-create it"
-  },
-  "current": {
-    "one": "Current"
-  },
   "wrong password": {
     "one": "Wrong password"
   },
   "private key does not match": {
     "one": "Private key does not match with the public key the dapp requires to identify"
-  },
-  "private key to identify": {
-    "one": "Public key to identify"
   },
   "use account": {
     "one": "Use account"
@@ -558,9 +420,6 @@ module.exports.translations = {
   "previous": {
     "one": "Previous"
   },
-  "discarded by user": {
-    "one": "Discarded by user"
-  },
   "dapp requests payment": {
     "one": "Dapp requests for a blockchain payment"
   },
@@ -572,9 +431,6 @@ module.exports.translations = {
   },
   "phlo limit superior to one": {
     "one": "Phlo limit must be superior to one"
-  },
-  "dapp wishes send transaction": {
-    "one": "Dapp wishes to send a transaction"
   },
   "signatures": {
     "one": "Signatures"
@@ -611,9 +467,6 @@ module.exports.translations = {
   },
   "deploy (step 2)": {
     "one": "Deploy (step 2)"
-  },
-  "deploy (step 3)": {
-    "one": "Deploy (step 3)"
   },
   "deploy rholang (step 2)": {
     "one": "Rholang deployment (step 2)"
@@ -664,7 +517,7 @@ module.exports.translations = {
   "password for account": {
     "one": "Password for account"
   },
-  "Copy box address": {
+  "copy box address": {
     "one": "Copy box address"
   },
   "copy contract address": {
@@ -688,9 +541,6 @@ module.exports.translations = {
   },
   "deploy a new token box": {
     "one": "Deploy a new token box"
-  },
-  "set main account": {
-    "one": "Set this account as the main account"
   },
   "no network cannot send revs": {
     "one": "No network found, cannot send REVs"
@@ -746,9 +596,6 @@ module.exports.translations = {
   "reset": {
     "one": "Reset"
   },
-  "name public key and box public key different": {
-    "one": "Name public key differs from your account's public key, the transaction will likely fail"
-  },
   "name box address and box address different": {
     "one": "Name's box differs from your account's box address, the transaction will likely fail"
   },
@@ -793,21 +640,6 @@ module.exports.translations = {
   },
   "add local name dev": {
     "one": "Add local name (development)"
-  },
-  "purchase name fee": {
-    "one": "As of now, every names purchased from the dappy name system is subjected to a 1% fee to help grow the team and secure the platform. 99% of the REV price will go to the current name owner, 1% to the owner of the name system contract."
-  },
-  "update name price": {
-    "one": "Update name price"
-  },
-  "name for sale": {
-    "one": "Name for sale"
-  },
-  "name not for sale": {
-    "one": "Name not for sale"
-  },
-  "name price (dust)": {
-    "one": "name price (dust)"
   },
   "update name properties": {
     "one": "Update name properties"
@@ -925,14 +757,6 @@ module.exports.translations = {
     "one": "day",
     "other": "days"
   },
-  "minutes": {
-    "one": "minute",
-    "other": "minutes"
-  },
-  "seconds": {
-    "one": "second",
-    "other": "seconds"
-  },
   "locked title": {
     "one": "The contract is locked, owner cannot delete tokens or create tokens"
   },
@@ -1008,9 +832,6 @@ module.exports.translations = {
   "download page": {
     "one": "Download page"
   },
-  "hide balances": {
-    "one": "Hide balances"
-  },
   "rchain token create-purses": {
     "one": "RChain token - create purses (NFT or FT contract)"
   },
@@ -1055,5 +876,11 @@ module.exports.translations = {
   },
   "max total cost": {
     "one": "Total max cost"
+  },
+  "hide balances": {
+    "one": "Hide balances"
+  },
+  "show balances": {
+    "one": "Show balances"
   }
 }

@@ -35,7 +35,7 @@ export const HideBalancesButton = ({
     className="underlined-link ml-2"
     onClick={toggleBalancesVisibility}>
     <i data-testid="hbb-icon" className={`fa fa-before fa-eye${isBalancesHidden ? '' : '-slash'}`}></i>
-    {t(`${isBalancesHidden ? 'show' : 'hide'} balances`)}
+    {isBalancesHidden ? t('show balances') : t('hide balances')}
   </a>
 );
 
