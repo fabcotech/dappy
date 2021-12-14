@@ -10,7 +10,7 @@ export const validateName = (name: string) => {
 };
 
 export const validateSearch = (search: string): boolean => {
-  return /[a-z]*:(\w[A-Za-z0-9]*)(\w[A-Za-z0-9?%&()*+-_.\/:.@=\[\]{}]*)?$/gs.test(search);
+  return /[a-z]*:(\w[A-Za-z0-9]*)(\w[A-Za-z0-9?%&()*+-_.\/:.@=\[\]{}#]*)?$/gs.test(search);
 };
 
 export const validateSearchWithProtocol = (search: string): boolean => {

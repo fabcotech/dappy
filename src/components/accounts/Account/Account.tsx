@@ -15,6 +15,7 @@ import { AccountPassword } from '/components/utils/AccountPassword';
 import { AccountBox } from './AccountBox';
 import { formatAmount } from '/utils/formatAmount';
 import { copyToClipboard } from '/interProcess';
+import { GlossaryHint } from '/components/utils/Hint';
 
 import './Account.scss';
 
@@ -60,17 +61,43 @@ export const AccountComponent = ({
 
   return (
     <div className="account box">
-      <div className="left">
+      <div className="header">
         <b className="name" onClick={() => showAccountModal(account)}>
           {account.name}
           {account.main ? <span className="tag is-light">{t('main')}</span> : undefined}
         </b>
+        <div className="actions">
+          {account.main ? undefined : (
+            <button
+              title={t('set as main account')}
+              onClick={() => setAccountAsMain(account)}
+              className="button is-light is-small">
+              {t('set as main account')}
+            </button>
+          )}
+          {!!namesBlockchain ? (
+            <a
+              title={t('send revs')}
+              className="underlined-link"
+              onClick={() => sendRChainPayment(account, (namesBlockchain as Blockchain).chainId)}>
+              <i className="fa fa-before fa-money-bill-wave"></i>
+              {t('send revs')}
+            </a>
+          ) : (
+            <p className="text-danger">{t('no network cannot send revs')}</p>
+          )}
+          <a onClick={() => showAccountModal(account)} className="underlined-link">
+            <i className="fa fa-before fa-eye"></i>
+            Check account
+          </a>
+        </div>
       </div>
       <div className="balance">
         <span title={account.balance.toString()} className={`num ${isBalancesHidden ? 'blur' : ''}`}>
           {formatAmount(isBalancesHidden ? FAKE_BALANCE : account.balance)}
         </span>
         <span className="unit">{t('rev', true)}</span>
+        <GlossaryHint term="what is rev ?" />
         {!isBalancesHidden && (
           <div>
             <b className="phlo">{account.balance * LOGREV_TO_REV_RATE}</b>
@@ -78,7 +105,12 @@ export const AccountComponent = ({
         )}
       </div>
       <div className="boxes">
-        {account.boxes.length ? <b className="token-boxes">{t('token box', true)}</b> : undefined}
+        {account.boxes.length ? (
+          <span>
+            <b className="token-boxes">{t('token box', true)}</b>
+            <GlossaryHint term={'what is a box ?'} />
+          </span>
+        ) : undefined}
         {account.boxes.map((b) => {
           return (
             <Fragment key={b}>
@@ -204,31 +236,7 @@ export const AccountComponent = ({
           </>
         ) : undefined}
       </div>
-      <div className="actions">
-        {account.main ? undefined : (
-          <button
-            title={t('set as main account')}
-            onClick={() => setAccountAsMain(account)}
-            className="button is-light is-small">
-            {t('set as main account')}
-          </button>
-        )}
-        {!!namesBlockchain ? (
-          <a
-            title={t('send revs')}
-            className="underlined-link"
-            onClick={() => sendRChainPayment(account, (namesBlockchain as Blockchain).chainId)}>
-            <i className="fa fa-before fa-money-bill-wave"></i>
-            {t('send revs')}
-          </a>
-        ) : (
-          <p className="text-danger">{t('no network cannot send revs')}</p>
-        )}
-        <a onClick={() => showAccountModal(account)} className="underlined-link">
-          <i className="fa fa-before fa-eye"></i>
-          Check account
-        </a>
-      </div>
+
       <a
         title="Remove the account forever"
         onClick={() => deleteAccount(account)}
