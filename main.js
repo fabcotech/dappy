@@ -19,7 +19,7 @@ var validateSearch = function (search) {
 
 var WS_PAYLOAD_PAX_SIZE = 512000; // bits
 var WS_RECONNECT_PERIOD = 10000;
-var VERSION = '0.5.2';
+var VERSION = '0.5.3';
 
 var LOAD_RESOURCE = '[Dapps] Load resource';
 var UPDATE_TRANSITORY_STATE = '[Dapps] Update transitory state';
@@ -3329,6 +3329,15 @@ var getSettingsState = function (state) { return state.settings; };
 var getSettings = lib_4(getSettingsState, function (state) { return state.settings; });
 var getBlockchains = lib_4(getSettingsState, function (state) { return state.blockchains; });
 var getAccounts = lib_4(getSettingsState, function (state) { return state.accounts; });
+var getRChainAccounts = lib_4(getSettingsState, function (state) {
+    var rchainAccounts = {};
+    Object.keys(state.accounts).forEach(function (name) {
+        if (state.accounts[name].platform === 'rchain') {
+            rchainAccounts[name] = state.accounts[name];
+        }
+    });
+    return rchainAccounts;
+});
 var getExecutingAccountsCronJobs = lib_4(getSettingsState, function (state) { return state.executingAccountsCronJobs; });
 var getAvailableBlockchains = lib_4(getBlockchains, function (blockchains) {
     var availableBlockchains = {};
