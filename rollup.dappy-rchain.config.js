@@ -6,7 +6,7 @@ import replace from '@rollup/plugin-replace';
 const VERSION = "0.1.0";
 
 export default {
-  input: "dappy-x/dappy-rchain.ts",
+  input: "dappy-rchain/dappy-rchain.ts",
   output: {
     format: "iife",
     sourceMap: "inline",

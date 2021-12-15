@@ -15,9 +15,6 @@ export const IDENTIFY_FROM_SANDBOX = '[Common] Identify from sandbox';
 export const UPDATE_TRANSACTIONS = '[Common] Update transactions';
 export const UPDATE_IDENTIFICATIONS = '[Common] Update identifications';
 
-export const SIGN_ETHEREUM_TRANSACTION_FROM_SANDBOX = '[Common] Sign Ethereum transaction from sandbox';
-export const SEND_ETHEREUM_PAYMENT_REQUEST_FROM_SANDBOX = '[Common] Send Ethereum payment request from sandbox';
-
 export interface DappInitialSetupPayload {
   html: string;
   title: string;
@@ -77,28 +74,6 @@ export interface SendRChainTransactionFromSandboxAction {
 export const sendRChainTransactionFromSandboxAction = (values: SendRChainTransactionFromSandboxPayload) => {
   return {
     type: SEND_RCHAIN_TRANSACTION_FROM_SANDBOX,
-    payload: values,
-  };
-};
-
-export interface SignEthereumTransactionFromSandboxAction {
-  type: '[SandBox] Sign ethereum transaction';
-  payload: any;
-}
-export const signEthereumTransactionFromSandboxAction = (values: any) => {
-  return {
-    type: SIGN_ETHEREUM_TRANSACTION_FROM_SANDBOX,
-    payload: values,
-  };
-};
-
-export interface SendEthereumPaymentRequestFromSandboxAction {
-  type: '[Common] Send Ethereum payment request from sandbox';
-  payload: any;
-}
-export const sendEthereumPaymentRequestFromSandboxAction = (values: any) => {
-  return {
-    type: SEND_ETHEREUM_PAYMENT_REQUEST_FROM_SANDBOX,
     payload: values,
   };
 };
