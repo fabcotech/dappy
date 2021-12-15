@@ -6,12 +6,12 @@ import replace from '@rollup/plugin-replace';
 const VERSION = "0.1.0";
 
 export default {
-  input: "dappy-x/dappy-rchain.ts",
+  input: "dappy-x/dappy-ethereum.ts",
   output: {
     format: "iife",
     sourceMap: "inline",
-    file: "dapp-libs/js/dappy-rchain@" + VERSION + ".js",
-    name: "DappyRChain",
+    file: "dapp-libs/js/dappy-ethereum@" + VERSION + ".js",
+    name: "DappyEthereum",
     globals: {
     },
   },
