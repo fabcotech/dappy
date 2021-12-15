@@ -12,6 +12,7 @@
     "start:electron": "export NODE_ENV=development && electron --trace-warnings .",
     "build": "export NODE_ENV=production && rm -rf dist/ && npx parcel build src/index.html --public-url . && cp -r dapp-libs/* dist/",
     "build:dappyrchain": "NODE_ENV=production npx rollup -c rollup.dappy-rchain.config.js",
+    "build:dappyethereum": "NODE_ENV=production npx rollup -c rollup.dappy-ethereum.config.js",
     "build:dappsandboxed": "export NODE_ENV=production && npx parcel build srcdappsandboxed/dappsandboxed.html --public-url .",
     "build:main": "NODE_ENV=production npx rollup -c rollup.main.config.js",
     "build:main:dev": "npx rollup -c rollup.main.config.js",
