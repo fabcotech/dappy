@@ -6,7 +6,6 @@ import { BadgeAppreciation } from '../utils/BadgeAppreciation';
 import { IPServersComponent } from './IPServers';
 
 import './RecordsForm.scss';
-import { GlossaryHint } from '../utils/Hint';
 
 interface RecordFormProps {
   validateName: undefined | boolean;
@@ -290,15 +289,8 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                 <div className="field is-horizontal">
                   <label className="label">{t('application type')}*</label>
                   <div className="control">
-                    <span>
-                      <Field component={CheckRadio} humanName="IP" value="ip" name="type" />
-                      <GlossaryHint term="what is ip app ?" />
-                    </span>
-
-                    <span className="ml-6">
-                      <Field component={CheckRadio} humanName="Dapp" value="dapp" name="type" />
-                      <GlossaryHint term="what is dapp ?" />
-                    </span>
+                    <Field component={CheckRadio} humanName="IP" value="ip" name="type" />
+                    <Field component={CheckRadio} humanName="Dapp" value="dapp" name="type" />
                   </div>
                 </div>
 

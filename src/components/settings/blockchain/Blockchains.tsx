@@ -15,7 +15,6 @@ import { PREDEFINED_BLOCKCHAINS } from '../../../BLOCKCHAINS';
 import { getNodeIndex } from '../../../utils/getNodeIndex';
 import { AddNode } from './AddNode';
 import { TopTabs } from './TopTabs';
-import { GlossaryHint } from '/components/utils/Hint';
 
 const REGEXP_IP = /^(?!\.)^[a-z0-9.-]*$/;
 
@@ -302,6 +301,38 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
   };
 
   render() {
+    if (this.state.addFormDisplayed || !this.state.selectedBlockchain) {
+      return (
+        <div className="pb20 settings-nodes">
+          <TopTabs
+            blockchains={this.props.blockchains}
+            addFormDisplayed={this.state.addFormDisplayed}
+            requestsDisplayed={this.state.requestsDisplayed}
+            onSelectChain={this.onSelectChain}
+            onToggleAddForm={this.onToggleAddForm}
+            onToggleRequests={this.onToggleRequests}
+          />
+          <AddBlockchain add={this.onAddBlockchain} existingChainIds={Object.keys(this.props.blockchains)} />
+        </div>
+      );
+    }
+
+    if (this.state.requestsDisplayed) {
+      return (
+        <div className="pb20 settings-nodes">
+          <TopTabs
+            blockchains={this.props.blockchains}
+            addFormDisplayed={this.state.addFormDisplayed}
+            requestsDisplayed={this.state.requestsDisplayed}
+            onSelectChain={this.onSelectChain}
+            onToggleAddForm={this.onToggleAddForm}
+            onToggleRequests={this.onToggleRequests}
+          />
+          <Requests />
+        </div>
+      );
+    }
+
     return (
       <div className="pb20 settings-nodes">
         <TopTabs
@@ -312,22 +343,6 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
           onToggleAddForm={this.onToggleAddForm}
           onToggleRequests={this.onToggleRequests}
         />
-        {this.displayContent()}
-      </div>
-    );
-  }
-
-  displayContent() {
-    if (this.state.addFormDisplayed || !this.state.selectedBlockchain) {
-      return <AddBlockchain add={this.onAddBlockchain} existingChainIds={Object.keys(this.props.blockchains)} />;
-    }
-
-    if (this.state.requestsDisplayed) {
-      return <Requests />;
-    }
-
-    return (
-      <div>
         <Formik
           key={this.state.selectedBlockchain.chainId + '-' + this.state.formKey}
           initialValues={{
@@ -376,10 +391,9 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
             return (
               <Form className="nodes-form limited-width">
                 <h3 className="subtitle is-4 blockchain-title">
-                  {t('network')}
+                  {t('network')} &nbsp;
                   {selectedBlockchain.platform === 'rchain' && <i className="rchain20 fa-after" />}
                   {selectedBlockchain.chainName}
-                  <GlossaryHint term="what is a dappy network ?" />
                 </h3>
                 <table className="network-variables">
                   <tbody>

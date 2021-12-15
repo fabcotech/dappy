@@ -9,7 +9,6 @@ import { State } from '/store';
 import { getIsBalancesHidden, toggleBalanceVisibility } from '/store/ui';
 import { AddAccount } from './AddAccount';
 import { ViewBox } from './ViewBox';
-import { GlossaryHint } from '/components/utils/Hint';
 
 export const UpdateBalancesButton = ({ updating, updateBalances }: { updating: boolean; updateBalances: () => void }) =>
   updating ? (
@@ -86,9 +85,6 @@ export function AccountsComponent(props: AccountsProps) {
         <div>
           <h3 className="subtitle is-4"></h3>
           <p className="limited-width mw42rem" dangerouslySetInnerHTML={{ __html: t('add account paragraph') }}></p>
-          <p className="block mt-4">
-            <GlossaryHint term="what is a box ?" displayTerm />
-          </p>
           <div className="my-3">
             <UpdateBalancesButton updating={props.executingAccountsCronJobs} updateBalances={props.updateBalances} />
             <HideBalancesButton

@@ -4,7 +4,7 @@ import * as rchainToolkit from 'rchain-toolkit';
 import Ajv from 'ajv';
 
 import * as fromBlockchain from '/store/blockchain';
-import { Blockchain, RChainInfos, Account } from '/models';
+import { Blockchain, MultiCallResult, RChainInfos, Account } from '/models';
 import { multiCall, copyToClipboard } from '/interProcess';
 import { toRGB } from '/utils/color';
 import { DAPPY_TOKEN_CONTRACT_ID, RCHAIN_TOKEN_SUPPORTED_VERSIONS } from '/CONSTANTS';
@@ -13,7 +13,6 @@ import { rchainTokenValidators } from '/store/decoders';
 import { ViewContract } from './ViewContract';
 import './ViewBox.scss';
 import { AccountPassword } from '/components/utils/AccountPassword';
-import { GlossaryHint } from '/components/utils/Hint';
 
 const ajv = new Ajv();
 
@@ -191,17 +190,6 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
             <i className="fa fa-before fa-box"></i>
             {t('token box')} "{this.props.boxId}"
           </h4>
-          <div>
-            <div>
-              <GlossaryHint term="what is a box ?" displayTerm />
-            </div>
-            <div>
-              <GlossaryHint term="what is a FT contract ?" displayTerm />
-            </div>
-            <div>
-              <GlossaryHint term="what is a NFT contract ?" displayTerm />
-            </div>
-          </div>
           <div className="field unlock-account">
             <label className="is-5">
               <i className="fa fa-before fa-key"></i>

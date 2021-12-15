@@ -5,7 +5,6 @@ import xs from 'xstream';
 
 import './Resolver.scss';
 import * as fromSettings from '../../../store/settings';
-import { GlossaryHint } from '/components/utils/Hint';
 
 const AUTO_RESOLVER_ABSOLUTE = 3;
 
@@ -158,13 +157,10 @@ export class ResolverComponent extends React.Component<ResolverProps, {}> {
           render={({ values, errors, touched, setFieldValue, handleSubmit, isSubmitting }) => {
             return (
               <form className="limited-width" onSubmit={handleSubmit}>
-                <h3 className="subtitle is-4">
-                  {t('multi-requests')}
-                  <GlossaryHint term="what is multi-requests ?" />
-                </h3>
-                <p
-                  className="limited-width mb-2"
-                  dangerouslySetInnerHTML={{ __html: t('settings network paragraph') }}></p>
+                <h3 className="subtitle is-4">{t('network')}</h3>
+                <p className="limited-width" dangerouslySetInnerHTML={{ __html: t('settings network paragraph') }}></p>
+
+                <br />
                 <FormResolverComponent values={values} setFieldValue={setFieldValue} />
 
                 {values.resolver === 'auto' && <ResolverAutoComponent />}
