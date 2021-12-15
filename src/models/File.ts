@@ -1,5 +1,7 @@
 import { BeesLoadErrors, BeesLoadCompleted } from 'beesjs';
 
+import { Record } from './Record';
+
 export interface LoadedFile {
   id: string;
   search: string;
@@ -8,6 +10,7 @@ export interface LoadedFile {
   publicKey: undefined | string;
   data: string;
   name: string;
+  record: Record,
   mimeType: string;
   size: number;
   tabId: string | undefined;

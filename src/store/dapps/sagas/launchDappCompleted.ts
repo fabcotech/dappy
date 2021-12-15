@@ -30,7 +30,7 @@ const launchDappCompleted = function* (action: Action) {
       title: payload.dapp.title,
       dappyDomain: dappyDomain,
       devMode: settings.devMode,
-      servers: [],
+      record: payload.dapp.record,
       html: payload.dapp.html,
       cookies: cookies[dappyDomain] || [],
     },

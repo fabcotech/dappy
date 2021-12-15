@@ -1,5 +1,7 @@
 import { BeesLoadErrors, BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
 
+import { Record } from './Record';
+
 export interface LoadCompletedData {
   nodeUrls: string[];
   data: string;
@@ -50,8 +52,9 @@ export interface DappFromNetwork {
 export interface Dapp extends DappFromNetwork {
   id: string;
   tabId: string | undefined;
-  // the aaa part of aaa/bbb
-  // newtork ID / chain ID (only "betanetwork" is possible now)
+  record: Record;
+  // the aaa part of aaa:bbb
+  // newtork ID / chain ID (ex: "d" / "gammanetwork" etc)
   chainId: string;
   // the bbb part of aaa/bbb (ex: "amazon", "google")
   search: string;

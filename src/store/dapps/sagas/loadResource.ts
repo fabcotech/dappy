@@ -269,8 +269,8 @@ const loadResource = function* (action: Action) {
   let fileContractId = contractId;
   let filePurseId = purseId;
   let publicKey = undefined;
+  let record = records[purseId];
   if (masterRegistryUri === info.rchainNamesMasterRegistryUri && contractId === info.rchainNamesContractId) {
-    let record = records[purseId];
     checkSignature = false;
     // ===================
     // NAME/RECORD LOOKUP
@@ -527,6 +527,7 @@ const loadResource = function* (action: Action) {
           size: encodeURI(dappyFile.data).split(/%..|./).length - 1,
           name: dappyFile.name,
           mimeType: dappyFile.mimeType,
+          record: record,
           data: dappyFile.data,
           launchedAt: new Date().toISOString(),
           // todo, get blockNumber and blockTime from data
@@ -582,6 +583,7 @@ const loadResource = function* (action: Action) {
     chainId: searchSplitted.chainId,
     search: searchSplitted.search,
     path: searchSplitted.path,
+    record: record,
     resourceId: resourceId,
     publicKey: publicKey,
     loadState: {
