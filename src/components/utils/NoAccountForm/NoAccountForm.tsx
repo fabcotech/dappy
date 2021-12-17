@@ -93,7 +93,7 @@ export const NoAccountFormComponent = ({ onClose, createAccount }: NoAccountForm
       {showAccountCreationForm ? (
         <div>
           <div className="field">
-            <AccountForm names={[]} filledAccount={setAccount} />
+            <AccountForm names={[]} fillAccount={setAccount} />
           </div>
           <div className="field is-grouped is-grouped-right">
             <div className="control">

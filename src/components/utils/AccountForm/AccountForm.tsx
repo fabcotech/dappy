@@ -12,7 +12,7 @@ const ec = new elliptic.ec('secp256k1');
 
 interface AccountFormProps {
   names: string[];
-  filledAccount: (a: undefined | Account) => void;
+  fillAccount: (a: undefined | Account) => void;
 }
 
 const PASSWORD_REGEXP_UPPER = /^(?=.*?[A-Z])/;
@@ -40,11 +40,15 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
     return (
       <Formik
         onSubmit={() => undefined}
-        initialValues={{
-          privatekey: '',
-          password: '',
-          name: '',
-        }}
+        initialValues={
+          {
+            privatekey: '',
+            password: '',
+            name: '',
+          } as Record<string, string> & {
+            platform?: Account['platform'];
+          }
+        }
         validate={(values) => {
           let errors: {
             name?: string;
@@ -93,7 +97,7 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
           this.passwordWarnings = ([] as string[]).concat(passwordWarnings);
 
           if (Object.keys(errors).length) {
-            this.props.filledAccount(undefined);
+            this.props.fillAccount(undefined);
           } else {
             try {
               const passwordBytes = passwordFromStringToBytes(values.password);
@@ -104,8 +108,8 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
                 throw new Error('unable to create a valid encrypted string');
               }
 
-              this.props.filledAccount({
-                platform: 'rchain',
+              this.props.fillAccount({
+                platform: values.platform!,
                 name: values.name,
                 publicKey: this.publicKey,
                 address: this.address,
@@ -134,6 +138,17 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
                 </div>
               </div>
               {touched.name && errors.name && <p className="text-danger">{(errors as any).name}</p>}
+              <div className="field is-horizontal">
+                <label className="label">{t('blockchain type')}*</label>
+                <div className="control">
+                  <div className="select">
+                    <Field as="select" name="platform">
+                      <option value="rchain">Rchain</option>
+                      <option value="evm">Ethereum / EVM</option>
+                    </Field>
+                  </div>
+                </div>
+              </div>
               <div className="field is-horizontal">
                 <label className="label">{t('public key')}*</label>
                 <div className="control">

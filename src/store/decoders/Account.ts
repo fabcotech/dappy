@@ -13,7 +13,7 @@ export const accountSchema = yup
     balance: yup.number().required(),
     platform: yup
       .string()
-      .matches(/rchain|/)
+      .matches(/rchain|evm/)
       .required(),
     boxes: yup.array().of(yup.string().required()),
   })

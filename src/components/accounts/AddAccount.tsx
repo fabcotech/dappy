@@ -24,7 +24,7 @@ export function AddAccountsComponent(props: AddAccountsProps) {
       <div className="message is-warning">
         <div className="message-body">{t('forgot password warning')}</div>
       </div>
-      <AccountForm names={Object.keys(props.accounts)} filledAccount={setAccount} />
+      <AccountForm names={Object.keys(props.accounts)} fillAccount={setAccount} />
       <div className="field is-horizontal is-grouped pt20">
         <div className="control">
           <button
