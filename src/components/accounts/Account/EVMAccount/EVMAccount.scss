@@ -4,6 +4,7 @@
   grid-template-rows: 2rem 7rem 2rem;
   width: 25rem;
   padding: 0.5rem 1rem;
+  margin-bottom: 1.5rem;
 
   .header {
     display: grid;
@@ -18,7 +19,8 @@
     .actions {
       justify-self: end;
       display: grid;
-      grid-template-columns: auto auto;
+      grid-template-columns: auto;
+      justify-items: end;
     }
   }
 

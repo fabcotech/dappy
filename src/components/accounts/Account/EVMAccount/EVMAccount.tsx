@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 
 import { Account as AccountModel } from '/models';
 import { openModalAction, closeModalAction } from '/store/main';
+import { updateAccountAction } from '/store/settings';
 import { copyToClipboard } from '/interProcess';
 
 import { WalletAddress } from '/components/utils/WalletAddress';
@@ -12,10 +13,16 @@ import './EVMAccount.scss';
 interface EVMAccountProps {
   account: AccountModel;
   showAccountModal: (a: AccountModel) => void;
+  setAccountAsMain: (a: AccountModel) => void;
   deleteAccount: (a: AccountModel) => void;
 }
 
-export const EVMAccountComponent = ({ account, showAccountModal, deleteAccount }: EVMAccountProps) => {
+export const EVMAccountComponent = ({
+  account,
+  showAccountModal,
+  deleteAccount,
+  setAccountAsMain,
+}: EVMAccountProps) => {
   return (
     <div className="evm-account box">
       <div className="header">
@@ -28,6 +35,14 @@ export const EVMAccountComponent = ({ account, showAccountModal, deleteAccount }
         </div>
 
         <div className="actions">
+          {account.main ? undefined : (
+            <button
+              title={t('set as main account')}
+              onClick={() => setAccountAsMain(account)}
+              className="button is-light is-small">
+              {t('set as main account')}
+            </button>
+          )}
           <a onClick={() => showAccountModal(account)} className="underlined-link">
             <i className="fa fa-before fa-eye"></i>
             {t('check account')}
@@ -59,6 +74,15 @@ export const EVMAccountComponent = ({ account, showAccountModal, deleteAccount }
 };
 
 export const EVMAccount = connect(undefined, (dispatch) => ({
+  setAccountAsMain: (a: AccountModel) =>
+    dispatch(
+      updateAccountAction({
+        account: {
+          ...a,
+          main: true,
+        },
+      })
+    ),
   showAccountModal: (account: AccountModel) =>
     dispatch(
       openModalAction({

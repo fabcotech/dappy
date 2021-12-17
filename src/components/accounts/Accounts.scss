@@ -1,0 +1,12 @@
+.accounts {
+  .logos {
+    display: grid;
+    grid-template-columns: repeat(10, 2rem);
+    column-gap: 1rem;
+  }
+  .account-cards {
+    display: grid;
+    grid-template-columns: repeat(2, min-content);
+    column-gap: 1rem;
+  }
+}

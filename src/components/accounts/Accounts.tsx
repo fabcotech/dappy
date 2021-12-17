@@ -12,6 +12,16 @@ import { ViewBox } from './ViewBox';
 import { GlossaryHint } from '/components/utils/Hint';
 import { AccountsContext } from './AccountsContext';
 
+import image_rchain from '/images/rchain40.png';
+import image_ethereum from '/images/ethereum120x120.png';
+import image_polygon from '/images/polygon120x120.png';
+import image_arbitrum from '/images/arbitrum120x120.png';
+import image_fantom_opera from '/images/fantom120x120.png';
+import image_binance_smart_chain from '/images/binance120x120.png';
+import image_avalanche from '/images/avalanche120x120.png';
+
+import './Accounts.scss';
+
 export const UpdateBalancesButton = ({ updating, updateBalances }: { updating: boolean; updateBalances: () => void }) =>
   updating ? (
     <a title={t('update balances')} className="disabled underlined-link">
@@ -40,6 +50,65 @@ export const HideBalancesButton = ({
     {isBalancesHidden ? t('show balances') : t('hide balances')}
   </a>
 );
+
+interface RChainAccountsProps {
+  accounts: Record<string, AccountModel>;
+  setTab: (tab: string) => void;
+}
+
+export const RChainAccounts = ({ accounts, setTab }: RChainAccountsProps) => {
+  return (
+    <div className="mb-4">
+      {Object.keys(accounts).length === 0 ? (
+        <button onClick={() => setTab('add-account')} className="button is-link">
+          {t('add account')}
+          <i className="fa fa-plus fa-after"></i>
+        </button>
+      ) : undefined}
+      <div className="block">
+        <h4 className="is-size-4 mb-2">RChain</h4>
+        <div className="logos mb-4">
+          <img src={image_rchain} title="rchain" />
+        </div>
+        <div className="account-cards">
+          {Object.values(accounts)
+            .filter((a) => a.platform === 'rchain')
+            .map((account) => (
+              <Account key={account.name} account={account} />
+            ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+interface EVMAccountsProps {
+  accounts: Record<string, AccountModel>;
+}
+
+export const EVMAcconts = ({ accounts }: EVMAccountsProps) => {
+  if (!Object.values(accounts).length) return null;
+  return (
+    <div className="block">
+      <h4 className="is-size-4 mb-2">Ethereum / EVM</h4>
+      <div className="logos mb-4">
+        <img src={image_ethereum} title="ethereum" />
+        <img src={image_polygon} title="polygon" />
+        <img src={image_arbitrum} title="arbitrum" />
+        <img src={image_fantom_opera} title="fantom opera" />
+        <img src={image_binance_smart_chain} title="binance smart chain" />
+        <img src={image_avalanche} title="avalanche" />
+      </div>
+      <div className="account-cards">
+        {Object.values(accounts)
+          .filter((a) => a.platform === 'evm')
+          .map((account) => (
+            <Account key={account.name} account={account} />
+          ))}
+      </div>
+    </div>
+  );
+};
 
 interface AccountsProps {
   accounts: { [name: string]: AccountModel };
@@ -70,7 +139,7 @@ export function AccountsComponent(props: AccountsProps) {
   }
 
   return (
-    <div className="settings-accounts pb20">
+    <div className="settings-accounts pb20 accounts">
       <div className="tabs is-small">
         <ul>
           <li className={tab === 'accounts' ? 'is-active' : ''}>
@@ -99,29 +168,8 @@ export function AccountsComponent(props: AccountsProps) {
           </div>
           <div>
             <AccountsContext.Provider value={{ setViewBox }}>
-              {Object.keys(props.accounts).length === 0 ? (
-                <button onClick={() => setTab('add-account')} className="button is-link">
-                  {t('add account')}
-                  <i className="fa fa-plus fa-after"></i>
-                </button>
-              ) : undefined}
-              <div className="block">
-                <h4 className="is-size-4 mb-2">rchain</h4>
-                {Object.values(props.accounts)
-                  .filter((a) => a.platform === 'rchain')
-                  .map((account) => (
-                    <Account key={account.name} account={account} />
-                  ))}
-              </div>
-              <div className="block">
-                <h4 className="is-size-4 mb-2">ethereum / evm</h4>
-                <div></div>
-                {Object.values(props.accounts)
-                  .filter((a) => a.platform === 'evm')
-                  .map((account) => (
-                    <Account key={account.name} account={account} />
-                  ))}
-              </div>
+              <RChainAccounts accounts={props.accounts} setTab={setTab} />
+              <EVMAcconts accounts={props.accounts} />
             </AccountsContext.Provider>
           </div>
         </div>

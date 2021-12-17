@@ -1,99 +1,98 @@
-.settings-accounts {
-  .account {
+.rchain-account {
+  display: grid;
+  grid-template-columns: 100%;
+  grid-template-rows: 4rem 8rem 8rem;
+  width: 25rem;
+  padding: 0.5rem 1rem;
+  position: relative;
+  margin-bottom: 1.5rem;
+  .header {
     display: grid;
-    grid-template-columns: 100%;
-    grid-template-rows: 4rem 8rem 8rem;
-    width: 25rem;
-    padding: 0.5rem 1rem;
-    position: relative;
-    .header {
-      display: grid;
-      justify-content: space-between;
-      .name {
-        font-weight: 600;
-        cursor: pointer;
-        i {
-          font-size: 0.8rem;
-        }
-        &:hover {
-          color: black
-        }
-      }
-    }
-    .remove-account {
-      position: absolute;
-      bottom: 0.5rem;
-      right: 0.5rem;
-    }
-    .actions {
-      grid-row: 1;
-      grid-column: 2;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: flex-end;
-      & > button {
-        margin-bottom: 0.25rem;
-        width: 7.5rem;
-      }
-      .text-danger {
-        width: 7.5rem;
-        font-size: 0.7em;
-        text-align: right;
-      }
-    }
-    .balance {
-      grid-row: 2;
-      grid-column: 1;
-      .num {
-        font-size: 2.2rem;
-        font-weight: bold;
-        &.blur {
-          filter: blur(0.5rem);
-        }
-      }
-      .unit {
-        font-weight: bold;
-        font-size: 1rem;
-      }
-      .phlo {
+    justify-content: space-between;
+    .name {
+      font-weight: 600;
+      cursor: pointer;
+      i {
         font-size: 0.8rem;
       }
+      &:hover {
+        color: black
+      }
     }
-    .boxes {
-      grid-row: 3;
-      grid-column-start: 1;
-      grid-column-end: 3;
+  }
+  .remove-account {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+  }
+  .actions {
+    grid-row: 1;
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-end;
+    & > button {
+      margin-bottom: 0.25rem;
+      width: 7.5rem;
+    }
+    .text-danger {
+      width: 7.5rem;
+      font-size: 0.7em;
+      text-align: right;
+    }
+  }
+  .balance {
+    grid-row: 2;
+    grid-column: 1;
+    .num {
+      font-size: 2.2rem;
+      font-weight: bold;
+      &.blur {
+        filter: blur(0.5rem);
+      }
+    }
+    .unit {
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    .phlo {
+      font-size: 0.8rem;
+    }
+  }
+  .boxes {
+    grid-row: 3;
+    grid-column-start: 1;
+    grid-column-end: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    span.token-boxes {
+      font-weight: 600;
+      display: block;
+    }
+    & > a, & > button {
+      display: block;
+    }
+    .check-box {
+      margin: 0.25rem 0rem;
       display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      align-items: flex-start;
-      span.token-boxes {
-        font-weight: 600;
-        display: block;
-      }
-      & > a, & > button {
-        display: block;
-      }
-      .check-box {
-        margin: 0.25rem 0rem;
-        display: flex;
-        align-items: center;
-        font-size: 1.0rem;
-        border-radius: 0.25rem;
-        box-shadow: 0px 0px 1rem rgb(0 0 0 / 30%);
-        .text {
-          max-width: 12rem;
-          text-overflow: ellipsis;
-          overflow: hidden;
-        } 
-      }
-      .password-for-deploy-box {
-        width: 11rem;
-      }
-      .check-box:last-of-type {
-        margin-bottom: 0.5rem;
-      }
+      align-items: center;
+      font-size: 1.0rem;
+      border-radius: 0.25rem;
+      box-shadow: 0px 0px 1rem rgb(0 0 0 / 30%);
+      .text {
+        max-width: 12rem;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      } 
+    }
+    .password-for-deploy-box {
+      width: 11rem;
+    }
+    .check-box:last-of-type {
+      margin-bottom: 0.5rem;
     }
   }
 }

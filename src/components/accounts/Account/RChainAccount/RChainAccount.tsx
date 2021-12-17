@@ -18,6 +18,7 @@ import { GlossaryHint } from '/components/utils/Hint';
 import { facade } from '/utils/walletsFacade';
 
 import './RChainAccount.scss';
+import { WalletAddress } from '/components/utils/WalletAddress';
 
 interface AccountComponentProps {
   account: AccountModel;
@@ -58,7 +59,7 @@ export const RChainAccountComponent = ({
   const [askBoxregistryUri, setAskBoxregistryUri] = useState<{ [key: string]: boolean }>({});
 
   return (
-    <div className="account box">
+    <div className="rchain-account box">
       <div className="header">
         <b className="name" onClick={() => showAccountModal(account)}>
           {account.name}
@@ -91,6 +92,16 @@ export const RChainAccountComponent = ({
         </div>
       </div>
       <div className="balance">
+        <div>
+          <div className="address has-text-weight-bold ">
+            {t('address')}
+            <a className="ml-3 underlined-link" onClick={() => copyToClipboard(account.address)}>
+              <i className="fa fa-copy fa-before"></i>
+              {t('copy')}
+            </a>
+          </div>
+          <WalletAddress address={account.address} />
+        </div>
         <span title={account.balance.toString()} className={`num ${isBalancesHidden ? 'blur' : ''}`}>
           {formatAmount(isBalancesHidden ? FAKE_BALANCE : account.balance)}
         </span>

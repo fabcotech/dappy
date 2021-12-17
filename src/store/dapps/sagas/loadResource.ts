@@ -92,7 +92,7 @@ const loadResource = function* (action: Action) {
       address = a;
       resourceId = a + '_' + tabId;
       url = ipApps[ipAppId].url;
-      yield put(fromMain.closeAllDappModalsAction({ dappId: ipAppId as string }));
+      yield put(fromMain.closeAllDappModalsAction({ resourceId: ipAppId }));
     }
 
     // if loadedFileId is found, it is a reload and not a load

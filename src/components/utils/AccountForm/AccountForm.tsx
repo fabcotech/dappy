@@ -45,6 +45,7 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
             privatekey: '',
             password: '',
             name: '',
+            platform: 'evm',
           } as Record<string, string> & {
             platform?: Account['platform'];
           }
@@ -67,6 +68,7 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
           } else if (values.password.length < 8) {
             errors.password = t('password length');
           }
+          console.log('PLATFORM', values.platform);
 
           if (!values.privatekey) {
             errors.privatekey = t('field required');
@@ -74,7 +76,14 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
             try {
               const keyPair = ec.keyFromPrivate(values.privatekey);
               this.publicKey = keyPair.getPublic().encode('hex', false) as string;
-              this.address = rchainToolkit.utils.revAddressFromPublicKey(this.publicKey);
+              switch (values.platform!) {
+                case 'rchain':
+                  this.address = rchainToolkit.utils.revAddressFromPublicKey(this.publicKey);
+                  break;
+                case 'evm':
+                  this.address = rchainToolkit.utils.ethAddressFromPublicKey(this.publicKey);
+                  break;
+              }
             } catch (err) {
               console.log(err);
               errors.privatekey = t('private key invalid');
@@ -143,8 +152,8 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
                 <div className="control">
                   <div className="select">
                     <Field as="select" name="platform">
-                      <option value="rchain">Rchain</option>
                       <option value="evm">Ethereum / EVM</option>
+                      <option value="rchain">Rchain</option>
                     </Field>
                   </div>
                 </div>
