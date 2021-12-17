@@ -1,0 +1,8 @@
+.wallet-address {
+  display: grid;
+  grid-template-columns: repeat(3, min-content);
+
+  :nth-child(2) {
+    overflow: hidden;
+  }
+}

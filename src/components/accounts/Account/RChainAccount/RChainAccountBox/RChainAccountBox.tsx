@@ -1,13 +1,13 @@
 import React from 'react';
 
-import './AccountBox.scss';
+import './RChainAccountBox.scss';
 
-interface AccountBoxProps {
+interface RChainAccountBoxProps {
   saveBoxId: (boxId: string) => void;
 }
 
-export class AccountBox extends React.Component<AccountBoxProps, { boxId: string }> {
-  constructor(props: AccountBoxProps) {
+export class RChainAccountBox extends React.Component<RChainAccountBoxProps, { boxId: string }> {
+  constructor(props: RChainAccountBoxProps) {
     super(props);
     this.state = {
       boxId: '',

@@ -10,6 +10,7 @@ import { getIsBalancesHidden, toggleBalanceVisibility } from '/store/ui';
 import { AddAccount } from './AddAccount';
 import { ViewBox } from './ViewBox';
 import { GlossaryHint } from '/components/utils/Hint';
+import { AccountsContext } from './AccountsContext';
 
 export const UpdateBalancesButton = ({ updating, updateBalances }: { updating: boolean; updateBalances: () => void }) =>
   updating ? (
@@ -97,15 +98,31 @@ export function AccountsComponent(props: AccountsProps) {
             />
           </div>
           <div>
-            {Object.keys(props.accounts).length === 0 ? (
-              <button onClick={() => setTab('add-account')} className="button is-link">
-                {t('add account')}
-                <i className="fa fa-plus fa-after"></i>
-              </button>
-            ) : undefined}
-            {Object.values(props.accounts).map((account) => (
-              <Account key={account.name} account={account} setViewBox={setViewBox} />
-            ))}
+            <AccountsContext.Provider value={{ setViewBox }}>
+              {Object.keys(props.accounts).length === 0 ? (
+                <button onClick={() => setTab('add-account')} className="button is-link">
+                  {t('add account')}
+                  <i className="fa fa-plus fa-after"></i>
+                </button>
+              ) : undefined}
+              <div className="block">
+                <h4 className="is-size-4 mb-2">rchain</h4>
+                {Object.values(props.accounts)
+                  .filter((a) => a.platform === 'rchain')
+                  .map((account) => (
+                    <Account key={account.name} account={account} />
+                  ))}
+              </div>
+              <div className="block">
+                <h4 className="is-size-4 mb-2">ethereum / evm</h4>
+                <div></div>
+                {Object.values(props.accounts)
+                  .filter((a) => a.platform === 'evm')
+                  .map((account) => (
+                    <Account key={account.name} account={account} />
+                  ))}
+              </div>
+            </AccountsContext.Provider>
           </div>
         </div>
       ) : undefined}
