@@ -29,18 +29,18 @@ export const makeHintComponent =
 // export const Hint = HintComponent(openExternal);
 
 const glossary = {
-  'what is rev ?': '#what_is_rev',
-  'what is multi-requests ?': '#multi-requests',
-  'what is ip app ?': '#ip-app',
-  'what is dapp ?': '#dapp',
-  'what is a box ?': '#what_is_a_box',
-  'what is a FT contract ?': '#what_is_a_ft_contract',
-  'what is a NFT contract ?': '#what_is_a_nft_contract',
-  'what is a dappy network ?': '#what_is_a_dappy_network',
+  'what is rev ?': '#whatisrev',
+  'what is multi-requests ?': '#whatismultirequest',
+  'what is ip app ?': '#whatisanipapplicationindappy',
+  'what is dapp ?': '#whatisadappindappy',
+  'what is a box ?': '#whatisabox',
+  'what is a FT contract ?': '#whatisaftcontract',
+  'what is a NFT contract ?': '#whatisanftcontract',
+  'what is a dappy network ?': '#whatisadappynetwork',
 };
 
 const getHelpLink = (namesBlockChain: Blockchain | undefined, path: string) =>
-  namesBlockChain ? searchToAddress('dappy/help', namesBlockChain.chainName, path) : undefined;
+  namesBlockChain ? searchToAddress('dappy/help', namesBlockChain.chainId, path) : undefined;
 
 interface GlossaryHintProps {
   term: keyof typeof glossary;
