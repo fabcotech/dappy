@@ -94,10 +94,26 @@ const rchainFacade = {
 }
 
 const ethereumFacade = {
-  signTransaction: (payload: any, privateKey: string) => {
+  signTransaction: (payload: {
+    to: string;
+    nonce: string;
+    gasLimit: number;
+    gasPrice: number;
+    value: any;
+    data: any;
+    chainId: number;
+  }, privateKey: string) => {
     return null;
   },
-  signTransferTransaction: (payload: any, privateKey: string) => {
+  signTransferTransaction: (payload: {
+    to: string;
+    nonce: string;
+    gasLimit: number;
+    gasPrice: number;
+    value: number;
+    data: any;
+    chainId: number;
+  }, privateKey: string) => {
     return null;
   },
   publicKeyFromPrivateKey: (privateKey: string) => {
