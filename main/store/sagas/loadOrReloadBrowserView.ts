@@ -156,9 +156,10 @@ const loadOrReloadBrowserView = function* (action: any) {
     // if IP apps
     if (!currentUrl.startsWith('file://')) {
       try {
-        currentPathAndParameters = url.pathname + url.search;
+        currentPathAndParameters = url.pathname + url.search + url.hash;
       } catch (err) {
-        console.error('Could not parse URL ' + currentUrl);
+        console.error('[did-navigate] Could not parse URL ' + currentUrl);
+        return;
       }
     }
 
