@@ -10,6 +10,7 @@ import * as fromBlockchain from '/store/blockchain';
 import * as fromCommon from '/common';
 import { TransactionForm } from '.';
 import { blockchain as blockchainUtils } from '/utils/blockchain';
+import { facade } from '/utils/walletsFacade';
 import { signSecp256k1 } from '/utils/signSecp256k1';
 
 import './TransactionModal.scss';
@@ -112,15 +113,13 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
       });
     }
 
-    const deployOptions = blockchainUtils.rchain.getDeployOptions(
-      new Date().valueOf(),
-      term as string,
-      this.state.privatekey,
-      this.state.publickey,
-      1,
-      this.state.phloLimit,
-      validAfterBlockNumber
-    );
+    const deployOptions = facade.rchain.signTransaction({
+      term: term as string,
+      timestamp: new Date().valueOf(),
+      phloPrice: 1,
+      phloLimit: this.state.phloLimit,
+      validAfterBlockNumber: validAfterBlockNumber,
+    }, this.state.privatekey);
 
     this.props.sendRChainTransaction({
       transaction: deployOptions,

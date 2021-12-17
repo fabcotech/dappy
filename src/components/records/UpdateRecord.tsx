@@ -2,11 +2,11 @@ import React, { Fragment } from 'react';
 import { updatePurseDataTerm } from 'rchain-token';
 
 import { Record, TransactionState, RChainInfos, Account, PartialRecord, Blockchain, MultiCallResult, IPServer } from '/models';
-import { blockchain as blockchainUtils } from '/utils';
 import { validateRecordFromNetwork } from '/store/decoders';
 import * as fromBlockchain from '/store/blockchain';
 import { getNodeIndex } from '/utils/getNodeIndex';
 import { multiCall } from '/interProcess';
+import { facade } from '/utils/walletsFacade';
 
 import { TransactionForm } from '../utils';
 import { RecordForm } from './RecordForm';
@@ -183,15 +183,13 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
       validAfterBlockNumber = this.props.namesBlockchainInfos.info.lastFinalizedBlockNumber;
     }
 
-    const deployOptions = blockchainUtils.rchain.getDeployOptions(
-      new Date().valueOf(),
-      term,
-      this.state.privatekey,
-      this.state.publickey,
-      1,
-      this.state.phloLimit,
-      validAfterBlockNumber
-    );
+    const deployOptions = facade.rchain.signTransaction({
+      term: term,
+      timestamp: new Date().valueOf(),
+      phloPrice: 1,
+      phloLimit: this.state.phloLimit,
+      validAfterBlockNumber: validAfterBlockNumber,
+    }, this.state.privatekey);
 
     this.props.sendRChainTransaction({
       transaction: deployOptions,

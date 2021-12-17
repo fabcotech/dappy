@@ -105,57 +105,6 @@ export const blockchain = {
     return array;
   },
   rchain: {
-    getDeployOptions: (
-      timestamp: number,
-      term: string,
-      privateKey: string,
-      publicKey: string,
-      phloPrice = 1,
-      phloLimit = 10000,
-      validAfterBlockNumber = 0
-    ): DeployOptions => {
-      const dd = rchainToolkit.utils.getDeployOptions(
-        'secp256k1',
-        timestamp,
-        term,
-        privateKey,
-        publicKey,
-        phloPrice,
-        phloLimit,
-        // todo change to -1
-        validAfterBlockNumber || 1
-      );
-
-      return dd as DeployOptions;
-    },
-    buildNameTermPayload: (
-      publicKey: string,
-      name: string,
-      address: string | undefined,
-      servers: IPServer[] | undefined,
-      nonce: string
-    ): string => {
-      const payload: {
-        publicKey: string;
-        name: string;
-        nonce: string;
-        address?: string;
-        servers?: IPServer[];
-        deployerId?: string;
-      } = {
-        publicKey: publicKey,
-        name: name,
-        nonce: nonce,
-      };
-      if (address) {
-        payload.address = address;
-      }
-      if (servers) {
-        payload.servers = servers;
-      }
-      payload['deployerId'] = '*deployerId';
-      return JSON.stringify(payload);
-    },
     balanceTerm: (address: string) => {
       return ` new return, rl(\`rho:registry:lookup\`), RevVaultCh, vaultCh, balanceCh in {
         rl!(\`rho:rchain:revVault\`, *RevVaultCh) |
@@ -168,61 +117,5 @@ export const blockchain = {
         }
       }`;
     },
-  },
-  transferFundsTerm: (from: string, to: string, amount: number) => {
-    return `new
-      basket,
-      rl(\`rho:registry:lookup\`),
-      RevVaultCh,
-      stdout(\`rho:io:stdout\`)
-    in {
-
-    rl!(\`rho:rchain:revVault\`, *RevVaultCh) |
-    for (@(_, RevVault) <- RevVaultCh) {
-      stdout!(("Started transfer")) |
-      match (
-        "${from}",
-        "${to}",
-        ${amount}
-      ) {
-        (from, to, amount) => {
-  
-          new vaultCh, vaultTo, revVaultkeyCh, deployerId(\`rho:rchain:deployerId\`) in {
-            @RevVault!("findOrCreate", from, *vaultCh) |
-            @RevVault!("findOrCreate", to, *vaultTo) |
-            @RevVault!("deployerAuthKey", *deployerId, *revVaultkeyCh) |
-            for (@result <- vaultCh; key <- revVaultkeyCh; _ <- vaultTo) {
-              stdout!(result) |
-              match result {
-                (true, vault) => {
-                  stdout!(("Beginning transfer of " , amount , " dust from " , from , " to " , to)) |
-                  new resultCh in {
-                    @vault!("transfer", to, amount, *key, *resultCh) |
-                    for (@result2 <- resultCh) {
-                      stdout!(result2) |
-                      match result2 {
-                        (true, Nil) => {
-                          stdout!(("Finished transfer of " , amount , " dusts to " , to)) |
-                          basket!({ "status": "completed" })
-                        }
-                        _ => {
-                          stdout!("Failed to transfer REV (vault transfer)") |
-                          basket!({ "status": "failed", "message": "Failed to transfer REV (vault transfer)" })
-                        }
-                      }
-                    }
-                  }
-                }
-                _ => {
-                  stdout!("Failed to transfer REV (vault not found)") |
-                  basket!({ "status": "failed", "message": "Failed to transfer REV (vault not found)" })
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }`;
   },
 };

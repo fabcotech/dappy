@@ -5,10 +5,10 @@ import * as fromBlockchain from '/store/blockchain';
 import { RChainTokenPurse, Account, RChainInfos } from '/models';
 import { formatAmountNoDecimal, formatAmount } from '/utils/formatAmount';
 import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '/CONSTANTS';
-import { blockchain as blockchainUtils } from '/utils/blockchain';
 import { createSocialCanvas, images, mascots } from '/utils/createSocialCanvas';
 import { toDuration, toDurationString, isEmptyOrNegativeDuration } from '/utils/unit';
 import { triggerCommand, openExternal } from '/interProcess';
+import { facade } from '/utils/walletsFacade';
 
 import './ViewPurse.scss';
 
@@ -219,15 +219,14 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                           price: this.state.newPrice,
                         });
 
-                        const deployOptions = blockchainUtils.rchain.getDeployOptions(
-                          timestamp,
-                          term,
-                          this.props.privateKey as string,
-                          this.props.account.publicKey,
-                          1,
-                          RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
-                          validAfterBlockNumber
-                        );
+                        const deployOptions = facade.rchain.signTransaction({
+                          term: term,
+                          timestamp: timestamp,
+                          phloPrice: 1,
+                          phloLimit: RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
+                          validAfterBlockNumber: validAfterBlockNumber,
+                        }, this.props.privateKey as string);
+
                         this.props.sendRChainTransaction({
                           transaction: deployOptions,
                           origin: {
@@ -337,15 +336,13 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                           toBoxId: this.state.boxWithdraw,
                           merge: true,
                         });
-                        const deployOptions = blockchainUtils.rchain.getDeployOptions(
-                          timestamp,
-                          term,
-                          this.props.privateKey as string,
-                          this.props.account.publicKey,
-                          1,
-                          RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
-                          validAfterBlockNumber
-                        );
+                        const deployOptions = facade.rchain.signTransaction({
+                          term: term,
+                          timestamp: timestamp,
+                          phloPrice: 1,
+                          phloLimit: RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
+                          validAfterBlockNumber: validAfterBlockNumber,
+                        }, this.props.privateKey as string);
                         this.props.sendRChainTransaction({
                           transaction: deployOptions,
                           origin: {

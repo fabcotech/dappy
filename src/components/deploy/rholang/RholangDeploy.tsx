@@ -10,8 +10,9 @@ import * as fromBlockchain from '/store/blockchain';
 import * as fromMain from '/store/main';
 import * as fromSettings from '/store/settings';
 import { TransactionForm } from '../../utils';
-import { blockchain as blockchainUtils } from '/utils';
 import { getNodeIndex } from '/utils/getNodeIndex';
+import { facade } from '/utils/walletsFacade';
+
 import './RholangDeploy.scss';
 
 const defaultRholang = `new a, stdout(\`rho:io:stdout\`), deployId(\`rho:rchain:deployId\`) in {\n  a!("bonjour !") |\n  stdout!("bonjour !") |\n  deployId!("bonjour !")\n}`;
@@ -251,15 +252,14 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
         if (this.props.rchainInfos && this.props.rchainInfos[chainId]) {
           validAfterBlockNumber = this.props.rchainInfos[chainId].info.lastFinalizedBlockNumber;
         }
-        const deployOptions = blockchainUtils.rchain.getDeployOptions(
-          timestamp,
-          term,
-          this.state.privatekey,
-          this.state.publickey,
-          1,
-          this.state.phloLimit,
-          validAfterBlockNumber
-        );
+        const deployOptions = facade.rchain.signTransaction({
+          term: term,
+          timestamp: timestamp,
+          phloPrice: 1,
+          phloLimit: this.state.phloLimit,
+          validAfterBlockNumber: validAfterBlockNumber,
+        }, this.state.privatekey);
+
         this.signature = deployOptions.signature;
         this.props.sendRChainTransaction({
           transaction: deployOptions,

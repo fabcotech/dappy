@@ -9,13 +9,13 @@ import * as fromMain from '/store/main';
 import * as fromCommon from '/common';
 import { State } from '/store';
 import { getIsBalancesHidden } from '/store/ui';
-import { blockchain as blockchainUtils } from '/utils/blockchain';
 import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '/CONSTANTS';
 import { AccountPassword } from '/components/utils/AccountPassword';
 import { AccountBox } from './AccountBox';
 import { formatAmount } from '/utils/formatAmount';
 import { copyToClipboard } from '/interProcess';
 import { GlossaryHint } from '/components/utils/Hint';
+import { facade } from '/utils/walletsFacade';
 
 import './Account.scss';
 
@@ -202,15 +202,13 @@ export const AccountComponent = ({
                         masterRegistryUri: rchainInfos[chainId].info.rchainNamesMasterRegistryUri,
                         publicKey: account.publicKey,
                       });
-                      const deployOptions = blockchainUtils.rchain.getDeployOptions(
-                        timestamp,
-                        term,
-                        privateKey,
-                        account.publicKey,
-                        1,
-                        RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
-                        validAfterBlockNumber
-                      );
+                      const deployOptions = facade.rchain.signTransaction({
+                        term: term,
+                        timestamp: timestamp,
+                        phloPrice: 1,
+                        phloLimit: RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
+                        validAfterBlockNumber: validAfterBlockNumber,
+                      }, privateKey);
                       sendRChainTransaction({
                         transaction: deployOptions,
                         origin: { origin: 'rchain-token', operation: 'deploy-box', accountName: account.name },

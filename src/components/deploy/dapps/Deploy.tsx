@@ -6,10 +6,10 @@ import * as fromMain from '/store/main';
 import * as fromBlockchain from '/store/blockchain';
 import { Blockchain, TransactionState, Account, TransactionStatus, TransactionOriginRChainToken, RChainInfos, RChainTokenOperation } from '/models';
 import './Deploy.scss';
-import { blockchain as blockchainUtils } from '/utils/blockchain';
 import { TransactionForm } from '../../utils';
 import { RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '/CONSTANTS';
 import { DeployTips, RChainTokenCreatePurse } from './';
+import { facade } from '/utils/walletsFacade';
 
 interface DeployProps {
   transactions: { [id: string]: TransactionState };
@@ -86,15 +86,13 @@ export class Deploy extends React.Component<DeployProps, {}> {
         this.props.rchainInfos[(this.props.namesBlockchain as Blockchain).chainId].info.lastFinalizedBlockNumber;
     }
 
-    const deployOptions = blockchainUtils.rchain.getDeployOptions(
-      timestamp,
-      this.state.term as string,
-      this.state.privatekey,
-      this.state.publickey,
-      1,
-      RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
-      validAfterBlockNumber
-    );
+    const deployOptions = facade.rchain.signTransaction({
+      term: this.state.term as string,
+      timestamp: timestamp,
+      phloPrice: 1,
+      phloLimit: RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
+      validAfterBlockNumber: validAfterBlockNumber,
+    }, this.state.privatekey);
 
     let operation: RChainTokenOperation = 'deploy';
     if (this.state.selected === 'tips') {
