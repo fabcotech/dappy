@@ -97,22 +97,22 @@ const ethereumFacade = {
   signTransaction: (payload: {
     to: string;
     nonce: string;
-    gasLimit: number;
-    gasPrice: number;
+    gasLimit: string;
+    gasPrice: string;
     value: any;
     data: any;
-    chainId: number;
+    chainId: string;
   }, privateKey: string) => {
     return null;
   },
   signTransferTransaction: (payload: {
     to: string;
     nonce: string;
-    gasLimit: number;
-    gasPrice: number;
-    value: number;
+    gasLimit: string;
+    gasPrice: string;
+    value: string;
     data: any;
-    chainId: number;
+    chainId: string;
   }, privateKey: string) => {
     return null;
   },
