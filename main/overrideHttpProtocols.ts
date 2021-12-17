@@ -303,6 +303,7 @@ const makeCookiesOnChange =
     const cookies = await getCookies({ url: `https://${c.domain}` });
     const cookiesToBeStored = cookies
       .filter((c) => typeof c.expirationDate === 'number')
+      .filter((c) => !!servers.find(s => s.host === c.domain))
       .map(
         (cook) =>
           ({
