@@ -1,6 +1,9 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { renderWithStore } from '/testUtils';
 import userEvent from '@testing-library/user-event';
+import { State } from '/store';
+import { initialState as SettingsInitialState } from '/store/settings';
 
 import { makeHintComponent, GlossaryHint } from './';
 
@@ -18,8 +21,14 @@ describe('Hint', () => {
     userEvent.click(screen.getByTitle('name system'));
     expect(open).toHaveBeenCalledWith(helpPage);
   });
-  it.skip('should display glossary hint', () => {
-    render(<GlossaryHint term="what is rev ?" />);
+  it('should display glossary hint', () => {
+    const state: Partial<State> = {
+      settings: {
+        ...SettingsInitialState,
+      },
+    };
+
+    renderWithStore(<GlossaryHint term="what is rev ?" />, state);
     expect(screen.queryByTitle('token box')).toBeDefined();
   });
 });
