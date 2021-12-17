@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
+import { renderWithStore } from '/testUtils';
 import userEvent from '@testing-library/user-event';
 import {
   getFakeAccount,
@@ -8,9 +9,10 @@ import {
   getFakeRChainContractConfig,
   getFakePurse,
 } from '/fakeData';
-import { RChainContractConfig, RChainTokenPurse } from '/models';
+import { RChainTokenPurse } from '/models';
 import { PurchaseRecordComponent, PurchaseRecordProps } from './PurchaseRecord';
 import { RequestResult } from '/utils/wsUtils';
+import { initialState as settingsInitialState } from '/store/settings';
 
 const getFakePurchaseRecordProps = (props: Partial<PurchaseRecordProps> = {}): PurchaseRecordProps => {
   const fakeAccount = getFakeAccount();
@@ -26,7 +28,7 @@ const getFakePurchaseRecordProps = (props: Partial<PurchaseRecordProps> = {}): P
   } as PurchaseRecordProps;
 };
 
-describe.skip('PurchaseRecord', () => {
+describe('PurchaseRecord', () => {
   it('should display name is available and contract infos', async () => {
     const purse0 = getFakePurse({
       id: '0',
@@ -47,7 +49,11 @@ describe.skip('PurchaseRecord', () => {
         ]),
     });
 
-    render(<PurchaseRecordComponent {...props} />);
+    renderWithStore(<PurchaseRecordComponent {...props} />, {
+      settings: {
+        ...settingsInitialState,
+      },
+    });
 
     const nameInput = screen.getByLabelText('name / id');
     userEvent.type(nameInput, 'foo');
@@ -88,7 +94,11 @@ describe.skip('PurchaseRecord', () => {
         ]),
     });
 
-    render(<PurchaseRecordComponent {...props} />);
+    renderWithStore(<PurchaseRecordComponent {...props} />, {
+      settings: {
+        ...settingsInitialState,
+      },
+    });
 
     const nameInput = screen.getByLabelText('name / id');
     userEvent.type(nameInput, 'foo');

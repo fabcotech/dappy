@@ -78,7 +78,7 @@ const loadResource = function* (action: Action) {
     const dappId = Object.keys(dapps).find((k) => k === tab.resourceId);
     if (dappId && !payload.address) {
       console.log('reloading dapp', dappId);
-      yield put(fromMain.closeAllDappModalsAction({ dappId: dappId as string }));
+      yield put(fromMain.closeAllDappModalsAction({ resourceId: dappId }));
       const a = searchToAddress(dapps[dappId].search, dapps[dappId].chainId, dapps[dappId].path);
       address = a;
       resourceId = a + '_' + tabId;
