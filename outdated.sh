@@ -11,7 +11,7 @@ do
     LATEST=$(echo "$TO_BE_PARSED" | cut -d: -f4)
     LATEST_VERSION=$(echo "$LATEST" | cut -d@ -f2)
     if [ "$ACTUAL" != "$LATEST" ]; then
-      echo "SECURITY ISSUE $DEP: actual $ACTUAL_VERSION, latest $LATEST_VERSION, run npm i $DEP:latest to fix it"
+      echo "SECURITY ISSUE $DEP: actual $ACTUAL_VERSION, latest $LATEST_VERSION, run npm i $DEP@latest to fix it"
       FAIL=true
     fi
 done
