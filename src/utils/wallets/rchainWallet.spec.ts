@@ -4,7 +4,7 @@ describe('RChain Wallet', () => {
   it('should sign transaction with data', () => {
     const signedTx = rchainWallet.signTransaction(
       {
-        timestamp: new Date('01/01/2022').getTime(),
+        timestamp: 1640991600000,
         phloLimit: 20000,
         phloPrice: 10,
         validAfterBlockNumber: 1,
