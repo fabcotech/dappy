@@ -8,7 +8,7 @@ import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '/CONSTANT
 import { createSocialCanvas, images, mascots } from '/utils/createSocialCanvas';
 import { toDuration, toDurationString, isEmptyOrNegativeDuration } from '/utils/unit';
 import { triggerCommand, openExternal } from '/interProcess';
-import { facade } from '/utils/walletsFacade';
+import { rchainWallet } from '/utils/wallets';
 
 import './ViewPurse.scss';
 
@@ -76,8 +76,10 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
     return (
       <div key={this.props.id} className={`view-purse`}>
         {this.props.purse ? (
-          <div className={this.props.fungible ? "fungible" : "non-fungible"}>
-            <span className={`id`}>{this.props.fungible ? "Purse ID : " : ""} {this.props.purse.id}</span>
+          <div className={this.props.fungible ? 'fungible' : 'non-fungible'}>
+            <span className={`id`}>
+              {this.props.fungible ? 'Purse ID : ' : ''} {this.props.purse.id}
+            </span>
             <div className="values">
               {this.props.fungible && (
                 <span>
@@ -89,9 +91,9 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                   {isExpired(this.props.now)(this.props.purse.timestamp, this.props.contractExpiration!)
                     ? t('expired')
                     : `${t('expires in')} ${expiresIn(this.props.now)(
-                      this.props.purse.timestamp,
-                      this.props.contractExpiration!
-                    )}`}
+                        this.props.purse.timestamp,
+                        this.props.contractExpiration!
+                      )}`}
                 </span>
               )}
             </div>
@@ -121,8 +123,8 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                   {this.props.id === '0'
                     ? t('update cost of minting')
                     : this.props.fungible
-                      ? t('update per token price')
-                      : t('update nft purse price')}
+                    ? t('update per token price')
+                    : t('update nft purse price')}
                 </a>
                 <a
                   onClick={() => {
@@ -219,13 +221,16 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                           price: this.state.newPrice,
                         });
 
-                        const deployOptions = facade.rchain.signTransaction({
-                          term: term,
-                          timestamp: timestamp,
-                          phloPrice: 1,
-                          phloLimit: RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
-                          validAfterBlockNumber: validAfterBlockNumber,
-                        }, this.props.privateKey as string);
+                        const deployOptions = rchainWallet.signTransaction(
+                          {
+                            term: term,
+                            timestamp: timestamp,
+                            phloPrice: 1,
+                            phloLimit: RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
+                            validAfterBlockNumber: validAfterBlockNumber,
+                          },
+                          this.props.privateKey as string
+                        );
 
                         this.props.sendRChainTransaction({
                           transaction: deployOptions,
@@ -336,13 +341,16 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                           toBoxId: this.state.boxWithdraw,
                           merge: true,
                         });
-                        const deployOptions = facade.rchain.signTransaction({
-                          term: term,
-                          timestamp: timestamp,
-                          phloPrice: 1,
-                          phloLimit: RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
-                          validAfterBlockNumber: validAfterBlockNumber,
-                        }, this.props.privateKey as string);
+                        const deployOptions = rchainWallet.signTransaction(
+                          {
+                            term: term,
+                            timestamp: timestamp,
+                            phloPrice: 1,
+                            phloLimit: RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
+                            validAfterBlockNumber: validAfterBlockNumber,
+                          },
+                          this.props.privateKey as string
+                        );
                         this.props.sendRChainTransaction({
                           transaction: deployOptions,
                           origin: {
@@ -472,8 +480,8 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                   {this.props.id === '0'
                     ? 'tokens for sale (mint)'
                     : this.props.fungible
-                      ? t('for sale')
-                      : t('nft for sale')}
+                    ? t('for sale')
+                    : t('nft for sale')}
                 </span>
                 <div className="prices">
                   <span className="formated-amount-rev">

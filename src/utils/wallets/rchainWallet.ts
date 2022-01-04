@@ -1,23 +1,64 @@
 import rc from 'rchain-toolkit';
 
-const rchainFacade = {
-  signTransaction: (payload: { timestamp: number; term: string; phloLimit: number; phloPrice: number; validAfterBlockNumber: number; }, privateKey: string) => {
+import { Wallet } from './wallet';
+
+interface RChainTransactionBase {
+  timestamp: number;
+  phloLimit: number;
+  phloPrice: number;
+  validAfterBlockNumber: number;
+}
+
+interface RChainTermTransaction extends RChainTransactionBase {
+  term: string;
+}
+
+interface RChainTransferTransaction extends RChainTransactionBase {
+  from: string;
+  to: string;
+  amount: number;
+}
+
+export const rchainWallet: Wallet<RChainTermTransaction, RChainTransferTransaction> = {
+  signTransaction: (tx, privateKey) => {
     const dd = rc.utils.getDeployOptions(
       'secp256k1',
-      payload.timestamp,
-      payload.term,
+      tx.timestamp,
+      tx.term,
       privateKey,
       rc.utils.publicKeyFromPrivateKey(privateKey),
-      payload.phloPrice,
-      payload.phloLimit,
+      tx.phloPrice,
+      tx.phloLimit,
       // todo change to -1
-      payload.validAfterBlockNumber || 1
+      tx.validAfterBlockNumber || 1
     );
 
     return dd;
   },
-  signTransferTransaction: (payload: { timestamp: number; phloLimit: number; phloPrice: number; validAfterBlockNumber: number; from: string; to: string; amount: number; }, privateKey: string) => {
-    const term = `new
+  signTransferTransaction: (tx, privateKey) => {
+    const dd = rc.utils.getDeployOptions(
+      'secp256k1',
+      tx.timestamp,
+      createTranferTerm(tx),
+      privateKey,
+      rc.utils.publicKeyFromPrivateKey(privateKey),
+      tx.phloPrice,
+      tx.phloLimit,
+      // todo change to -1
+      tx.validAfterBlockNumber || 1
+    );
+
+    return dd;
+  },
+  publicKeyFromPrivateKey: (privateKey: string) => {
+    return rc.utils.publicKeyFromPrivateKey(privateKey);
+  },
+  addressFromPublicKey: (publicKey: string) => {
+    return rc.utils.revAddressFromPublicKey(publicKey);
+  },
+};
+
+const createTranferTerm = ({ from, to, amount }: RChainTransferTransaction) => `new
     basket,
     rl(\`rho:registry:lookup\`),
     RevVaultCh,
@@ -28,9 +69,9 @@ const rchainFacade = {
   for (@(_, RevVault) <- RevVaultCh) {
     stdout!(("Started transfer")) |
     match (
-      "${payload.from}",
-      "${payload.to}",
-      ${payload.amount}
+      "${from}",
+      "${to}",
+      ${amount}
     ) {
       (from, to, amount) => {
 
@@ -70,61 +111,4 @@ const rchainFacade = {
       }
     }
   }
-}`
-    const dd = rc.utils.getDeployOptions(
-      'secp256k1',
-      payload.timestamp,
-      term,
-      privateKey,
-      rc.utils.publicKeyFromPrivateKey(privateKey),
-      payload.phloPrice,
-      payload.phloLimit,
-      // todo change to -1
-      payload.validAfterBlockNumber || 1
-    );
-
-    return dd;
-  },
-  publicKeyFromPrivateKey: (privateKey: string) => {
-    return rc.utils.publicKeyFromPrivateKey(privateKey)
-  }, 
-  addressFromPublicKey: (publicKey: string) => {
-    return rc.utils.revAddressFromPublicKey(publicKey);
-  },
-}
-
-const ethereumFacade = {
-  signTransaction: (payload: {
-    to: string;
-    nonce: string;
-    gasLimit: string;
-    gasPrice: string;
-    value: any;
-    data: any;
-    chainId: string;
-  }, privateKey: string) => {
-    return null;
-  },
-  signTransferTransaction: (payload: {
-    to: string;
-    nonce: string;
-    gasLimit: string;
-    gasPrice: string;
-    value: string;
-    data: any;
-    chainId: string;
-  }, privateKey: string) => {
-    return null;
-  },
-  publicKeyFromPrivateKey: (privateKey: string) => {
-    return rc.utils.publicKeyFromPrivateKey(privateKey)
-  }, 
-  addressFromPublicKey: (publicKey: string) => {
-    return rc.utils.ethAddressFromPublicKey(publicKey);
-  },
-}
-
-export const facade = {
-  rchain: rchainFacade,
-  ethereum: ethereumFacade,
-}
+}`;

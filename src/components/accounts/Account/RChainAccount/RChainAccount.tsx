@@ -15,7 +15,7 @@ import { RChainAccountBox } from './RChainAccountBox';
 import { formatAmount } from '/utils/formatAmount';
 import { copyToClipboard } from '/interProcess';
 import { GlossaryHint } from '/components/utils/Hint';
-import { facade } from '/utils/walletsFacade';
+import { rchainWallet } from '/utils/wallets';
 
 import './RChainAccount.scss';
 import { WalletAddress } from '/components/utils/WalletAddress';
@@ -211,7 +211,7 @@ export const RChainAccountComponent = ({
                         masterRegistryUri: rchainInfos[chainId].info.rchainNamesMasterRegistryUri,
                         publicKey: account.publicKey,
                       });
-                      const deployOptions = facade.rchain.signTransaction(
+                      const deployOptions = rchainWallet.signTransaction(
                         {
                           term: term,
                           timestamp: timestamp,

@@ -4,12 +4,12 @@ import { deployTerm } from 'rchain-token';
 import * as fromUi from '/store/ui';
 import * as fromMain from '/store/main';
 import * as fromBlockchain from '/store/blockchain';
-import { Blockchain, TransactionState, Account, TransactionStatus, TransactionOriginRChainToken, RChainInfos, RChainTokenOperation } from '/models';
+import { Blockchain, TransactionState, Account, TransactionStatus, RChainInfos, RChainTokenOperation } from '/models';
 import './Deploy.scss';
 import { TransactionForm } from '../../utils';
 import { RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '/CONSTANTS';
 import { DeployTips, RChainTokenCreatePurse } from './';
-import { facade } from '/utils/walletsFacade';
+import { rchainWallet } from '/utils/wallets';
 
 interface DeployProps {
   transactions: { [id: string]: TransactionState };
@@ -41,15 +41,15 @@ export class Deploy extends React.Component<DeployProps, {}> {
     phloLimit: number; // step 3
     step: number;
   } = {
-      term: undefined,
-      selected: undefined,
-      privatekey: '',
-      box: undefined,
-      accountName: undefined,
-      publickey: '',
-      phloLimit: 0,
-      step: 1,
-    };
+    term: undefined,
+    selected: undefined,
+    privatekey: '',
+    box: undefined,
+    accountName: undefined,
+    publickey: '',
+    phloLimit: 0,
+    step: 1,
+  };
 
   onBackToStep1 = () => {
     this.setState({
@@ -86,19 +86,22 @@ export class Deploy extends React.Component<DeployProps, {}> {
         this.props.rchainInfos[(this.props.namesBlockchain as Blockchain).chainId].info.lastFinalizedBlockNumber;
     }
 
-    const deployOptions = facade.rchain.signTransaction({
-      term: this.state.term as string,
-      timestamp: timestamp,
-      phloPrice: 1,
-      phloLimit: RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
-      validAfterBlockNumber: validAfterBlockNumber,
-    }, this.state.privatekey);
+    const deployOptions = rchainWallet.signTransaction(
+      {
+        term: this.state.term as string,
+        timestamp: timestamp,
+        phloPrice: 1,
+        phloLimit: RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
+        validAfterBlockNumber: validAfterBlockNumber,
+      },
+      this.state.privatekey
+    );
 
     let operation: RChainTokenOperation = 'deploy';
     if (this.state.selected === 'tips') {
-      operation = 'tips'
+      operation = 'tips';
     } else if (this.state.selected === 'create-purses') {
-      operation = 'create-purses'
+      operation = 'create-purses';
     }
     this.props.sendRChainTransaction({
       transaction: deployOptions,

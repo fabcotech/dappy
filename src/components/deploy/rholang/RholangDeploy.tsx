@@ -11,7 +11,7 @@ import * as fromMain from '/store/main';
 import * as fromSettings from '/store/settings';
 import { TransactionForm } from '../../utils';
 import { getNodeIndex } from '/utils/getNodeIndex';
-import { facade } from '/utils/walletsFacade';
+import { rchainWallet } from '/utils/wallets';
 
 import './RholangDeploy.scss';
 
@@ -252,13 +252,16 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
         if (this.props.rchainInfos && this.props.rchainInfos[chainId]) {
           validAfterBlockNumber = this.props.rchainInfos[chainId].info.lastFinalizedBlockNumber;
         }
-        const deployOptions = facade.rchain.signTransaction({
-          term: term,
-          timestamp: timestamp,
-          phloPrice: 1,
-          phloLimit: this.state.phloLimit,
-          validAfterBlockNumber: validAfterBlockNumber,
-        }, this.state.privatekey);
+        const deployOptions = rchainWallet.signTransaction(
+          {
+            term: term,
+            timestamp: timestamp,
+            phloPrice: 1,
+            phloLimit: this.state.phloLimit,
+            validAfterBlockNumber: validAfterBlockNumber,
+          },
+          this.state.privatekey
+        );
 
         this.signature = deployOptions.signature;
         this.props.sendRChainTransaction({

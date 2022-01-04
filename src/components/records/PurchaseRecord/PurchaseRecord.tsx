@@ -20,7 +20,7 @@ import { validateName } from '/utils/validateSearch';
 import * as fromBlockchain from '/store/blockchain';
 
 import { TransactionForm } from '../../utils';
-import { facade } from '/utils/walletsFacade';
+import { rchainWallet } from '/utils/wallets';
 import { RecordForm } from '..';
 import { isPurchasable, PurseInfo } from './PurseInfo';
 import { OpenModalPayload } from '/store/main';
@@ -181,13 +181,16 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
     }
 
     const phloPrice = 1;
-    const deployOptions = facade.rchain.signTransaction({
-      term: term,
-      timestamp: new Date().valueOf(),
-      phloPrice: phloPrice,
-      phloLimit: this.state.phloLimit,
-      validAfterBlockNumber: validAfterBlockNumber,
-    }, this.state.privatekey);
+    const deployOptions = rchainWallet.signTransaction(
+      {
+        term: term,
+        timestamp: new Date().valueOf(),
+        phloPrice: phloPrice,
+        phloLimit: this.state.phloLimit,
+        validAfterBlockNumber: validAfterBlockNumber,
+      },
+      this.state.privatekey
+    );
 
     const maxGasCost = phloPrice * this.state.phloLimit;
 
