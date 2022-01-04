@@ -22,7 +22,9 @@ const launchDappCompleted = function* (action: Action) {
   dispatchInMain({
     type: '[MAIN] Load or reload browser view',
     payload: {
-      currentUrl: `dist/dappsandboxed.html`,
+      // $ is forbidden character, we know that this will
+      // be a dapp and not IP app if it starts with $
+      currentUrl: `$dapp`,
       resourceId: payload.dapp.id,
       tabId: tab.id,
       muted: tab.muted,

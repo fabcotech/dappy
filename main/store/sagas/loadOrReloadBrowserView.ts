@@ -1,5 +1,6 @@
 import { takeEvery, select, put } from 'redux-saga/effects';
 import path from 'path';
+import fs from 'fs';
 import https from 'https';
 import { BrowserView, app, session } from 'electron';
 
@@ -8,6 +9,7 @@ import { DappyBrowserView } from '../../models';
 import { registerInterProcessDappProtocol } from '../../registerInterProcessDappProtocol';
 import { registerDappyNetworkProtocol } from '../../registerDappyNetworkProtocol';
 import { overrideHttpProtocols } from '../../overrideHttpProtocols';
+import { registerDappyLocalProtocol } from '../../registerDappyLocalProtocol';
 import { preventAllPermissionRequests } from '../../preventAllPermissionRequests';
 import { store } from '../';
 
@@ -75,12 +77,13 @@ const loadOrReloadBrowserView = function* (action: any) {
     const a = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('dappynetwork');
     const b = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('interprocessdapp');
     const c = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.uninterceptProtocol('https');
-    let d = true;
+    const d = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.uninterceptProtocol('dappyl');
+    let e = true;
     if (!development) {
-      d = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.uninterceptProtocol('http');
+      e = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.uninterceptProtocol('http');
     }
     if (development) {
-      console.log(a, b, c, d);
+      console.log(a, b, c, d, e);
     }
     if (bv && bv.browserView) {
       if (bv.browserView.webContents.isDevToolsOpened()) {
@@ -136,11 +139,18 @@ const loadOrReloadBrowserView = function* (action: any) {
 
   /* browser to server */
   // In the case of IP apps, payload.currentUrl is a https://xx address
-  view.webContents.loadURL(
-    payload.currentUrl === 'dist/dappsandboxed.html'
-      ? path.join('file://', app.getAppPath(), 'dist/dappsandboxed.html') + payload.path
-      : payload.currentUrl
-  );
+  if (payload.currentUrl === '$dapp') {
+    const htmlPath = path.join(app.getAppPath(), 'dist/cache/', 'dapp.html');
+    fs.writeFileSync(htmlPath, payload.html);
+    view.webContents.loadURL('file://' + htmlPath)
+      .then(() => {
+        fs.rm(htmlPath, (err) => {
+          if (err) console.log(err);
+        });
+      })
+  } else {
+    view.webContents.loadURL(payload.currentUrl);
+  }
 
   let previewId;
   let currentPathAndParameters = '';
@@ -385,6 +395,7 @@ const loadOrReloadBrowserView = function* (action: any) {
     session: viewSession,
   });
   registerDappyNetworkProtocol(newBrowserViews[payload.resourceId], viewSession, store);
+  registerDappyLocalProtocol(viewSession)
 
   return yield put({
     type: fromBrowserViews.LOAD_OR_RELOAD_BROWSER_VIEW_COMPLETED,
