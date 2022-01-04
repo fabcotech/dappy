@@ -33,26 +33,9 @@ export const dappInitialSetupAction = (values: DappInitialSetupPayload) => {
   };
 };
 
-export interface ExecuteTransactionPayload {
-  parameters: {
-    chainId?: string;
-    keyProvider?: string;
-    actions: any;
-  };
-  callId: string;
-  dappId: string;
-}
-export interface ExecuteTransactionAction {
-  type: 'Execute transaction';
-  payload: ExecuteTransactionPayload;
-}
-export const executeTransactionAction = (values: ExecuteTransactionPayload) => {
-  return {
-    type: EXECUTE_TRANSACTION,
-    payload: values,
-  };
-};
-
+// ======
+// RChain
+// ======
 export interface SendRChainTransactionFromMiddlewarePayload {
   parameters: {
     term?: string;
@@ -81,27 +64,6 @@ export const sendRChainTransactionFromSandboxAction = (values: SendRChainTransac
   };
 };
 
-export interface SignEthereumTransactionFromSandboxAction {
-  type: '[SandBox] Sign ethereum transaction';
-  payload: any;
-}
-export const signEthereumTransactionFromSandboxAction = (values: any) => {
-  return {
-    type: SIGN_ETHEREUM_TRANSACTION_FROM_SANDBOX,
-    payload: values,
-  };
-};
-
-export interface SendEthereumPaymentRequestFromSandboxAction {
-  type: '[Common] Send Ethereum payment request from sandbox';
-  payload: any;
-}
-export const sendEthereumPaymentRequestFromSandboxAction = (values: any) => {
-  return {
-    type: SEND_ETHEREUM_PAYMENT_REQUEST_FROM_SANDBOX,
-    payload: values,
-  };
-};
 
 export interface RChainPaymentRequestParameters {
   from?: string;
@@ -131,6 +93,49 @@ export interface SendRChainPaymentRequestFromSandboxAction {
 export const sendRChainPaymentRequestFromSandboxAction = (values: SendRChainPaymentRequestFromSandboxPayload) => {
   return {
     type: SEND_RCHAIN_PAYMENT_REQUEST_FROM_SANDBOX,
+    payload: values,
+  };
+};
+
+
+// ======
+// Ethereum
+// ======
+export interface SignEthereumTransactionFromMiddlewarePayload {
+  parameters: {
+    from: string;
+    to: string;
+  };
+  resourceId: string;
+  chainId: string;
+  id: string;
+  origin: TransactionOriginDapp;
+}
+export interface SignEthereumTransactionFromSandboxPayload {
+  parameters: {
+    from: string;
+    to: string;
+  };
+  callId: string;
+}
+export interface SignEthereumTransactionFromSandboxAction {
+  type: '[SandBox] Sign ethereum transaction';
+  payload: SignEthereumTransactionFromSandboxPayload;
+}
+export const signEthereumTransactionFromSandboxAction = (values: SignEthereumTransactionFromSandboxPayload) => {
+  return {
+    type: SIGN_ETHEREUM_TRANSACTION_FROM_SANDBOX,
+    payload: values,
+  };
+};
+
+export interface SendEthereumPaymentRequestFromSandboxAction {
+  type: '[Common] Send Ethereum payment request from sandbox';
+  payload: any;
+}
+export const sendEthereumPaymentRequestFromSandboxAction = (values: any) => {
+  return {
+    type: SEND_ETHEREUM_PAYMENT_REQUEST_FROM_SANDBOX,
     payload: values,
   };
 };

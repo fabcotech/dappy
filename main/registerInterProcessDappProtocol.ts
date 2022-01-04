@@ -56,7 +56,25 @@ const sendRChainPaymentRequestFromSandboxSchema = yup
   .noUnknown()
   .required();
 
-const sendRChainTransactionFromSandboxSchema = yup
+  const signEthereumTransactionFromSandboxSchema = yup
+  .object()
+  .shape({
+    parameters: yup
+      .object()
+      .shape({
+        from: yup.string().required(),
+        to: yup.string().required(),
+      })
+      .noUnknown()
+      .required()
+      .strict(true),
+    callId: yup.string().required(),
+  })
+  .strict(true)
+  .noUnknown()
+  .required();
+
+  const sendRChainTransactionFromSandboxSchema = yup
   .object()
   .shape({
     parameters: yup
@@ -134,6 +152,49 @@ export const registerInterProcessDappProtocol = (
           return;
         }
 
+        // ETHEREUM / EVM
+        if (data.action.type === fromCommon.SIGN_ETHEREUM_TRANSACTION_FROM_SANDBOX) {
+          signEthereumTransactionFromSandboxSchema
+            .validate(payloadBeforeValid)
+            .then((valid) => {
+              const payload: fromCommon.SignEthereumTransactionFromSandboxPayload = payloadBeforeValid;
+
+              const id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
+              const payload2: fromCommon.SignEthereumTransactionFromMiddlewarePayload = {
+                parameters: payload.parameters,
+                origin: {
+                  origin: 'dapp',
+                  accountName: undefined,
+                  resourceId: dappyBrowserView.resourceId,
+                  dappTitle: dappyBrowserView.title,
+                  callId: payload.callId,
+                },
+                resourceId: dappyBrowserView.resourceId,
+                chainId: (searchSplitted as SplitSearch).chainId,
+                id: id,
+              };
+
+              dispatchFromMain({
+                action: fromMain.openDappModalAction({
+                  resourceId: dappyBrowserView.resourceId,
+                  title: 'ETHEREUM_SIGN_TRANSACTION_MODAL',
+                  text: '',
+                  parameters: payload2,
+                  buttons: [],
+                }),
+              });
+              callback(Buffer.from(''));
+            })
+            .catch((err: Error) => {
+              // todo : does the dapp need to have this error returned ?
+              console.error('[interprocessdapp://] a dapp tried to send RChain transaction with an invalid schema');
+              console.error(err);
+              callback(Buffer.from(''));
+              return;
+            });
+        }
+
+        // RCHAIN
         const okBlockchains = fromBlockchainsMain.getOkBlockchainsMain(state);
         let searchSplitted: undefined | SplitSearch = undefined;
 

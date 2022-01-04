@@ -62,7 +62,7 @@ export default class {
     return promise;
   }
 
-  signTransaction(parameters: { term: string; signatures?: { [expr: string]: string } }) {
+  signTransaction(parameters: { from: string; to: string }) {
     const promise = new Promise((resolve, reject) => {
       const callId = new Date().valueOf().toString() + Math.round(Math.random() * 1000000).toString();
 
