@@ -1,47 +1,30 @@
-import rc from 'rchain-toolkit';
+import { utils } from 'rchain-toolkit';
 
 import { Wallet } from './wallet';
 
-interface RChainTransactionBase {
+interface RChainTransaction {
   timestamp: number;
   phloLimit: number;
   phloPrice: number;
   validAfterBlockNumber: number;
-}
-
-interface RChainTermTransaction extends RChainTransactionBase {
   term: string;
 }
 
-interface RChainTransferTransaction extends RChainTransactionBase {
-  from: string;
-  to: string;
-  amount: number;
+interface RChainSignedTransaction {
+  data: any;
+  deployer: string;
+  signature: string;
+  sigAlgorithm: 'secp256k1';
 }
 
-export const rchainWallet: Wallet<RChainTermTransaction, RChainTransferTransaction> = {
+export const rchainWallet: Wallet<RChainTransaction, RChainSignedTransaction> = {
   signTransaction: (tx, privateKey) => {
-    const dd = rc.utils.getDeployOptions(
+    const dd = utils.getDeployOptions(
       'secp256k1',
       tx.timestamp,
       tx.term,
       privateKey,
-      rc.utils.publicKeyFromPrivateKey(privateKey),
-      tx.phloPrice,
-      tx.phloLimit,
-      // todo change to -1
-      tx.validAfterBlockNumber || 1
-    );
-
-    return dd;
-  },
-  signTransferTransaction: (tx, privateKey) => {
-    const dd = rc.utils.getDeployOptions(
-      'secp256k1',
-      tx.timestamp,
-      createTranferTerm(tx),
-      privateKey,
-      rc.utils.publicKeyFromPrivateKey(privateKey),
+      utils.publicKeyFromPrivateKey(privateKey),
       tx.phloPrice,
       tx.phloLimit,
       // todo change to -1
@@ -51,14 +34,20 @@ export const rchainWallet: Wallet<RChainTermTransaction, RChainTransferTransacti
     return dd;
   },
   publicKeyFromPrivateKey: (privateKey: string) => {
-    return rc.utils.publicKeyFromPrivateKey(privateKey);
+    return utils.publicKeyFromPrivateKey(privateKey);
   },
   addressFromPublicKey: (publicKey: string) => {
-    return rc.utils.revAddressFromPublicKey(publicKey);
+    return utils.revAddressFromPublicKey(publicKey);
   },
 };
 
-const createTranferTerm = ({ from, to, amount }: RChainTransferTransaction) => `new
+interface createTransferTermArgs {
+  from: string;
+  to: string;
+  amount: number;
+}
+
+export const createTranferTerm = ({ from, to, amount }: createTransferTermArgs) => `new
     basket,
     rl(\`rho:registry:lookup\`),
     RevVaultCh,

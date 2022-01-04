@@ -1,2 +1,2 @@
-export { rchainWallet } from './rchainWallet';
-export { evmWallet } from './evmWallet';
+export * from './rchainWallet';
+export * from './evmWallet';

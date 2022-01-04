@@ -1,38 +1,18 @@
 import { Wallet } from './wallet';
 
-interface EVMTransaction {
-  to: string;
-  nonce: string;
-  gasLimit: string;
-  gasPrice: string;
-  value: any;
-  data: any;
-  chainId: string;
-}
+import { TxData, Transaction } from '@ethereumjs/tx';
+import { utils } from 'rchain-toolkit';
 
-export const evmWallet: Wallet<EVMTransaction> = {
+export const evmWallet: Wallet<TxData> = {
   signTransaction: (tx, privateKey) => {
-    return {
-      data: undefined,
-      deployer: '',
-      sigAlgorithm: 'secp256k1',
-      signature: '',
-    };
+    const pKey = Buffer.from(privateKey, 'hex');
+    return Transaction.fromTxData(tx).sign(pKey);
   },
-  signTransferTransaction: (tx, privateKey) => {
-    return {
-      data: undefined,
-      deployer: '',
-      sigAlgorithm: 'secp256k1',
-      signature: '',
-    };
-  },
+
   publicKeyFromPrivateKey: (privateKey: string) => {
-    return '';
-    // return rc.utils.publicKeyFromPrivateKey(privateKey);
+    return utils.publicKeyFromPrivateKey(privateKey);
   },
   addressFromPublicKey: (publicKey: string) => {
-    return '';
-    // return rc.utils.ethAddressFromPublicKey(publicKey);
+    return utils.ethAddressFromPublicKey(publicKey);
   },
 };

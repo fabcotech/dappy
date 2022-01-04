@@ -1,12 +1,12 @@
 import React from 'react';
 import { Formik, Field } from 'formik';
 import * as elliptic from 'elliptic';
-import * as rchainToolkit from 'rchain-toolkit';
 
 import { Account } from '/models';
 import { encrypt, decrypt, passwordFromStringToBytes } from '/utils/crypto';
 import './AccountForm.scss';
 import { PrivateKeyWarning } from '../';
+import { rchainWallet, evmWallet } from '/utils/wallets';
 
 const ec = new elliptic.ec('secp256k1');
 
@@ -78,10 +78,10 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
               this.publicKey = keyPair.getPublic().encode('hex', false) as string;
               switch (values.platform!) {
                 case 'rchain':
-                  this.address = rchainToolkit.utils.revAddressFromPublicKey(this.publicKey);
+                  this.address = rchainWallet.addressFromPublicKey(this.publicKey);
                   break;
                 case 'evm':
-                  this.address = rchainToolkit.utils.ethAddressFromPublicKey(this.publicKey);
+                  this.address = evmWallet.addressFromPublicKey(this.publicKey);
                   break;
               }
             } catch (err) {

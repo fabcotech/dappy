@@ -13,7 +13,7 @@ import * as fromCommon from '/common';
 import { TransactionForm } from './TransactionForm';
 import { LOGREV_TO_REV_RATE, DEFAULT_PHLO_LIMIT } from '/CONSTANTS';
 import { formatAmount } from '/utils/formatAmount';
-import { rchainWallet } from '/utils/wallets';
+import { rchainWallet, createTranferTerm } from '/utils/wallets';
 
 import './TransactionModal.scss';
 import { TransactionState, Account, RChainInfos, Record, TransactionOrigin } from '/models';
@@ -185,11 +185,13 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
       validAfterBlockNumber = this.props.rchainInfos[payload.chainId].info.lastFinalizedBlockNumber;
     }
 
-    const deployOptions = rchainWallet.signTransferTransaction(
+    const deployOptions = rchainWallet.signTransaction(
       {
-        from: fromAddress,
-        to: payload.parameters.to || this.state.to,
-        amount: payload.parameters.amount || this.state.amount,
+        term: createTranferTerm({
+          from: fromAddress,
+          to: payload.parameters.to || this.state.to,
+          amount: payload.parameters.amount || this.state.amount,
+        }),
         timestamp: new Date().valueOf(),
         phloPrice: 1,
         phloLimit: this.state.phloLimit,
