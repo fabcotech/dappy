@@ -16,6 +16,7 @@ const transferTransactions = function* (action: any) {
     try {
       browserViews[resourceId].browserView.webContents.executeJavaScript(`
       if (typeof dappyRChain !== 'undefined') { dappyRChain.requestTransactions() };
+      if (typeof dappyEthereum !== 'undefined') { dappyEthereum.requestTransactions() };
       `);
     } catch (e) {
       console.error('Could not execute javascript and transfer transactions');

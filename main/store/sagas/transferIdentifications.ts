@@ -15,6 +15,7 @@ const transferIdentifications = function* (action: any) {
     try {
       browserViews[payload.resourceId].browserView.webContents.executeJavaScript(`
       if (typeof dappyRChain !== 'undefined') { dappyRChain.requestIdentifications() };
+      if (typeof dappyEthereum !== 'undefined') { dappyEthereum.requestIdentifications() };
       `);
     } catch (e) {
       console.error('Could not execute javascript and transfer identifications');
