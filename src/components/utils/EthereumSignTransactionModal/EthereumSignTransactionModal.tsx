@@ -4,28 +4,27 @@ import { connect } from 'react-redux';
 import { AccountSelect } from '../AccountSelect';
 import { Modal, closeDappModalAction, CloseDappModalPayload } from '/store/main';
 import { getEVMAccounts } from '/store/settings';
-import { saveEthereumSignedTransactionAction } from '/store/blockchain';
 import { Account } from '/models';
 
 import { evmWallet } from '/utils/wallets';
 
-import './EthereumTransactionModal.scss';
+import './EthereumSignTransactionModal.scss';
 import { TxData } from '@ethereumjs/tx';
 import { EthereumTransaction } from '/common';
 
-interface EthereumTransactionModalProps {
+interface EthereumSignTransactionModalProps {
   modal: Modal;
   close: (a: CloseDappModalPayload) => void;
   accounts: Record<string, Account>;
   returnSignedTransaction: (chainId: string, txData: TxData, resourceId: string) => void;
 }
 
-export const EthereumTransactionModalComponent = ({
+export const EthereumSignTransactionModalComponent = ({
   modal,
   close,
   accounts,
   returnSignedTransaction,
-}: EthereumTransactionModalProps) => {
+}: EthereumSignTransactionModalProps) => {
   const [privateKey, setPrivateKey] = useState<string>();
   const txData: EthereumTransaction = modal.parameters.parameters;
 
@@ -79,7 +78,7 @@ export const EthereumTransactionModalComponent = ({
   );
 };
 
-export const EthereumTransactionModal = connect(
+export const EthereumSignTransactionModal = connect(
   (state) => ({
     accounts: getEVMAccounts(state),
   }),
@@ -94,4 +93,4 @@ export const EthereumTransactionModal = connect(
       dispatch(closeDappModalAction({ resourceId }));
     },
   })
-)(EthereumTransactionModalComponent);
+)(EthereumSignTransactionModalComponent);

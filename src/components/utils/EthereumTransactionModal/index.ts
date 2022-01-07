@@ -1,1 +1,0 @@
-export { EthereumTransactionModal } from './EthereumTransactionModal';

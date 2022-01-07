@@ -7,7 +7,7 @@ import { RemoveAccountModal } from './RemoveAccountModal';
 import { PaymentRequestModal } from './PaymentRequestModal';
 import { GenericModal } from './GenericModal';
 import { LoadInfo } from '../resources';
-import { EthereumTransactionModal } from './EthereumTransactionModal';
+import { EthereumSignTransactionModal } from './EthereumSignTransactionModal';
 
 interface ModalComponentProps {
   modal: undefined | fromMain.Modal;
@@ -40,7 +40,7 @@ class ModalComponent extends React.Component<ModalComponentProps, {}> {
       case 'RCHAIN_TRANSACTION_MODAL':
         return <RChainTransactionModal modal={this.props.modal} />;
       case 'ETHEREUM_SIGN_TRANSACTION_MODAL':
-        return <EthereumTransactionModal modal={this.props.modal} />;
+        return <EthereumSignTransactionModal modal={this.props.modal} />;
       case 'PAYMENT_REQUEST_MODAL':
         return <PaymentRequestModal modal={this.props.modal} />;
       case 'IDENTIFICATION_MODAL':
