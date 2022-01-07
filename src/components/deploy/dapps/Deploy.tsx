@@ -180,15 +180,17 @@ export class Deploy extends React.Component<DeployProps, {}> {
             accounts={this.props.accounts}
             filledTransactionData={this.onFilledTransactionData}
           />
-          <button
-            type="button"
-            onClick={() => {
-              this.setState({ step: 2 });
-            }}
-            className="button is-link"
-            disabled={!this.state.privatekey || !this.state.box}>
-            Choose contract
-          </button>
+          <div className="is-flex is-justify-content-flex-end" style={{ width: 800 }}>
+            <button
+              type="button"
+              onClick={() => {
+                this.setState({ step: 2 });
+              }}
+              className="button is-link"
+              disabled={!this.state.privatekey || !this.state.box}>
+              Choose contract
+            </button>
+          </div>
         </div>
       );
     }

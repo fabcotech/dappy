@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { renderWithStore } from '/testUtils';
 import userEvent from '@testing-library/user-event';
 import {
-  getFakeAccount,
+  getFakeRChainAccount,
   getFakeRChainInfos,
   getFakeBlockChain,
   getFakeRChainContractConfig,
@@ -15,7 +15,7 @@ import { RequestResult } from '/utils/wsUtils';
 import { initialState as settingsInitialState } from '/store/settings';
 
 const getFakePurchaseRecordProps = (props: Partial<PurchaseRecordProps> = {}): PurchaseRecordProps => {
-  const fakeAccount = getFakeAccount();
+  const fakeAccount = getFakeRChainAccount();
 
   return {
     accounts: { [fakeAccount.name]: fakeAccount },

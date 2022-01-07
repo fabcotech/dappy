@@ -1,23 +1,21 @@
 import React from 'react';
-import { render, screen, waitFor  } from '@testing-library/react';
-import {
-  getFakeAccount,
-} from '/fakeData';
+import { render, screen, waitFor } from '@testing-library/react';
+import { getFakeRChainAccount } from '/fakeData';
 
 import { AccountSelectComponent, AccountSelectProps } from './AccountSelect';
 
-const getFakeAccountSelectProps = (props: Partial<AccountSelectProps> = {}) => {
-  const account = getFakeAccount();
+const getFakeRChainAccountSelectProps = (props: Partial<AccountSelectProps> = {}) => {
+  const account = getFakeRChainAccount();
   return {
     accounts: { [account.name]: account },
-    ...props
+    ...props,
   } as AccountSelectProps;
 };
 
 describe('AccountSelect', () => {
   it('should display first box of selected account when form is loaded', async () => {
-    const props = getFakeAccountSelectProps({
-      chooseBox: true
+    const props = getFakeRChainAccountSelectProps({
+      chooseBox: true,
     });
     render(<AccountSelectComponent {...props} />);
     await waitFor(() => {
@@ -27,16 +25,16 @@ describe('AccountSelect', () => {
     expect(screen.queryAllByText('box1')).toBeTruthy();
   });
   it('should display nothing ', async () => {
-    const accountWithoutBoxes = getFakeAccount({
-      boxes: []
+    const accountWithoutBoxes = getFakeRChainAccount({
+      boxes: [],
     });
-    const props = getFakeAccountSelectProps({
+    const props = getFakeRChainAccountSelectProps({
       chooseBox: true,
-      accounts: { [accountWithoutBoxes.name]: accountWithoutBoxes }
+      accounts: { [accountWithoutBoxes.name]: accountWithoutBoxes },
     });
     render(<AccountSelectComponent {...props} />);
     await waitFor(() => {
       screen.getByText('box not found');
     });
-  })
+  });
 });

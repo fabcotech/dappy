@@ -355,14 +355,11 @@ export const getBlockchains = createSelector(getSettingsState, (state: State) =>
 export const getAccounts = createSelector(getSettingsState, (state: State) => state.accounts);
 
 export const getRChainAccounts = createSelector(getSettingsState, (state: State) => {
-  const rchainAccounts: { [key: string]: Account } = {};
-  Object.keys(state.accounts).forEach(name => {
-    if (state.accounts[name].platform === 'rchain') {
-      rchainAccounts[name] = state.accounts[name]
-    }
-  });
+  return Object.fromEntries(Object.entries(state.accounts).filter(([_, account]) => account.platform === 'rchain'));
+});
 
-  return rchainAccounts;
+export const getEVMAccounts = createSelector(getSettingsState, (state: State) => {
+  return Object.fromEntries(Object.entries(state.accounts).filter(([_, account]) => account.platform === 'evm'));
 });
 
 export const getExecutingAccountsCronJobs = createSelector(

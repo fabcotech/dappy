@@ -1,20 +1,21 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { ViewPurseComponent, ViewPurseProps } from './ViewPurse';
-import { getFakeRChainInfos, getFakeAccount, getFakePurse } from '/fakeData';
+import { getFakeRChainInfos, getFakeRChainAccount, getFakePurse } from '/fakeData';
 
-const duration4days= 1000 * 60 * 60 * 24 * 4;
+const duration4days = 1000 * 60 * 60 * 24 * 4;
 
-const getFakeViewPurseProps = (props: Partial<ViewPurseProps> = {}) => ({
-  ...{
-    id: 'purse1',
-    contractId: 'contract1',
-    rchainInfos: getFakeRChainInfos(),
-    account: getFakeAccount(),
-    sendRChainTransaction: () => {},
-  },
-  ...props,
-}) as ViewPurseProps;
+const getFakeViewPurseProps = (props: Partial<ViewPurseProps> = {}) =>
+  ({
+    ...{
+      id: 'purse1',
+      contractId: 'contract1',
+      rchainInfos: getFakeRChainInfos(),
+      account: getFakeRChainAccount(),
+      sendRChainTransaction: () => {},
+    },
+    ...props,
+  } as ViewPurseProps);
 
 describe('ViewPurse', () => {
   it('should display loading icon if no purse provided', () => {
@@ -96,9 +97,9 @@ describe('ViewPurse', () => {
       now: () => today,
       fungible: false,
       purse: getFakePurse({
-        timestamp: today
+        timestamp: today,
       }),
-      contractExpiration: undefined
+      contractExpiration: undefined,
     });
 
     render(<ViewPurseComponent {...props} />);

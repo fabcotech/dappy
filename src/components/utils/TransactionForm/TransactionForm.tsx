@@ -13,7 +13,7 @@ import './TransactionForm.scss';
 const ec = new elliptic.ec('secp256k1');
 
 export interface TransactionFormProps {
-  accounts: Record<string, Account>
+  accounts: Record<string, Account>;
   chooseBox?: boolean;
   publicKey?: string;
   phloLimit?: number;
@@ -141,10 +141,16 @@ export class TransactionFormComponent extends React.Component<TransactionFormPro
                 accounts={this.props.accounts}
               />
 
-              <div className="field is-horizontal">
-                <label className="label">{t('phlogiston limit')}*</label>
-                <div className="control">
-                  <Field className="input" type="number" name="phloLimit" placeholder={t('phlogiston limit')} />
+              <div className="field is-horizontal my-3">
+                <div className="field-label is-normal">
+                  <label className="label">{t('phlogiston limit')}*</label>
+                </div>
+                <div className="field-body">
+                  <div className="field">
+                    <div className="control">
+                      <Field className="input" type="number" name="phloLimit" placeholder={t('phlogiston limit')} />
+                    </div>
+                  </div>
                 </div>
               </div>
               {touched.phloLimit && errors.phloLimit && <p className="text-danger">{(errors as any).phloLimit}</p>}

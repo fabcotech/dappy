@@ -1,3 +1,4 @@
+import { TxData } from '@ethereumjs/tx';
 import { BeesLoadErrors, BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
 import {
   Record,
@@ -49,6 +50,8 @@ export const SAVE_FAILED_RCHAIN_TRANSACTION = '[Blockchain] Save failed RChain t
 export const RCHAIN_TRANSACTION_ERROR = '[Blockchain] RChain transaction error';
 export const UPDATE_RCHAIN_TRANSACTION_STATUS = '[Blockchain] Update RChain transaction status';
 export const UPDATE_RCHAIN_TRANSACTION_VALUE = '[Blockchain] Update RChain transaction value';
+
+export const SAVE_ETHEREUM_SIGNED_TRANSACTION = '[Blockchain] Save ethereum signed transaction';
 
 export const LISTEN_FOR_DATA_AT_NAME = '[Common] Listen for data at name';
 export const GET_ONE_RECORD = '[Common] Get one record';
@@ -222,6 +225,20 @@ export const addRChainTransactionAction = (values: SendRChainTransactionPayload)
 
 export const updateTransactionsFromStorageAction = (values: { transactions: TransactionState[] }) => ({
   type: UPDATE_TRANSACTIONS_FROM_STORAGE,
+  payload: values,
+});
+
+export interface saveEthereumSignedTransactionPayload {
+  transaction: TxData;
+  id: string;
+  platform: 'evm';
+  blockchainId: string;
+  origin: TransactionOrigin;
+  sendAt: string;
+}
+
+export const saveEthereumSignedTransactionAction = (values: saveEthereumSignedTransactionPayload) => ({
+  type: SAVE_ETHEREUM_SIGNED_TRANSACTION,
   payload: values,
 });
 

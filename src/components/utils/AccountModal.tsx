@@ -10,7 +10,7 @@ import * as fromMain from '/store/main';
 import * as fromUi from '/store/ui';
 import { decrypt, passwordFromStringToBytes } from '/utils/crypto';
 
-import './TransactionModal.scss';
+import './AccountModal.scss';
 import { Account } from '/models';
 
 interface AccountModalComponentProps {
@@ -108,12 +108,12 @@ export class AccountModalComponent extends React.Component<AccountModalComponent
                       </div>
                     </div>
                     <div className="field is-horizontal">
-                      <label className="label">{t('rev address')}</label>
+                      <label className="label">{t('address')}</label>
                       <div className="control">
                         <p className="private-or-public-key">{account.address}</p>
                         <a type="button" className="underlined-link" onClick={() => copyToClipboard(account.address)}>
                           <i className="fa fa-copy fa-before"></i>
-                          {t('copy rev address')}
+                          {t('copy address')}
                         </a>
                       </div>
                     </div>

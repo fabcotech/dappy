@@ -1,7 +1,13 @@
 import React from 'react';
 import { ViewContractComponent, ViewContractProps } from './ViewContract';
 import { render, screen, waitFor } from '@testing-library/react';
-import { getFakeAccount, getFakeRChainInfos, getFakeBlockChain, getFakeRChainContractConfig, getFakePurse } from '/fakeData';
+import {
+  getFakeRChainAccount,
+  getFakeRChainInfos,
+  getFakeBlockChain,
+  getFakeRChainContractConfig,
+  getFakePurse,
+} from '/fakeData';
 import { RChainContractConfig, RChainTokenPurse } from '/models';
 import { RequestResult } from '/utils/wsUtils';
 
@@ -11,7 +17,7 @@ const getFakeViewContractsProps = (props: Partial<ViewContractProps> = {}) =>
     rchainInfos: getFakeRChainInfos(),
     pursesIds: ['purse1', 'purse2'],
     version: 'x.y.z',
-    account: getFakeAccount(),
+    account: getFakeRChainAccount(),
     getPursesAndContractConfig: () => Promise.resolve([]),
     sendRChainTransaction: () => {},
     ...props,
@@ -52,19 +58,19 @@ describe('ViewContracts', () => {
       getPursesAndContractConfig: () =>
         Promise.resolve([
           {
-            result: { [getFakePurse().id]: getFakePurse() } 
-          } as RequestResult<Record<string,RChainTokenPurse>>,
+            result: { [getFakePurse().id]: getFakePurse() },
+          } as RequestResult<Record<string, RChainTokenPurse>>,
           {
             result: getFakeRChainContractConfig({
-              locked: false
-            }) 
+              locked: false,
+            }),
           } as RequestResult<RChainContractConfig>,
         ]),
     });
 
     render(<ViewContractComponent {...props} />);
     await waitFor(() => {
-      screen.getByText("not locked");
+      screen.getByText('not locked');
     });
     expect(screen.getByText('not locked')).toHaveClass('has-text-danger');
     expect(screen.getByText('not locked')).toHaveAttribute('title', 'not locked title');
@@ -76,19 +82,19 @@ describe('ViewContracts', () => {
       getPursesAndContractConfig: () =>
         Promise.resolve([
           {
-            result: { [getFakePurse().id]: getFakePurse() } 
-          } as RequestResult<Record<string,RChainTokenPurse>>,
+            result: { [getFakePurse().id]: getFakePurse() },
+          } as RequestResult<Record<string, RChainTokenPurse>>,
           {
             result: getFakeRChainContractConfig({
-              locked: true
-            }) 
+              locked: true,
+            }),
           } as RequestResult<RChainContractConfig>,
         ]),
     });
 
     render(<ViewContractComponent {...props} />);
     await waitFor(() => {
-      screen.getByText("locked");
+      screen.getByText('locked');
     });
     expect(screen.getByText('locked')).toHaveClass('has-text-success');
     expect(screen.getByText('locked')).toHaveAttribute('title', 'locked title');

@@ -6,13 +6,13 @@ import userEvent from '@testing-library/user-event';
 
 import { RemoveAccountModal } from './RemoveAccountModal';
 
-import { getFakeAccount } from '/fakeData';
+import { getFakeRChainAccount } from '/fakeData';
 import { encrypt, passwordFromStringToBytes } from '/utils/crypto';
 
 describe('RemoveContractModal', () => {
   it('should only enable submit button if password is correct', () => {
     const password = 'foobarbaz';
-    const fakeAccount = getFakeAccount({
+    const fakeAccount = getFakeRChainAccount({
       encrypted: encrypt(
         'privatekey',
         passwordFromStringToBytes(password),

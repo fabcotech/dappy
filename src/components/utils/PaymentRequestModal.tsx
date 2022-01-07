@@ -15,7 +15,7 @@ import { LOGREV_TO_REV_RATE, DEFAULT_PHLO_LIMIT } from '/CONSTANTS';
 import { formatAmount } from '/utils/formatAmount';
 import { rchainWallet, createTranferTerm } from '/utils/wallets';
 
-import './TransactionModal.scss';
+import './RChainTransactionModal.scss';
 import { TransactionState, Account, RChainInfos, Record, TransactionOrigin } from '/models';
 import { REV_TRANSFER_PHLO_LIMIT } from '/CONSTANTS';
 

@@ -16,6 +16,14 @@ import { splitSearch } from '../src/utils/splitSearch';
 import { looksLikePublicKey } from '../src/utils/looksLikePublicKey';
 import { SplitSearch } from '../src/models';
 import { DappyBrowserView } from './models';
+import { string } from 'yup/lib/locale';
+
+const stringOrNumber = yup.mixed().test({
+  name: 'string or number',
+  exclusive: true,
+  message: 'must be a string or a number',
+  test: (v) => v === null || v === undefined || typeof v === 'string' || typeof v === 'number',
+});
 
 const identifyFromSandboxSchema = yup
   .object()
@@ -56,14 +64,20 @@ const sendRChainPaymentRequestFromSandboxSchema = yup
   .noUnknown()
   .required();
 
-  const signEthereumTransactionFromSandboxSchema = yup
+const signEthereumTransactionFromSandboxSchema = yup
   .object()
   .shape({
     parameters: yup
       .object()
       .shape({
-        from: yup.string().required(),
+        nonce: stringOrNumber.required(),
+        gasPrice: stringOrNumber.required(),
+        gasLimit: stringOrNumber.required(),
+        value: stringOrNumber.optional(),
+        data: yup.string().optional(),
+        from: yup.string().optional(),
         to: yup.string().required(),
+        chainid: yup.number().optional(),
       })
       .noUnknown()
       .required()
@@ -74,7 +88,7 @@ const sendRChainPaymentRequestFromSandboxSchema = yup
   .noUnknown()
   .required();
 
-  const sendRChainTransactionFromSandboxSchema = yup
+const sendRChainTransactionFromSandboxSchema = yup
   .object()
   .shape({
     parameters: yup
@@ -103,7 +117,7 @@ export const registerInterProcessDappProtocol = (
     let data: { [a: string]: any } = {};
     try {
       data = JSON.parse(request.headers['Data']);
-    } catch (e) { }
+    } catch (e) {}
 
     if (request.url === 'interprocessdapp://hi-from-dapp-sandboxed') {
       try {
@@ -145,9 +159,7 @@ export const registerInterProcessDappProtocol = (
         const payloadBeforeValid = data.action.payload;
 
         if (!payloadBeforeValid) {
-          console.error(
-            '[interprocessdapp://] dapp dispatched a transaction with an invalid payload'
-          );
+          console.error('[interprocessdapp://] dapp dispatched a transaction with an invalid payload');
           callback(null);
           return;
         }
@@ -261,7 +273,7 @@ export const registerInterProcessDappProtocol = (
               dispatchFromMain({
                 action: fromMain.openDappModalAction({
                   resourceId: dappyBrowserView.resourceId,
-                  title: 'TRANSACTION_MODAL',
+                  title: 'RCHAIN_TRANSACTION_MODAL',
                   text: '',
                   parameters: payload2,
                   buttons: [],
@@ -283,11 +295,11 @@ export const registerInterProcessDappProtocol = (
 
               if (looksLikePublicKey(payload.parameters.to)) {
                 try {
-                  payload.parameters.to = rchainToolkit.utils.revAddressFromPublicKey(payload.parameters.to)
+                  payload.parameters.to = rchainToolkit.utils.revAddressFromPublicKey(payload.parameters.to);
                 } catch (err) {
                   console.error('[interprocessdapp://] failed to generate REV address based on public key');
                   console.error(err);
-                  callback(null)
+                  callback(null);
                   return;
                 }
               }
@@ -334,7 +346,7 @@ export const registerInterProcessDappProtocol = (
                   text: '',
                   parameters: {
                     resourceId: dappyBrowserView.resourceId,
-                    ...payloadBeforeValid
+                    ...payloadBeforeValid,
                   },
                   buttons: [],
                 }),

@@ -1,6 +1,6 @@
 import { RChainTokenPurse, Account, RChainInfos, Blockchain, RChainContractConfig, BlockchainNode } from '/models';
 
-export const getFakeAccount = (account: Partial<Account> = {}): Account => ({
+export const getFakeRChainAccount = (account: Partial<Account> = {}): Account => ({
   platform: 'rchain',
   name: 'account1',
   publicKey:
@@ -11,6 +11,20 @@ export const getFakeAccount = (account: Partial<Account> = {}): Account => ({
   main: true,
   balance: 1000000,
   boxes: ['box1', 'box2'],
+  ...account,
+});
+
+export const getFakeEVMAccount = (account: Partial<Account> = {}): Account => ({
+  platform: 'evm',
+  name: 'account1',
+  publicKey:
+    '0408adc2ae9d8e0dd7c9f471aeb94a38d343cbb916d0369aa3c9fafe678b260554b5f6480a44c721af9fc21280c1a1c0cd8cf7c0a906072c92ee1a199521e076e1',
+  address: '0x9bbaaffdb97e90652fea7d9e23e4b0e47613f372',
+  encrypted:
+    '/HO4k8kaye2B13MXGpGvpo66zZhYgmzXrNqBsK95h+i6Bo+DfizmU4rbnUSTPU5Je6n6lo3ryzH17eTwJix7oeSoGC3WGWMUYsOJ2AAzeaS/u0KmTw43Y2Mtxts1CHRrHdGOV4dTm3g=',
+  main: true,
+  balance: 1000000,
+  boxes: [],
   ...account,
 });
 

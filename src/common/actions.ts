@@ -64,7 +64,6 @@ export const sendRChainTransactionFromSandboxAction = (values: SendRChainTransac
   };
 };
 
-
 export interface RChainPaymentRequestParameters {
   from?: string;
   to: string | undefined;
@@ -97,25 +96,28 @@ export const sendRChainPaymentRequestFromSandboxAction = (values: SendRChainPaym
   };
 };
 
-
 // ======
 // Ethereum
 // ======
+export interface EthereumTransaction {
+  nonce: string | number;
+  gasPrice: string | number;
+  gasLimit: string | number;
+  from: string;
+  to: string;
+  value: string | number;
+  data: string;
+  chainId: string;
+}
 export interface SignEthereumTransactionFromMiddlewarePayload {
-  parameters: {
-    from: string;
-    to: string;
-  };
+  parameters: EthereumTransaction;
   resourceId: string;
   chainId: string;
   id: string;
   origin: TransactionOriginDapp;
 }
 export interface SignEthereumTransactionFromSandboxPayload {
-  parameters: {
-    from: string;
-    to: string;
-  };
+  parameters: EthereumTransaction;
   callId: string;
 }
 export interface SignEthereumTransactionFromSandboxAction {

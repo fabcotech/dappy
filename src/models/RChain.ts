@@ -62,6 +62,7 @@ export enum TransactionStatus {
   Failed = 'failed',
   Abandonned = 'abandonned',
   Completed = 'completed',
+  Signed = 'signed',
 }
 
 export enum CallStatus {
@@ -74,7 +75,15 @@ export interface TransactionOriginTransfer {
   origin: 'transfer';
   accountName: undefined | string;
 }
-export type RChainTokenOperation = 'withdraw' | 'update-purse-price' | 'deploy-box' | 'tips' | 'deploy' | 'create-purses' | 'purchase' | 'update-purse-data';
+export type RChainTokenOperation =
+  | 'withdraw'
+  | 'update-purse-price'
+  | 'deploy-box'
+  | 'tips'
+  | 'deploy'
+  | 'create-purses'
+  | 'purchase'
+  | 'update-purse-data';
 export interface TransactionOriginRChainToken {
   origin: 'rchain-token';
   accountName: undefined | string;

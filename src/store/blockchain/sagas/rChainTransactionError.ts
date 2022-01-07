@@ -16,7 +16,7 @@ const rChainTransactionError = function* (action: Action) {
       const displayedModal = dappModals[dappModals.length - 1];
       if (
         displayedModal &&
-        ['PAYMENT_REQUEST_MODAL', 'TRANSACTION_MODAL'].includes(displayedModal.title) &&
+        ['PAYMENT_REQUEST_MODAL', 'RCHAIN_TRANSACTION_MODAL'].includes(displayedModal.title) &&
         displayedModal.parameters &&
         displayedModal.parameters.id === payload.id
       ) {

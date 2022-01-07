@@ -33,9 +33,8 @@ export default class {
     interProcess2.send();
   };
 
-  identify(parameters: { publicKey: undefined | string, platform: string }) {
+  identify(parameters: { publicKey: undefined | string; platform: string }) {
     const promise = new Promise((resolve, reject) => {
-
       let params = parameters;
       if (!params || !params.publicKey) {
         params = {
@@ -62,13 +61,13 @@ export default class {
     return promise;
   }
 
-  signTransaction(parameters: { from: string; to: string }) {
+  signTransaction(txData: any) {
     const promise = new Promise((resolve, reject) => {
       const callId = new Date().valueOf().toString() + Math.round(Math.random() * 1000000).toString();
 
       this.sendMessageToHost(
         signEthereumTransactionFromSandboxAction({
-          parameters: parameters,
+          parameters: txData,
           callId: callId,
         })
       );
@@ -84,7 +83,6 @@ export default class {
 
   requestPayment(parameters: { from?: string; to: string; amount: number }) {
     const promise = new Promise((resolve, reject) => {
-
       const callId = new Date().valueOf().toString() + Math.round(Math.random() * 1000000).toString();
 
       this.sendMessageToHost(

@@ -3,29 +3,10 @@
     margin-top: 0.75rem;
   }
 }
-.transaction-form, .to-and-amount-form {
-  .field {
-    display: grid;
-    grid-template-columns: 230px calc(100% - 230px);
-    grid-template-rows: 100%;
-    label {
-      grid-row: 1;
-      grid-column: 1;
-    }
-    .control {
-      grid-row: 1;
-      grid-column: 2;
-    }
-  }
-}
 .transaction-form {
   max-width: 800px;
   .message {
     margin-bottom: 0.75rem;
-  }
-  .control-inline {
-    display: flex;
-    align-items: flex-start;
   }
   .text-danger {
     transform: translateY(-0.3rem);
@@ -34,31 +15,10 @@
     max-width: 530px;
     word-break: break-word;
   }
-  .field {
-    display: grid;
-    grid-template-columns: 230px calc(100% - 230px);
-    grid-template-rows: 100%;
-    label {
-      grid-row: 1;
-      grid-column: 1;
-    }
-    .control {
-      grid-row: 1;
-      grid-column: 2;
-    }
-  }
 
   @media screen and (max-width: 768px) {
     p.control {
       display: none;
-    }
-  }
-  @media screen and (min-width: 769px) {
-    .field.is-horizontal > label {
-      width: 230px;
-    }
-    .text-danger {
-      padding-left: 230px;
     }
   }
 
@@ -68,9 +28,6 @@
     }
   }
   .account-form {
-   .field {
-    margin-bottom: 0.75rem
-   }
    .use-private-key {
      margin-left: 0px;
    }

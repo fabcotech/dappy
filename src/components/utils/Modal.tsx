@@ -2,11 +2,12 @@ import * as React from 'react';
 
 import * as fromMain from '/store/main';
 import { connect } from 'react-redux';
-import { TransactionModal, AccountModal, IdentificationModal } from '.';
+import { RChainTransactionModal, AccountModal, IdentificationModal } from '.';
 import { RemoveAccountModal } from './RemoveAccountModal';
 import { PaymentRequestModal } from './PaymentRequestModal';
 import { GenericModal } from './GenericModal';
 import { LoadInfo } from '../resources';
+import { EthereumTransactionModal } from './EthereumTransactionModal';
 
 interface ModalComponentProps {
   modal: undefined | fromMain.Modal;
@@ -36,8 +37,10 @@ class ModalComponent extends React.Component<ModalComponentProps, {}> {
       because they are dapp modals
     */
     switch (this.props.modal.title) {
-      case 'TRANSACTION_MODAL':
-        return <TransactionModal modal={this.props.modal} />;
+      case 'RCHAIN_TRANSACTION_MODAL':
+        return <RChainTransactionModal modal={this.props.modal} />;
+      case 'ETHEREUM_SIGN_TRANSACTION_MODAL':
+        return <EthereumTransactionModal modal={this.props.modal} />;
       case 'PAYMENT_REQUEST_MODAL':
         return <PaymentRequestModal modal={this.props.modal} />;
       case 'IDENTIFICATION_MODAL':

@@ -12,10 +12,10 @@ import { TransactionForm } from '.';
 import { rchainWallet } from '/utils/wallets';
 import { signSecp256k1 } from '/utils/signSecp256k1';
 
-import './TransactionModal.scss';
+import './RChainTransactionModal.scss';
 import { TransactionState, TransactionStatus, Account, RChainInfos } from '/models';
 
-interface TransactionModalComponentProps {
+interface RChainTransactionModalComponentProps {
   modal: undefined | fromMain.Modal;
   isMobile: boolean;
   isTablet: boolean;
@@ -27,7 +27,7 @@ interface TransactionModalComponentProps {
   saveFailedRChainTransaction: (a: fromBlockchain.SaveFailedRChainTransactionPayload) => void;
 }
 
-export class TransactionModalComponent extends React.Component<TransactionModalComponentProps, {}> {
+export class RChainTransactionModalComponent extends React.Component<RChainTransactionModalComponentProps, {}> {
   state: {
     privatekey: string;
     box: undefined | string;
@@ -246,7 +246,7 @@ export class TransactionModalComponent extends React.Component<TransactionModalC
   }
 }
 
-export const TransactionModal = connect(
+export const RChainTransactionModal = connect(
   (state: StoreState) => ({
     isMobile: fromUi.getIsMobile(state),
     isTablet: fromUi.getIsTablet(state),
@@ -263,4 +263,4 @@ export const TransactionModal = connect(
     saveFailedRChainTransaction: (a: fromBlockchain.SaveFailedRChainTransactionPayload) =>
       dispatch(fromBlockchain.saveFailedRChainTransactionAction(a)),
   })
-)(TransactionModalComponent);
+)(RChainTransactionModalComponent);
