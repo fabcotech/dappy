@@ -119,8 +119,9 @@ interface TransactionListItemProps {
   blockchains: {
     [chainId: string]: Blockchain;
   };
-  id: string;
 }
+
+// blockchain ? blockchain.chainName : props.transactionState.blockchainId;
 
 export const TransactionsListItem = (props: TransactionListItemProps) => {
   const blockchain: undefined | Blockchain = props.blockchains[props.transactionState.blockchainId];
@@ -128,14 +129,15 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
   return (
     <tr>
       <td>{DateTime.fromISO(props.transactionState.sentAt).toLocaleString(DateTime.DATETIME_SHORT)}</td>
-      <td>{props.id}</td>
+      <td>{props.transactionState.id}</td>
+      {/* <td>{blockchain ? blockchain.chainName : props.transactionState.blockchainId}</td> toto */}
       <td>{blockchain ? blockchain.chainName : props.transactionState.blockchainId}</td>
       <td className="origin">{getOrigin(props.transactionState.origin)}</td>
       <td className="value">{getResult(props.transactionState)}</td>
       <td>
         <span className={`tag ${props.transactionState.status}`}>
           {props.transactionState.status === TransactionStatus.Completed
-            ? 'recorded in tde blockchain'
+            ? 'recorded in the blockchain'
             : props.transactionState.status}
         </span>
       </td>

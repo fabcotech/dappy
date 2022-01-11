@@ -31,6 +31,9 @@
       &.completed {
         background-color: $completed;
       }
+      &.signed {
+        background-color: $signed;
+      }
     }
   }
 }

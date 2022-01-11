@@ -50,3 +50,19 @@ export interface RChainTokenCreatePursePayload {
     [tmpId: string]: string;
   };
 }
+
+export type RChainTokenOperation =
+  | 'withdraw'
+  | 'update-purse-price'
+  | 'deploy-box'
+  | 'tips'
+  | 'deploy'
+  | 'create-purses'
+  | 'purchase'
+  | 'update-purse-data';
+
+export interface TransactionOriginRChainToken {
+  origin: 'rchain-token';
+  accountName: undefined | string;
+  operation: RChainTokenOperation;
+}

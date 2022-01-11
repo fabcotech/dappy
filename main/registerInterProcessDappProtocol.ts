@@ -16,7 +16,6 @@ import { splitSearch } from '../src/utils/splitSearch';
 import { looksLikePublicKey } from '../src/utils/looksLikePublicKey';
 import { SplitSearch } from '../src/models';
 import { DappyBrowserView } from './models';
-import { string } from 'yup/lib/locale';
 
 const stringOrNumber = yup.mixed().test({
   name: 'string or number',
@@ -73,11 +72,11 @@ const signEthereumTransactionFromSandboxSchema = yup
         nonce: stringOrNumber.required(),
         gasPrice: stringOrNumber.required(),
         gasLimit: stringOrNumber.required(),
-        value: stringOrNumber.optional(),
+        value: yup.string().optional(),
         data: yup.string().optional(),
         from: yup.string().optional(),
         to: yup.string().required(),
-        chainid: yup.number().optional(),
+        chainId: yup.string().optional(),
       })
       .noUnknown()
       .required()
@@ -163,7 +162,29 @@ export const registerInterProcessDappProtocol = (
           callback(null);
           return;
         }
-
+        if (data.action.type === fromCommon.IDENTIFY_FROM_SANDBOX) {
+          identifyFromSandboxSchema
+            .validate(payloadBeforeValid)
+            .then(() => {
+              dispatchFromMain({
+                action: fromMain.openDappModalAction({
+                  resourceId: dappyBrowserView.resourceId,
+                  title: 'IDENTIFICATION_MODAL',
+                  text: '',
+                  parameters: {
+                    ...payloadBeforeValid,
+                    resourceId: dappyBrowserView.resourceId,
+                  },
+                  buttons: [],
+                }),
+              });
+              callback(Buffer.from(''));
+            })
+            .catch((err: Error) => {
+              console.error('A dapp tried to trigger an identification with an invalid schema');
+              console.error(err);
+            });
+        }
         // ETHEREUM / EVM
         if (data.action.type === fromCommon.SIGN_ETHEREUM_TRANSACTION_FROM_SANDBOX) {
           signEthereumTransactionFromSandboxSchema
@@ -334,28 +355,6 @@ export const registerInterProcessDappProtocol = (
               console.error('A dapp tried to send RChain transaction with an invalid schema');
               console.error(err);
               return;
-            });
-        } else if (data.action.type === fromCommon.IDENTIFY_FROM_SANDBOX) {
-          identifyFromSandboxSchema
-            .validate(payloadBeforeValid)
-            .then((valid) => {
-              dispatchFromMain({
-                action: fromMain.openDappModalAction({
-                  resourceId: dappyBrowserView.resourceId,
-                  title: 'IDENTIFICATION_MODAL',
-                  text: '',
-                  parameters: {
-                    resourceId: dappyBrowserView.resourceId,
-                    ...payloadBeforeValid,
-                  },
-                  buttons: [],
-                }),
-              });
-              callback(Buffer.from(''));
-            })
-            .catch((err: Error) => {
-              console.error('A dapp tried to trigger an identification with an invalid schema');
-              console.error(err);
             });
         }
       } catch (err) {

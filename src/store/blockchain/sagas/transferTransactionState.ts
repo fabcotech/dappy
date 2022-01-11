@@ -6,7 +6,7 @@ import { Action } from '/store';
 import { TransactionState } from '/models';
 import { dispatchInMain } from '/interProcess';
 
-const transferRChainTransaction = function* (action: Action) {
+const transferTransactionState = function* (action: Action) {
   let payload:
     | fromBlockchain.UpdateRChainTransactionStatusPayload
     | fromBlockchain.UpdateRChainTransactionValuePayload
@@ -36,8 +36,9 @@ const transferRChainTransaction = function* (action: Action) {
   }
 };
 
-export const transferRChainTransactionSaga = function* () {
-  yield takeEvery(fromBlockchain.UPDATE_RCHAIN_TRANSACTION_STATUS, transferRChainTransaction);
-  yield takeEvery(fromBlockchain.UPDATE_RCHAIN_TRANSACTION_VALUE, transferRChainTransaction);
-  yield takeEvery(fromBlockchain.SAVE_FAILED_RCHAIN_TRANSACTION, transferRChainTransaction);
+export const transferTransactionStateSaga = function* () {
+  yield takeEvery(fromBlockchain.UPDATE_RCHAIN_TRANSACTION_STATUS, transferTransactionState);
+  yield takeEvery(fromBlockchain.UPDATE_RCHAIN_TRANSACTION_VALUE, transferTransactionState);
+  yield takeEvery(fromBlockchain.SAVE_FAILED_RCHAIN_TRANSACTION, transferTransactionState);
+  yield takeEvery(fromBlockchain.SAVE_ETHEREUM_TRANSACTION, transferTransactionState);
 };

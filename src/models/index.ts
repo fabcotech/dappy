@@ -16,3 +16,5 @@ export * from './IpApp';
 export * from './Language';
 export * from './Cookie';
 export * from './RChainToken';
+export * from './TransactionState';
+export * from './Ethereum';

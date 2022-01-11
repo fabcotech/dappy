@@ -4,19 +4,31 @@ import { connect } from 'react-redux';
 import { AccountSelect } from '../AccountSelect';
 import { Modal, closeDappModalAction, CloseDappModalPayload } from '/store/main';
 import { getEVMAccounts } from '/store/settings';
-import { Account } from '/models';
+import {
+  Account,
+  EthereumSignedTransaction,
+  EthereumTransaction,
+  TransactionOriginDapp,
+  TransactionStatus,
+} from '/models';
 
 import { evmWallet } from '/utils/wallets';
 
+import { saveEthereumTransactionStateAction } from '/store/blockchain';
+
 import './EthereumSignTransactionModal.scss';
-import { TxData } from '@ethereumjs/tx';
-import { EthereumTransaction } from '/common';
+import { blockchain } from '/utils';
 
 interface EthereumSignTransactionModalProps {
   modal: Modal;
-  close: (a: CloseDappModalPayload) => void;
+  close: (chainId: string, signedTx: EthereumTransaction, origin: TransactionOriginDapp, resourceId: string) => void;
   accounts: Record<string, Account>;
-  returnSignedTransaction: (chainId: string, txData: TxData, resourceId: string) => void;
+  returnSignedTransaction: (
+    chainId: string,
+    signedTx: EthereumSignedTransaction,
+    origin: TransactionOriginDapp,
+    resourceId: string
+  ) => void;
 }
 
 export const EthereumSignTransactionModalComponent = ({
@@ -27,6 +39,7 @@ export const EthereumSignTransactionModalComponent = ({
 }: EthereumSignTransactionModalProps) => {
   const [privateKey, setPrivateKey] = useState<string>();
   const txData: EthereumTransaction = modal.parameters.parameters;
+  const origin: TransactionOriginDapp = modal.parameters.origin;
 
   return (
     <div className="modal fc est">
@@ -34,7 +47,7 @@ export const EthereumSignTransactionModalComponent = ({
       <div className="modal-card">
         <header className="modal-card-head">
           <p className="modal-card-title">{t('Signing Ethereum transaction')}</p>
-          <i onClick={() => close({ resourceId: modal.resourceId! })} className="fa fa-times" />
+          <i onClick={() => close(txData.chainId, txData, origin, modal.resourceId!)} className="fa fa-times" />
         </header>
         <section className="modal-card-body">
           <div className="field is-horizontal">
@@ -58,7 +71,10 @@ export const EthereumSignTransactionModalComponent = ({
           />
         </section>
         <footer className="modal-card-foot is-justify-content-end">
-          <button type="button" className="button is-outlined" onClick={() => close({ resourceId: modal.resourceId! })}>
+          <button
+            type="button"
+            className="button is-outlined"
+            onClick={() => close(txData.chainId, txData, origin, modal.resourceId!)}>
             {t('cancel signing')}
           </button>
 
@@ -68,7 +84,7 @@ export const EthereumSignTransactionModalComponent = ({
             disabled={!privateKey}
             onClick={() => {
               const signedTx = evmWallet.signTransaction(txData, privateKey!);
-              returnSignedTransaction(txData.chainId, signedTx, modal.resourceId!);
+              returnSignedTransaction(txData.chainId, signedTx, origin, modal.resourceId!);
             }}>
             {t('sign transaction')}
           </button>
@@ -83,12 +99,41 @@ export const EthereumSignTransactionModal = connect(
     accounts: getEVMAccounts(state),
   }),
   (dispatch) => ({
-    close: (a: CloseDappModalPayload) => dispatch(closeDappModalAction(a)),
-    returnSignedTransaction: (chainId: string, txData: TxData, resourceId: string) => {
-      // dispatch(saveEthereumSignedTransactionAction({
-      // blockchainId: chainId.toString(),
-      // transaction: txData,
-      // }))
+    close: (chainId: string, tx: EthereumTransaction, origin: TransactionOriginDapp, resourceId: string) => {
+      dispatch(
+        saveEthereumTransactionStateAction({
+          sentAt: new Date().toISOString(),
+          platform: 'evm',
+          id: blockchain.getUniqueTransactionId(),
+          origin,
+          transaction: tx,
+          blockchainId: chainId.toString(),
+          status: TransactionStatus.Failed,
+        })
+      );
+      dispatch(
+        closeDappModalAction({
+          resourceId,
+        })
+      );
+    },
+    returnSignedTransaction: (
+      chainId: string,
+      signedTx: EthereumSignedTransaction,
+      origin: TransactionOriginDapp,
+      resourceId: string
+    ) => {
+      dispatch(
+        saveEthereumTransactionStateAction({
+          sentAt: new Date().toISOString(),
+          platform: 'evm',
+          id: blockchain.getUniqueTransactionId(),
+          origin,
+          transaction: signedTx,
+          blockchainId: chainId.toString(),
+          status: TransactionStatus.Signed,
+        })
+      );
 
       dispatch(closeDappModalAction({ resourceId }));
     },

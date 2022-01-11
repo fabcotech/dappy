@@ -1,4 +1,4 @@
-import { TransactionState, Identification, TransactionOriginDapp } from '/models';
+import { TransactionState, Identification, TransactionOriginDapp, EthereumTransaction } from '/models';
 
 export const DAPP_INITIAL_SETUP = '[Common] dapp initial setup';
 export const EXECUTE_TRANSACTION = '[Common] Execute transaction';
@@ -99,16 +99,7 @@ export const sendRChainPaymentRequestFromSandboxAction = (values: SendRChainPaym
 // ======
 // Ethereum
 // ======
-export interface EthereumTransaction {
-  nonce: string | number;
-  gasPrice: string | number;
-  gasLimit: string | number;
-  from: string;
-  to: string;
-  value: string | number;
-  data: string;
-  chainId: string;
-}
+
 export interface SignEthereumTransactionFromMiddlewarePayload {
   parameters: EthereumTransaction;
   resourceId: string;

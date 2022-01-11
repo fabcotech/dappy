@@ -1,10 +1,3 @@
-import {
-  RChainTokenDeployPayload,
-  RChainTokenDeployBoxPayload,
-  RChainTokenUpdatePursePriceReturn,
-  RChainTokenCreatePursesReturn,
-} from './RChainToken';
-
 export interface RChainInfos {
   chainId: string;
   date: string;
@@ -56,15 +49,6 @@ export interface DeployOptions {
   sigAlgorithm: 'secp256k1';
 }
 
-export enum TransactionStatus {
-  Pending = 'pending',
-  Aired = 'aired',
-  Failed = 'failed',
-  Abandonned = 'abandonned',
-  Completed = 'completed',
-  Signed = 'signed',
-}
-
 export enum CallStatus {
   Pending = 'pending',
   Failed = 'failed',
@@ -74,27 +58,6 @@ export enum CallStatus {
 export interface TransactionOriginTransfer {
   origin: 'transfer';
   accountName: undefined | string;
-}
-export type RChainTokenOperation =
-  | 'withdraw'
-  | 'update-purse-price'
-  | 'deploy-box'
-  | 'tips'
-  | 'deploy'
-  | 'create-purses'
-  | 'purchase'
-  | 'update-purse-data';
-export interface TransactionOriginRChainToken {
-  origin: 'rchain-token';
-  accountName: undefined | string;
-  operation: RChainTokenOperation;
-}
-export interface TransactionOriginDapp {
-  origin: 'dapp';
-  accountName: undefined | string;
-  resourceId: string;
-  dappTitle: string;
-  callId: string;
 }
 export interface TransactionOriginRecord {
   origin: 'record';
@@ -108,40 +71,6 @@ export interface TransactionOriginDeploy {
 export interface TransactionOriginRholang {
   origin: 'rholang';
   accountName: string;
-}
-export type TransactionOrigin =
-  | TransactionOriginDapp
-  | TransactionOriginTransfer
-  | TransactionOriginRecord
-  | TransactionOriginDeploy
-  | TransactionOriginRholang
-  | TransactionOriginRChainToken;
-
-export interface TransactionAddressValue {
-  status: string;
-  address: string;
-}
-
-export type TransactionValue =
-  | string
-  | undefined
-  | TransactionAddressValue
-  | { message: string }
-  | RChainTokenDeployPayload
-  | RChainTokenDeployBoxPayload
-  | RChainTokenUpdatePursePriceReturn
-  | RChainTokenCreatePursesReturn;
-
-export interface TransactionState {
-  transaction: undefined | DeployOptions /* RCHAIN */;
-  status: TransactionStatus;
-  value: TransactionValue;
-  blockchainId: string;
-  blockchainInfo?: string /* RCHAIN */;
-  platform: 'rchain';
-  origin: TransactionOrigin;
-  sentAt: string;
-  id: string;
 }
 
 export interface Identification {

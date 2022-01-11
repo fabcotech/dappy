@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import { TransactionsListItem } from '.';
 
 interface RootProps {
-  transactions: { [transactionId: string]: TransactionState };
+  transactionStates: { [transactionId: string]: TransactionState };
   blockchains: {
     [chainId: string]: Blockchain;
   };
@@ -33,14 +33,13 @@ export class TransactionsListComponent extends React.Component<RootProps, {}> {
           </thead>
           <tbody>
             {/* todo cleaner way to display transactions in order */}
-            {Object.keys(this.props.transactions)
+            {Object.keys(this.props.transactionStates)
               .reverse()
               .map((id) => (
                 <TransactionsListItem
                   key={id}
-                  id={id}
                   blockchains={this.props.blockchains}
-                  transactionState={this.props.transactions[id]}
+                  transactionState={this.props.transactionStates[id]}
                 />
               ))}
           </tbody>
@@ -50,12 +49,9 @@ export class TransactionsListComponent extends React.Component<RootProps, {}> {
   }
 }
 
-export const TransactionsList = connect(
-  (state) => {
-    return {
-      transactions: fromBlockchain.getTransactions(state),
-      blockchains: fromSettings.getBlockchains(state),
-    };
-  },
-  (dispatch) => ({})
-)(TransactionsListComponent);
+export const TransactionsList = connect((state) => {
+  return {
+    transactionStates: fromBlockchain.getTransactions(state),
+    blockchains: fromSettings.getBlockchains(state),
+  };
+}, undefined)(TransactionsListComponent);

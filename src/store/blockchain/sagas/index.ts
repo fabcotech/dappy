@@ -11,7 +11,7 @@ import { sendRChainTransactionSaga } from './sendRChainTransaction';
 import { saveTransactionsToStorageSaga } from './saveTransactionsToStorage';
 import { performPostTransactionSaga } from './performPostTransaction';
 import { rChainTransactionErrorSaga } from './rChainTransactionError';
-import { transferRChainTransactionSaga } from './transferRChainTransaction';
+import { transferTransactionStateSaga } from './transferTransactionState';
 import { removeOldRecordsSaga } from './removeOldRecords';
 
 export const sagas = function* rootSaga() {
@@ -26,7 +26,7 @@ export const sagas = function* rootSaga() {
     sendRChainTransactionSaga(),
     performPostTransactionSaga(),
     rChainTransactionErrorSaga(),
-    transferRChainTransactionSaga(),
+    transferTransactionStateSaga(),
     removeOldRecordsSaga(),
     saveTransactionsToStorageSaga(),
   ]);

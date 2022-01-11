@@ -1,12 +1,12 @@
 import { Wallet } from './wallet';
 
-import { TxData, Transaction } from '@ethereumjs/tx';
+import { TxData, Transaction, JsonTx } from '@ethereumjs/tx';
 import { utils } from 'rchain-toolkit';
 
-export const evmWallet: Wallet<TxData> = {
+export const evmWallet: Wallet<TxData, JsonTx> = {
   signTransaction: (tx, privateKey) => {
     const pKey = Buffer.from(privateKey, 'hex');
-    return Transaction.fromTxData(tx).sign(pKey);
+    return Transaction.fromTxData(tx).sign(pKey).toJSON();
   },
 
   publicKeyFromPrivateKey: (privateKey: string) => {

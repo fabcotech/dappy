@@ -1,4 +1,13 @@
-import { RChainTokenPurse, Account, RChainInfos, Blockchain, RChainContractConfig, BlockchainNode } from '/models';
+import {
+  RChainTokenPurse,
+  Account,
+  RChainInfos,
+  Blockchain,
+  RChainContractConfig,
+  BlockchainNode,
+  TransactionState,
+  TransactionStatus,
+} from '/models';
 
 export const getFakeRChainAccount = (account: Partial<Account> = {}): Account => ({
   platform: 'rchain',
@@ -91,9 +100,27 @@ export const getFakeNewNamePurchaseLog = (
   dustPrice = 100000000,
   purse = 'foo'
 ) => `p,${date.getTime()},aaa,aaa,${nbToken},${dustPrice},0,${purse}`;
+
 export const getFakeExistingNamePurchaseLog = (
   date: Date = new Date(0),
   nbToken = 1,
   dustPrice = 100000000,
   purse = 'foo'
 ) => `p,${date.getTime()},aaa,aaa,${nbToken},${dustPrice},foo,${purse}`;
+
+export const getFakeTransactionState = (transactionState: Partial<TransactionState> = {}): TransactionState => ({
+  sentAt: new Date('01/01/2022').toISOString(),
+  id: 'fake transaction id',
+  blockchainId: 'fake blockchain id',
+  origin: {
+    origin: 'dapp',
+    accountName: 'fake account name',
+    resourceId: 'fake resource id',
+    dappTitle: 'fake title',
+    callId: 'fake call id',
+  },
+  value: 'fake result value',
+  status: TransactionStatus.Signed,
+  platform: 'evm',
+  transaction: undefined,
+});

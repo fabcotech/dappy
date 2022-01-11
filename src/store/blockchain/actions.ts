@@ -1,5 +1,5 @@
 import { TxData } from '@ethereumjs/tx';
-import { BeesLoadErrors, BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
+import { BeesLoadErrorWithArgs } from 'beesjs';
 import {
   Record,
   Benchmark,
@@ -14,7 +14,9 @@ import {
   TransactionState,
   TransactionOriginDeploy,
   TransactionValue,
-} from '../../models';
+  EthereumSignedTransaction,
+  EthereumTransaction,
+} from '/models';
 
 export const EXECUTE_CRON_JOBS = '[Blockchain] Execute cron jobs';
 
@@ -51,7 +53,7 @@ export const RCHAIN_TRANSACTION_ERROR = '[Blockchain] RChain transaction error';
 export const UPDATE_RCHAIN_TRANSACTION_STATUS = '[Blockchain] Update RChain transaction status';
 export const UPDATE_RCHAIN_TRANSACTION_VALUE = '[Blockchain] Update RChain transaction value';
 
-export const SAVE_ETHEREUM_SIGNED_TRANSACTION = '[Blockchain] Save ethereum signed transaction';
+export const SAVE_ETHEREUM_TRANSACTION = '[Blockchain] Save ethereum signed transaction';
 
 export const LISTEN_FOR_DATA_AT_NAME = '[Common] Listen for data at name';
 export const GET_ONE_RECORD = '[Common] Get one record';
@@ -228,17 +230,18 @@ export const updateTransactionsFromStorageAction = (values: { transactions: Tran
   payload: values,
 });
 
-export interface saveEthereumSignedTransactionPayload {
-  transaction: TxData;
+export interface saveEthereumTransactionStatePayload {
+  transaction: EthereumSignedTransaction | EthereumTransaction;
   id: string;
   platform: 'evm';
   blockchainId: string;
   origin: TransactionOrigin;
-  sendAt: string;
+  sentAt: string;
+  status: TransactionStatus;
 }
 
-export const saveEthereumSignedTransactionAction = (values: saveEthereumSignedTransactionPayload) => ({
-  type: SAVE_ETHEREUM_SIGNED_TRANSACTION,
+export const saveEthereumTransactionStateAction = (values: saveEthereumTransactionStatePayload) => ({
+  type: SAVE_ETHEREUM_TRANSACTION,
   payload: values,
 });
 

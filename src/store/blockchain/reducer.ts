@@ -28,7 +28,7 @@ export interface State {
     loadSuccesses: LoadRecordsSuccess[];
   };
   loadNodesErrors: LoadNodesError[];
-  transactions: {
+  transactions: /* TODO: rename to transactionStates */ {
     [transactionId: string]: TransactionState;
   };
   benchmarks: {
@@ -264,26 +264,26 @@ export const reducer = (state = initialState, action: any): State => {
       };
     }
 
-    // case fromActions.SAVE_ETHEREUM_SIGNED_TRANSACTION: {
-    //   const payload: fromActions.saveEthereumSignedTransactionPayload = action.payload;
-    //   return {
-    //     ...state,
-    //     transactions: {
-    //       ...state.transactions,
-    //       [payload.id]: {
-    //         id: payload.id,
-    //         transaction: payload.transaction,
-    //         status: TransactionStatus.Signed,
-    //         origin: payload.origin,
-    //         platform: payload.platform,
-    //         blockchainId: payload.blockchainId,
-    //         sentAt: payload.sendAt,
-    //         value: undefined,
-    //         blockchainInfo: '',
-    //       },
-    //     },
-    //   };
-    // }
+    case fromActions.SAVE_ETHEREUM_TRANSACTION: {
+      const payload: fromActions.saveEthereumTransactionStatePayload = action.payload;
+      return {
+        ...state,
+        transactions: {
+          ...state.transactions,
+          [payload.id]: {
+            id: payload.id,
+            transaction: payload.transaction,
+            status: payload.status,
+            origin: payload.origin,
+            platform: payload.platform,
+            blockchainId: payload.blockchainId,
+            sentAt: payload.sentAt,
+            value: undefined,
+            blockchainInfo: '',
+          },
+        },
+      };
+    }
 
     case fromActions.SAVE_FAILED_RCHAIN_TRANSACTION: {
       const payload: fromActions.SaveFailedRChainTransactionPayload = action.payload;
