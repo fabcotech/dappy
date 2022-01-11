@@ -17,6 +17,8 @@ import image_ethereum from '/images/ethereum120x120.png';
 import image_polygon from '/images/polygon120x120.png';
 import image_arbitrum from '/images/arbitrum120x120.png';
 import image_fantom_opera from '/images/fantom120x120.png';
+import image_moonbeam from '/images/moonbeam120x120.png';
+import image_starkware from '/images/starkware120x120.png';
 import image_binance_smart_chain from '/images/binance120x120.png';
 import image_avalanche from '/images/avalanche120x120.png';
 
@@ -87,7 +89,7 @@ interface EVMAccountsProps {
 }
 
 export const EVMAcconts = ({ accounts }: EVMAccountsProps) => {
-  if (!Object.values(accounts).length) return null;
+  if (!Object.values(accounts).filter(a => a.platform === 'evm').length) return null;
   return (
     <div className="block">
       <h4 className="is-size-4 mb-2">Ethereum / EVM</h4>
@@ -96,6 +98,8 @@ export const EVMAcconts = ({ accounts }: EVMAccountsProps) => {
         <img src={image_polygon} title="polygon" />
         <img src={image_arbitrum} title="arbitrum" />
         <img src={image_fantom_opera} title="fantom opera" />
+        <img src={image_starkware} title="starkware" />
+        <img src={image_moonbeam} title="moonbeam" />
         <img src={image_binance_smart_chain} title="binance smart chain" />
         <img src={image_avalanche} title="avalanche" />
       </div>

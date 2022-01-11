@@ -162,6 +162,7 @@ export const registerInterProcessDappProtocol = (
           callback(null);
           return;
         }
+
         if (data.action.type === fromCommon.IDENTIFY_FROM_SANDBOX) {
           identifyFromSandboxSchema
             .validate(payloadBeforeValid)
@@ -172,8 +173,8 @@ export const registerInterProcessDappProtocol = (
                   title: 'IDENTIFICATION_MODAL',
                   text: '',
                   parameters: {
-                    ...payloadBeforeValid,
                     resourceId: dappyBrowserView.resourceId,
+                    ...payloadBeforeValid
                   },
                   buttons: [],
                 }),
@@ -185,6 +186,7 @@ export const registerInterProcessDappProtocol = (
               console.error(err);
             });
         }
+
         // ETHEREUM / EVM
         if (data.action.type === fromCommon.SIGN_ETHEREUM_TRANSACTION_FROM_SANDBOX) {
           signEthereumTransactionFromSandboxSchema

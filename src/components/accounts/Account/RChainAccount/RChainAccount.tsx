@@ -108,9 +108,7 @@ export const RChainAccountComponent = ({
         <span className="unit">{t('rev', true)}</span>
         <GlossaryHint term="what is rev ?" />
         {!isBalancesHidden && (
-          <div>
-            <b className="phlo">{account.balance * LOGREV_TO_REV_RATE}</b>
-          </div>
+          <span className="dust">{account.balance * LOGREV_TO_REV_RATE}</span>
         )}
       </div>
       <div className="boxes">
