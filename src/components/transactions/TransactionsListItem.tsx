@@ -9,27 +9,43 @@ import {
   TransactionStatus,
   RChainTokenDeployPayload,
   RChainTokenDeployBoxPayload,
+  TransactionOrigin,
+  TransactionAddressValue,
 } from '/models';
 
 import { copyToClipboard } from '/interProcess';
 
-interface TransactionListItemProps {
-  transactionState: TransactionState;
-  blockchains: {
-    [chainId: string]: Blockchain;
-  };
-  id: string;
-}
+const isAddress = (state: TransactionState) =>
+  typeof state.value === 'object' && 'address' in state.value && 'status' in state.value;
 
-export const TransactionsListItem = (props: TransactionListItemProps) => {
-  const blockchain: undefined | Blockchain = props.blockchains[props.transactionState.blockchainId];
+const isDeployBox = (state: TransactionState) =>
+  state.origin.origin === 'rchain-token' &&
+  state.origin.operation === 'deploy-box' &&
+  state.status === 'completed' &&
+  state.value &&
+  state.value.hasOwnProperty('boxId');
 
-  let Value = <span></span>;
-  if (typeof props.transactionState.value === 'string') {
-    Value = <span>{props.transactionState.value}</span>;
-  } else if (props.transactionState.value && props.transactionState.value.hasOwnProperty('address')) {
-    const value = props.transactionState.value as { status: string; address: string };
-    Value = (
+const isRChainTokenDeploy = (state: TransactionState) =>
+  state.origin.origin === 'rchain-token' &&
+  state.origin.operation === 'deploy' &&
+  state.status === 'completed' &&
+  state.value &&
+  state.value.hasOwnProperty('masterRegistryUri') &&
+  state.value.hasOwnProperty('contractId');
+
+const isRChainTokenTip = (state: TransactionState) =>
+  state.origin.origin === 'rchain-token' &&
+  state.origin.operation === 'tips' &&
+  state.status === 'completed' &&
+  state.value &&
+  state.value.hasOwnProperty('contractId');
+
+const getResult = (transactionState: TransactionState) => {
+  if (typeof transactionState.value === 'string') {
+    return <span>{transactionState.value}</span>;
+  } else if (isAddress(transactionState)) {
+    const value = transactionState.value as TransactionAddressValue;
+    return (
       <span>
         {`Address is ${value.address} `}
         <a type="button" onClick={() => copyToClipboard(value.address)}>
@@ -37,15 +53,9 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
         </a>
       </span>
     );
-  } else if (
-    props.transactionState.origin.origin === 'rchain-token' &&
-    props.transactionState.origin.operation === 'deploy-box' &&
-    props.transactionState.status === 'completed' &&
-    props.transactionState.value &&
-    props.transactionState.value.hasOwnProperty('boxId')
-  ) {
-    const value: RChainTokenDeployBoxPayload = props.transactionState.value as RChainTokenDeployBoxPayload;
-    Value = (
+  } else if (isDeployBox(transactionState)) {
+    const value = transactionState.value as RChainTokenDeployBoxPayload;
+    return (
       <span>
         {`Box address is ${value.boxId} `}
         <a type="button" onClick={() => copyToClipboard(value.boxId)}>
@@ -53,16 +63,9 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
         </a>
       </span>
     );
-  } else if (
-    props.transactionState.origin.origin === 'rchain-token' &&
-    props.transactionState.origin.operation === 'deploy' &&
-    props.transactionState.status === 'completed' &&
-    props.transactionState.value &&
-    props.transactionState.value.hasOwnProperty('masterRegistryUri') &&
-    props.transactionState.value.hasOwnProperty('contractId')
-  ) {
-    const value: RChainTokenDeployPayload = props.transactionState.value as RChainTokenDeployPayload;
-    Value = (
+  } else if (isRChainTokenDeploy(transactionState)) {
+    const value = transactionState.value as RChainTokenDeployPayload;
+    return (
       <span>
         {`Contract address is ${value.masterRegistryUri}.${value.contractId} `}
         <a type="button" onClick={() => copyToClipboard(value.masterRegistryUri + '.' + value.contractId)}>
@@ -74,15 +77,9 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
         </a>
       </span>
     );
-  } else if (
-    props.transactionState.origin.origin === 'rchain-token' &&
-    props.transactionState.origin.operation === 'tips' &&
-    props.transactionState.status === 'completed' &&
-    props.transactionState.value &&
-    props.transactionState.value.hasOwnProperty('contractId')
-  ) {
-    const value: RChainTokenDeployPayload = props.transactionState.value as RChainTokenDeployPayload;
-    Value = (
+  } else if (isRChainTokenTip(transactionState)) {
+    const value = transactionState.value as RChainTokenDeployPayload;
+    return (
       <span>
         {`Dapp address is tips?contract=${value.contractId} `}
         <a type="button" onClick={() => copyToClipboard(`tips?contract=${value.contractId}`)}>
@@ -95,28 +92,42 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
       </span>
     );
   } else {
-    Value = <span>{JSON.stringify(props.transactionState.value)}</span>;
+    return <span>{JSON.stringify(transactionState.value)}</span>;
   }
+};
+
+const getOrigin = (origin: TransactionOrigin) => {
+  switch (origin.origin) {
+    case 'transfer':
+    case 'deploy':
+    case 'rholang':
+      return origin.origin;
+    case 'rchain-token':
+      return `rchain-token ${origin.operation}`;
+    case 'dapp':
+      return `dapp ${(origin as TransactionOriginDapp).dappTitle}`;
+    case 'record':
+      return `record ${(origin as TransactionOriginRecord).recordName}`;
+  }
+};
+interface TransactionListItemProps {
+  transactionState: TransactionState;
+  blockchains: {
+    [chainId: string]: Blockchain;
+  };
+  id: string;
+}
+
+export const TransactionsListItem = (props: TransactionListItemProps) => {
+  const blockchain: undefined | Blockchain = props.blockchains[props.transactionState.blockchainId];
+
   return (
     <tr>
       <td>{DateTime.fromISO(props.transactionState.sentAt).toLocaleString(DateTime.DATETIME_SHORT)}</td>
       <td>{props.id}</td>
       <td>{blockchain ? blockchain.chainName : props.transactionState.blockchainId}</td>
-      <td className="origin">
-        {props.transactionState.origin.origin === 'transfer' ? 'transfer' : undefined}
-        {props.transactionState.origin.origin === 'deploy' ? 'deploy' : undefined}
-        {props.transactionState.origin.origin === 'rholang' ? 'rholang' : undefined}
-        {props.transactionState.origin.origin === 'rchain-token'
-          ? `rchain-token ${props.transactionState.origin.operation}`
-          : undefined}
-        {props.transactionState.origin.origin === 'dapp'
-          ? 'dapp ' + (props.transactionState.origin as TransactionOriginDapp).dappTitle
-          : undefined}
-        {props.transactionState.origin.origin === 'record'
-          ? 'record ' + (props.transactionState.origin as TransactionOriginRecord).recordName
-          : undefined}
-      </td>
-      <td className="value">{Value}</td>
+      <td className="origin">{getOrigin(props.transactionState.origin)}</td>
+      <td className="value">{getResult(props.transactionState)}</td>
       <td>
         <span className={`tag ${props.transactionState.status}`}>
           {props.transactionState.status === TransactionStatus.Completed

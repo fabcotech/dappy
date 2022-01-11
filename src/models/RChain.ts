@@ -117,10 +117,15 @@ export type TransactionOrigin =
   | TransactionOriginRholang
   | TransactionOriginRChainToken;
 
+export interface TransactionAddressValue {
+  status: string;
+  address: string;
+}
+
 export type TransactionValue =
   | string
   | undefined
-  | { status: string; address: string }
+  | TransactionAddressValue
   | { message: string }
   | RChainTokenDeployPayload
   | RChainTokenDeployBoxPayload
@@ -128,11 +133,11 @@ export type TransactionValue =
   | RChainTokenCreatePursesReturn;
 
 export interface TransactionState {
-  transaction: undefined | DeployOptions;
+  transaction: undefined | DeployOptions /* RCHAIN */;
   status: TransactionStatus;
   value: TransactionValue;
   blockchainId: string;
-  blockchainInfo?: string;
+  blockchainInfo?: string /* RCHAIN */;
   platform: 'rchain';
   origin: TransactionOrigin;
   sentAt: string;
