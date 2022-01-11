@@ -1,7 +1,7 @@
 @import "../../style/variables.scss";
 
 .transactions-list {
-  tbody tr th {
+  tbody tr td {
     font-weight: normal;
     &.origin {
       max-width: 300px;

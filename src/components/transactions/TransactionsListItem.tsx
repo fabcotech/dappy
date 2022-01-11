@@ -99,10 +99,10 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
   }
   return (
     <tr>
-      <th>{DateTime.fromISO(props.transactionState.sentAt).toLocaleString(DateTime.DATETIME_SHORT)}</th>
-      <th>{props.id}</th>
-      <th>{blockchain ? blockchain.chainName : props.transactionState.blockchainId}</th>
-      <th className="origin">
+      <td>{DateTime.fromISO(props.transactionState.sentAt).toLocaleString(DateTime.DATETIME_SHORT)}</td>
+      <td>{props.id}</td>
+      <td>{blockchain ? blockchain.chainName : props.transactionState.blockchainId}</td>
+      <td className="origin">
         {props.transactionState.origin.origin === 'transfer' ? 'transfer' : undefined}
         {props.transactionState.origin.origin === 'deploy' ? 'deploy' : undefined}
         {props.transactionState.origin.origin === 'rholang' ? 'rholang' : undefined}
@@ -115,15 +115,15 @@ export const TransactionsListItem = (props: TransactionListItemProps) => {
         {props.transactionState.origin.origin === 'record'
           ? 'record ' + (props.transactionState.origin as TransactionOriginRecord).recordName
           : undefined}
-      </th>
-      <th className="value">{Value}</th>
-      <th>
+      </td>
+      <td className="value">{Value}</td>
+      <td>
         <span className={`tag ${props.transactionState.status}`}>
           {props.transactionState.status === TransactionStatus.Completed
-            ? 'recorded in the blockchain'
+            ? 'recorded in tde blockchain'
             : props.transactionState.status}
         </span>
-      </th>
+      </td>
     </tr>
   );
 };
