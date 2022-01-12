@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
 import { AccountSelect } from '../AccountSelect';
+import { copyToClipboard } from '/interProcess';
 import { Modal, closeDappModalAction, CloseDappModalPayload } from '/store/main';
 import { getEVMAccounts } from '/store/settings';
 import {
@@ -18,6 +19,7 @@ import { saveEthereumTransactionStateAction } from '/store/blockchain';
 
 import './EthereumSignTransactionModal.scss';
 import { blockchain } from '/utils';
+import { EvmNetwork } from '../EvmNetwork';
 
 interface EthereumSignTransactionModalProps {
   modal: Modal;
@@ -30,6 +32,27 @@ interface EthereumSignTransactionModalProps {
     resourceId: string
   ) => void;
 }
+
+const StaticField = (props: { label: string, value: number | string, copy?: boolean }) =>
+  <div className="field is-horizontal">
+    <div className="field-label is-normal">
+      <label className="label">{props.label}</label>
+    </div>
+    <div className="field-body">
+      <div className="field">
+        <p className="control">
+          <span>{props.value}&nbsp;&nbsp;</span>
+          {
+            props.value !== 'none' && props.copy &&
+            <a className="underlined-link" onClick={() => copyToClipboard(props.value.toString())}>
+              <i className="fa fa-copy fa-before"></i>
+              {t('copy')}
+            </a>
+          }
+        </p>
+      </div>
+    </div>
+  </div>
 
 export const EthereumSignTransactionModalComponent = ({
   modal,
@@ -49,18 +72,16 @@ export const EthereumSignTransactionModalComponent = ({
           <p className="modal-card-title">{t('Signing Ethereum transaction')}</p>
           <i onClick={() => close(txData.chainId, txData, origin, modal.resourceId!)} className="fa fa-times" />
         </header>
-        <section className="modal-card-body">
-          <div className="field is-horizontal">
-            <div className="field-label is-normal">
-              <div className="label">{t('transaction body')}</div>
-            </div>
-            <div className="field-body">
-              <div className="field">
-                <div className="control">
-                  <pre>{JSON.stringify(modal.parameters.parameters, null, 2)}</pre>
-                </div>
-              </div>
-            </div>
+        <section className="modal-card-body modal-card-body-sign-ethereum-modal">
+          <div className="transaction-body">
+            <EvmNetwork chainId={modal.parameters.parameters.chainId} />
+            <StaticField copy label="from" value={modal.parameters.parameters.from || 'none' }/>
+            <StaticField copy label="to" value={modal.parameters.parameters.to || 'none' }/>
+            <StaticField label="nonce" value={modal.parameters.parameters.nonce || 'none' }/>
+            <StaticField label="gasLimit" value={modal.parameters.parameters.gasLimit || 'none' }/>
+            <StaticField label="gasPrice" value={modal.parameters.parameters.gasPrice || 'none' }/>
+            <StaticField copy label="value" value={modal.parameters.parameters.value || 'none' }/>
+            <StaticField copy label="data" value={modal.parameters.parameters.data || 'none' }/>
           </div>
           <AccountSelect
             chooseBox={false}

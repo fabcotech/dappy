@@ -392,12 +392,22 @@ var DappyRChain = (function () {
             this.identifications = {};
             this.transactions = {};
             this.sendMessageToHost = function (m) {
-                var interProcess2 = new XMLHttpRequest();
-                interProcess2.open('POST', 'interprocessdapp://message-from-dapp-sandboxed');
-                interProcess2.setRequestHeader('Data', JSON.stringify({
-                    action: m,
-                }));
-                interProcess2.send();
+                return new Promise(function (resolve, reject) {
+                    var interProcess2 = new XMLHttpRequest();
+                    interProcess2.open('POST', 'interprocessdapp://message-from-dapp-sandboxed');
+                    interProcess2.setRequestHeader('Data', JSON.stringify({
+                        action: m,
+                    }));
+                    interProcess2.send();
+                    interProcess2.onloadend = function () {
+                        if (interProcess2.responseText && interProcess2.responseText.length) {
+                            reject(interProcess2.responseText);
+                        }
+                        else {
+                            resolve(undefined);
+                        }
+                    };
+                });
             };
             this.initialState = {
                 transactions: [],
@@ -486,11 +496,15 @@ var DappyRChain = (function () {
                     parameters: params,
                     callId: callId,
                     resourceId: '',
-                }));
-                _this.identifications[callId] = {
-                    resolve: resolve,
-                    reject: reject,
-                };
+                })).then(function () {
+                    _this.identifications[callId] = {
+                        resolve: resolve,
+                        reject: reject,
+                    };
+                })
+                    .catch(function (err) {
+                    reject(err);
+                });
             });
             return promise;
         };
@@ -501,11 +515,15 @@ var DappyRChain = (function () {
                 _this.sendMessageToHost(sendRChainTransactionFromSandboxAction({
                     parameters: parameters,
                     callId: callId,
-                }));
-                _this.transactions[callId] = {
-                    resolve: resolve,
-                    reject: reject,
-                };
+                })).then(function () {
+                    _this.transactions[callId] = {
+                        resolve: resolve,
+                        reject: reject,
+                    };
+                })
+                    .catch(function (err) {
+                    reject(err);
+                });
             });
             return promise;
         };
@@ -534,7 +552,7 @@ var DappyRChain = (function () {
                     }
                     else if (callTransaction.status === 'abandonned' || callTransaction.status === 'failed') {
                         _this.transactions[key].reject({
-                            error: "transaction " + callTransaction.status,
+                            error: "transaction ".concat(callTransaction.status),
                             transaction: callTransaction,
                         });
                     }

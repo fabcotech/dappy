@@ -21,16 +21,25 @@ export default class {
     };
   } = {};
 
-  sendMessageToHost = (m) => {
-    const interProcess2 = new XMLHttpRequest();
-    interProcess2.open('POST', 'interprocessdapp://message-from-dapp-sandboxed');
-    interProcess2.setRequestHeader(
-      'Data',
-      JSON.stringify({
-        action: m,
-      })
-    );
-    interProcess2.send();
+  sendMessageToHost = (m: any) => {
+    return new Promise((resolve, reject) => {
+      const interProcess2 = new XMLHttpRequest();
+      interProcess2.open('POST', 'interprocessdapp://message-from-dapp-sandboxed');
+      interProcess2.setRequestHeader(
+        'Data',
+        JSON.stringify({
+          action: m,
+        })
+      );
+      interProcess2.send();
+      interProcess2.onloadend = () => {
+        if (interProcess2.responseText && interProcess2.responseText.length) {
+          reject(interProcess2.responseText)
+        } else {
+          resolve(undefined)
+        }
+      }
+    })
   };
 
   identify(parameters: { publicKey: undefined | string; platform: string }) {
@@ -50,12 +59,15 @@ export default class {
           callId: callId,
           resourceId: '',
         })
-      );
-
-      this.identifications[callId] = {
-        resolve: resolve,
-        reject: reject,
-      };
+      ).then(() => {
+        this.identifications[callId] = {
+          resolve: resolve,
+          reject: reject,
+        };
+      })
+      .catch(err => {
+        reject(err)
+      })
     });
 
     return promise;
@@ -70,12 +82,15 @@ export default class {
           parameters: txData,
           callId: callId,
         })
-      );
-
-      this.transactions[callId] = {
-        resolve: resolve,
-        reject: reject,
-      };
+      ).then(() => {
+        this.transactions[callId] = {
+          resolve: resolve,
+          reject: reject,
+        };
+      })
+      .catch(err => {
+        reject(err)
+      })
     });
 
     return promise;

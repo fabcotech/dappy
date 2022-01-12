@@ -2,11 +2,11 @@ import { JsonTx } from '@ethereumjs/tx';
 
 export interface EthereumTransaction {
   nonce: string | number;
-  gasPrice: string | number;
-  gasLimit: string | number;
+  gasPrice: string;
+  gasLimit: string;
   from: string;
   to: string;
-  value: string | number;
+  value: string;
   data: string;
   chainId: string;
 }

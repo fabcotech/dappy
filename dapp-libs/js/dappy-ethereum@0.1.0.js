@@ -29,12 +29,22 @@ var DappyEthereum = (function () {
           this.identifications = {};
           this.transactions = {};
           this.sendMessageToHost = function (m) {
-              var interProcess2 = new XMLHttpRequest();
-              interProcess2.open('POST', 'interprocessdapp://message-from-dapp-sandboxed');
-              interProcess2.setRequestHeader('Data', JSON.stringify({
-                  action: m,
-              }));
-              interProcess2.send();
+              return new Promise(function (resolve, reject) {
+                  var interProcess2 = new XMLHttpRequest();
+                  interProcess2.open('POST', 'interprocessdapp://message-from-dapp-sandboxed');
+                  interProcess2.setRequestHeader('Data', JSON.stringify({
+                      action: m,
+                  }));
+                  interProcess2.send();
+                  interProcess2.onloadend = function () {
+                      if (interProcess2.responseText && interProcess2.responseText.length) {
+                          reject(interProcess2.responseText);
+                      }
+                      else {
+                          resolve(undefined);
+                      }
+                  };
+              });
           };
           this.requestTransactions = function () {
               var interProcess = new XMLHttpRequest();
@@ -85,26 +95,34 @@ var DappyEthereum = (function () {
                   parameters: params,
                   callId: callId,
                   resourceId: '',
-              }));
-              _this.identifications[callId] = {
-                  resolve: resolve,
-                  reject: reject,
-              };
+              })).then(function () {
+                  _this.identifications[callId] = {
+                      resolve: resolve,
+                      reject: reject,
+                  };
+              })
+                  .catch(function (err) {
+                  reject(err);
+              });
           });
           return promise;
       };
-      default_1.prototype.signTransaction = function (parameters) {
+      default_1.prototype.signTransaction = function (txData) {
           var _this = this;
           var promise = new Promise(function (resolve, reject) {
               var callId = new Date().valueOf().toString() + Math.round(Math.random() * 1000000).toString();
               _this.sendMessageToHost(signEthereumTransactionFromSandboxAction({
-                  parameters: parameters,
+                  parameters: txData,
                   callId: callId,
-              }));
-              _this.transactions[callId] = {
-                  resolve: resolve,
-                  reject: reject,
-              };
+              })).then(function () {
+                  _this.transactions[callId] = {
+                      resolve: resolve,
+                      reject: reject,
+                  };
+              })
+                  .catch(function (err) {
+                  reject(err);
+              });
           });
           return promise;
       };

@@ -70,8 +70,8 @@ const signEthereumTransactionFromSandboxSchema = yup
       .object()
       .shape({
         nonce: stringOrNumber.required(),
-        gasPrice: stringOrNumber.required(),
-        gasLimit: stringOrNumber.required(),
+        gasPrice: yup.string().required(),
+        gasLimit: yup.string().required(),
         value: yup.string().optional(),
         data: yup.string().optional(),
         from: yup.string().optional(),
@@ -159,7 +159,16 @@ export const registerInterProcessDappProtocol = (
 
         if (!payloadBeforeValid) {
           console.error('[interprocessdapp://] dapp dispatched a transaction with an invalid payload');
-          callback(null);
+          callback(Buffer.from('invalid payload'));
+          return;
+        }
+
+        let searchSplitted: undefined | SplitSearch = undefined;
+        try {
+          searchSplitted = splitSearch(dappyBrowserView.dappyDomain);
+        } catch (err) {
+          console.error('[interprocessdapp://] could not parse dappyDomain');
+          callback(Buffer.from('Error parsing domain'));
           return;
         }
 
@@ -184,7 +193,9 @@ export const registerInterProcessDappProtocol = (
             .catch((err: Error) => {
               console.error('A dapp tried to trigger an identification with an invalid schema');
               console.error(err);
+              callback(Buffer.from(err.message));
             });
+          return;
         }
 
         // ETHEREUM / EVM
@@ -194,6 +205,15 @@ export const registerInterProcessDappProtocol = (
             .then((valid) => {
               const payload: fromCommon.SignEthereumTransactionFromSandboxPayload = payloadBeforeValid;
 
+              if (payload.parameters.value && payload.parameters.value.startsWith('0x')) {
+                throw new Error('.value must be provided as raw string and not hexadecimal value')
+              }
+              if (payload.parameters.gasLimit && payload.parameters.gasLimit.startsWith('0x')) {
+                throw new Error('.gasLimit must be provided as raw string and not hexadecimal value')
+              }
+              if (payload.parameters.gasPrice && payload.parameters.gasPrice.startsWith('0x')) {
+                throw new Error('.gasPrice must be provided as raw string and not hexadecimal value')
+              }
               const id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
               const payload2: fromCommon.SignEthereumTransactionFromMiddlewarePayload = {
                 parameters: payload.parameters,
@@ -221,21 +241,17 @@ export const registerInterProcessDappProtocol = (
               callback(Buffer.from(''));
             })
             .catch((err: Error) => {
-              // todo : does the dapp need to have this error returned ?
-              console.error('[interprocessdapp://] a dapp tried to send RChain transaction with an invalid schema');
-              console.error(err);
-              callback(Buffer.from(''));
+              console.error('[interprocessdapp://] a dapp tried to request Sign Ethereum transaction with an invalid schema');
+              console.error(err.message);
+              callback(Buffer.from(err.message));
               return;
             });
+          return;
         }
 
         // RCHAIN
         const okBlockchains = fromBlockchainsMain.getOkBlockchainsMain(state);
-        let searchSplitted: undefined | SplitSearch = undefined;
-
         try {
-          searchSplitted = splitSearch(dappyBrowserView.dappyDomain);
-
           if (!okBlockchains[searchSplitted.chainId]) {
             dispatchFromMain({
               action: fromBlockchain.saveFailedRChainTransactionAction({
@@ -254,13 +270,13 @@ export const registerInterProcessDappProtocol = (
               }),
             });
             console.error(`[interprocessdapp://] blockchain ${searchSplitted.chainId} not available`);
-            callback(Buffer.from(''));
+            callback(Buffer.from('blockchain not found'));
             return;
           }
         } catch (err) {
           console.error('[interprocessdapp://] unknown error');
           console.error(err);
-          callback(Buffer.from(''));
+          callback(Buffer.from(err.message));
           return;
         }
 
@@ -305,9 +321,9 @@ export const registerInterProcessDappProtocol = (
               callback(Buffer.from(''));
             })
             .catch((err: Error) => {
-              // todo : does the dapp need to have this error returned ?
               console.error('[interprocessdapp://] a dapp tried to send RChain transaction with an invalid schema');
               console.error(err);
+              callback(Buffer.from(err.message));
               return;
             });
         } else if (data.action.type === fromCommon.SEND_RCHAIN_PAYMENT_REQUEST_FROM_SANDBOX) {
@@ -322,7 +338,7 @@ export const registerInterProcessDappProtocol = (
                 } catch (err) {
                   console.error('[interprocessdapp://] failed to generate REV address based on public key');
                   console.error(err);
-                  callback(null);
+                  callback(Buffer.from('failed to generate REV address based on public key'));
                   return;
                 }
               }
@@ -354,14 +370,16 @@ export const registerInterProcessDappProtocol = (
             })
             .catch((err: Error) => {
               // todo : does the dapp need to have this error returned ?
-              console.error('A dapp tried to send RChain transaction with an invalid schema');
+              console.error('[interprocessdapp://] A dapp tried to send RChain transaction with an invalid schema');
               console.error(err);
+              callback(Buffer.from(err.message));
               return;
             });
         }
       } catch (err) {
-        console.error('An error occured when checking message-from-dapp-sandboxed');
+        console.error('[interprocessdapp://] An error occured');
         console.error(err);
+        callback(Buffer.from(err.message));
       }
     }
   });
