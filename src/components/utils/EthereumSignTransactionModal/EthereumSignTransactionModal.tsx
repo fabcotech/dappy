@@ -61,6 +61,7 @@ export const EthereumSignTransactionModalComponent = ({
   returnSignedTransaction,
 }: EthereumSignTransactionModalProps) => {
   const [privateKey, setPrivateKey] = useState<string>();
+  const [address, setAddress] = useState<string>();
   const txData: EthereumTransaction = modal.parameters.parameters;
   const origin: TransactionOriginDapp = modal.parameters.origin;
 
@@ -95,10 +96,17 @@ export const EthereumSignTransactionModalComponent = ({
           <AccountSelect
             chooseBox={false}
             updatePrivateKey={(a) => {
+              setAddress(a.address);
               setPrivateKey(a.privatekey);
             }}
             accounts={accountsOk}
           />
+          {
+            address && address !== modal.parameters.parameters.from &&
+            <span className="text-warning same-as-label">
+              Address of the account does not match .from property
+            </span>
+          }
         </section>
         <footer className="modal-card-foot is-justify-content-end">
           <button

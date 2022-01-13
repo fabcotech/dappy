@@ -279,3 +279,13 @@ noscript {
 .is-rounded-8 {
   border-radius: $size-7 / 2;
 }
+
+.same-as-label {
+  padding: 0.5rem;
+  padding-left: 0px;
+}
+@media screen and (min-width: 769px) {
+  .same-as-label {
+    padding-left: 120px;
+  }
+}

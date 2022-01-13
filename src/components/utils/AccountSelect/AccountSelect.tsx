@@ -14,6 +14,7 @@ export interface AccountSelectProps {
   accounts: { [accountName: string]: Account };
   updatePrivateKey: (t: {
     privatekey: string | undefined;
+    address: string | undefined;
     box: string | undefined;
     accountName: undefined | string;
   }) => void;
@@ -53,6 +54,7 @@ export class AccountSelectComponent extends React.Component<AccountSelectProps, 
           });
           this.props.updatePrivateKey({
             privatekey: decrypted,
+            address: data.account.address,
             box: data.account.boxes[0],
             accountName: data.account.name,
           });
@@ -62,7 +64,7 @@ export class AccountSelectComponent extends React.Component<AccountSelectProps, 
             passwordError: t('wrong password'),
             passwordSuccess: false,
           });
-          this.props.updatePrivateKey({ privatekey: undefined, box: undefined, accountName: undefined });
+          this.props.updatePrivateKey({ privatekey: undefined, address: undefined, box: undefined, accountName: undefined });
         }
       },
     });
