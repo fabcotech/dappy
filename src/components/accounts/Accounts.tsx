@@ -18,6 +18,7 @@ import image_polygon from '/images/polygon120x120.png';
 import image_arbitrum from '/images/arbitrum120x120.png';
 import image_fantom_opera from '/images/fantom120x120.png';
 import image_moonbeam from '/images/moonbeam120x120.png';
+import image_moonriver from '/images/moonriver120x120.png';
 import image_starkware from '/images/starkware120x120.png';
 import image_binance_smart_chain from '/images/binance120x120.png';
 import image_avalanche from '/images/avalanche120x120.png';
@@ -94,14 +95,15 @@ export const EVMAcconts = ({ accounts }: EVMAccountsProps) => {
     <div className="block">
       <h4 className="is-size-4 mb-2">Ethereum / EVM</h4>
       <div className="logos mb-4">
-        <img src={image_ethereum} title="ethereum" />
-        <img src={image_polygon} title="polygon" />
-        <img src={image_arbitrum} title="arbitrum" />
-        <img src={image_fantom_opera} title="fantom opera" />
-        <img src={image_starkware} title="starkware" />
-        <img src={image_moonbeam} title="moonbeam" />
-        <img src={image_binance_smart_chain} title="binance smart chain" />
-        <img src={image_avalanche} title="avalanche" />
+        <img src={image_ethereum} title="Ethereum" />
+        <img src={image_polygon} title="Polygon" />
+        <img src={image_arbitrum} title="Arbitrum" />
+        <img src={image_fantom_opera} title="Fantom opera" />
+        <img src={image_starkware} title="Starkware" />
+        <img src={image_moonbeam} title="Polkadot moonbeam" />
+        <img src={image_moonriver} title="Polkadot moonriver" />
+        <img src={image_binance_smart_chain} title="Binance smart chain" />
+        <img src={image_avalanche} title="Avalanche" />
       </div>
       <div className="account-cards">
         {Object.values(accounts)

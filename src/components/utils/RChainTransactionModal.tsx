@@ -185,7 +185,7 @@ export class RChainTransactionModalComponent extends React.Component<RChainTrans
         <div className="modal-background" />
         <div className="modal-card">
           <header className="modal-card-head">
-            <p className="modal-card-title">Dapp wishes to send a transaction</p>
+            <p className="modal-card-title">{t('signing rchain transaction')}</p>
             <i onClick={this.onCloseModal} className="fa fa-times" />
           </header>
           <section className="modal-card-body">

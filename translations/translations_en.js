@@ -1410,14 +1410,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "copy box address",
-    "definition": "Copy box address",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "copy contract address",
     "definition": "Copy contract address",
     "context": "Settings > Accounts",
@@ -2406,6 +2398,30 @@ module.exports.translations = [
     "term": "show balances",
     "definition": "Show balances",
     "context": "Settings > Accounts",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "signing ethereum transaction",
+    "definition": "Request for EVM transaction signature",
+    "context": "Modal",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "signing rchain transaction",
+    "definition": "Request for RChain transaction signature",
+    "context": "Modal",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "sign transaction",
+    "definition": "Sign transaction",
+    "context": "Modal",
     "term_plural": "",
     "reference": "",
     "comment": ""

@@ -116,7 +116,7 @@ export const IdentificationModal = connect(
   (state: StoreState) => ({
     isMobile: fromUi.getIsMobile(state),
     isTablet: fromUi.getIsTablet(state),
-    accounts: fromSettings.getRChainAccounts(state),
+    accounts: fromSettings.getAccounts(state),
   }),
   (dispatch) => ({
     saveIdentification: (a: fromDapps.SaveIdentificationPayload) => {

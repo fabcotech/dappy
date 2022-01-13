@@ -517,9 +517,6 @@ module.exports.translations = {
   "password for account": {
     "one": "Password for account"
   },
-  "copy box address": {
-    "one": "Copy box address"
-  },
   "copy contract address": {
     "one": "Copy contract address"
   },
@@ -882,5 +879,14 @@ module.exports.translations = {
   },
   "show balances": {
     "one": "Show balances"
+  },
+  "signing ethereum transaction": {
+    "one": "Request for EVM transaction signature"
+  },
+  "signing rchain transaction": {
+    "one": "Request for RChain transaction signature"
+  },
+  "sign transaction": {
+    "one": "Sign transaction"
   }
 }

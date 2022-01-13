@@ -64,12 +64,21 @@ export const EthereumSignTransactionModalComponent = ({
   const txData: EthereumTransaction = modal.parameters.parameters;
   const origin: TransactionOriginDapp = modal.parameters.origin;
 
+  let accountsOk = accounts;
+  let accountsWithSameAddressAsFrom = Object.keys(accounts).filter(a => accounts[a].address === txData.from);
+  if (accountsWithSameAddressAsFrom.length !== 0) {
+    accountsOk = {};
+    accountsWithSameAddressAsFrom.forEach(k => {
+      accountsOk[k] = accounts[k];
+    })
+  }
+
   return (
     <div className="modal fc est">
       <div className="modal-background" />
       <div className="modal-card">
         <header className="modal-card-head">
-          <p className="modal-card-title">{t('Signing Ethereum transaction')}</p>
+          <p className="modal-card-title">{t('signing ethereum transaction')}</p>
           <i onClick={() => close(txData.chainId, txData, origin, modal.resourceId!)} className="fa fa-times" />
         </header>
         <section className="modal-card-body modal-card-body-sign-ethereum-modal">
@@ -88,7 +97,7 @@ export const EthereumSignTransactionModalComponent = ({
             updatePrivateKey={(a) => {
               setPrivateKey(a.privatekey);
             }}
-            accounts={accounts}
+            accounts={accountsOk}
           />
         </section>
         <footer className="modal-card-foot is-justify-content-end">
@@ -96,7 +105,7 @@ export const EthereumSignTransactionModalComponent = ({
             type="button"
             className="button is-outlined"
             onClick={() => close(txData.chainId, txData, origin, modal.resourceId!)}>
-            {t('cancel signing')}
+            {t('discard transaction')}
           </button>
 
           <button

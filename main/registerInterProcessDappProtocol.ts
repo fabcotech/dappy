@@ -182,8 +182,8 @@ export const registerInterProcessDappProtocol = (
                   title: 'IDENTIFICATION_MODAL',
                   text: '',
                   parameters: {
+                    ...payloadBeforeValid,
                     resourceId: dappyBrowserView.resourceId,
-                    ...payloadBeforeValid
                   },
                   buttons: [],
                 }),
