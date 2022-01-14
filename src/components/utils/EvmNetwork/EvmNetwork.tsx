@@ -7,6 +7,7 @@ import image_fantom_opera from '/images/fantom120x120.png';
 import image_moonbeam from '/images/moonbeam120x120.png';
 import image_moonriver from '/images/moonriver120x120.png';
 import image_starkware from '/images/starkware120x120.png';
+import image_evmos from '/images/evmos120x120.png';
 import image_binance_smart_chain from '/images/binance120x120.png';
 import image_avalanche from '/images/avalanche120x120.png';
 
@@ -93,6 +94,16 @@ const getImgAndNetworkName = (chainId: string | undefined): { img: undefined | s
     return {
       img: image_avalanche,
       name: 'Avalanche Mainnet'
+    }
+  }else if (chainId === '9000') {
+    return {
+      img: image_avalanche,
+      name: 'Evmos Testnet'
+    }
+  }else if (chainId === '9001') {
+    return {
+      img: image_avalanche,
+      name: 'Evmos Mainnet'
     }
   } else {
     return {

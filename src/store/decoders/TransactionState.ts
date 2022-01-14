@@ -54,26 +54,7 @@ export const transactionStateSchema = yup
       .string()
       .matches(/rchain/)
       .required(),
-    // todo validate value properly ?
-    value: yup.mixed().test('is-transaction-value', '${path} is not valid transaction value', (v: any) => {
-      if (typeof v === 'string' || typeof v === 'undefined') {
-        return true;
-      }
-      if (v !== null && typeof v === 'object' && typeof v.address == 'string') {
-        return true;
-      }
-      if (v !== null && typeof v === 'object' && typeof v.message == 'string') {
-        return true;
-      }
-      if (v !== null && typeof v === 'object' && typeof v.status == 'string') {
-        return true;
-      }
-
-      if (v !== null && typeof v === 'object') {
-        return true;
-      }
-      return false;
-    }),
+    value: yup.mixed(),
     blockchainId: yup.string().required(),
     blockchainInfo: yup.string(),
     sentAt: yup.string().required(),
