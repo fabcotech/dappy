@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
+import { fromWei } from 'web3-utils';
 
 import { AccountSelect } from '../AccountSelect';
 import { copyToClipboard } from '/interProcess';
-import { Modal, closeDappModalAction, CloseDappModalPayload } from '/store/main';
+import { Modal, closeDappModalAction } from '/store/main';
 import { getEVMAccounts } from '/store/settings';
 import {
   Account,
@@ -54,6 +55,28 @@ const StaticField = (props: { label: string; value: number | string; copy?: bool
   </div>
 );
 
+const isHexaString = (hexaString: string) => hexaString && hexaString.length && hexaString.startsWith('0x');
+
+const toGwei = (hexaString: string) => (isHexaString(hexaString) ? `${fromWei(hexaString, 'gwei')} gwei` : 'none');
+
+const toNumber = (hexaString: string) => (isHexaString(hexaString) ? Number(hexaString) : 'none');
+
+const toHumanReadableUnit = (hexaString: string) => {
+  if (!isHexaString(hexaString)) {
+    return 'none';
+  }
+  const n = Number(hexaString);
+
+  if (n <= Math.pow(10, 6)) {
+    return `${n} wei`;
+  }
+  if (n > Math.pow(10, 6) && n <= Math.pow(10, 15)) {
+    return `${fromWei(hexaString, 'gwei')} gwei`;
+  } else {
+    return `${fromWei(hexaString, 'ether')} eth`;
+  }
+};
+
 export const EthereumSignTransactionModalComponent = ({
   modal,
   close,
@@ -89,10 +112,10 @@ export const EthereumSignTransactionModalComponent = ({
               <StaticField copy label="from" value={modal.parameters.parameters.from} />
             ) : undefined}
             <StaticField copy label="to" value={modal.parameters.parameters.to || 'none'} />
-            <StaticField label="nonce" value={modal.parameters.parameters.nonce || 'none'} />
-            <StaticField label="gasLimit" value={modal.parameters.parameters.gasLimit || 'none'} />
-            <StaticField label="gasPrice" value={modal.parameters.parameters.gasPrice || 'none'} />
-            <StaticField copy label="value" value={modal.parameters.parameters.value || 'none'} />
+            <StaticField label="nonce" value={toNumber(modal.parameters.parameters.nonce)} />
+            <StaticField label="gasLimit" value={toNumber(modal.parameters.parameters.gasLimit)} />
+            <StaticField label="gasPrice" value={toGwei(modal.parameters.parameters.gasPrice)} />
+            <StaticField label="value" value={toHumanReadableUnit(modal.parameters.parameters.value)} />
             <StaticField copy label="data" value={modal.parameters.parameters.data || 'none'} />
           </div>
           <AccountSelect

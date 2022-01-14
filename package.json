@@ -57,6 +57,7 @@
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1",
     "uuid": "^3.4.0",
+    "web3-utils": "^1.6.1",
     "xstream": "^11.7.0",
     "yup": "0.32.9"
   },
