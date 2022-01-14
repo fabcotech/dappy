@@ -104,11 +104,11 @@ const getImgAndNetworkName = (chainId: number): { img: undefined | string; name:
 };
 
 interface EvmNetworkProps {
-  chainId: string | undefined;
+  chainId: number | undefined;
 }
 
 export const EvmNetwork = ({ chainId }: EvmNetworkProps) => {
-  const imgAndNetworkName = getImgAndNetworkName(chainId);
+  const imgAndNetworkName = getImgAndNetworkName(chainId!);
   return (
     <React.Fragment>
       {chainId && typeof chainId === 'string' && (

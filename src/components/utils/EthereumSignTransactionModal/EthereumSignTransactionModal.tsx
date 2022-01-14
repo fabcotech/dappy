@@ -23,10 +23,10 @@ import { EvmNetwork } from '../EvmNetwork';
 
 interface EthereumSignTransactionModalProps {
   modal: Modal;
-  close: (chainId: string, signedTx: EthereumTransaction, origin: TransactionOriginDapp, resourceId: string) => void;
+  close: (chainId: number, signedTx: EthereumTransaction, origin: TransactionOriginDapp, resourceId: string) => void;
   accounts: Record<string, Account>;
   returnSignedTransaction: (
-    chainId: string,
+    chainId: number,
     signedTx: EthereumSignedTransaction,
     origin: TransactionOriginDapp,
     resourceId: string
@@ -136,7 +136,7 @@ export const EthereumSignTransactionModal = connect(
     accounts: getEVMAccounts(state),
   }),
   (dispatch) => ({
-    close: (chainId: string, tx: EthereumTransaction, origin: TransactionOriginDapp, resourceId: string) => {
+    close: (chainId: number, tx: EthereumTransaction, origin: TransactionOriginDapp, resourceId: string) => {
       dispatch(
         saveEthereumTransactionStateAction({
           sentAt: new Date().toISOString(),
@@ -155,7 +155,7 @@ export const EthereumSignTransactionModal = connect(
       );
     },
     returnSignedTransaction: (
-      chainId: string,
+      chainId: number,
       signedTx: EthereumSignedTransaction,
       origin: TransactionOriginDapp,
       resourceId: string

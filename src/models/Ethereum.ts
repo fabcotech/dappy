@@ -8,7 +8,7 @@ export interface EthereumTransaction {
   to: string;
   value: string;
   data: string;
-  chainId: string;
+  chainId: number;
 }
 
 export type EthereumSignedTransaction = JsonTx;
