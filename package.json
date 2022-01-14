@@ -33,6 +33,7 @@
     "trailingComma": "es5"
   },
   "dependencies": {
+    "@ethereumjs/common": "^2.6.0",
     "@ethereumjs/tx": "^3.4.0",
     "@sentry/browser": "6.7.1",
     "ajv": "^6.12.6",

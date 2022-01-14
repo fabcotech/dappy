@@ -17,12 +17,7 @@ import { looksLikePublicKey } from '../src/utils/looksLikePublicKey';
 import { SplitSearch } from '../src/models';
 import { DappyBrowserView } from './models';
 
-const stringOrNumber = yup.mixed().test({
-  name: 'string or number',
-  exclusive: true,
-  message: 'must be a string or a number',
-  test: (v) => v === null || v === undefined || typeof v === 'string' || typeof v === 'number',
-});
+const hexString = yup.string().matches(/^0x[0-9a-fA-F]+$/, 'string must be in hexadecimal and starts with 0x');
 
 const identifyFromSandboxSchema = yup
   .object()
@@ -69,14 +64,14 @@ const signEthereumTransactionFromSandboxSchema = yup
     parameters: yup
       .object()
       .shape({
-        nonce: stringOrNumber.required(),
-        gasPrice: yup.string().required(),
-        gasLimit: yup.string().required(),
-        value: yup.string().optional(),
-        data: yup.string().optional(),
-        from: yup.string().optional(),
-        to: yup.string().required(),
-        chainId: yup.string().optional(),
+        nonce: hexString.required(),
+        gasPrice: hexString.required(),
+        gasLimit: hexString.required(),
+        value: hexString.optional(),
+        data: hexString.optional(),
+        from: hexString.optional(),
+        to: hexString.required(),
+        chainId: yup.number().required(),
       })
       .noUnknown()
       .required()
@@ -204,16 +199,6 @@ export const registerInterProcessDappProtocol = (
             .validate(payloadBeforeValid)
             .then((valid) => {
               const payload: fromCommon.SignEthereumTransactionFromSandboxPayload = payloadBeforeValid;
-
-              if (payload.parameters.value && payload.parameters.value.startsWith('0x')) {
-                throw new Error('.value must be provided as raw string and not hexadecimal value')
-              }
-              if (payload.parameters.gasLimit && payload.parameters.gasLimit.startsWith('0x')) {
-                throw new Error('.gasLimit must be provided as raw string and not hexadecimal value')
-              }
-              if (payload.parameters.gasPrice && payload.parameters.gasPrice.startsWith('0x')) {
-                throw new Error('.gasPrice must be provided as raw string and not hexadecimal value')
-              }
               const id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
               const payload2: fromCommon.SignEthereumTransactionFromMiddlewarePayload = {
                 parameters: payload.parameters,
@@ -241,7 +226,9 @@ export const registerInterProcessDappProtocol = (
               callback(Buffer.from(''));
             })
             .catch((err: Error) => {
-              console.error('[interprocessdapp://] a dapp tried to request Sign Ethereum transaction with an invalid schema');
+              console.error(
+                '[interprocessdapp://] a dapp tried to request Sign Ethereum transaction with an invalid schema'
+              );
               console.error(err.message);
               callback(Buffer.from(err.message));
               return;

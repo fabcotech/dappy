@@ -1,38 +1,23 @@
 import { Wallet } from './wallet';
 
 import { TxData, Transaction, JsonTx } from '@ethereumjs/tx';
+import Common from '@ethereumjs/common';
 import { utils } from 'rchain-toolkit';
 
-// copied from ethereumjs-util lib
-const padToEven = (value: string) => {
-  let a = value;
-  if (typeof a !== 'string') {
-      throw new Error(`[padToEven] value must be type 'string', received ${typeof a}`);
-  }
-  if (a.length % 2)
-      a = `0${a}`;
-  return a;
-}
-
-// copied from ethereumjs-util lib
-const fromUtf8 = (stringValue: string) => {
-  const str = Buffer.from(stringValue, 'utf8');
-  return `0x${padToEven(str.toString('hex')).replace(/^0+|0+$/g, '')}`;
-}
-
-export const evmWallet: Wallet<TxData, JsonTx> = {
+export const evmWallet: Wallet<TxData & { chainId: number }, JsonTx> = {
   signTransaction: (tx, privateKey) => {
     if (tx.value) {
-      tx.value = fromUtf8(tx.value)
+      tx.value = tx.value;
     }
     if (tx.gasLimit) {
-      tx.gasLimit = fromUtf8(tx.gasLimit);
+      tx.gasLimit = tx.gasLimit;
     }
     if (tx.gasPrice) {
-      tx.gasPrice = fromUtf8(tx.gasPrice);
+      tx.gasPrice = tx.gasPrice;
     }
     const pKey = Buffer.from(privateKey, 'hex');
-    return Transaction.fromTxData(tx).sign(pKey).toJSON();
+    const signedtx = Transaction.fromTxData(tx, { common: Common.custom({ chainId: tx.chainId }) }).sign(pKey);
+    return signedtx.toJSON();
   },
 
   publicKeyFromPrivateKey: (privateKey: string) => {

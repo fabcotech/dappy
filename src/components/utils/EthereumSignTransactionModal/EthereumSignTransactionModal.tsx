@@ -33,7 +33,7 @@ interface EthereumSignTransactionModalProps {
   ) => void;
 }
 
-const StaticField = (props: { label: string, value: number | string, copy?: boolean }) =>
+const StaticField = (props: { label: string; value: number | string; copy?: boolean }) => (
   <div className="field is-horizontal">
     <div className="field-label is-normal">
       <label className="label">{props.label}</label>
@@ -41,18 +41,18 @@ const StaticField = (props: { label: string, value: number | string, copy?: bool
     <div className="field-body">
       <div className="field">
         <p className="control">
-          <span>{props.value}&nbsp;&nbsp;</span>
-          {
-            props.value !== 'none' && props.copy &&
+          <span className="pr-2">{props.value}</span>
+          {props.value !== 'none' && props.copy && (
             <a className="underlined-link" onClick={() => copyToClipboard(props.value.toString())}>
               <i className="fa fa-copy fa-before"></i>
               {t('copy')}
             </a>
-          }
+          )}
         </p>
       </div>
     </div>
   </div>
+);
 
 export const EthereumSignTransactionModalComponent = ({
   modal,
@@ -66,12 +66,12 @@ export const EthereumSignTransactionModalComponent = ({
   const origin: TransactionOriginDapp = modal.parameters.origin;
 
   let accountsOk = accounts;
-  let accountsWithSameAddressAsFrom = Object.keys(accounts).filter(a => accounts[a].address === txData.from);
+  let accountsWithSameAddressAsFrom = Object.keys(accounts).filter((a) => accounts[a].address === txData.from);
   if (accountsWithSameAddressAsFrom.length !== 0) {
     accountsOk = {};
-    accountsWithSameAddressAsFrom.forEach(k => {
+    accountsWithSameAddressAsFrom.forEach((k) => {
       accountsOk[k] = accounts[k];
-    })
+    });
   }
 
   return (
@@ -85,13 +85,15 @@ export const EthereumSignTransactionModalComponent = ({
         <section className="modal-card-body modal-card-body-sign-ethereum-modal">
           <div className="transaction-body">
             <EvmNetwork chainId={modal.parameters.parameters.chainId} />
-            <StaticField copy label="from" value={modal.parameters.parameters.from || 'none' }/>
-            <StaticField copy label="to" value={modal.parameters.parameters.to || 'none' }/>
-            <StaticField label="nonce" value={modal.parameters.parameters.nonce || 'none' }/>
-            <StaticField label="gasLimit" value={modal.parameters.parameters.gasLimit || 'none' }/>
-            <StaticField label="gasPrice" value={modal.parameters.parameters.gasPrice || 'none' }/>
-            <StaticField copy label="value" value={modal.parameters.parameters.value || 'none' }/>
-            <StaticField copy label="data" value={modal.parameters.parameters.data || 'none' }/>
+            {modal.parameters.parameters.from ? (
+              <StaticField copy label="from" value={modal.parameters.parameters.from} />
+            ) : undefined}
+            <StaticField copy label="to" value={modal.parameters.parameters.to || 'none'} />
+            <StaticField label="nonce" value={modal.parameters.parameters.nonce || 'none'} />
+            <StaticField label="gasLimit" value={modal.parameters.parameters.gasLimit || 'none'} />
+            <StaticField label="gasPrice" value={modal.parameters.parameters.gasPrice || 'none'} />
+            <StaticField copy label="value" value={modal.parameters.parameters.value || 'none'} />
+            <StaticField copy label="data" value={modal.parameters.parameters.data || 'none'} />
           </div>
           <AccountSelect
             chooseBox={false}
@@ -101,12 +103,9 @@ export const EthereumSignTransactionModalComponent = ({
             }}
             accounts={accountsOk}
           />
-          {
-            address && address !== modal.parameters.parameters.from &&
-            <span className="text-warning same-as-label">
-              Address of the account does not match .from property
-            </span>
-          }
+          {address && modal.parameters.parameters.from && address !== modal.parameters.parameters.from && (
+            <span className="text-warning same-as-label">Address of the account does not match .from property</span>
+          )}
         </section>
         <footer className="modal-card-foot is-justify-content-end">
           <button
