@@ -360,10 +360,11 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
           <Fragment>
             <PurseInfo
               purse={this.state.loadedPurse}
+              domainName={this.state.name}
               contractConfig={this.props.contractConfigs[this.state.contractId]}
               dNetwork={dNetwork}
             />
-            {isPurchasable(this.state.loadedPurse) && (
+            {isPurchasable(this.state.loadedPurse, this.state.name) && (
               <RecordForm
                 special={info.special}
                 validateName

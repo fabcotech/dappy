@@ -5,21 +5,28 @@ import { formatAmountNoDecimal, formatAmount } from '/utils/formatAmount';
 import { LOGREV_TO_REV_RATE } from '/CONSTANTS';
 import { ContractHeader } from '/components/utils/ContractHeader';
 
+import reservedDomains from 'dappy-reserved-domains/reserved-domains.json';
+
 import './PurseInfo.scss';
 
-export const isPurchasable = (purse: RChainTokenPurse) => typeof purse.price === 'number';
-const isAvailable = (purse: RChainTokenPurse) => isPurchasable(purse) && purse.id === '0';
+export const isPurchasable = (purse: RChainTokenPurse, domainName: string) =>
+  typeof purse.price === 'number' && !(reservedDomains as any)[domainName];
+
+const isAvailable = (purse: RChainTokenPurse, domainName: string) =>
+  isPurchasable(purse, domainName) && purse.id === '0';
 
 export const PurseInfoComponent = ({
   purse,
   contractConfig,
   dNetwork,
+  domainName,
 }: {
   purse: RChainTokenPurse;
   contractConfig: RChainContractConfig;
   dNetwork: boolean;
+  domainName: string;
 }) => {
-  if (isPurchasable(purse)) {
+  if (isPurchasable(purse, domainName)) {
     return (
       <div className="field is-horizontal is-grouped">
         <label className="label"></label>
@@ -36,7 +43,7 @@ export const PurseInfoComponent = ({
             <div className="message-body">
               <i className="fa fa-check" />
               <span className="ml-1 subtitle is-5">
-                {isAvailable(purse) ? t('name is available') : t('name is for sale')}
+                {isAvailable(purse, domainName) ? t('name is available') : t('name is for sale')}
               </span>
               <div className="current-price-existing-purse">
                 {t('at price')}
