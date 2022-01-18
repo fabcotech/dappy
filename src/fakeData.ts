@@ -27,10 +27,11 @@ export const getFakeEVMAccount = (account: Partial<Account> = {}): Account => ({
   platform: 'evm',
   name: 'account1',
   publicKey:
-    '0408adc2ae9d8e0dd7c9f471aeb94a38d343cbb916d0369aa3c9fafe678b260554b5f6480a44c721af9fc21280c1a1c0cd8cf7c0a906072c92ee1a199521e076e1',
-  address: '0x9bbaaffdb97e90652fea7d9e23e4b0e47613f372',
+    '045c15100f48257ca5671aa7bd8667d4363eef2c974b23638f69dd4f8e0a02f219f5e0daa2e7e90e26d034f92804e22a4b0b2c5c1c8001b12e1dccd250eea6a561',
+  address: '0x4e0bb90593af40b3cb14533a434abfdbc099634b',
+  // password: Dappy00!
   encrypted:
-    '/HO4k8kaye2B13MXGpGvpo66zZhYgmzXrNqBsK95h+i6Bo+DfizmU4rbnUSTPU5Je6n6lo3ryzH17eTwJix7oeSoGC3WGWMUYsOJ2AAzeaS/u0KmTw43Y2Mtxts1CHRrHdGOV4dTm3g=',
+    'bmjyZLtfuE81jZhly6e/O1luznZsxLpzuGhmP/O8xHva/w9jS/apembV0Vx5eC+B5SnPuAwl6vgM+rM8bDwfXjhAw8b5X10RUGB8rSSpqXM3Gi2k5reEIoDDURwJpvfkZoGLYi+I090=',
   main: true,
   balance: 1000000,
   boxes: [],

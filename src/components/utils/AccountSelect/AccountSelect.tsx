@@ -64,7 +64,12 @@ export class AccountSelectComponent extends React.Component<AccountSelectProps, 
             passwordError: t('wrong password'),
             passwordSuccess: false,
           });
-          this.props.updatePrivateKey({ privatekey: undefined, address: undefined, box: undefined, accountName: undefined });
+          this.props.updatePrivateKey({
+            privatekey: undefined,
+            address: undefined,
+            box: undefined,
+            accountName: undefined,
+          });
         }
       },
     });
@@ -101,13 +106,16 @@ export class AccountSelectComponent extends React.Component<AccountSelectProps, 
             <div>
               <div className="field is-horizontal">
                 <div className="field-label is-normal">
-                  <label className="label">{t('account')}</label>
+                  <label className="label" htmlFor="account">
+                    {t('account')}
+                  </label>
                 </div>
                 <div className="field-body">
                   <div className="field">
                     <div className="control">
                       <div className="select">
                         <Field
+                          id="account"
                           component="select"
                           name="account"
                           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -157,12 +165,15 @@ export class AccountSelectComponent extends React.Component<AccountSelectProps, 
                 <Fragment>
                   <div className="field is-horizontal">
                     <div className="field-label is-normal">
-                      <label className="label">Password*</label>
+                      <label className="label" htmlFor="password">
+                        Password*
+                      </label>
                     </div>
                     <div className="field-body">
                       <div className="field">
                         <div className="control has-icons-right">
                           <Field
+                            id="password"
                             className={`input ${this.state.passwordSuccess ? 'is-success' : ''} ${
                               this.state.passwordError ? 'is-danger' : ''
                             }`}

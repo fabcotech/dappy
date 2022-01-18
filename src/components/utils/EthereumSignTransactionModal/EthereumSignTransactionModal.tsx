@@ -13,26 +13,12 @@ import {
   TransactionOriginDapp,
   TransactionStatus,
 } from '/models';
-
 import { evmWallet } from '/utils/wallets';
-
 import { saveEthereumTransactionStateAction } from '/store/blockchain';
-
-import './EthereumSignTransactionModal.scss';
 import { blockchain } from '/utils';
 import { EvmNetwork } from '../EvmNetwork';
 
-interface EthereumSignTransactionModalProps {
-  modal: Modal;
-  close: (chainId: number, signedTx: EthereumTransaction, origin: TransactionOriginDapp, resourceId: string) => void;
-  accounts: Record<string, Account>;
-  returnSignedTransaction: (
-    chainId: number,
-    signedTx: EthereumSignedTransaction,
-    origin: TransactionOriginDapp,
-    resourceId: string
-  ) => void;
-}
+import './EthereumSignTransactionModal.scss';
 
 const StaticField = (props: { label: string; value: number | string; copy?: boolean }) => (
   <div className="field is-horizontal">
@@ -55,27 +41,40 @@ const StaticField = (props: { label: string; value: number | string; copy?: bool
   </div>
 );
 
-const isHexaString = (hexaString: string) => hexaString && hexaString.length && hexaString.startsWith('0x');
+export const isHexaString = (hexaString: string) => hexaString && hexaString.length && /^0x[\da-f]+$/i.test(hexaString);
 
-const toGwei = (hexaString: string) => (isHexaString(hexaString) ? `${fromWei(hexaString, 'gwei')} gwei` : 'none');
+export const toGwei = (hexaString: string) =>
+  isHexaString(hexaString) ? `${fromWei(hexaString, 'gwei')} gwei` : t('none');
 
-const toNumber = (hexaString: string) => (isHexaString(hexaString) ? Number(hexaString) : 'none');
+export const toNumber = (hexaString: string) => (isHexaString(hexaString) ? Number(hexaString) : 'none');
 
-const toHumanReadableUnit = (hexaString: string) => {
+export const toHumanReadableEthUnit = (hexaString: string) => {
   if (!isHexaString(hexaString)) {
     return 'none';
   }
   const n = Number(hexaString);
 
-  if (n <= Math.pow(10, 6)) {
+  if (n < Math.pow(10, 6)) {
     return `${n} wei`;
   }
-  if (n > Math.pow(10, 6) && n <= Math.pow(10, 15)) {
+  if (n >= Math.pow(10, 6) && n < Math.pow(10, 15)) {
     return `${fromWei(hexaString, 'gwei')} gwei`;
   } else {
-    return `${fromWei(hexaString, 'ether')} eth`;
+    return `${fromWei(hexaString, 'ether')} ether`;
   }
 };
+
+interface EthereumSignTransactionModalProps {
+  modal: Modal;
+  close: (chainId: number, signedTx: EthereumTransaction, origin: TransactionOriginDapp, resourceId: string) => void;
+  accounts: Record<string, Account>;
+  returnSignedTransaction: (
+    chainId: number,
+    signedTx: EthereumSignedTransaction,
+    origin: TransactionOriginDapp,
+    resourceId: string
+  ) => void;
+}
 
 export const EthereumSignTransactionModalComponent = ({
   modal,
@@ -115,7 +114,7 @@ export const EthereumSignTransactionModalComponent = ({
             <StaticField label="nonce" value={toNumber(modal.parameters.parameters.nonce)} />
             <StaticField label="gasLimit" value={toNumber(modal.parameters.parameters.gasLimit)} />
             <StaticField label="gasPrice" value={toGwei(modal.parameters.parameters.gasPrice)} />
-            <StaticField label="value" value={toHumanReadableUnit(modal.parameters.parameters.value)} />
+            <StaticField label="value" value={toHumanReadableEthUnit(modal.parameters.parameters.value)} />
             <StaticField copy label="data" value={modal.parameters.parameters.data || 'none'} />
           </div>
           <AccountSelect
