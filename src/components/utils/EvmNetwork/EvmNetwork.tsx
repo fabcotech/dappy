@@ -111,23 +111,9 @@ export const EvmNetwork = ({ chainId }: EvmNetworkProps) => {
   const imgAndNetworkName = getImgAndNetworkName(chainId!);
   return (
     <React.Fragment>
-      {chainId && typeof chainId === 'string' && (
-        <div className="field is-horizontal">
-          <div className="field-label is-normal">
-            <label className="label">Network ID</label>
-          </div>
-          <div className="field-body">
-            <div className="field">
-              <p className="control">
-                <span>{chainId}</span>
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
       <div className="field is-horizontal field">
         <div className="field-label is-normal">
-          <label className="label">Network</label>
+          <label className="label">Chain</label>
         </div>
         <div className="field-body ">
           {imgAndNetworkName.img && imgAndNetworkName.name && (
@@ -145,6 +131,20 @@ export const EvmNetwork = ({ chainId }: EvmNetworkProps) => {
           )}
         </div>
       </div>
+      {chainId && typeof chainId === 'number' && (
+        <div className="field is-horizontal">
+          <div className="field-label is-normal">
+            <label className="label">chainId</label>
+          </div>
+          <div className="field-body">
+            <div className="field">
+              <p className="control">
+                <span>{chainId}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </React.Fragment>
   );
 };

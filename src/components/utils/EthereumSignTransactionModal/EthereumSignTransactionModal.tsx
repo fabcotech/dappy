@@ -87,14 +87,14 @@ export const EthereumSignTransactionModalComponent = ({
   const txData: EthereumTransaction = modal.parameters.parameters;
   const origin: TransactionOriginDapp = modal.parameters.origin;
 
-  let accountsOk = accounts;
+  /* let accountsOk = accounts;
   let accountsWithSameAddressAsFrom = Object.keys(accounts).filter((a) => accounts[a].address === txData.from);
   if (accountsWithSameAddressAsFrom.length !== 0) {
     accountsOk = {};
     accountsWithSameAddressAsFrom.forEach((k) => {
       accountsOk[k] = accounts[k];
     });
-  }
+  } */
 
   return (
     <div className="modal fc est">
@@ -123,7 +123,7 @@ export const EthereumSignTransactionModalComponent = ({
               setAddress(a.address);
               setPrivateKey(a.privatekey);
             }}
-            accounts={accountsOk}
+            accounts={accounts}
           />
           {address && modal.parameters.parameters.from && address !== modal.parameters.parameters.from && (
             <span className="text-warning same-as-label">Address of the account does not match .from property</span>
