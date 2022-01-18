@@ -73,4 +73,32 @@ describe('EthereumSignTransactionModal', () => {
       expect(returnSignedTransaction).toBeCalled();
     });
   });
+  it('should close modal', () => {
+    const onClose = jest.fn();
+    const modal = {
+      resourceId: 'resourceId',
+      title: 'title',
+      text: 'text',
+      buttons: [],
+      parameters: {
+        origin: '',
+        parameters: {
+          chainId: 123,
+        },
+      },
+    };
+    render(
+      <EthereumSignTransactionModalComponent
+        accounts={{
+          account1: getFakeEVMAccount(),
+        }}
+        close={onClose}
+        returnSignedTransaction={jest.fn()}
+        modal={modal}
+      />
+    );
+    const discardBtn = screen.getByText(t('discard transaction'));
+    userEvent.click(discardBtn);
+    expect(onClose).toBeCalled();
+  });
 });
