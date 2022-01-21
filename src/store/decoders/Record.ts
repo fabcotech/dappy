@@ -37,6 +37,13 @@ export const recordFromNetworkSchema = yup
   .noUnknown(true)
   .strict(true);
 
+export const emptyRecordSchema = yup.mixed().test({
+  name: 'Record or empty record',
+  exclusive: true,
+  message: 'must be a record or a empty record',
+  test: (v) => v.notfound === 'true',
+});
+
 export const validateRecordFromNetwork = (record: any) =>
   new Promise<true>((resolve, reject) => {
     recordFromNetworkSchema

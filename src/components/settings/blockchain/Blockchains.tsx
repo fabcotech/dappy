@@ -17,7 +17,7 @@ import { AddNode } from './AddNode';
 import { TopTabs } from './TopTabs';
 import { GlossaryHint } from '/components/utils/Hint';
 
-const REGEXP_IP = /^(?!\.)^[a-z0-9.-]*$/;
+const REGEXP_IP = /^(?!\.)^[a-z0-9.-]*(:\d{2,5})?$/;
 
 interface BlockchainsProps {
   blockchains: { [chainId: string]: Blockchain };

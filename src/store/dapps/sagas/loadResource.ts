@@ -9,13 +9,12 @@ import * as fromSettings from '../../settings';
 import * as fromBlockchain from '../../blockchain';
 import * as fromMain from '../../main';
 import * as fromUi from '../../ui';
-import { blockchain as blockchainUtils } from '../../../utils/blockchain';
-import { splitSearch } from '../../../utils/splitSearch';
-import { validateSearch } from '../../../utils/validateSearch';
-import { getNodeIndex } from '../../../utils/getNodeIndex';
-import { searchToAddress } from '../../../utils/searchToAddress';
-import { validateBlockchainResponse } from '../../../utils/validateBlockchainResponse';
-import { validateAndReturnFile } from '../../../utils/validateAndReturnFile';
+import { blockchain as blockchainUtils } from '/utils/blockchain';
+import { splitSearch } from '/utils/splitSearch';
+import { validateSearch } from '/utils/validateSearch';
+import { getNodeIndex } from '/utils/getNodeIndex';
+import { searchToAddress } from '/utils/searchToAddress';
+import { validateAndReturnFile } from '/utils/validateAndReturnFile';
 import {
   Record,
   Blockchain,
@@ -29,7 +28,7 @@ import {
   IpApp,
 } from '../../../models';
 import { Action } from '../../';
-import { ipRecordSchema, dappRecordSchema, validateRecordFromNetwork } from '../../decoders';
+import { ipRecordSchema, dappRecordSchema, validateRecordFromNetwork, emptyRecordSchema } from '../../decoders';
 import { MAIN_CHAIN_ID } from '../../../CONSTANTS';
 
 const loadResource = function* (action: Action) {
@@ -329,6 +328,16 @@ const loadResource = function* (action: Action) {
           recordFromBlockchain.expires.length
         ) {
           recordFromBlockchain.expires = parseInt(recordFromBlockchain.expires, 10);
+        }
+        if (recordFromBlockchain.notfound === 'true') {
+          yield put(
+            fromDapps.loadResourceFailedAction({
+              tabId: tabId,
+              search: address,
+              error: { error: BeesLoadError.RecordNotFound, args: { name: searchSplitted.search } },
+            })
+          );
+          return;
         }
         yield validateRecordFromNetwork(recordFromBlockchain);
         record = {
