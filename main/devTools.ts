@@ -6,7 +6,7 @@ export function installDevToolsExtensionsOnlyForDev(partition: string) {
   if (!process.env.PRODUCTION) {
     const reduxDevTools = path.join(
       os.homedir(),
-      '/Library/Application Support/Google/Chrome/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.2_18'
+      '/Library/Application Support/Google/Chrome/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/3.0.6_2'
     );
 
     const reactDevTools = path.join(
