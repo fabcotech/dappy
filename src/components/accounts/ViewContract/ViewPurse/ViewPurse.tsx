@@ -12,6 +12,32 @@ import { rchainWallet } from '/utils/wallets';
 
 import './ViewPurse.scss';
 
+interface PurcePriceProps {
+  id: string;
+  fungible: boolean | undefined;
+  purse: RChainTokenPurse | undefined;
+}
+
+const hasPrice = (purse: RChainTokenPurse | undefined): purse is RChainTokenPurse =>
+  !!purse && typeof purse.price === 'number';
+
+const PurcePrice = ({ id, fungible, purse }: PurcePriceProps) => {
+  if (!hasPrice(purse)) return null;
+
+  return (
+    <div className="big-price">
+      <span className="big-price-title">
+        {id === '0' ? 'tokens for sale (mint)' : fungible ? t('for sale') : t('nft for sale')}
+      </span>
+      <div className="prices">
+        <span className="formated-amount-rev">{formatAmount(purse.price! / LOGREV_TO_REV_RATE)} REV</span>
+        <span className="formated-amount-dust">{formatAmountNoDecimal(purse.price!)} dust</span>
+        <span className="per-token">{fungible ? `(${t('per token')})` : undefined}</span>
+      </div>
+    </div>
+  );
+};
+
 const isExpired = (now: () => number) => (purseCreationTimestamp: number, contractExpirationDuration: number) =>
   isEmptyOrNegativeDuration(toDuration(purseCreationTimestamp + contractExpirationDuration - now()));
 
@@ -473,24 +499,8 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                 </div>
               </div>
             )}
-
-            {this.state.action === undefined && this.props.purse && typeof this.props.purse.price === 'number' && (
-              <div className="big-price">
-                <span className="big-price-title">
-                  {this.props.id === '0'
-                    ? 'tokens for sale (mint)'
-                    : this.props.fungible
-                    ? t('for sale')
-                    : t('nft for sale')}
-                </span>
-                <div className="prices">
-                  <span className="formated-amount-rev">
-                    {formatAmount(this.props.purse.price / LOGREV_TO_REV_RATE)} REV
-                  </span>
-                  <span className="formated-amount-dust">{formatAmountNoDecimal(this.props.purse.price)} dust</span>
-                  <span className="per-token">{this.props.fungible ? `(${t('per token')})` : undefined}</span>
-                </div>
-              </div>
+            {!this.state.action && (
+              <PurcePrice purse={this.props.purse} fungible={this.props.fungible} id={this.props.id} />
             )}
           </div>
         ) : (
