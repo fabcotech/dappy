@@ -1,42 +1,15 @@
 import React, { Fragment } from 'react';
-import { updatePursePriceTerm, withdrawTerm } from 'rchain-token';
+import { withdrawTerm } from 'rchain-token';
 
 import * as fromBlockchain from '/store/blockchain';
 import { RChainTokenPurse, Account, RChainInfos } from '/models';
-import { formatAmountNoDecimal, formatAmount } from '/utils/formatAmount';
-import { LOGREV_TO_REV_RATE, RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '/CONSTANTS';
+import { RCHAIN_TOKEN_OPERATION_PHLO_LIMIT } from '/CONSTANTS';
 import { createSocialCanvas, images, mascots } from '/utils/createSocialCanvas';
 import { toDuration, toDurationString, isEmptyOrNegativeDuration } from '/utils/unit';
 import { triggerCommand, openExternal } from '/interProcess';
 import { rchainWallet } from '/utils/wallets';
 
 import './ViewPurse.scss';
-
-interface PurcePriceProps {
-  id: string;
-  fungible: boolean | undefined;
-  purse: RChainTokenPurse | undefined;
-}
-
-const hasPrice = (purse: RChainTokenPurse | undefined): purse is RChainTokenPurse =>
-  !!purse && typeof purse.price === 'number';
-
-const PurcePrice = ({ id, fungible, purse }: PurcePriceProps) => {
-  if (!hasPrice(purse)) return null;
-
-  return (
-    <div className="big-price">
-      <span className="big-price-title">
-        {id === '0' ? 'tokens for sale (mint)' : fungible ? t('for sale') : t('nft for sale')}
-      </span>
-      <div className="prices">
-        <span className="formated-amount-rev">{formatAmount(purse.price! / LOGREV_TO_REV_RATE)} REV</span>
-        <span className="formated-amount-dust">{formatAmountNoDecimal(purse.price!)} dust</span>
-        <span className="per-token">{fungible ? `(${t('per token')})` : undefined}</span>
-      </div>
-    </div>
-  );
-};
 
 const isExpired = (now: () => number) => (purseCreationTimestamp: number, contractExpirationDuration: number) =>
   isEmptyOrNegativeDuration(toDuration(purseCreationTimestamp + contractExpirationDuration - now()));
@@ -141,20 +114,6 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                 <a
                   onClick={() => {
                     this.setState({
-                      action: 'update-purse-price',
-                      newPrice: (this.props.purse as RChainTokenPurse).price,
-                    });
-                  }}
-                  className="underlined-link">
-                  {this.props.id === '0'
-                    ? t('update cost of minting')
-                    : this.props.fungible
-                    ? t('update per token price')
-                    : t('update nft purse price')}
-                </a>
-                <a
-                  onClick={() => {
-                    this.setState({
                       action: 'share-image',
                       image: 'fire',
                       mascot: 'tyrannosaurus',
@@ -164,126 +123,6 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                   <i className="fa fa-before fa-images"></i>
                   {t('share image')}
                 </a>
-              </div>
-            )}
-
-            {/* UPDATE PURSE PRICE */}
-
-            {this.state.action === 'update-purse-price' && (
-              <div className={`update-purse-price full-square`}>
-                {typeof this.state.newPrice === 'number' && (
-                  <div className="prices">
-                    {this.state.newPrice === 0 ? (
-                      <span className="not-for-sale">{t('not for sale')}</span>
-                    ) : (
-                      <Fragment>
-                        <span className="formated-amount-rev">
-                          {formatAmount(this.state.newPrice / LOGREV_TO_REV_RATE)} REV
-                        </span>
-                        <span className="formated-amount-dust">{formatAmountNoDecimal(this.state.newPrice)} dust</span>
-                        <span className="per-token">{this.props.fungible ? `(${t('per token')})` : undefined}</span>
-                      </Fragment>
-                    )}
-                  </div>
-                )}
-                <div className="new-price-field field is-horizontal">
-                  <div className="control">
-                    <input
-                      type="number"
-                      step="1"
-                      min="0"
-                      defaultValue={this.state.newPrice}
-                      placeholder="dust price"
-                      onChange={(e) => {
-                        if (e.target.value == '' || e.target.value == '0') {
-                          e.target.value = '0';
-                          this.setState({
-                            newPrice: 0,
-                          });
-                          return;
-                        }
-                        const a = parseInt(e.target.value);
-                        if (Number.isInteger(a) && a > 0) {
-                          this.setState({
-                            newPrice: a,
-                          });
-                        }
-                      }}
-                      className="input"></input>
-                  </div>
-                </div>
-
-                <h3 className="title is-5">
-                  {this.props.fungible ? t('update per token price') : t('update nft purse price')}
-                </h3>
-
-                <div className="validate-operation-button">
-                  <Cancel />
-                  <button
-                    className="button is-link is-small"
-                    disabled={
-                      typeof this.state.newPrice !== 'number' ||
-                      this.state.newPrice === this.props.purse.price ||
-                      !this.props.privateKey
-                    }
-                    onClick={() => {
-                      if (
-                        typeof this.state.newPrice === 'number' &&
-                        this.props.purse &&
-                        this.state.newPrice !== this.props.purse.price
-                      ) {
-                        const id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
-                        const timestamp = new Date().valueOf();
-
-                        let validAfterBlockNumber = 0;
-                        if (this.props.rchainInfos && this.props.rchainInfos) {
-                          validAfterBlockNumber = this.props.rchainInfos.info.lastFinalizedBlockNumber;
-                        }
-                        const term = updatePursePriceTerm({
-                          masterRegistryUri: this.props.rchainInfos.info.rchainNamesMasterRegistryUri,
-                          boxId: this.props.account.boxes[0],
-                          contractId: this.props.contractId,
-                          purseId: this.props.id,
-                          price: this.state.newPrice,
-                        });
-
-                        const deployOptions = rchainWallet.signTransaction(
-                          {
-                            term: term,
-                            timestamp: timestamp,
-                            phloPrice: 1,
-                            phloLimit: RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
-                            validAfterBlockNumber: validAfterBlockNumber,
-                          },
-                          this.props.privateKey as string
-                        );
-
-                        this.props.sendRChainTransaction({
-                          transaction: deployOptions,
-                          origin: {
-                            origin: 'rchain-token',
-                            operation: 'update-purse-price',
-                            accountName: this.props.account.name,
-                          },
-                          platform: 'rchain',
-                          blockchainId: this.props.rchainInfos.chainId,
-                          id: id,
-                          alert: true,
-                          sentAt: new Date().toISOString(),
-                        });
-                        this.setState({
-                          newPrice: undefined,
-                          action: undefined,
-                        });
-                      }
-                    }}>
-                    {typeof this.props.privateKey === 'string'
-                      ? this.props.fungible
-                        ? t('update per token price')
-                        : t('update nft purse price')
-                      : t('account locked')}
-                  </button>
-                </div>
               </div>
             )}
 
@@ -498,9 +337,6 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                   </button>
                 </div>
               </div>
-            )}
-            {!this.state.action && (
-              <PurcePrice purse={this.props.purse} fungible={this.props.fungible} id={this.props.id} />
             )}
           </div>
         ) : (
