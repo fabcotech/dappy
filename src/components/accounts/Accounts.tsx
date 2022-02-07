@@ -95,6 +95,9 @@ export const EVMAcconts = ({ accounts }: EVMAccountsProps) => {
   return (
     <div className="block">
       <h4 className="is-size-4 mb-2">Ethereum / EVM</h4>
+      <p className="block mt-4">
+        <GlossaryHint term="why can't I see my balance for ETH and other EVM wallets ?" displayTerm />
+      </p>
       <div className="logos mb-4">
         <img src={image_ethereum} title="Ethereum" />
         <img src={image_polygon} title="Polygon" />

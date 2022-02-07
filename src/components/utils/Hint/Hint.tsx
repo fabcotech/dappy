@@ -30,6 +30,7 @@ export const makeHintComponent =
 
 const glossary = {
   'what is rev ?': '#whatisrev',
+  "why can't I see my balance for ETH and other EVM wallets ?": '#whycantiseebalanceforeth',
   'what is multi-requests ?': '#whatismultirequest',
   'what is ip app ?': '#whatisanipapplicationindappy',
   'what is dapp ?': '#whatisadappindappy',
