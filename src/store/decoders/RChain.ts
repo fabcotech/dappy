@@ -8,6 +8,7 @@ const dappyNodeInfoSchema = yup
     dappyBrowserMinVersion: yup.string(),
     dappyBrowserDownloadLink: yup.string(),
     rchainNamesMasterRegistryUri: yup.string().required(),
+    wrappedRevContractId: yup.string().required(),
     rchainNamesContractId: yup.string().required(),
     rnodeVersion: yup.string().required(),
     rchainNetwork: yup.string().required(),

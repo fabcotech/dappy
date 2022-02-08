@@ -58,6 +58,7 @@ export const getFakeRChainInfos = (rchainInfos: Partial<RChainInfos> = {}): RCha
     namePrice: 100000,
     rchainNamesContractId: 'contract1',
     rchainNamesMasterRegistryUri: 'nosd1g9idkg3dtuhucgy8bd3788iayddxpsnhnzspcw9dyms5an5up',
+    wrappedRevContractId: 'nosrev',
     rnodeVersion: 'RChain Node 0.12.1 (28aa7954c3b8f6e9a9774a74214dcf2f3b69667b)',
     rchainNetwork: 'fakenet',
   },

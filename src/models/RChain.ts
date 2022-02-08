@@ -10,6 +10,7 @@ export interface RChainInfo {
   lastFinalizedBlockNumber: number;
   rnodeVersion: string;
   rchainNamesMasterRegistryUri: string;
+  wrappedRevContractId: string;
   rchainNamesContractId: string;
   rchainNetwork: string;
   namePrice: number;

@@ -403,6 +403,10 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                       <td>{t('name system contract id')}</td>
                       <td>{rchainInfo ? rchainInfo.rchainNamesContractId : 'unknown'}</td>
                     </tr>
+                    <tr>
+                      <td>{t('wrapped rev contract id')}</td>
+                      <td>{rchainInfo ? rchainInfo.wrappedRevContractId : 'unknown'}</td>
+                    </tr>
                   </tbody>
                 </table>
                 {this.props.namesBlockchain && this.props.namesBlockchain.chainId === selectedBlockchain.chainId ? (
