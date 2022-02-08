@@ -1,42 +1,41 @@
-import * as yup from 'yup';
+import Ajv from 'ajv';
 
-const dappyNodeInfoSchema = yup
-  .object()
-  .shape({
-    lastFinalizedBlockNumber: yup.number().required(),
-    dappyNodeVersion: yup.string().required(),
-    dappyBrowserMinVersion: yup.string(),
-    dappyBrowserDownloadLink: yup.string(),
-    rchainNamesMasterRegistryUri: yup.string().required(),
-    wrappedRevContractId: yup.string().required(),
-    rchainNamesContractId: yup.string().required(),
-    rnodeVersion: yup.string().required(),
-    rchainNetwork: yup.string().required(),
-    namePrice: yup.number().required(),
-    special: yup
-      .object()
-      .shape({
-        name: yup.string().required(),
-        max: yup.number().required(),
-        current: yup.number().required(),
-      })
-      .noUnknown(true)
-      .strict(true),
-  })
-  .required()
-  .noUnknown(true)
-  .strict(true);
+import { validateRChainTokenPrice } from './RChainToken';
+import { validate } from './Validate';
 
-const dappyNodeInfoFullSchema = yup
-  .object()
-  .shape({
-    chainId: yup.string().required(),
-    date: yup.string().required(),
-    info: dappyNodeInfoSchema.required(),
-  })
-  .required()
-  .noUnknown(true)
-  .strict(true);
+const ajv = new Ajv();
+
+const dappyNodeInfoSchema = {
+  schemaId: 'dappyNodeInfoSchema',
+  type: 'object',
+  properties: {
+    lastFinalizedBlockNumber: { type: 'number' },
+    dappyNodeVersion: { 'type': 'string' },
+    rnodeVersion: { 'type': 'string' },
+    dappyBrowserMinVersion: { 'type': 'string',  },
+    dappyBrowserDownloadLink: { 'type': 'string' },
+    rchainNamesMasterRegistryUri: { 'type': 'string' },
+    wrappedRevContractId: { 'type': 'string' },
+    rchainNamesContractId: { 'type': 'string' },
+    namePrice: { "anyOf": [{ type: "null" }, { type: "array", validate: validateRChainTokenPrice }] },
+    rchainNetwork: { 'type': 'string' },
+  },
+  required: ['lastFinalizedBlockNumber', 'dappyNodeVersion', 'rnodeVersion',  'rchainNamesMasterRegistryUri', 'wrappedRevContractId', 'rchainNamesContractId', 'rchainNetwork'],
+};
+
+const validateDappyNodeInfoSchema = validate(dappyNodeInfoSchema);
+
+const dappyNodeInfoFullSchema = {
+  schemaId: 'dappyNodeInfoFullSchema',
+  type: 'object',
+  properties: {
+    chainId: { type: 'string' },
+    date: { 'type': 'string' },
+    info: dappyNodeInfoSchema,
+  },
+  required: ["chainId", 'date', 'info']
+}
+const validateDappyNodeInfoFullSchema = validate(dappyNodeInfoFullSchema);
 
 export const validateDappyNodeFullInfo = (dnfi: any) => {
   return new Promise<true>((resolve, reject) => {
@@ -44,13 +43,13 @@ export const validateDappyNodeFullInfo = (dnfi: any) => {
       reject();
       return;
     }
-    dappyNodeInfoFullSchema.isValid(dnfi).then((valid: boolean) => {
-      if (valid) {
-        resolve(true);
-      } else {
-        reject();
-      }
-    });
+
+    const ve = validateDappyNodeInfoFullSchema(dnfi);
+    if (ve.length === 0) {
+      resolve(true);
+    } else {
+      reject(ve)
+    }
   });
 };
 export const validateDappyNodeInfo = (dni: any) => {
@@ -60,13 +59,11 @@ export const validateDappyNodeInfo = (dni: any) => {
       return;
     }
 
-    dappyNodeInfoSchema
-      .validate(dni)
-      .then(() => {
-        resolve(true);
-      })
-      .catch((err: yup.ValidationError) => {
-        reject(err);
-      });
+    const ve = validateDappyNodeInfoSchema(dni);
+    if (ve.length === 0) {
+      resolve(true);
+    } else {
+      reject(ve)
+    }
   });
 };

@@ -571,6 +571,7 @@ dbReq.onsuccess = (event) => {
           console.log('[migration] successfully deleted invalid records');
         })
         .catch((err) => {
+          console.error(err);
           store.dispatch(
             fromMain.saveErrorAction({
               errorCode: 2049,
@@ -604,6 +605,7 @@ dbReq.onsuccess = (event) => {
         dispatchInitActions();
       })
       .catch((err) => {
+        console.error(err)
         asyncActionsOver += 1;
         store.dispatch(
           fromMain.saveErrorAction({
@@ -639,7 +641,7 @@ dbReq.onsuccess = (event) => {
           dispatchInitActions();
         })
         .catch((err) => {
-          console.log(err);
+          console.error(err);
           asyncActionsOver += 1;
           store.dispatch(
             fromMain.saveErrorAction({
@@ -699,6 +701,18 @@ dbReq.onsuccess = (event) => {
         return;
       }
 
+      rchainInfos = rchainInfos.map(ri => {
+        // .wrappedRevContractId introuced in 0.5.4
+        if (ri.info && !ri.info.wrappedRevContractId) {
+          ri.info.wrappedRevContractId = 'notconfigured'
+        }
+        // rchain-token 16 new price format
+        if (ri.info && typeof ri.info.namePrice === 'number') {
+          ri.info.namePrice = null
+        }
+        return ri;
+      });
+
       Promise.all(
         rchainInfos.map((ri: any) => {
           return validateDappyNodeFullInfo(ri);
@@ -710,6 +724,7 @@ dbReq.onsuccess = (event) => {
           dispatchInitActions();
         })
         .catch((err) => {
+          console.error(err);
           asyncActionsOver += 1;
           store.dispatch(
             fromMain.saveErrorAction({

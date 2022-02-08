@@ -29,7 +29,7 @@ export interface RChainContractConfig {
 
 export interface RChainTokenPurse {
   quantity: number;
-  price: undefined | number;
+  price: null | [String, String] | [String, Number];
   id: string;
   boxId: string;
   timestamp: number;
@@ -43,7 +43,7 @@ export interface RChainTokenCreatePursePayload {
       id: string;
       boxId: string;
       quantity: number;
-      price: number | undefined;
+      price: null | [String, Number] | [String, String];
     };
   };
   data: {

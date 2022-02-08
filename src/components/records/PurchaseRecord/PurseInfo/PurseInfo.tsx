@@ -10,7 +10,7 @@ import reservedDomains from 'dappy-reserved-domains/reserved-domains.json';
 import './PurseInfo.scss';
 
 export const isPurchasable = (purse: RChainTokenPurse, domainName: string) =>
-  typeof purse.price === 'number' && !(reservedDomains as any)[domainName];
+  Array.isArray(purse.price) && !(reservedDomains as any)[domainName];
 
 const isAvailable = (purse: RChainTokenPurse, domainName: string) =>
   isPurchasable(purse, domainName) && purse.id === '0';
@@ -47,9 +47,9 @@ export const PurseInfoComponent = ({
               </span>
               <div className="current-price-existing-purse">
                 {t('at price')}
-                <span className="ml-1">{formatAmount((purse.price as number) / LOGREV_TO_REV_RATE)}</span>
+                <span className="ml-1">{formatAmount((purse.price![1] as number) / LOGREV_TO_REV_RATE)}</span>
                 <span className="ml-1">{t('rev', true)} / </span>
-                <span>{formatAmountNoDecimal(purse.price as number)} dust</span>
+                <span>{formatAmountNoDecimal(purse.price![1] as number)} dust</span>
               </div>
             </div>
           </div>

@@ -16,7 +16,7 @@ export const LOGREV_TO_REV_RATE = 100000000;
 
 export const VERSION = '0.5.3';
 
-export const RCHAIN_TOKEN_SUPPORTED_VERSIONS = ['15.0.2'];
+export const RCHAIN_TOKEN_SUPPORTED_VERSIONS = ['16.0.0'];
 
 export const MAIN_CHAIN_ID = 'd';
 export const DAPPY_TOKEN_CONTRACT_ID = 'dappytoken';

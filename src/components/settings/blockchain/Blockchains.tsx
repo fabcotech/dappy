@@ -393,7 +393,13 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                     </tr>
                     <tr>
                       <td>{t('name price')}</td>
-                      <td>{rchainInfo ? `${rchainInfo.namePrice / 100000000} REVs` : 'unknown'}</td>
+                      <td>
+                        {
+                          rchainInfo.namePrice ?
+                          `${rchainInfo.namePrice[1]} ${rchainInfo.namePrice[0]}`
+                          : 'unknown'
+                        }
+                      </td>
                     </tr>
                     <tr>
                       <td>{t('name system master registry uri')}</td>

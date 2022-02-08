@@ -30,14 +30,14 @@ describe('decoders', () => {
         boxId: 'foo',
         quantity: 1,
         timestamp: 1,
-        price: 1,
+        price: ['nosrev', 1],
       },
       aaa: {
         id: 'foo',
         boxId: 'foo',
         quantity: 1,
         timestamp: 1,
-        price: 1,
+        price: ['nosrev', 1],
       },
     };
 

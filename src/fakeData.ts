@@ -42,7 +42,7 @@ export const getFakePurse = (props: Partial<RChainTokenPurse> = {}): RChainToken
   id: 'purse1',
   boxId: 'box1',
   quantity: 500,
-  price: 100,
+  price: ['nosrev', 100],
   timestamp: new Date(2021, 10, 10).getTime(),
   ...props,
 });
@@ -55,7 +55,7 @@ export const getFakeRChainInfos = (rchainInfos: Partial<RChainInfos> = {}): RCha
     dappyBrowserMinVersion: '0.5.1',
     dappyBrowserDownloadLink: 'https://download',
     lastFinalizedBlockNumber: 12,
-    namePrice: 100000,
+    namePrice: ["nosrev", 50000000],
     rchainNamesContractId: 'contract1',
     rchainNamesMasterRegistryUri: 'nosd1g9idkg3dtuhucgy8bd3788iayddxpsnhnzspcw9dyms5an5up',
     wrappedRevContractId: 'nosrev',

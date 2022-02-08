@@ -1,4 +1,4 @@
-import { BlockchainNode, MultiCallBody, MultiCallParameters, MultiCallResult } from '/models';
+import { MultiCallParameters } from '/models';
 import { multiCall } from '/interProcess';
 
 interface ValidationError {

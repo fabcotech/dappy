@@ -10,10 +10,10 @@ export interface RChainInfo {
   lastFinalizedBlockNumber: number;
   rnodeVersion: string;
   rchainNamesMasterRegistryUri: string;
-  wrappedRevContractId: string;
   rchainNamesContractId: string;
+  wrappedRevContractId: string;
   rchainNetwork: string;
-  namePrice: number;
+  namePrice: null | [String, Number] | [String, String];
   special?: {
     name: string;
     max: number;

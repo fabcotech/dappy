@@ -39,23 +39,29 @@ export function RootComponent(props: RecordsRootProps) {
   const [contractConfigs, setContractConfigs] = useState<Record<string, RChainContractConfig>>({});
 
   const queryAndCacheContractConfig = async (contractId: string) => {
+    console.log('contractConfigs[contractId]', contractConfigs[contractId])
     if (contractConfigs[contractId]) {
       return;
     }
-
-    if (props.namesBlockchainInfos?.info.rchainNamesMasterRegistryUri && props.namesBlockchain) {
-      const [req] = await getContractConfig({
-        masterRegistryUri: props.namesBlockchainInfos?.info.rchainNamesMasterRegistryUri,
-        blockchain: props.namesBlockchain,
-        contractId,
-      });
-
-      if (req.validationErrors.length === 0) {
-        setContractConfigs({
-          ...contractConfigs,
-          [req.result.contractId]: req.result,
+    
+    try {
+      if (props.namesBlockchainInfos?.info.rchainNamesMasterRegistryUri && props.namesBlockchain) {
+        const [req] = await getContractConfig({
+          masterRegistryUri: props.namesBlockchainInfos?.info.rchainNamesMasterRegistryUri,
+          blockchain: props.namesBlockchain,
+          contractId,
         });
+  
+        if (req.validationErrors.length === 0) {
+          setContractConfigs({
+            ...contractConfigs,
+            [req.result.contractId]: req.result,
+          });
+        }
       }
+    } catch (err) {
+      console.log(err)
+      console.error("could not get contract config")
     }
   };
 

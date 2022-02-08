@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
-import { purchaseTerm } from 'rchain-token';
+import { creditAndSwapTerm } from 'rchain-token';
+import * as rc from 'rchain-toolkit';
 
 import {
   Account as AccountModel,
@@ -157,27 +158,27 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
     if (partialRecord.address) {
       data.address = partialRecord.address;
     }
-    const term = purchaseTerm({
-      masterRegistryUri: this.props.namesBlockchainInfos.info.rchainNamesMasterRegistryUri,
-      contractId: this.state.contractId,
-      purseId: this.state.loadedPurse?.id,
-      boxId: this.state.box,
-      newId: this.state.name,
-      merge: false,
-      quantity: 1,
-      price: this.state.loadedPurse?.price,
-      publicKey: this.state.publickey,
-      data: Buffer.from(JSON.stringify(data), 'utf8').toString('hex'),
-    });
+
+    const term = creditAndSwapTerm({
+        revAddress: rc.utils.revAddressFromPublicKey(this.state.publickey),
+        quantity: this.state.loadedPurse?.price![1],
+        masterRegistryUri: this.props.namesBlockchainInfos.info.rchainNamesMasterRegistryUri,
+        boxId: this.state.box
+      }, {
+        masterRegistryUri: this.props.namesBlockchainInfos.info.rchainNamesMasterRegistryUri,
+        purseId: this.state.loadedPurse?.id,
+        contractId: this.state.contractId,
+        boxId: this.state.box,
+        quantity: 1,
+        data: Buffer.from(JSON.stringify(data), 'utf8').toString('hex'),
+        newId: this.state.name,
+        merge: false,
+      }
+    );
 
     let validAfterBlockNumber = 0;
     if (this.props.namesBlockchainInfos.info) {
       validAfterBlockNumber = this.props.namesBlockchainInfos.info.lastFinalizedBlockNumber;
-    }
-
-    let special = this.props.namesBlockchainInfos.info.special;
-    if (!special || !['special1'].includes(special.name)) {
-      special = undefined;
     }
 
     const phloPrice = 1;
@@ -197,9 +198,9 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
     this.props.confirmPurchase(
       [
         [t('token quantity'), '1'],
-        [t('price per token'), `${perMillage(dustToRev(this.state.loadedPurse?.price!))} REV`],
-        [t('max gas fees'), `${perMillage(dustToRev(maxGasCost))} REV`],
-        [t('max total cost'), `${perMillage(dustToRev(this.state.loadedPurse?.price! + maxGasCost))} REV`],
+        [t('price (REV)'), `${perMillage(dustToRev(this.state.loadedPurse?.price![1] as number))}`],
+        [t('price (dust)'), `${this.state.loadedPurse?.price![1]}`],
+        [t('max gas fees (REV)'), `${perMillage(dustToRev(maxGasCost))}`],
         [t('account'), this.state.accountName!],
         [t('address'), `${this.props.accounts[this.state.accountName!].address}`],
       ],
