@@ -70,7 +70,7 @@ export interface UpdateContractLogsPayload {
   logs: string[];
 }
 
-export const updateContractLogs = (values: UpdateContractLogsPayload) => ({
+export const updateContractLogsAction = (values: UpdateContractLogsPayload) => ({
   type: UPDATE_CONTRACT_LOGS,
   payload: values,
 });

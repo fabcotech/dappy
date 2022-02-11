@@ -7,7 +7,7 @@ import { getFirstReadyNode } from '/store/settings';
 import { getContractLogs } from '/store/ui';
 import { EXECUTE_NODES_CRON_JOBS } from '/store/blockchain';
 import { getNameSystemContractId } from '/store/blockchain';
-import { updateContractLogs } from '../actions';
+import { updateContractLogsAction } from '../actions';
 import { addContractLogsOneByOne } from './addContractLogsOneByOne';
 
 export const fetchContractLogs = function* (contractId: string) {
@@ -36,7 +36,7 @@ export const fetchContractLogs = function* (contractId: string) {
         }
       } else {
         yield put(
-          updateContractLogs({
+          updateContractLogsAction({
             contract: contractId,
             logs: r.data,
           })

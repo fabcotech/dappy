@@ -5,7 +5,7 @@ import { getNameSystemContractId } from '/store/blockchain';
 import { delay, select, call, put, take } from 'redux-saga/effects';
 import { singleCall } from '/interProcess';
 import { getFirstReadyNode } from '/store/settings';
-import { updateContractLogs } from '../actions';
+import { updateContractLogsAction } from '../actions';
 import { getFakeBlockChainNode, getFakeLogs } from '/fakeData';
 import { getContractLogs } from '../reducer';
 
@@ -47,7 +47,7 @@ describe('saga ui cronJobContractLogs', () => {
     expect(saga.next(r as any).value).toEqual(select(getContractLogs));
     expect(saga.next(getFakeLogs(contractId) as any).value).toEqual(
       put(
-        updateContractLogs({
+        updateContractLogsAction({
           contract: contractId,
           logs: r.data,
         })

@@ -6,7 +6,7 @@ import {
   State,
   toggleBalanceVisibilityReducer,
 } from './reducer';
-import { updateContractLogs, updateShowAccountCreationAtStartup, toggleBalanceVisibility } from './actions';
+import { updateContractLogsAction, updateShowAccountCreationAtStartup, toggleBalanceVisibility } from './actions';
 
 import { LOGS_PER_CONTRACT } from '/CONSTANTS';
 import { getIsBalancesHidden } from '.';
@@ -20,7 +20,7 @@ describe('reducer ui', () => {
     const logs = ['a', 'b', 'c'];
     const newState = updateContractLogsReducer(
       state,
-      updateContractLogs({
+      updateContractLogsAction({
         contract: contractId,
         logs,
       })
@@ -41,7 +41,7 @@ describe('reducer ui', () => {
     };
     const newState = updateContractLogsReducer(
       state,
-      updateContractLogs({
+      updateContractLogsAction({
         contract: contractId,
         logs: ['d', 'e', 'f'],
       })
@@ -65,7 +65,7 @@ describe('reducer ui', () => {
     };
     const newState = updateContractLogsReducer(
       state,
-      updateContractLogs({
+      updateContractLogsAction({
         contract: contractId,
         logs,
       })

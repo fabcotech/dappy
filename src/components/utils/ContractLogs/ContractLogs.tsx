@@ -22,12 +22,20 @@ const parseLogTs = (l: string) => {
   return t('no timestamp');
 };
 
-const logRegExp = /^(.+),(\d+),(\w+),(\w+),(\d+),(\d+),(\w+),(\w+)$/;
+const logRegExp = /^(.+),(\d+),(\w+),(\w+),(\d+),([0-9a-z_]+),(\w+),(\w+)$/;
 
 const toLogMessage = (
-  [type, ts, boxDest, boxFrom, nbTokens, dustPrice, purseName, newPurseName]: string[],
+  [type, ts, boxDest, boxFrom, nbTokens, price, purseName, newPurseName]: string[],
   goToPurse: (purseName: string) => void
 ) => {
+
+  const parsePrice = price.split('_');
+  let priceString = '';
+  if (parsePrice[0] === 'ft') {
+    priceString = `${parsePrice[1]} ${parsePrice[2]}`
+  } else if (parsePrice[0] === 'nft') {
+    priceString = `NFT ${parsePrice[1]}.${parsePrice[2]}`
+  }
   if (purseName === '0') {
     return (
       <Fragment>
@@ -36,7 +44,7 @@ const toLogMessage = (
           {newPurseName}{' '}
         </a>
         <span className="pr-1">{`${t('was purchased for')} `}</span>
-        <span>{`${dustToRev(parseInt(dustPrice))} REV`}</span>
+        <span>{priceString}</span>
       </Fragment>
     );
   } else {
@@ -47,7 +55,7 @@ const toLogMessage = (
           {newPurseName}{' '}
         </a>
         <span className="pr-1">{t('was traded for')} </span>
-        <span>{dustToRev(parseInt(dustPrice))} REV</span>
+        <span>{priceString}</span>
       </Fragment>
     );
   }

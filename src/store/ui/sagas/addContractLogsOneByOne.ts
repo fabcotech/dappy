@@ -1,7 +1,7 @@
 import { delay, put } from 'redux-saga/effects';
 import { CRON_JOBS_LOG_CONTRACT_PERIOD } from '/CONSTANTS';
 
-import { updateContractLogs } from '../actions';
+import { updateContractLogsAction } from '../actions';
 
 export const addContractLogsOneByOne = function* (payload: { newLogs: string[]; contractId: string }) {
   /*
@@ -10,11 +10,13 @@ export const addContractLogsOneByOne = function* (payload: { newLogs: string[]; 
   */
   let average = (CRON_JOBS_LOG_CONTRACT_PERIOD * 0.7) / payload.newLogs.length;
   let logs: string[] = [...payload.newLogs];
+  console.log('addContractLogsOneByOne');
+  console.log(logs);
   while (logs.length !== 0) {
     const d = average + ((Math.random() - 1) * average) / 3;
     yield delay(d);
     yield put(
-      updateContractLogs({
+      updateContractLogsAction({
         contract: payload.contractId,
         logs: [logs[logs.length - 1]],
       })

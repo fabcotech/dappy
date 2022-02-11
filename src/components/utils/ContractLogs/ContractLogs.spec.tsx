@@ -85,7 +85,7 @@ describe('ContractLogs', () => {
         }}
       />
     );
-    expect(screen.queryByTestId('logs')).toHaveTextContent('01/01/1970, 00:00 new name foo was purchased for 1 REV');
+    expect(screen.queryByTestId('logs')).toHaveTextContent('01/01/1970, 00:00 new name foo was purchased for 100000000 wrappeddust');
   });
   it('should display existing name purchase', () => {
     render(
@@ -98,7 +98,7 @@ describe('ContractLogs', () => {
         }}
       />
     );
-    expect(screen.queryByTestId('logs')).toHaveTextContent('01/01/1970, 00:00 name foo was traded for 1 REV');
+    expect(screen.queryByTestId('logs')).toHaveTextContent('01/01/1970, 00:00 name foo was traded for 100000000 wrappeddust');
   });
   it('should display multiple logs', () => {
     const d = new Date(0);

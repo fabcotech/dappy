@@ -24,7 +24,7 @@ export class RChainTokenCreatePurseComponent extends React.Component<RChainToken
         id: string;
         boxId: string;
         quantity: number;
-        price: number | null;
+        price: null;
       };
     } = {};
     try {
@@ -32,11 +32,11 @@ export class RChainTokenCreatePurseComponent extends React.Component<RChainToken
       lines.forEach((l: string, i: number) => {
         if (l) {
           const elements = l.split(',');
-          const id = elements[3] || `${i}`;
+          const id = elements[2] || `${i}`;
           purses[id] = {
-            boxId: elements[2],
+            boxId: elements[1],
             quantity: parseInt(elements[0], 10),
-            price: parseInt(elements[1], 10) || null,
+            price: null,
             id: id,
           };
         }
@@ -51,7 +51,6 @@ export class RChainTokenCreatePurseComponent extends React.Component<RChainToken
         error: 'Could not validate',
       });
     }
-    console.log(purses);
     const payload = {
       contractId: this.state.contractId,
       boxId: this.props.boxId,
@@ -93,7 +92,6 @@ export class RChainTokenCreatePurseComponent extends React.Component<RChainToken
                 className="input"
                 placeholder="mycontract"
                 onChange={(e) => {
-                  console.log('e.target.value', e.target.value)
                   this.setState({
                     contractId:
                       e.target.value,
@@ -118,9 +116,9 @@ export class RChainTokenCreatePurseComponent extends React.Component<RChainToken
           <p>
             {t('only rchain-token version')} {RCHAIN_TOKEN_SUPPORTED_VERSIONS[0]}
             <br />
-            {t('structure for nft')}: 1, price (dust), recipient box ID, NFT ID
+            {t('structure for nft')}: 1, recipient box ID, NFT ID
             <br />
-            {t('structure for ft')}: quantity, price (dust), recipient box ID
+            {t('structure for ft')}: quantity, recipient box ID
             <br />
             {t('price 0 not for sale')}
           </p>
@@ -129,7 +127,7 @@ export class RChainTokenCreatePurseComponent extends React.Component<RChainToken
               className="button is-small"
               title="Generate an example for NFT contract"
               onClick={() => {
-                this.setState({ value: `1,100000000,sambox,pandanft\n1,0,sambox,cobranft` }, () => {
+                this.setState({ value: `1,sambox,pandanft\n1,sambox,cobranft` }, () => {
                   this.onParse(undefined)
                 });
               }}>
@@ -140,7 +138,7 @@ export class RChainTokenCreatePurseComponent extends React.Component<RChainToken
               className="button is-small"
               title="Generate an example for FT contract"
               onClick={() => {
-                this.setState({ value: `100,10000,sambox\n200,0,sambox` }, () => {
+                this.setState({ value: `100,sambox\n200,sambox` }, () => {
                   this.onParse(undefined);
                 });
               }}>

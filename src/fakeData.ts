@@ -99,16 +99,16 @@ export const getFakeLogs = (contractId: string = 'foo') => ({
 export const getFakeNewNamePurchaseLog = (
   date: Date = new Date(0),
   nbToken = 1,
-  dustPrice = 100000000,
+  wrappedDustPrice = 100000000,
   purse = 'foo'
-) => `p,${date.getTime()},aaa,aaa,${nbToken},${dustPrice},0,${purse}`;
+) => `p,${date.getTime()},aaa,aaa,${nbToken},ft_${wrappedDustPrice}_wrappeddust,0,${purse}`;
 
 export const getFakeExistingNamePurchaseLog = (
   date: Date = new Date(0),
   nbToken = 1,
-  dustPrice = 100000000,
+  wrappedDustPrice = 100000000,
   purse = 'foo'
-) => `p,${date.getTime()},aaa,aaa,${nbToken},${dustPrice},foo,${purse}`;
+) => `p,${date.getTime()},aaa,aaa,${nbToken},ft_${wrappedDustPrice}_wrappeddust,foo,${purse}`;
 
 export const getFakeTransactionState = (transactionState: Partial<TransactionState> = {}): TransactionState => ({
   sentAt: new Date('01/01/2022').toISOString(),
