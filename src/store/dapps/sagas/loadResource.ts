@@ -584,6 +584,17 @@ const loadResource = function* (action: Action) {
       pending: string[];
     };
   } = yield select(fromDapps.getLoadStates);
+
+  /*
+    todo is this safe enough ? See main/store/sagas/loadOrReloadBrowserView.ts
+
+    the dapp HTML will be stored as a file in APP_ROOT/dist/cache/dapp.html,
+    we want to avoid strange behavior by allowing file path extensions
+  */
+  let safePath = '';
+  if (searchSplitted.path && searchSplitted.path.startsWith('?') && !searchSplitted.path.includes('/')) {
+    safePath = searchSplitted.path
+  }
   const dapp: Dapp = {
     ...dappFromNetwork,
     id: resourceId,

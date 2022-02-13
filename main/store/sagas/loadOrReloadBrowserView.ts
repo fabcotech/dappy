@@ -142,7 +142,7 @@ const loadOrReloadBrowserView = function* (action: any) {
   if (payload.currentUrl === '$dapp') {
     const htmlPath = path.join(app.getAppPath(), 'dist/cache/', 'dapp.html');
     fs.writeFileSync(htmlPath, payload.html);
-    view.webContents.loadURL('file://' + htmlPath)
+    view.webContents.loadURL(`file://${htmlPath}${payload.path}`)
       .then(() => {
         fs.rm(htmlPath, (err) => {
           if (err) console.log(err);
@@ -195,6 +195,14 @@ const loadOrReloadBrowserView = function* (action: any) {
   */
   view.webContents.executeJavaScript(`
   window.initContextMenu = () => { const paste=["Paste",(e,t,o)=>{navigator.clipboard.readText().then(function(e){const t=o.value,n=o.selectionStart;o.value=t.slice(0,n)+e+t.slice(n)}),e.remove()}],copy=["Copy",(e,t,o)=>{navigator.clipboard.writeText(t),e.remove()}];document.addEventListener("contextmenu",e=>{let t=[];const o=window.getSelection()&&window.getSelection().toString();if(o&&(t=[copy]),"TEXTAREA"!==e.target.tagName&&"INPUT"!==e.target.tagName||(t=t.concat([paste])),0===t.length)return;const n=document.createElement("div");n.className="context-menu",n.style.width="160px",n.style.color="#fff",n.style.backgroundColor="rgba(04, 04, 04, 0.8)",n.style.top=e.clientY-5+"px",n.style.left=e.clientX-5+"px",n.style.position="absolute",n.style.zIndex=10,n.style.fontSize="16px",n.style.borderRadius="2px",n.style.fontFamily="fira",n.addEventListener("mouseleave",()=>{n.remove()}),t.forEach(t=>{const l=document.createElement("div");l.style.padding="6px",l.style.cursor="pointer",l.style.borderBottom="1px solid #aaa",l.addEventListener("mouseenter",()=>{console.log("onmouseenter"),l.style.backgroundColor="rgba(255, 255, 255, 0.1)",l.style.color="#fff"}),l.addEventListener("mouseleave",()=>{console.log("onmouseleave"),l.style.backgroundColor="transparent",l.style.color="#fff"}),l.innerText=t[0],l.addEventListener("click",()=>t[1](n,o,e.target)),n.appendChild(l)}),document.body.appendChild(n)}); }; window.initContextMenu();
+  `);
+
+  /*
+    Equivalent of window.location, dapps and IP apps can know
+    from which dappyDOmain they've been loaded
+  */
+  view.webContents.executeJavaScript(`
+  window.dappy = { dappyDomain: "${payload.dappyDomain}", path: "${payload.path}" };
   `);
 
   view.webContents.addListener('page-favicon-updated', (a, favicons) => {
