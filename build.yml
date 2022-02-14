@@ -7,7 +7,6 @@ directories:
   output: ./output
 files:
   # TODO exclude not needed stuff in 'files:' section to reduce app packages size, can save megabytes, so a significant improvement
-  - "dapps/**/*"
   - "dist/**/*"
   - "icons/**/*"
   - "main.js"

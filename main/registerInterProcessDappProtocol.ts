@@ -107,7 +107,7 @@ export const registerInterProcessDappProtocol = (
   store: Store,
   dispatchFromMain
 ) => {
-  session.protocol.registerBufferProtocol('interprocessdapp', (request, callback) => {
+  return session.protocol.registerBufferProtocol('interprocessdapp', (request, callback) => {
     let data: { [a: string]: any } = {};
     try {
       data = JSON.parse(request.headers['Data']);

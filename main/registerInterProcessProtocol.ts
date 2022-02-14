@@ -28,7 +28,7 @@ export const registerInterProcessProtocol = (
   dispatchFromMain,
   getDispatchesFromMainAwaiting: () => void
 ) => {
-  session.protocol.registerBufferProtocol('interprocess', (request, callback) => {
+  return session.protocol.registerBufferProtocol('interprocess', (request, callback) => {
     if (request.url === 'interprocess://ask-unique-ephemeral-token') {
       if (uniqueEphemeralTokenAskedOnce === false) {
         uniqueEphemeralTokenAskedOnce = true;

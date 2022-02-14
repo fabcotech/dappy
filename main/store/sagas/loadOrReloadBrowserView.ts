@@ -137,22 +137,83 @@ const loadOrReloadBrowserView = function* (action: any) {
   action.meta.browserWindow.addBrowserView(view);
   view.setBounds(position);
 
+  let newBrowserViews: {
+    [resourceId: string]: DappyBrowserView;
+  } = {};
+  newBrowserViews[payload.resourceId] = {
+    ...payload,
+    browserView: view,
+    visible: true,
+  };
+
+  // ==============================
+  // Security, interception of protocols, new protocols
+  // https://, http://, dappyl://, interprocessdapp://
+  // ==============================
+
+  const viewSession = session.fromPartition(`persist:${payload.dappyDomain}`);
+  preventAllPermissionRequests(viewSession);
+  // todo, avoid circular ref to "store" (see logs when "npm run build:main")
+  registerInterProcessDappProtocol(
+    newBrowserViews[payload.resourceId],
+    viewSession,
+    store,
+    action.meta.dispatchFromMain
+  );
+  overrideHttpProtocols({
+    dappyBrowserView: newBrowserViews[payload.resourceId],
+    dispatchFromMain: action.meta.dispatchFromMain,
+    session: viewSession,
+  });
+  registerDappyNetworkProtocol(newBrowserViews[payload.resourceId], viewSession, store);
+  registerDappyLocalProtocol(viewSession)
+
+  // ==============================
+  // In tab javascript executions
+  // ==============================
+
   /* browser to server */
   // In the case of IP apps, payload.currentUrl is a https://xx address
+  // In the case of dapp an empty html is initiated, ready to be overwritten
   if (payload.currentUrl === '$dapp') {
-    const htmlPath = path.join(app.getAppPath(), 'dist/cache/', 'dapp.html');
-    fs.writeFileSync(htmlPath, payload.html);
-    view.webContents.loadURL(`file://${htmlPath}${payload.path}`)
-      .then(() => {
-        fs.rm(htmlPath, (err) => {
-          if (err) console.log(err);
-        });
-      })
+    const htmlPath = path.join(app.getAppPath(), 'dist/dapp.html');
+    yield view.webContents.loadURL(`file://${htmlPath}${payload.path}`);
   } else {
-    view.webContents.loadURL(payload.currentUrl);
+    yield view.webContents.loadURL(payload.currentUrl);
   }
 
-  let previewId;
+  /*
+    Send html page to the dapp that is currently
+    an empty html file
+  */
+  if (payload.currentUrl === '$dapp') {
+    yield view.webContents.executeJavaScript(`
+    window.write("${encodeURIComponent(payload.html)}")
+    `)
+  }
+
+  /*
+    Context menu
+    IP app will instantly execute window.initContextMenu();
+    Dapp will wait for DAPP_INITIAL_SETUP and then execute window.initContextMenu();
+  */
+  yield view.webContents.executeJavaScript(`
+  window.initContextMenu = () => { const paste=["Paste",(e,t,o)=>{navigator.clipboard.readText().then(function(e){const t=o.value,n=o.selectionStart;o.value=t.slice(0,n)+e+t.slice(n)}),e.remove()}],copy=["Copy",(e,t,o)=>{navigator.clipboard.writeText(t),e.remove()}];document.addEventListener("contextmenu",e=>{let t=[];const o=window.getSelection()&&window.getSelection().toString();if(o&&(t=[copy]),"TEXTAREA"!==e.target.tagName&&"INPUT"!==e.target.tagName||(t=t.concat([paste])),0===t.length)return;const n=document.createElement("div");n.className="context-menu",n.style.width="160px",n.style.color="#fff",n.style.backgroundColor="rgba(04, 04, 04, 0.8)",n.style.top=e.clientY-5+"px",n.style.left=e.clientX-5+"px",n.style.position="absolute",n.style.zIndex=10,n.style.fontSize="16px",n.style.borderRadius="2px",n.style.fontFamily="fira",n.addEventListener("mouseleave",()=>{n.remove()}),t.forEach(t=>{const l=document.createElement("div");l.style.padding="6px",l.style.cursor="pointer",l.style.borderBottom="1px solid #aaa",l.addEventListener("mouseenter",()=>{console.log("onmouseenter"),l.style.backgroundColor="rgba(255, 255, 255, 0.1)",l.style.color="#fff"}),l.addEventListener("mouseleave",()=>{console.log("onmouseleave"),l.style.backgroundColor="transparent",l.style.color="#fff"}),l.innerText=t[0],l.addEventListener("click",()=>t[1](n,o,e.target)),n.appendChild(l)}),document.body.appendChild(n)}); }; window.initContextMenu();
+  `);
+
+  /*
+    Equivalent of window.location, dapps and IP apps can know
+    from which dappyDOmain they've been loaded
+  */
+  yield view.webContents.executeJavaScript(`
+  window.dappy = { dappyDomain: "${payload.dappyDomain}", path: "${payload.path}" };
+  `);
+
+  // ==============================
+  // Navigation and lifecycle of the browserView
+  // ==============================
+
+  let previewId = '';
   let currentPathAndParameters = '';
 
   view.webContents.addListener('did-navigate', (a, currentUrl, httpResponseCode, httpStatusText) => {
@@ -187,23 +248,6 @@ const loadOrReloadBrowserView = function* (action: any) {
   view.webContents.addListener('new-window', (e) => {
     e.preventDefault();
   });
-
-  // contextMenu.ts
-  /*
-    IP app will instantly execute window.initContextMenu();
-    Dapp will wait for DAPP_INITIAL_SETUP and then execute window.initContextMenu();
-  */
-  view.webContents.executeJavaScript(`
-  window.initContextMenu = () => { const paste=["Paste",(e,t,o)=>{navigator.clipboard.readText().then(function(e){const t=o.value,n=o.selectionStart;o.value=t.slice(0,n)+e+t.slice(n)}),e.remove()}],copy=["Copy",(e,t,o)=>{navigator.clipboard.writeText(t),e.remove()}];document.addEventListener("contextmenu",e=>{let t=[];const o=window.getSelection()&&window.getSelection().toString();if(o&&(t=[copy]),"TEXTAREA"!==e.target.tagName&&"INPUT"!==e.target.tagName||(t=t.concat([paste])),0===t.length)return;const n=document.createElement("div");n.className="context-menu",n.style.width="160px",n.style.color="#fff",n.style.backgroundColor="rgba(04, 04, 04, 0.8)",n.style.top=e.clientY-5+"px",n.style.left=e.clientX-5+"px",n.style.position="absolute",n.style.zIndex=10,n.style.fontSize="16px",n.style.borderRadius="2px",n.style.fontFamily="fira",n.addEventListener("mouseleave",()=>{n.remove()}),t.forEach(t=>{const l=document.createElement("div");l.style.padding="6px",l.style.cursor="pointer",l.style.borderBottom="1px solid #aaa",l.addEventListener("mouseenter",()=>{console.log("onmouseenter"),l.style.backgroundColor="rgba(255, 255, 255, 0.1)",l.style.color="#fff"}),l.addEventListener("mouseleave",()=>{console.log("onmouseleave"),l.style.backgroundColor="transparent",l.style.color="#fff"}),l.innerText=t[0],l.addEventListener("click",()=>t[1](n,o,e.target)),n.appendChild(l)}),document.body.appendChild(n)}); }; window.initContextMenu();
-  `);
-
-  /*
-    Equivalent of window.location, dapps and IP apps can know
-    from which dappyDOmain they've been loaded
-  */
-  view.webContents.executeJavaScript(`
-  window.dappy = { dappyDomain: "${payload.dappyDomain}", path: "${payload.path}" };
-  `);
 
   view.webContents.addListener('page-favicon-updated', (a, favicons) => {
     if (favicons && favicons[0] && typeof favicons[0] === 'string') {
@@ -365,13 +409,6 @@ const loadOrReloadBrowserView = function* (action: any) {
     action.meta.browserWindow.webContents.executeJavaScript(`console.log('dom-ready ${payload.resourceId}')`);
   });
 
-  let newBrowserViews = {};
-  newBrowserViews[payload.resourceId] = {
-    ...payload,
-    browserView: view,
-    visible: true,
-  };
-
   /*
     Hide all other browser views
   */
@@ -387,23 +424,6 @@ const loadOrReloadBrowserView = function* (action: any) {
       };
     }
   });
-
-  const viewSession = session.fromPartition(`persist:${payload.dappyDomain}`);
-  preventAllPermissionRequests(viewSession);
-  // todo, avoid circular ref to "store" (see logs when "npm run build:main")
-  registerInterProcessDappProtocol(
-    newBrowserViews[payload.resourceId],
-    viewSession,
-    store,
-    action.meta.dispatchFromMain
-  );
-  overrideHttpProtocols({
-    dappyBrowserView: newBrowserViews[payload.resourceId],
-    dispatchFromMain: action.meta.dispatchFromMain,
-    session: viewSession,
-  });
-  registerDappyNetworkProtocol(newBrowserViews[payload.resourceId], viewSession, store);
-  registerDappyLocalProtocol(viewSession)
 
   return yield put({
     type: fromBrowserViews.LOAD_OR_RELOAD_BROWSER_VIEW_COMPLETED,

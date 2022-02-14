@@ -14,12 +14,12 @@ var http = _interopDefault(require('http'));
 require('os');
 
 var validateSearch = function (search) {
-    return /[a-z]*:(\w[A-Za-z0-9]*)(\w[A-Za-z0-9?%&()*+-_.\/:.@=\[\]{}]*)?$/gs.test(search);
+    return /[a-z]*:(\w[A-Za-z0-9]*)(\w[A-Za-z0-9?%&()*+-_.\/:.@=\[\]{}#]*)?$/gs.test(search);
 };
 
 var WS_PAYLOAD_PAX_SIZE = 512000; // bits
 var WS_RECONNECT_PERIOD = 10000;
-var VERSION = '0.5.3';
+var VERSION = '0.5.4';
 
 var LOAD_RESOURCE = '[Dapps] Load resource';
 var UPDATE_TRANSITORY_STATE = '[Dapps] Update transitory state';
@@ -293,562 +293,21 @@ var getActiveResource = lib_4(getFocusedTabId, getTabs, getDapps, getIpApps, get
     return undefined;
 });
 
-var defaultParseOptions = {
-  decodeValues: true,
-  map: false,
-  silent: false,
-};
-
-function isNonEmptyString(str) {
-  return typeof str === "string" && !!str.trim();
-}
-
-function parseString(setCookieValue, options) {
-  var parts = setCookieValue.split(";").filter(isNonEmptyString);
-  var nameValue = parts.shift().split("=");
-  var name = nameValue.shift();
-  var value = nameValue.join("="); // everything after the first =, joined by a "=" if there was more than one part
-
-  options = options
-    ? Object.assign({}, defaultParseOptions, options)
-    : defaultParseOptions;
-
-  try {
-    value = options.decodeValues ? decodeURIComponent(value) : value; // decode cookie value
-  } catch (e) {
-    console.error(
-      "set-cookie-parser encountered an error while decoding a cookie with value '" +
-        value +
-        "'. Set options.decodeValues to false to disable this feature.",
-      e
-    );
-  }
-
-  var cookie = {
-    name: name, // grab everything before the first =
-    value: value,
-  };
-
-  parts.forEach(function (part) {
-    var sides = part.split("=");
-    var key = sides.shift().trimLeft().toLowerCase();
-    var value = sides.join("=");
-    if (key === "expires") {
-      cookie.expires = new Date(value);
-    } else if (key === "max-age") {
-      cookie.maxAge = parseInt(value, 10);
-    } else if (key === "secure") {
-      cookie.secure = true;
-    } else if (key === "httponly") {
-      cookie.httpOnly = true;
-    } else if (key === "samesite") {
-      cookie.sameSite = value;
-    } else {
-      cookie[key] = value;
-    }
-  });
-
-  return cookie;
-}
-
-function parse(input, options) {
-  options = options
-    ? Object.assign({}, defaultParseOptions, options)
-    : defaultParseOptions;
-
-  if (!input) {
-    if (!options.map) {
-      return [];
-    } else {
-      return {};
-    }
-  }
-
-  if (input.headers && input.headers["set-cookie"]) {
-    // fast-path for node.js (which automatically normalizes header names to lower-case
-    input = input.headers["set-cookie"];
-  } else if (input.headers) {
-    // slow-path for other environments - see #25
-    var sch =
-      input.headers[
-        Object.keys(input.headers).find(function (key) {
-          return key.toLowerCase() === "set-cookie";
-        })
-      ];
-    // warn if called on a request-like object with a cookie header rather than a set-cookie header - see #34, 36
-    if (!sch && input.headers.cookie && !options.silent) {
-      console.warn(
-        "Warning: set-cookie-parser appears to have been called on a request object. It is designed to parse Set-Cookie headers from responses, not Cookie headers from requests. Set the option {silent: true} to suppress this warning."
-      );
-    }
-    input = sch;
-  }
-  if (!Array.isArray(input)) {
-    input = [input];
-  }
-
-  options = options
-    ? Object.assign({}, defaultParseOptions, options)
-    : defaultParseOptions;
-
-  if (!options.map) {
-    return input.filter(isNonEmptyString).map(function (str) {
-      return parseString(str, options);
-    });
-  } else {
-    var cookies = {};
-    return input.filter(isNonEmptyString).reduce(function (cookies, str) {
-      var cookie = parseString(str, options);
-      cookies[cookie.name] = cookie;
-      return cookies;
-    }, cookies);
-  }
-}
-
-/*
-  Set-Cookie header field-values are sometimes comma joined in one string. This splits them without choking on commas
-  that are within a single set-cookie field-value, such as in the Expires portion.
-
-  This is uncommon, but explicitly allowed - see https://tools.ietf.org/html/rfc2616#section-4.2
-  Node.js does this for every header *except* set-cookie - see https://github.com/nodejs/node/blob/d5e363b77ebaf1caf67cd7528224b651c86815c1/lib/_http_incoming.js#L128
-  React Native's fetch does this for *every* header, including set-cookie.
-
-  Based on: https://github.com/google/j2objc/commit/16820fdbc8f76ca0c33472810ce0cb03d20efe25
-  Credits to: https://github.com/tomball for original and https://github.com/chrusart for JavaScript implementation
-*/
-function splitCookiesString(cookiesString) {
-  if (Array.isArray(cookiesString)) {
-    return cookiesString;
-  }
-  if (typeof cookiesString !== "string") {
-    return [];
-  }
-
-  var cookiesStrings = [];
-  var pos = 0;
-  var start;
-  var ch;
-  var lastComma;
-  var nextStart;
-  var cookiesSeparatorFound;
-
-  function skipWhitespace() {
-    while (pos < cookiesString.length && /\s/.test(cookiesString.charAt(pos))) {
-      pos += 1;
-    }
-    return pos < cookiesString.length;
-  }
-
-  function notSpecialChar() {
-    ch = cookiesString.charAt(pos);
-
-    return ch !== "=" && ch !== ";" && ch !== ",";
-  }
-
-  while (pos < cookiesString.length) {
-    start = pos;
-    cookiesSeparatorFound = false;
-
-    while (skipWhitespace()) {
-      ch = cookiesString.charAt(pos);
-      if (ch === ",") {
-        // ',' is a cookie separator if we have later first '=', not ';' or ','
-        lastComma = pos;
-        pos += 1;
-
-        skipWhitespace();
-        nextStart = pos;
-
-        while (pos < cookiesString.length && notSpecialChar()) {
-          pos += 1;
-        }
-
-        // currently special character
-        if (pos < cookiesString.length && cookiesString.charAt(pos) === "=") {
-          // we found cookies separator
-          cookiesSeparatorFound = true;
-          // pos is inside the next cookie, so back up and return it.
-          pos = nextStart;
-          cookiesStrings.push(cookiesString.substring(start, lastComma));
-          start = pos;
-        } else {
-          // in param ',' or param separator ';',
-          // we continue from that comma
-          pos = lastComma + 1;
-        }
-      } else {
-        pos += 1;
-      }
-    }
-
-    if (!cookiesSeparatorFound || pos >= cookiesString.length) {
-      cookiesStrings.push(cookiesString.substring(start, cookiesString.length));
-    }
-  }
-
-  return cookiesStrings;
-}
-
-var setCookie = parse;
-var parse_1 = parse;
-var parseString_1 = parseString;
-var splitCookiesString_1 = splitCookiesString;
-setCookie.parse = parse_1;
-setCookie.parseString = parseString_1;
-setCookie.splitCookiesString = splitCookiesString_1;
-
-var SAVE_COOKIES_FOR_DOMAIN = '[Cookies] Save cookies for domain';
-var saveCookiesForDomainAction = function (values) { return ({
-    type: SAVE_COOKIES_FOR_DOMAIN,
-    payload: values,
-}); };
-
 // SELECTORS
 var getCookiesState = lib_4(function (state) { return state; }, function (state) { return state.cookies; });
 var getCookies = lib_4(getCookiesState, function (state) { return state.cookies; });
 // COMBINED SELECTORS
 
-var executeSentryRequest = function (request) {
-    return new Promise(function (resolve, reject) {
-        var options = {
-            method: request.method,
-            host: 'sentry.io',
-            port: 443,
-            rejectUnauthorized: true,
-            path: request.url.replace('https://sentry.io', '') || '/',
-            headers: request.headers,
-        };
-        https
-            .request(options, function (data) { return resolve({ data: data }); })
-            .on('error', function (er) {
-            console.log(er);
-            reject(er); // TODO: A valider
-        });
-    });
-};
-var isSentryRequestInDappyApp = function (url, dappyBrowserView) {
-    return url.startsWith('https://sentry.io') && !dappyBrowserView;
-};
-var onlyLaxCookieOnFirstRequest = function (isFirstRequest, cookie) {
-    return isFirstRequest ? cookie.sameSite === 'lax' : true;
-};
-var parseUrl = function (url) {
-    var urlRegExp = /^.+\/\/([^\/]+)(\/.*)?/;
-    if (!urlRegExp.test(url))
-        return {};
-    var _a = url.match(urlRegExp), _ = _a[0], host = _a[1], path = _a[2];
-    return {
-        host: host,
-        path: path,
-    };
-};
-var getServersWithSameHost = function (dappyBrowserView, url) {
-    var _a;
-    var host = parseUrl(url).host;
-    return (_a = dappyBrowserView.record.data.servers) === null || _a === void 0 ? void 0 : _a.filter(function (s) { return s.host === host; });
-};
-var isHostIsInRecord = function (dappyBrowserView, url) {
-    if (!getServersWithSameHost(dappyBrowserView, url)) {
-        var host = parseUrl(url).host;
-        console.log("[https] An app (".concat(dappyBrowserView.resourceId, ") tried to make an https request to an unknown host (").concat(host, ")"));
-        return false;
-    }
-    return true;
-};
-var getCookiesHeader = function (dappyBrowserView, url, isFirstRequest) { return __awaiter(void 0, void 0, void 0, function () {
-    var host, cookies, cookieHeader;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                host = parseUrl(url).host;
-                cookies = [];
-                return [4 /*yield*/, dappyBrowserView.browserView.webContents.session.cookies.get({
-                        url: "https://".concat(host),
-                    })];
-            case 1:
-                cookies = _a.sent();
-                cookieHeader = cookies
-                    .filter(function (c) { return !!c.domain && !c.domain.startsWith('.'); })
-                    .filter(function (c) { return onlyLaxCookieOnFirstRequest(isFirstRequest, c); })
-                    .map(function (c) { return "".concat(c.name, "=").concat(c.value); })
-                    .join('; ');
-                return [2 /*return*/, cookieHeader];
-        }
-    });
-}); };
-var tryToLoad = function (_a) {
-    var debug = _a.debug, request = _a.request, dappyBrowserView = _a.dappyBrowserView, isFirstRequest = _a.isFirstRequest, setCookie$1 = _a.setCookie;
-    return __awaiter(void 0, void 0, void 0, function () {
-        function load(i) {
-            if (i === void 0) { i = 0; }
-            return __awaiter(this, void 0, void 0, function () {
-                var serversWithSameHost, s, host, path, options, _a;
-                var _b, _c;
-                return __generator(this, function (_d) {
-                    switch (_d.label) {
-                        case 0:
-                            if (debug)
-                                console.log('[https load]', request.url, i);
-                            serversWithSameHost = getServersWithSameHost(dappyBrowserView, request.url);
-                            s = serversWithSameHost[i];
-                            if (!s) {
-                                host = parseUrl(request.url).host;
-                                return [2 /*return*/, Promise.reject(new Error("Unknown host: ".concat(host)))];
-                            }
-                            if (!s.cert && debug)
-                                console.log('[https load] use CA', request.url, i);
-                            path = parseUrl(request.url).path;
-                            _b = {
-                                host: s.ip,
-                                method: request.method,
-                                path: path ? "".concat(path) : '/',
-                                minVersion: 'TLSv1.2',
-                                rejectUnauthorized: true
-                            };
-                            _a = [__assign({}, request.headers)];
-                            _c = { host: s.host };
-                            return [4 /*yield*/, getCookiesHeader(dappyBrowserView, request.url, isFirstRequest)];
-                        case 1:
-                            options = (_b.headers = __assign.apply(void 0, _a.concat([(_c.Cookie = _d.sent(), _c.Origin = "dappy://".concat(dappyBrowserView.dappyDomain), _c)])),
-                                _b);
-                            if (s.cert) {
-                                options.ca = decodeURI(decodeURI(s.cert));
-                            }
-                            if (request.referrer) {
-                                options.headers.referrer = request.referrer;
-                            }
-                            return [2 /*return*/, new Promise(function (resolve) {
-                                    try {
-                                        var req_1 = https
-                                            .request(options, function (resp) {
-                                            if (resp.headers && resp.headers['set-cookie']) {
-                                                var cookies = setCookie.parse(resp, {
-                                                    decodeValues: true,
-                                                });
-                                                cookies.forEach(function (c) {
-                                                    setCookie$1({
-                                                        name: c.name,
-                                                        value: c.value,
-                                                        url: "https://".concat(serversWithSameHost[0].host),
-                                                        expirationDate: c.expires ? new Date(c.expires).getTime() / 1000 : undefined,
-                                                        secure: true,
-                                                        httpOnly: true,
-                                                        // sameSite is by default 'lax'
-                                                        sameSite: /^strict$/i.test(c.sameSite || '') ? 'strict' : 'lax',
-                                                    });
-                                                });
-                                                if (debug && cookies.length)
-                                                    console.log("[https load] set ".concat(cookies.length, " cookie(s)"));
-                                            }
-                                            if (debug)
-                                                console.log('[https load] OK', resp.statusCode, request.url, i);
-                                            resp.headers = __assign(__assign({}, resp.headers), { 'Content-Security-Policy': dappyBrowserView.record.data.csp || "default-src 'self'" });
-                                            if (!over) {
-                                                resolve({ data: resp });
-                                                over = true;
-                                            }
-                                        })
-                                            .on('error', function (err) {
-                                            if (debug)
-                                                console.log('[https load] ERR', request.url, err.message, i);
-                                            var error;
-                                            if (err.message.includes('connect ECONNRESET')) {
-                                                error = {
-                                                    errorCode: 523,
-                                                    errorMessage: 'Origin Is Unreachable',
-                                                };
-                                            }
-                                            else {
-                                                error = {
-                                                    errorCode: 520,
-                                                    errorMessage: 'Unknown Error',
-                                                };
-                                            }
-                                            loadFails[i.toString()] = error;
-                                            if (serversWithSameHost[i + 1]) {
-                                                console.log('WILL TRY AGAIN');
-                                                load(i + 1);
-                                            }
-                                            else {
-                                                if (debug) {
-                                                    console.log("[https load] Resource for app (".concat(dappyBrowserView.resourceId, ") failed to load (").concat(path, ")"));
-                                                }
-                                                over = true;
-                                                resolve({});
-                                                return;
-                                            }
-                                        });
-                                        if (request.uploadData && request.uploadData[0]) {
-                                            request.uploadData.forEach(function (ud) {
-                                                // TODO: remove any if possible
-                                                if (ud.type === 'rawData') {
-                                                    req_1.write(ud.bytes);
-                                                }
-                                                else {
-                                                    // todo is this safe ?
-                                                    // can a IP app or dapp set filePath to /home/bob/anything ???
-                                                    var file = fs.readFileSync(ud.filePath);
-                                                    // todo, test file upload on other platforms than discord (works on discord)
-                                                    req_1.write(file);
-                                                }
-                                            });
-                                            req_1.end();
-                                        }
-                                        else {
-                                            req_1.end();
-                                        }
-                                    }
-                                    catch (err) {
-                                        if (debug)
-                                            console.log('[https load] ERR', request.url, err.message, i);
-                                        var error = void 0;
-                                        if (err.message.includes('SSL')) {
-                                            error = {
-                                                errorCode: 526,
-                                                errorMessage: 'Invalid SSL Certificate',
-                                            };
-                                        }
-                                        else {
-                                            error = {
-                                                errorCode: 520,
-                                                errorMessage: 'Unknown Error',
-                                            };
-                                        }
-                                        loadFails[i] = error;
-                                        if (serversWithSameHost[i + 1]) {
-                                            load(i + 1);
-                                        }
-                                        else {
-                                            if (debug)
-                                                console.log("[https] Resource for app (".concat(dappyBrowserView.resourceId, ") failed to load (").concat(path, ")"));
-                                            resolve({});
-                                            over = true;
-                                            return;
-                                        }
-                                    }
-                                })];
-                    }
-                });
-            });
-        }
-        var loadFails, over;
-        return __generator(this, function (_b) {
-            loadFails = {};
-            over = false;
-            return [2 /*return*/, load()];
-        });
-    });
-};
-var makeInterceptHttpsRequests = function (_a) {
-    var dappyBrowserView = _a.dappyBrowserView, setCookie = _a.setCookie;
-    var isFirstRequest = true;
-    var debug = !true;
-    return function (request, callback) { return __awaiter(void 0, void 0, void 0, function () {
-        var _a, _b, err_1;
-        return __generator(this, function (_c) {
-            switch (_c.label) {
-                case 0:
-                    if (!isSentryRequestInDappyApp(request.url, dappyBrowserView)) return [3 /*break*/, 2];
-                    _a = callback;
-                    return [4 /*yield*/, executeSentryRequest(request)];
-                case 1:
-                    _a.apply(void 0, [_c.sent()]);
-                    return [2 /*return*/];
-                case 2:
-                    if (!dappyBrowserView) {
-                        console.log('[https] An unauthorized process, maybe BrowserWindow, tried to make an https request');
-                        callback({});
-                        return [2 /*return*/];
-                    }
-                    /* browser to server */
-                    if (!isHostIsInRecord(dappyBrowserView, request.url)) {
-                        callback({});
-                        return [2 /*return*/];
-                    }
-                    if (isFirstRequest) {
-                        isFirstRequest = false;
-                    }
-                    _c.label = 3;
-                case 3:
-                    _c.trys.push([3, 5, , 6]);
-                    _b = callback;
-                    return [4 /*yield*/, tryToLoad({ debug: debug, dappyBrowserView: dappyBrowserView, isFirstRequest: isFirstRequest, setCookie: setCookie, request: request })];
-                case 4:
-                    _b.apply(void 0, [_c.sent()]);
-                    return [3 /*break*/, 6];
-                case 5:
-                    err_1 = _c.sent();
-                    console.log(err_1);
-                    callback({});
-                    return [3 /*break*/, 6];
-                case 6: return [2 /*return*/];
-            }
-        });
-    }); };
-};
-var makeCookiesOnChange = function (_a) {
-    var dappyBrowserView = _a.dappyBrowserView, getCookies = _a.getCookies, dispatchFromMain = _a.dispatchFromMain;
-    return function (_, c) { return __awaiter(void 0, void 0, void 0, function () {
-        var servers, cookies, cookiesToBeStored;
-        var _a;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    if (!dappyBrowserView) {
-                        console.log('no browserView, cannot save cookies');
-                        return [2 /*return*/];
-                    }
-                    servers = (_a = dappyBrowserView.record.data.servers) === null || _a === void 0 ? void 0 : _a.filter(function (s) { return s.host === c.domain; });
-                    if (!(servers === null || servers === void 0 ? void 0 : servers.length)) {
-                        console.log('no browserView.record.data.servers matching cookies domain ' + c.domain);
-                        return [2 /*return*/];
-                    }
-                    return [4 /*yield*/, getCookies({ url: "https://".concat(c.domain) })];
-                case 1:
-                    cookies = _b.sent();
-                    cookiesToBeStored = cookies
-                        .filter(function (c) { return typeof c.expirationDate === 'number'; })
-                        .map(function (cook) {
-                        return ({
-                            sameSite: cook.sameSite === 'strict' ? 'strict' : 'lax',
-                            domain: cook.domain,
-                            name: cook.name,
-                            value: cook.value,
-                            expirationDate: cook.expirationDate,
-                        });
-                    });
-                    if (cookiesToBeStored.length) {
-                        dispatchFromMain({
-                            action: saveCookiesForDomainAction({
-                                dappyDomain: dappyBrowserView.dappyDomain,
-                                cookies: cookiesToBeStored,
-                            }),
-                        });
-                    }
-                    return [2 /*return*/];
-            }
-        });
-    }); };
-};
 var overrideHttpProtocols = function (_a) {
     var dappyBrowserView = _a.dappyBrowserView, session = _a.session, dispatchFromMain = _a.dispatchFromMain;
     // Block all HTTP when not development
     {
-        session.protocol.interceptStreamProtocol('http', function (request, callback) {
+        return session.protocol.interceptStreamProtocol('http', function (request, callback) {
             console.log("[http] unauthorized");
             callback({});
             return;
         });
     }
-    session.cookies.on('changed', makeCookiesOnChange({
-        dappyBrowserView: dappyBrowserView,
-        getCookies: function (filter) { return session.cookies.get(filter); },
-        dispatchFromMain: dispatchFromMain,
-    }));
-    session.protocol.interceptStreamProtocol('https', makeInterceptHttpsRequests({
-        dappyBrowserView: dappyBrowserView,
-        setCookie: function (cookieDetails) { return session.cookies.set(cookieDetails); },
-    }));
 };
 
 var promisify_1 = createCommonjsModule(function (module, exports) {
@@ -3330,13 +2789,16 @@ var getSettings = lib_4(getSettingsState, function (state) { return state.settin
 var getBlockchains = lib_4(getSettingsState, function (state) { return state.blockchains; });
 var getAccounts = lib_4(getSettingsState, function (state) { return state.accounts; });
 var getRChainAccounts = lib_4(getSettingsState, function (state) {
-    var rchainAccounts = {};
-    Object.keys(state.accounts).forEach(function (name) {
-        if (state.accounts[name].platform === 'rchain') {
-            rchainAccounts[name] = state.accounts[name];
-        }
-    });
-    return rchainAccounts;
+    return Object.fromEntries(Object.entries(state.accounts).filter(function (_a) {
+        var _ = _a[0], account = _a[1];
+        return account.platform === 'rchain';
+    }));
+});
+var getEVMAccounts = lib_4(getSettingsState, function (state) {
+    return Object.fromEntries(Object.entries(state.accounts).filter(function (_a) {
+        var _ = _a[0], account = _a[1];
+        return account.platform === 'evm';
+    }));
 });
 var getExecutingAccountsCronJobs = lib_4(getSettingsState, function (state) { return state.executingAccountsCronJobs; });
 var getAvailableBlockchains = lib_4(getBlockchains, function (blockchains) {
@@ -3395,6 +2857,13 @@ var getIsLoadReady = lib_4(getBlockchains, getSettings, function (blockchains, s
     return nodes.length >= settings.resolverAbsolute;
 });
 
+var CallStatus;
+(function (CallStatus) {
+    CallStatus["Pending"] = "pending";
+    CallStatus["Failed"] = "failed";
+    CallStatus["Completed"] = "completed";
+})(CallStatus || (CallStatus = {}));
+
 var TransactionStatus;
 (function (TransactionStatus) {
     TransactionStatus["Pending"] = "pending";
@@ -3402,13 +2871,8 @@ var TransactionStatus;
     TransactionStatus["Failed"] = "failed";
     TransactionStatus["Abandonned"] = "abandonned";
     TransactionStatus["Completed"] = "completed";
+    TransactionStatus["Signed"] = "signed";
 })(TransactionStatus || (TransactionStatus = {}));
-var CallStatus;
-(function (CallStatus) {
-    CallStatus["Pending"] = "pending";
-    CallStatus["Failed"] = "failed";
-    CallStatus["Completed"] = "completed";
-})(CallStatus || (CallStatus = {}));
 
 // SELECTORS
 var getBlockchainState = lib_4(function (state) { return state; }, function (state) { return state.blockchain; });
@@ -6073,7 +5537,7 @@ var uniqueEphemeralTokenAskedOnce = false;
 var uniqueEphemeralToken = '';
 /* browser process - main process */
 var registerInterProcessProtocol = function (session, store, getLoadResourceWhenReady, openExternal, browserWindow, dispatchFromMain, getDispatchesFromMainAwaiting) {
-    session.protocol.registerBufferProtocol('interprocess', function (request, callback) {
+    return session.protocol.registerBufferProtocol('interprocess', function (request, callback) {
         if (request.url === 'interprocess://ask-unique-ephemeral-token') {
             if (uniqueEphemeralTokenAskedOnce === false) {
                 uniqueEphemeralTokenAskedOnce = true;
@@ -14820,6 +14284,7 @@ var DAPP_INITIAL_SETUP = '[Common] dapp initial setup';
 var SEND_RCHAIN_TRANSACTION_FROM_SANDBOX = '[Common] Send RChain transaction from sandbox';
 var SEND_RCHAIN_PAYMENT_REQUEST_FROM_SANDBOX = '[Common] Send RChain payment request from sandbox';
 var IDENTIFY_FROM_SANDBOX = '[Common] Identify from sandbox';
+var SIGN_ETHEREUM_TRANSACTION_FROM_SANDBOX = '[Common] Sign Ethereum transaction from sandbox';
 
 var OPEN_DAPP_MODAL = '[Main] Open dapp modal';
 var openDappModalAction = function (values) { return ({
@@ -14918,6 +14383,7 @@ var looksLikePublicKey = function (astring) {
 
 // todo, cannot do import, why ?
 var rchainToolkit = require('rchain-toolkit');
+var hexString = create().matches(/^0x[0-9a-fA-F]+$/, 'string must be in hexadecimal and starts with 0x');
 var identifyFromSandboxSchema = create$2()
     .shape({
     parameters: create$2()
@@ -14951,6 +14417,27 @@ var sendRChainPaymentRequestFromSandboxSchema = create$2()
     .strict(true)
     .noUnknown()
     .required();
+var signEthereumTransactionFromSandboxSchema = create$2()
+    .shape({
+    parameters: create$2()
+        .shape({
+        nonce: hexString.required(),
+        gasPrice: hexString.required(),
+        gasLimit: hexString.required(),
+        value: hexString.optional(),
+        data: hexString.optional(),
+        from: hexString.optional(),
+        to: hexString.required(),
+        chainId: create$1().required(),
+    })
+        .noUnknown()
+        .required()
+        .strict(true),
+    callId: create().required(),
+})
+    .strict(true)
+    .noUnknown()
+    .required();
 var sendRChainTransactionFromSandboxSchema = create$2()
     .shape({
     parameters: create$2()
@@ -14968,7 +14455,7 @@ var sendRChainTransactionFromSandboxSchema = create$2()
     .required();
 /* browser process - main process */
 var registerInterProcessDappProtocol = function (dappyBrowserView, session, store, dispatchFromMain) {
-    session.protocol.registerBufferProtocol('interprocessdapp', function (request, callback) {
+    return session.protocol.registerBufferProtocol('interprocessdapp', function (request, callback) {
         var data = {};
         try {
             data = JSON.parse(request.headers['Data']);
@@ -15008,13 +14495,82 @@ var registerInterProcessDappProtocol = function (dappyBrowserView, session, stor
                 var payloadBeforeValid_1 = data.action.payload;
                 if (!payloadBeforeValid_1) {
                     console.error('[interprocessdapp://] dapp dispatched a transaction with an invalid payload');
-                    callback(null);
+                    callback(Buffer.from('invalid payload'));
                     return;
                 }
-                var okBlockchains = getOkBlockchainsMain(state);
                 var searchSplitted_1 = undefined;
                 try {
                     searchSplitted_1 = splitSearch(dappyBrowserView.dappyDomain);
+                }
+                catch (err) {
+                    console.error('[interprocessdapp://] could not parse dappyDomain');
+                    callback(Buffer.from('Error parsing domain'));
+                    return;
+                }
+                if (data.action.type === IDENTIFY_FROM_SANDBOX) {
+                    identifyFromSandboxSchema
+                        .validate(payloadBeforeValid_1)
+                        .then(function () {
+                        dispatchFromMain({
+                            action: openDappModalAction({
+                                resourceId: dappyBrowserView.resourceId,
+                                title: 'IDENTIFICATION_MODAL',
+                                text: '',
+                                parameters: __assign(__assign({}, payloadBeforeValid_1), { resourceId: dappyBrowserView.resourceId }),
+                                buttons: [],
+                            }),
+                        });
+                        callback(Buffer.from(''));
+                    })
+                        .catch(function (err) {
+                        console.error('A dapp tried to trigger an identification with an invalid schema');
+                        console.error(err);
+                        callback(Buffer.from(err.message));
+                    });
+                    return;
+                }
+                // ETHEREUM / EVM
+                if (data.action.type === SIGN_ETHEREUM_TRANSACTION_FROM_SANDBOX) {
+                    signEthereumTransactionFromSandboxSchema
+                        .validate(payloadBeforeValid_1)
+                        .then(function (valid) {
+                        var payload = payloadBeforeValid_1;
+                        var id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
+                        var payload2 = {
+                            parameters: payload.parameters,
+                            origin: {
+                                origin: 'dapp',
+                                accountName: undefined,
+                                resourceId: dappyBrowserView.resourceId,
+                                dappTitle: dappyBrowserView.title,
+                                callId: payload.callId,
+                            },
+                            resourceId: dappyBrowserView.resourceId,
+                            chainId: searchSplitted_1.chainId,
+                            id: id,
+                        };
+                        dispatchFromMain({
+                            action: openDappModalAction({
+                                resourceId: dappyBrowserView.resourceId,
+                                title: 'ETHEREUM_SIGN_TRANSACTION_MODAL',
+                                text: '',
+                                parameters: payload2,
+                                buttons: [],
+                            }),
+                        });
+                        callback(Buffer.from(''));
+                    })
+                        .catch(function (err) {
+                        console.error('[interprocessdapp://] a dapp tried to request Sign Ethereum transaction with an invalid schema');
+                        console.error(err.message);
+                        callback(Buffer.from(err.message));
+                        return;
+                    });
+                    return;
+                }
+                // RCHAIN
+                var okBlockchains = getOkBlockchainsMain(state);
+                try {
                     if (!okBlockchains[searchSplitted_1.chainId]) {
                         dispatchFromMain({
                             action: saveFailedRChainTransactionAction({
@@ -15033,14 +14589,14 @@ var registerInterProcessDappProtocol = function (dappyBrowserView, session, stor
                             }),
                         });
                         console.error("[interprocessdapp://] blockchain ".concat(searchSplitted_1.chainId, " not available"));
-                        callback(Buffer.from(''));
+                        callback(Buffer.from('blockchain not found'));
                         return;
                     }
                 }
                 catch (err) {
                     console.error('[interprocessdapp://] unknown error');
                     console.error(err);
-                    callback(Buffer.from(''));
+                    callback(Buffer.from(err.message));
                     return;
                 }
                 if (data.action.type === SEND_RCHAIN_TRANSACTION_FROM_SANDBOX) {
@@ -15072,7 +14628,7 @@ var registerInterProcessDappProtocol = function (dappyBrowserView, session, stor
                         dispatchFromMain({
                             action: openDappModalAction({
                                 resourceId: dappyBrowserView.resourceId,
-                                title: 'TRANSACTION_MODAL',
+                                title: 'RCHAIN_TRANSACTION_MODAL',
                                 text: '',
                                 parameters: payload2,
                                 buttons: [],
@@ -15081,9 +14637,9 @@ var registerInterProcessDappProtocol = function (dappyBrowserView, session, stor
                         callback(Buffer.from(''));
                     })
                         .catch(function (err) {
-                        // todo : does the dapp need to have this error returned ?
                         console.error('[interprocessdapp://] a dapp tried to send RChain transaction with an invalid schema');
                         console.error(err);
+                        callback(Buffer.from(err.message));
                         return;
                     });
                 }
@@ -15099,7 +14655,7 @@ var registerInterProcessDappProtocol = function (dappyBrowserView, session, stor
                             catch (err) {
                                 console.error('[interprocessdapp://] failed to generate REV address based on public key');
                                 console.error(err);
-                                callback(null);
+                                callback(Buffer.from('failed to generate REV address based on public key'));
                                 return;
                             }
                         }
@@ -15129,35 +14685,17 @@ var registerInterProcessDappProtocol = function (dappyBrowserView, session, stor
                     })
                         .catch(function (err) {
                         // todo : does the dapp need to have this error returned ?
-                        console.error('A dapp tried to send RChain transaction with an invalid schema');
+                        console.error('[interprocessdapp://] A dapp tried to send RChain transaction with an invalid schema');
                         console.error(err);
+                        callback(Buffer.from(err.message));
                         return;
-                    });
-                }
-                else if (data.action.type === IDENTIFY_FROM_SANDBOX) {
-                    identifyFromSandboxSchema
-                        .validate(payloadBeforeValid_1)
-                        .then(function (valid) {
-                        dispatchFromMain({
-                            action: openDappModalAction({
-                                resourceId: dappyBrowserView.resourceId,
-                                title: 'IDENTIFICATION_MODAL',
-                                text: '',
-                                parameters: __assign({ resourceId: dappyBrowserView.resourceId }, payloadBeforeValid_1),
-                                buttons: [],
-                            }),
-                        });
-                        callback(Buffer.from(''));
-                    })
-                        .catch(function (err) {
-                        console.error('A dapp tried to trigger an identification with an invalid schema');
-                        console.error(err);
                     });
                 }
             }
             catch (err) {
-                console.error('An error occured when checking message-from-dapp-sandboxed');
+                console.error('[interprocessdapp://] An error occured');
                 console.error(err);
+                callback(Buffer.from(err.message));
             }
         }
     });
@@ -15165,7 +14703,7 @@ var registerInterProcessDappProtocol = function (dappyBrowserView, session, stor
 
 /* browser process - main process */
 var registerDappyNetworkProtocol = function (dappyBrowserView, session, store) {
-    session.protocol.registerBufferProtocol('dappynetwork', function (request, callback) {
+    return session.protocol.registerBufferProtocol('dappynetwork', function (request, callback) {
         var chainId;
         try {
             chainId = splitSearch(dappyBrowserView.dappyDomain).chainId;
@@ -15365,6 +14903,31 @@ var registerDappyNetworkProtocol = function (dappyBrowserView, session, store) {
     });
 };
 
+var csss = fs.readdirSync(path.join(electron.app.getAppPath(), 'dist/css'));
+var jss = fs.readdirSync(path.join(electron.app.getAppPath(), 'dist/js'));
+var files = jss.concat(csss);
+var registerDappyLocalProtocol = function (session) {
+    return session.protocol.registerBufferProtocol('dappyl', function (request, callback) {
+        var filePath = request.url.replace('dappyl://', '');
+        if (files.find(function (a) { return ["js/".concat(a), "css/".concat(a)].includes(filePath); })) {
+            if (filePath.endsWith('.js')) {
+                var buf = fs.readFileSync(path.join(electron.app.getAppPath(), 'dist/', filePath));
+                callback(buf);
+            }
+            else if (filePath.endsWith('.css')) {
+                var buf = fs.readFileSync(path.join(electron.app.getAppPath(), 'dist/', filePath));
+                callback(buf);
+            }
+            else {
+                callback(Buffer.from(''));
+            }
+        }
+        else {
+            callback(Buffer.from(''));
+        }
+    });
+};
+
 var preventAllPermissionRequests = function (session) {
     return session.setPermissionRequestHandler(function (webContents, permission, callback) {
         // Permission list available here: https://www.electronjs.org/fr/docs/latest/api/session#sessetpermissionrequesthandlerhandler
@@ -15440,7 +15003,7 @@ var searchToAddress = function (search, chainId, path) {
 
 var development = !!process.defaultApp;
 var loadOrReloadBrowserView = function (action) {
-    var payload, browserViews, position, a, b, c, d, bv, sameTabIdBrowserViewId, bv, a, b, c, d, view, previewId, currentPathAndParameters, handleNavigation, newBrowserViews, viewSession;
+    var payload, browserViews, position, a, b, c, d, bv, sameTabIdBrowserViewId, bv, a, b, c, d, e, view, newBrowserViews, viewSession, htmlPath, previewId, currentPathAndParameters, handleNavigation;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -15490,12 +15053,13 @@ var loadOrReloadBrowserView = function (action) {
                     a = electron.session.fromPartition("persist:".concat(payload.dappyDomain)).protocol.unregisterProtocol('dappynetwork');
                     b = electron.session.fromPartition("persist:".concat(payload.dappyDomain)).protocol.unregisterProtocol('interprocessdapp');
                     c = electron.session.fromPartition("persist:".concat(payload.dappyDomain)).protocol.uninterceptProtocol('https');
-                    d = true;
+                    d = electron.session.fromPartition("persist:".concat(payload.dappyDomain)).protocol.uninterceptProtocol('dappyl');
+                    e = true;
                     if (!development) {
-                        d = electron.session.fromPartition("persist:".concat(payload.dappyDomain)).protocol.uninterceptProtocol('http');
+                        e = electron.session.fromPartition("persist:".concat(payload.dappyDomain)).protocol.uninterceptProtocol('http');
                     }
                     if (development) {
-                        console.log(a, b, c, d);
+                        console.log(a, b, c, d, e);
                     }
                     if (bv && bv.browserView) {
                         if (bv.browserView.webContents.isDevToolsOpened()) {
@@ -15538,11 +15102,61 @@ var loadOrReloadBrowserView = function (action) {
                 }
                 action.meta.browserWindow.addBrowserView(view);
                 view.setBounds(position);
-                /* browser to server */
-                // In the case of IP apps, payload.currentUrl is a https://xx address
-                view.webContents.loadURL(payload.currentUrl === 'dist/dappsandboxed.html'
-                    ? path.join('file://', electron.app.getAppPath(), 'dist/dappsandboxed.html') + payload.path
-                    : payload.currentUrl);
+                newBrowserViews = {};
+                newBrowserViews[payload.resourceId] = __assign(__assign({}, payload), { browserView: view, visible: true });
+                viewSession = electron.session.fromPartition("persist:".concat(payload.dappyDomain));
+                preventAllPermissionRequests(viewSession);
+                // todo, avoid circular ref to "store" (see logs when "npm run build:main")
+                registerInterProcessDappProtocol(newBrowserViews[payload.resourceId], viewSession, store, action.meta.dispatchFromMain);
+                overrideHttpProtocols({
+                    dappyBrowserView: newBrowserViews[payload.resourceId],
+                    dispatchFromMain: action.meta.dispatchFromMain,
+                    session: viewSession,
+                });
+                registerDappyNetworkProtocol(newBrowserViews[payload.resourceId], viewSession, store);
+                registerDappyLocalProtocol(viewSession);
+                if (!(payload.currentUrl === '$dapp')) return [3 /*break*/, 4];
+                htmlPath = path.join(electron.app.getAppPath(), 'dist/dapp.html');
+                return [4 /*yield*/, view.webContents.loadURL("file://".concat(htmlPath).concat(payload.path))];
+            case 3:
+                _a.sent();
+                return [3 /*break*/, 6];
+            case 4: return [4 /*yield*/, view.webContents.loadURL(payload.currentUrl)];
+            case 5:
+                _a.sent();
+                _a.label = 6;
+            case 6:
+                if (!(payload.currentUrl === '$dapp')) return [3 /*break*/, 8];
+                return [4 /*yield*/, view.webContents.executeJavaScript("\n    window.write(\"".concat(encodeURIComponent(payload.html), "\")\n    "))];
+            case 7:
+                _a.sent();
+                _a.label = 8;
+            case 8: 
+            /*
+              Context menu
+              IP app will instantly execute window.initContextMenu();
+              Dapp will wait for DAPP_INITIAL_SETUP and then execute window.initContextMenu();
+            */
+            return [4 /*yield*/, view.webContents.executeJavaScript("\n  window.initContextMenu = () => { const paste=[\"Paste\",(e,t,o)=>{navigator.clipboard.readText().then(function(e){const t=o.value,n=o.selectionStart;o.value=t.slice(0,n)+e+t.slice(n)}),e.remove()}],copy=[\"Copy\",(e,t,o)=>{navigator.clipboard.writeText(t),e.remove()}];document.addEventListener(\"contextmenu\",e=>{let t=[];const o=window.getSelection()&&window.getSelection().toString();if(o&&(t=[copy]),\"TEXTAREA\"!==e.target.tagName&&\"INPUT\"!==e.target.tagName||(t=t.concat([paste])),0===t.length)return;const n=document.createElement(\"div\");n.className=\"context-menu\",n.style.width=\"160px\",n.style.color=\"#fff\",n.style.backgroundColor=\"rgba(04, 04, 04, 0.8)\",n.style.top=e.clientY-5+\"px\",n.style.left=e.clientX-5+\"px\",n.style.position=\"absolute\",n.style.zIndex=10,n.style.fontSize=\"16px\",n.style.borderRadius=\"2px\",n.style.fontFamily=\"fira\",n.addEventListener(\"mouseleave\",()=>{n.remove()}),t.forEach(t=>{const l=document.createElement(\"div\");l.style.padding=\"6px\",l.style.cursor=\"pointer\",l.style.borderBottom=\"1px solid #aaa\",l.addEventListener(\"mouseenter\",()=>{console.log(\"onmouseenter\"),l.style.backgroundColor=\"rgba(255, 255, 255, 0.1)\",l.style.color=\"#fff\"}),l.addEventListener(\"mouseleave\",()=>{console.log(\"onmouseleave\"),l.style.backgroundColor=\"transparent\",l.style.color=\"#fff\"}),l.innerText=t[0],l.addEventListener(\"click\",()=>t[1](n,o,e.target)),n.appendChild(l)}),document.body.appendChild(n)}); }; window.initContextMenu();\n  ")];
+            case 9:
+                /*
+                  Context menu
+                  IP app will instantly execute window.initContextMenu();
+                  Dapp will wait for DAPP_INITIAL_SETUP and then execute window.initContextMenu();
+                */
+                _a.sent();
+                /*
+                  Equivalent of window.location, dapps and IP apps can know
+                  from which dappyDOmain they've been loaded
+                */
+                return [4 /*yield*/, view.webContents.executeJavaScript("\n  window.dappy = { dappyDomain: \"".concat(payload.dappyDomain, "\", path: \"").concat(payload.path, "\" };\n  "))];
+            case 10:
+                /*
+                  Equivalent of window.location, dapps and IP apps can know
+                  from which dappyDOmain they've been loaded
+                */
+                _a.sent();
+                previewId = '';
                 currentPathAndParameters = '';
                 view.webContents.addListener('did-navigate', function (a, currentUrl, httpResponseCode, httpStatusText) {
                     // todo handle httpResponseCode, httpStatusText
@@ -15553,10 +15167,11 @@ var loadOrReloadBrowserView = function (action) {
                     // if IP apps
                     if (!currentUrl.startsWith('file://')) {
                         try {
-                            currentPathAndParameters = url.pathname + url.search;
+                            currentPathAndParameters = url.pathname + url.search + url.hash;
                         }
                         catch (err) {
-                            console.error('Could not parse URL ' + currentUrl);
+                            console.error('[did-navigate] Could not parse URL ' + currentUrl);
+                            return;
                         }
                     }
                     previewId = "".concat(payload.dappyDomain).concat(currentPathAndParameters).replace(/\W/g, '');
@@ -15572,12 +15187,6 @@ var loadOrReloadBrowserView = function (action) {
                 view.webContents.addListener('new-window', function (e) {
                     e.preventDefault();
                 });
-                // contextMenu.ts
-                /*
-                  IP app will instantly execute window.initContextMenu();
-                  Dapp will wait for DAPP_INITIAL_SETUP and then execute window.initContextMenu();
-                */
-                view.webContents.executeJavaScript("\n  window.initContextMenu = () => { const paste=[\"Paste\",(e,t,o)=>{navigator.clipboard.readText().then(function(e){const t=o.value,n=o.selectionStart;o.value=t.slice(0,n)+e+t.slice(n)}),e.remove()}],copy=[\"Copy\",(e,t,o)=>{navigator.clipboard.writeText(t),e.remove()}];document.addEventListener(\"contextmenu\",e=>{let t=[];const o=window.getSelection()&&window.getSelection().toString();if(o&&(t=[copy]),\"TEXTAREA\"!==e.target.tagName&&\"INPUT\"!==e.target.tagName||(t=t.concat([paste])),0===t.length)return;const n=document.createElement(\"div\");n.className=\"context-menu\",n.style.width=\"160px\",n.style.color=\"#fff\",n.style.backgroundColor=\"rgba(04, 04, 04, 0.8)\",n.style.top=e.clientY-5+\"px\",n.style.left=e.clientX-5+\"px\",n.style.position=\"absolute\",n.style.zIndex=10,n.style.fontSize=\"16px\",n.style.borderRadius=\"2px\",n.style.fontFamily=\"fira\",n.addEventListener(\"mouseleave\",()=>{n.remove()}),t.forEach(t=>{const l=document.createElement(\"div\");l.style.padding=\"6px\",l.style.cursor=\"pointer\",l.style.borderBottom=\"1px solid #aaa\",l.addEventListener(\"mouseenter\",()=>{console.log(\"onmouseenter\"),l.style.backgroundColor=\"rgba(255, 255, 255, 0.1)\",l.style.color=\"#fff\"}),l.addEventListener(\"mouseleave\",()=>{console.log(\"onmouseleave\"),l.style.backgroundColor=\"transparent\",l.style.color=\"#fff\"}),l.innerText=t[0],l.addEventListener(\"click\",()=>t[1](n,o,e.target)),n.appendChild(l)}),document.body.appendChild(n)}); }; window.initContextMenu();\n  ");
                 view.webContents.addListener('page-favicon-updated', function (a, favicons) {
                     if (favicons && favicons[0] && typeof favicons[0] === 'string') {
                         if (favicons[0].startsWith('data:image')) {
@@ -15732,8 +15341,6 @@ var loadOrReloadBrowserView = function (action) {
                 view.webContents.addListener('dom-ready', function (a) {
                     action.meta.browserWindow.webContents.executeJavaScript("console.log('dom-ready ".concat(payload.resourceId, "')"));
                 });
-                newBrowserViews = {};
-                newBrowserViews[payload.resourceId] = __assign(__assign({}, payload), { browserView: view, visible: true });
                 /*
                   Hide all other browser views
                 */
@@ -15744,21 +15351,11 @@ var loadOrReloadBrowserView = function (action) {
                         newBrowserViews = __assign(__assign({}, newBrowserViews), (_a = {}, _a[id] = __assign(__assign({}, browserViews[id]), { visible: false }), _a));
                     }
                 });
-                viewSession = electron.session.fromPartition("persist:".concat(payload.dappyDomain));
-                preventAllPermissionRequests(viewSession);
-                // todo, avoid circular ref to "store" (see logs when "npm run build:main")
-                registerInterProcessDappProtocol(newBrowserViews[payload.resourceId], viewSession, store, action.meta.dispatchFromMain);
-                overrideHttpProtocols({
-                    dappyBrowserView: newBrowserViews[payload.resourceId],
-                    dispatchFromMain: action.meta.dispatchFromMain,
-                    session: viewSession,
-                });
-                registerDappyNetworkProtocol(newBrowserViews[payload.resourceId], viewSession, store);
                 return [4 /*yield*/, put({
                         type: LOAD_OR_RELOAD_BROWSER_VIEW_COMPLETED,
                         payload: newBrowserViews,
                     })];
-            case 3: return [2 /*return*/, _a.sent()];
+            case 11: return [2 /*return*/, _a.sent()];
         }
     });
 };
@@ -15863,7 +15460,7 @@ var transferIdentifications = function (action) {
                 browserViews = _a.sent();
                 if (browserViews[payload.resourceId] && browserViews[payload.resourceId].browserView) {
                     try {
-                        browserViews[payload.resourceId].browserView.webContents.executeJavaScript("\n      if (typeof dappyRChain !== 'undefined') { dappyRChain.requestIdentifications() };\n      ");
+                        browserViews[payload.resourceId].browserView.webContents.executeJavaScript("\n      if (typeof dappyRChain !== 'undefined') { dappyRChain.requestIdentifications() };\n      if (typeof dappyEthereum !== 'undefined') { dappyEthereum.requestIdentifications() };\n      ");
                     }
                     catch (e) {
                         console.error('Could not execute javascript and transfer identifications');
@@ -15900,7 +15497,7 @@ var transferTransactions = function (action) {
                 browserViews = _a.sent();
                 if (browserViews[resourceId] && browserViews[resourceId].browserView) {
                     try {
-                        browserViews[resourceId].browserView.webContents.executeJavaScript("\n      if (typeof dappyRChain !== 'undefined') { dappyRChain.requestTransactions() };\n      ");
+                        browserViews[resourceId].browserView.webContents.executeJavaScript("\n      if (typeof dappyRChain !== 'undefined') { dappyRChain.requestTransactions() };\n      if (typeof dappyEthereum !== 'undefined') { dappyEthereum.requestTransactions() };\n      ");
                     }
                     catch (e) {
                         console.error('Could not execute javascript and transfer transactions');

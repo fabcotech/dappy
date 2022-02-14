@@ -333,7 +333,7 @@ interface OverrideHttpProtocolsParams {
 export const overrideHttpProtocols = ({ dappyBrowserView, session, dispatchFromMain }: OverrideHttpProtocolsParams) => {
   // Block all HTTP when not development
   if (process.env.PRODUCTION) {
-    session.protocol.interceptStreamProtocol('http', (request, callback) => {
+    return session.protocol.interceptStreamProtocol('http', (request, callback) => {
       console.log(`[http] unauthorized`);
       callback({});
       return;
@@ -349,7 +349,7 @@ export const overrideHttpProtocols = ({ dappyBrowserView, session, dispatchFromM
     })
   );
 
-  session.protocol.interceptStreamProtocol(
+  return session.protocol.interceptStreamProtocol(
     'https',
     makeInterceptHttpsRequests({
       dappyBrowserView,

@@ -15,7 +15,7 @@ export const registerDappyNetworkProtocol = (
   session: Session,
   store: Store
 ) => {
-  session.protocol.registerBufferProtocol('dappynetwork', (request, callback) => {
+  return session.protocol.registerBufferProtocol('dappynetwork', (request, callback) => {
     let chainId;
     try {
       chainId = splitSearch(dappyBrowserView.dappyDomain).chainId;

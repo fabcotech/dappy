@@ -9,7 +9,7 @@ const files = jss.concat(csss);
 export const registerDappyLocalProtocol = (
   session: Session
 ) => {
-  session.protocol.registerBufferProtocol('dappyl', (request, callback) => {
+  return session.protocol.registerBufferProtocol('dappyl', (request, callback) => {
     const filePath = request.url.replace('dappyl://', '')
     if (files.find(a => [`js/${a}`, `css/${a}`].includes(filePath))) {
       if (filePath.endsWith('.js')) {
