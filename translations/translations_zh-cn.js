@@ -2384,5 +2384,69 @@ module.exports.translations = [
     "term_plural": "",
     "reference": "",
     "comment": ""
+  },
+  {
+    "term": "signing ethereum transaction",
+    "definition": null,
+    "context": "Modal",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "signing rchain transaction",
+    "definition": null,
+    "context": "Modal",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "sign transaction",
+    "definition": null,
+    "context": "Modal",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name system master registry uri",
+    "definition": "Name system master registry URI",
+    "context": "Settings > Networks",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "name system contract id",
+    "definition": "Name system contract ID",
+    "context": "Settings > Networks",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "wrapped rev contract id",
+    "definition": "Wrapped REV contract ID",
+    "context": "Settings > Networks",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "what is a dappy network ?",
+    "definition": "什么是dappy网络？",
+    "context": "Help",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "use public ca paragraph",
+    "definition": null,
+    "context": "Purchase record",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
   }
 ]

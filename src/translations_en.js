@@ -888,5 +888,20 @@ module.exports.translations = {
   },
   "sign transaction": {
     "one": "Sign transaction"
+  },
+  "name system master registry uri": {
+    "one": "Name system master registry URI"
+  },
+  "name system contract id": {
+    "one": "Name system contract ID"
+  },
+  "wrapped rev contract id": {
+    "one": "Wrapped REV contract ID"
+  },
+  "what is a dappy network ?": {
+    "one": "What is a dappy network ?"
+  },
+  "use public ca paragraph": {
+    "one": "Use certificates from the public Certificate Authorities"
   }
 }

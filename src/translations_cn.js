@@ -729,5 +729,17 @@ module.exports.translations = {
   "days": {
     "one": "",
     "other": ""
+  },
+  "name system master registry uri": {
+    "one": "Name system master registry URI"
+  },
+  "name system contract id": {
+    "one": "Name system contract ID"
+  },
+  "wrapped rev contract id": {
+    "one": "Wrapped REV contract ID"
+  },
+  "what is a dappy network ?": {
+    "one": "什么是dappy网络？"
   }
 }
