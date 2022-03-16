@@ -66,10 +66,12 @@ export class WithSuggestionsComponent extends React.Component<
       Component has just been created
     */
     if (nextProps.tab && typeof prevState.url === 'undefined') {
-      console.log(1);
-      console.log(nextProps.tab)
+      let newUrl = nextProps.tab.url;
+      if (newUrl.startsWith('https://')) {
+        newUrl = newUrl.slice(8);
+      }
       return {
-        url: nextProps.tab.url,
+        url: newUrl,
         currentCounter: nextProps.tab.counter,
         pristine: true,
         lastUpdateTriggeredByUserAction: false,
@@ -79,10 +81,12 @@ export class WithSuggestionsComponent extends React.Component<
         Tab has been focused
       */
     } else if (nextProps.tab && nextProps.tab.counter > prevState.currentCounter) {
-      console.log(2);
-      console.log(nextProps.tab)
+      let newUrl = nextProps.tab.url;
+      if (newUrl.startsWith('https://')) {
+        newUrl = newUrl.slice(8);
+      }
       return {
-        url: nextProps.tab.url,
+        url: newUrl,
         currentCounter: nextProps.tab.counter,
         pristine: true,
         lastUpdateTriggeredByUserAction: false,
@@ -94,9 +98,7 @@ export class WithSuggestionsComponent extends React.Component<
         OR the user is typing (prevState.lastUpdateTriggeredByUserAction === true)
       */
     } else {
-      console.log(3);
-      console.log(nextProps.tab)
-      let url = prevState.url;
+      let newUrl = prevState.url;
       /*
         Probably always true
       */
@@ -107,12 +109,15 @@ export class WithSuggestionsComponent extends React.Component<
         nextProps.sessionItem !== prevState.currentSessionItem &&
         nextProps.tab
       ) {
-        if (nextProps.sessionItem.url !== url) {
-          url = nextProps.sessionItem.url;
+        if (nextProps.sessionItem.url !== newUrl) {
+          newUrl = nextProps.sessionItem.url;
+          if (newUrl.startsWith('https://')) {
+            newUrl = newUrl.slice(8);
+          }
         }
       }
       return {
-        url: url,
+        url: newUrl,
         lastUpdateTriggeredByUserAction: false,
         currentSessionItem: nextProps.sessionItem,
       };

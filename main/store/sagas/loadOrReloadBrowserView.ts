@@ -17,6 +17,7 @@ import * as fromHistory from '../../../src/store/history';
 import { decomposeUrl } from '../../../src/utils/decomposeUrl';
 import { validateSearch } from '../../../src/utils/validateSearch';
 import { searchToAddress } from '../../../src/utils/searchToAddress';
+import { DappyLoadError } from '/models';
 
 const development = !!process.defaultApp;
 
@@ -132,9 +133,6 @@ const loadOrReloadBrowserView = function* (action: any) {
     }
   });
 
-  if (payload.devMode) {
-    view.webContents.openDevTools();
-  }
   if (payload.muted) {
     view.webContents.setAudioMuted(payload.muted);
   }
@@ -186,7 +184,27 @@ const loadOrReloadBrowserView = function* (action: any) {
     const path = new URL(payload.url).pathname
     yield view.webContents.loadURL(`file://${htmlPath}${path}`);
   } else {
-    yield view.webContents.loadURL(payload.url);
+    console.log('will load');
+    try {
+      yield view.webContents.loadURL(payload.url);
+      if (payload.devMode) {
+        view.webContents.openDevTools();
+      }
+    } catch (err) {
+      action.meta.dispatchFromMain({
+        action: fromDapps.loadResourceFailedAction({
+            tabId: payload.tabId,
+            url: payload.url,
+            error: {
+              error: DappyLoadError.ServerError,
+              args: {
+                url: payload.url,
+                message: err.message
+              }
+            }
+          })
+      });
+    }
   }
 
   /*
@@ -248,6 +266,8 @@ const loadOrReloadBrowserView = function* (action: any) {
           }),
         });
       } else if (favicons[0].startsWith('https://')) {
+
+        console.log("favicons[0].startsWith('https://')")
 
         // todo
         // get CERT with dappylookup

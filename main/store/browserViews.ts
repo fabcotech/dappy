@@ -36,8 +36,8 @@ export const reducer = (state = initialState, action: any): State => {
       if (browserView) {
         if (browserView.browserView.webContents.isDevToolsOpened()) {
           browserView.browserView.webContents.closeDevTools();
-          browserView.browserView.webContents.forcefullyCrashRenderer();
         }
+        browserView.browserView.webContents.forcefullyCrashRenderer();
         action.meta.browserWindow.removeBrowserView(browserView.browserView);
         let newBrowserViews = { ...state.browserViews };
         delete newBrowserViews[action.payload.resourceId];

@@ -2,11 +2,9 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { utils } from 'rchain-toolkit';
 
-import { blockchain as blockchainUtils } from '/utils/';
 import { WithSuggestions } from './WithSuggestions';
 import * as fromDapps from '/store/dapps';
 import * as fromCommon from '/common';
-import * as fromBlockchain from '/store/blockchain';
 import * as fromSettings from '/store/settings';
 import * as fromHistory from '/store/history';
 import * as fromUi from '/store/ui';

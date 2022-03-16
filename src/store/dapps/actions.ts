@@ -33,6 +33,7 @@ export const UPDATE_RESOURCE_ADDRESS = '[Dapps] Update resource address';
 export const REMOVE_TAB = '[Dapps] Remove tab';
 export const REMOVE_TAB_COMPLETED = '[Dapps] Remove tab completed';
 export const STOP_TAB = '[Dapps] Stop tab';
+export const REMOVE_RESOURCE = '[Dapps] Remove resource';
 export const SET_TAB_MUTED = '[Dapps] Set tab muted';
 
 export const SAVE_IDENTIFICATION = '[Dapps] Save identification';
@@ -142,6 +143,14 @@ export interface StopTabPayload {
 }
 export const stopTabAction = (values: StopTabPayload) => ({
   type: STOP_TAB,
+  payload: values,
+});
+
+export interface RemoveResourcePayload {
+  resourceId: string;
+}
+export const removeResourceAction = (values: RemoveResourcePayload) => ({
+  type: REMOVE_RESOURCE,
   payload: values,
 });
 

@@ -67,17 +67,12 @@ interface makeTryToLoadParams {
 }
 
 const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest, setCookie }: makeTryToLoadParams) => {
-  const loadFails: { [key: string]: any } = {};
   let over = false;
 
   async function load(i: number = 0) {
     if (debug) console.log('[https load]', request.url, i);
 
     const url = new URL(request.url);
-    console.log('url.hostname', url.hostname);
-    console.log('url.port', url.port);
-    console.log('url.host', url.host);
-    console.log('url.path', url.pathname);
     let networkHosts = [url.hostname];
     let port = url.port ? url.port : "443";
     if (dns == false) {
@@ -145,42 +140,42 @@ const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest
             };
             */
 
-            // be sure to what we should resolve, see
-            // Electron.ProtocolResponse type
             if (!over) {
               resolve({
+                charset: 'utf-8',
                 data: resp,
-                headers: resp.headers,
+                headers: resp.headers as Record<string, string[]>,
                 statusCode: resp.statusCode,
               });
               over = true;
             }
           })
           .on('error', (err) => {
-            if (debug) console.log('[https load] ERR', request.url, err.message, i);
-            let error;
+            if (debug) console.log('[https load] ERR (1)', request.url, err.message, i);
+
+            let statusCode = 502;
             if (err.message.includes('connect ECONNRESET')) {
-              error = {
-                errorCode: 523,
-                errorMessage: 'Origin Is Unreachable',
-              };
+              statusCode = 523;
             } else {
-              error = {
-                errorCode: 520,
-                errorMessage: 'Unknown Error',
-              };
+              statusCode = 520;
             }
-            loadFails[i.toString()] = error;
 
             if (networkHosts[i + 1]) {
-              console.log('WILL TRY AGAIN');
               load(i + 1);
             } else {
               if (debug) {
                 console.log(`[https load] Resource for app (${dappyBrowserView.resourceId}) failed to load (${url.pathname})`);
               }
+
+              /*
+                Will catch in main/store/sagas/loadOrReloadBrowserView.ts L193
+              */
+              resolve({
+                data: err.message,
+                headers: {},
+                statusCode: statusCode
+              });
               over = true;
-              resolve({});
               return;
             }
           });
@@ -204,26 +199,27 @@ const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest
           req.end();
         }
       } catch (err: any) {
-        if (debug) console.log('[https load] ERR', request.url, err.message, i);
-        let error;
-        if (err.message.includes('SSL')) {
-          error = {
-            errorCode: 526,
-            errorMessage: 'Invalid SSL Certificate',
-          };
+        if (debug) console.log('[https load] ERR (2) ', request.url, err.message, i);
+
+        let statusCode = 502;
+        if (err.message.includes('connect ECONNRESET')) {
+          statusCode = 523;
         } else {
-          error = {
-            errorCode: 520,
-            errorMessage: 'Unknown Error',
-          };
+          statusCode = 520;
         }
-        loadFails[i] = error;
 
         if (networkHosts[i + 1]) {
           load(i + 1);
         } else {
           if (debug) console.log(`[https] Resource for app (${dappyBrowserView.resourceId}) failed to load (${url.pathname})`);
-          resolve({});
+              /*
+                Will catch in main/store/sagas/loadOrReloadBrowserView.ts L193
+              */
+          resolve({
+            data: err.message,
+            headers: {},
+            statusCode: statusCode
+          });
           over = true;
           return;
         }
@@ -265,11 +261,8 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
       isFirstRequest = false;
     }
 
-    console.log('url', request.url);
-    console.log('.dappy', new URL(request.url).host.endsWith('.dappy'));
-
     /*
-      Dappy name system, custom handler 
+      Dappy name system
     */
     if (new URL(request.url).host.endsWith('.dappy')) {
       console.log('Will tryToLoad DNS false')

@@ -326,6 +326,39 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
+    case fromActions.REMOVE_RESOURCE: {
+      const payload = action.payload as fromActions.RemoveResourcePayload;
+
+      let newDapps = state.dapps;
+      if (newDapps[payload.resourceId]) {
+        newDapps = { ...state.dapps };
+        delete newDapps[payload.resourceId];
+      }
+
+      let newLoadedFiles = state.loadedFiles;
+      if (newLoadedFiles[payload.resourceId]) {
+        newLoadedFiles = { ...state.loadedFiles };
+        delete newLoadedFiles[payload.resourceId];
+      }
+
+      let newIpApps = state.ipApps;
+      if (newIpApps[payload.resourceId]) {
+        newIpApps = { ...state.ipApps };
+        delete newIpApps[payload.resourceId];
+      }
+
+      const newTransitoryStates = { ...state.transitoryStates };
+      delete newTransitoryStates[payload.resourceId];
+
+      return {
+        ...state,
+        ipApps: newIpApps,
+        loadedFiles: newLoadedFiles,
+        dapps: newDapps,
+        transitoryStates: newTransitoryStates,
+      };
+    }
+
     case fromActions.STOP_TAB: {
       const payload = action.payload as fromActions.StopTabPayload;
 

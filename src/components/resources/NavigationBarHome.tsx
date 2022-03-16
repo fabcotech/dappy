@@ -2,8 +2,6 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 
 import * as fromDapps from '/store/dapps';
-import * as fromBlockchain from '/store/blockchain';
-import * as fromHistory from '/store/history';
 import * as fromSettings from '/store/settings';
 import { WithSuggestions } from './WithSuggestions';
 

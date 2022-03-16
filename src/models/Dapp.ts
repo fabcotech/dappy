@@ -38,12 +38,9 @@ export interface PredefinedDapp {
   html: string;
 }
 
-export interface DappFromNetwork {
-  html: string;
-}
-
-export interface Dapp extends DappFromNetwork {
+export interface Dapp {
   id: string;
+  html: string;
   tabId: string | undefined;
   // newtork ID / chain ID (ex: "d" / "gammanetwork" etc)
   chainId: string;

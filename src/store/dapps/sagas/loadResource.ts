@@ -14,7 +14,6 @@ import { getNodeIndex } from '/utils/getNodeIndex';
 import { validateAndReturnFile } from '/utils/validateAndReturnFile';
 import {
   Blockchain,
-  DappFromNetwork,
   RChainInfos,
   DappyFile,
   Dapp,
@@ -207,7 +206,13 @@ const loadResource = function* (action: Action) {
       */
     
       const txts = fakeDappyLookup.lookup(url.host, 'txt');
-    
+
+      let csp = '';
+      const cspRecord = txts.find(a => a.hasOwnProperty('value') && a.value === 'publicKey');
+      if (cspRecord) {
+        csp  = (cspRecord as RRTXT).value;
+      }
+  
       let publicKey = '';
       const publicKeyRecord = txts.find(a => a.hasOwnProperty('value') && a.value === 'publicKey');
       if (publicKeyRecord) {

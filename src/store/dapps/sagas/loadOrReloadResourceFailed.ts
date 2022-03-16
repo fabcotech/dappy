@@ -26,6 +26,8 @@ const loadOrReloadResourceFailed = function* (action: Action) {
     type: '[MAIN] Destroy browser view',
     payload: { resourceId: tab.resourceId },
   });
+
+  yield put(fromDapps.removeResourceAction({ resourceId: tab.resourceId }))
 };
 
 export const loadOrReloadResourceFailedSaga = function* () {
