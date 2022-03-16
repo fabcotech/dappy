@@ -41,7 +41,7 @@ class NavigationBarHomeComponent extends WithSuggestions {
             ref={this.setInputEl}
             placeholder={`Type dappy or ${this.props.namesBlockchainId}:dappy`}
             className={`${this.state.pristine ? 'pristine' : ''} input`}
-            value={this.state.search || ''}
+            value={this.state.url || ''}
             onChange={this.onChange}
             onKeyDown={this.onKeyDown}></input>
         </div>
@@ -57,8 +57,6 @@ export const NavigationBarHome = connect(
     return {
       namesBlockchainId: namesBlockchain ? namesBlockchain.chainId : 'unknown',
       sessionItem: undefined,
-      previews: fromHistory.getPreviews(state),
-      recordNames: fromBlockchain.getRecordNamesInAlphaOrder(state),
       appType: undefined,
       resourceLoaded: false,
       transitoryState: undefined,
@@ -70,9 +68,7 @@ export const NavigationBarHome = connect(
       canGoBackward: false,
       search: undefined,
       loadState: undefined,
-      address: undefined,
-      recordBadges: undefined,
-      servers: [],
+      url: undefined,
     };
   },
   (dispatch) => {

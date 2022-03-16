@@ -5,9 +5,7 @@ import cookieParser from 'set-cookie-parser';
 
 import * as fromCookies from '../src/store/cookies';
 import { DappyBrowserView } from './models';
-import { Cookie as DappyCookie, IPServer } from '/models';
-
-const agents: { [key: string]: https.Agent } = {};
+import { Cookie as DappyCookie } from '/models';
 
 const executeSentryRequest = (request: ProtocolRequest): Promise<ProtocolResponse> => {
   return new Promise((resolve, reject) => {
@@ -45,25 +43,8 @@ export const parseUrl = (url: string): { host?: string; path?: string } => {
   };
 };
 
-const getServersWithSameHost = (dappyBrowserView: DappyBrowserView, url: string) => {
-  const { host } = parseUrl(url);
-
-  return dappyBrowserView.record.data.servers?.filter((s) => s.host === host);
-};
-
-const isHostIsInRecord = (dappyBrowserView: DappyBrowserView, url: string) => {
-  if (!getServersWithSameHost(dappyBrowserView, url)) {
-    const { host } = parseUrl(url);
-    console.log(
-      `[https] An app (${dappyBrowserView.resourceId}) tried to make an https request to an unknown host (${host})`
-    );
-    return false;
-  }
-  return true;
-};
-
 const getCookiesHeader = async (dappyBrowserView: DappyBrowserView, url: string, isFirstRequest: boolean) => {
-  const { host } = parseUrl(url);
+  const host = new URL(url).host;
   let cookies: Cookie[] = [];
   cookies = await dappyBrowserView.browserView.webContents.session.cookies.get({
     url: `https://${host}`,
@@ -77,6 +58,7 @@ const getCookiesHeader = async (dappyBrowserView: DappyBrowserView, url: string,
 };
 
 interface makeTryToLoadParams {
+  dns: boolean;
   debug: boolean;
   request: ProtocolRequest;
   dappyBrowserView: DappyBrowserView;
@@ -84,41 +66,46 @@ interface makeTryToLoadParams {
   setCookie: (cookieDetails: CookiesSetDetails) => Promise<void>;
 }
 
-const tryToLoad = async ({ debug, request, dappyBrowserView, isFirstRequest, setCookie }: makeTryToLoadParams) => {
+const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest, setCookie }: makeTryToLoadParams) => {
   const loadFails: { [key: string]: any } = {};
   let over = false;
 
   async function load(i: number = 0) {
     if (debug) console.log('[https load]', request.url, i);
-    const serversWithSameHost = getServersWithSameHost(dappyBrowserView, request.url) as IPServer[];
 
-    const s = serversWithSameHost[i];
-
-    if (!s) {
-      const { host } = parseUrl(request.url);
-      return Promise.reject(new Error(`Unknown host: ${host}`));
+    const url = new URL(request.url);
+    console.log('url.hostname', url.hostname);
+    console.log('url.port', url.port);
+    console.log('url.host', url.host);
+    console.log('url.path', url.pathname);
+    let networkHosts = [url.hostname];
+    let port = url.port ? url.port : "443";
+    if (dns == false) {
+      // todo dappy-lookup get A or AAAA records
+      networkHosts = ["46.101.211.203"]
+      if (url.port) port = url.port;
     }
 
-    if (!s.cert && debug) console.log('[https load] use CA', request.url, i);
+    console.log('networkHosts', networkHosts);
 
-    const { path } = parseUrl(request.url);
     const options: https.RequestOptions = {
-      host: s.ip,
+      host: networkHosts[i],
       method: request.method,
-      path: path ? `${path}` : '/',
+      path: url.pathname ? `${url.pathname}` : '/',
       minVersion: 'TLSv1.2',
       rejectUnauthorized: true,
       headers: {
         ...request.headers,
-        host: s.host,
+        host: url.hostname,
         Cookie: await getCookiesHeader(dappyBrowserView, request.url, isFirstRequest),
-        Origin: `dappy://${dappyBrowserView.dappyDomain}`,
+        Origin: `https://${dappyBrowserView.host}`,
       },
     };
 
-    if (s.cert) {
+    // todo
+    /* if (s.cert) {
       options.ca = decodeURI(decodeURI(s.cert));
-    }
+    } */
 
     if (request.referrer) {
       options.headers!.referrer = request.referrer;
@@ -137,7 +124,7 @@ const tryToLoad = async ({ debug, request, dappyBrowserView, isFirstRequest, set
                 setCookie({
                   name: c.name,
                   value: c.value,
-                  url: `https://${serversWithSameHost[0].host}`,
+                  url: `https://${url.host}`,
                   expirationDate: c.expires ? new Date(c.expires).getTime() / 1000 : undefined,
                   secure: true,
                   httpOnly: true,
@@ -147,14 +134,25 @@ const tryToLoad = async ({ debug, request, dappyBrowserView, isFirstRequest, set
               });
               if (debug && cookies.length) console.log(`[https load] set ${cookies.length} cookie(s)`);
             }
-
+            if (resp.statusCode === 301) {
+              console.log('[https load] 301', resp.headers.location)
+            }
             if (debug) console.log('[https load] OK', resp.statusCode, request.url, i);
-            resp.headers = {
+            // todo csp
+            /* resp.headers = {
               ...resp.headers,
-              'Content-Security-Policy': dappyBrowserView.record.data.csp || "default-src 'self'",
+              'Content-Security-Policy': dappyBrowserView.csp || "default-src 'self'",
             };
+            */
+
+            // be sure to what we should resolve, see
+            // Electron.ProtocolResponse type
             if (!over) {
-              resolve({ data: resp });
+              resolve({
+                data: resp,
+                headers: resp.headers,
+                statusCode: resp.statusCode,
+              });
               over = true;
             }
           })
@@ -174,12 +172,12 @@ const tryToLoad = async ({ debug, request, dappyBrowserView, isFirstRequest, set
             }
             loadFails[i.toString()] = error;
 
-            if (serversWithSameHost[i + 1]) {
+            if (networkHosts[i + 1]) {
               console.log('WILL TRY AGAIN');
               load(i + 1);
             } else {
               if (debug) {
-                console.log(`[https load] Resource for app (${dappyBrowserView.resourceId}) failed to load (${path})`);
+                console.log(`[https load] Resource for app (${dappyBrowserView.resourceId}) failed to load (${url.pathname})`);
               }
               over = true;
               resolve({});
@@ -221,10 +219,10 @@ const tryToLoad = async ({ debug, request, dappyBrowserView, isFirstRequest, set
         }
         loadFails[i] = error;
 
-        if (serversWithSameHost[i + 1]) {
+        if (networkHosts[i + 1]) {
           load(i + 1);
         } else {
-          if (debug) console.log(`[https] Resource for app (${dappyBrowserView.resourceId}) failed to load (${path})`);
+          if (debug) console.log(`[https] Resource for app (${dappyBrowserView.resourceId}) failed to load (${url.pathname})`);
           resolve({});
           over = true;
           return;
@@ -262,22 +260,37 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
       return;
     }
 
-    /* browser to server */
-    if (!isHostIsInRecord(dappyBrowserView, request.url)) {
-      callback({});
-      return;
-    }
-
     if (isFirstRequest) {
       if (debug) console.log('[https load] first top level navigation, only lax cookies');
       isFirstRequest = false;
     }
 
-    try {
-      callback(await tryToLoad({ debug, dappyBrowserView, isFirstRequest, setCookie, request }));
-    } catch (err) {
-      console.log(err);
-      callback({});
+    console.log('url', request.url);
+    console.log('.dappy', new URL(request.url).host.endsWith('.dappy'));
+
+    /*
+      Dappy name system, custom handler 
+    */
+    if (new URL(request.url).host.endsWith('.dappy')) {
+      console.log('Will tryToLoad DNS false')
+      try {
+        callback(await tryToLoad({ dns: false, debug, dappyBrowserView, isFirstRequest, setCookie, request }));
+      } catch (err) {
+        console.log(err);
+        callback({});
+      }
+
+    /*
+      DNS
+    */
+    } else {
+      console.log('Will tryToLoad DNS true')
+      try {
+        callback(await tryToLoad({ dns: true, debug, dappyBrowserView, isFirstRequest, setCookie, request }));
+      } catch (err) {
+        console.log(err);
+        callback({});
+      }
     }
   };
 };
@@ -295,15 +308,9 @@ const makeCookiesOnChange =
       console.log('no browserView, cannot save cookies');
       return;
     }
-    const servers = dappyBrowserView.record.data.servers?.filter((s) => s.host === c.domain);
-    if (!servers?.length) {
-      console.log('no browserView.record.data.servers matching cookies domain ' + c.domain);
-      return;
-    }
     const cookies = await getCookies({ url: `https://${c.domain}` });
     const cookiesToBeStored = cookies
       .filter((c) => typeof c.expirationDate === 'number')
-      .filter((c) => !!servers.find(s => s.host === c.domain))
       .map(
         (cook) =>
           ({
@@ -317,7 +324,7 @@ const makeCookiesOnChange =
     if (cookiesToBeStored.length) {
       dispatchFromMain({
         action: fromCookies.saveCookiesForDomainAction({
-          dappyDomain: dappyBrowserView.dappyDomain,
+          host: dappyBrowserView.host,
           cookies: cookiesToBeStored,
         }),
       });

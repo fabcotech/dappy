@@ -16,18 +16,13 @@ export const registerDappyNetworkProtocol = (
   store: Store
 ) => {
   return session.protocol.registerBufferProtocol('dappynetwork', (request, callback) => {
-    let chainId;
-    try {
-      chainId = splitSearch(dappyBrowserView.dappyDomain).chainId;
-    } catch (err) {
-      console.log('[dappynetwork://] could not find blockchain id ' + dappyBrowserView.dappyDomain);
-      callback(null);
-      return;
-    }
+    const blockchains = fromBlockchainsMain.getOkBlockchainsMain(store.getState());
+
+    const chainId = Object.keys(blockchains)[0];
     const settings = fromSettingsMain.getSettings(store.getState());
-    const blockchains = fromBlockchainsMain.getBlockchains(store.getState());
-    if (!blockchains[chainId]) {
-      console.log('[dappynetwork://] unknown blockchain ' + chainId);
+    
+    if (!chainId) {
+      console.log('[dappynetwork://] unknown blockchain ');
       callback(null)
       return;
     }

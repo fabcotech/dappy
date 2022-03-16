@@ -125,10 +125,10 @@ export const Resources = connect(
     return {
       clearSearchAndLoadError: (tabId: string, clearSearch: boolean) =>
         dispatch(fromDapps.clearSearchAndLoadErrorAction({ tabId: tabId, clearSearch: clearSearch })),
-      loadResource: (address: string, tabId: string) =>
+      loadResource: (url: string, tabId: string) =>
         dispatch(
           fromDapps.loadResourceAction({
-            address: address,
+            url: url,
             tabId: tabId,
           })
         ),

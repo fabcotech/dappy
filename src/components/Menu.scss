@@ -72,6 +72,9 @@ li.update-available {
   }
   .menu-list li {
     position: relative;
+    a:hover {
+      cursor: default;
+    }
     i.rotated-d {
       font-family: fira;
       font-weight: 700;

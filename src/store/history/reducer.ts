@@ -22,25 +22,29 @@ export const initialState: State = {
 
 export const reducer = (state = initialState, action: Action): State => {
   if ([fromDapps.LAUNCH_FILE_COMPLETED, fromActions.DID_NAVIGATE_IN_PAGE].includes(action.type)) {
-    let address = '';
+    let url = '';
     let tabId = '';
     let previews = state.previews;
 
     if (action.type === fromDapps.LAUNCH_FILE_COMPLETED) {
+      console.log('LAUNCH_FILE_COMPLETED');
+      console.log(JSON.stringify(action.payload, null, 2))
       const payload: fromDapps.LaunchFileCompletedPayload = action.payload;
-      address = payload.file.id;
+      url = payload.file.url;
       tabId = payload.tabId;
     } else if (action.type === fromActions.DID_NAVIGATE_IN_PAGE) {
+      console.log('DID_NAVIGATE_IN_PAGE');
+      console.log(JSON.stringify(action.payload, null, 2))
       const payload: fromActions.DidNavigateInPagePayload = action.payload;
-      address = payload.address;
+      url = payload.url;
       tabId = payload.tabId;
     }
 
     const session = state.sessions[tabId];
-    const sessionItem: SessionItem = { address: address };
+    const sessionItem: SessionItem = { url: url };
 
     if (session) {
-      const mustAppendNewSessionItem = address !== session.items[session.cursor].address;
+      const mustAppendNewSessionItem = url !== session.items[session.cursor].url;
 
       const cursorAtTheEnd = session.cursor === session.items.length - 1;
 
@@ -96,50 +100,6 @@ export const reducer = (state = initialState, action: Action): State => {
   }
 
   switch (action.type) {
-    case fromActions.UPDATE_PREVIEWS_FROM_STORAGE: {
-      const payload: fromActions.UpdatPreviewsFromStoragePayload = action.payload;
-
-      const newPreviews: { [search: string]: Preview } = {};
-      payload.previews.forEach((p) => {
-        newPreviews[p.id] = p;
-      });
-      return {
-        ...state,
-        previews: newPreviews,
-      };
-    }
-
-    case fromActions.SAVE_PREVIEW: {
-      const payload: fromActions.SavePreviewPayload = action.payload;
-
-      return {
-        ...state,
-        previews: {
-          ...state.previews,
-          [payload.preview.id]: payload.preview,
-        },
-      };
-    }
-
-    case fromActions.UPDATE_PREVIEW: {
-      const payload: fromActions.UpdatePreviewPayload = action.payload;
-
-      if (!state.previews[payload.previewId]) {
-        console.log('cannot update unexisting preview ', payload.previewId);
-        return state;
-      }
-      return {
-        ...state,
-        previews: {
-          ...state.previews,
-          [payload.previewId]: {
-            ...state.previews[payload.previewId],
-            ...payload,
-          },
-        },
-      };
-    }
-
     case fromDapps.STOP_TAB: {
       const payload: fromDapps.StopTabPayload = action.payload;
 
@@ -182,7 +142,7 @@ export const reducer = (state = initialState, action: Action): State => {
         },
       };
     }
-
+  
     default:
       return state;
   }

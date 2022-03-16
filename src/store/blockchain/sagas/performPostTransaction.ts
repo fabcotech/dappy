@@ -18,39 +18,6 @@ const performPostTransaction = function* (action: Action) {
     [transactionId: string]: TransactionState;
   } = yield select(fromBlockchain.getTransactions);
 
-  const transaction = transactions[payload.id];
-  if (
-    transaction.origin.origin === 'deploy' &&
-    transaction.value &&
-    typeof transaction.value !== 'string' &&
-    (transaction.value as any).address
-  ) {
-    store.dispatch(
-      fromMain.openModalAction({
-        title: 'Dapp available',
-        text: 'The dapp has been successfully recorded in the blockchain',
-        buttons: [
-          {
-            classNames: 'is-light',
-            text: 'Ok',
-            action: fromMain.closeModalAction(),
-          },
-          {
-            classNames: 'is-link',
-            text: 'Navigate to dapp',
-            action: [
-              fromMain.closeModalAction(),
-              fromDapps.loadResourceAction({
-                address: searchToAddress((transaction.value as any).address, transaction.blockchainId),
-              }),
-              fromUi.navigateAction({ navigationUrl: '/dapps' }),
-            ],
-          },
-        ],
-      })
-    );
-  }
-
   return true;
 };
 

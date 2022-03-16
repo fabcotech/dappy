@@ -51,12 +51,11 @@ class ModalComponent extends React.Component<ModalComponentProps, {}> {
         return (
           <LoadInfo
             appType={this.props.modal.parameters.appType}
-            address={this.props.modal.parameters.address}
+            url={this.props.modal.parameters.url}
             tabId={this.props.modal.parameters.tabId}
             badges={this.props.modal.parameters.badges}
             loadState={this.props.modal.parameters.loadState}
             resourceId={this.props.modal.parameters.resourceId}
-            servers={this.props.modal.parameters.servers}
           />
         );
       case 'REMOVE_ACCOUNT_MODAL':

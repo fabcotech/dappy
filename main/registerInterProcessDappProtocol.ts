@@ -113,30 +113,6 @@ export const registerInterProcessDappProtocol = (
       data = JSON.parse(request.headers['Data']);
     } catch (e) {}
 
-    if (request.url === 'interprocessdapp://hi-from-dapp-sandboxed') {
-      try {
-        callback(
-          Buffer.from(
-            JSON.stringify({
-              type: fromCommon.DAPP_INITIAL_SETUP,
-              payload: {
-                html: dappyBrowserView.html,
-                dappyDomain: dappyBrowserView.dappyDomain,
-                path: dappyBrowserView.path,
-                title: dappyBrowserView.title,
-                resourceId: dappyBrowserView.resourceId,
-                appPath: path.join(app.getAppPath(), 'dist/'),
-              },
-            })
-          )
-        );
-      } catch (err) {
-        console.log(err);
-        callback(null);
-        return;
-      }
-    }
-
     if (request.url === 'interprocessdapp://get-identifications') {
       const identifications = fromIdentificationsMain.getIdentificationsMain(store.getState());
       callback(Buffer.from(JSON.stringify({ identifications: identifications[dappyBrowserView.resourceId] })));
@@ -155,15 +131,6 @@ export const registerInterProcessDappProtocol = (
         if (!payloadBeforeValid) {
           console.error('[interprocessdapp://] dapp dispatched a transaction with an invalid payload');
           callback(Buffer.from('invalid payload'));
-          return;
-        }
-
-        let searchSplitted: undefined | SplitSearch = undefined;
-        try {
-          searchSplitted = splitSearch(dappyBrowserView.dappyDomain);
-        } catch (err) {
-          console.error('[interprocessdapp://] could not parse dappyDomain');
-          callback(Buffer.from('Error parsing domain'));
           return;
         }
 
@@ -210,7 +177,7 @@ export const registerInterProcessDappProtocol = (
                   callId: payload.callId,
                 },
                 resourceId: dappyBrowserView.resourceId,
-                chainId: (searchSplitted as SplitSearch).chainId,
+                chainId: '',
                 id: id,
               };
 
@@ -238,11 +205,12 @@ export const registerInterProcessDappProtocol = (
 
         // RCHAIN
         const okBlockchains = fromBlockchainsMain.getOkBlockchainsMain(state);
+        const chainId = Object.keys(okBlockchains)[0];
         try {
-          if (!okBlockchains[searchSplitted.chainId]) {
+          if (chainId) {
             dispatchFromMain({
               action: fromBlockchain.saveFailedRChainTransactionAction({
-                blockchainId: searchSplitted.chainId,
+                blockchainId: chainId,
                 platform: 'rchain',
                 origin: {
                   origin: 'dapp',
@@ -251,12 +219,12 @@ export const registerInterProcessDappProtocol = (
                   dappTitle: dappyBrowserView.title,
                   callId: payloadBeforeValid.callId,
                 },
-                value: { message: `blockchain ${searchSplitted.chainId} not available` },
+                value: { message: `blockchain ${chainId} not available` },
                 sentAt: new Date().toISOString(),
                 id: new Date().getTime() + Math.round(Math.random() * 10000).toString(),
               }),
             });
-            console.error(`[interprocessdapp://] blockchain ${searchSplitted.chainId} not available`);
+            console.error(`[interprocessdapp://] blockchain ${chainId} not available`);
             callback(Buffer.from('blockchain not found'));
             return;
           }
@@ -292,7 +260,7 @@ export const registerInterProcessDappProtocol = (
                   callId: payload.callId,
                 },
                 resourceId: dappyBrowserView.resourceId,
-                chainId: (searchSplitted as SplitSearch).chainId,
+                chainId: chainId,
                 id: id,
               };
 
@@ -339,7 +307,7 @@ export const registerInterProcessDappProtocol = (
                   dappTitle: dappyBrowserView.title,
                   callId: payload.callId,
                 },
-                chainId: (searchSplitted as SplitSearch).chainId,
+                chainId: chainId,
                 resourceId: dappyBrowserView.resourceId,
                 id: id,
               };

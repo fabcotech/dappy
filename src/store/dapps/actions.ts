@@ -8,6 +8,7 @@ import {
   TransitoryState,
   SplitSearch,
 } from '/models';
+import { DappyLoadErrorWithArgs } from '/models/DappyLoadError';
 
 export const UPDATE_TABS_FROM_STORAGE = '[Dapps] Update tabs from storage';
 
@@ -19,7 +20,7 @@ export const UPDATE_LOAD_STATE = '[Dapps] Update load state';
 export const LOAD_RESOURCE_FAILED = '[Dapps] Load resource failed';
 
 export const FOCUS_SEARCH_DAPP = '[Dapps] Focus search dapp';
-
+export const DID_CHANGE_FAVICON = '[Dapps] Tab favicon did update';
 export const FOCUS_TAB = '[Dapps] Focus tab';
 export const FOCUS_AND_ACTIVATE_TAB = '[Dapps] Focus and activate tab';
 export const CREATE_TAB = '[Dapps] Create tab';
@@ -68,9 +69,8 @@ export const initTransitoryStateAndResetLoadErrorAction = (payload: InitTransito
 });
 
 export interface LoadResourcePayload {
-  address: string;
   tabId?: string;
-  url?: string; // used only for IP apps
+  url: string;
 }
 export const loadResourceAction = (payload: LoadResourcePayload) => ({
   type: LOAD_RESOURCE,
@@ -87,9 +87,9 @@ export const updateLoadStateAction = (values: UpdateLoadStatePayload) => ({
 });
 
 export interface LoadResourceFailedPayload {
-  search: string;
+  url: string;
   tabId: string;
-  error: BeesLoadErrorWithArgs;
+  error: BeesLoadErrorWithArgs | DappyLoadErrorWithArgs;
 }
 export const loadResourceFailedAction = (values: LoadResourceFailedPayload) => ({
   type: LOAD_RESOURCE_FAILED,
@@ -111,7 +111,7 @@ export const focusTabAction = (values: FocusTabPayload) => ({
 export interface FocusAndActivateTabPayload {
   tabId: string;
   resourceId: string;
-  address: string;
+  url: string;
 }
 export const focusAndActivateTabAction = (values: FocusAndActivateTabPayload) => ({
   type: FOCUS_AND_ACTIVATE_TAB,
@@ -120,7 +120,7 @@ export const focusAndActivateTabAction = (values: FocusAndActivateTabPayload) =>
 
 export interface CreateTabPayload {
   resourceId: string;
-  search: string;
+  url: string;
   tabId: string;
 }
 export const createTabAction = (values: CreateTabPayload) => ({
@@ -129,7 +129,7 @@ export const createTabAction = (values: CreateTabPayload) => ({
 });
 
 export interface UpdateTabSearchPayload {
-  search: string;
+  url: string;
   tabId: string;
 }
 export const updateTabSearchAction = (values: UpdateTabSearchPayload) => ({
@@ -151,6 +151,15 @@ export interface RemoveTabPayload {
 export const removeTabAction = (payload: RemoveTabPayload) => ({
   type: REMOVE_TAB,
   payload: payload,
+});
+
+export interface DidChangeFaviconPayload {
+  img: string;
+  tabId: string;
+}
+export const didChangeFaviconAction = (values: DidChangeFaviconPayload) => ({
+  type: DID_CHANGE_FAVICON,
+  payload: values,
 });
 
 export interface RemoveTabCompletedPayload {

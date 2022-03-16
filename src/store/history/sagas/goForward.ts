@@ -38,7 +38,7 @@ const goForward = function* (action: Action) {
 
   yield put(
     fromDapps.loadResourceAction({
-      address: sessionItem.address,
+      url: sessionItem.url,
       tabId: payload.tabId,
     })
   );

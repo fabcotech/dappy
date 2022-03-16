@@ -161,7 +161,7 @@ const sagas = function* rootSaga() {
 sagaMiddleware.run(sagas);
 
 const dispatchInitActions = () => {
-  if (asyncActionsOver === 12) {
+  if (asyncActionsOver === 11) {
     store.dispatch(
       fromUi.setBodyDimensionsAction({ bodyDimensions: [document.body.clientWidth, document.body.clientHeight] })
     );
@@ -172,7 +172,7 @@ const dispatchInitActions = () => {
   }
 };
 
-const DB_MIGRATION_NUMBER = 21;
+const DB_MIGRATION_NUMBER = 22;
 export const dbReq: IDBOpenDBRequest = window.indexedDB.open('dappy', DB_MIGRATION_NUMBER);
 export let db: undefined | IDBDatabase;
 
@@ -194,9 +194,6 @@ dbReq.onupgradeneeded = (event) => {
   if (!db.objectStoreNames.contains('tabs')) {
     db.createObjectStore('tabs', { keyPath: 'id' });
   }
-  if (!db.objectStoreNames.contains('previews')) {
-    db.createObjectStore('previews', { keyPath: 'id' });
-  }
   if (!db.objectStoreNames.contains('blockchains')) {
     db.createObjectStore('blockchains', { keyPath: 'chainId' });
   }
@@ -214,23 +211,21 @@ dbReq.onupgradeneeded = (event) => {
   }
 
   if (db.objectStoreNames.contains('cookies')) {
-    // change keyPath from address to dappyDomain
+    // change keyPath from dappyDomain to host
 
     const store = (dbReq.transaction as IDBTransaction).objectStore('cookies');
-    if (store.keyPath !== 'dappyDomain') {
+    if (store.keyPath !== 'host') {
       const a = db.deleteObjectStore('cookies');
-      const b = db.createObjectStore('cookies', { keyPath: 'dappyDomain' });
+      const b = db.createObjectStore('cookies', { keyPath: 'host' });
       console.log(a);
       console.log(b);
-      console.log('[migration] Migration from cookies.address to cookies.dappyDomain ok');
+      console.log('[migration] Migration from cookies.address to cookies.host ok');
     }
   } else {
-    db.createObjectStore('cookies', { keyPath: 'dappyDomain' });
+    db.createObjectStore('cookies', { keyPath: 'host' });
   }
 
   if (db.objectStoreNames.contains('records')) {
-    // change keyPath from address to dappyDomain
-
     const store = (dbReq.transaction as IDBTransaction).objectStore('records');
     if (store.keyPath !== 'id') {
       const a = db.deleteObjectStore('records');
@@ -431,34 +426,6 @@ dbReq.onsuccess = (event) => {
           fromMain.saveErrorAction({
             errorCode: 2005,
             error: 'Unable to read tabs from storage',
-            trace: e,
-          })
-        );
-        dispatchInitActions();
-      });
-  };
-
-  // PREVIEWS
-  const previewsTx = openedDB.transaction('previews', 'readonly');
-  var previewsStore = previewsTx.objectStore('previews');
-  const requestPreviews = previewsStore.getAll();
-  requestPreviews.onsuccess = (e) => {
-    let previewsToCheck = requestPreviews.result;
-    // some previews don't have .title
-    // error encountered in dappy 0.4.8
-    previewsToCheck = previewsToCheck.filter((p) => !!p.title);
-    validatePreviews(previewsToCheck)
-      .then((previews) => {
-        asyncActionsOver += 1;
-        store.dispatch(fromHistory.updatPreviewsFromStorageAction({ previews: previews }));
-        dispatchInitActions();
-      })
-      .catch((e) => {
-        asyncActionsOver += 1;
-        store.dispatch(
-          fromMain.saveErrorAction({
-            errorCode: 2041,
-            error: 'Unable to read previews from storage',
             trace: e,
           })
         );

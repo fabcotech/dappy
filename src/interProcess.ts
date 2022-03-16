@@ -84,7 +84,7 @@ export const interProcess = (store: Store) => {
       }
       if (r.loadResourceWhenReady) {
         const initializationOver = fromMain.getInitializationOver(store.getState());
-        const action = fromDapps.loadResourceAction({ address: r.loadResourceWhenReady });
+        const action = fromDapps.loadResourceAction({ url: r.loadResourceWhenReady });
         if (initializationOver) {
           console.log('will load resource when ready', r.loadResourceWhenReady);
           store.dispatch(action);

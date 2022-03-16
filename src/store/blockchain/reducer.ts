@@ -459,30 +459,3 @@ export const getRecordNamesInAlphaOrder = createSelector(getRecords, (records: {
     }
   });
 });
-
-// todo, this is all reprocessed everytime state.records change
-// maybe do it another way
-export const getRecordBadges = createSelector(getRecords, (records: { [name: string]: Record }) => {
-  const recordBadges: { [name: string]: { [name: string]: string } } = {};
-
-  Object.keys(records).forEach((name) => {
-    Object.keys(records[name].data.badges || {}).forEach((n) => {
-      if (!recordBadges[n]) {
-        recordBadges[n] = {};
-      }
-      recordBadges[n][name] = records[name].data.badges[n];
-    });
-  });
-
-  return recordBadges;
-});
-
-export const getLastFinalizedBlockNumber = createSelector(getRecords, (records: { [name: string]: Record }) => {
-  return Object.keys(records).sort((a, b) => {
-    if (a < b) {
-      return -1;
-    } else {
-      return 1;
-    }
-  });
-});

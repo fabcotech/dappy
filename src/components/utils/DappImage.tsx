@@ -4,7 +4,6 @@ import { TransitoryState } from '/models';
 export const DappImage = (props: {
   img: undefined | string;
   title: string;
-  id: string;
   small?: boolean;
   transitoryState: undefined | TransitoryState;
 }) => {

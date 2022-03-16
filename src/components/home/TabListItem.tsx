@@ -40,7 +40,7 @@ export class TabListItem extends React.Component<TabListItemProps, {}> {
   onLaunchOrFocusDapp = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!this.props.transitoryState && !this.props.tab.active) {
       e.preventDefault();
-      this.props.loadResource(this.props.tab.address, this.props.tab.id);
+      this.props.loadResource(this.props.tab.url, this.props.tab.id);
     } else if (this.props.tab.active) {
       this.props.focusTab(this.props.tab.id);
     }
@@ -73,7 +73,6 @@ export class TabListItem extends React.Component<TabListItemProps, {}> {
           <div title={this.props.tab.title} className="img-col fc">
             <DappImage
               small={true}
-              id={this.props.tab.address}
               title={this.props.tab.title}
               img={this.props.tab.img}
               transitoryState={this.props.tab.active ? this.props.transitoryState : undefined}
@@ -91,7 +90,6 @@ export class TabListItem extends React.Component<TabListItemProps, {}> {
         } pl5 pr5`}>
         <div className="img-col fc">
           <DappImage
-            id={this.props.tab.address}
             title={this.props.tab.title}
             img={this.props.tab.img}
             transitoryState={this.props.tab.active ? this.props.transitoryState : undefined}

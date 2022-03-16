@@ -1,6 +1,5 @@
 import { takeEvery, select, put } from 'redux-saga/effects';
 import path from 'path';
-import fs from 'fs';
 import https from 'https';
 import { BrowserView, app, session } from 'electron';
 
@@ -30,6 +29,12 @@ const loadOrReloadBrowserView = function* (action: any) {
     fromBrowserViews.getBrowserViewsPositionMain
   );
 
+  console.log('payload');
+  console.log(JSON.stringify(payload, null, 2));
+  const url = new URL(payload.url);
+  const hostname = url.hostname;
+  console.log('hostname :', url.hostname);
+  console.log('host :', url.host);
   /* reload
     a browser view with same id (payload.reosurceId) is
     already running
@@ -38,12 +43,12 @@ const loadOrReloadBrowserView = function* (action: any) {
     if (development) {
       console.log('reload or self navigation, closing browserView and unregister protocols');
     }
-    const a = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('dappynetwork');
-    const b = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('interprocessdapp');
-    const c = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.uninterceptProtocol('https');
+    const a = session.fromPartition(`persist:${url.host}`).protocol.unregisterProtocol('dappynetwork');
+    const b = session.fromPartition(`persist:${url.host}`).protocol.unregisterProtocol('interprocessdapp');
+    const c = session.fromPartition(`persist:${url.host}`).protocol.uninterceptProtocol('https');
     let d = true;
     if (!development) {
-      d = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.uninterceptProtocol('http');
+      d = session.fromPartition(`persist:${url.host}`).protocol.uninterceptProtocol('http');
     }
     if (development) {
       console.log(a, b, c, d);
@@ -74,13 +79,13 @@ const loadOrReloadBrowserView = function* (action: any) {
       console.log('navigation in tab, closing browserView with same tabId');
     }
     const bv = browserViews[sameTabIdBrowserViewId];
-    const a = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('dappynetwork');
-    const b = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.unregisterProtocol('interprocessdapp');
-    const c = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.uninterceptProtocol('https');
-    const d = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.uninterceptProtocol('dappyl');
+    const a = session.fromPartition(`persist:${url.host}`).protocol.unregisterProtocol('dappynetwork');
+    const b = session.fromPartition(`persist:${url.host}`).protocol.unregisterProtocol('interprocessdapp');
+    const c = session.fromPartition(`persist:${url.host}`).protocol.uninterceptProtocol('https');
+    const d = session.fromPartition(`persist:${url.host}`).protocol.uninterceptProtocol('dappyl');
     let e = true;
     if (!development) {
-      e = session.fromPartition(`persist:${payload.dappyDomain}`).protocol.uninterceptProtocol('http');
+      e = session.fromPartition(`persist:${url.host}`).protocol.uninterceptProtocol('http');
     }
     if (development) {
       console.log(a, b, c, d, e);
@@ -108,7 +113,7 @@ const loadOrReloadBrowserView = function* (action: any) {
       contextIsolation: true,
       devTools: /^true$/i.test(process.env.DAPPY_DEVTOOLS) || !process.env.PRODUCTION,
       disableDialogs: true,
-      partition: `persist:${payload.dappyDomain}`,
+      partition: `persist:${url.host}`,
     },
   });
 
@@ -119,7 +124,7 @@ const loadOrReloadBrowserView = function* (action: any) {
         ...c,
         url: `https://${c.domain}`,
         secure: true,
-        httpOnly: true,
+        httpOnly: c.httpOnly,
       });
     } catch (err) {
       console.error(err);
@@ -142,6 +147,7 @@ const loadOrReloadBrowserView = function* (action: any) {
   } = {};
   newBrowserViews[payload.resourceId] = {
     ...payload,
+    host: new URL(payload.url).host,
     browserView: view,
     visible: true,
   };
@@ -151,7 +157,7 @@ const loadOrReloadBrowserView = function* (action: any) {
   // https://, http://, dappyl://, interprocessdapp://
   // ==============================
 
-  const viewSession = session.fromPartition(`persist:${payload.dappyDomain}`);
+  const viewSession = session.fromPartition(`persist:${url.host}`);
   preventAllPermissionRequests(viewSession);
   // todo, avoid circular ref to "store" (see logs when "npm run build:main")
   registerInterProcessDappProtocol(
@@ -172,21 +178,22 @@ const loadOrReloadBrowserView = function* (action: any) {
   // In tab javascript executions
   // ==============================
 
-  /* browser to server */
-  // In the case of IP apps, payload.currentUrl is a https://xx address
-  // In the case of dapp an empty html is initiated, ready to be overwritten
-  if (payload.currentUrl === '$dapp') {
+  /* browser to server
+    If payload.html then it is a dapp
+  */
+  if (!!payload.html) {
     const htmlPath = path.join(app.getAppPath(), 'dist/dapp.html');
-    yield view.webContents.loadURL(`file://${htmlPath}${payload.path}`);
+    const path = new URL(payload.url).pathname
+    yield view.webContents.loadURL(`file://${htmlPath}${path}`);
   } else {
-    yield view.webContents.loadURL(payload.currentUrl);
+    yield view.webContents.loadURL(payload.url);
   }
 
   /*
     Send html page to the dapp that is currently
     an empty html file
   */
-  if (payload.currentUrl === '$dapp') {
+  if (!!payload.html) {
     yield view.webContents.executeJavaScript(`
     window.write("${encodeURIComponent(payload.html)}")
     `)
@@ -203,10 +210,10 @@ const loadOrReloadBrowserView = function* (action: any) {
 
   /*
     Equivalent of window.location, dapps and IP apps can know
-    from which dappyDOmain they've been loaded
+    from which host they've been loaded
   */
   yield view.webContents.executeJavaScript(`
-  window.dappy = { dappyDomain: "${payload.dappyDomain}", path: "${payload.path}" };
+  window.dappy = { host: "${url.host}", path: "${payload.path}" };
   `);
 
   // ==============================
@@ -217,28 +224,10 @@ const loadOrReloadBrowserView = function* (action: any) {
   let currentPathAndParameters = '';
 
   view.webContents.addListener('did-navigate', (a, currentUrl, httpResponseCode, httpStatusText) => {
-    // todo handle httpResponseCode, httpStatusText
-
-    // if dapp
-    const url = new URL(currentUrl);
-    currentPathAndParameters = url.search;
-
-    // todo handle path for dapps, and not only IP apps
-    // if IP apps
-    if (!currentUrl.startsWith('file://')) {
-      try {
-        currentPathAndParameters = url.pathname + url.search + url.hash;
-      } catch (err) {
-        console.error('[did-navigate] Could not parse URL ' + currentUrl);
-        return;
-      }
-    }
-
-    previewId = `${payload.dappyDomain}${currentPathAndParameters}`.replace(/\W/g, '');
     action.meta.dispatchFromMain({
       action: fromHistory.didNavigateInPageAction({
-        previewId: previewId,
-        address: `${payload.dappyDomain}${currentPathAndParameters}`,
+        previewId: `${currentUrl}`.replace(/\W/g, ''),
+        url: currentUrl,
         tabId: payload.tabId,
         title: view.webContents.getTitle(),
       }),
@@ -253,43 +242,44 @@ const loadOrReloadBrowserView = function* (action: any) {
     if (favicons && favicons[0] && typeof favicons[0] === 'string') {
       if (favicons[0].startsWith('data:image')) {
         action.meta.dispatchFromMain({
-          action: fromHistory.didChangeFaviconAction({
+          action: fromDapps.didChangeFaviconAction({
             tabId: payload.tabId,
             img: favicons[0],
-            previewId: previewId,
           }),
         });
       } else if (favicons[0].startsWith('https://')) {
+
+        // todo
+        // get CERT with dappylookup
+        console.log('favicon path', new URL(favicons[0]).pathname)
+        console.log('favicon port', url.port || "443")
+        console.log('favicon hostname', url.hostname)
         try {
-          const urlDecomposed = decomposeUrl(favicons[0]);
-          const serverAuthorized = payload.record.data.servers.find((s) => s.host === urlDecomposed.host);
-          if (!serverAuthorized) {
-            console.error(`Could not get favicon, no servers authorized to reach https address ${favicons[0]}`);
-            return;
-          }
           let options: https.RequestOptions = {
             rejectUnauthorized: true,
             minVersion: 'TLSv1.2',
             /* no dns */
-            host: serverAuthorized.ip,
-            path: urlDecomposed.path,
+            host: url.hostname,
+            port: url.port || "443",
+            path: new URL(favicons[0]).pathname,
             method: 'get',
             headers: {
-              host: serverAuthorized.host,
-              Origin: `dappy://${payload.dappyDomain}`,
+              host: url.hostname,
+              Origin: `https://${hostname}`,
             },
           };
-          if (serverAuthorized.cert) {
+          // todo
+          /* if (CA) {
             options = {
               ...options,
               ca: decodeURI(decodeURI(serverAuthorized.cert)),
             }
-          }
+          } */
           https.request(
             options,
             (res) => {
               if (res.statusCode !== 200) {
-                console.error(`Could not get favicon (status !== 200) for ${payload.dappyDomain}`);
+                console.error(`Could not get favicon (status !== 200) for ${hostname}`);
                 console.log(favicons[0]);
                 return;
               }
@@ -301,9 +291,8 @@ const loadOrReloadBrowserView = function* (action: any) {
                 // todo limit size of favicon ???
                 const faviconAsBase64 = 'data:' + res.headers['content-type'] + ';base64,' + s.toString('base64');
                 action.meta.dispatchFromMain({
-                  action: fromHistory.didChangeFaviconAction({
+                  action: fromDapps.didChangeFaviconAction({
                     tabId: payload.tabId,
-                    previewId: previewId,
                     img: faviconAsBase64,
                   }),
                 });
@@ -322,66 +311,34 @@ const loadOrReloadBrowserView = function* (action: any) {
   });
 
   view.webContents.addListener('page-title-updated', (a, title) => {
-    action.meta.dispatchFromMain({
-      action: fromHistory.updatePreviewAction({
-        tabId: payload.tabId,
-        previewId: previewId,
-        title: title,
-      }),
-    });
+    // todo update tab with title
   });
 
-  const handleNavigation = (urlDecomposed, url, e) => {
-    if (urlDecomposed.protocol === 'dappy') {
-      let s;
-      if (validateSearch(`${urlDecomposed.host}${urlDecomposed.path}`)) {
-        s = `${urlDecomposed.host}${urlDecomposed.path}`;
-      } else {
-        s = searchToAddress(urlDecomposed.path, payload.dappyDomain.split('/')[0]);
-      }
+  const handleNavigation = (url: string, e: Electron.Event) => {
+    const parsedUrl = new URL(url);
+    if (parsedUrl.protocol === 'https:') {
       e.preventDefault();
-      console.log('[dapp] navigation/redirect will navigating to ' + s);
+      console.log('[nav] navigation/redirect will navigating to ' + parsedUrl.toString());
       action.meta.dispatchFromMain({
         action: fromDapps.loadResourceAction({
-          address: s,
+          url: parsedUrl.toString(),
           tabId: payload.tabId,
         }),
       });
     } else {
-      const serverAuthorized = payload.record.data.servers.find((s) => s.primary && s.host === urlDecomposed.host);
-      // If the navigation url is not bound to an authorized server
-      if (!serverAuthorized) {
-        console.error('[dapp] navigation/redirect did not find server ' + url);
-        e.preventDefault();
-        action.meta.openExternal(url);
-      }
+      e.preventDefault();
+      action.meta.openExternal(url);
     }
   };
 
   view.webContents.addListener('will-redirect', (e, url) => {
-    let urlDecomposed;
-    try {
-      urlDecomposed = decomposeUrl(url);
-    } catch (err) {
-      console.error('[dapp] navigation/redirect invalid URL ' + url);
-      console.log(err);
-      e.preventDefault();
-      return;
-    }
-    handleNavigation(urlDecomposed, url, e);
+    console.log('will-redirect', url);
+    handleNavigation(url, e);
   });
 
   view.webContents.addListener('will-navigate', (e, url) => {
-    let urlDecomposed;
-    try {
-      urlDecomposed = decomposeUrl(url);
-    } catch (err) {
-      console.error('[dapp] will-navigate invalid URL ' + url);
-      console.log(err);
-      e.preventDefault();
-      return;
-    }
-    handleNavigation(urlDecomposed, url, e);
+    console.log('will-navigate', url);
+    handleNavigation(url, e);
   });
 
   view.webContents.addListener('did-finish-load', (a) => {

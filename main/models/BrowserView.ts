@@ -6,7 +6,8 @@ export interface DappyBrowserView {
   visible: boolean;
   resourceId: string;
   dappyDomain: string;
-  path: string;
+  url: string;
+  host: string;
   tabId: string;
   record: Record;
   browserView: BrowserView;

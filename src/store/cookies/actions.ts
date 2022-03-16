@@ -6,7 +6,7 @@ export const SAVE_COOKIES_FOR_DOMAIN_COMPLETED = '[Cookies] Save cookies for dom
 
 export interface UpdateCookiesFromStoragePayload {
   cookiesFromStorage: {
-    dappyDomain: string;
+    host: string;
     cookies: Cookie[]
   }[]
 }
@@ -16,7 +16,7 @@ export const updateCookiesFromStorageAction = (values: UpdateCookiesFromStorageP
 });
 
 export interface SaveCookiesForDomainPayload {
-  dappyDomain: string;
+  host: string;
   cookies: Cookie[];
 }
 export const saveCookiesForDomainAction = (values: SaveCookiesForDomainPayload) => ({

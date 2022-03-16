@@ -9,7 +9,7 @@ export const PREDEFINED_TABS: Tab[] = [
     img: undefined,
     index: 0,
     resourceId: 'gammanetwork:dappy_4197916470-3340326584-4078976114-3631511554',
-    address: 'gammanetwork:dappy',
+    url: 'dappy.dappy',
     title: 'Dappy',
   },
   {
@@ -20,7 +20,7 @@ export const PREDEFINED_TABS: Tab[] = [
     img: undefined,
     index: 2,
     resourceId: 'gammanetwork:rchain_4197916470-3340326584-4078976114-3631511554',
-    address: 'gammanetwork:rchain',
+    url: 'dappy.dappy',
     title: 'RChain',
   },
 ];

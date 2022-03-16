@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import './Records.scss';
-import { Record, Account, IPServer } from '/models';
+import { Record, Account } from '/models';
 import { Pagination } from '../utils';
 
 interface RecordsProps {
@@ -17,7 +17,6 @@ export const Records = (props: RecordsProps) => {
   const [name, setName] = useState('');
   const [showOnlyOwnNames, setShowOnlyOwnNames] = useState(false); // todo persist this value ?
   const [page, setPage] = useState<number>(1);
-  const [serversEl, setServersEl] = useState<string>('');
 
   const accountsBoxes = Object.keys(props.accounts).map((k) => props.accounts[k].boxes[0]);
 
@@ -67,8 +66,6 @@ export const Records = (props: RecordsProps) => {
             </th>
             <th>{t('type')}</th>
             <th>{t('owner')}</th>
-            <th>{t('blockchain address')}</th>
-            <th>{t('server', true)}</th>
             <th>{t('origin')}</th>
             <th>
               <span title="Date at which it has been last loaded in dappy">{t('loaded at')}</span>
@@ -90,54 +87,6 @@ export const Records = (props: RecordsProps) => {
               RecordType = () => <span className="tag is-dark">{t('ip app')}</span>;
             }
 
-            let ServersLabel = () => <span style={{ display: 'none' }}></span>;
-            let ServersEl = () => <div style={{ display: 'none' }}></div>;
-            if (record.data.servers && record.data.servers.length) {
-              ServersLabel = () => (
-                <span
-                  onClick={() => setServersEl(serversEl === record.id ? '' : record.id)}
-                  className="server-label tag is-dark ">
-                  <i className="fa fa-lock fa-before"></i>
-                  {`${record.data.servers && record.data.servers.length} ${t(
-                    'server',
-                    record.data.servers && record.data.servers.length > 1
-                  )}`}
-                </span>
-              );
-              const p = `${record.data.servers.length} ${t('server', record.data.servers.length > 1)}${record.data.servers.length === 1 ? ' is' : ' are'
-                } linked to this name`;
-              if (serversEl === record.id) {
-                ServersEl = () => {
-                  return (
-                    <div className="server-el">
-                      <h5>{p}</h5>
-                      {record.data.servers &&
-                        record.data.servers.map((s: IPServer) => (
-                          <div className="server-ro" key={s.ip}>
-                            <span className="ip">
-                              {t('ip')} : {s.ip}
-                            </span>
-                            <span className="host">
-                              {t('host name')} : {s.host}
-                            </span>
-                            {
-                              s.cert &&
-                              <span className="cert">
-                                {t('certificate')} : {s.cert.substr(0, 40) + '...'}
-                              </span>
-                            }
-                            {
-                              s.cert &&
-                              <span className="cert">{t('record uses public ca')}</span>
-                            }
-                          </div>
-                        ))}
-                    </div>
-                  );
-                };
-              }
-            }
-
             return (
               <tr key={record.id} className={`${accountsBoxes.includes(record.boxId) ? 'belongs-to-an-account' : ''}`}>
                 <th>
@@ -148,15 +97,8 @@ export const Records = (props: RecordsProps) => {
                   <RecordType />
                 </th>
                 <th>
-                  <span className="publicKey">{record.publicKey}</span>
+                  <span className="publicKey">{record.boxId}, {record.publicKey}</span>
                 </th>
-                <th>
-                  <span className="address">{record.data.address}</span>
-                </th>
-                <th className="servers">
-                  <ServersLabel /> <ServersEl />
-                </th>
-
                 <th>{record.origin}</th>
                 <th>{new Date(record.loadedAt).toISOString()}</th>
               </tr>

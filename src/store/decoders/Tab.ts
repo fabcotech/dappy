@@ -12,7 +12,7 @@ export const TabSchema = yup
     muted: yup.boolean().required(),
     counter: yup.number().required(),
     index: yup.number().required(),
-    address: yup.string().required(),
+    url: yup.string().required(),
   })
   .required()
   .noUnknown(true)

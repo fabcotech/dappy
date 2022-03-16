@@ -20,7 +20,7 @@ const saveTabs = function* (action: Action) {
       muted: t.muted,
       index: i,
       counter: 0,
-      address: t.address,
+      url: t.url,
     };
   });
 
@@ -42,5 +42,4 @@ export const saveTabsSaga = function* () {
   yield takeEvery(fromDapps.UPDATE_TABS_FROM_STORAGE, saveTabs);
   yield takeEvery(fromDapps.SET_TAB_MUTED, saveTabs);
   yield takeEvery(fromDapps.UPDATE_TAB_SEARCH, saveTabs);
-  yield takeEvery('[History] Save preview', saveTabs);
 };

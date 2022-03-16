@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { utils } from 'rchain-toolkit';
 
 import { blockchain as blockchainUtils } from '/utils/';
-import { searchToAddress } from '/utils/searchToAddress';
 import { WithSuggestions } from './WithSuggestions';
 import * as fromDapps from '/store/dapps';
 import * as fromCommon from '/common';
@@ -24,11 +23,10 @@ class NavigationBarComponent extends WithSuggestions {
     this.props.showLoadInfos(this.props.tab.resourceId, {
       resourceId: this.props.tab.resourceId,
       appType: this.props.appType,
-      address: this.props.address,
+      url: this.props.url,
       tabId: this.props.tab.id,
       loadState: this.props.loadState,
-      servers: this.props.servers,
-      badges: this.props.recordBadges ? this.props.recordBadges[this.props.search || ''] : {},
+      badges: {},
     });
   };
 
@@ -63,7 +61,7 @@ class NavigationBarComponent extends WithSuggestions {
           {this.props.resourceLoaded && !loadingOrReloading ? (
             <div>
               <i
-                onClick={(e) => this.props.loadResource({ tabId: tab.id, url: '', address: '' })}
+                onClick={(e) => this.props.loadResource({ tabId: tab.id, url: tab.url })}
                 className={`fa fa-redo `}
                 title="Reload"
               />
@@ -74,7 +72,7 @@ class NavigationBarComponent extends WithSuggestions {
                 onClick={(e) => {
                   if (!loadingOrReloading) {
                     this.props.loadResource({
-                      address: blockchainUtils.resourceIdToAddress(tab.resourceId),
+                      url: tab.url,
                       tabId: tab.id,
                     });
                   }
@@ -107,9 +105,9 @@ class NavigationBarComponent extends WithSuggestions {
           <input
             spellCheck="false"
             ref={this.setInputEl}
-            placeholder={`Type dappy or ${this.props.namesBlockchainId}:dappy`}
+            placeholder={``}
             className={`${this.state.pristine ? 'pristine' : ''} input`}
-            value={this.state.search || ''}
+            value={this.state.url || ''}
             onChange={this.onChange}
             onKeyDown={this.onKeyDown}
           />
@@ -128,7 +126,7 @@ class NavigationBarComponent extends WithSuggestions {
                       this.props.chainId as string,
                       this.props.publicKey as string,
                       this.props.resourceId as string,
-                      this.props.address as string
+                      new URL(this.props.url as string).hostname
                     );
                   }
                 }}
@@ -155,9 +153,7 @@ export const NavigationBar = connect(
     const transitoryStates = fromDapps.getDappsTransitoryStates(state);
     let resourceLoaded = false;
     let appType: 'DA' | 'IP' = 'DA';
-    let servers = undefined;
-    let address = undefined;
-    let search = undefined;
+    let url = undefined;
     let resourceId: string | undefined = '';
     let publicKey: string | undefined = '';
     let chainId: string | undefined = '';
@@ -173,14 +169,11 @@ export const NavigationBar = connect(
         resourceId = dapp.id;
         publicKey = dapp.publicKey;
         chainId = dapp.chainId;
-        search = dapp.search;
-        address = searchToAddress(dapp.search, dapp.chainId);
+        url = dapp.url;
       } else if (!!ipApp) {
         resourceLoaded = !transitoryStates[ipApp.id] || !['loading', 'reloading'].includes(transitoryStates[ipApp.id]);
         appType = 'IP';
-        search = ipApp.search;
-        address = searchToAddress(ipApp.search, ipApp.chainId);
-        servers = ipApp.record.data.servers;
+        url = ipApp.url;
         resourceId = ipApp.id;
         publicKey = ipApp.publicKey;
         chainId = ipApp.chainId;
@@ -188,8 +181,7 @@ export const NavigationBar = connect(
         resourceLoaded = true;
         const firstKey = Object.keys(loadedFile.loadState.completed)[0];
         loadState = loadedFile.loadState.completed[firstKey];
-        search = loadedFile.search;
-        address = searchToAddress(loadedFile.search, loadedFile.chainId);
+        url = loadedFile.url;
         resourceId = loadedFile.id;
         publicKey = loadedFile.publicKey;
         chainId = loadedFile.chainId;
@@ -207,14 +199,9 @@ export const NavigationBar = connect(
     return {
       namesBlockchainId: namesBlockchain ? namesBlockchain.chainId : 'unknown',
       sessionItem: sessionItem,
-      previews: fromHistory.getPreviews(state),
-      recordNames: fromBlockchain.getRecordNamesInAlphaOrder(state),
-      recordBadges: fromBlockchain.getRecordBadges(state),
       resourceLoaded: resourceLoaded,
       appType: appType,
-      servers: servers,
-      address: address,
-      search: search,
+      url: url,
       resourceId: resourceId,
       publicKey: publicKey,
       chainId: chainId,

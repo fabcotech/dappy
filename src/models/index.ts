@@ -18,3 +18,5 @@ export * from './Cookie';
 export * from './RChainToken';
 export * from './TransactionState';
 export * from './Ethereum';
+export * from './Zone';
+export * from './DappyLoadError';

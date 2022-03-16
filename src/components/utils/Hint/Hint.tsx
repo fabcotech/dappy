@@ -1,8 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { openExternal } from '/interProcess';
 
-import { loadResourceAction, LoadResourcePayload } from '/store/dapps';
+import { loadResourceAction } from '/store/dapps';
 import { getNamesBlockchain } from '/store/settings';
 import { State } from '/store';
 import { Blockchain } from '/models';
@@ -47,7 +46,7 @@ interface GlossaryHintProps {
   term: keyof typeof glossary;
   displayTerm?: boolean;
   namesBlockChain: Blockchain | undefined;
-  loadResource: (address: string) => void;
+  loadResource: (url: string) => void;
 }
 
 export const GlossaryHintComponent = ({ term, displayTerm, namesBlockChain, loadResource }: GlossaryHintProps) => {
@@ -60,10 +59,10 @@ export const GlossaryHint = connect(
     namesBlockChain: getNamesBlockchain(state),
   }),
   (dispatch) => ({
-    loadResource: (address: string) =>
+    loadResource: (url: string) =>
       dispatch(
         loadResourceAction({
-          address,
+          url,
         })
       ),
   })

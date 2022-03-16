@@ -13,8 +13,8 @@ const saveCookies = function* (action: Action) {
   }
 
   const cookiesToSave = {
-    [payload.dappyDomain]: {
-      dappyDomain: payload.dappyDomain,
+    [payload.host]: {
+      host: payload.host,
       cookies: payload.cookies,
     }
   };

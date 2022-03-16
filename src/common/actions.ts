@@ -1,6 +1,5 @@
 import { TransactionState, Identification, TransactionOriginDapp, EthereumTransaction } from '/models';
 
-export const DAPP_INITIAL_SETUP = '[Common] dapp initial setup';
 export const EXECUTE_TRANSACTION = '[Common] Execute transaction';
 export const NAVIGATE = '[Common] Navigate';
 
@@ -17,21 +16,6 @@ export const UPDATE_IDENTIFICATIONS = '[Common] Update identifications';
 
 export const SIGN_ETHEREUM_TRANSACTION_FROM_SANDBOX = '[Common] Sign Ethereum transaction from sandbox';
 export const SEND_ETHEREUM_PAYMENT_REQUEST_FROM_SANDBOX = '[Common] Send Ethereum payment request from sandbox';
-
-export interface DappInitialSetupPayload {
-  html: string;
-  title: string;
-  appPath: string; // path to load the resources from, will be "file://...." in dev , and "/" in prod
-  dappyDomain: string;
-  path: string;
-  dappId: string;
-}
-export const dappInitialSetupAction = (values: DappInitialSetupPayload) => {
-  return {
-    type: DAPP_INITIAL_SETUP,
-    payload: values,
-  };
-};
 
 // ======
 // RChain

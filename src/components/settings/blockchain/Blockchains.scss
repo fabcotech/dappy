@@ -1,6 +1,31 @@
 @import "node_modules/bulma/sass/utilities/initial-variables.sass";
 @import "../../../style/variables.scss";
 
+
+.connect-tos {
+  display: flex;
+  justify-content: space-between;
+  width: fit-content;
+  flex-direction: column;
+  .connect-to {
+    &:hover {
+      cursor: pointer;
+    }
+    width: 16rem;
+    font-size: 1.0rem;
+    border: 1px solid #aaa;
+    background: linear-gradient(20deg, #111, #333);
+    margin-bottom: 0.5rem;
+    justify-content: flex-start;
+    padding: 2rem 0rem 2rem 1rem;
+    &:hover {
+      background: linear-gradient(20deg, #222, #444);
+    }
+    strong {
+      color: #eee;
+    }
+  }
+}
 .blockchain-title {
   span {
     margin-right: 5px;

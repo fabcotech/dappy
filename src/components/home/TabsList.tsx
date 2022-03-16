@@ -88,7 +88,7 @@ export const TabsList = connect(
     loadResource: (address: string, tabId: string) =>
       dispatch(
         fromDapps.loadResourceAction({
-          address: address,
+          url: address,
           tabId: tabId,
         })
       ),

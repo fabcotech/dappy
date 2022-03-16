@@ -1,8 +1,5 @@
 export interface SessionItem {
-  /*
-    Just like Tab.address
-  */
-  address: string;
+  url: string;
 }
 export interface Session {
   items: SessionItem[];

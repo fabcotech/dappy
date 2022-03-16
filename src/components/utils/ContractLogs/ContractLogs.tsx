@@ -76,7 +76,7 @@ const goToPurse =
   (namesBlockchain: Blockchain | undefined, loadResource: (a: LoadResourcePayload) => void) => (purseName: string) => {
     if (namesBlockchain) {
       loadResource({
-        address: searchToAddress(purseName, namesBlockchain.chainId),
+        url: `https://${purseName}.dappy`,
       });
     }
   };

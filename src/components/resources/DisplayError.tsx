@@ -11,7 +11,7 @@ interface DisplayErrorComponentProps {
   tab: Tab;
   lastLoadError: undefined | LastLoadError;
   clearSearchAndLoadError: (tabId: string, clearSearch: boolean) => void;
-  loadResource: (address: string, tabId: string) => void;
+  loadResource: (url: string, tabId: string) => void;
 }
 
 class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps> {
@@ -71,7 +71,7 @@ class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps> 
               onClick={(e) => {
                 if (transitoryState !== 'loading') {
                   this.props.loadResource(
-                    blockchainUtils.resourceIdToAddress(this.props.tab.resourceId),
+                    this.props.tab.url,
                     this.props.tab.id
                   );
                 }

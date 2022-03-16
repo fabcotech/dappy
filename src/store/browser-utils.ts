@@ -1,4 +1,7 @@
 import { getDb, openConnection } from './index';
+import { ZoneRecord, Zone } from '/models';
+
+import { refreshOrAppendRecord } from '/utils/zone';
 
 export const browserUtils = {
   deleteStorageIndexed: (
@@ -43,6 +46,53 @@ export const browserUtils = {
     });
   },
 
+  saveZone: (
+    host: string,
+    records: ZoneRecord[],
+  ) => {
+    return new Promise<void>((resolve, reject) => {
+      let i = 0;
+      const doOperation = () => {
+        try {
+          const tx = getDb().transaction('zones', 'readwrite');
+          const objectStore = tx.objectStore(host);
+
+          let zone: { host: string; records: ZoneRecord[] } = { host: host, records: [] };
+          let found: Zone = objectStore.get(host) as Zone;
+        
+          if (found) {
+            zone = found;
+          }
+
+          let newRecords = zone.records;
+          records.forEach((r) => {
+            newRecords = refreshOrAppendRecord(newRecords, r)
+          })
+
+          objectStore.put({
+            ...zone,
+            records: newRecords
+          });
+          resolve();
+        } catch (e) {
+          console.log(e);
+          try {
+            openConnection();
+          } catch (e2) {
+            console.log(e2);
+          }
+          if (i < 3) {
+            i += 1;
+            console.log('indexedDB error, will retry in 1 second');
+            setTimeout(doOperation as () => void, 1000);
+          } else {
+            reject(e);
+          }
+        }
+      };
+      doOperation();
+    });
+  },
   saveStorageIndexed: (
     key: 'previews' | 'tabs' | 'blockchains' | 'records' | 'accounts' | 'transactions' | 'cookies',
     value: { [id: string]: any }

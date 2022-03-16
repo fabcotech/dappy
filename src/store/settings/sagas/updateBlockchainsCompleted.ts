@@ -34,7 +34,7 @@ const updateBlockchainsCompleted = function* (action: Action) {
     if (isLoadReady) {
       yield put(
         fromDapps.loadResourceAction({
-          address: loadResourceWhenReady,
+          url: loadResourceWhenReady,
         })
       );
       yield put(

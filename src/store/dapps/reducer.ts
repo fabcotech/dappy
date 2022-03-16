@@ -124,7 +124,7 @@ export const reducer = (state = initialState, action: Action): State => {
           ...state,
           lastLoadErrors: {
             ...state.lastLoadErrors,
-            [payload.tabId]: { search: payload.search, error: payload.error },
+            [payload.tabId]: { url: payload.url, error: payload.error },
           },
           errors: state.errors.concat(action.payload),
         };
@@ -140,7 +140,7 @@ export const reducer = (state = initialState, action: Action): State => {
         ...state,
         lastLoadErrors: {
           ...state.lastLoadErrors,
-          [payload.tabId]: { search: payload.search, error: payload.error },
+          [payload.tabId]: { url: payload.url, error: payload.error },
         },
         transitoryStates: newTransitoryStates,
         errors: state.errors.concat(action.payload),
@@ -177,7 +177,7 @@ export const reducer = (state = initialState, action: Action): State => {
             ...t,
             active: true,
             resourceId: payload.resourceId,
-            address: payload.address,
+            url: payload.url,
             counter: t.counter + 1,
           };
         }
@@ -200,7 +200,7 @@ export const reducer = (state = initialState, action: Action): State => {
           if (tab.id === payload.tabId) {
             return {
               ...tab,
-              address: payload.search,
+              url: payload.url,
             };
           } else {
             return tab;
@@ -218,7 +218,7 @@ export const reducer = (state = initialState, action: Action): State => {
           .concat({
             id: payload.tabId,
             resourceId: payload.resourceId,
-            address: payload.search,
+            url: payload.url,
             title: payload.resourceId,
             img: undefined,
             active: true,
@@ -231,6 +231,23 @@ export const reducer = (state = initialState, action: Action): State => {
             index: i,
           })),
         tabsFocusOrder: newDappsFocusOrder,
+      };
+    }
+
+    case fromActions.DID_CHANGE_FAVICON: {
+      const payload: fromActions.DidChangeFaviconPayload = action.payload;
+       return {
+        ...state,
+        tabs: state.tabs.map((tab, i) => {
+          if (tab.id === payload.tabId) {
+            return {
+              ...tab,
+              img: payload.img,
+            };
+          } else {
+            return tab;
+          }
+        }),
       };
     }
 
@@ -262,8 +279,8 @@ export const reducer = (state = initialState, action: Action): State => {
             return {
               ...tab,
               active: tab.active || tab.id === dapp.id,
-              title: dapp.title,
-              img: dapp.img,
+              title: dapp.url,
+              img: undefined,
               index: i,
             };
           } else {
@@ -484,7 +501,7 @@ export const reducer = (state = initialState, action: Action): State => {
             return {
               ...tab,
               active: tab.active,
-              title: ipApp.record.id,
+              title: ipApp.url,
               img: undefined,
               index: i,
             };
@@ -537,27 +554,6 @@ export const reducer = (state = initialState, action: Action): State => {
             return {
               ...tab,
               muted: payload.muted,
-            };
-          } else {
-            return tab;
-          }
-        }),
-      };
-    }
-
-    // avoid cross references
-    case '[History] Save preview': {
-      const payload: fromHistory.SavePreviewPayload = action.payload;
-
-      return {
-        ...state,
-        tabs: state.tabs.map((tab, i) => {
-          if (tab.id === payload.tabId) {
-            return {
-              ...tab,
-              title: payload.preview.title,
-              address: payload.preview.search,
-              img: payload.preview.img,
             };
           } else {
             return tab;

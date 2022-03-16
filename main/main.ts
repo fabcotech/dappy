@@ -98,7 +98,7 @@ app.on('second-instance', (event, argv, cwd) => {
   if (typeof a === 'string') {
     dispatchFromMain({
       action: fromDapps.loadResourceAction({
-        address: a,
+        url: a,
       }),
     });
   }

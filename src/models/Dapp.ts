@@ -1,6 +1,5 @@
 import { BeesLoadErrors, BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
-
-import { Record } from './Record';
+import { DappyLoadErrorWithArgs } from './DappyLoadError';
 
 export interface LoadCompletedData {
   nodeUrls: string[];
@@ -9,8 +8,8 @@ export interface LoadCompletedData {
 }
 
 export interface LastLoadError {
-  search: string;
-  error: BeesLoadErrorWithArgs;
+  url: string;
+  error: BeesLoadErrorWithArgs | DappyLoadErrorWithArgs;
 }
 
 export type JsLibraries =
@@ -40,26 +39,15 @@ export interface PredefinedDapp {
 }
 
 export interface DappFromNetwork {
-  title: string;
-  description: string;
-  author: string;
-  img?: string;
-  version: string;
-  // TODO remove html ?
   html: string;
 }
 
 export interface Dapp extends DappFromNetwork {
   id: string;
   tabId: string | undefined;
-  record: Record;
-  // the aaa part of aaa:bbb
   // newtork ID / chain ID (ex: "d" / "gammanetwork" etc)
   chainId: string;
-  // the bbb part of aaa/bbb (ex: "amazon", "google")
-  search: string;
-  // everything after bbb ex: "?arg=true" or "/page/1"
-  path: string;
+  url: string;
   resourceId: string;
   origin: 'network' | 'file';
   publicKey: undefined | string;

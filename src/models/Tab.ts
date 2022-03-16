@@ -6,7 +6,7 @@ export interface Tab {
     ex: betanetwork/amazon or betanetork/amazon/house?article=121212
     It can also include any amount of path + query arguments at the end
   */
-  address: string;
+  url: string;
   img?: string;
   title: string;
   active: boolean;

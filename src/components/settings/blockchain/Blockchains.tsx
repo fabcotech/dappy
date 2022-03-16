@@ -161,16 +161,6 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
     });
   };
 
-  onDownloadNodes = () => {
-    if (!this.state.selectedBlockchain) {
-      return;
-    }
-    browserUtils.downloadFile(
-      'nodes_' + this.state.selectedBlockchain.chainName + '.csv',
-      this.state.selectedBlockchain.nodes.map((n) => `${n.ip},${n.host},${n.cert}`).join('\n')
-    );
-  };
-
   saveRef = (el: HTMLTextAreaElement) => {
     /*     if (!this.dropEl) {
       this.dropEl = el;
@@ -593,18 +583,16 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
             );
           }}
         />
-        {(this.state.selectedBlockchain as Blockchain).nodes.length ? (
-          <div>
-            <br />
-            <br />
-            <button type="button" onClick={this.onDownloadNodes} className="button is-link is-small">
-              <i className="fa fa-download fa-before" />
-              Download node addresses as CSV
-            </button>
-            <br />
-            <br />
-          </div>
-        ) : undefined}
+        <h3 className="subtitle is-4">{t('change network')}</h3>
+        <div className="connect-tos">
+          {
+            ['d', 'gamma', 'empty'].map(n => {
+              return <div className="connect-to p5 fc" key={n}>
+                <strong>{n} network</strong>
+              </div>
+            })
+          }
+        </div>
         {/* this.state.defaultNodes && this.state.defaultNodes.length ? (
           <div>
             <p className="limited-width">

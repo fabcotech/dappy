@@ -16,25 +16,19 @@ const launchDappCompleted = function* (action: Action) {
 
   const tab: Tab = tabs.find((t) => t.id === payload.dapp.tabId) as Tab;
 
-  // used as identifier for session, indexeddb etc..., do not put path
-  const dappyDomain = searchToAddress(payload.dapp.search, payload.dapp.chainId, '');
 
+  const url = new URL(payload.dapp.url);
   dispatchInMain({
     type: '[MAIN] Load or reload browser view',
     payload: {
-      // $ is forbidden character, we know that this will
-      // be a dapp and not IP app if it starts with $
-      currentUrl: `$dapp`,
       resourceId: payload.dapp.id,
       tabId: tab.id,
       muted: tab.muted,
-      path: payload.dapp.path,
-      title: payload.dapp.title,
-      dappyDomain: dappyDomain,
+      title: payload.dapp.url,
+      url: payload.dapp.url,
       devMode: settings.devMode,
-      record: payload.dapp.record,
       html: payload.dapp.html,
-      cookies: cookies[dappyDomain] || [],
+      cookies: cookies[url.host] || [],
     },
   });
 };
