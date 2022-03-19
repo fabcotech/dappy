@@ -1,7 +1,6 @@
 import * as React from 'react';
 
 import * as fromMain from '/store/main';
-import { LoadState } from '../../home';
 
 import './GenericModal.scss';
 
@@ -43,8 +42,7 @@ export const GenericModal = ({ modal, dispatchModalAction, onClose }: GenericMod
           <i onClick={onClose} className="fa fa-times" />
         </header>
         <section className="modal-card-body">
-          {modal.title === 'Load report' && <LoadState resourceId={modal.text} />}
-          {modal.title !== 'Load report' && modal.text}
+          {modal.text}
           <Lines lines={modal.parameters?.lines} />
         </section>
         <footer className="modal-card-foot">

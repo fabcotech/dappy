@@ -27,7 +27,7 @@
     background-color: #fafafa;
     & > div.disabled {
       i {
-        color: #AAA;
+        color: #aaa;
       }
     }
     & > div:not(.disabled) {
@@ -38,7 +38,7 @@
         }
       }
       i.disabled {
-        color: #AAA;
+        color: #aaa;
       }
     }
     .form {
@@ -67,8 +67,11 @@
         }
       }
       .tip-div {
+        &:not(.resource-loaded) > i:hover {
+          color: #aaa;
+        }
         i {
-          color: #888;
+          color: #aaa;
         }
         &.resource-loaded {
           i {
@@ -134,6 +137,9 @@
         }
       }
       .tip-div {
+        &:not(.resource-loaded) > i:hover {
+          color: #aaa;
+        }
         i {
           color: #aaa;
         }
@@ -201,6 +207,9 @@
         }
       }
       .tip-div {
+        &:not(.resource-loaded) > i:hover {
+          color: rgba(0,0,0.7);
+        }
         i {
           color: rgba(0,0,0.7);
         }

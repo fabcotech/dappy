@@ -4,13 +4,11 @@ import { connect } from 'react-redux';
 import { State as StoreState } from '/store';
 import * as fromDapps from '/store/dapps';
 import * as fromUi from '/store/ui';
-import { blockchain as blockchainUtils } from '/utils/';
-import { Dapp, TransitoryState, Tab } from '/models';
+import { TransitoryState, Tab } from '/models';
 import { TabListItem } from '.';
 import './TabsList.scss';
 
 interface TabsListProps {
-  dapps: { [id: string]: Dapp };
   tabs: Tab[];
   tabsFocusOrder: string[];
   transitoryStates: { [dappId: string]: TransitoryState };
@@ -21,7 +19,8 @@ interface TabsListProps {
   loadResource: (address: string, tabId: string) => void;
   removeTab: (tabId: string) => void;
   stopTab: (tabId: string) => void;
-  onSetMuteResource: (tabId: string, a: boolean) => void;
+  onSetMuteTab: (tabId: string, a: boolean) => void;
+  onSetFavoriteTab: (tabId: string, a: boolean) => void;
   focusSearchDapp: () => void;
 }
 
@@ -33,22 +32,20 @@ class TabsListComponent extends React.Component<TabsListProps, {}> {
       <div
         className={`tabs-list ${this.props.onlyIcons ? 'only-icons' : ''} ${this.props.isMobile ? 'is-mobile' : ''}`}>
         {this.props.tabs.map((tab) => {
-          const dapp = this.props.dapps[tab.resourceId];
           const focusedTabId = this.props.tabsFocusOrder[this.props.tabsFocusOrder.length - 1];
           return (
             <TabListItem
               key={tab.id}
-              dapp={dapp}
               tab={tab}
-              launchedAt={dapp ? dapp.launchedAt : undefined}
-              transitoryState={this.props.transitoryStates[tab.resourceId]}
+              transitoryState={this.props.transitoryStates[tab.id]}
               focused={!this.props.isSearchFocused && focusedTabId === tab.id}
               onlyIcons={this.props.onlyIcons}
               focusTab={this.props.focusTab}
               loadResource={this.props.loadResource}
               removeTab={this.props.removeTab}
               stopTab={this.props.stopTab}
-              onSetMuteResource={this.props.onSetMuteResource}
+              onSetMuteTab={this.props.onSetMuteTab}
+              onSetFavoriteTab={this.props.onSetFavoriteTab}
             />
           );
         })}
@@ -62,7 +59,7 @@ class TabsListComponent extends React.Component<TabsListProps, {}> {
           <div
             className={`search-dapps ${this.props.isSearchFocused ? 'active' : ''}`}
             onClick={this.props.focusSearchDapp}>
-            {t('search dapps')}&nbsp;
+            {"Browse"}&nbsp;
             <i className="fa fa-plus fa-after" />
           </div>
         )}
@@ -77,7 +74,6 @@ export const TabsList = connect(
       transitoryStates: fromDapps.getDappsTransitoryStates(state),
       tabs: fromDapps.getTabs(state),
       tabsFocusOrder: fromDapps.getTabsFocusOrderWithoutSearch(state),
-      dapps: fromDapps.getDapps(state),
       isMobile: fromUi.getIsMobile(state),
       isSearchFocused: fromDapps.getIsSearchFocused(state),
       onlyIcons: fromUi.getTabsListDisplay(state) === 3,
@@ -95,7 +91,15 @@ export const TabsList = connect(
     removeTab: (tabId: string) => dispatch(fromDapps.removeTabAction({ tabId: tabId })),
     stopTab: (tabId: string) => dispatch(fromDapps.stopTabAction({ tabId: tabId })),
     focusSearchDapp: () => dispatch(fromDapps.focusSearchDappAction()),
-    onSetMuteResource: (tabId: string, a: boolean) => {
+    onSetFavoriteTab: (tabId: string, a: boolean) => {
+      dispatch(
+        fromDapps.setTabFavoriteAction({
+          tabId: tabId,
+          favorite: a,
+        })
+      );
+    },
+    onSetMuteTab: (tabId: string, a: boolean) => {
       dispatch(
         fromDapps.setTabMutedAction({
           tabId: tabId,

@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { Dapp, Tab } from '/models';
+import { Tab } from '/models';
 
 interface TabActionsProps {
-  dapp: undefined | Dapp;
   tab: Tab;
   stopTab: () => void;
   removeTab: () => void;
-  loadResource: () => void;
-  onSetMuteResource: (tabId: string, a: boolean) => void;
+  reloadTab: () => void;
+  onSetMuteTab: (tabId: string, a: boolean) => void;
+  onSetFavoriteTab: (tabId: string, a: boolean) => void;
 }
 
 export class TabActions extends React.Component<TabActionsProps, {}> {
@@ -28,11 +28,13 @@ export class TabActions extends React.Component<TabActionsProps, {}> {
   onReloadResource = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    this.props.loadResource();
-    this.onToggle();
+    this.props.reloadTab();
+    //this.onToggle();
   };
 
   onToggle = (e?: React.MouseEvent<HTMLElement>) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     if (!this.state.active) {
       this.setState({
         active: true,
@@ -69,12 +71,16 @@ export class TabActions extends React.Component<TabActionsProps, {}> {
           <div className="dropdown-content">
             <a className="dropdown-item" onClick={this.onReloadResource}>
               <i className="fa fa-before fa-redo"></i>
-              {`${t('reload')} ${!!this.props.dapp ? t('dapp') : t('ip app')}`}
+              {`${t('reload')}`}
             </a>
 
             <a
               className="dropdown-item"
-              onClick={() => this.props.onSetMuteResource(this.props.tab.id, !this.props.tab.muted)}>
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.props.onSetMuteTab(this.props.tab.id, !this.props.tab.muted)
+              }}>
               {!!this.props.tab.muted ? (
                 <React.Fragment>
                   <i className="fa fa-before fa-volume-up" />
@@ -87,14 +93,41 @@ export class TabActions extends React.Component<TabActionsProps, {}> {
                 </React.Fragment>
               )}
             </a>
-            <a className="dropdown-item" onClick={this.props.stopTab}>
+            <a
+              className="dropdown-item"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.props.onSetFavoriteTab(this.props.tab.id, !this.props.tab.favorite)
+              }}>
+              {!!this.props.tab.favorite ? (
+                <React.Fragment>
+                  <i className="fa fa-before fa-star" />
+                  {t('remove from bookmarks')}
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  <i className="fa fa-before fa-star" />
+                  {t('add to bookmarks')}
+                </React.Fragment>
+              )}
+            </a>
+            <a className="dropdown-item" onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              this.props.stopTab()
+            }}>
               <i className="fa fa-before fa-stop"></i>
               {t('stop tab')}
             </a>
-            <a className="dropdown-item" onClick={this.props.removeTab}>
+            { !this.props.tab.favorite && <a className="dropdown-item" onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              this.props.removeTab()
+            }}>
               <i className="fa fa-before fa-times"></i>
               {t('remove tab')}
-            </a>
+            </a>}
           </div>
         </div>
       </div>

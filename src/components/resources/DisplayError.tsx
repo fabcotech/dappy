@@ -1,15 +1,14 @@
 import * as React from 'react';
 
 import './DisplayError.scss';
-import { TransitoryState, Tab, LastLoadError, Cookie } from '/models';
+import { TransitoryState, Tab } from '/models';
 import { LoadErrorHtml } from '../utils';
-import { blockchain as blockchainUtils } from '/utils';
+
 
 interface DisplayErrorComponentProps {
-  transitoryStates: { [resourceId: string]: TransitoryState };
+  transitoryStates: { [tabId: string]: TransitoryState };
   zIndex: number;
   tab: Tab;
-  lastLoadError: undefined | LastLoadError;
   clearSearchAndLoadError: (tabId: string, clearSearch: boolean) => void;
   loadResource: (url: string, tabId: string) => void;
 }
@@ -22,9 +21,12 @@ class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps> 
       this.el.style.zIndex = nextProps.zIndex.toString();
     }
     if (
-      (nextProps.lastLoadError && nextProps.lastLoadError !== this.props.lastLoadError) ||
-      (!nextProps.lastLoadError && this.props.lastLoadError)
+      !this.props.tab ||
+      (nextProps.tab && nextProps.tab.lastError !== this.props.tab.lastError)
     ) {
+      return true;
+    }
+    if (this.props.transitoryStates !== nextProps.transitoryStates) {
       return true;
     }
 
@@ -47,25 +49,25 @@ class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps> 
 
   // we enter in render only when it must be loaded / reloaded
   render() {
-    const transitoryState = this.props.tab ? this.props.transitoryStates[this.props.tab.resourceId] : undefined;
+    const transitoryState = this.props.tab ? this.props.transitoryStates[this.props.tab.id] : undefined;
 
     return (
       <div
         ref={this.setMainEl}
-        className={`display-error ${this.props.tab.id} ${this.props.lastLoadError ? 'with-error' : ''}`}>
-        {!!this.props.lastLoadError ? (
+        className={`display-error ${this.props.tab.id} ${this.props.tab.lastError ? 'with-error' : ''}`}>
+        {!!this.props.tab.lastError ? (
           <div className="load-error">
-            <div className="message is-danger scaling-and-appearing-once">
+            <div className="message scaling-and-appearing-once">
               <div className="message-body">
                 <LoadErrorHtml
-                  loadError={this.props.lastLoadError.error}
+                  loadError={this.props.tab.lastError.error}
                   clearSearchAndLoadError={this.onClearSearchAndLoadError}
                 />
               </div>
             </div>
           </div>
         ) : undefined}
-        {!this.props.lastLoadError ? (
+        {!this.props.tab.lastError ? (
           <div className={`retry ${transitoryState}`}>
             <div
               onClick={(e) => {

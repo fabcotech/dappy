@@ -9,12 +9,12 @@ import { Action } from '../..';
 const saveTabs = function* (action: Action) {
   const tabs: Tab[] = yield select(fromDapps.getTabs);
 
-  const tabsToSave: { [id: string]: Tab } = {};
+  const tabsToSave: { [id: string]: Omit<Tab, "lastError" | "data"> } = {};
   tabs.forEach((t, i) => {
     tabsToSave[t.id] = {
       id: t.id,
-      resourceId: t.resourceId,
       title: t.title,
+      favorite: t.favorite,
       img: t.img,
       active: tabs[0].id === t.id,
       muted: t.muted,
@@ -38,8 +38,10 @@ const saveTabs = function* (action: Action) {
 };
 
 export const saveTabsSaga = function* () {
-  yield takeEvery(fromDapps.LAUNCH_DAPP_COMPLETED, saveTabs);
+  yield takeEvery(fromDapps.LAUNCH_TAB_COMPLETED, saveTabs);
   yield takeEvery(fromDapps.UPDATE_TABS_FROM_STORAGE, saveTabs);
   yield takeEvery(fromDapps.SET_TAB_MUTED, saveTabs);
-  yield takeEvery(fromDapps.UPDATE_TAB_SEARCH, saveTabs);
+  yield takeEvery(fromDapps.SET_TAB_FAVORITE, saveTabs);
+  yield takeEvery(fromDapps.DID_CHANGE_FAVICON, saveTabs);
+  yield takeEvery(fromDapps.DID_CHANGE_TITLE, saveTabs);
 };

@@ -4,7 +4,6 @@ import { Record } from '../../src/models';
 
 export interface DappyBrowserView {
   visible: boolean;
-  resourceId: string;
   dappyDomain: string;
   url: string;
   host: string;

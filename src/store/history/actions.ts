@@ -33,7 +33,6 @@ export const goBackwardCompletedAction = (values: GoBackwardPayload) => ({
 });
 
 export interface DidNavigateInPagePayload {
-  previewId: string;
   url: string;
   tabId: string;
   title: string;

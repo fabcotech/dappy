@@ -12,9 +12,7 @@ import * as fromTransactionsMain from './store/transactions';
 import * as fromBlockchainsMain from './store/blockchains';
 import * as fromMain from '../src/store/main';
 import * as fromBlockchain from '../src/store/blockchain';
-import { splitSearch } from '../src/utils/splitSearch';
 import { looksLikePublicKey } from '../src/utils/looksLikePublicKey';
-import { SplitSearch } from '../src/models';
 import { DappyBrowserView } from './models';
 
 const hexString = yup.string().matches(/^0x[0-9a-fA-F]+$/, 'string must be in hexadecimal and starts with 0x');
@@ -31,7 +29,7 @@ const identifyFromSandboxSchema = yup
       .strict(true)
       .required(),
     callId: yup.string().required(),
-    resourceId: yup.string(),
+    tabId: yup.string(),
   })
   .noUnknown()
   .strict(true)
@@ -115,12 +113,12 @@ export const registerInterProcessDappProtocol = (
 
     if (request.url === 'interprocessdapp://get-identifications') {
       const identifications = fromIdentificationsMain.getIdentificationsMain(store.getState());
-      callback(Buffer.from(JSON.stringify({ identifications: identifications[dappyBrowserView.resourceId] })));
+      callback(Buffer.from(JSON.stringify({ identifications: identifications[dappyBrowserView.tabId] })));
     }
 
     if (request.url === 'interprocessdapp://get-transactions') {
       const transactions = fromTransactionsMain.getTransactionsMain(store.getState());
-      callback(Buffer.from(JSON.stringify({ transactions: transactions[dappyBrowserView.resourceId] })));
+      callback(Buffer.from(JSON.stringify({ transactions: transactions[dappyBrowserView.tabId] })));
     }
 
     if (request.url === 'interprocessdapp://message-from-dapp-sandboxed') {
@@ -140,12 +138,12 @@ export const registerInterProcessDappProtocol = (
             .then(() => {
               dispatchFromMain({
                 action: fromMain.openDappModalAction({
-                  resourceId: dappyBrowserView.resourceId,
+                  tabId: dappyBrowserView.tabId,
                   title: 'IDENTIFICATION_MODAL',
                   text: '',
                   parameters: {
                     ...payloadBeforeValid,
-                    resourceId: dappyBrowserView.resourceId,
+                    tabId: dappyBrowserView.tabId,
                   },
                   buttons: [],
                 }),
@@ -172,18 +170,18 @@ export const registerInterProcessDappProtocol = (
                 origin: {
                   origin: 'dapp',
                   accountName: undefined,
-                  resourceId: dappyBrowserView.resourceId,
+                  tabId: dappyBrowserView.tabId,
                   dappTitle: dappyBrowserView.title,
                   callId: payload.callId,
                 },
-                resourceId: dappyBrowserView.resourceId,
+                tabId: dappyBrowserView.tabId,
                 chainId: '',
                 id: id,
               };
 
               dispatchFromMain({
                 action: fromMain.openDappModalAction({
-                  resourceId: dappyBrowserView.resourceId,
+                  tabId: dappyBrowserView.tabId,
                   title: 'ETHEREUM_SIGN_TRANSACTION_MODAL',
                   text: '',
                   parameters: payload2,
@@ -215,7 +213,7 @@ export const registerInterProcessDappProtocol = (
                 origin: {
                   origin: 'dapp',
                   accountName: undefined,
-                  resourceId: dappyBrowserView.resourceId,
+                  tabId: dappyBrowserView.tabId,
                   dappTitle: dappyBrowserView.title,
                   callId: payloadBeforeValid.callId,
                 },
@@ -255,18 +253,18 @@ export const registerInterProcessDappProtocol = (
                 origin: {
                   origin: 'dapp',
                   accountName: undefined,
-                  resourceId: dappyBrowserView.resourceId,
+                  tabId: dappyBrowserView.tabId,
                   dappTitle: dappyBrowserView.title,
                   callId: payload.callId,
                 },
-                resourceId: dappyBrowserView.resourceId,
+                tabId: dappyBrowserView.tabId,
                 chainId: chainId,
                 id: id,
               };
 
               dispatchFromMain({
                 action: fromMain.openDappModalAction({
-                  resourceId: dappyBrowserView.resourceId,
+                  tabId: dappyBrowserView.tabId,
                   title: 'RCHAIN_TRANSACTION_MODAL',
                   text: '',
                   parameters: payload2,
@@ -303,18 +301,18 @@ export const registerInterProcessDappProtocol = (
                 parameters: payload.parameters,
                 origin: {
                   origin: 'dapp',
-                  resourceId: dappyBrowserView.resourceId,
+                  tabId: dappyBrowserView.tabId,
                   dappTitle: dappyBrowserView.title,
                   callId: payload.callId,
                 },
                 chainId: chainId,
-                resourceId: dappyBrowserView.resourceId,
+                tabId: dappyBrowserView.tabId,
                 id: id,
               };
 
               dispatchFromMain({
                 action: fromMain.openDappModalAction({
-                  resourceId: dappyBrowserView.resourceId,
+                  tabId: dappyBrowserView.tabId,
                   title: 'PAYMENT_REQUEST_MODAL',
                   text: '',
                   parameters: payload2,

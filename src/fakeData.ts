@@ -117,7 +117,7 @@ export const getFakeTransactionState = (transactionState: Partial<TransactionSta
   origin: {
     origin: 'dapp',
     accountName: 'fake account name',
-    resourceId: 'fake resource id',
+    tabId: 'fake tab id',
     dappTitle: 'fake title',
     callId: 'fake call id',
   },

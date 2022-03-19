@@ -8,12 +8,12 @@ import { DappyBrowserView } from '../../models';
 const transferIdentifications = function* (action: any) {
   const payload: fromDapps.SaveIdentificationPayload = action.payload;
   const browserViews: {
-    [resourceId: string]: DappyBrowserView;
+    [tabId: string]: DappyBrowserView;
   } = yield select(fromBrowserViews.getBrowserViewsMain);
 
-  if (browserViews[payload.resourceId] && browserViews[payload.resourceId].browserView) {
+  if (browserViews[payload.tabId] && browserViews[payload.tabId].browserView) {
     try {
-      browserViews[payload.resourceId].browserView.webContents.executeJavaScript(`
+      browserViews[payload.tabId].browserView.webContents.executeJavaScript(`
       if (typeof dappyRChain !== 'undefined') { dappyRChain.requestIdentifications() };
       if (typeof dappyEthereum !== 'undefined') { dappyEthereum.requestIdentifications() };
       `);

@@ -6,15 +6,15 @@ import { DappyBrowserView } from '../../models';
 const setBrowserViewMuted = function* (action: any) {
   const payload = action.payload;
   const browserViews: {
-    [resourceId: string]: DappyBrowserView;
+    [tabId: string]: DappyBrowserView;
   } = yield select(fromBrowserViews.getBrowserViewsMain);
 
-  if (!browserViews[payload.resourceId]) {
+  if (!browserViews[payload.tabId]) {
     console.error('Did not find browserView, cannot mute/unmute');
     return;
   }
 
-  browserViews[payload.resourceId].browserView.webContents.setAudioMuted(payload.muted);
+  browserViews[payload.tabId].browserView.webContents.setAudioMuted(payload.muted);
 
   return undefined;
 };

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 
 import './LoadInfo.scss';
-import { Blockchain, LoadCompletedData } from '/models';
+import { Blockchain } from '/models';
 import * as fromMain from '/store/main';
 import * as fromSettings from '/store/settings';
 
@@ -11,10 +11,8 @@ interface LoadInfoComponentProps {
   tabId: string;
   url: string ;
   namesBlockchain: undefined | Blockchain;
-  loadState: undefined | LoadCompletedData;
   badges: { [name: string]: string };
-  resourceId: string;
-  closeDappModal: (a: { resourceId: string }) => void;
+  closeDappModal: (a: { tabId: string }) => void;
 }
 
 class LoadInfoComponent extends React.Component<LoadInfoComponentProps> {
@@ -45,14 +43,6 @@ class LoadInfoComponent extends React.Component<LoadInfoComponentProps> {
           </h6>
           <br />
           <p>{t('dapp security paragraph')}</p>
-
-          {this.props.loadState ? (
-            <div className="servers">
-              {this.props.loadState.nodeUrls.map((url) => (
-                <div key={url}>{url}</div>
-              ))}
-            </div>
-          ) : undefined}
         </div>
       </div>
     );
@@ -66,6 +56,6 @@ export const LoadInfo = connect(
     }
   },
   (dispatch) => ({
-    closeDappModal: (a: { resourceId: string }) => dispatch(fromMain.closeDappModalAction({ resourceId: a.resourceId })),
+    closeDappModal: (a: { tabId: string }) => dispatch(fromMain.closeDappModalAction({ tabId: a.tabId })),
   })
 )(LoadInfoComponent);

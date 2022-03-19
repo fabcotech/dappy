@@ -82,15 +82,21 @@
       }
     }
   }
-  .dapp-title {
+  .tab-title {
     overflow: hidden;
     text-overflow: ellipsis;
     display: flex;
     align-items: center;
     white-space: nowrap;
     font-size: 0.9em;
+    .fa-star {
+      color: #e7b809;
+    }
+    span {
+      transform: translateY(1px);
+    }
   }
-  .dapp-status {
+  .tab-status {
     display: flex;
     align-items: center;
     justify-content: flex-end;

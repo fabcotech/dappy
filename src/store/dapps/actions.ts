@@ -1,12 +1,8 @@
 import { BeesLoadErrors, BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
 import {
-  Dapp,
   Tab,
   Identification,
-  LoadedFile,
-  IpApp,
   TransitoryState,
-  SplitSearch,
 } from '/models';
 import { DappyLoadErrorWithArgs } from '/models/DappyLoadError';
 
@@ -21,20 +17,19 @@ export const LOAD_RESOURCE_FAILED = '[Dapps] Load resource failed';
 
 export const FOCUS_SEARCH_DAPP = '[Dapps] Focus search dapp';
 export const DID_CHANGE_FAVICON = '[Dapps] Tab favicon did update';
+export const DID_CHANGE_TITLE = '[Dapps] Tab title did update';
 export const FOCUS_TAB = '[Dapps] Focus tab';
 export const FOCUS_AND_ACTIVATE_TAB = '[Dapps] Focus and activate tab';
 export const CREATE_TAB = '[Dapps] Create tab';
 export const UPDATE_TAB_SEARCH = '[Dapps] Update tab search';
-export const LAUNCH_DAPP_COMPLETED = '[Dapps] Launch dapp completed';
-export const LAUNCH_FILE_COMPLETED = '[Dapps] Launch file completed';
-export const LAUNCH_IP_APP_COMPLETED = '[Dapps] Launch IP app completed';
+export const LAUNCH_TAB_COMPLETED = '[Dapps] Launch tab completed';
 export const UPDATE_TRANSITORY_STATE = '[Dapps] Update transitory state';
-export const UPDATE_RESOURCE_ADDRESS = '[Dapps] Update resource address';
 export const REMOVE_TAB = '[Dapps] Remove tab';
 export const REMOVE_TAB_COMPLETED = '[Dapps] Remove tab completed';
 export const STOP_TAB = '[Dapps] Stop tab';
 export const REMOVE_RESOURCE = '[Dapps] Remove resource';
 export const SET_TAB_MUTED = '[Dapps] Set tab muted';
+export const SET_TAB_FAVORITE = '[Dapps] Set tab favorite';
 
 export const SAVE_IDENTIFICATION = '[Dapps] Save identification';
 
@@ -147,7 +142,7 @@ export const stopTabAction = (values: StopTabPayload) => ({
 });
 
 export interface RemoveResourcePayload {
-  resourceId: string;
+  tabId: string;
 }
 export const removeResourceAction = (values: RemoveResourcePayload) => ({
   type: REMOVE_RESOURCE,
@@ -171,34 +166,25 @@ export const didChangeFaviconAction = (values: DidChangeFaviconPayload) => ({
   payload: values,
 });
 
+export interface DidChangeTitlePayload {
+  title: string;
+  tabId: string;
+}
+export const didChangeTitleAction = (values: DidChangeTitlePayload) => ({
+  type: DID_CHANGE_TITLE,
+  payload: values,
+});
+
 export interface RemoveTabCompletedPayload {
   tabId: string;
-  resourceId: undefined | string;
 }
 export const removeTabCompletedAction = (payload: RemoveTabCompletedPayload) => ({
   type: REMOVE_TAB_COMPLETED,
   payload: payload,
 });
 
-export interface LaunchDappCompletedPayload {
-  dapp: Dapp;
-}
-export const launchDappCompletedAction = (values: LaunchDappCompletedPayload) => ({
-  type: LAUNCH_DAPP_COMPLETED,
-  payload: values,
-});
-
-export interface LaunchFileCompletedPayload {
-  file: LoadedFile;
-  tabId: string;
-}
-export const launchFileCompletedAction = (values: LaunchFileCompletedPayload) => ({
-  type: LAUNCH_FILE_COMPLETED,
-  payload: values,
-});
-
 export interface SaveIdentificationPayload {
-  resourceId: string;
+  tabId: string;
   callId: string;
   identification: Identification;
 }
@@ -207,29 +193,20 @@ export const saveIdentificationAction = (values: SaveIdentificationPayload) => (
   payload: values,
 });
 
-export interface LaunchIpAppCompletedPayload {
-  ipApp: IpApp;
+export interface LaunchTabCompletedPayload {
+  tab: Tab
 }
-export const launchIpAppCompletedAction = (values: LaunchIpAppCompletedPayload) => ({
-  type: LAUNCH_IP_APP_COMPLETED,
+export const launchTabCompletedAction = (values: LaunchTabCompletedPayload) => ({
+  type: LAUNCH_TAB_COMPLETED,
   payload: values,
 });
 
 export interface UpdateTransitoryStatePayload {
-  resourceId: string;
+  tabId: string;
   transitoryState: TransitoryState | undefined;
 }
 export const updateTransitoryStateAction = (values: UpdateTransitoryStatePayload) => ({
   type: UPDATE_TRANSITORY_STATE,
-  payload: values,
-});
-
-export interface UpdateResourceAddressPayload {
-  tabId: string;
-  searchSplitted: SplitSearch;
-}
-export const updateResourceAction = (values: UpdateResourceAddressPayload) => ({
-  type: UPDATE_RESOURCE_ADDRESS,
   payload: values,
 });
 
@@ -239,5 +216,14 @@ export interface SetTabMutedPayload {
 }
 export const setTabMutedAction = (values: SetTabMutedPayload) => ({
   type: SET_TAB_MUTED,
+  payload: values,
+});
+
+export interface SetTabFavoritePayload {
+  tabId: string;
+  favorite: boolean;
+}
+export const setTabFavoriteAction = (values: SetTabFavoritePayload) => ({
+  type: SET_TAB_FAVORITE,
   payload: values,
 });

@@ -13,7 +13,7 @@ export interface ModalButton {
 }
 
 export interface Modal {
-  resourceId?: string;
+  tabId?: string;
   parameters?: any;
   title: string;
   text: string;
@@ -82,7 +82,7 @@ export const reducer = (state = initialState, action: Action): State => {
     case fromActions.OPEN_DAPP_MODAL: {
       const payload: fromActions.OpenDappModalPayload = action.payload;
 
-      let dappModalsState: Modal[] = state.dappModals[payload.resourceId];
+      let dappModalsState: Modal[] = state.dappModals[payload.tabId];
       if (!dappModalsState) {
         dappModalsState = [];
       }
@@ -98,7 +98,7 @@ export const reducer = (state = initialState, action: Action): State => {
           ...state,
           dappModals: {
             ...state.dappModals,
-            [payload.resourceId]: dappModalsState.slice(1).concat([]),
+            [payload.tabId]: dappModalsState.slice(1).concat([]),
           },
         };
       }
@@ -107,7 +107,7 @@ export const reducer = (state = initialState, action: Action): State => {
         ...state,
         dappModals: {
           ...state.dappModals,
-          [payload.resourceId]: dappModalsState.concat(payload),
+          [payload.tabId]: dappModalsState.concat(payload),
         },
       };
     }
@@ -115,13 +115,13 @@ export const reducer = (state = initialState, action: Action): State => {
     case fromActions.CLOSE_DAPP_MODAL: {
       const payload: fromActions.CloseDappModalPayload = action.payload;
 
-      const dappModalsState: Modal[] = state.dappModals[payload.resourceId];
+      const dappModalsState: Modal[] = state.dappModals[payload.tabId];
 
       return {
         ...state,
         dappModals: {
           ...state.dappModals,
-          [payload.resourceId]: dappModalsState.slice(1).concat([]),
+          [payload.tabId]: dappModalsState.slice(1).concat([]),
         },
       };
     }
@@ -130,7 +130,7 @@ export const reducer = (state = initialState, action: Action): State => {
       const payload: fromActions.CloseDappModalPayload = action.payload;
 
       let newDappModals = state.dappModals;
-      delete newDappModals[payload.resourceId];
+      delete newDappModals[payload.tabId];
 
       return {
         ...state,
@@ -142,11 +142,11 @@ export const reducer = (state = initialState, action: Action): State => {
       const payload: fromDapps.StopTabPayload = action.payload;
 
       // ugly, I know, should we include dappId in the payload ?
-      const dappModalsToRemove = Object.keys(state.dappModals).filter((dappId) => dappId.includes(payload.tabId));
+      const dappModalsToRemove = Object.keys(state.dappModals).filter((tabId) => tabId.includes(payload.tabId));
       const newDappModals = { ...state.dappModals };
 
-      dappModalsToRemove.forEach((dappId) => {
-        delete newDappModals[dappId];
+      dappModalsToRemove.forEach((tabId) => {
+        delete newDappModals[tabId];
       });
 
       return {
@@ -214,14 +214,20 @@ export const getShouldBrowserViewsBeDisplayed = createSelector(
     // return undefined : no browser views displayed
     // return resourceId: string : the browser view corresponding to this resourceId should be displayed
     if (!!modal) {
+      console.log('1')
       return undefined;
     }
     if (!navigationSuggestionsDisplayed && isNavigationInDapps && tabsFocusOrder.length > 0) {
       const tab = tabs.find((t) => t.id === tabsFocusOrder[tabsFocusOrder.length - 1]);
+      console.log('2')
+      console.log(tab)
       // should always be true
-      if (tab && (!dappModals[tab.resourceId] || dappModals[tab.resourceId].length === 0)) {
-        return tab.resourceId;
+      if (tab && (!dappModals[tab.id] || dappModals[tab.id].length === 0)) {
+        console.log('3')
+        console.log(tab)
+        return tab.id;
       }
+
       return undefined;
     } else {
       return undefined;

@@ -25,7 +25,7 @@ export interface SendRChainTransactionFromMiddlewarePayload {
     term?: string;
     signatures?: { [expr: string]: string };
   };
-  resourceId: string;
+  tabId: string;
   chainId: string;
   id: string;
   origin: TransactionOriginDapp;
@@ -55,7 +55,7 @@ export interface RChainPaymentRequestParameters {
 }
 export interface SendRChainPaymentRequestFromMiddlewarePayload {
   parameters: RChainPaymentRequestParameters;
-  resourceId: string;
+  tabId: string;
   chainId: string;
   id: string;
   origin: TransactionOriginDapp;
@@ -86,7 +86,7 @@ export const sendRChainPaymentRequestFromSandboxAction = (values: SendRChainPaym
 
 export interface SignEthereumTransactionFromMiddlewarePayload {
   parameters: EthereumTransaction;
-  resourceId: string;
+  tabId: string;
   chainId: string;
   id: string;
   origin: TransactionOriginDapp;
@@ -138,7 +138,7 @@ export interface IdentifyFromSandboxPayload {
     publicKey: undefined | string;
   };
   callId: string;
-  resourceId: string;
+  tabId: string;
 }
 export interface IdentifyFromSandboxAction {
   type: '[SandBox] Identify from sandbox';

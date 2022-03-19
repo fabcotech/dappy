@@ -23,7 +23,7 @@ const setTabMuted = function* (action: Action) {
     type: '[MAIN] Set browser view muted',
     payload: {
       muted: payload.muted,
-      resourceId: tab.resourceId,
+      id: tab.id,
     },
   });
 };

@@ -48,7 +48,7 @@ export class RChainTransactionModalComponent extends React.Component<RChainTrans
 
   onJustCloseModal = () => {
     this.props.closeDappModal({
-      resourceId: (this.props.modal as fromMain.Modal).resourceId as string,
+      tabId: (this.props.modal as fromMain.Modal).tabId as string,
     });
   };
 
@@ -60,7 +60,7 @@ export class RChainTransactionModalComponent extends React.Component<RChainTrans
       origin: {
         origin: 'dapp',
         accountName: '',
-        resourceId: payload.origin.resourceId,
+        tabId: payload.origin.tabId,
         dappTitle: payload.origin.dappTitle,
         callId: payload.origin.callId,
       },
@@ -69,7 +69,7 @@ export class RChainTransactionModalComponent extends React.Component<RChainTrans
       id: new Date().getTime() + Math.round(Math.random() * 10000).toString(),
     });
     this.props.closeDappModal({
-      resourceId: (this.props.modal as fromMain.Modal).resourceId as string,
+      tabId: (this.props.modal as fromMain.Modal).tabId as string,
     });
   };
 
@@ -128,7 +128,7 @@ export class RChainTransactionModalComponent extends React.Component<RChainTrans
       origin: {
         origin: 'dapp',
         accountName: this.state.accountName as string,
-        resourceId: payload.origin.resourceId,
+        tabId: payload.origin.tabId,
         dappTitle: payload.origin.dappTitle,
         callId: payload.origin.callId,
       },

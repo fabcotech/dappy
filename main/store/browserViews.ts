@@ -11,7 +11,7 @@ export const SET_BROWSER_VIEW_MUTED = '[MAIN] Set browser view muted';
 
 export interface State {
   browserViews: {
-    [resourceId: string]: DappyBrowserView;
+    [tabId: string]: DappyBrowserView;
   };
   position: undefined | { x: number; y: number; width: number; height: number };
 }
@@ -32,7 +32,7 @@ export const reducer = (state = initialState, action: any): State => {
     }
 
     case DESTROY_BROWSER_VIEW: {
-      const browserView = state.browserViews[action.payload.resourceId];
+      const browserView = state.browserViews[action.payload.tabId];
       if (browserView) {
         if (browserView.browserView.webContents.isDevToolsOpened()) {
           browserView.browserView.webContents.closeDevTools();
@@ -40,7 +40,7 @@ export const reducer = (state = initialState, action: any): State => {
         browserView.browserView.webContents.forcefullyCrashRenderer();
         action.meta.browserWindow.removeBrowserView(browserView.browserView);
         let newBrowserViews = { ...state.browserViews };
-        delete newBrowserViews[action.payload.resourceId];
+        delete newBrowserViews[action.payload.tabId];
 
         return {
           ...state,

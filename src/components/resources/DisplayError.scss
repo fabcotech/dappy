@@ -35,16 +35,17 @@
     .message {
       max-width: 80%;
       min-width: 500px;
+      max-width: 600px;
       max-height: 300px;
+      background-color: transparent;
       display: flex;
       flex-direction: column;
       justify-content: space-around;
       .message-body {
-        .is-4 {
-          color: #cd0930;
-        }
+        border-width: 0 0 0px 0px;
+        border-radius: 0px;
+        border-color: rgb(92, 92, 92);
       }
-
     }
   }
 }

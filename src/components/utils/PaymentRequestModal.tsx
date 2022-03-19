@@ -125,18 +125,18 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
       or from the tipping button (user action). In both cases
       there will be payload.dappId
     */
-    if (payload.resourceId) {
+    if (payload.tabId) {
       /*
-        If there is origin.resourceId, we must save the failed transaction
+        If there is origin.tabId, we must save the failed transaction
         so the dapp will be notified of the discard
       */
-      if (payload.origin.resourceId) {
+      if (payload.origin.tabId) {
         this.props.saveFailedRChainTransaction({
           blockchainId: payload.chainId,
           platform: 'rchain',
           origin: {
             origin: 'dapp',
-            resourceId: payload.origin.resourceId,
+            tabId: payload.origin.tabId,
             dappTitle: payload.origin.dappTitle,
             callId: payload.origin.callId,
             accountName: undefined,
@@ -147,7 +147,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
         });
       }
       this.props.closeDappModal({
-        resourceId: (this.props.modal as fromMain.Modal).resourceId as string,
+        tabId: (this.props.modal as fromMain.Modal).tabId as string,
       });
     } else {
       this.props.saveFailedRChainTransaction({
@@ -203,15 +203,15 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
     /*
       This modal can be opened from a dapp (third party),
       or from the tipping button (user action). In both cases
-      there will be payload.resourceId
+      there will be payload.tabId
     */
-    if (payload.resourceId) {
+    if (payload.tabId) {
       let origin: TransactionOrigin = { origin: 'transfer', accountName: this.state.accountName as string };
-      if (payload.origin.resourceId) {
+      if (payload.origin.tabId) {
         origin = {
           origin: 'dapp',
           accountName: this.state.accountName as string,
-          resourceId: payload.origin.resourceId,
+          tabId: payload.origin.tabId,
           dappTitle: payload.origin.dappTitle,
           callId: payload.origin.callId,
         };
@@ -235,7 +235,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
         sentAt: new Date().toISOString(),
       });
       this.props.closeDappModal({
-        resourceId: (this.props.modal as fromMain.Modal).resourceId as string,
+        tabId: (this.props.modal as fromMain.Modal).tabId as string,
       });
     } else {
       this.props.sendRChainTransaction({
@@ -304,7 +304,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
     }
 
     let Title = () => <span>{t('transfer revs')}</span>;
-    if (payload.parameters && payload.resourceId && payload.origin && payload.origin.origin === 'dapp') {
+    if (payload.parameters && payload.tabId && payload.origin && payload.origin.origin === 'dapp') {
       Title = () => <span>{t('dapp requests payment')}</span>;
     } else if (this.props.modal.text && this.props.modal.text.startsWith('tip')) {
       const t = this.props.modal.text;

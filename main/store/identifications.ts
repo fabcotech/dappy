@@ -6,7 +6,7 @@ import * as fromDapps from '../../src/store/dapps';
 export const TRANSFER_IDENTIFICATIONS = '[MAIN] Transfer identification';
 
 export interface State {
-  [resourceId: string]: {
+  [tabId: string]: {
     [callId: string]: Identification;
   };
 }
@@ -20,8 +20,8 @@ export const reducer = (state = initialState, action: any): State => {
 
       return {
         ...state,
-        [payload.resourceId]: {
-          ...state[payload.resourceId],
+        [payload.tabId]: {
+          ...state[payload.tabId],
           [payload.callId]: payload.identification,
         },
       };

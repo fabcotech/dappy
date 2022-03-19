@@ -23,7 +23,7 @@ class NavigationBarHomeComponent extends WithSuggestions {
             <i className="fa fa-arrow-right" />
           </div>
           <div className="disabled">
-            <i className="fa fa-stop" />
+            <i className="fa fa-times" />
           </div>
           <div className="disabled">
             <i className="fa fa-redo" />
@@ -59,7 +59,6 @@ export const NavigationBarHome = connect(
       resourceLoaded: false,
       transitoryState: undefined,
       tab: undefined,
-      resourceId: undefined,
       publicKey: undefined,
       chainId: undefined,
       canGoForward: false,
@@ -74,6 +73,7 @@ export const NavigationBarHome = connect(
       goForward: () => null,
       goBackward: () => null,
       stopTab: () => null,
+      removeTab: () => null,
       showLoadInfos: () => null,
       updateTabSearch: (a: fromDapps.UpdateTabSearchPayload) => dispatch(fromDapps.updateTabSearchAction(a)),
       loadResource: (a: fromDapps.LoadResourcePayload) => dispatch(fromDapps.loadResourceAction(a)),

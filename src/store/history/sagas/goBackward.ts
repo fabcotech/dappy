@@ -1,7 +1,7 @@
 import url from 'url';
 import { put, takeEvery, select } from 'redux-saga/effects';
 
-import { Session } from '/models';
+import { Session, Tab } from '/models';
 
 import * as fromHistory from '..';
 import * as fromMain from '/store/main';
@@ -13,7 +13,7 @@ const goBackward = function* (action: Action) {
   const sessions: {
     [tabId: string]: Session;
   } = yield select(fromHistory.getSessions);
-  const activeResource: boolean = yield select(fromDapps.getActiveResource);
+  const activeTab: Tab | undefined = yield select(fromDapps.getActiveTab);
 
   const session = sessions[payload.tabId];
   if (!session) {
@@ -26,7 +26,7 @@ const goBackward = function* (action: Action) {
     return;
   }
 
-  if (!activeResource && !session.items[session.cursor]) {
+  if (!activeTab && !session.items[session.cursor]) {
     yield put(
       fromMain.saveErrorAction({
         errorCode: 2039,
@@ -36,7 +36,7 @@ const goBackward = function* (action: Action) {
     return;
   }
 
-  if (!!activeResource && !session.items[session.cursor - 1]) {
+  if (!!activeTab && !session.items[session.cursor - 1]) {
     yield put(
       fromMain.saveErrorAction({
         errorCode: 2039,
@@ -52,7 +52,7 @@ const goBackward = function* (action: Action) {
     or has a fromDapps.lastLoadErrors displayed, in this case,
     do not go back but reload
   */
-  if (!activeResource) {
+  if (!activeTab) {
     sessionItem = session.items[session.cursor];
   }
 
@@ -67,7 +67,7 @@ const goBackward = function* (action: Action) {
     Do not change cursor position if it is a "fake"
     backward because no active resource
   */
-  if (!!activeResource) {
+  if (!!activeTab) {
     yield put(fromHistory.goBackwardCompletedAction({ tabId: payload.tabId }));
   }
 };

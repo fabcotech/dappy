@@ -48,8 +48,7 @@ const logger = function* (action: Action) {
     if (
       [
         fromDapps.STOP_TAB,
-        fromDapps.LAUNCH_DAPP_COMPLETED,
-        fromDapps.LAUNCH_FILE_COMPLETED,
+        fromDapps.LAUNCH_TAB_COMPLETED,
         fromDapps.STOP_TAB,
       ].includes(action.type)
     ) {

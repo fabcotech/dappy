@@ -3,19 +3,18 @@ import xs, { Subscription } from 'xstream';
 
 import { DappImage } from '../utils';
 import { TabActions } from '.';
-import { TransitoryState, Tab, Dapp } from '/models';
+import { TransitoryState, Tab } from '/models';
 import './TabListItem.scss';
 
 interface TabListItemProps {
-  dapp: undefined | Dapp;
   tab: Tab;
   transitoryState: undefined | TransitoryState;
-  launchedAt: string | undefined;
   focused: boolean;
   onlyIcons: boolean;
   focusTab: (tabId: string) => void;
   loadResource: (address: string, tabId: string) => void;
-  onSetMuteResource: (tabId: string, a: boolean) => void;
+  onSetMuteTab: (tabId: string, a: boolean) => void;
+  onSetFavoriteTab: (tabId: string, a: boolean) => void;
   removeTab: (tabId: string) => void;
   stopTab: (tabId: string) => void;
 }
@@ -95,24 +94,45 @@ export class TabListItem extends React.Component<TabListItemProps, {}> {
             transitoryState={this.props.tab.active ? this.props.transitoryState : undefined}
           />
         </div>
-        <span className="dapp-title pl5">
-          {this.props.tab.muted ? <i className="fa fa-before fa-volume-mute" /> : undefined}
-          {this.props.tab.title}
+        <span className="tab-title pl5">
+          {this.props.tab.muted && this.props.tab.active ?
+            <i
+              title="Unmute"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.props.onSetMuteTab(this.props.tab.id, false)
+              }}
+              className="fa fa-before fa-volume-mute"
+            /> : undefined
+          }
+          {this.props.tab.favorite ?
+            <i
+              title="Remove from bookmarks"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.props.onSetFavoriteTab(this.props.tab.id, false)
+              }}
+              className="fa fa-before fa-star"
+            /> : undefined
+          }
+          <span>{this.props.tab.title}</span>
         </span>
-        <div className="dapp-status">
+        <div className="tab-status">
           {this.props.tab.active &&
           (!this.props.transitoryState ||
             !['launching', 'stopping', 'loading', 'reloading'].includes(this.props.transitoryState)) ? (
             <TabActions
-              dapp={this.props.dapp}
               tab={this.props.tab}
-              loadResource={() => this.props.loadResource('', this.props.tab.id)}
-              onSetMuteResource={this.props.onSetMuteResource}
+              reloadTab={() => this.props.loadResource(this.props.tab.url, this.props.tab.id)}
+              onSetMuteTab={this.props.onSetMuteTab}
+              onSetFavoriteTab={this.props.onSetFavoriteTab}
               removeTab={this.onRemoveTab}
               stopTab={this.onStopTab}
             />
           ) : undefined}
-          {!this.props.transitoryState && !this.props.tab.active && (
+          {!this.props.transitoryState && !this.props.tab.favorite && !this.props.tab.active && (
             <i onClick={this.onRemoveTab} className="fa fa-times fa-after" title={t('remove tab')} />
           )}
         </div>

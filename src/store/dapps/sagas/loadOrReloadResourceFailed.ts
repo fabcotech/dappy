@@ -24,10 +24,8 @@ const loadOrReloadResourceFailed = function* (action: Action) {
 
   dispatchInMain({
     type: '[MAIN] Destroy browser view',
-    payload: { resourceId: tab.resourceId },
+    payload: { tabId: tab.id },
   });
-
-  yield put(fromDapps.removeResourceAction({ resourceId: tab.resourceId }))
 };
 
 export const loadOrReloadResourceFailedSaga = function* () {

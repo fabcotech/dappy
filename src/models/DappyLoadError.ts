@@ -6,6 +6,7 @@ export enum DappyLoadError {
   RecordNotFound = "Record not found",
   ResourceNotFound = "Contract not found",
   ServerError = "Server error",
+  DangerousLink = "Dangerous link",
   FailedToParseResponse = "Failed to parse response",
   InvalidManifest = "Invalid manifest",
   InvalidSignature = "Invalid signature",

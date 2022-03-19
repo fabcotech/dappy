@@ -7,9 +7,39 @@ import * as fromCookies from '../src/store/cookies';
 import { DappyBrowserView } from './models';
 import { Cookie as DappyCookie } from '/models';
 
+
+const rightPad = (str: string, num: number) => {
+  let s = str.slice(0,num);
+  for (let i = 0; i < num - str.length; i += 1) {
+    s += ' '
+  }
+  return s;
+}
+
+// RFC 6265
+export const isCookieDomainSentWithHost = (cookieDomain: string | undefined, host: string) => {
+  if (!cookieDomain) return false;
+
+  // Try an exact match
+  if (cookieDomain === host) return true;
+  if (cookieDomain === `.${host}`) return true;
+
+  // TLD cookies not sent fo 2nd/3rd/etc levels
+  // do not send cookie if domain = .com or com
+  if (cookieDomain.startsWith('.') && (cookieDomain.match(/\./g) || []).length === 1) return false;
+  if ((cookieDomain.match(/\./g) || []).length === 0) return false;
+
+  // does host matches a sublevel of cookieDOmain ?
+  // turns example.com into .example.com
+  let secondLevel = cookieDomain.startsWith('.') ? cookieDomain : `.${cookieDomain}`; 
+  if (host.endsWith(secondLevel)) return true;
+
+  return false;
+}
+
 const executeSentryRequest = (request: ProtocolRequest): Promise<ProtocolResponse> => {
   return new Promise((resolve, reject) => {
-    const options = {
+    const options: https.RequestOptions = {
       method: request.method,
       host: 'sentry.io',
       port: 443,
@@ -43,18 +73,24 @@ export const parseUrl = (url: string): { host?: string; path?: string } => {
   };
 };
 
-const getCookiesHeader = async (dappyBrowserView: DappyBrowserView, url: string, isFirstRequest: boolean) => {
+const getCookiesHeader = async (dappyBrowserView: DappyBrowserView, url: string, isFirstRequest: boolean, s: string) => {
   const host = new URL(url).host;
   let cookies: Cookie[] = [];
   cookies = await dappyBrowserView.browserView.webContents.session.cookies.get({
     url: `https://${host}`,
   });
-  const cookieHeader = cookies
-    .filter((c) => !!c.domain && !c.domain.startsWith('.'))
-    .filter((c) => onlyLaxCookieOnFirstRequest(isFirstRequest, c))
-    .map((c) => `${c.name}=${c.value}`)
-    .join('; ');
-  return cookieHeader;
+
+  const okCookies = cookies
+    .filter((c) => isCookieDomainSentWithHost(c.domain, host))
+    .filter((c) => onlyLaxCookieOnFirstRequest(isFirstRequest, c));
+
+  return {
+    cookieHeader: okCookies.map((c) => `${c.name}=${c.value}`).join('; '),
+    numberOfCookies: {
+      lax: okCookies.filter(c => c.sameSite === 'lax').length,
+      strict: okCookies.filter(c => c.sameSite === 'strict').length,
+    }
+  };
 };
 
 interface makeTryToLoadParams {
@@ -64,15 +100,26 @@ interface makeTryToLoadParams {
   dappyBrowserView: DappyBrowserView;
   isFirstRequest: boolean;
   setCookie: (cookieDetails: CookiesSetDetails) => Promise<void>;
+  getBlobData: (blobUUID: string) => Promise<Buffer>;
 }
 
-const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest, setCookie }: makeTryToLoadParams) => {
+const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest, setCookie, getBlobData }: makeTryToLoadParams) => {
   let over = false;
 
   async function load(i: number = 0) {
-    if (debug) console.log('[https load]', request.url, i);
+
+    let s = "";
+
+    if (debug) {
+      if (isFirstRequest) {
+        s += `[https load] FIRST LEVEL ${rightPad(request.url, 32)} ${i}`;
+      } else {
+        s += `[https load] ${rightPad(request.url, 32)} ${i}`;
+      }
+    }
 
     const url = new URL(request.url);
+
     let networkHosts = [url.hostname];
     let port = url.port ? url.port : "443";
     if (dns == false) {
@@ -81,22 +128,31 @@ const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest
       if (url.port) port = url.port;
     }
 
-    console.log('networkHosts', networkHosts);
+    let path = `/`;
+    if (url.pathname) {
+      path = url.pathname;
+    }
+    if (url.search) {
+      path += url.search
+    }
+
+    const getCookiesHeaderResp = await getCookiesHeader(dappyBrowserView, url.origin, isFirstRequest, s);
 
     const options: https.RequestOptions = {
       host: networkHosts[i],
       method: request.method,
-      path: url.pathname ? `${url.pathname}` : '/',
-      minVersion: 'TLSv1.2',
-      rejectUnauthorized: true,
+      path: path,
+      //minVersion: 'TLSv1.2',
+      //rejectUnauthorized: true,
       headers: {
         ...request.headers,
         host: url.hostname,
-        Cookie: await getCookiesHeader(dappyBrowserView, request.url, isFirstRequest),
+        Cookie: getCookiesHeaderResp.cookieHeader,
         Origin: `https://${dappyBrowserView.host}`,
       },
     };
 
+    s += rightPad(` | cook: ${getCookiesHeaderResp.numberOfCookies.lax}lax ${getCookiesHeaderResp.numberOfCookies.strict}strict`, 22)
     // todo
     /* if (s.cert) {
       options.ca = decodeURI(decodeURI(s.cert));
@@ -106,16 +162,31 @@ const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest
       options.headers!.referrer = request.referrer;
     }
 
+    console.log(request.method);
+    if (request.method === 'POST' && request.url.includes('logout.json')) {
+      console.log(request);
+      console.log(request.uploadData);
+      let a;
+      try {
+         a = await getBlobData(request.uploadData[0].blobUUID as string)
+      } catch (err) {
+        console.log(':(')
+        console.log(err)
+      }
+      console.log('-------------')
+    }
+
     return new Promise<ProtocolResponse>((resolve) => {
       try {
         const req = https
           .request(options, (resp) => {
+            let respCookies: cookieParser.Cookie[] = [];
             if (resp.headers && resp.headers['set-cookie']) {
-              const cookies = cookieParser.parse(resp, {
+              respCookies = cookieParser.parse(resp, {
                 decodeValues: true,
               });
 
-              cookies.forEach((c) => {
+              respCookies.forEach((c) => {
                 setCookie({
                   name: c.name,
                   value: c.value,
@@ -127,25 +198,47 @@ const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest
                   sameSite: /^strict$/i.test(c.sameSite || '') ? 'strict' : 'lax',
                 });
               });
-              if (debug && cookies.length) console.log(`[https load] set ${cookies.length} cookie(s)`);
             }
-            if (resp.statusCode === 301) {
-              console.log('[https load] 301', resp.headers.location)
+            /*
+            */
+            if (
+              [300, 301, 302, 303, 304, 307, 308, 309].find(a => a === resp.statusCode)
+            ) {
+              s += rightPad(` | ${resp.statusCode} redirect`, 10);
+              if (respCookies.length) s += ` (${respCookies.length} cook)`
+
+              /*
+                todo, how to know a request is first hand navigation ?
+                all .dappy first hand navigations must have the dappy CSP
+                override
+              */
+              isFirstRequest = true;
+              over = true;
+               resolve({
+                statusCode: resp.statusCode,
+                headers: resp.headers as Record<string, string | string[]>,
+              });
+              return;
             }
-            if (debug) console.log('[https load] OK', resp.statusCode, request.url, i);
+
+            s += rightPad(` | ${resp.statusCode}`, 7);
+            
+            if (debug) console.log(s);
             // todo csp
             /* resp.headers = {
               ...resp.headers,
               'Content-Security-Policy': dappyBrowserView.csp || "default-src 'self'",
             };
             */
+            if (isFirstRequest) {
+              isFirstRequest = false;
+            }
+
 
             if (!over) {
               resolve({
-                charset: 'utf-8',
                 data: resp,
-                headers: resp.headers as Record<string, string[]>,
-                statusCode: resp.statusCode,
+                headers: resp.headers as Record<string, string | string[]>,
               });
               over = true;
             }
@@ -164,7 +257,7 @@ const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest
               load(i + 1);
             } else {
               if (debug) {
-                console.log(`[https load] Resource for app (${dappyBrowserView.resourceId}) failed to load (${url.pathname})`);
+                console.log(`[https load] Resource for app (${dappyBrowserView.tabId}) failed to load (${url.pathname})`);
               }
 
               /*
@@ -179,22 +272,34 @@ const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest
               return;
             }
           });
-
+        
         if (request.uploadData && request.uploadData[0]) {
-          request.uploadData.forEach((ud: any) => {
-            // TODO: remove any if possible
-            if (ud.type === 'rawData') {
-              req.write(ud.bytes);
-            } else {
-              // todo is this safe ?
-              // can a IP app or dapp set filePath to /home/bob/anything ???
-              const file = fs.readFileSync(ud.filePath);
-              // todo, test file upload on other platforms than discord (works on discord)
-              req.write(file);
-            }
-          });
 
-          req.end();
+          const handleUploadData = async () => {
+            const uds = request.uploadData as Electron.UploadData[];
+
+            for (let j = 0; j < uds.length; j += 1) {
+              if (uds[j].bytes) {
+                req.write(uds[j].bytes);
+              } else if (uds[j].blobUUID) {
+                const bd = await getBlobData(uds[j].blobUUID as string);
+                req.write(bd);
+              } else {
+                // todo is this safe ?
+                // can a IP app or dapp set filePath to /home/bob/anything ???
+                const file = fs.readFileSync(uds[j].file as string);
+                // todo, test file upload on other platforms than discord (works on discord)
+                req.write(file);
+              }
+              if (j === uds.length - 1) {
+                req.end();
+              }
+            }
+            if ((request.uploadData || []).length === 0) {
+              req.end();
+            }
+          }
+          handleUploadData();
         } else {
           req.end();
         }
@@ -211,7 +316,7 @@ const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest
         if (networkHosts[i + 1]) {
           load(i + 1);
         } else {
-          if (debug) console.log(`[https] Resource for app (${dappyBrowserView.resourceId}) failed to load (${url.pathname})`);
+          if (debug) console.log(`[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${url.pathname})`);
               /*
                 Will catch in main/store/sagas/loadOrReloadBrowserView.ts L193
               */
@@ -233,9 +338,10 @@ const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest
 interface InterceptHttpsRequestsParams {
   dappyBrowserView: DappyBrowserView | undefined;
   setCookie: (cookieDetails: CookiesSetDetails) => Promise<void>;
+  getBlobData: (blobUUID: string) => Promise<Buffer>;
 }
 
-const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHttpsRequestsParams) => {
+const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie, getBlobData }: InterceptHttpsRequestsParams) => {
   let isFirstRequest = true;
   const debug = !process.env.PRODUCTION;
   return async (request: ProtocolRequest, callback: (response: Electron.ProtocolResponse) => void) => {
@@ -256,18 +362,12 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
       return;
     }
 
-    if (isFirstRequest) {
-      if (debug) console.log('[https load] first top level navigation, only lax cookies');
-      isFirstRequest = false;
-    }
-
     /*
       Dappy name system
     */
     if (new URL(request.url).host.endsWith('.dappy')) {
-      console.log('Will tryToLoad DNS false')
       try {
-        callback(await tryToLoad({ dns: false, debug, dappyBrowserView, isFirstRequest, setCookie, request }));
+        callback(await tryToLoad({ dns: false, debug, dappyBrowserView, isFirstRequest, setCookie, request, getBlobData }));
       } catch (err) {
         console.log(err);
         callback({});
@@ -277,9 +377,8 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie }: InterceptHt
       DNS
     */
     } else {
-      console.log('Will tryToLoad DNS true')
       try {
-        callback(await tryToLoad({ dns: true, debug, dappyBrowserView, isFirstRequest, setCookie, request }));
+        callback(await tryToLoad({ dns: true, debug, dappyBrowserView, isFirstRequest, setCookie, request, getBlobData }));
       } catch (err) {
         console.log(err);
         callback({});
@@ -333,6 +432,7 @@ interface OverrideHttpProtocolsParams {
 export const overrideHttpProtocols = ({ dappyBrowserView, session, dispatchFromMain }: OverrideHttpProtocolsParams) => {
   // Block all HTTP when not development
   if (process.env.PRODUCTION) {
+    session.protocol.interceptHttpProtocol
     return session.protocol.interceptStreamProtocol('http', (request, callback) => {
       console.log(`[http] unauthorized`);
       callback({});
@@ -349,11 +449,31 @@ export const overrideHttpProtocols = ({ dappyBrowserView, session, dispatchFromM
     })
   );
 
+  const getBlobData = (blobUUID: string) => {
+    session.getCacheSize()
+      .then(c => {
+        console.log('getCacheSize', c);
+
+      })
+    console.log('storagePath', session.storagePath);
+    console.log('blobUUID', blobUUID)
+    session.getBlobData(blobUUID).then(a => {
+      console.log('a')
+      console.log(a)
+    })
+    .catch(err => {
+      console.log('err')
+      console.log(err)
+    })
+    return session.getBlobData(blobUUID)
+  }
+
   return session.protocol.interceptStreamProtocol(
     'https',
     makeInterceptHttpsRequests({
       dappyBrowserView,
       setCookie: (cookieDetails: CookiesSetDetails) => session.cookies.set(cookieDetails),
+      getBlobData: getBlobData,
     })
   );
 };

@@ -4,19 +4,15 @@ import { connect } from 'react-redux';
 import './Resources.scss';
 import * as fromDapps from '/store/dapps';
 import * as fromMain from '/store/main';
-import { Dapp, TransitoryState, Tab, LastLoadError, IpApp, LoadedFile } from '/models';
-import { DisplayError, DownloadFile, NavigationBar } from '.';
+import {  TransitoryState, Tab } from '/models';
+import { DisplayError, NavigationBar } from '.';
 import { Modal } from '../utils';
 
 interface ResourcesComponentProps {
   activeTabs: { [tabId: string]: Tab };
-  loadedFiles: { [fileId: string]: LoadedFile };
-  ipApps: { [appId: string]: IpApp };
-  dapps: { [resourceId: string]: Dapp };
   dappModals: { [resourceId: string]: fromMain.Modal[] };
   tabsFocusOrder: string[];
   transitoryStates: { [resourceId: string]: TransitoryState };
-  lastLoadErrors: { [þabId: string]: LastLoadError };
   clearSearchAndLoadError: (tabId: string, clearSearch: boolean) => void;
   loadResource: (address: string, tabId: string) => void;
 }
@@ -27,7 +23,7 @@ class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
       <div className={`resources ${Object.keys(this.props.activeTabs).length ? '' : 'hidden'}`}>
         {Object.keys(this.props.activeTabs).map((tabId, index) => {
           const tab = this.props.activeTabs[tabId];
-          if (this.props.dappModals[tab.resourceId] && this.props.dappModals[tab.resourceId][0]) {
+          if (this.props.dappModals[tab.id] && this.props.dappModals[tab.id][0]) {
             /*
               If there is a modal, the modal will be at DisplayError z index + 1
               display is the following: dapp1 10, dapp1NavigationBar 12, dapp2 20, dapp2Modal 21, dapp2NavigationBar 22,
@@ -38,7 +34,7 @@ class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
                 key={tab.id}
                 style={{ zIndex: (this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10 + 1 }}
                 className="dapp-modal">
-                <Modal resourceId={tab.resourceId} />
+                <Modal />
               </div>
             );
           }
@@ -47,27 +43,10 @@ class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
         })}
         {Object.keys(this.props.activeTabs).map((tabId, index) => {
           const tab = this.props.activeTabs[tabId];
-          const loadedFile: LoadedFile = this.props.loadedFiles[tab.resourceId];
-          const ipApp = this.props.ipApps[tab.resourceId];
-          const dapp = this.props.dapps[tab.resourceId];
           const zIndex = (this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10 + 2;
-          if (dapp) {
-            return (
-              <React.Fragment key={tabId}>
-                <NavigationBar key={`${tabId}-${zIndex}`} zIndex={zIndex} tab={tab} />
-              </React.Fragment>
-            );
-          }
 
-          if (ipApp) {
-            return (
-              <React.Fragment key={tabId}>
-                <NavigationBar key={`${tabId}-${zIndex}`} zIndex={zIndex} tab={tab} />
-              </React.Fragment>
-            );
-          }
-
-          if (loadedFile) {
+          console.log(tab);
+          if (tab.lastError) {
             return (
               <React.Fragment key={tabId}>
                 <NavigationBar
@@ -75,10 +54,11 @@ class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
                   zIndex={(this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10 + 2}
                   tab={tab}
                 />
-                <DownloadFile
+                <DisplayError
                   zIndex={(this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10}
-                  loadedFile={loadedFile}
+                  transitoryStates={this.props.transitoryStates}
                   tab={tab}
+                  clearSearchAndLoadError={this.props.clearSearchAndLoadError}
                   loadResource={this.props.loadResource}
                 />
               </React.Fragment>
@@ -87,19 +67,14 @@ class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
 
           return (
             <React.Fragment key={tabId}>
-              <NavigationBar
-                key={`${tabId}-${zIndex}`}
-                zIndex={(this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10 + 2}
-                tab={tab}
-              />
+              <NavigationBar key={`${tabId}-${zIndex}`} zIndex={zIndex} tab={tab} />
               <DisplayError
-                zIndex={(this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10}
-                transitoryStates={this.props.transitoryStates}
-                lastLoadError={this.props.lastLoadErrors[tabId]}
-                tab={tab}
-                clearSearchAndLoadError={this.props.clearSearchAndLoadError}
-                loadResource={this.props.loadResource}
-              />
+                  zIndex={(this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10}
+                  transitoryStates={this.props.transitoryStates}
+                  tab={tab}
+                  clearSearchAndLoadError={this.props.clearSearchAndLoadError}
+                  loadResource={this.props.loadResource}
+                />
             </React.Fragment>
           );
         })}
@@ -112,12 +87,8 @@ export const Resources = connect(
   (state) => {
     return {
       activeTabs: fromDapps.getActiveTabs(state),
-      loadedFiles: fromDapps.getLoadedFiles(state),
-      ipApps: fromDapps.getIpApps(state),
-      dapps: fromDapps.getDapps(state),
       tabsFocusOrder: fromDapps.getTabsFocusOrderWithoutSearch(state),
       transitoryStates: fromDapps.getDappsTransitoryStates(state),
-      lastLoadErrors: fromDapps.getLastLoadErrors(state),
       dappModals: fromMain.getDappModals(state),
     };
   },

@@ -5,10 +5,11 @@ export const TabSchema = yup
   .object()
   .shape({
     id: yup.string().required(),
-    resourceId: yup.string().required(),
+    resourceId: yup.string(),
     title: yup.string().required(),
     img: yup.string(),
     active: yup.boolean().required(),
+    favorite: yup.boolean().required(),
     muted: yup.boolean().required(),
     counter: yup.number().required(),
     index: yup.number().required(),

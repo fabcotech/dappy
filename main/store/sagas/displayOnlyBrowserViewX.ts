@@ -6,7 +6,7 @@ import { DappyBrowserView } from '../../models';
 const displayOnlyBrowserViewX = function*(action: any) {
   const payload = action.payload;
   const browserViews: {
-    [resourceId: string]: DappyBrowserView;
+    [tabId: string]: DappyBrowserView;
   } = yield select(fromBrowserViews.getBrowserViewsMain);
   const position: { x: number; y: number; width: number; height: number } = yield select(
     fromBrowserViews.getBrowserViewsPositionMain
@@ -14,7 +14,7 @@ const displayOnlyBrowserViewX = function*(action: any) {
   let newBrowserViews = {};
   let modified = false;
   Object.keys(browserViews).forEach(id => {
-    if (id !== payload.resourceId && browserViews[id].visible) {
+    if (id !== payload.tabId && browserViews[id].visible) {
       modified = true;
       browserViews[id].browserView.setBounds({ x: 0, y: 0, width: 0, height: 0 });
       newBrowserViews = {
@@ -24,7 +24,7 @@ const displayOnlyBrowserViewX = function*(action: any) {
           visible: false,
         },
       };
-    } else if (id === payload.resourceId && !browserViews[id].visible) {
+    } else if (id === payload.tabId && !browserViews[id].visible) {
       modified = true;
       browserViews[id].browserView.setBounds(position);
       newBrowserViews = {

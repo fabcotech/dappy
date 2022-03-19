@@ -1,17 +1,3 @@
-import { BeesLoadErrors, BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
-import { DappyLoadErrorWithArgs } from './DappyLoadError';
-
-export interface LoadCompletedData {
-  nodeUrls: string[];
-  data: string;
-  stringToCompare: string | undefined;
-}
-
-export interface LastLoadError {
-  url: string;
-  error: BeesLoadErrorWithArgs | DappyLoadErrorWithArgs;
-}
-
 export type JsLibraries =
   | 'jquery@1.9.1'
   | 'jquery@2.2.4'
@@ -36,24 +22,6 @@ export interface PredefinedDapp {
   js: string;
   css: string;
   html: string;
-}
-
-export interface Dapp {
-  id: string;
-  html: string;
-  tabId: string | undefined;
-  // newtork ID / chain ID (ex: "d" / "gammanetwork" etc)
-  chainId: string;
-  url: string;
-  resourceId: string;
-  origin: 'network' | 'file';
-  publicKey: undefined | string;
-  loadState: {
-    completed: BeesLoadCompleted;
-    errors: BeesLoadErrors;
-    pending: string[];
-  };
-  launchedAt: undefined | string;
 }
 
 export interface Variable {

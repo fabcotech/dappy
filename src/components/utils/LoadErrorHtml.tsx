@@ -3,10 +3,11 @@ import { BeesLoadError, BeesLoadErrorWithArgs } from 'beesjs';
 
 import { DappyLoadError, DappyLoadErrorWithArgs } from '/models/';
 import './LoadErrorHtml.scss';
+import { openExternal } from '/interProcess';
 
 const Button = (props: { ok: () => void }) => (
   <div className="ack-button-div">
-    <button type="button" className="button is-danger is-outlined is-medium" onClick={() => props.ok()}>
+    <button type="button" className="button is-outlined is-medium" onClick={() => props.ok()}>
       Ok
     </button>
   </div>
@@ -16,6 +17,7 @@ const TITLES: { [key: string]: string } = {
   [DappyLoadError.IncompleteAddress]: 'Incomplete address',
   [DappyLoadError.ChainNotFound]: 'Blockchain not found',
   [DappyLoadError.ResourceNotFound]: 'Resource not found',
+  [DappyLoadError.DangerousLink]: 'Unknown scheme or suspect link',
   [DappyLoadError.ServerError]: 'Server or network error',
   [DappyLoadError.MissingBlockchainData]: 'Missing data from the blockchain',
   [DappyLoadError.FailedToParseResponse]: 'Failed to parse result',
@@ -29,56 +31,68 @@ const TITLES: { [key: string]: string } = {
   [BeesLoadError.UnaccurateState]: 'Unaccurate state',
 };
 
-const DESCRIPTIONS: { [key: string]: (args: { [key: string]: any }) => string } = {
+const DESCRIPTIONS: { [key: string]: (args: { [key: string]: any }) => JSX.Element } = {
   [DappyLoadError.IncompleteAddress]: (args) =>
-    `The address ${args.url} is incomplete or invalid. It must have the following structure : network:xxx ${
-      args.plus || ''
-    }`,
+    <p>The address {args.url} is incomplete or invalid. It must have the following structure : network:xxx {args.plus || ''}</p>,
   [DappyLoadError.UnsupportedAddress]: (args) =>
-    `The address format is not supported : ${args.plus}`,
-  [DappyLoadError.ChainNotFound]: (args) => `Could not find a network to query for network ID ${args.chainId}`,
+    <p>The address format is not supported : ${args.plus}</p>,
+  [DappyLoadError.ChainNotFound]: (args) => <p>Could not find a network to query for network ID {args.chainId}</p>,
+  [DappyLoadError.DangerousLink]: (args) =>
+      <p>
+        The page is trying to redirect you to a non https protocol that dappy browser will not handle, do you want to follow external link ?
+        <br />
+        <br />
+        <a onClick={(e) => {
+          e.preventDefault();
+          openExternal(args.url);
+        }}>
+          {args.url}
+        </a>
+      </p>,
   [DappyLoadError.ResourceNotFound]: (args) =>
-    `The resource on the blockchain was not found, make sure that the following resource exists : ${args.url}`,
+    <p>The resource on the blockchain was not found, make sure that the following resource exists : {args.url}</p>,
   [BeesLoadError.InsufficientNumberOfNodes]: (args) =>
-    `There is not enough nodes to query to resolve the request, the request requires at least ${args.expected} but there are only ${args.got} nodes to query. Lower your resolver settings or retry later`,
-  [DappyLoadError.ServerError]: (args) => `Server error : ${args.message}`,
+    <p>There is not enough nodes to query to resolve the request, the request requires at least ${args.expected} but there are only ${args.got} nodes to query. Lower your resolver settings or retry later</p>,
+  [DappyLoadError.ServerError]: (args) => <p>Server error : {args.message}</p>,
   [DappyLoadError.MissingBlockchainData]: (args) =>
-  `Data is missing from the blockchain, please run the benchmaks for blockchain ${args.chainId}`,
-  [DappyLoadError.InvalidServers]: (args) => `Did not find a primary server to address the request to : ${args.search}`,
+    <p>Data is missing from the blockchain, please run the benchmaks for blockchain {args.chainId}</p>,
+  [DappyLoadError.InvalidServers]: (args) => <p>Did not find a primary server to address the request to : {args.search}</p>,
   [DappyLoadError.FailedToParseResponse]: (args) =>
-  `Response received from the blockchain could not be parsed : ${args.message}`,
+    <p>Response received from the blockchain could not be parsed : {args.message}</p>,
   [DappyLoadError.InvalidManifest]: (args) =>
-  `Response received from the blockchain could not be parsed as a valid file ${
-    args.message ? `: ${args.message}` : ''
-  }`,
-  [DappyLoadError.InvalidRecords]: (args) => `Record found "${args.name}" is invalid : ${args.message}`,
+    <p>Response received from the blockchain could not be parsed as a valid file {args.message ? args.message : undefined }</p>
+  ,
+  [DappyLoadError.InvalidRecords]: (args) => <p>Record found "{args.name}" is invalid : ${args.message}</p>,
   [DappyLoadError.InvalidSignature]: (args) =>
-  'The signature of the response received from the blockchain does not match the public key associated with the name',
-  [DappyLoadError.RecordNotFound]: (args) => `Could not find a record associated with name "${args.name}"`,
-  [DappyLoadError.DNSResolutionError]: (args) => `Could not resolve host with DNS : ${args.plus}`,
-  [DappyLoadError.DappyResolutionError]: (args) => `Could not resolve host with dappy name system : ${args.plus}`,
-
+    <p>The signature of the response received from the blockchain does not match the public key associated with the name</p>,
+  [DappyLoadError.RecordNotFound]: (args) => <p>Could not find a record associated with name "{args.name}"</p>,
+  [DappyLoadError.DNSResolutionError]: (args) => <p>Could not resolve host with DNS : {args.plus}</p>,
+  [DappyLoadError.DappyResolutionError]: (args) => <p>Could not resolve host with dappy name system : {args.plus}</p>,
   [BeesLoadError.OutOfNodes]: (args) => {
     const n = args.alreadyQueried === 1 ? 'request' : 'requests';
-    return `Not enough available nodes to query to resolve the request. Needed ${args.resolverAbsolute} identical responses, queried ${args.alreadyQueried} nodes successfully ${n}. Lower your resolver settings or retry later`;
+    return <p>Not enough available nodes to query to resolve the request. Needed {args.resolverAbsolute} identical responses, queried {args.alreadyQueried} nodes successfully {n}. Lower your resolver settings or retry later</p>;
   },
   [BeesLoadError.UnstableState]: (args) =>
-    `The requests resulted in ${args.numberOfLoadStates} different responses from ${args.numberOfLoadStates} different group of nodes. The resource you are querying is in an unstable/unsecure state, retry later`,
+    <p>The requests resulted in ${args.numberOfLoadStates} different responses from {args.numberOfLoadStates} different group of nodes. The resource you are querying is in an unstable/unsecure state, retry later</p>,
   [BeesLoadError.UnaccurateState]: (args) =>
-    `There are two many different responses, the settings can not be satisfied : ${args.loadStates
+    <p>There are two many different responses, the settings can not be satisfied : {args.loadStates
       .map((l: any) => `${l.okResponses} (${l.percent}%) of response ${l.key}`)
-      .join(', ')}`,
+      .join(', ')}</p>,
 };
 
 export const loadErrorText = (loadError: BeesLoadErrorWithArgs | DappyLoadErrorWithArgs) => {
-  return DESCRIPTIONS[loadError.error] ? DESCRIPTIONS[loadError.error](loadError.args) : 'Unknown load error';
+  if (DESCRIPTIONS[loadError.error]) {
+    return DESCRIPTIONS[loadError.error](loadError.args)
+  } else {
+    return <p>Unknown error</p>
+  }
 };
 
 export const LoadErrorHtml = (props: { loadError: BeesLoadErrorWithArgs | DappyLoadErrorWithArgs; clearSearchAndLoadError: () => void }) => {
   return (
     <div>
       <h4 className="title is-4">{TITLES[props.loadError.error] || 'Load error'}</h4>
-      <p>{loadErrorText(props.loadError)}</p>
+      {loadErrorText(props.loadError)}
       <Button ok={props.clearSearchAndLoadError} />
     </div>
   );

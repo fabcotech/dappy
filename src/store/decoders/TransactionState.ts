@@ -13,7 +13,7 @@ export const transactionOriginSchemas = yup.mixed().oneOf([
   // dapp
   yup.object().shape({
     origin: yup.string().matches(/dapp/).required(),
-    resourceId: yup.string().required(),
+    tabId: yup.string().required(),
     dappTitle: yup.string().required(),
     callId: yup.string().required(),
   }),

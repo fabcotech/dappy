@@ -1,18 +1,23 @@
 import * as React from 'react';
 
-import { Tab, LoadedFile } from '/models';
+import { Tab } from '/models';
 import { triggerCommand } from '/interProcess';
 import './DownloadFile.scss';
 
 const fileIconImg = require('/images/file-icon.png');
 
 interface DownloadFileComponentProps {
-  loadedFile: undefined | LoadedFile;
+  loadedFile: any;
   zIndex: number;
   tab: Tab;
   loadResource: (search: string, tabId: string) => void;
 }
 
+/*
+  NOT WORKING
+  This component is kept but has not be checked to work properly after the 
+  removal of Dapps, IpApps and LoadedFiles in 0.5.5
+*/
 class DownloadFileComponent extends React.Component<DownloadFileComponentProps> {
   el: null | HTMLIFrameElement = null;
 
@@ -49,7 +54,7 @@ class DownloadFileComponent extends React.Component<DownloadFileComponentProps> 
     document.body.appendChild(a);
     a.setAttribute('style', 'display:none');
 
-    const loadedFile = this.props.loadedFile as LoadedFile;
+    const loadedFile = this.props.loadedFile;
     const dataAsString = atob(loadedFile.data);
     const len = dataAsString.length;
     const buffer = new ArrayBuffer(len);

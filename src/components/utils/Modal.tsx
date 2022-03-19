@@ -20,8 +20,8 @@ class ModalComponent extends React.Component<ModalComponentProps, {}> {
   onClose() {
     const { modal, dispatchModalAction } = this.props;
     if (modal) {
-      if (modal.resourceId) {
-        dispatchModalAction(fromMain.closeDappModalAction({ resourceId: modal.resourceId }));
+      if (modal.tabId) {
+        dispatchModalAction(fromMain.closeDappModalAction({ tabId: modal.tabId }));
       } else {
         dispatchModalAction(fromMain.closeModalAction());
       }
@@ -54,8 +54,6 @@ class ModalComponent extends React.Component<ModalComponentProps, {}> {
             url={this.props.modal.parameters.url}
             tabId={this.props.modal.parameters.tabId}
             badges={this.props.modal.parameters.badges}
-            loadState={this.props.modal.parameters.loadState}
-            resourceId={this.props.modal.parameters.resourceId}
           />
         );
       case 'REMOVE_ACCOUNT_MODAL':

@@ -4,7 +4,6 @@ import { Action } from '../';
 import * as fromDapps from '../dapps';
 import * as fromActions from './actions';
 import { Session, Preview, SessionItem } from '/models';
-import { getFocusedTabId } from '../dapps';
 
 export interface State {
   sessions: {
@@ -21,20 +20,15 @@ export const initialState: State = {
 };
 
 export const reducer = (state = initialState, action: Action): State => {
-  if ([fromDapps.LAUNCH_FILE_COMPLETED, fromActions.DID_NAVIGATE_IN_PAGE].includes(action.type)) {
+  if ([fromDapps.LAUNCH_TAB_COMPLETED, fromActions.DID_NAVIGATE_IN_PAGE].includes(action.type)) {
     let url = '';
     let tabId = '';
-    let previews = state.previews;
 
-    if (action.type === fromDapps.LAUNCH_FILE_COMPLETED) {
-      console.log('LAUNCH_FILE_COMPLETED');
-      console.log(JSON.stringify(action.payload, null, 2))
-      const payload: fromDapps.LaunchFileCompletedPayload = action.payload;
-      url = payload.file.url;
-      tabId = payload.tabId;
+    if (action.type === fromDapps.LAUNCH_TAB_COMPLETED) {
+      const payload: fromDapps.LaunchTabCompletedPayload = action.payload;
+      url = payload.tab.url;
+      tabId = payload.tab.id;
     } else if (action.type === fromActions.DID_NAVIGATE_IN_PAGE) {
-      console.log('DID_NAVIGATE_IN_PAGE');
-      console.log(JSON.stringify(action.payload, null, 2))
       const payload: fromActions.DidNavigateInPagePayload = action.payload;
       url = payload.url;
       tabId = payload.tabId;
@@ -171,16 +165,16 @@ export const getCanGoForward = createSelector(getSessions, fromDapps.getFocusedT
 
 export const getCanGoBackward = createSelector(
   getSessions,
-  fromDapps.getActiveResource,
+  fromDapps.getActiveTab,
   fromDapps.getFocusedTabId,
-  (sessions, activeResource, focusedTabId) => {
+  (sessions, activeTab, focusedTabId) => {
     const session = sessions[focusedTabId];
 
     if (!session) {
       return false;
     }
 
-    if (!activeResource && session.items[session.cursor]) {
+    if (!activeTab && session.items[session.cursor]) {
       return true;
     }
 

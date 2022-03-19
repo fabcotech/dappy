@@ -5,7 +5,7 @@ import { TransactionOriginDapp, TransactionState } from '../../src/models';
 export const TRANSFER_TRANSACTIONS = '[MAIN] Transfer transactions';
 
 export interface State {
-  [resourceId: string]: {
+  [tabId: string]: {
     [transactionId: string]: TransactionState;
   };
 }
@@ -18,8 +18,8 @@ export const reducer = (state = initialState, action: any): State => {
       const payload: TransactionState = action.payload;
       return {
         ...state,
-        [(payload.origin as TransactionOriginDapp).resourceId]: {
-          ...(state[(payload.origin as TransactionOriginDapp).resourceId] || {}),
+        [(payload.origin as TransactionOriginDapp).tabId]: {
+          ...(state[(payload.origin as TransactionOriginDapp).tabId] || {}),
           [payload.id]: payload,
         },
       };

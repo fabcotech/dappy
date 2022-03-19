@@ -44,7 +44,7 @@ export type TransactionValue =
 export interface TransactionOriginDapp {
   origin: 'dapp';
   accountName: undefined | string;
-  resourceId: string;
+  tabId: string;
   dappTitle: string;
   callId: string;
 }

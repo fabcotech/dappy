@@ -395,21 +395,17 @@ dbReq.onsuccess = (event) => {
   const requestTabs = tabsStore.getAll();
   requestTabs.onsuccess = (e) => {
     let tabsToCheck = requestTabs.result;
-    /*
-      There are previous versions of dappy where .address can be "",
-      We must delete those tabs
-    */
-    const tabsWithNoAddress = tabsToCheck.filter((t) => !t.address);
-    if (tabsWithNoAddress.length) {
-      console.log('Will remove ' + tabsWithNoAddress.length + ' invalid tabs');
-      console.log(tabsWithNoAddress.map((t) => t.id));
-      browserUtils.deleteStorageIndexed(
-        'tabs',
-        tabsWithNoAddress.map((t) => t.id)
-      );
-    }
 
-    tabsToCheck = tabsToCheck.filter((t) => !!t.address);
+    tabsToCheck = tabsToCheck
+      .filter((t) => !!t.url)
+      .map((t) => {
+        if (t.resourceId) {
+          delete t.resourceId;
+        }
+        t.favorite = t.favorite || false;
+        return t;
+      });
+
     validateTabs(tabsToCheck)
       .then((tabs) => {
         asyncActionsOver += 1;

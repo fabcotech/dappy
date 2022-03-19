@@ -24,7 +24,7 @@ const stop = function* (action: Action) {
 
   dispatchInMain({
     type: '[MAIN] Destroy browser view',
-    payload: { resourceId: tab.resourceId },
+    payload: { tabId: tab.id },
   });
 };
 

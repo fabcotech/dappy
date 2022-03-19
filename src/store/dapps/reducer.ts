@@ -1,8 +1,7 @@
 import { createSelector } from 'reselect';
 import { BeesLoadErrors, BeesLoadCompleted } from 'beesjs';
-import { Dapp, TransitoryState, Tab, LastLoadError, Identification, LoadedFile, IpApp } from '/models';
+import { TransitoryState, Tab, LastLoadError, Identification } from '/models';
 import * as fromActions from './actions';
-import * as fromHistory from '../history';
 import { Action } from '../';
 
 export interface State {
@@ -17,9 +16,6 @@ export interface State {
       pending: string[];
     };
   };
-  dapps: { [dappId: string]: Dapp };
-  loadedFiles: { [fileId: string]: LoadedFile };
-  ipApps: { [appId: string]: IpApp };
   tabs: Tab[];
   tabsFocusOrder: string[];
   transitoryStates: { [resourceId: string]: TransitoryState };
@@ -37,9 +33,6 @@ export const initialState: State = {
   searching: false,
   lastLoadErrors: {},
   loadStates: {},
-  dapps: {},
-  loadedFiles: {},
-  ipApps: {},
   tabs: [],
   tabsFocusOrder: [],
   transitoryStates: {},
@@ -58,6 +51,7 @@ export const reducer = (state = initialState, action: Action): State => {
           ...t,
           active: false,
           counter: 0,
+          error: undefined,
         })),
       };
     }
@@ -74,12 +68,17 @@ export const reducer = (state = initialState, action: Action): State => {
     case fromActions.CLEAR_SEARCH_AND_LOAD_ERROR: {
       const payload: fromActions.ClearSearchAndLoadErrorPayload = action.payload;
 
-      const newLastLoadErrors = { ...state.lastLoadErrors };
-      delete newLastLoadErrors[payload.tabId];
-
       return {
         ...state,
-        lastLoadErrors: newLastLoadErrors,
+        tabs: state.tabs.map(t => {
+          if (t.id === payload.tabId) {
+            return {
+              ...t,
+              lastError: undefined
+            }
+          }
+          return t;
+        }),
         search: payload.clearSearch ? '' : state.search,
       };
     }
@@ -96,7 +95,7 @@ export const reducer = (state = initialState, action: Action): State => {
       return {
         ...state,
         transitoryStates: {
-          [payload.resourceId]: 'loading',
+          [payload.tabId]: 'loading',
         },
         lastLoadErrors: newLastLoadErrors,
       };
@@ -131,20 +130,25 @@ export const reducer = (state = initialState, action: Action): State => {
       }
 
       const newTransitoryStates = { ...state.transitoryStates };
-      delete newTransitoryStates[tab.resourceId];
-
-      const newDapps = { ...state.dapps };
-      delete newDapps[tab.resourceId];
+      delete newTransitoryStates[tab.id];
 
       return {
         ...state,
+        tabs: state.tabs.map(t => {
+          if (t.id === payload.tabId) {
+            return {
+              ...t,
+              lastError: { url: payload.url, error: payload.error }
+            }
+          }
+          return t;
+        }),
         lastLoadErrors: {
           ...state.lastLoadErrors,
           [payload.tabId]: { url: payload.url, error: payload.error },
         },
         transitoryStates: newTransitoryStates,
         errors: state.errors.concat(action.payload),
-        dapps: newDapps,
       };
     }
 
@@ -176,7 +180,6 @@ export const reducer = (state = initialState, action: Action): State => {
           return {
             ...t,
             active: true,
-            resourceId: payload.resourceId,
             url: payload.url,
             counter: t.counter + 1,
           };
@@ -217,20 +220,42 @@ export const reducer = (state = initialState, action: Action): State => {
         tabs: state.tabs
           .concat({
             id: payload.tabId,
-            resourceId: payload.resourceId,
             url: payload.url,
-            title: payload.resourceId,
+            title: payload.url,
             img: undefined,
             active: true,
             muted: false,
             index: state.tabs.length,
             counter: 0,
+            favorite: false,
+            lastError: undefined,
+            data: {
+              publicKey: undefined,
+              chainId: undefined,
+            }
           })
-          .map((dio, i) => ({
-            ...dio,
+          .map((t, i) => ({
+            ...t,
             index: i,
           })),
         tabsFocusOrder: newDappsFocusOrder,
+      };
+    }
+
+    case fromActions.DID_CHANGE_TITLE: {
+      const payload: fromActions.DidChangeTitlePayload = action.payload;
+       return {
+        ...state,
+        tabs: state.tabs.map((tab, i) => {
+          if (tab.id === payload.tabId) {
+            return {
+              ...tab,
+              title: payload.title,
+            };
+          } else {
+            return tab;
+          }
+        }),
       };
     }
 
@@ -251,110 +276,14 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
-    case fromActions.LAUNCH_DAPP_COMPLETED: {
-      const payload: fromActions.LaunchDappCompletedPayload = action.payload;
-      const dapp = payload.dapp;
-
-      const newTransitoryStates = { ...state.transitoryStates };
-      delete newTransitoryStates[dapp.id];
-
-      const newLastLoadErrors = { ...state.lastLoadErrors };
-      delete newLastLoadErrors[dapp.id];
-
-      let newState = {
-        ...state,
-        search: '',
-        dapps: {
-          ...state.dapps,
-          [dapp.id]: dapp,
-        },
-        transitoryStates: newTransitoryStates,
-        lastLoadErrors: newLastLoadErrors,
-      };
-
-      newState = {
-        ...newState,
-        tabs: state.tabs.map((tab, i) => {
-          if (tab.id === dapp.tabId) {
-            return {
-              ...tab,
-              active: tab.active || tab.id === dapp.id,
-              title: dapp.url,
-              img: undefined,
-              index: i,
-            };
-          } else {
-            return tab;
-          }
-        }),
-      };
-
-      return newState;
-    }
-
-    case fromActions.LAUNCH_FILE_COMPLETED: {
-      const payload: fromActions.LaunchFileCompletedPayload = action.payload;
-      const file = payload.file;
-
-      const newTransitoryStates = { ...state.transitoryStates };
-      delete newTransitoryStates[file.id];
-
-      const newLastLoadErrors = { ...state.lastLoadErrors };
-      delete newLastLoadErrors[file.id];
-
-      return {
-        ...state,
-        loadedFiles: {
-          ...state.loadedFiles,
-          [file.id]: file,
-        },
-        transitoryStates: newTransitoryStates,
-        lastLoadErrors: newLastLoadErrors,
-        tabs: state.tabs.map((tab, i) => {
-          if (tab.id === payload.tabId) {
-            return {
-              ...tab,
-              active: tab.active,
-              title: file.name,
-              img: undefined,
-              index: i,
-            };
-          } else {
-            return tab;
-          }
-        }),
-      };
-    }
-
     case fromActions.REMOVE_RESOURCE: {
       const payload = action.payload as fromActions.RemoveResourcePayload;
 
-      let newDapps = state.dapps;
-      if (newDapps[payload.resourceId]) {
-        newDapps = { ...state.dapps };
-        delete newDapps[payload.resourceId];
-      }
-
-      let newLoadedFiles = state.loadedFiles;
-      if (newLoadedFiles[payload.resourceId]) {
-        newLoadedFiles = { ...state.loadedFiles };
-        delete newLoadedFiles[payload.resourceId];
-      }
-
-      let newIpApps = state.ipApps;
-      if (newIpApps[payload.resourceId]) {
-        newIpApps = { ...state.ipApps };
-        delete newIpApps[payload.resourceId];
-      }
-
       const newTransitoryStates = { ...state.transitoryStates };
-      delete newTransitoryStates[payload.resourceId];
+      delete newTransitoryStates[payload.tabId];
 
       return {
         ...state,
-        ipApps: newIpApps,
-        loadedFiles: newLoadedFiles,
-        dapps: newDapps,
         transitoryStates: newTransitoryStates,
       };
     }
@@ -368,8 +297,6 @@ export const reducer = (state = initialState, action: Action): State => {
         return state;
       }
 
-      const resourceId = tab.resourceId;
-
       const newTabs = state.tabs.map((t) => {
         if (t.id === payload.tabId) {
           return {
@@ -381,111 +308,26 @@ export const reducer = (state = initialState, action: Action): State => {
         }
       });
 
-      let newDapps = state.dapps;
-      if (newDapps[resourceId]) {
-        newDapps = { ...state.dapps };
-        delete newDapps[resourceId];
-      }
-
-      let newLoadedFiles = state.loadedFiles;
-      if (newLoadedFiles[resourceId]) {
-        newLoadedFiles = { ...state.loadedFiles };
-        delete newLoadedFiles[resourceId];
-      }
-
-      let newIpApps = state.ipApps;
-      if (newIpApps[resourceId]) {
-        newIpApps = { ...state.ipApps };
-        delete newIpApps[resourceId];
-      }
-
       const newTransitoryStates = { ...state.transitoryStates };
-      delete newTransitoryStates[tab.resourceId];
+      delete newTransitoryStates[tab.id];
 
       const newDappsFocusOrder = state.tabsFocusOrder.filter((id) => id !== payload.tabId);
 
       return {
         ...state,
-        ipApps: newIpApps,
-        loadedFiles: newLoadedFiles,
-        dapps: newDapps,
         tabsFocusOrder: newDappsFocusOrder,
         transitoryStates: newTransitoryStates,
         tabs: newTabs,
       };
     }
 
-    case fromActions.UPDATE_RESOURCE_ADDRESS: {
-      const payload: fromActions.UpdateResourceAddressPayload = action.payload;
-      const tab = state.tabs.find((t) => t.id === payload.tabId);
-      if (!tab) {
-        console.log('did not find tab ');
-        return state;
-      }
-      if (state.dapps[tab.resourceId]) {
-        const dapp = state.dapps[tab.resourceId];
-        const newDapps = {
-          ...state.dapps,
-          [dapp.id]: {
-            ...dapp,
-            search: payload.searchSplitted.search,
-            chainId: payload.searchSplitted.chainId,
-            path: payload.searchSplitted.path,
-          },
-        };
-        return {
-          ...state,
-          dapps: newDapps,
-        };
-      } else if (state.ipApps[tab.resourceId]) {
-        const ipApp = state.ipApps[tab.resourceId];
-        const newIpApps = {
-          ...state.ipApps,
-          [ipApp.id]: {
-            ...ipApp,
-            search: payload.searchSplitted.search,
-            chainId: payload.searchSplitted.chainId,
-            path: payload.searchSplitted.path,
-          },
-        };
-        return {
-          ...state,
-          ipApps: newIpApps,
-        };
-      } else {
-        // ignore loadedFiles
-        return state;
-      }
-    }
     case fromActions.REMOVE_TAB_COMPLETED: {
       const payload: fromActions.RemoveTabCompletedPayload = action.payload;
-      const resourceId = payload.resourceId;
 
-      const tabsWithSameDappId = state.tabs.filter((t) => t.resourceId === payload.resourceId).length;
-      if (tabsWithSameDappId === 1) {
-        let newDapps = state.dapps;
-        if (resourceId) {
-          newDapps = { ...state.dapps };
-          delete newDapps[resourceId];
-        }
-
-        let searchError = state.searchError;
-        if (searchError && searchError.text === resourceId) {
-          searchError = undefined;
-        }
-
-        return {
-          ...state,
-          dapps: newDapps,
-          searchError: searchError,
-          tabs: state.tabs.filter((dio) => dio.id !== payload.tabId).map((dio, i) => ({ ...dio, index: i })),
-        };
-      } else {
-        return {
-          ...state,
-          tabs: state.tabs.filter((dio) => dio.id !== payload.tabId).map((dio, i) => ({ ...dio, index: i })),
-        };
-      }
+      return {
+        ...state,
+        tabs: state.tabs.filter((dio) => dio.id !== payload.tabId).map((dio, i) => ({ ...dio, index: i })),
+      };
     }
 
     case fromActions.FOCUS_SEARCH_DAPP: {
@@ -498,7 +340,7 @@ export const reducer = (state = initialState, action: Action): State => {
     case fromActions.SAVE_IDENTIFICATION: {
       const payload: fromActions.SaveIdentificationPayload = action.payload;
 
-      let dappIdentifications = state.identifications[payload.resourceId];
+      let dappIdentifications = state.identifications[payload.tabId];
       if (!dappIdentifications) {
         dappIdentifications = {};
       }
@@ -507,7 +349,7 @@ export const reducer = (state = initialState, action: Action): State => {
         ...state,
         identifications: {
           ...state.identifications,
-          [payload.resourceId]: {
+          [payload.tabId]: {
             ...dappIdentifications,
             [payload.callId]: payload.identification,
           },
@@ -515,28 +357,21 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
-    case fromActions.LAUNCH_IP_APP_COMPLETED: {
-      const payload: fromActions.LaunchIpAppCompletedPayload = action.payload;
-      const ipApp = payload.ipApp;
+    case fromActions.LAUNCH_TAB_COMPLETED: {
+      const payload: fromActions.LaunchTabCompletedPayload = action.payload;
 
       const newLastLoadErrors = { ...state.lastLoadErrors };
-      delete newLastLoadErrors[ipApp.id];
+      delete newLastLoadErrors[payload.tab.id];
 
       return {
         ...state,
-        ipApps: {
-          ...state.ipApps,
-          [ipApp.id]: ipApp,
-        },
-        lastLoadErrors: newLastLoadErrors,
         tabs: state.tabs.map((tab, i) => {
-          if (tab.id === payload.ipApp.tabId) {
+          if (tab.id === payload.tab.id) {
             return {
               ...tab,
-              active: tab.active,
-              title: ipApp.url,
+              title: payload.tab.url,
+              url: payload.tab.url,
               img: undefined,
-              index: i,
             };
           } else {
             return tab;
@@ -547,14 +382,14 @@ export const reducer = (state = initialState, action: Action): State => {
 
     case fromActions.UPDATE_TRANSITORY_STATE: {
       const payload: fromActions.UpdateTransitoryStatePayload = action.payload;
-
-      if (!state.transitoryStates[payload.resourceId]) {
+    
+      if (!state.transitoryStates[payload.tabId]) {
         if (payload.transitoryState) {
           return {
             ...state,
             transitoryStates: {
               ...state.transitoryStates,
-              [payload.resourceId]: payload.transitoryState,
+              [payload.tabId]: payload.transitoryState,
             },
           };
         } else {
@@ -565,15 +400,42 @@ export const reducer = (state = initialState, action: Action): State => {
       let newTransitoryStates = state.transitoryStates;
       if (!payload.transitoryState) {
         newTransitoryStates = { ...state.transitoryStates };
-        delete newTransitoryStates[payload.resourceId];
+        delete newTransitoryStates[payload.tabId];
       } else {
         newTransitoryStates = { ...state.transitoryStates };
-        newTransitoryStates[payload.resourceId] = payload.transitoryState;
+        newTransitoryStates[payload.tabId] = payload.transitoryState;
       }
 
       return {
         ...state,
         transitoryStates: newTransitoryStates,
+        tabs: state.tabs.map(t => {
+          if (t.id === payload.tabId) {
+            return {
+              ...t,
+              lastError: undefined
+            }
+          }
+          return t;
+        }),
+      };
+    }
+
+    case fromActions.SET_TAB_FAVORITE: {
+      const payload: fromActions.SetTabFavoritePayload = action.payload;
+
+      return {
+        ...state,
+        tabs: state.tabs.map((tab: Tab) => {
+          if (tab.id === payload.tabId) {
+            return {
+              ...tab,
+              favorite: payload.favorite,
+            };
+          } else {
+            return tab;
+          }
+        }),
       };
     }
 
@@ -612,16 +474,11 @@ export const getSearchError = createSelector(getDappsState, (state: State) => st
 export const getSearching = createSelector(getDappsState, (state: State) => state.searching);
 export const getLastLoadErrors = createSelector(getDappsState, (state: State) => state.lastLoadErrors);
 export const getLoadStates = createSelector(getDappsState, (state: State) => state.loadStates);
-export const getDapps = createSelector(getDappsState, (state: State) => state.dapps);
 export const getTabsFocusOrder = createSelector(getDappsState, (state: State) => state.tabsFocusOrder);
 export const getTabs = createSelector(getDappsState, (state: State) => state.tabs);
 export const getDappsTransitoryStates = createSelector(getDappsState, (state: State) => state.transitoryStates);
 
 export const getIdentifications = createSelector(getDappsState, (state: State) => state.identifications);
-
-export const getLoadedFiles = createSelector(getDappsState, (state: State) => state.loadedFiles);
-
-export const getIpApps = createSelector(getDappsState, (state: State) => state.ipApps);
 
 // COMBINED SELECTORS
 
@@ -662,24 +519,21 @@ export const getActiveTabs = createSelector(getTabs, (tabs) => {
   return activeTabs;
 });
 
-export const getActiveResource = createSelector(
+/*
+  Returns tab if it is active, meaning
+  no .lastError and no transitory state
+*/
+export const getActiveTab = createSelector(
   getFocusedTabId,
   getTabs,
-  getDapps,
-  getIpApps,
-  getLoadedFiles,
-  (focusedTabId, tabs, dapps, ipApps, loadedFiles): Dapp | IpApp | LoadedFile | undefined => {
+  getDappsTransitoryStates,
+  (focusedTabId, tabs, transitoryStates): Tab | undefined => {
     const tab = tabs.find((t) => t.id === focusedTabId);
     if (!tab) {
       return undefined;
     }
-
-    if (dapps[tab.resourceId]) {
-      return dapps[tab.resourceId];
-    } else if (ipApps[tab.resourceId]) {
-      return ipApps[tab.resourceId];
-    } else if (loadedFiles[tab.resourceId]) {
-      return loadedFiles[tab.resourceId];
+    if (!transitoryStates[tab.id] && !tab.lastError) {
+      return tab;
     }
 
     return undefined;

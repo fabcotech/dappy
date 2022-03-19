@@ -9,10 +9,10 @@ const rChainTransactionError = function* (action: Action) {
   const payload: fromBlockchain.RChainTransactionErrorPayload = action.payload;
   const modals: { [resourceId: string]: fromMain.Modal[] } = yield select(fromMain.getDappModals);
 
-  if (payload.resourceId) {
+  if (payload.tabId) {
     // Close modal if the currently opened modal is the transaction modal for this transation
-    if (modals[payload.resourceId]) {
-      const dappModals = modals[payload.resourceId];
+    if (modals[payload.tabId]) {
+      const dappModals = modals[payload.tabId];
       const displayedModal = dappModals[dappModals.length - 1];
       if (
         displayedModal &&
@@ -20,20 +20,20 @@ const rChainTransactionError = function* (action: Action) {
         displayedModal.parameters &&
         displayedModal.parameters.id === payload.id
       ) {
-        yield put(fromMain.closeDappModalAction({ resourceId: payload.resourceId }));
+        yield put(fromMain.closeDappModalAction({ tabId: payload.tabId }));
       }
     }
 
     yield put(
       fromMain.openDappModalAction({
-        resourceId: payload.resourceId,
+        tabId: payload.id,
         title: 'Transaction failure',
         text: 'Transaction has failed to be sent, error : ' + (payload.value ? payload.value.message : 'unknown'),
         buttons: [
           {
             classNames: 'is-link',
             text: 'Ok',
-            action: fromMain.closeDappModalAction({ resourceId: payload.resourceId }),
+            action: fromMain.closeDappModalAction({ tabId: payload.tabId }),
           },
         ],
       })

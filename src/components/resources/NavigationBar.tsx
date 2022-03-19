@@ -9,7 +9,7 @@ import * as fromSettings from '/store/settings';
 import * as fromHistory from '/store/history';
 import * as fromUi from '/store/ui';
 import * as fromMain from '/store/main';
-import { Tab, LoadCompletedData } from '/models';
+import { Tab } from '/models';
 import { State as StoreState } from '/store';
 import './NavigationBar.scss';
 
@@ -18,12 +18,10 @@ class NavigationBarComponent extends WithSuggestions {
     if (!this.props.tab || !this.props.resourceLoaded) {
       return;
     }
-    this.props.showLoadInfos(this.props.tab.resourceId, {
-      resourceId: this.props.tab.resourceId,
+    this.props.showLoadInfos(this.props.tab.id, {
       appType: this.props.appType,
       url: this.props.url,
       tabId: this.props.tab.id,
-      loadState: this.props.loadState,
       badges: {},
     });
   };
@@ -54,7 +52,14 @@ class NavigationBarComponent extends WithSuggestions {
             )}
           </div>
           <div>
-            <i onClick={(e) => this.props.stopTab(tab.id)} className="fa fa-stop " title="Stop" />
+            {
+              this.props.tab && this.props.tab.favorite ?
+                <i onClick={(e) => this.props.stopTab(tab.id)} className="fa fa-stop " title="Stop" /> :
+                <i onClick={(e) => {
+                  this.props.stopTab(tab.id);
+                  this.props.removeTab(tab.id)
+                }} className="fa fa-times " title="Close" />
+            }
           </div>
           {this.props.resourceLoaded && !loadingOrReloading ? (
             <div>
@@ -110,11 +115,11 @@ class NavigationBarComponent extends WithSuggestions {
             onKeyDown={this.onKeyDown}
           />
           <div
-            className={`fc tip-div ${this.props.resourceLoaded && this.props.publicKey && this.props.chainId && this.props.resourceId
+            className={`fc tip-div ${this.props.resourceLoaded && this.props.publicKey && this.props.chainId && !!this.props.tab
               ? 'resource-loaded'
               : ''
               }`}>
-            {this.props.resourceLoaded && this.props.publicKey && this.props.chainId && this.props.resourceId ? (
+            {this.props.resourceLoaded && this.props.tab && this.props.publicKey && this.props.chainId && !!this.props.tab ? (
               <i
                 title="Tip the owner of this app"
                 onClick={() => {
@@ -123,7 +128,7 @@ class NavigationBarComponent extends WithSuggestions {
                     this.props.sendRChainPayment(
                       this.props.chainId as string,
                       this.props.publicKey as string,
-                      this.props.resourceId as string,
+                      (this.props.tab as Tab).id,
                       new URL(this.props.url as string).hostname
                     );
                   }
@@ -152,37 +157,21 @@ export const NavigationBar = connect(
     let resourceLoaded = false;
     let appType: 'DA' | 'IP' = 'DA';
     let url = undefined;
-    let resourceId: string | undefined = '';
     let publicKey: string | undefined = '';
     let chainId: string | undefined = '';
-    let loadState: undefined | LoadCompletedData;
     if (tab) {
-      const dapp = fromDapps.getDapps(state)[tab.resourceId];
-      const ipApp = fromDapps.getIpApps(state)[tab.resourceId];
-      const loadedFile = fromDapps.getLoadedFiles(state)[tab.resourceId];
-      if (!!dapp) {
-        const firstKey = Object.keys(dapp.loadState.completed)[0];
-        loadState = dapp.loadState.completed[firstKey];
+      url = tab.url;
+      if (tab.url && new URL(tab.url).hostname.endsWith('.dappy')) {
+        appType = 'DA';
+      }
+      if (appType === 'DA') {
         resourceLoaded = true;
-        resourceId = dapp.id;
-        publicKey = dapp.publicKey;
-        chainId = dapp.chainId;
-        url = dapp.url;
-      } else if (!!ipApp) {
-        resourceLoaded = !transitoryStates[ipApp.id] || !['loading', 'reloading'].includes(transitoryStates[ipApp.id]);
-        appType = 'IP';
-        url = ipApp.url;
-        resourceId = ipApp.id;
-        publicKey = ipApp.publicKey;
-        chainId = ipApp.chainId;
-      } else if (!!loadedFile) {
-        resourceLoaded = true;
-        const firstKey = Object.keys(loadedFile.loadState.completed)[0];
-        loadState = loadedFile.loadState.completed[firstKey];
-        url = loadedFile.url;
-        resourceId = loadedFile.id;
-        publicKey = loadedFile.publicKey;
-        chainId = loadedFile.chainId;
+        publicKey = tab.data && tab.data.publicKey ? tab.data.publicKey : undefined;
+        chainId = tab.data && tab.data.chainId ? tab.data.chainId : undefined;
+      } else if (appType === 'IP') {
+        publicKey = tab.data && tab.data.publicKey ? tab.data.publicKey : undefined;
+        chainId = tab.data && tab.data.chainId ? tab.data.chainId : undefined;
+        resourceLoaded = !transitoryStates[tab.id] || !['loading', 'reloading'].includes(transitoryStates[tab.id]);
       }
     }
 
@@ -200,11 +189,9 @@ export const NavigationBar = connect(
       resourceLoaded: resourceLoaded,
       appType: appType,
       url: url,
-      resourceId: resourceId,
       publicKey: publicKey,
       chainId: chainId,
-      loadState: loadState,
-      transitoryState: tab ? transitoryStates[tab.resourceId] : undefined,
+      transitoryState: tab ? transitoryStates[tab.id] : undefined,
       canGoForward: fromHistory.getCanGoForward(state),
       canGoBackward: fromHistory.getCanGoBackward(state),
       navigationSuggestionsDisplayed: fromUi.getNavigationSuggestionsDisplayed(state),
@@ -216,21 +203,22 @@ export const NavigationBar = connect(
       isDisplayed: (a: boolean) =>
         dispatch(fromUi.updateNavigationSuggestinsDisplayAction({ navigationSUggestionsDisplayed: a })),
       stopTab: (tabId: string) => dispatch(fromDapps.stopTabAction({ tabId: tabId })),
-      showLoadInfos: (resourceId: string, parameters: any) =>
+      removeTab: (tabId: string) => dispatch(fromDapps.removeTabAction({ tabId: tabId })),
+      showLoadInfos: (tabId: string, parameters: any) =>
         dispatch(
           fromMain.openDappModalAction({
             title: 'LOAD_INFO_MODAL',
             parameters: parameters,
             text: '',
             buttons: [],
-            resourceId: resourceId,
+            tabId: tabId,
           })
         ),
       loadResource: (a: fromDapps.LoadResourcePayload) => dispatch(fromDapps.loadResourceAction(a)),
       updateTabSearch: (a: fromDapps.UpdateTabSearchPayload) => dispatch(fromDapps.updateTabSearchAction(a)),
       goForward: (tabId: string) => dispatch(fromHistory.goForwardAction({ tabId: tabId })),
       goBackward: (tabId: string) => dispatch(fromHistory.goBackwardAction({ tabId: tabId })),
-      sendRChainPayment: (chainId: string, publicKey: string, resourceId: string, address: string) => {
+      sendRChainPayment: (chainId: string, publicKey: string, tabId: string, address: string) => {
         let revAddress;
         try {
           revAddress = utils.revAddressFromPublicKey(publicKey);
@@ -241,7 +229,7 @@ export const NavigationBar = connect(
               parameters: {},
               text: 'Could not get REV address from public key ' + publicKey,
               buttons: [],
-              resourceId: resourceId,
+              tabId: tabId,
             })
           );
           return;
@@ -258,11 +246,11 @@ export const NavigationBar = connect(
             parameters: {
               parameters: parameters,
               chainId: chainId,
-              resourceId: resourceId,
+              tabId: tabId,
               origin: { origin: 'transfer' },
             },
             buttons: [],
-            resourceId: resourceId,
+            tabId: tabId,
           })
         );
       },

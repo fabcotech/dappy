@@ -7,14 +7,14 @@ import { DappyBrowserView } from '../../models';
 
 const transferTransactions = function* (action: any) {
   const payload: TransactionState = action.payload;
-  const resourceId = (payload.origin as TransactionOriginDapp).resourceId;
+  const tabId = (payload.origin as TransactionOriginDapp).tabId;
   const browserViews: {
-    [resourceId: string]: DappyBrowserView;
+    [tabId: string]: DappyBrowserView;
   } = yield select(fromBrowserViews.getBrowserViewsMain);
 
-  if (browserViews[resourceId] && browserViews[resourceId].browserView) {
+  if (browserViews[tabId] && browserViews[tabId].browserView) {
     try {
-      browserViews[resourceId].browserView.webContents.executeJavaScript(`
+      browserViews[tabId].browserView.webContents.executeJavaScript(`
       if (typeof dappyRChain !== 'undefined') { dappyRChain.requestTransactions() };
       if (typeof dappyEthereum !== 'undefined') { dappyEthereum.requestTransactions() };
       `);

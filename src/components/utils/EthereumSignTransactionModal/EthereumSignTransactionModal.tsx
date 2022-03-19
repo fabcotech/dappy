@@ -66,13 +66,13 @@ export const toHumanReadableEthUnit = (hexaString: string) => {
 
 interface EthereumSignTransactionModalProps {
   modal: Modal;
-  close: (chainId: number, signedTx: EthereumTransaction, origin: TransactionOriginDapp, resourceId: string) => void;
+  close: (chainId: number, signedTx: EthereumTransaction, origin: TransactionOriginDapp, tabId: string) => void;
   accounts: Record<string, Account>;
   returnSignedTransaction: (
     chainId: number,
     signedTx: EthereumSignedTransaction,
     origin: TransactionOriginDapp,
-    resourceId: string
+    tabId: string
   ) => void;
 }
 
@@ -102,7 +102,7 @@ export const EthereumSignTransactionModalComponent = ({
       <div className="modal-card">
         <header className="modal-card-head">
           <p className="modal-card-title">{t('signing ethereum transaction')}</p>
-          <i onClick={() => close(txData.chainId, txData, origin, modal.resourceId!)} className="fa fa-times" />
+          <i onClick={() => close(txData.chainId, txData, origin, modal.tabId!)} className="fa fa-times" />
         </header>
         <section className="modal-card-body modal-card-body-sign-ethereum-modal">
           <div className="transaction-body">
@@ -133,7 +133,7 @@ export const EthereumSignTransactionModalComponent = ({
           <button
             type="button"
             className="button is-outlined"
-            onClick={() => close(txData.chainId, txData, origin, modal.resourceId!)}>
+            onClick={() => close(txData.chainId, txData, origin, modal.tabId!)}>
             {t('discard transaction')}
           </button>
 
@@ -143,7 +143,7 @@ export const EthereumSignTransactionModalComponent = ({
             disabled={!privateKey}
             onClick={() => {
               const signedTx = evmWallet.signTransaction(txData, privateKey!);
-              returnSignedTransaction(txData.chainId, signedTx, origin, modal.resourceId!);
+              returnSignedTransaction(txData.chainId, signedTx, origin, modal.tabId!);
             }}>
             {t('sign transaction')}
           </button>
@@ -158,7 +158,7 @@ export const EthereumSignTransactionModal = connect(
     accounts: getEVMAccounts(state),
   }),
   (dispatch) => ({
-    close: (chainId: number, tx: EthereumTransaction, origin: TransactionOriginDapp, resourceId: string) => {
+    close: (chainId: number, tx: EthereumTransaction, origin: TransactionOriginDapp, tabId: string) => {
       dispatch(
         saveEthereumTransactionStateAction({
           sentAt: new Date().toISOString(),
@@ -172,7 +172,7 @@ export const EthereumSignTransactionModal = connect(
       );
       dispatch(
         closeDappModalAction({
-          resourceId,
+          tabId,
         })
       );
     },
@@ -180,7 +180,7 @@ export const EthereumSignTransactionModal = connect(
       chainId: number,
       signedTx: EthereumSignedTransaction,
       origin: TransactionOriginDapp,
-      resourceId: string
+      tabId: string
     ) => {
       dispatch(
         saveEthereumTransactionStateAction({
@@ -194,7 +194,7 @@ export const EthereumSignTransactionModal = connect(
         })
       );
 
-      dispatch(closeDappModalAction({ resourceId }));
+      dispatch(closeDappModalAction({ tabId }));
     },
   })
 )(EthereumSignTransactionModalComponent);
