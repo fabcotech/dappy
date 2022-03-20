@@ -10,6 +10,7 @@ import { LoadInfo } from '../resources';
 import { EthereumSignTransactionModal } from './EthereumSignTransactionModal';
 
 interface ModalComponentProps {
+  tabId?: string;
   modal: undefined | fromMain.Modal;
   dispatchModalAction: (
     action: undefined | { type: string; payload?: any } | { type: string; payload?: any }[]
@@ -29,7 +30,7 @@ class ModalComponent extends React.Component<ModalComponentProps, {}> {
   }
   render() {
     if (!this.props.modal) {
-      return undefined;
+      return <div></div>;
     }
 
     /*
@@ -50,10 +51,7 @@ class ModalComponent extends React.Component<ModalComponentProps, {}> {
       case 'LOAD_INFO_MODAL':
         return (
           <LoadInfo
-            appType={this.props.modal.parameters.appType}
-            url={this.props.modal.parameters.url}
-            tabId={this.props.modal.parameters.tabId}
-            badges={this.props.modal.parameters.badges}
+            tab={this.props.modal.parameters.tab}
           />
         );
       case 'REMOVE_ACCOUNT_MODAL':
@@ -78,8 +76,8 @@ class ModalComponent extends React.Component<ModalComponentProps, {}> {
 
 export const Modal = connect(
   (state, ownProps: any) => {
-    if (ownProps.resourceId) {
-      const dappModals = fromMain.getDappModals(state)[ownProps.resourceId];
+    if (ownProps.tabId) {
+      const dappModals = fromMain.getDappModals(state)[ownProps.tabId];
       return {
         modal: dappModals ? dappModals[0] : undefined,
       };

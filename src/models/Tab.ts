@@ -19,6 +19,7 @@ export interface Tab {
   // lastError is not persisted in indexeddb
   lastError: LastLoadError | undefined;
   data: {
+    isIp?: boolean,
     publicKey?: string | undefined,
     chainId?: string | undefined,
     html?: string | undefined,

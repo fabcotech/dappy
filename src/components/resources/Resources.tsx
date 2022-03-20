@@ -34,7 +34,7 @@ class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
                 key={tab.id}
                 style={{ zIndex: (this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10 + 1 }}
                 className="dapp-modal">
-                <Modal />
+                <Modal tabId={tab.id}/>
               </div>
             );
           }

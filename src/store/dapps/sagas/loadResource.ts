@@ -24,6 +24,7 @@ import fakeDappyLookup from '/utils/fakeDappyLookup'
 import { NamePacket, NameQuestion, RRTXT } from '/models/FakeDappyLookup';
 import { MAIN_CHAIN_ID } from '/CONSTANTS';
 import { DappyLoadError } from '/models/DappyLoadError';
+import { checkIfValidIP } from '/utils/checkIfValidIp';
 
 
 const loadResource = function* (action: Action) {
@@ -401,6 +402,7 @@ const loadResource = function* (action: Action) {
         title: url.hostname + url.pathname,
         url: url.toString(),
         data: {
+          isIp: checkIfValidIP(url.host),
           chainId: undefined,
           publicKey: undefined,
         }

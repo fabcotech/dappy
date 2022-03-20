@@ -214,17 +214,12 @@ export const getShouldBrowserViewsBeDisplayed = createSelector(
     // return undefined : no browser views displayed
     // return resourceId: string : the browser view corresponding to this resourceId should be displayed
     if (!!modal) {
-      console.log('1')
       return undefined;
     }
     if (!navigationSuggestionsDisplayed && isNavigationInDapps && tabsFocusOrder.length > 0) {
       const tab = tabs.find((t) => t.id === tabsFocusOrder[tabsFocusOrder.length - 1]);
-      console.log('2')
-      console.log(tab)
       // should always be true
       if (tab && (!dappModals[tab.id] || dappModals[tab.id].length === 0)) {
-        console.log('3')
-        console.log(tab)
         return tab.id;
       }
 

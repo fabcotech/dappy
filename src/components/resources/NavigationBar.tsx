@@ -19,10 +19,7 @@ class NavigationBarComponent extends WithSuggestions {
       return;
     }
     this.props.showLoadInfos(this.props.tab.id, {
-      appType: this.props.appType,
-      url: this.props.url,
-      tabId: this.props.tab.id,
-      badges: {},
+      tab: this.props.tab,
     });
   };
 
@@ -155,14 +152,14 @@ export const NavigationBar = connect(
 
     const transitoryStates = fromDapps.getDappsTransitoryStates(state);
     let resourceLoaded = false;
-    let appType: 'DA' | 'IP' = 'DA';
+    let appType: 'DA' | 'IP' = 'IP';
     let url = undefined;
     let publicKey: string | undefined = '';
     let chainId: string | undefined = '';
     if (tab) {
       url = tab.url;
       try {
-        if (tab.url && new URL(tab.url).hostname.endsWith('.dappy')) {
+        if (tab.url && new URL(tab.url).hostname.endsWith('.dappy') && tab.data.html) {
           appType = 'DA';
         }
       } catch (err) {
@@ -172,7 +169,7 @@ export const NavigationBar = connect(
         resourceLoaded = true;
         publicKey = tab.data && tab.data.publicKey ? tab.data.publicKey : undefined;
         chainId = tab.data && tab.data.chainId ? tab.data.chainId : undefined;
-      } else if (appType === 'IP') {
+      } else {
         publicKey = tab.data && tab.data.publicKey ? tab.data.publicKey : undefined;
         chainId = tab.data && tab.data.chainId ? tab.data.chainId : undefined;
         resourceLoaded = !transitoryStates[tab.id] || !['loading', 'reloading'].includes(transitoryStates[tab.id]);
