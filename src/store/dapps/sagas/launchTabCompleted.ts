@@ -2,9 +2,7 @@ import { takeEvery, select } from 'redux-saga/effects';
 
 import * as fromDapps from '..';
 import * as fromSettings from '../../settings';
-import * as fromCookies from '../../cookies';
-import { searchToAddress } from '../../../utils/searchToAddress';
-import {  Cookie, Tab } from '../../../models';
+import {   Tab } from '../../../models';
 import { Action } from '../..';
 import { dispatchInMain } from '/interProcess';
 
@@ -12,7 +10,6 @@ const launchTabCompleted = function* (action: Action) {
   const payload: fromDapps.LaunchTabCompletedPayload = action.payload;
   const settings: fromSettings.Settings = yield select(fromSettings.getSettings);
   const tabs: Tab[] = yield select(fromDapps.getTabs);
-  const cookies: { [address: string]: Cookie[] } = yield select(fromCookies.getCookies);
 
   const tab: Tab = tabs.find((t) => t.id === payload.tab.id) as Tab;
 
@@ -27,7 +24,6 @@ const launchTabCompleted = function* (action: Action) {
       url: tab.url,
       devMode: settings.devMode,
       html: undefined,
-      cookies: cookies[url.host] || [],
     },
   });
 };

@@ -98,27 +98,30 @@ interface makeTryToLoadParams {
   debug: boolean;
   request: ProtocolRequest;
   dappyBrowserView: DappyBrowserView;
-  isFirstRequest: boolean;
+  partitionIdHash: string;
+  setIsFirstRequest: (a: boolean) => void;
+  getIsFirstRequest: () => boolean;
   setCookie: (cookieDetails: CookiesSetDetails) => Promise<void>;
   getBlobData: (blobUUID: string) => Promise<Buffer>;
 }
 
-const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest, setCookie, getBlobData }: makeTryToLoadParams) => {
+const tryToLoad = async ({ dns, debug, request, partitionIdHash, dappyBrowserView, setIsFirstRequest, getIsFirstRequest, setCookie, getBlobData }: makeTryToLoadParams) => {
   let over = false;
 
   async function load(i: number = 0) {
 
     let s = "";
 
+    const url = new URL(request.url);
+    const isFirstRequest = getIsFirstRequest();
+
     if (debug) {
       if (isFirstRequest) {
-        s += `[https load] FIRST LEVEL ${rightPad(request.url, 32)} ${i}`;
+        s += `[https load ${partitionIdHash}] first hand navigation ${rightPad(request.url, 32)} ${i}`;
       } else {
-        s += `[https load] ${rightPad(request.url, 32)} ${i}`;
+        s += `[https load ${partitionIdHash}] ${rightPad(request.url, 32)} ${i}`;
       }
     }
-
-    const url = new URL(request.url);
 
     let networkHosts = [url.hostname];
     let port = url.port ? url.port : "443";
@@ -138,12 +141,18 @@ const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest
 
     const getCookiesHeaderResp = await getCookiesHeader(dappyBrowserView, url.origin, isFirstRequest, s);
 
+    /*
+      The next requests (next time tryToLoad is called) for same session / BrowserView will be a secondary requests, after the following line
+      get isFirstRequest still true
+    */
+    setIsFirstRequest(false);
+
     const options: https.RequestOptions = {
       host: networkHosts[i],
       method: request.method,
       path: path,
-      //minVersion: 'TLSv1.2',
-      //rejectUnauthorized: true,
+      minVersion: 'TLSv1.2',
+      rejectUnauthorized: true,
       headers: {
         ...request.headers,
         host: url.hostname,
@@ -162,20 +171,6 @@ const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest
       options.headers!.referrer = request.referrer;
     }
 
-    console.log(request.method);
-    if (request.method === 'POST' && request.url.includes('logout.json')) {
-      console.log(request);
-      console.log(request.uploadData);
-      let a;
-      try {
-         a = await getBlobData(request.uploadData[0].blobUUID as string)
-      } catch (err) {
-        console.log(':(')
-        console.log(err)
-      }
-      console.log('-------------')
-    }
-
     return new Promise<ProtocolResponse>((resolve) => {
       try {
         const req = https
@@ -192,16 +187,19 @@ const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest
                   value: c.value,
                   url: `https://${url.host}`,
                   expirationDate: c.expires ? new Date(c.expires).getTime() / 1000 : undefined,
-                  secure: true,
-                  httpOnly: true,
+                  secure: typeof c.secure === 'boolean' ? c.secure : true,
+                  httpOnly: typeof c.httpOnly === 'boolean' ? c.httpOnly : true,
                   // sameSite is by default 'lax'
                   sameSite: /^strict$/i.test(c.sameSite || '') ? 'strict' : 'lax',
                 });
               });
             }
+
             /*
+              Redirection is only ok if it is undergoing a first request
             */
             if (
+              isFirstRequest &&
               [300, 301, 302, 303, 304, 307, 308, 309].find(a => a === resp.statusCode)
             ) {
               s += rightPad(` | ${resp.statusCode} redirect`, 10);
@@ -212,7 +210,6 @@ const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest
                 all .dappy first hand navigations must have the dappy CSP
                 override
               */
-              isFirstRequest = true;
               over = true;
                resolve({
                 statusCode: resp.statusCode,
@@ -230,11 +227,6 @@ const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest
               'Content-Security-Policy': dappyBrowserView.csp || "default-src 'self'",
             };
             */
-            if (isFirstRequest) {
-              isFirstRequest = false;
-            }
-
-
             if (!over) {
               resolve({
                 data: resp,
@@ -337,13 +329,16 @@ const tryToLoad = async ({ dns, debug, request, dappyBrowserView, isFirstRequest
 
 interface InterceptHttpsRequestsParams {
   dappyBrowserView: DappyBrowserView | undefined;
+  partitionIdHash: string;
   setCookie: (cookieDetails: CookiesSetDetails) => Promise<void>;
   getBlobData: (blobUUID: string) => Promise<Buffer>;
+  setIsFirstRequest: (a: boolean) => void;
+  getIsFirstRequest: () => boolean;
 }
 
-const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie, getBlobData }: InterceptHttpsRequestsParams) => {
-  let isFirstRequest = true;
+const makeInterceptHttpsRequests = ({ dappyBrowserView, partitionIdHash, setCookie, getBlobData, setIsFirstRequest, getIsFirstRequest }: InterceptHttpsRequestsParams) => {
   const debug = !process.env.PRODUCTION;
+  console.log('makeInterceptHttpsRequests')
   return async (request: ProtocolRequest, callback: (response: Electron.ProtocolResponse) => void) => {
     // todo : cleaner sentry.io handling
     /*
@@ -367,7 +362,7 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie, getBlobData }
     */
     if (new URL(request.url).host.endsWith('.dappy')) {
       try {
-        callback(await tryToLoad({ dns: false, debug, dappyBrowserView, isFirstRequest, setCookie, request, getBlobData }));
+        callback(await tryToLoad({ partitionIdHash, dns: false, debug, dappyBrowserView, setIsFirstRequest, getIsFirstRequest, setCookie, request, getBlobData }));
       } catch (err) {
         console.log(err);
         callback({});
@@ -378,7 +373,7 @@ const makeInterceptHttpsRequests = ({ dappyBrowserView, setCookie, getBlobData }
     */
     } else {
       try {
-        callback(await tryToLoad({ dns: true, debug, dappyBrowserView, isFirstRequest, setCookie, request, getBlobData }));
+        callback(await tryToLoad({ partitionIdHash, dns: true, debug, dappyBrowserView, setIsFirstRequest, getIsFirstRequest, setCookie, request, getBlobData }));
       } catch (err) {
         console.log(err);
         callback({});
@@ -426,10 +421,13 @@ const makeCookiesOnChange =
 interface OverrideHttpProtocolsParams {
   dappyBrowserView: DappyBrowserView | undefined;
   session: Session;
+  partitionIdHash: string;
   dispatchFromMain: (a: any) => void;
+  setIsFirstRequest: (a: boolean) => void;
+  getIsFirstRequest: () => boolean;
 }
 
-export const overrideHttpProtocols = ({ dappyBrowserView, session, dispatchFromMain }: OverrideHttpProtocolsParams) => {
+export const overrideHttpProtocols = ({ dappyBrowserView, session, partitionIdHash, dispatchFromMain, setIsFirstRequest, getIsFirstRequest }: OverrideHttpProtocolsParams) => {
   // Block all HTTP when not development
   if (process.env.PRODUCTION) {
     session.protocol.interceptHttpProtocol
@@ -440,6 +438,9 @@ export const overrideHttpProtocols = ({ dappyBrowserView, session, dispatchFromM
     });
   }
 
+  const getBlobData = (blobUUID: string) => {
+    return session.getBlobData(blobUUID)
+  }
   session.cookies.on(
     'changed',
     makeCookiesOnChange({
@@ -449,31 +450,16 @@ export const overrideHttpProtocols = ({ dappyBrowserView, session, dispatchFromM
     })
   );
 
-  const getBlobData = (blobUUID: string) => {
-    session.getCacheSize()
-      .then(c => {
-        console.log('getCacheSize', c);
-
-      })
-    console.log('storagePath', session.storagePath);
-    console.log('blobUUID', blobUUID)
-    session.getBlobData(blobUUID).then(a => {
-      console.log('a')
-      console.log(a)
-    })
-    .catch(err => {
-      console.log('err')
-      console.log(err)
-    })
-    return session.getBlobData(blobUUID)
-  }
-
+  console.log('interceptStreamProtocol https');
   return session.protocol.interceptStreamProtocol(
     'https',
     makeInterceptHttpsRequests({
       dappyBrowserView,
+      partitionIdHash,
       setCookie: (cookieDetails: CookiesSetDetails) => session.cookies.set(cookieDetails),
       getBlobData: getBlobData,
+      setIsFirstRequest,
+      getIsFirstRequest,
     })
   );
 };

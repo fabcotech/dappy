@@ -2,6 +2,7 @@ import { takeEvery, select, put } from 'redux-saga/effects';
 import path from 'path';
 import https from 'https';
 import { BrowserView, app, session } from 'electron';
+import { blake2b } from 'blakejs';
 
 import * as fromBrowserViews from '../browserViews';
 import { DappyBrowserView } from '../../models';
@@ -110,23 +111,6 @@ const loadOrReloadBrowserView = function* (action: any) {
     },
   });
 
-  // cookies to start with (from storage)
-  // todo is this necessary ?
-  // aren't they already in partition ?
-  payload.cookies.forEach((c) => {
-    try {
-      view.webContents.session.cookies.set({
-        ...c,
-        url: `https://${c.domain}`,
-        secure: true,
-        httpOnly: c.httpOnly,
-      });
-    } catch (err) {
-      console.error(err);
-      console.error("failed to set cookie " + c.domain)
-    }
-  });
-
   if (payload.muted) {
     view.webContents.setAudioMuted(payload.muted);
   }
@@ -149,6 +133,22 @@ const loadOrReloadBrowserView = function* (action: any) {
   // https://, http://, dappyl://, interprocessdapp://
   // ==============================
 
+  /*
+    Use for dev purpose, to identify the storage path / partition into which cookies, blobs, localstorage are
+  */
+  let partitionIdHash = '';
+  if (!process.env.PRODUCTION) {
+    partitionIdHash = Buffer.from(blake2b(new Uint8Array(Buffer.from(viewSession.storagePath || '')), 0, 32)).toString('base64').slice(0,5);
+    console.log('[part] :', partitionIdHash, viewSession.storagePath, 'used for cookies, blobs, localstorage etc.')
+  }
+
+  let isFirstRequest = true;
+  const setIsFirstRequest = (a: boolean) => {
+    isFirstRequest = a;
+  }
+  const getIsFirstRequest = () => {
+    return isFirstRequest;
+  }
   preventAllPermissionRequests(viewSession);
   // todo, avoid circular ref to "store" (see logs when "npm run build:main")
   registerInterProcessDappProtocol(
@@ -161,6 +161,9 @@ const loadOrReloadBrowserView = function* (action: any) {
     dappyBrowserView: newBrowserViews[payload.tabId],
     dispatchFromMain: action.meta.dispatchFromMain,
     session: viewSession,
+    partitionIdHash: partitionIdHash,
+    setIsFirstRequest,
+    getIsFirstRequest
   });
   registerDappyNetworkProtocol(newBrowserViews[payload.tabId], viewSession, store);
   registerDappyLocalProtocol(viewSession)
@@ -352,20 +355,30 @@ const loadOrReloadBrowserView = function* (action: any) {
     }
   });
 
-  const handleNavigation = (url: string, e: Electron.Event) => {
-    console.log("payload.url, url", payload.url, url)
-    const parsedUrl = new URL(url);
-    if (parsedUrl.protocol === 'https:') {
-      console.log('[nav] navigation/redirect will navigating to ' + parsedUrl.toString());
-      console.log('loadURL', url);
-      view.webContents.loadURL(url);
-      /* e.preventDefault();
-      action.meta.dispatchFromMain({
-        action: fromDapps.loadResourceAction({
-          url: parsedUrl.toString(),
-          tabId: payload.tabId,
-        }),
-      }); */
+  const handleNavigation = (e: Electron.Event, futureUrl: string) => {
+    let parsedFutureUrl: URL | undefined = undefined;
+    try {
+      parsedFutureUrl = new URL(futureUrl);
+    } catch (err) {
+      e.preventDefault();
+      return;
+    }
+  
+    if (parsedFutureUrl.protocol === 'https:') {
+      if (parsedFutureUrl.host !== url.host) {
+        console.log('[nav] will navigate to another host', url.host, '->', parsedFutureUrl.host);
+        e.preventDefault();
+        action.meta.dispatchFromMain({
+          action: fromDapps.loadResourceAction({
+            url: futureUrl,
+            tabId: payload.tabId,
+          }),
+        });
+      } else {
+        setIsFirstRequest(true);
+        console.log('[nav] will navigate to same host');
+        // to not e.preventDefault(); and honor navigation
+      }
     } else {
       e.preventDefault();
       // todo display error message instead of directly openning
@@ -396,12 +409,17 @@ const loadOrReloadBrowserView = function* (action: any) {
     
   });
 
+  view.webContents.addListener('will-redirect', (e, futureUrl) => {
+    console.log('will-redirect', futureUrl)
+  });
+
+  /* view.webContents.addListener('will-navigate', (e, futureUrl) => {
+    console.log('will-navigate', futureUrl)
+  }); */
+
   view.webContents.on('will-navigate', (e, futureUrl) => {
     console.log('will-navigate', futureUrl);
-    if (new URL(futureUrl).host !== url.host) {
-      console.log('WILL NAVIGATE MUST CHANGE SESSION', url.host, '->', new URL(futureUrl).host)
-    }
-    handleNavigation(futureUrl, e);
+    handleNavigation(e, futureUrl);
   });
   view.webContents.on('did-start-loading', (a) => {
     action.meta.browserWindow.webContents.executeJavaScript(`console.log('did-start-loading ${payload.tabId}')`);

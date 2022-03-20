@@ -161,8 +161,12 @@ export const NavigationBar = connect(
     let chainId: string | undefined = '';
     if (tab) {
       url = tab.url;
-      if (tab.url && new URL(tab.url).hostname.endsWith('.dappy')) {
-        appType = 'DA';
+      try {
+        if (tab.url && new URL(tab.url).hostname.endsWith('.dappy')) {
+          appType = 'DA';
+        }
+      } catch (err) {
+        // url is invalid
       }
       if (appType === 'DA') {
         resourceLoaded = true;
