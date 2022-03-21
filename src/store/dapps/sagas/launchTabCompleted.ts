@@ -2,7 +2,7 @@ import { takeEvery, select } from 'redux-saga/effects';
 
 import * as fromDapps from '..';
 import * as fromSettings from '../../settings';
-import {   Tab } from '../../../models';
+import { Tab } from '../../../models';
 import { Action } from '../..';
 import { dispatchInMain } from '/interProcess';
 

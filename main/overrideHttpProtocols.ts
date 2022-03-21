@@ -6,7 +6,7 @@ import cookieParser from 'set-cookie-parser';
 import * as fromCookies from '../src/store/cookies';
 import { DappyBrowserView } from './models';
 import { Cookie as DappyCookie } from '/models';
-
+import { DispatchFromMainArg } from './main';
 
 const rightPad = (str: string, num: number) => {
   let s = str.slice(0,num);
@@ -422,7 +422,7 @@ interface OverrideHttpProtocolsParams {
   dappyBrowserView: DappyBrowserView | undefined;
   session: Session;
   partitionIdHash: string;
-  dispatchFromMain: (a: any) => void;
+  dispatchFromMain: (a: DispatchFromMainArg) => void;
   setIsFirstRequest: (a: boolean) => void;
   getIsFirstRequest: () => boolean;
 }

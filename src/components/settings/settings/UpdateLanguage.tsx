@@ -6,7 +6,7 @@ import './Resolver.scss';
 import { State } from '/store';
 import * as fromUi from '../../../store/ui';
 import { Language } from '../../../models';
-import { State } from '/store';
+
 
 interface UpdateLanguageProps {
   language: Language;

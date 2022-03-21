@@ -26,12 +26,19 @@ protocol.registerSchemesAsPrivileged([
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let browserWindow;
+let browserWindow: undefined | BrowserWindow = undefined;
 
-let dispatchesFromMainAwaiting = [];
+let dispatchesFromMainAwaiting: {
+  type: string;
+  payload: any;
+}[] = [];
 const getDispatchesFromMainAwaiting = () => {
-  const t = [].concat(dispatchesFromMainAwaiting);
+  const t = ([] as {
+    type: string;
+    payload: any;
+  }[]).concat(dispatchesFromMainAwaiting);
   dispatchesFromMainAwaiting = [];
+
   return t;
 };
 /*
@@ -129,6 +136,9 @@ function createWindow() {
     dappyBrowserView: undefined,
     session: browserSession,
     dispatchFromMain,
+    partitionIdHash: '',
+    setIsFirstRequest: () => false,
+    getIsFirstRequest: () => false,
   });
   registerInterProcessProtocol(
     browserSession,
@@ -157,7 +167,7 @@ function createWindow() {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    browserWindow = null;
+    browserWindow = undefined;
   });
 }
 
@@ -176,7 +186,7 @@ app.on('window-all-closed', function () {
 app.on('activate', function () {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (browserWindow === null) createWindow();
+  if (browserWindow === undefined) createWindow();
 });
 
 // In this file you can include the rest of your app's specific main process

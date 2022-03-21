@@ -14,6 +14,7 @@ import * as fromMain from '../src/store/main';
 import * as fromBlockchain from '../src/store/blockchain';
 import { looksLikePublicKey } from '../src/utils/looksLikePublicKey';
 import { DappyBrowserView } from './models';
+import { DispatchFromMainArg } from './main';
 
 const hexString = yup.string().matches(/^0x[0-9a-fA-F]+$/, 'string must be in hexadecimal and starts with 0x');
 
@@ -103,7 +104,7 @@ export const registerInterProcessDappProtocol = (
   dappyBrowserView: DappyBrowserView,
   session: Session,
   store: Store,
-  dispatchFromMain
+  dispatchFromMain: (a: DispatchFromMainArg) => void,
 ) => {
   return session.protocol.registerBufferProtocol('interprocessdapp', (request, callback) => {
     let data: { [a: string]: any } = {};

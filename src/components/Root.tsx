@@ -72,10 +72,16 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
       this.props.initializationOver === false &&
       nextProps.initializationOver === true
     ) {
-      setTimeout(() => {
+      /* No animation if less than 200ms of loading */
+      if (new Date().getTime() - (this.t as number) < 200) {
         this.setState({ transitionOver: true });
-      }, 1000);
+      } else {
+        setTimeout(() => {
+          this.setState({ transitionOver: true });
+        }, 1000);
+      }
     }
+
     return true;
   }
 
@@ -103,11 +109,11 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
       k += ' scaleout';
     }
 
-    if (this.props.gcu !== GCU_VERSION) {
+    if (this.props.initializationOver && this.props.gcu !== GCU_VERSION) {
       return <Gcu version={GCU_VERSION} text={GCU_TEXT} continue={this.props.updateGcu}></Gcu>;
     }
 
-    if (this.props.shouldDisplayAccountCreationForm && !this.state.accountCreationFormClosed) {
+    if (this.props.initializationOver && this.props.shouldDisplayAccountCreationForm && !this.state.accountCreationFormClosed) {
       return (
         <NoAccountForm
           onClose={() => {

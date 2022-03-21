@@ -13,6 +13,7 @@ import { performMultiRequest } from './performMultiRequest';
 import { performSingleRequest } from './performSingleRequest';
 import { benchmarkCron } from './benchmarkCron';
 import * as fromMainBrowserViews from './store/browserViews';
+import { DispatchFromMainArg } from './main';
 
 let benchmarkCronRanOnce = false;
 let uniqueEphemeralTokenAskedOnce = false;
@@ -25,7 +26,7 @@ export const registerInterProcessProtocol = (
   getLoadResourceWhenReady: () => string | undefined,
   openExternal: (url: string) => void,
   browserWindow: any,
-  dispatchFromMain,
+  dispatchFromMain: (a: DispatchFromMainArg) => void,
   getDispatchesFromMainAwaiting: () => void
 ) => {
   return session.protocol.registerBufferProtocol('interprocess', (request, callback) => {

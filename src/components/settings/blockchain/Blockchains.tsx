@@ -632,7 +632,7 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
 }
 
 export const Blockchains = connect(
-  (state) => {
+  (state: any) => {
     return {
       namesBlockchain: fromSettings.getNamesBlockchain(state),
       blockchains: fromSettings.getBlockchains(state),

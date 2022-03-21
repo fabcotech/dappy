@@ -54,7 +54,7 @@ export const updateSettingsCompletedAction = (settings: fromReducer.Settings) =>
   payload: settings,
 });
 
-export const updateSettingsFailedAction = (values: { errorCode: number; error: string; trace?: string }) => ({
+export const updateSettingsFailedAction = (values: { errorCode: number; error: string; trace?: any }) => ({
   type: UPDATE_SETTINGS_FAILED,
   payload: values,
 });

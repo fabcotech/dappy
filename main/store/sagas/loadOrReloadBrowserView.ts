@@ -102,7 +102,6 @@ const loadOrReloadBrowserView = function* (action: any) {
   const view = new BrowserView({
     webPreferences: {
       nodeIntegration: false,
-      enableRemoteModule: false,
       sandbox: true,
       contextIsolation: true,
       devTools: /^true$/i.test(process.env.DAPPY_DEVTOOLS) || !process.env.PRODUCTION,
@@ -228,9 +227,7 @@ const loadOrReloadBrowserView = function* (action: any) {
 
   let title = '';
 
-  view.webContents.on('did-finish-load', (a) => {
-    console.log('FINISHSHHSSLLAOSOLLASL ---------------------------------')
-    console.log(view.webContents.getTitle());
+  view.webContents.on('did-finish-load', (e: Electron.Event) => {
     action.meta.browserWindow.webContents.executeJavaScript(`console.log('did-finish-load ${payload.tabId}')`);
     action.meta.dispatchFromMain({
       action: fromDapps.updateTransitoryStateAction({
@@ -240,8 +237,7 @@ const loadOrReloadBrowserView = function* (action: any) {
     });
   });
 
-  view.webContents.on('did-stop-loading', (a) => {
-    console.log('----------------- STOPLAODIGINGINIGNIGN');
+  view.webContents.on('did-stop-loading', (e: Electron.Event) => {
     action.meta.browserWindow.webContents.executeJavaScript(`console.log('did-stop-loading ${payload.tabId}')`);
     action.meta.dispatchFromMain({
       action: fromDapps.updateTransitoryStateAction({
@@ -421,7 +417,7 @@ const loadOrReloadBrowserView = function* (action: any) {
     console.log('will-navigate', futureUrl);
     handleNavigation(e, futureUrl);
   });
-  view.webContents.on('did-start-loading', (a) => {
+  view.webContents.on('did-start-loading', (e: Electron.Event) => {
     action.meta.browserWindow.webContents.executeJavaScript(`console.log('did-start-loading ${payload.tabId}')`);
   });
   view.webContents.on('dom-ready', (a) => {
