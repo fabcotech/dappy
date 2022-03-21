@@ -1,0 +1,16 @@
+
+
+button.is-greydark {
+  background:linear-gradient(60deg, rgba(0,0,0,1), rgba(70,70,70,1));
+  color: #fff;
+  &:hover {
+    color: #fff;
+    background:linear-gradient(60deg, rgba(15,15,15,1), rgba(80,80,80,1));
+  }
+  &:active {
+    background:linear-gradient(60deg, rgba(25,25,25,1), rgba(100,100,100,1));
+  }
+  &:active, &:focus {
+    color: #fff;
+  }
+}

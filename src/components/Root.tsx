@@ -16,7 +16,7 @@ import { Root as AccountsRoot } from './accounts';
 import { Root as TransactionsRoot } from './transactions';
 import { Menu } from './Menu';
 import { Modal, Gcu } from './utils';
-import { NavigationUrl, Language } from '/models';
+import { NavigationUrl, Language, RChainInfos } from '/models';
 import { DEVELOPMENT } from '/CONSTANTS';
 import { GCU_TEXT, GCU_VERSION } from '/GCU';
 import { NoAccountForm } from './utils/NoAccountForm';
@@ -49,12 +49,36 @@ interface RootComponentProps {
 
 interface RootComponentState {
   accountCreationFormClosed: boolean;
+  transitionOver: boolean;
 }
 
 class RootComponent extends React.Component<RootComponentProps, RootComponentState> {
   state = {
     accountCreationFormClosed: false,
+    transitionOver: false,
   };
+
+  loadingEl: HTMLDivElement | undefined = undefined;
+  t: number | undefined = undefined;
+
+  setLoadingEl = (el: HTMLDivElement) => {
+    if (!this.loadingEl) {
+      this.loadingEl = el;
+    }
+  };
+
+  shouldComponentUpdate = (nextProps: RootComponentProps) => {
+    if (
+      this.props.initializationOver === false &&
+      nextProps.initializationOver === true
+    ) {
+      setTimeout(() => {
+        this.setState({ transitionOver: true });
+      }, 1000);
+    }
+    return true;
+  }
+
   componentDidCatch(error: Error) {
     console.error('An error occured in components');
     if (DEVELOPMENT) {
@@ -70,13 +94,13 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
     if (!window.t) {
       initTranslate(this.props.language);
     }
+    if (!this.t) {
+      this.t = new Date().getTime();
+    }
 
-    if (!this.props.initializationOver) {
-      return (
-        <div className="root loading">
-          <p>Loading</p>
-        </div>
-      );
+    let k = `root loading`;
+    if (this.props.initializationOver && !this.state.transitionOver) {
+      k += ' scaleout';
     }
 
     if (this.props.gcu !== GCU_VERSION) {
@@ -104,40 +128,52 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
     } else {
       klasses += ' menu-not-collapsed';
     }
+
     return (
       <div className={klasses}>
-        {this.props.modal ? <Modal /> : undefined}
-        <Menu
-          tabsListDisplay={this.props.tabsListDisplay}
-          menuCollapsed={this.props.menuCollapsed}
-          toggleMenuCollapsed={this.props.toggleMenuCollapsed}
-          isNavigationInDapps={this.props.isNavigationInDapps}
-          isNavigationInSettings={this.props.isNavigationInSettings}
-          isNavigationInNames={this.props.isNavigationInNames}
-          isNavigationInAccounts={this.props.isNavigationInAccounts}
-          isNavigationInDeploy={this.props.isNavigationInDeploy}
-          isNavigationInTransactions={this.props.isNavigationInTransactions}
-          isMobile={this.props.isMobile}
-          isBeta={this.props.isBeta}
-          currentVersion={this.props.currentVersion}
-          isAwaitingUpdate={this.props.isAwaitingUpdate}
-          namesBlockchainInfos={this.props.namesBlockchainInfos}
-          navigate={this.props.navigate}
-        />
-        <div className="root-right">
-          {this.props.isNavigationInSettings ? (
-            <SettingsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
-          ) : undefined}
-          {this.props.isNavigationInNames ? <RecordRoot /> : undefined}
-          {this.props.isNavigationInAccounts ? (
-            <AccountsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
-          ) : undefined}
-          {this.props.isNavigationInDeploy ? (
-            <DeployRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
-          ) : undefined}
-          <Home />
-          {this.props.isNavigationInTransactions ? <TransactionsRoot /> : undefined}
-        </div>
+        {
+          (!this.props.initializationOver || !this.state.transitionOver) &&
+          <div ref={this.setLoadingEl} className={k}>
+            <p>dappy browser</p>
+          </div>
+        }
+        {
+          this.props.initializationOver &&
+          <>
+            {this.props.modal ? <Modal /> : undefined}
+            <Menu
+              tabsListDisplay={this.props.tabsListDisplay}
+              menuCollapsed={this.props.menuCollapsed}
+              toggleMenuCollapsed={this.props.toggleMenuCollapsed}
+              isNavigationInDapps={this.props.isNavigationInDapps}
+              isNavigationInSettings={this.props.isNavigationInSettings}
+              isNavigationInNames={this.props.isNavigationInNames}
+              isNavigationInAccounts={this.props.isNavigationInAccounts}
+              isNavigationInDeploy={this.props.isNavigationInDeploy}
+              isNavigationInTransactions={this.props.isNavigationInTransactions}
+              isMobile={this.props.isMobile}
+              isBeta={this.props.isBeta}
+              currentVersion={this.props.currentVersion}
+              isAwaitingUpdate={this.props.isAwaitingUpdate}
+              namesBlockchainInfos={this.props.namesBlockchainInfos}
+              navigate={this.props.navigate}
+            />
+            <div className="root-right">
+              {this.props.isNavigationInSettings ? (
+                <SettingsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
+              ) : undefined}
+              {this.props.isNavigationInNames ? <RecordRoot /> : undefined}
+              {this.props.isNavigationInAccounts ? (
+                <AccountsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
+              ) : undefined}
+              {this.props.isNavigationInDeploy ? (
+                <DeployRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
+              ) : undefined}
+              <Home />
+              {this.props.isNavigationInTransactions ? <TransactionsRoot /> : undefined}
+            </div>
+          </>
+        }
       </div>
     );
   }

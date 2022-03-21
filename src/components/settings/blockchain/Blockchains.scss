@@ -7,23 +7,9 @@
   justify-content: space-between;
   width: fit-content;
   flex-direction: column;
-  .connect-to {
-    &:hover {
-      cursor: pointer;
-    }
-    width: 16rem;
-    font-size: 1.0rem;
-    border: 1px solid #aaa;
-    background: linear-gradient(20deg, #111, #333);
-    margin-bottom: 0.5rem;
+  & > button {
+    text-align: left;
     justify-content: flex-start;
-    padding: 2rem 0rem 2rem 1rem;
-    &:hover {
-      background: linear-gradient(20deg, #222, #444);
-    }
-    strong {
-      color: #eee;
-    }
   }
 }
 .blockchain-title {

@@ -587,9 +587,9 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
         <div className="connect-tos">
           {
             ['d', 'gamma', 'empty'].map(n => {
-              return <div className="connect-to p5 fc" key={n}>
+              return <button className="button is-greydark is-large mb-2" key={n}>
                 <strong>{n} network</strong>
-              </div>
+              </button>
             })
           }
         </div>
