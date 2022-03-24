@@ -8,6 +8,13 @@ import { DappyBrowserView } from './models';
 import { Cookie as DappyCookie } from '/models';
 import { DispatchFromMainArg } from './main';
 
+let sameSites: { [a: string]: 'lax' | 'strict' | 'no_restriction' } = {
+  lax: 'lax',
+  Lax: 'lax',
+  strict: 'strict',
+  Strict: 'strict',
+};
+
 const rightPad = (str: string, num: number) => {
   let s = str.slice(0,num);
   for (let i = 0; i < num - str.length; i += 1) {
@@ -81,7 +88,10 @@ const getCookiesHeader = async (dappyBrowserView: DappyBrowserView, url: string,
   });
 
   const okCookies = cookies
-    .filter((c) => isCookieDomainSentWithHost(c.domain, host))
+    .filter((c) => {
+      console.log('sent with host ?', host, c.domain, isCookieDomainSentWithHost(c.domain, host));
+      return isCookieDomainSentWithHost(c.domain, host);
+    })
     .filter((c) => onlyLaxCookieOnFirstRequest(isFirstRequest, c));
 
   return {
@@ -151,6 +161,7 @@ const tryToLoad = async ({ dns, debug, request, partitionIdHash, dappyBrowserVie
       host: networkHosts[i],
       method: request.method,
       path: path,
+      // todo: ca: ca
       minVersion: 'TLSv1.2',
       rejectUnauthorized: true,
       headers: {
@@ -175,24 +186,38 @@ const tryToLoad = async ({ dns, debug, request, partitionIdHash, dappyBrowserVie
       try {
         const req = https
           .request(options, (resp) => {
+
             let respCookies: cookieParser.Cookie[] = [];
-            if (resp.headers && resp.headers['set-cookie']) {
+            if (resp.headers && resp.headers['set-cookie'] && resp.headers['set-cookie'].length) {
               respCookies = cookieParser.parse(resp, {
                 decodeValues: true,
               });
 
-              respCookies.forEach((c) => {
-                setCookie({
-                  name: c.name,
-                  value: c.value,
-                  url: `https://${url.host}`,
-                  expirationDate: c.expires ? new Date(c.expires).getTime() / 1000 : undefined,
-                  secure: typeof c.secure === 'boolean' ? c.secure : true,
-                  httpOnly: typeof c.httpOnly === 'boolean' ? c.httpOnly : true,
-                  // sameSite is by default 'lax'
-                  sameSite: /^strict$/i.test(c.sameSite || '') ? 'strict' : 'lax',
+              respCookies
+                .filter(c => {
+                  if (c.domain) {
+                    if (c.domain === url.host) return true;
+                    if (c.domain === `.${url.host}`) return true;
+
+                    // example.com wants to set a cookie on api.example.com
+                    if (c.domain.endsWith(`.${url.host}`)) return true;
+                    return false
+                  } else {
+                    return true;
+                  }
+                })
+                .forEach((vc) => {
+                  setCookie({
+                    url: `https://${url.host}`,
+                    domain: vc.domain,
+                    name: vc.name,
+                    value: vc.value,
+                    expirationDate: vc.expires ? new Date(vc.expires).getTime() / 1000 : undefined,
+                    secure: true,
+                    httpOnly: vc.httpOnly,
+                    sameSite: sameSites[vc.sameSite || ''] || 'lax',
+                  });
                 });
-              });
             }
 
             /*
@@ -213,7 +238,10 @@ const tryToLoad = async ({ dns, debug, request, partitionIdHash, dappyBrowserVie
               over = true;
                resolve({
                 statusCode: resp.statusCode,
-                headers: resp.headers as Record<string, string | string[]>,
+                headers: {
+                  ...resp.headers as Record<string, string | string[]>,
+                  'set-cookie': '',
+                }
               });
               return;
             }
@@ -427,20 +455,12 @@ interface OverrideHttpProtocolsParams {
   getIsFirstRequest: () => boolean;
 }
 
-export const overrideHttpProtocols = ({ dappyBrowserView, session, partitionIdHash, dispatchFromMain, setIsFirstRequest, getIsFirstRequest }: OverrideHttpProtocolsParams) => {
-  // Block all HTTP when not development
-  if (process.env.PRODUCTION) {
-    session.protocol.interceptHttpProtocol
-    return session.protocol.interceptStreamProtocol('http', (request, callback) => {
-      console.log(`[http] unauthorized`);
-      callback({});
-      return;
-    });
+export const overrideHttpsProtocol = ({ dappyBrowserView, session, partitionIdHash, dispatchFromMain, setIsFirstRequest, getIsFirstRequest }: OverrideHttpProtocolsParams) => {
+  
+  const getBlobData = (blobUUID: string) => {
+    return session.getBlobData(blobUUID);
   }
 
-  const getBlobData = (blobUUID: string) => {
-    return session.getBlobData(blobUUID)
-  }
   session.cookies.on(
     'changed',
     makeCookiesOnChange({
@@ -450,7 +470,6 @@ export const overrideHttpProtocols = ({ dappyBrowserView, session, partitionIdHa
     })
   );
 
-  console.log('interceptStreamProtocol https');
   return session.protocol.interceptStreamProtocol(
     'https',
     makeInterceptHttpsRequests({

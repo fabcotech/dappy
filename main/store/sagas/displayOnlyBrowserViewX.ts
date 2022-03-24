@@ -1,15 +1,15 @@
 import { takeEvery, select, put } from 'redux-saga/effects';
 
-import * as fromBrowserViews from '../browserViews';
+import * as fromBrowserViewsMain from '../browserViews';
 import { DappyBrowserView } from '../../models';
 
 const displayOnlyBrowserViewX = function*(action: any) {
   const payload = action.payload;
   const browserViews: {
     [tabId: string]: DappyBrowserView;
-  } = yield select(fromBrowserViews.getBrowserViewsMain);
+  } = yield select(fromBrowserViewsMain.getBrowserViewsMain);
   const position: { x: number; y: number; width: number; height: number } = yield select(
-    fromBrowserViews.getBrowserViewsPositionMain
+    fromBrowserViewsMain.getBrowserViewsPositionMain
   );
   let newBrowserViews = {};
   let modified = false;
@@ -39,7 +39,7 @@ const displayOnlyBrowserViewX = function*(action: any) {
 
   if (modified) {
     yield put({
-      type: fromBrowserViews.DISPLAY_ONLY_BROWSER_VIEW_X_COMPLETED,
+      type: fromBrowserViewsMain.DISPLAY_ONLY_BROWSER_VIEW_X_COMPLETED,
       payload: newBrowserViews,
     });
   }
@@ -48,5 +48,5 @@ const displayOnlyBrowserViewX = function*(action: any) {
 };
 
 export const displayOnlyBrowserViewXSaga = function*() {
-  yield takeEvery(fromBrowserViews.DISPLAY_ONLY_BROWSER_VIEW_X, displayOnlyBrowserViewX);
+  yield takeEvery(fromBrowserViewsMain.DISPLAY_ONLY_BROWSER_VIEW_X, displayOnlyBrowserViewX);
 };

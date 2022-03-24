@@ -25,9 +25,9 @@ const sagaMiddleware = createSagaMiddleware();
 
 export const store: Store<State> = createStore(
   combineReducers({
-    settings: fromSettings.reducer,
+   settings: fromSettings.reducer,
     blockchains: fromBlockchains.reducer,
-    browserViews: fromBrowserViews.reducer,
+     browserViews: fromBrowserViews.reducer,
     transactions: fromTransactions.reducer,
     identifications: fromIdentifications.reducer,
   }),

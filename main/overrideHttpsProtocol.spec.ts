@@ -1,4 +1,4 @@
-import { overrideHttpProtocols, parseUrl, isCookieDomainSentWithHost } from './overrideHttpProtocols';
+import { parseUrl, isCookieDomainSentWithHost } from './overrideHttpsProtocol';
 
 describe('override http protocols', () => {
   it('parseUrl', () => {
@@ -7,9 +7,6 @@ describe('override http protocols', () => {
     expect(parseUrl('https://domain').host).toEqual('domain');
     expect(parseUrl('https://domain').path).toBeUndefined();
     expect(parseUrl('azerty').host).toBeUndefined();
-  });
-  it('should works', () => {
-    // overrideHttpProtocols(undefined);
   });
 });
 

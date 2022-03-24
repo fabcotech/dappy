@@ -8,19 +8,22 @@ import * as fromBrowserViews from '../browserViews';
 import { DappyBrowserView } from '../../models';
 import { registerInterProcessDappProtocol } from '../../registerInterProcessDappProtocol';
 import { registerDappyNetworkProtocol } from '../../registerDappyNetworkProtocol';
-import { overrideHttpProtocols } from '../../overrideHttpProtocols';
+import { overrideHttpsProtocol } from '../../overrideHttpsProtocol';
+import { overrideHttpProtocol } from '../../overrideHttpProtocol';
 import { registerDappyLocalProtocol } from '../../registerDappyLocalProtocol';
 import { preventAllPermissionRequests } from '../../preventAllPermissionRequests';
 import { store } from '../';
 
-import * as fromDapps from '../../../src/store/dapps';
-import * as fromHistory from '../../../src/store/history';
-import { DappyLoadError } from '/models';
+import * as fromSettingsMain from '../settings';
+import * as fromDappsRenderer from '../../../src/store/dapps';
+import * as fromHistoryRenderer from '../../../src/store/history';
+import { DappyLoadError, Tab } from '/models';
 
 const development = !!process.defaultApp;
 
 const loadOrReloadBrowserView = function* (action: any) {
-  const payload = action.payload;
+  const payload: { tab: Tab } = action.payload;
+  const settings: fromSettingsMain.State = yield select(fromSettingsMain.getSettings)
   const browserViews: {
     [tabId: string]: DappyBrowserView;
   } = yield select(fromBrowserViews.getBrowserViewsMain);
@@ -28,14 +31,14 @@ const loadOrReloadBrowserView = function* (action: any) {
     fromBrowserViews.getBrowserViewsPositionMain
   );
 
-  const url = new URL(payload.url);
-  const viewSession = session.fromPartition(`persist:main:${url.host}`);
+  const url = new URL(payload.tab.url);
+  const viewSession = session.fromPartition(`persist:main:${url.host}`, { cache: true });
 
   /* reload
     a browser view with same id (payload.reosurceId) is
     already running
   */
-  if (browserViews[payload.tabId]) {
+  if (browserViews[payload.tab.id]) {
     if (development) {
       console.log('reload or self navigation, closing browserView and unregister protocols');
     }
@@ -49,7 +52,7 @@ const loadOrReloadBrowserView = function* (action: any) {
     if (development) {
       console.log(a, b, c, d);
     }
-    const bv = browserViews[payload.tabId];
+    const bv = browserViews[payload.tab.id];
     if (bv && bv.browserView) {
       if (bv.browserView.webContents.isDevToolsOpened()) {
         bv.browserView.webContents.closeDevTools();
@@ -66,7 +69,7 @@ const loadOrReloadBrowserView = function* (action: any) {
   */
   const sameTabIdBrowserViewId = Object.keys(browserViews).find((id) => {
     return (
-      browserViews[id].tabId === payload.tabId
+      browserViews[id].tabId === payload.tab.id
     );
   });
   if (sameTabIdBrowserViewId) {
@@ -110,8 +113,8 @@ const loadOrReloadBrowserView = function* (action: any) {
     },
   });
 
-  if (payload.muted) {
-    view.webContents.setAudioMuted(payload.muted);
+  if (payload.tab.muted) {
+    view.webContents.setAudioMuted(payload.tab.muted);
   }
 
   action.meta.browserWindow.addBrowserView(view);
@@ -120,9 +123,10 @@ const loadOrReloadBrowserView = function* (action: any) {
   let newBrowserViews: {
     [tabId: string]: DappyBrowserView;
   } = {};
-  newBrowserViews[payload.tabId] = {
-    ...payload,
-    host: new URL(payload.url).host,
+  newBrowserViews[payload.tab.id] = {
+    tabId: payload.tab.id,
+    title: payload.tab.title,
+    host: new URL(payload.tab.url).host,
     browserView: view,
     visible: true,
   };
@@ -151,27 +155,32 @@ const loadOrReloadBrowserView = function* (action: any) {
   preventAllPermissionRequests(viewSession);
   // todo, avoid circular ref to "store" (see logs when "npm run build:main")
   registerInterProcessDappProtocol(
-    newBrowserViews[payload.tabId],
+    newBrowserViews[payload.tab.id],
     viewSession,
     store,
     action.meta.dispatchFromMain
   );
-  overrideHttpProtocols({
-    dappyBrowserView: newBrowserViews[payload.tabId],
-    dispatchFromMain: action.meta.dispatchFromMain,
+  overrideHttpProtocol({
     session: viewSession,
-    partitionIdHash: partitionIdHash,
-    setIsFirstRequest,
-    getIsFirstRequest
   });
-  registerDappyNetworkProtocol(newBrowserViews[payload.tabId], viewSession, store);
+  if (payload.tab.data.isDappyNameSystem) {
+    overrideHttpsProtocol({
+      dappyBrowserView: newBrowserViews[payload.tab.id],
+      dispatchFromMain: action.meta.dispatchFromMain,
+      session: viewSession,
+      partitionIdHash: partitionIdHash,
+      setIsFirstRequest,
+      getIsFirstRequest
+    });
+  }
+  registerDappyNetworkProtocol(newBrowserViews[payload.tab.id], viewSession, store);
   registerDappyLocalProtocol(viewSession)
 
   /*
     Hide all other browser views
   */
   Object.keys(browserViews).forEach((id) => {
-    if (id !== payload.tabId && browserViews[id].visible) {
+    if (id !== payload.tab.id && browserViews[id].visible) {
       browserViews[id].browserView.setBounds({ x: 0, y: 0, width: 0, height: 0 });
       newBrowserViews = {
         ...newBrowserViews,
@@ -192,26 +201,26 @@ const loadOrReloadBrowserView = function* (action: any) {
   });
 
   /* browser to server
-    If payload.html then it is a dapp
+    If payload.tab.data.html then it is a dapp
   */
-  if (!!payload.html) {
+  if (!!payload.tab.data.html) {
     const htmlPath = path.join(app.getAppPath(), 'dist/dapp.html');
-    yield view.webContents.loadURL(`file://${htmlPath}${new URL(payload.url).pathname}`);
+    yield view.webContents.loadURL(`file://${htmlPath}${new URL(payload.tab.url).pathname}`);
   } else {
     try {
-      yield view.webContents.loadURL(payload.url);
-      if (payload.devMode) {
+      yield view.webContents.loadURL(payload.tab.url);
+      if (settings.devMode) {
         view.webContents.openDevTools();
       }
     } catch (err) {
       action.meta.dispatchFromMain({
-        action: fromDapps.loadResourceFailedAction({
-            tabId: payload.tabId,
-            url: payload.url,
+        action: fromDappsRenderer.loadResourceFailedAction({
+            tabId: payload.tab.id,
+            url: payload.tab.url,
             error: {
               error: DappyLoadError.ServerError,
               args: {
-                url: payload.url,
+                url: payload.tab.url,
                 message: err.message
               }
             }
@@ -228,27 +237,27 @@ const loadOrReloadBrowserView = function* (action: any) {
   let title = '';
 
   view.webContents.on('did-finish-load', (e: Electron.Event) => {
-    action.meta.browserWindow.webContents.executeJavaScript(`console.log('did-finish-load ${payload.tabId}')`);
+    action.meta.browserWindow.webContents.executeJavaScript(`console.log('did-finish-load ${payload.tab.id}')`);
     action.meta.dispatchFromMain({
-      action: fromDapps.updateTransitoryStateAction({
-        tabId: payload.tabId,
+      action: fromDappsRenderer.updateTransitoryStateAction({
+        tabId: payload.tab.id,
         transitoryState: undefined,
       }),
     });
   });
 
   view.webContents.on('did-stop-loading', (e: Electron.Event) => {
-    action.meta.browserWindow.webContents.executeJavaScript(`console.log('did-stop-loading ${payload.tabId}')`);
+    action.meta.browserWindow.webContents.executeJavaScript(`console.log('did-stop-loading ${payload.tab.id}')`);
     action.meta.dispatchFromMain({
-      action: fromDapps.updateTransitoryStateAction({
-        tabId: payload.tabId,
+      action: fromDappsRenderer.updateTransitoryStateAction({
+        tabId: payload.tab.id,
         transitoryState: undefined,
       }),
     });
     action.meta.dispatchFromMain({
-      action: fromHistory.didNavigateInPageAction({
+      action: fromHistoryRenderer.didNavigateInPageAction({
         url: view.webContents.getURL(),
-        tabId: payload.tabId,
+        tabId: payload.tab.id,
         title: title,
       }),
     });
@@ -261,9 +270,9 @@ const loadOrReloadBrowserView = function* (action: any) {
   */
   view.webContents.on('did-navigate', (a, currentUrl, httpResponseCode, httpStatusText) => {
     action.meta.dispatchFromMain({
-      action: fromHistory.didNavigateInPageAction({
+      action: fromHistoryRenderer.didNavigateInPageAction({
         url: currentUrl,
-        tabId: payload.tabId,
+        tabId: payload.tab.id,
         title: title,
       }),
     });
@@ -277,8 +286,8 @@ const loadOrReloadBrowserView = function* (action: any) {
     if (favicons && favicons[0] && typeof favicons[0] === 'string') {
       if (favicons[0].startsWith('data:image')) {
         action.meta.dispatchFromMain({
-          action: fromDapps.didChangeFaviconAction({
-            tabId: payload.tabId,
+          action: fromDappsRenderer.didChangeFaviconAction({
+            tabId: payload.tab.id,
             img: favicons[0],
           }),
         });
@@ -320,8 +329,8 @@ const loadOrReloadBrowserView = function* (action: any) {
                 // todo limit size of favicon ???
                 const faviconAsBase64 = 'data:' + res.headers['content-type'] + ';base64,' + s.toString('base64');
                 action.meta.dispatchFromMain({
-                  action: fromDapps.didChangeFaviconAction({
-                    tabId: payload.tabId,
+                  action: fromDappsRenderer.didChangeFaviconAction({
+                    tabId: payload.tab.id,
                     img: faviconAsBase64,
                   }),
                 });
@@ -343,8 +352,8 @@ const loadOrReloadBrowserView = function* (action: any) {
     if (title !== view.webContents.getTitle()) {
       title = title
       action.meta.dispatchFromMain({
-        action: fromDapps.didChangeTitleAction({
-          tabId: payload.tabId,
+        action: fromDappsRenderer.didChangeTitleAction({
+          tabId: payload.tab.id,
           title,
         }),
       });
@@ -365,9 +374,9 @@ const loadOrReloadBrowserView = function* (action: any) {
         console.log('[nav] will navigate to another host', url.host, '->', parsedFutureUrl.host);
         e.preventDefault();
         action.meta.dispatchFromMain({
-          action: fromDapps.loadResourceAction({
+          action: fromDappsRenderer.loadResourceAction({
             url: futureUrl,
-            tabId: payload.tabId,
+            tabId: payload.tab.id,
           }),
         });
       } else {
@@ -379,9 +388,9 @@ const loadOrReloadBrowserView = function* (action: any) {
       e.preventDefault();
       // todo display error message instead of directly openning
       action.meta.dispatchFromMain({
-        action: fromDapps.loadResourceFailedAction({
-            tabId: payload.tabId,
-            url: payload.url,
+        action: fromDappsRenderer.loadResourceFailedAction({
+            tabId: payload.tab.id,
+            url: payload.tab.url,
             error: {
               error: DappyLoadError.DangerousLink,
               args: {
@@ -418,10 +427,10 @@ const loadOrReloadBrowserView = function* (action: any) {
     handleNavigation(e, futureUrl);
   });
   view.webContents.on('did-start-loading', (e: Electron.Event) => {
-    action.meta.browserWindow.webContents.executeJavaScript(`console.log('did-start-loading ${payload.tabId}')`);
+    action.meta.browserWindow.webContents.executeJavaScript(`console.log('did-start-loading ${payload.tab.id}')`);
   });
   view.webContents.on('dom-ready', (a) => {
-    action.meta.browserWindow.webContents.executeJavaScript(`console.log('dom-ready ${payload.tabId}')`);
+    action.meta.browserWindow.webContents.executeJavaScript(`console.log('dom-ready ${payload.tab.id}')`);
   });
 
   /*
@@ -432,8 +441,8 @@ const loadOrReloadBrowserView = function* (action: any) {
     if (view && view.webContents && newTitle !== title) {
       title = newTitle;
       action.meta.dispatchFromMain({
-        action: fromDapps.didChangeTitleAction({
-          tabId: payload.tabId,
+        action: fromDappsRenderer.didChangeTitleAction({
+          tabId: payload.tab.id,
           title,
         }),
       });
@@ -457,9 +466,9 @@ const loadOrReloadBrowserView = function* (action: any) {
     Send html page to the dapp that is currently
     an empty html file
   */
-  if (!!payload.html) {
+  if (!!payload.tab.data.html) {
     yield view.webContents.executeJavaScript(`
-    window.write("${encodeURIComponent(payload.html)}")
+    window.write("${encodeURIComponent(payload.tab.data.html)}")
     `)
   }
   
@@ -477,7 +486,7 @@ const loadOrReloadBrowserView = function* (action: any) {
     from which host they've been loaded
   */
   yield view.webContents.executeJavaScript(`
-  window.dappy = { host: "${url.host}", path: "${payload.path}" };
+  window.dappy = { host: "${url.host}", path: "${url.pathname}" };
   `);
 };
 

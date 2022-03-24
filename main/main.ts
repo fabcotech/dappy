@@ -5,7 +5,8 @@ import { validateSearch } from '../src/utils/validateSearch';
 import { WS_RECONNECT_PERIOD } from '../src/CONSTANTS';
 import * as fromDapps from '../src/store/dapps';
 
-import { overrideHttpProtocols } from './overrideHttpProtocols';
+import { overrideHttpProtocol } from './overrideHttpProtocol';
+import { overrideHttpsProtocol } from './overrideHttpsProtocol';
 import { registerInterProcessProtocol } from './registerInterProcessProtocol';
 import { benchmarkCron } from './benchmarkCron';
 import { store } from './store';
@@ -132,7 +133,8 @@ function createWindow() {
   });
   const browserSession = session.fromPartition(partition);
   preventAllPermissionRequests(browserSession);
-  overrideHttpProtocols({
+  overrideHttpProtocol( { session: browserSession });
+  overrideHttpsProtocol({
     dappyBrowserView: undefined,
     session: browserSession,
     dispatchFromMain,

@@ -85,4 +85,5 @@ const getBrowserViewsMainState = createSelector(
 );
 
 export const getBrowserViewsMain = createSelector(getBrowserViewsMainState, (state: State) => state.browserViews);
+
 export const getBrowserViewsPositionMain = createSelector(getBrowserViewsMainState, (state: State) => state.position);

@@ -1,5 +1,6 @@
-import { Blockchain } from '../../src/models';
 import { createSelector } from 'reselect';
+
+import { Blockchain } from '../../src/models';
 
 export const SYNC_BLOCKCHAINS = '[MAIN] Sync blockchains';
 
