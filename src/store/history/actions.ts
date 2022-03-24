@@ -1,5 +1,3 @@
-import { Preview } from '../../models';
-
 export const GO_FORWARD = '[History] Go forward';
 export const GO_FORWARD_COMPLETED = '[History] Go forward completed';
 export const GO_BACKWARD = '[History] Go backward';

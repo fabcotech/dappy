@@ -344,6 +344,7 @@ const loadResource = function* (action: Action) {
         fromDapps.launchTabCompletedAction({
           tab: {
             ...tab,
+            active: true,
             title: url.hostname + url.pathname,
             url: `${url.origin}${safePath}`,
             data: {
@@ -372,6 +373,7 @@ const loadResource = function* (action: Action) {
       fromDapps.launchTabCompletedAction({
         tab: {
           ...tab,
+          active: true,
           title: url.hostname + url.pathname,
           url: url.toString(),
           data: {
@@ -401,6 +403,7 @@ const loadResource = function* (action: Action) {
     fromDapps.launchTabCompletedAction({
       tab: {
         ...tab,
+        active: true,
         title: url.hostname + url.pathname,
         url: url.toString(),
         data: {

@@ -1,8 +1,8 @@
 import { createSelector } from 'reselect';
 import { BeesLoadErrors, BeesLoadCompleted } from 'beesjs';
+
 import { TransitoryState, Tab, LastLoadError, Identification } from '/models';
 import * as fromActions from './actions';
-import * as fromHistory from '../history/';
 import { Action } from '../';
 
 export interface State {
@@ -453,8 +453,8 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
-    case fromHistory.DID_NAVIGATE_IN_PAGE: {
-      const payload: fromHistory.DidNavigateInPagePayload = action.payload;
+    case fromActions.UPDATE_TAB_URL_AND_TITLE: {
+      const payload: fromActions.UpdateTabUrlAndTitlePayload = action.payload;
       return {
         ...state,
         tabs: state.tabs.map((tab: Tab) => {

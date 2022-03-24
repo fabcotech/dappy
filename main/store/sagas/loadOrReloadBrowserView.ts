@@ -255,6 +255,13 @@ const loadOrReloadBrowserView = function* (action: any) {
       }),
     });
     action.meta.dispatchFromMain({
+      action: fromDappsRenderer.updateTabUrlAndTitleAction({
+        url: view.webContents.getURL(),
+        tabId: payload.tab.id,
+        title: title,
+      }),
+    });
+    action.meta.dispatchFromMain({
       action: fromHistoryRenderer.didNavigateInPageAction({
         url: view.webContents.getURL(),
         tabId: payload.tab.id,

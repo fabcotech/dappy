@@ -11,8 +11,6 @@ const launchTabCompleted = function* (action: Action) {
 
   const tab: Tab = tabs.find((t) => t.id === payload.tab.id) as Tab;
 
-  console.log(tab);
-  console.log(payload);
   const url = new URL(payload.tab.url);
   dispatchInMain({
     type: '[MAIN] Load or reload browser view',

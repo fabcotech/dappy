@@ -30,6 +30,7 @@ export const STOP_TAB = '[Dapps] Stop tab';
 export const REMOVE_RESOURCE = '[Dapps] Remove resource';
 export const SET_TAB_MUTED = '[Dapps] Set tab muted';
 export const SET_TAB_FAVORITE = '[Dapps] Set tab favorite';
+export const UPDATE_TAB_URL_AND_TITLE = '[Dapps] Update tab url and title';
 
 export const SAVE_IDENTIFICATION = '[Dapps] Save identification';
 
@@ -225,5 +226,15 @@ export interface SetTabFavoritePayload {
 }
 export const setTabFavoriteAction = (values: SetTabFavoritePayload) => ({
   type: SET_TAB_FAVORITE,
+  payload: values,
+});
+
+export interface UpdateTabUrlAndTitlePayload {
+  url: string;
+  tabId: string;
+  title: string;
+}
+export const updateTabUrlAndTitleAction = (values: UpdateTabUrlAndTitlePayload) => ({
+  type: UPDATE_TAB_URL_AND_TITLE,
   payload: values,
 });

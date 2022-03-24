@@ -2,7 +2,6 @@ import { takeEvery, select, put } from 'redux-saga/effects';
 
 import * as fromDapps from '..';
 import * as fromMain from '../../main';
-import * as fromHistory from '../../history';
 import { Tab } from '../../../models';
 import { browserUtils } from '../../browser-utils';
 import { Action } from '../..';
@@ -45,5 +44,5 @@ export const saveTabsSaga = function* () {
   yield takeEvery(fromDapps.SET_TAB_FAVORITE, saveTabs);
   yield takeEvery(fromDapps.DID_CHANGE_FAVICON, saveTabs);
   yield takeEvery(fromDapps.DID_CHANGE_TITLE, saveTabs);
-  yield takeEvery(fromHistory.DID_NAVIGATE_IN_PAGE, saveTabs)
+  yield takeEvery(fromDapps.UPDATE_TAB_URL_AND_TITLE, saveTabs)
 };
