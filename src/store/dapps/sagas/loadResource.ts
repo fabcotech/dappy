@@ -347,6 +347,7 @@ const loadResource = function* (action: Action) {
             title: url.hostname + url.pathname,
             url: `${url.origin}${safePath}`,
             data: {
+              isDappyNameSystem: true,
               chainId: namesBlockchain.chainId,
               publicKey: publicKey,
               html: dappHtml,
@@ -374,6 +375,7 @@ const loadResource = function* (action: Action) {
           title: url.hostname + url.pathname,
           url: url.toString(),
           data: {
+            isDappyNameSystem: true,
             chainId: namesBlockchain.chainId,
             publicKey: undefined,
           }
@@ -402,6 +404,7 @@ const loadResource = function* (action: Action) {
         title: url.hostname + url.pathname,
         url: url.toString(),
         data: {
+          isDappyNameSystem: false,
           isIp: checkIfValidIP(url.host),
           chainId: undefined,
           publicKey: undefined,

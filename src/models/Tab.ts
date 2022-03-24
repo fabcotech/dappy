@@ -20,6 +20,7 @@ export interface Tab {
   lastError: LastLoadError | undefined;
   data: {
     isIp?: boolean,
+    isDappyNameSystem?: boolean,
     publicKey?: string | undefined,
     chainId?: string | undefined,
     html?: string | undefined,

@@ -2,6 +2,7 @@ import { createSelector } from 'reselect';
 import { BeesLoadErrors, BeesLoadCompleted } from 'beesjs';
 import { TransitoryState, Tab, LastLoadError, Identification } from '/models';
 import * as fromActions from './actions';
+import * as fromHistory from '../history/';
 import { Action } from '../';
 
 export interface State {
@@ -367,12 +368,7 @@ export const reducer = (state = initialState, action: Action): State => {
         ...state,
         tabs: state.tabs.map((tab, i) => {
           if (tab.id === payload.tab.id) {
-            return {
-              ...tab,
-              title: payload.tab.url,
-              url: payload.tab.url,
-              img: undefined,
-            };
+            return payload.tab;
           } else {
             return tab;
           }
@@ -449,6 +445,24 @@ export const reducer = (state = initialState, action: Action): State => {
             return {
               ...tab,
               muted: payload.muted,
+            };
+          } else {
+            return tab;
+          }
+        }),
+      };
+    }
+
+    case fromHistory.DID_NAVIGATE_IN_PAGE: {
+      const payload: fromHistory.DidNavigateInPagePayload = action.payload;
+      return {
+        ...state,
+        tabs: state.tabs.map((tab: Tab) => {
+          if (tab.id === payload.tabId) {
+            return {
+              ...tab,
+              title: payload.title,
+              url: payload.url,
             };
           } else {
             return tab;
