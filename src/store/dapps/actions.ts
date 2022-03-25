@@ -17,7 +17,6 @@ export const LOAD_RESOURCE_FAILED = '[Dapps] Load resource failed';
 
 export const FOCUS_SEARCH_DAPP = '[Dapps] Focus search dapp';
 export const DID_CHANGE_FAVICON = '[Dapps] Tab favicon did update';
-export const DID_CHANGE_TITLE = '[Dapps] Tab title did update';
 export const FOCUS_TAB = '[Dapps] Focus tab';
 export const FOCUS_AND_ACTIVATE_TAB = '[Dapps] Focus and activate tab';
 export const CREATE_TAB = '[Dapps] Create tab';
@@ -164,15 +163,6 @@ export interface DidChangeFaviconPayload {
 }
 export const didChangeFaviconAction = (values: DidChangeFaviconPayload) => ({
   type: DID_CHANGE_FAVICON,
-  payload: values,
-});
-
-export interface DidChangeTitlePayload {
-  title: string;
-  tabId: string;
-}
-export const didChangeTitleAction = (values: DidChangeTitlePayload) => ({
-  type: DID_CHANGE_TITLE,
   payload: values,
 });
 

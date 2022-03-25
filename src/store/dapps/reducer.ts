@@ -243,23 +243,6 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
-    case fromActions.DID_CHANGE_TITLE: {
-      const payload: fromActions.DidChangeTitlePayload = action.payload;
-       return {
-        ...state,
-        tabs: state.tabs.map((tab, i) => {
-          if (tab.id === payload.tabId) {
-            return {
-              ...tab,
-              title: payload.title,
-            };
-          } else {
-            return tab;
-          }
-        }),
-      };
-    }
-
     case fromActions.DID_CHANGE_FAVICON: {
       const payload: fromActions.DidChangeFaviconPayload = action.payload;
        return {

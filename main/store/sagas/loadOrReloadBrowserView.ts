@@ -254,16 +254,18 @@ const loadOrReloadBrowserView = function* (action: any) {
         transitoryState: undefined,
       }),
     });
+    const url = view.webContents.getURL();
+    title = view.webContents.getTitle();
     action.meta.dispatchFromMain({
       action: fromDappsRenderer.updateTabUrlAndTitleAction({
-        url: view.webContents.getURL(),
+        url: url,
         tabId: payload.tab.id,
         title: title,
       }),
     });
     action.meta.dispatchFromMain({
       action: fromHistoryRenderer.didNavigateInPageAction({
-        url: view.webContents.getURL(),
+        url: url,
         tabId: payload.tab.id,
         title: title,
       }),
@@ -276,8 +278,24 @@ const loadOrReloadBrowserView = function* (action: any) {
     (Electron ^17.0.1)
   */
   view.webContents.on('did-navigate', (a, currentUrl, httpResponseCode, httpStatusText) => {
+    const currentTitle = view.webContents.getTitle();
+    /*
+      When the page just finished navigating, title
+      is the https url, avoid updating the title at this
+      moment
+    */
+    if (!currentTitle.startsWith('https://')) {
+      title = currentTitle;
+    }
     action.meta.dispatchFromMain({
       action: fromHistoryRenderer.didNavigateInPageAction({
+        url: currentUrl,
+        tabId: payload.tab.id,
+        title: title,
+      }),
+    });
+    action.meta.dispatchFromMain({
+      action: fromDappsRenderer.updateTabUrlAndTitleAction({
         url: currentUrl,
         tabId: payload.tab.id,
         title: title,
@@ -359,15 +377,16 @@ const loadOrReloadBrowserView = function* (action: any) {
     if (title !== view.webContents.getTitle()) {
       title = title
       action.meta.dispatchFromMain({
-        action: fromDappsRenderer.didChangeTitleAction({
+        action: fromDappsRenderer.updateTabUrlAndTitleAction({
+          url: view.webContents.getURL(),
           tabId: payload.tab.id,
-          title,
+          title: title,
         }),
       });
     }
   });
 
-  const handleNavigation = (e: Electron.Event, futureUrl: string) => {
+  const handleNavigation = (e: Electron.Event, futureUrl: string, tabFavorite: boolean) => {
     let parsedFutureUrl: URL | undefined = undefined;
     try {
       parsedFutureUrl = new URL(futureUrl);
@@ -387,9 +406,27 @@ const loadOrReloadBrowserView = function* (action: any) {
           }),
         });
       } else {
-        setIsFirstRequest(true);
-        console.log('[nav] will navigate to same host');
-        // to not e.preventDefault(); and honor navigation
+
+        let currentUrl = new URL(view.webContents.getURL());
+        if (
+          tabFavorite &&
+          (
+            parsedFutureUrl.hostname !== currentUrl.hostname ||
+            parsedFutureUrl.pathname !== currentUrl.hostname
+          )
+        ) {
+          e.preventDefault();
+          action.meta.dispatchFromMain({
+            action: fromDappsRenderer.loadResourceAction({
+              url: futureUrl,
+              tabId: payload.tab.id,
+            }),
+          });
+        } else {
+          // to not e.preventDefault(); and honor navigation
+          setIsFirstRequest(true);
+          console.log('[nav] will navigate to same host');
+        }
       }
     } else {
       e.preventDefault();
@@ -410,9 +447,8 @@ const loadOrReloadBrowserView = function* (action: any) {
   };
 
   view.webContents.on('will-redirect', (e, futureUrl) => {
-    console.log('-------------------------------------- will-redirect', url);
     if (new URL(futureUrl).host !== url.host) {
-      console.log('WILL REDIRECT MUST CHANGE SESSION', url.host, '->', new URL(futureUrl).host)
+      console.log('will redirect, must change session', url.host, '->', new URL(futureUrl).host)
     }
   });
 
@@ -425,13 +461,10 @@ const loadOrReloadBrowserView = function* (action: any) {
     console.log('will-redirect', futureUrl)
   });
 
-  /* view.webContents.addListener('will-navigate', (e, futureUrl) => {
-    console.log('will-navigate', futureUrl)
-  }); */
-
   view.webContents.on('will-navigate', (e, futureUrl) => {
     console.log('will-navigate', futureUrl);
-    handleNavigation(e, futureUrl);
+    // todo select tab here to know if tab is favorite or not
+    handleNavigation(e, futureUrl, payload.tab.favorite);
   });
   view.webContents.on('did-start-loading', (e: Electron.Event) => {
     action.meta.browserWindow.webContents.executeJavaScript(`console.log('did-start-loading ${payload.tab.id}')`);
@@ -445,25 +478,18 @@ const loadOrReloadBrowserView = function* (action: any) {
     event does not work properly (Electron ^17.0.1)
   */
   const updateTitle = (newTitle: string) => {
-    if (view && view.webContents && newTitle !== title) {
+    console.log('updateTitle', newTitle);
+    if (view && view.webContents && newTitle && newTitle !== title) {
       title = newTitle;
       action.meta.dispatchFromMain({
-        action: fromDappsRenderer.didChangeTitleAction({
+        action: fromDappsRenderer.updateTabUrlAndTitleAction({
+          url: view.webContents.getURL(),
           tabId: payload.tab.id,
-          title,
+          title: title,
         }),
       });
     }
   }
-  setTimeout(() => {
-    updateTitle(view.webContents.getTitle())
-  }, 1000);
-  setTimeout(() => {
-    updateTitle(view.webContents.getTitle())
-  }, 2000);
-  setTimeout(() => {
-    updateTitle(view.webContents.getTitle())
-  }, 5000);
 
   // ==============================
   // In tab javascript executions

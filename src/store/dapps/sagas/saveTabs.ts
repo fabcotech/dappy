@@ -43,6 +43,5 @@ export const saveTabsSaga = function* () {
   yield takeEvery(fromDapps.SET_TAB_MUTED, saveTabs);
   yield takeEvery(fromDapps.SET_TAB_FAVORITE, saveTabs);
   yield takeEvery(fromDapps.DID_CHANGE_FAVICON, saveTabs);
-  yield takeEvery(fromDapps.DID_CHANGE_TITLE, saveTabs);
   yield takeEvery(fromDapps.UPDATE_TAB_URL_AND_TITLE, saveTabs)
 };
