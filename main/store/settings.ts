@@ -4,14 +4,20 @@ import * as fromSettingsRenderer from '../../src/store/settings';
 
 export const SYNC_SETTINGS = '[MAIN] Sync settings';
 
-export interface State extends fromSettingsRenderer.Settings {}
+export interface State {
+  settings: fromSettingsRenderer.Settings,
+}
 
-export const initialState: State = fromSettingsRenderer.initialState.settings;
+export const initialState: State = {
+  settings: fromSettingsRenderer.initialState.settings
+};
 
 export const reducer = (state = initialState, action: any): State => {
   switch (action.type) {
     case SYNC_SETTINGS: {
-      return action.payload;
+      return {
+        settings: action.payload,
+      }
     }
 
     default:
@@ -24,4 +30,4 @@ export const getSettingsMainState = createSelector(
   (state: any) => state.settings
 );
 
-export const getSettings = createSelector(getSettingsMainState, (state: State) => state);
+export const getSettings = createSelector(getSettingsMainState, (state: State) => state.settings);

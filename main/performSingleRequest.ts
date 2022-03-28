@@ -1,8 +1,8 @@
-import { BlockchainNode } from '../src/models';
+import { DappyNetworkMember } from 'dappy-lookup';
 import { httpBrowserToNode } from './httpBrowserToNode';
 
 /* browser to node */
-export const performSingleRequest = (body: { [key: string]: any }, node: BlockchainNode): Promise<string> => {
+export const performSingleRequest = (body: { [key: string]: any }, node: DappyNetworkMember): Promise<string> => {
   return new Promise((resolve, reject) => {
     let over = false;
     setTimeout(() => {

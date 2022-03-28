@@ -1,5 +1,6 @@
 import { createStore, applyMiddleware, combineReducers, Store } from 'redux';
 import createSagaMiddleware from 'redux-saga';
+import { DappyNetworkId, DappyNetworkMember, dappyNetworks } from 'dappy-lookup';
 import { all } from 'redux-saga/effects';
 import xstream from 'xstream';
 import throttle from 'xstream/extra/throttle';
@@ -23,7 +24,6 @@ import * as fromCookies from './cookies';
 
 import {
   validateSettings,
-  validateBenchmarks,
   validateBlockchains,
   validateUi,
   validateRecords,
@@ -36,8 +36,6 @@ import fromEvent from 'xstream/extra/fromEvent';
 import { DEVELOPMENT, RELOAD_INDEXEDDB_PERIOD } from '../CONSTANTS';
 import { validateAccounts } from './decoders/Account';
 import { loggerSaga } from './utils';
-import { validatePreviews } from './decoders/Preview';
-import { PREDEFINED_BLOCKCHAINS } from '../BLOCKCHAINS';
 import { PREDEFINED_TABS } from '../TABS';
 import { initCronJobs } from './initCronJobs';
 import { interProcess } from '../interProcess';
@@ -51,6 +49,7 @@ declare global {
     Sentry: any;
     uniqueEphemeralToken: string;
     messageFromMain: (a: any) => void;
+    dappyLookup: (body: any) => Promise<any>;
     singleDappyCall: (body: any, parameters: any) => Promise<any>;
     multiDappyCall: (body: any, parameters: any) => Promise<MultiCallResult>;
     getIpAddressAndCert: (a: { host: string }) => Promise<{ cert: string; ip: string }>;
@@ -161,7 +160,7 @@ const sagas = function* rootSaga() {
 sagaMiddleware.run(sagas);
 
 const dispatchInitActions = () => {
-  if (asyncActionsOver === 11) {
+  if (asyncActionsOver === 10) {
     store.dispatch(
       fromUi.setBodyDimensionsAction({ bodyDimensions: [document.body.clientWidth, document.body.clientHeight] })
     );
@@ -172,7 +171,7 @@ const dispatchInitActions = () => {
   }
 };
 
-const DB_MIGRATION_NUMBER = 22;
+const DB_MIGRATION_NUMBER = 23;
 export const dbReq: IDBOpenDBRequest = window.indexedDB.open('dappy', DB_MIGRATION_NUMBER);
 export let db: undefined | IDBDatabase;
 
@@ -194,14 +193,11 @@ dbReq.onupgradeneeded = (event) => {
   if (!db.objectStoreNames.contains('tabs')) {
     db.createObjectStore('tabs', { keyPath: 'id' });
   }
-  if (!db.objectStoreNames.contains('blockchains')) {
-    db.createObjectStore('blockchains', { keyPath: 'chainId' });
+  if (!db.objectStoreNames.contains('networks')) {
+    db.createObjectStore('networks', { keyPath: 'chainId' });
   }
   if (!db.objectStoreNames.contains('transactions')) {
     db.createObjectStore('transactions', { keyPath: 'id' });
-  }
-  if (!db.objectStoreNames.contains('benchmarks')) {
-    db.createObjectStore('benchmarks', { keyPath: 'id' });
   }
   if (!db.objectStoreNames.contains('rchainInfos')) {
     db.createObjectStore('rchainInfos', { keyPath: 'chainId' });
@@ -455,24 +451,64 @@ dbReq.onsuccess = (event) => {
   };
 
   // BLOCKCHAINS
-  const blockchainsTx = openedDB.transaction('blockchains', 'readonly');
-  var blockchainsStore = blockchainsTx.objectStore('blockchains');
+  const blockchainsTx = openedDB.transaction('networks', 'readonly');
+  var blockchainsStore = blockchainsTx.objectStore('networks');
   const requestBlockchains = blockchainsStore.getAll();
   requestBlockchains.onsuccess = (e) => {
-    const blockchainsToCheck = requestBlockchains.result;
+    let blockchainsToCheck = requestBlockchains.result;
+    blockchainsToCheck.map(bc => {
+      if (!bc.hasOwnProperty('auto')) {
+        if (!!dappyNetworks[bc.chainId as DappyNetworkId] ) {
+          console.log('yes')
+          bc.auto = true;
+          bc.nodes = dappyNetworks[bc.chainId as DappyNetworkId];
+        } else {
+          console.log('no')
+          bc.auto = false;
+          bc.nodes = (bc.nodes || []).map((n: any) => {
+            return {
+              ip: bc.ip,
+              port: "",
+              scheme: "https",
+              caCert: bc.cert as string,
+              hostname: bc.host as string,
+            } as DappyNetworkMember
+          })
+        }
+      }
+      return bc;
+    })
+    console.log(blockchainsToCheck)
     validateBlockchains(blockchainsToCheck)
       .then((blockchains) => {
         asyncActionsOver += 1;
+        // todo what if blockchains from dappy-lookup have changed ?
+        // we need to update store
         if (blockchains.length) {
           store.dispatch(fromSettings.updateBlockchainsFromStorageAction(blockchains));
         } else {
-          store.dispatch(fromSettings.updateBlockchainsFromStorageAction([PREDEFINED_BLOCKCHAINS[0]]));
+          const chainId = Object.keys(dappyNetworks)[0];
+          store.dispatch(fromSettings.updateBlockchainsFromStorageAction([{
+            platform: 'rchain',
+            auto: true,
+            chainId: chainId,
+            chainName: chainId,
+            nodes: dappyNetworks[chainId as DappyNetworkId]
+          }]));
         }
         dispatchInitActions();
       })
       .catch((e) => {
+        console.log(e)
         asyncActionsOver += 1;
-        store.dispatch(fromSettings.updateBlockchainsFromStorageAction([PREDEFINED_BLOCKCHAINS[0]]));
+        const chainId = Object.keys(dappyNetworks)[0];
+        store.dispatch(fromSettings.updateBlockchainsFromStorageAction([{
+          platform: 'rchain',
+          auto: true,
+          chainId: chainId,
+          chainName: chainId,
+          nodes: dappyNetworks[chainId as DappyNetworkId]
+        }]));
         store.dispatch(
           fromMain.saveErrorAction({
             errorCode: 2004,
@@ -502,7 +538,6 @@ dbReq.onsuccess = (event) => {
       })
       .catch((e) => {
         asyncActionsOver += 1;
-        store.dispatch(fromSettings.updateBlockchainsFromStorageAction(PREDEFINED_BLOCKCHAINS));
         store.dispatch(
           fromMain.saveErrorAction({
             errorCode: 2047,
@@ -611,41 +646,6 @@ dbReq.onsuccess = (event) => {
               errorCode: 2037,
               error: 'Unable to read accounts from storage',
               trace: accounts,
-            })
-          );
-          dispatchInitActions();
-        });
-    };
-
-    // BENCHMARKS
-    const benchmarksTx = openedDB.transaction('benchmarks', 'readonly');
-    var benchmarksStore = benchmarksTx.objectStore('benchmarks');
-    const requestBenchmarks = benchmarksStore.getAll();
-    requestBenchmarks.onsuccess = (e) => {
-      const benchmarks = requestBenchmarks.result;
-      if (typeof benchmarks === 'undefined') {
-        console.warn('benchmarks not found in storage, probably first launch');
-        asyncActionsOver += 1;
-        dispatchInitActions();
-        return;
-      }
-      validateBenchmarks(benchmarks)
-        .then(() => {
-          asyncActionsOver += 1;
-          store.dispatch(
-            fromBlockchain.updateBenchmarksFromStorageAction({
-              benchmarks: benchmarks,
-            })
-          );
-          dispatchInitActions();
-        })
-        .catch((e) => {
-          asyncActionsOver += 1;
-          store.dispatch(
-            fromMain.saveErrorAction({
-              errorCode: 2015,
-              error: 'Unable to read benchmarks from storage',
-              trace: benchmarks,
             })
           );
           dispatchInitActions();

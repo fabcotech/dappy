@@ -13,6 +13,8 @@ export const initialState: State = {};
 export const reducer = (state = initialState, action: any): State => {
   switch (action.type) {
     case SYNC_BLOCKCHAINS: {
+      console.log('SYNC_BLOCKCHAINS');
+      console.log(action.payload);
       return action.payload;
     }
 
@@ -32,14 +34,13 @@ export const getBlockchains = createSelector(getBlockchainsMainState, (state: St
 export const getOkBlockchainsMain = createSelector(getBlockchainsMainState, (blockchains: State) => {
   const okBlockchains: { [chainId: string]: Blockchain } = {};
   Object.keys(blockchains).forEach((chainId) => {
-    let nodes = blockchains[chainId].nodes.filter((n) => n.active && n.readyState === 1);
-    if (!nodes.length) {
+    if (!blockchains[chainId].nodes.length) {
       return;
     }
 
     okBlockchains[chainId] = {
       ...blockchains[chainId],
-      nodes: nodes.filter((n) => n.readyState === 1),
+      nodes: blockchains[chainId].nodes,
     };
   });
 

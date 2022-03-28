@@ -1,11 +1,11 @@
+import { DappyNetworkMember } from 'dappy-lookup';
 import https from 'https';
 
 import { VERSION, WS_PAYLOAD_PAX_SIZE } from '../src/CONSTANTS';
-import { BlockchainNode } from '../src/models';
 
 const dappyNetworkAgents: { [key: string]: https.Agent } = {};
 
-export const httpBrowserToNode = (data: { [key: string]: any }, node: BlockchainNode, timeout?: number) => {
+export const httpBrowserToNode = (data: { [key: string]: any }, node: DappyNetworkMember, timeout?: number) => {
   return new Promise((resolve, reject) => {
     const s = JSON.stringify(data);
     const l = Buffer.from(s).length;
@@ -14,30 +14,32 @@ export const httpBrowserToNode = (data: { [key: string]: any }, node: Blockchain
       return;
     }
     try {
-      const ip = node.ip.split(':')[0];
-      const host = node.host;
-      const port = node.ip.indexOf(':') === -1 ? 443 : node.ip.split(':')[1];
-      const cert = node.cert ? decodeURI(decodeURI(node.cert)) : node.origin === 'user' ? undefined : 'INVALIDCERT';
+      console.log('httpBrowserToNode')
+      console.log(node)
+      const ip = node.ip;
+      const hostname = node.hostname;
+      const port = node.port;
+      const caCert = node.caCert ? Buffer.from(node.caCert, 'base64').toString('utf8') : 'INVALIDCERT';
 
-      if (!dappyNetworkAgents[`${ip}-${cert}`]) {
-        dappyNetworkAgents[`${ip}-${cert}`] = new https.Agent({
+      if (!dappyNetworkAgents[`${ip}-${caCert}`]) {
+        dappyNetworkAgents[`${ip}-${caCert}`] = new https.Agent({
           /* no dns */
           host: ip,
           rejectUnauthorized: true, // true by default
           minVersion: 'TLSv1.3',
-          ca: cert,
+          ca: caCert,
         });
       }
 
       const options: https.RequestOptions = {
-        agent: dappyNetworkAgents[`${ip}-${cert}`],
+        agent: dappyNetworkAgents[`${ip}-${caCert}`],
         method: 'POST',
         port: port,
         path: `/${data.type}`,
         headers: {
           'Content-Type': 'application/json',
           'Dappy-Browser': VERSION,
-          Host: host,
+          Host: hostname,
         },
       };
 

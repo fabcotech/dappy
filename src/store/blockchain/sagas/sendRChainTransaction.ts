@@ -1,7 +1,8 @@
 import { takeEvery, put, select } from 'redux-saga/effects';
 import { rhoValToJs } from 'rchain-toolkit/dist/utils';
+import { DappyNetworkMember } from 'dappy-lookup';
 
-import { Blockchain, TransactionStatus, BlockchainNode, MultiCallError, SingleCallResult } from '/models';
+import { Blockchain, TransactionStatus, MultiCallError, SingleCallResult } from '/models';
 import * as fromBlockchain from '..';
 import { buildUnforgeableNameQuery } from '/utils/buildUnforgeableNameQuery';
 import * as fromMain from '/store/main';
@@ -52,7 +53,7 @@ const sendRChainTransaction = function* (action: Action) {
     return;
   }
 
-  const node = rchainBlockchains[payload.blockchainId].nodes.find((n) => n.readyState === 1);
+  const node = rchainBlockchains[payload.blockchainId].nodes[0];
 
   let previewPrivateName = ['record', 'dapp', 'rchain-token', 'transfer'].includes(payload.origin.origin);
   let unforgeableName = '';
@@ -67,7 +68,7 @@ const sendRChainTransaction = function* (action: Action) {
       let prepareDeployResponse: undefined | SingleCallResult;
       prepareDeployResponse = yield singleCall(
         { type: 'api/prepare-deploy', body: channelRequest },
-        node as BlockchainNode
+        node as DappyNetworkMember
       );
 
       // TODO random node / multiple nodes to avoid failing if
@@ -89,7 +90,7 @@ const sendRChainTransaction = function* (action: Action) {
 
   let deployResponse: undefined | SingleCallResult = undefined;
   try {
-    deployResponse = yield singleCall({ type: 'api/deploy', body: payload.transaction }, node as BlockchainNode);
+    deployResponse = yield singleCall({ type: 'api/deploy', body: payload.transaction }, node as DappyNetworkMember);
     if (!(deployResponse as SingleCallResult).data.startsWith('"Success')) {
       yield put(
         fromBlockchain.rChainTransactionErrorAction({
@@ -162,7 +163,6 @@ const sendRChainTransaction = function* (action: Action) {
                 {
                   chainId: payload.blockchainId,
                   urls: rchainBlockchains[payload.blockchainId].nodes
-                    .filter((n) => n.readyState === 1)
                     .map(getNodeIndex),
                   resolverMode: settings.resolverMode,
                   resolverAccuracy: settings.resolverAccuracy,

@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 
-import { blockchainNodeSchema } from './Nodes';
+import { networkMemberSchema } from './Nodes';
 import { Blockchain } from '/models';
 
 export const blockchainSchema = yup
@@ -10,9 +10,10 @@ export const blockchainSchema = yup
       .string()
       .matches(/rchain/)
       .required(),
+    auto: yup.boolean().required(),
     chainName: yup.string().required(),
     chainId: yup.string().required(),
-    nodes: yup.array(blockchainNodeSchema),
+    nodes: yup.array(networkMemberSchema),
   })
   .required()
   .noUnknown(true)

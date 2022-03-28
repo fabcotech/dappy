@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Formik, Field, FieldArray } from 'formik';
+import { Formik, Field } from 'formik';
 
 import './Blockchains.scss';
 import { getIpAddressAndCert } from '/interProcess';
@@ -7,8 +7,8 @@ import { getIpAddressAndCert } from '/interProcess';
 const REGEXP_HOST = /^(?!\.)^[a-z0-9.]*$/;
 
 interface AddNodeProps {
-  formNodes: { ip: string; host: string; cert: undefined | string }[];
-  addNode: (values: { ip: string; host: string; cert: undefined | string }) => void;
+  formNodes: { ip: string; hostname: string; port: string; caCert: string }[];
+  addNode: (values: { ip: string; port: string; hostname: string; caCert: undefined | string }) => void;
   cancel: () => void;
 }
 
@@ -26,8 +26,9 @@ export class AddNode extends React.Component<AddNodeProps, {}> {
       getIpAddressAndCert({ host: host })
         .then((a: { ip: string; cert: string }) => {
           if (a.ip && a.cert && typeof a.ip === 'string' && typeof a.cert === 'string') {
-            setFieldValue(`cert`, a.cert);
+            setFieldValue(`caCert`, a.cert);
             setFieldValue(`ip`, a.ip);
+            setFieldValue(`port`, "");
           }
           this.setState({
             retrieveError: '',
@@ -44,9 +45,9 @@ export class AddNode extends React.Component<AddNodeProps, {}> {
   render() {
     return (
       <Formik
-        initialValues={{ ip: '', host: '', cert: '' }}
-        validate={(values: { ip?: string; cert?: string; host?: string }) => {
-          const errors: { ip?: string; cert?: string; host?: string } = {};
+        initialValues={{ ip: '', port: '', hostname: '', caCert: '' }}
+        validate={(values: { ip?: string; port?: string; caCert?: string; hostname?: string }) => {
+          const errors: { ip?: string; port?: string; caCert?: string; hostname?: string } = {};
 
           if (this.props.formNodes.find((no) => no.ip === values.ip)) {
             errors.ip = 'A node with this IP address already exists';
@@ -54,10 +55,10 @@ export class AddNode extends React.Component<AddNodeProps, {}> {
             errors.ip = t('must set ip');
           }
 
-          if (!values.host) {
-            errors.host = t('host must be set');
-          } else if (!REGEXP_HOST.test(values.host)) {
-            errors.host = t('host must be valid');
+          if (!values.hostname) {
+            errors.hostname = t('host must be set');
+          } else if (!REGEXP_HOST.test(values.hostname)) {
+            errors.hostname = t('host must be valid');
           }
 
           return errors;
@@ -69,11 +70,11 @@ export class AddNode extends React.Component<AddNodeProps, {}> {
               <div className="field is-horizontal">
                 <label className="label">{t('host name')}*</label>
                 <div className="control">
-                  <Field className="input" type="text" name={`host`} placeholder="a1.dappy.tech" />
+                  <Field className="input" type="text" name={`hostname`} placeholder="dappynode" />
                 </div>
               </div>
               {this.state.retrieveError && <p className="text-danger">{this.state.retrieveError}</p>}
-              {touched && touched.host && errors.host && <p className="text-danger">{errors.host}</p>}
+              {touched && touched.hostname && errors.hostname && <p className="text-danger">{errors.hostname}</p>}
               <div className="field is-horizontal">
                 <label className="label">{t('ip address')}*</label>
                 <div className="control">
@@ -82,18 +83,25 @@ export class AddNode extends React.Component<AddNodeProps, {}> {
               </div>
               {touched && touched.ip && errors.ip && <p className="text-danger">{errors.ip}</p>}
               <div className="field is-horizontal">
+                <label className="label">{t('port')}*</label>
+                <div className="control">
+                  <Field className="input" type="text" name={`port`} placeholder="" />
+                </div>
+              </div>
+              {touched && touched.port && errors.port && <p className="text-danger">{errors.port}</p>}
+              <div className="field is-horizontal">
                 <label className="label">{t('certificate')}*</label>
                 <div className="control">
                   <Field
                     className="input"
                     type="text"
                     component="textarea"
-                    name={`cert`}
+                    name={`caCert`}
                     placeholder="-----BEGIN CERTIFICATE-----"
                   />
                 </div>
               </div>
-              {touched && touched.cert && errors.cert && <p className="text-danger">{errors.cert}</p>}
+              {touched && touched.caCert && errors.caCert && <p className="text-danger">{errors.caCert}</p>}
 
               <div className="field is-horizontal is-grouped pt20">
                 <div className="control">
@@ -110,12 +118,13 @@ export class AddNode extends React.Component<AddNodeProps, {}> {
                     onClick={() => {
                       this.props.addNode({
                         ip: values.ip,
-                        host: values.host,
-                        cert: values.cert ? encodeURI(values.cert) : undefined,
+                        port: values.port,
+                        hostname: values.hostname,
+                        caCert: values.caCert ? Buffer.from(values.caCert, 'utf8').toString('base64') : '',
                       });
                     }}
                     className="button is-black"
-                    disabled={!!(errors.host || errors.ip || errors.cert)}>
+                    disabled={!!(errors.hostname || errors.ip || errors.caCert)}>
                     Add node
                   </button>
                 </div>

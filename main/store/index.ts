@@ -7,6 +7,7 @@ import * as fromBlockchains from './blockchains';
 import * as fromBrowserViews from './browserViews';
 import * as fromTransactions from './transactions';
 import * as fromIdentifications from './identifications';
+import * as fromTabs from './tabs';
 import { sagas } from './sagas';
 
 export interface State {
@@ -15,6 +16,7 @@ export interface State {
   transactions: fromTransactions.State;
   identifications: fromIdentifications.State;
   browserViews: fromBrowserViews.State;
+  tabs: fromTabs.State;
 }
 
 const rootSagas = function* () {
@@ -27,9 +29,10 @@ export const store: Store<State> = createStore(
   combineReducers({
    settings: fromSettings.reducer,
     blockchains: fromBlockchains.reducer,
-     browserViews: fromBrowserViews.reducer,
+    browserViews: fromBrowserViews.reducer,
     transactions: fromTransactions.reducer,
     identifications: fromIdentifications.reducer,
+    tabs: fromTabs.reducer,
   }),
   applyMiddleware(sagaMiddleware)
 );

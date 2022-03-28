@@ -49,10 +49,8 @@ const updateBlockchainsCompleted = function* (action: Action) {
 };
 
 export const updateBlockchainsCompletedSaga = function* () {
-  yield takeEvery(fromSettings.UPDATE_NODE_ACTIVE_COMPLETED, updateBlockchainsCompleted);
   yield takeEvery(fromSettings.CREATE_BLOCKCHAIN_COMPLETED, updateBlockchainsCompleted);
   yield takeEvery(fromSettings.REMOVE_BLOCKCHAIN_COMPLETED, updateBlockchainsCompleted);
   yield takeEvery(fromSettings.UPDATE_BLOCKCHAINS_FROM_STORAGE, updateBlockchainsCompleted);
   yield takeEvery(fromSettings.UPDATE_NODES_COMPLETED, updateBlockchainsCompleted);
-  yield takeEvery(fromSettings.UPDATE_NODE_READY_STATE, updateBlockchainsCompleted);
 };

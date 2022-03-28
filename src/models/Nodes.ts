@@ -13,8 +13,6 @@ export interface NodeFromNetwork {
 export interface BlockchainNode {
   ip: string;
   host: string;
-  origin: 'network' | 'user' | 'default';
-  active: boolean;
   /*
     See ws doc
     CONNECTING 	0 	The connection is not yet open.

@@ -1,7 +1,8 @@
 import { BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
+import { DappyNetworkMember } from 'dappy-lookup';
 import * as fromReducer from './reducer';
 
-import { Blockchain, Account, BlockchainNode  } from '/models';
+import { Blockchain, Account  } from '/models';
 
 export const UPDATE_RESOLVER_SETTINGS = '[Settings] Update resolvers settings';
 export const UPDATE_DEV_MODE = '[Settings] Update dev mode';
@@ -12,10 +13,6 @@ export const CREATE_BLOCKCHAIN = '[Settings] Create blockchain';
 export const CREATE_BLOCKCHAIN_COMPLETED = '[Settings] Create blockchain completed';
 export const REMOVE_BLOCKCHAIN = '[Settings] Remove blockchain';
 export const REMOVE_BLOCKCHAIN_COMPLETED = '[Settings] Remove blockchain completed';
-export const ADD_NODES_IF_DO_NOT_EXIST = '[Settings] Add nodes if do not exist';
-export const UPDATE_NODE_ACTIVE = '[Settings] Update node active';
-export const UPDATE_NODE_ACTIVE_COMPLETED = '[Settings] Update node active completed';
-export const UPDATE_NODE_READY_STATE = '[Settings] Update node ready state';
 export const UPDATE_NODES = '[Settings] Update node urls';
 export const UPDATE_NODES_COMPLETED = '[Settings] Update node urls completed';
 export const SAVE_BLOCKCHAINS_TO_STORAGE_FAILED = '[Settings] Save blockchains to storage failed';
@@ -63,7 +60,7 @@ export interface CreateBlockchainPayload {
   platform: 'rchain';
   chainId: string;
   chainName: string;
-  nodes: BlockchainNode[];
+  nodes: DappyNetworkMember[];
 }
 export const createBlockchainAction = (values: CreateBlockchainPayload) => ({
   type: CREATE_BLOCKCHAIN,
@@ -91,45 +88,9 @@ export const createBlockchainCompletedAction = (values: CreateBlockchainPayload)
   payload: values,
 });
 
-export interface AddNodesIfDoNotExistPayload {
-  chainId: string;
-  nodes: BlockchainNode[];
-}
-export const addNodesIfDoNotExistAction = (values: AddNodesIfDoNotExistPayload) => ({
-  type: ADD_NODES_IF_DO_NOT_EXIST,
-  payload: values,
-});
-
-export interface UpdateNodeActivePayload {
-  chainId: string;
-  nodeIp: string;
-  active: boolean;
-}
-export const updateNodeActiveAction = (values: UpdateNodeActivePayload) => ({
-  type: UPDATE_NODE_ACTIVE,
-  payload: values,
-});
-
-export interface UpdateNodeReadyStatePayload {
-  chainId: string;
-  ip: string;
-  host: string;
-  readyState: 0 | 1 | 2 | 3;
-  ssl: boolean;
-}
-export const updateNodeReadyStateAction = (values: UpdateNodeReadyStatePayload) => ({
-  type: UPDATE_NODE_READY_STATE,
-  payload: values,
-});
-
-export const updateNodeActiveCompletedAction = (values: UpdateNodeActivePayload) => ({
-  type: UPDATE_NODE_ACTIVE_COMPLETED,
-  payload: values,
-});
-
 export interface UpdateNodesPayload {
   chainId: string;
-  nodes: BlockchainNode[];
+  nodes: DappyNetworkMember[];
 }
 export const updateNodesAction = (values: UpdateNodesPayload) => ({
   type: UPDATE_NODES,

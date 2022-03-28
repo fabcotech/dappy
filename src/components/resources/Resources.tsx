@@ -45,7 +45,6 @@ class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
           const tab = this.props.activeTabs[tabId];
           const zIndex = (this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10 + 2;
 
-          console.log(tab);
           if (tab.lastError) {
             return (
               <React.Fragment key={tabId}>

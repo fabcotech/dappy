@@ -1,18 +1,16 @@
 import * as React from 'react';
 import { Formik, Form, FieldArray } from 'formik';
 import { connect } from 'react-redux';
+import { DappyNetworkId, dappyNetworks } from 'dappy-lookup';
 
 import './Blockchains.scss';
 
-import { browserUtils } from '../../../store/browser-utils';
-import { Blockchain, Benchmark, RChainInfos, RChainInfo } from '../../../models';
-import { AddBlockchain, BenchmarkComponent, Requests } from '.';
+import { Blockchain, RChainInfos, RChainInfo } from '../../../models';
+import { AddBlockchain, Requests } from '.';
 import * as fromSettings from '../../../store/settings';
 import * as fromBlockchain from '../../../store/blockchain';
 import * as fromMain from '../../../store/main';
 import * as fromUi from '../../../store/ui';
-import { PREDEFINED_BLOCKCHAINS } from '../../../BLOCKCHAINS';
-import { getNodeIndex } from '../../../utils/getNodeIndex';
 import { AddNode } from './AddNode';
 import { TopTabs } from './TopTabs';
 import { GlossaryHint } from '/components/utils/Hint';
@@ -21,13 +19,10 @@ const REGEXP_IP = /^(?!\.)^[a-z0-9.-]*(:\d{2,5})?$/;
 
 interface BlockchainsProps {
   blockchains: { [chainId: string]: Blockchain };
-  benchmarks: { [chainId: string]: undefined | Benchmark };
-  benchmarkTransitoryStates: { [chainId: string]: undefined | 'loading' };
   rchainInfos: { [chainId: string]: RChainInfos };
   namesBlockchain: Blockchain | undefined;
   isTablet: boolean;
   updateNodes: (values: fromSettings.UpdateNodesPayload) => void;
-  updateNodeActive: (values: fromSettings.UpdateNodeActivePayload) => void;
   createBlockchain: (values: fromSettings.CreateBlockchainPayload) => void;
   openModal: (modal: fromMain.Modal) => void;
 }
@@ -40,7 +35,7 @@ interface BlockchainsState {
   dropErrors: string[];
   formKey: number;
   selectedBlockchain: undefined | Blockchain;
-  defaultNodes: { ip: string; host: string; cert: string }[];
+  defaultNodes: { ip: string; port: string; hostname: string; caCert: string }[];
 }
 
 export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> {
@@ -57,11 +52,11 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
   selectedBlockchain: undefined | Blockchain;
   dropEl: HTMLTextAreaElement | undefined = undefined;
 
-  static getDerivedStateFromProps(props: BlockchainsProps, state: BlockchainsState) {
+   static getDerivedStateFromProps(props: BlockchainsProps, state: BlockchainsState) {
     const updates: {
       formKey: number;
       selectedBlockchain: undefined | Blockchain;
-      defaultNodes: { host: string; ip: string; cert: string }[];
+      defaultNodes: { hostname: string; ip: string; port: string; caCert: string }[];
     } = {
       selectedBlockchain: state.selectedBlockchain,
       formKey: state.formKey,
@@ -86,19 +81,22 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
       updates.selectedBlockchain = undefined;
     }
 
-    const foundDefault = PREDEFINED_BLOCKCHAINS.find(
-      (pb) => updates.selectedBlockchain && pb.chainId === updates.selectedBlockchain.chainId
+    const foundDefaultId = Object.keys(dappyNetworks).find(
+      (pb) => updates.selectedBlockchain && pb === updates.selectedBlockchain.chainId
     );
+    const foundDefault = foundDefaultId && dappyNetworks[foundDefaultId as DappyNetworkId];
+
     if (updates.selectedBlockchain && foundDefault) {
-      updates.defaultNodes = foundDefault.nodes
+      updates.defaultNodes = foundDefault
         .filter((n) => {
           return !(updates.selectedBlockchain as Blockchain).nodes.find((no) => no.ip === n.ip);
         })
         .map((d) => {
           return {
             ip: d.ip,
-            host: d.host,
-            cert: d.cert || '',
+            hostname: d.hostname,
+            port: d.port,
+            caCert: d.caCert || '',
           };
         });
     } else {
@@ -161,129 +159,6 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
     });
   };
 
-  saveRef = (el: HTMLTextAreaElement) => {
-    /*     if (!this.dropEl) {
-      this.dropEl = el;
-      this.dropEl.addEventListener('drop', (e: React.DragEvent<HTMLTextAreaElement>) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.onDrop(e);
-        return false;
-      });
-    } */
-  };
-
-  /*   onDrop = (e: React.DragEvent<HTMLTextAreaElement>) => {
-    var that = this;
-    e.preventDefault();
-    var files = e.dataTransfer.files;
-    if (!files[0]) {
-      this.setState({
-        dropErrors: ['Please drop a valid csv file'],
-      });
-      return;
-    }
-    if (files[1]) {
-      this.setState({
-        dropErrors: ['Please drop only one file'],
-      });
-      return;
-    }
-
-    this.setState({ dropErrors: [], loading: true });
-    const file = files[0];
-
-    var r = new FileReader();
-    try {
-      r.onloadend = function (e) {
-        if (!e || !e.target || typeof r.result !== 'string') {
-          return;
-        }
-
-        let nodeUrls: string[] = r.result
-          .split(';')
-          .map((url) => url.replace(' ', '').replace(/[\n\r]/g, ''))
-          .filter((url) => !(that.state.selectedBlockchain as Blockchain).nodes.find((n) => n.url === url));
-
-        if (nodeUrls.length) {
-          if (!nodeUrls[nodeUrls.length - 1]) {
-            nodeUrls = nodeUrls.slice(0, nodeUrls.length - 1);
-          }
-        }
-
-        if (!nodeUrls.length) {
-          that.props.openModal({
-            title: t('import nodes'),
-            text: t('did not find node'),
-            buttons: [
-              {
-                classNames: 'is-link',
-                text: t('ok'),
-                action: fromMain.closeModalAction(),
-              },
-            ],
-          });
-          return;
-        }
-        that.onLoadNodes(nodeUrls);
-      };
-    } catch (e) {
-      this.setState({ dropErrors: ['Error parsing file'] });
-    }
-
-    r.readAsText(file);
-  }; */
-
-  onLoadDefaultNodes = () => {
-    this.onLoadNodes(this.state.defaultNodes);
-  };
-
-  onLoadNodes = (nodesToAdd: { ip: string; cert: string; host: string }[]) => {
-    if (!this.state.selectedBlockchain || !nodesToAdd.length) {
-      return;
-    }
-    this.props.openModal({
-      title: t('import nodes'),
-      text: `${t('do you want import nodes')} \n
-      ${nodesToAdd.map((n) => n.ip).join('\n')}
-      `,
-      buttons: [
-        {
-          classNames: 'is-light',
-          text: t('cancel'),
-          action: fromMain.closeModalAction(),
-        },
-        {
-          classNames: 'is-link',
-          text: t('yes import'),
-          action: [
-            fromMain.closeModalAction(),
-            fromSettings.updateNodesAction({
-              chainId: (this.state.selectedBlockchain as Blockchain).chainId,
-              nodes: nodesToAdd.map((n) => {
-                const fn = (this.state.selectedBlockchain as Blockchain).nodes.find((no) => no.ip === n.ip);
-                // cannot override network
-                if (fn && fn.origin !== 'user') {
-                  return fn;
-                } else {
-                  return {
-                    ip: n.ip,
-                    host: n.host,
-                    cert: n.cert,
-                    origin: 'user' as 'user',
-                    active: true,
-                    readyState: 3,
-                    ssl: false,
-                  };
-                }
-              }),
-            }),
-          ],
-        },
-      ],
-    });
-  };
-
   onReloadFormik = () => {
     this.setState({
       formKey: this.state.formKey + 1,
@@ -324,8 +199,9 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
             formNodes: this.state.selectedBlockchain.nodes.map((n) => {
               return {
                 ip: n.ip,
-                host: n.host,
-                cert: n.cert,
+                port: n.port,
+                hostname: n.hostname,
+                caCert: n.caCert,
               };
             }),
           }}
@@ -338,20 +214,13 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
               chainId: b.chainId,
               nodes: values.formNodes.map((formNode) => {
                 const fn = b.nodes.find((no) => no.ip === formNode.ip);
-                // cannot override network
-                if (fn && fn.origin !== 'user') {
-                  return fn;
-                } else {
-                  return {
-                    ip: formNode.ip,
-                    host: formNode.host,
-                    cert: formNode.cert,
-                    origin: 'user' as 'user',
-                    active: true,
-                    readyState: 3,
-                    ssl: false,
-                  };
-                }
+                return {
+                  ip: formNode.ip,
+                  port: "",
+                  hostname: formNode.hostname,
+                  caCert: formNode.caCert,
+                  scheme: "https",
+                };
               }),
             });
             setSubmitting(false);
@@ -385,7 +254,7 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                       <td>{t('name price')}</td>
                       <td>
                         {
-                          rchainInfo.namePrice ?
+                          rchainInfo && rchainInfo.namePrice ?
                           `${rchainInfo.namePrice[1]} ${rchainInfo.namePrice[0]}`
                           : 'unknown'
                         }
@@ -427,13 +296,6 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                         ? values.formNodes.map((formNode, index) => {
                             const bc = this.state.selectedBlockchain as Blockchain;
                             const node = bc.nodes.find((n) => n.ip === formNode.ip);
-                            let benchmark: undefined | Benchmark = undefined;
-                            if (this.state.selectedBlockchain && node) {
-                              benchmark =
-                                this.props.benchmarks[
-                                  `${this.state.selectedBlockchain.chainId || ''}-${getNodeIndex(formNode)}`
-                                ];
-                            }
 
                             let ipIsDomainName = !REGEXP_IP.test(formNode.ip);
                             if (
@@ -446,53 +308,11 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                             return (
                               <React.Fragment key={formNode.ip}>
                                 <div className="node-field field has-addons">
-                                  {!node ? <span className="active"></span> : undefined}
-                                  {node && node.active ? (
-                                    <span
-                                      onClick={(e) =>
-                                        this.props.updateNodeActive({
-                                          chainId: bc.chainId,
-                                          nodeIp: formNode.ip,
-                                          active: false,
-                                        })
-                                      }
-                                      className="active"
-                                      title={t('this node is on')}>
-                                      ON
-                                    </span>
-                                  ) : undefined}
-                                  {node && !node.active ? (
-                                    <span
-                                      onClick={(e) =>
-                                        this.props.updateNodeActive({
-                                          chainId: bc.chainId,
-                                          nodeIp: formNode.ip,
-                                          active: true,
-                                        })
-                                      }
-                                      className="inactive"
-                                      title={t('this node is off')}>
-                                      OFF
-                                    </span>
-                                  ) : undefined}
-                                  {!node || node.origin === 'user' ? (
-                                    <span className="origin" title={t('added by the user')}>
-                                      U
-                                    </span>
-                                  ) : (
-                                    <span className="origin" title={t('retreived from dappy network')}>
-                                      N
-                                    </span>
-                                  )}
-                                  {/* <div className="control">
-                                <Field className="input input-url" name={`nodeUrls.${index}`} />
-                              </div> */}
-
                                   <div className="node-box">
                                     <b className="ip">{formNode.ip}</b>
-                                    <b className="host">{formNode.host}</b>
-                                    {formNode.cert ? (
-                                      <span className="cert">{formNode.cert.substr(100, 20)}</span>
+                                    <b className="host">{formNode.hostname}</b>
+                                    {formNode.caCert ? (
+                                      <span className="cert">{Buffer.from(formNode.caCert, "base64").toString('utf8').substr(100, 20)}</span>
                                     ) : undefined}
                                   </div>
                                   {ipIsDomainName ? (
@@ -501,20 +321,6 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                                       DNS.
                                     </span>
                                   ) : undefined}
-                                  {!node || node.origin === 'user' ? (
-                                    <p className="control fc remove-node">
-                                      <i
-                                        title="Remove this node"
-                                        onClick={() => arrayHelpers.remove(index)}
-                                        className="fa fa-trash fa-after"></i>
-                                    </p>
-                                  ) : undefined}
-
-                                  <BenchmarkComponent
-                                    isTablet={this.props.isTablet}
-                                    node={node}
-                                    benchmark={benchmark}
-                                  />
                                 </div>
                               </React.Fragment>
                             );
@@ -539,7 +345,7 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                           cancel={() => {
                             this.setState({ addNodeFormDisplayed: false });
                           }}
-                          addNode={(values: { ip: string; host: string; cert: undefined | string }) => {
+                          addNode={(values: { ip: string; port: string; caCert: string; hostname: undefined | string }) => {
                             arrayHelpers.push(values);
                             this.setState({ addNodeFormDisplayed: false });
                             if (!errors || Object.keys(errors).length === 0) {
@@ -583,7 +389,7 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
             );
           }}
         />
-        <h3 className="subtitle is-4">{t('change network')}</h3>
+        {/* <h3 className="subtitle is-4">{t('change network')}</h3>
         <div className="connect-tos">
           {
             ['d', 'gamma', 'empty'].map(n => {
@@ -592,30 +398,6 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
               </button>
             })
           }
-        </div>
-        {/* this.state.defaultNodes && this.state.defaultNodes.length ? (
-          <div>
-            <p className="limited-width">
-              Found
-              {` ${this.state.defaultNodes.length} `}
-              default nodes to load (hardcoded in the application)
-            </p>
-            <button type="button" onClick={this.onLoadDefaultNodes} className="button is-link is-small">
-              <i className="fa fa-download fa-before" />
-              Import hard-coded nodes
-            </button>
-            <br />
-            <br />
-          </div>
-        ) : undefined */}
-        {/* <div className="drop-area">
-          <p>Drop nodes .csv file to add nodes</p>
-          {this.state.dropErrors.map(err => (
-            <span key={err} className="text-danger">
-              {err}
-            </span>
-          ))}
-          <textarea ref={this.saveRef} />
         </div> */}
 
         <button
@@ -636,8 +418,6 @@ export const Blockchains = connect(
     return {
       namesBlockchain: fromSettings.getNamesBlockchain(state),
       blockchains: fromSettings.getBlockchains(state),
-      benchmarks: fromBlockchain.getBenchmarks(state),
-      benchmarkTransitoryStates: fromBlockchain.getBenchmarkTransitoryStates(state),
       isTablet: fromUi.getIsTablet(state),
       rchainInfos: fromBlockchain.getRChainInfos(state),
     };
@@ -646,8 +426,6 @@ export const Blockchains = connect(
     updateNodes: (values: fromSettings.UpdateNodesPayload) => {
       dispatch(fromSettings.updateNodesAction(values));
     },
-    updateNodeActive: (values: fromSettings.UpdateNodeActivePayload) =>
-      dispatch(fromSettings.updateNodeActiveAction(values)),
     createBlockchain: (values: fromSettings.CreateBlockchainPayload) =>
       dispatch(fromSettings.createBlockchainAction(values)),
     openModal: (modal: fromMain.Modal) => dispatch(fromMain.openModalAction(modal)),

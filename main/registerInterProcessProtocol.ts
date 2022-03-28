@@ -1,17 +1,17 @@
 import { Session, clipboard, dialog } from 'electron';
 import crypto from 'crypto';
+import { DappyNetworkMember } from 'dappy-lookup';
 import { Store } from 'redux';
 import fs from 'fs';
 import path from 'path';
 import pem from 'pem';
 
 import { getIpAddressAndCert } from './getIpAddressAndCert';
-import { BlockchainNode, MultiCallBody, MultiCallParameters } from '../src/models';
+import { MultiCallBody, MultiCallParameters } from '../src/models';
 import { EXECUTE_RCHAIN_CRON_JOBS } from '../src/store/blockchain';
 import * as fromBlockchains from './store/blockchains';
 import { performMultiRequest } from './performMultiRequest';
 import { performSingleRequest } from './performSingleRequest';
-import { benchmarkCron } from './benchmarkCron';
 import * as fromMainBrowserViews from './store/browserViews';
 import { DispatchFromMainArg } from './main';
 
@@ -141,7 +141,7 @@ export const registerInterProcessProtocol = (
     if (request.url === 'interprocess://single-dappy-call') {
       try {
         const data = JSON.parse(decodeURI(request.headers['Data']));
-        const node: BlockchainNode = data.node;
+        const node: DappyNetworkMember = data.node;
         const body: MultiCallBody = data.body;
         performSingleRequest(body, node)
           .then((a) => {
@@ -153,6 +153,17 @@ export const registerInterProcessProtocol = (
       } catch (err) {
         console.log(err);
         callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when single-dappy-call'));
+      }
+    }
+
+    if (request.url === 'interprocess://dappy-lookup') {
+      try {
+        const data = JSON.parse(decodeURI(request.headers['Data']));
+        const action: any = data.action;
+        console.log(action);
+      } catch (err) {
+        console.log(err);
+        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when dappy-lookup'));
       }
     }
 
@@ -169,14 +180,6 @@ export const registerInterProcessProtocol = (
           store.dispatch({ ...action, meta: { browserWindow: browserWindow } });
         } else if (action.type === fromBlockchains.SYNC_BLOCKCHAINS) {
           store.dispatch(action);
-          /*
-            Do not wait the setInterval to run benchmarkCron
-            do it instantly after dispatch
-          */
-          if (benchmarkCronRanOnce === false) {
-            benchmarkCronRanOnce = true;
-            benchmarkCron(store.getState, dispatchFromMain);
-          }
         } else {
           store.dispatch(action);
         }
@@ -214,9 +217,6 @@ export const registerInterProcessProtocol = (
         const command: any = data.command;
         const payload: any = data.payload;
 
-        if (command === 'run-ws-cron') {
-          benchmarkCron(store.getState, dispatchFromMain);
-        }
         if (command === 'download-file') {
           dialog
             .showOpenDialog({

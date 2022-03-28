@@ -9,8 +9,9 @@ const removeBlockchainsToStorage = function*(action: Action) {
   const payload: fromSettings.RemoveBlockchainPayload = action.payload;
 
   try {
-    yield browserUtils.removeInStorage('blockchains', payload.chainId);
+    yield browserUtils.removeInStorage('networks', payload.chainId);
   } catch (e) {
+    console.log(e)
     yield put(
       fromMain.saveErrorAction({
         errorCode: 2032,

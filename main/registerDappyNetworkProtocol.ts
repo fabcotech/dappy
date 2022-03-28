@@ -28,7 +28,6 @@ export const registerDappyNetworkProtocol = (
     }
 
     let indexes = blockchains[chainId].nodes
-      .filter((n) => n.active && n.readyState === 1)
       .map(getNodeIndex);
 
     if (request.url === "dappynetwork:///explore-deploys") {

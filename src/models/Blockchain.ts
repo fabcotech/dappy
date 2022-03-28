@@ -1,22 +1,11 @@
-import { BlockchainNode } from './Nodes';
+import { DappyNetworkMember } from "dappy-lookup";
 
 export interface Blockchain {
   platform: 'rchain';
+  auto: boolean;
   chainId: string;
   chainName: string;
-  nodes: BlockchainNode[];
-}
-
-export interface Benchmark {
-  id: string;
-  chainId: string;
-  ip: string;
-  date: string;
-  responseTime: number;
-  info: {
-    dappyNodeVersion: string;
-    rnodeVersion: string;
-  };
+  nodes: DappyNetworkMember[];
 }
 
 export interface SplitSearch {

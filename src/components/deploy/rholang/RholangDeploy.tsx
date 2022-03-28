@@ -119,7 +119,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
     const func = () => {
       try {
         const blockchainId = Object.keys(this.props.blockchains)[0];
-        let nodes = this.props.blockchains[blockchainId].nodes.filter((n) => n.readyState === 1);
+        let nodes = this.props.blockchains[blockchainId].nodes;
         multiCall(query, {
           chainId: blockchainId,
           urls: nodes.map(getNodeIndex),
@@ -141,7 +141,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
                 parsedResp: JSON.stringify(parsedResp.data, null, 2),
                 jsValue: JSON.stringify(rhoValToJs(parsedResp.data.expr), null, 2),
                 run: 0,
-                nodes: nodes.map((p) => `${p.ip}, ${p.host}`),
+                nodes: nodes.map((p) => `${p.ip}, ${p.hostname}`),
               });
               if (this.interval) {
                 clearInterval(this.interval);
@@ -153,7 +153,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
                 parsedResp: expr[0] ? JSON.stringify(expr[0], null, 2) : 'No data',
                 jsValue: expr[0] ? JSON.stringify(rhoValToJs(expr[0]), null, 2) : 'No data',
                 run: 0,
-                nodes: nodes.map((p) => `${p.ip}, ${p.host}`),
+                nodes: nodes.map((p) => `${p.ip}, ${p.hostname}`),
               });
               if (this.interval) {
                 clearInterval(this.interval);

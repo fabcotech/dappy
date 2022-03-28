@@ -1,8 +1,6 @@
-import { TxData } from '@ethereumjs/tx';
 import { BeesLoadErrorWithArgs } from 'beesjs';
 import {
   Record,
-  Benchmark,
   RChainInfos,
   DeployOptions,
   TransactionStatus,
@@ -40,9 +38,6 @@ export const GET_ONE_RECORD_COMPLETED = '[Blockchain] Get one record completed';
 export const REMOVE_OLD_RECORDS = '[Blockchain] Remove old records';
 export const REMOVE_OLD_RECORDS_COMPLETED = '[Blockchain] Remove old records completed';
 export const ADD_RECORD = '[Blockchain] Add record';
-
-export const UPDATE_BENCHMARKS_FROM_STORAGE = '[Blockchain] Update benchmarks from storage';
-export const PERFORM_MANY_BENCHMARKS_COMPLETED = '[Blockchain] Perform many benchmarks completed';
 
 export const UPDATE_TRANSACTIONS_FROM_STORAGE = '[Blockchain] Update transactions from storage';
 export const ADD_RCHAIN_TRANSACTION = '[Blockchain] Add RChain transaction';
@@ -165,22 +160,6 @@ export interface AddRecordPayload {
 }
 export const addRecordAction = (values: AddRecordPayload) => ({
   type: ADD_RECORD,
-  payload: values,
-});
-
-export interface UpdateBenchmarksFromStoragePayload {
-  benchmarks: Benchmark[];
-}
-export const updateBenchmarksFromStorageAction = (values: UpdateBenchmarksFromStoragePayload) => ({
-  type: UPDATE_BENCHMARKS_FROM_STORAGE,
-  payload: values,
-});
-
-export interface PerformManyBenchmarksCompletedPayload {
-  benchmarks: Benchmark[];
-}
-export const performManyBenchmarksCompletedAction = (values: PerformManyBenchmarksCompletedPayload) => ({
-  type: PERFORM_MANY_BENCHMARKS_COMPLETED,
   payload: values,
 });
 

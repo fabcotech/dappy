@@ -1,8 +1,9 @@
 import { delay, call, put, select, take } from 'redux-saga/effects';
 import { CRON_JOBS_LOG_CONTRACT_PERIOD } from '/CONSTANTS';
+import { DappyNetworkMember } from 'dappy-lookup';
 
 import { singleCall } from '/interProcess';
-import { BlockchainNode, SingleCallResult } from '/models';
+import { SingleCallResult } from '/models';
 import { getFirstReadyNode } from '/store/settings';
 import { getContractLogs } from '/store/ui';
 import { EXECUTE_NODES_CRON_JOBS } from '/store/blockchain';
@@ -11,7 +12,7 @@ import { updateContractLogsAction } from '../actions';
 import { addContractLogsOneByOne } from './addContractLogsOneByOne';
 
 export const fetchContractLogs = function* (contractId: string) {
-  const node: BlockchainNode | undefined = yield select(getFirstReadyNode);
+  const node: DappyNetworkMember | undefined = yield select(getFirstReadyNode);
   if (node) {
     try {
       const r: SingleCallResult = yield call(

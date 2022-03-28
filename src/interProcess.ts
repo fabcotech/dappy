@@ -1,3 +1,4 @@
+import { DappyNetworkMember } from 'dappy-lookup';
 import { Store } from 'redux';
 
 import {
@@ -5,7 +6,6 @@ import {
   MultiCallError,
   MultiCallParameters,
   MultiCallResult,
-  BlockchainNode,
   SingleCallResult,
 } from '/models';
 import * as fromDapps from './store/dapps';
@@ -15,7 +15,11 @@ import { Action } from '/store';
 
 const actionsAwaitingEphemeralToken: any[] = [];
 
-export const singleCall = (body: { [key: string]: any }, node: BlockchainNode): Promise<SingleCallResult> => {
+export const dappyLookup = (body: { method: "lookup", hostname: string, type: string, chainId: string }): Promise<any> => {
+  return window.dappyLookup(body);
+};
+
+export const singleCall = (body: { [key: string]: any }, node: DappyNetworkMember): Promise<SingleCallResult> => {
   return window.singleDappyCall(body, node);
 };
 
@@ -94,6 +98,21 @@ export const interProcess = (store: Store) => {
       }
     };
   }, 0);
+
+  window.dappyLookup = (a) => {
+    const interProcess = new XMLHttpRequest();
+    interProcess.open('POST', 'interprocess://dappy-lookup');
+    interProcess.setRequestHeader(
+      'Data',
+      encodeURI(
+        JSON.stringify({
+          uniqueEphemeralToken: uniqueEphemeralToken,
+          value: a,
+        })
+      )
+    );
+    interProcess.send();
+  };
 
   window.copyToClipboard = (a) => {
     const interProcess = new XMLHttpRequest();

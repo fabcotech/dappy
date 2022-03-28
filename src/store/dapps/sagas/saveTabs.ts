@@ -5,6 +5,7 @@ import * as fromMain from '../../main';
 import { Tab } from '../../../models';
 import { browserUtils } from '../../browser-utils';
 import { Action } from '../..';
+import { dispatchInMain } from '/interProcess';
 
 const saveTabs = function* (action: Action) {
   const tabs: Tab[] = yield select(fromDapps.getTabs);
@@ -22,6 +23,11 @@ const saveTabs = function* (action: Action) {
       counter: 0,
       url: t.url,
     };
+  });
+
+  dispatchInMain({
+    type: '[MAIN] Transfer tabs',
+    payload: tabs,
   });
 
   try {

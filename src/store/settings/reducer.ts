@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 
 import * as fromActions from './actions';
-import { Blockchain, Account, BlockchainNode } from '/models';
+import { Blockchain, Account } from '/models';
 import { Action } from '../';
 
 export interface Settings {
@@ -66,123 +66,6 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
-    case fromActions.ADD_NODES_IF_DO_NOT_EXIST: {
-      const payload: fromActions.AddNodesIfDoNotExistPayload = action.payload;
-
-      if (!state.blockchains[payload.chainId]) {
-        return state;
-      }
-
-      // Nodes to update
-      const blockchain = state.blockchains[payload.chainId];
-      let newNodes = blockchain.nodes.map((n) => {
-        const fn = payload.nodes.find((no) => no.ip === n.ip && no.host === n.host);
-        if (fn) {
-          return {
-            ...n,
-            ...fn,
-          };
-        }
-        return n;
-      });
-
-      // Nodes to add
-      const nodesToAdd: BlockchainNode[] = [];
-      payload.nodes.forEach((n) => {
-        const fn = blockchain.nodes.find((no) => no.ip === n.ip && no.host === n.host);
-        if (!fn) {
-          nodesToAdd.push(n);
-        }
-      });
-
-      // Nodes to remove
-      newNodes = newNodes.filter((bn) => {
-        if (
-          ['network', 'default'].includes(bn.origin) &&
-          !payload.nodes.find((n) => n.ip === bn.ip && n.host === bn.host)
-        ) {
-          console.log('NOT FOUND');
-          return false;
-        }
-
-        return true;
-      });
-
-      return {
-        ...state,
-        blockchains: {
-          ...state.blockchains,
-          [payload.chainId]: {
-            ...state.blockchains[payload.chainId],
-            nodes: newNodes.concat(nodesToAdd),
-          },
-        },
-      };
-    }
-
-    case fromActions.UPDATE_NODE_ACTIVE_COMPLETED: {
-      const payload: fromActions.UpdateNodeActivePayload = action.payload;
-
-      if (!state.blockchains[payload.chainId]) {
-        return state;
-      }
-
-      const blockchain = state.blockchains[payload.chainId];
-
-      const newNodes = blockchain.nodes.map((n) => {
-        if (n.ip === payload.nodeIp) {
-          return {
-            ...n,
-            active: payload.active,
-          };
-        }
-
-        return n;
-      });
-
-      return {
-        ...state,
-        blockchains: {
-          ...state.blockchains,
-          [payload.chainId]: {
-            ...state.blockchains[payload.chainId],
-            nodes: newNodes,
-          },
-        },
-      };
-    }
-
-    case fromActions.UPDATE_NODE_READY_STATE: {
-      const payload: fromActions.UpdateNodeReadyStatePayload = action.payload;
-      const blockchain = state.blockchains[payload.chainId];
-      if (!blockchain) {
-        return state;
-      }
-
-      const newNodes = blockchain.nodes.map((n) => {
-        if (n.ip === payload.ip && n.host === payload.host) {
-          return {
-            ...n,
-            readyState: payload.readyState,
-            ssl: payload.ssl,
-          };
-        }
-
-        return n;
-      });
-
-      return {
-        ...state,
-        blockchains: {
-          ...state.blockchains,
-          [payload.chainId]: {
-            ...state.blockchains[payload.chainId],
-            nodes: newNodes,
-          },
-        },
-      };
-    }
-
     case fromActions.UPDATE_NODES_COMPLETED: {
       const payload: fromActions.UpdateNodesPayload = action.payload;
 
@@ -190,30 +73,13 @@ export const reducer = (state = initialState, action: Action): State => {
         return state;
       }
 
-      const blockchain = state.blockchains[payload.chainId];
-
-      const nodesToAdd: BlockchainNode[] = [];
-      payload.nodes.forEach((n) => {
-        const fn = blockchain.nodes.find((no) => `${no.ip}-${no.host}-${no.cert}` === `${n.ip}-${n.host}-${n.cert}`);
-        if (!fn) {
-          nodesToAdd.push(n);
-        }
-      });
-
-      const newNodes: BlockchainNode[] = blockchain.nodes.filter((n) => {
-        return (
-          n.origin !== 'user' ||
-          !!payload.nodes.find((no) => `${no.ip}-${no.host}-${no.cert}` === `${n.ip}-${n.host}-${n.cert}`)
-        );
-      });
-
       return {
         ...state,
         blockchains: {
           ...state.blockchains,
           [payload.chainId]: {
             ...state.blockchains[payload.chainId],
-            nodes: newNodes.concat(nodesToAdd),
+            nodes: payload.nodes,
           },
         },
       };
@@ -401,20 +267,17 @@ export const getAvailableRChainBlockchains = createSelector(getAvailableBlockcha
   return rchainBlockchains;
 });
 
-const nodeActiveAndReady = (n: BlockchainNode) => n.active && n.readyState === 1;
-
 // if modified, must be modified in main also
 export const getOkBlockchains = createSelector(getBlockchains, (blockchains) => {
   const okBlockchains: { [chainId: string]: Blockchain } = {};
   Object.keys(blockchains).forEach((chainId) => {
-    let nodes = blockchains[chainId].nodes.filter(nodeActiveAndReady);
-    if (!nodes.length) {
+    if (!blockchains[chainId].nodes.length) {
       return;
     }
 
     okBlockchains[chainId] = {
       ...blockchains[chainId],
-      nodes: nodes.filter((n) => n.readyState === 1),
+      nodes: blockchains[chainId].nodes,
     };
   });
 
@@ -423,9 +286,9 @@ export const getOkBlockchains = createSelector(getBlockchains, (blockchains) => 
 
 export const getFirstReadyNode = createSelector(getBlockchains, (blockchains) => {
   const bc = Object.values(blockchains).find((bc) => {
-    return bc.nodes.some(nodeActiveAndReady);
+    return bc.nodes[0];
   });
-  return bc?.nodes.find(nodeActiveAndReady);
+  return bc?.nodes[0];
 });
 
 export const getIsLoadReady = createSelector(getBlockchains, getSettings, (blockchains, settings) => {

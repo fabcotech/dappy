@@ -5,7 +5,6 @@ import * as fromActions from './actions';
 import * as fromSettings from '../settings';
 import {
   Record,
-  Benchmark,
   RChainInfos,
   TransactionStatus,
   TransactionState,
@@ -31,12 +30,6 @@ export interface State {
   transactions: /* TODO: rename to transactionStates */ {
     [transactionId: string]: TransactionState;
   };
-  benchmarks: {
-    [chainIdAndNodeIndex: string]: Benchmark;
-  };
-  benchmarkTransitoryStates: {
-    [chainId: string]: undefined | 'loading';
-  };
 }
 
 export const initialState: State = {
@@ -54,25 +47,10 @@ export const initialState: State = {
   },
   loadNodesErrors: [],
   transactions: {},
-  benchmarks: {},
-  benchmarkTransitoryStates: {},
 };
 
 export const reducer = (state = initialState, action: any): State => {
   switch (action.type) {
-    case fromActions.UPDATE_BENCHMARKS_FROM_STORAGE: {
-      const benchmarksFromStorage: Benchmark[] = action.payload.benchmarks;
-
-      const benchmarks: { [chainIdAndNodeIndex: string]: Benchmark } = {};
-      benchmarksFromStorage.forEach((benchmark) => {
-        benchmarks[benchmark.id] = benchmark;
-      });
-
-      return {
-        ...state,
-        benchmarks: benchmarks,
-      };
-    }
 
     case fromActions.SAVE_RCHAIN_CRON_JOBS_STREAM: {
       const payload: fromActions.SaveRChainConJobsStreamPayload = action.payload;
@@ -351,46 +329,14 @@ export const reducer = (state = initialState, action: any): State => {
       };
     }
 
-    case fromActions.PERFORM_MANY_BENCHMARKS_COMPLETED: {
-      const payload: fromActions.PerformManyBenchmarksCompletedPayload = action.payload;
-
-      let newBenchmarks = { ...state.benchmarks };
-      payload.benchmarks.forEach((b) => {
-        newBenchmarks = {
-          ...newBenchmarks,
-          [b.id]: b,
-        };
-      });
-
-      let newBenchmarkTransitoryStates = { ...state.benchmarkTransitoryStates };
-      payload.benchmarks.forEach((b) => {
-        newBenchmarkTransitoryStates = {
-          ...newBenchmarkTransitoryStates,
-          [b.id]: undefined,
-        };
-      });
-
-      return {
-        ...state,
-        benchmarks: newBenchmarks,
-        benchmarkTransitoryStates: newBenchmarkTransitoryStates,
-      };
-    }
-
     case fromSettings.REMOVE_BLOCKCHAIN: {
-      const newBenchmarks = { ...state.benchmarks };
-      delete newBenchmarks[action.payload];
-      const newBenchmarkTransitoryStates = {
-        ...state.benchmarkTransitoryStates,
-      };
-      delete newBenchmarkTransitoryStates[action.payload];
+      const payload: fromSettings.RemoveBlockchainPayload = action.payload;
+
       const newRChainInfos = { ...state.rchain.infos };
-      delete newRChainInfos[action.payload];
+      delete newRChainInfos[payload.chainId];
 
       return {
         ...state,
-        benchmarks: newBenchmarks,
-        benchmarkTransitoryStates: newBenchmarkTransitoryStates,
         rchain: {
           ...state.rchain,
           infos: newRChainInfos,
@@ -411,13 +357,6 @@ export const getBlockchainState = createSelector(
 );
 
 export const getRChainInfos = createSelector(getBlockchainState, (state: State) => state.rchain.infos);
-
-export const getBenchmarks = createSelector(getBlockchainState, (state: State) => state.benchmarks);
-
-export const getBenchmarkTransitoryStates = createSelector(
-  getBlockchainState,
-  (state: State) => state.benchmarkTransitoryStates
-);
 
 export const getRecords = createSelector(getBlockchainState, (state: State) => state.records.records);
 

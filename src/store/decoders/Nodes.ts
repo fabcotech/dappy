@@ -16,22 +16,17 @@ const nodeFromNetworkSchema = yup
   .noUnknown(true)
   .strict(true);
 
-export const blockchainNodeSchema = yup
+export const networkMemberSchema = yup
   .object()
   .shape({
-    origin: yup
-      .string()
-      .matches(/user|network|default/)
-      .required(),
     ip: yup.string().required(),
-    host: yup.string().required(),
-    active: yup.boolean().required(),
-    readyState: yup.number().required(),
-    ssl: yup.boolean().required(),
-    name: yup.string(),
-    contact: yup.string(),
-    location: yup.string(),
-    cert: yup.string(),
+    port: yup.string(),
+    hostname: yup.string().required(),
+    caCert: yup.string(),
+    scheme: yup
+      .string()
+      .matches(/http|https/)
+      .required(),
   })
   .required();
 

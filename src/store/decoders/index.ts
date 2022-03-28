@@ -2,7 +2,6 @@ export * from './Settings';
 export * from './Blockchain';
 export * from './Blockchains';
 export * from './Ui';
-export * from './Benchmark';
 export * from './LoadState';
 export * from './Main';
 export * from './Record';

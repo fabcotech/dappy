@@ -2,13 +2,11 @@
 import { app, BrowserWindow, protocol, shell, session } from 'electron';
 
 import { validateSearch } from '../src/utils/validateSearch';
-import { WS_RECONNECT_PERIOD } from '../src/CONSTANTS';
 import * as fromDapps from '../src/store/dapps';
 
 import { overrideHttpProtocol } from './overrideHttpProtocol';
 import { overrideHttpsProtocol } from './overrideHttpsProtocol';
 import { registerInterProcessProtocol } from './registerInterProcessProtocol';
-import { benchmarkCron } from './benchmarkCron';
 import { store } from './store';
 import { installDevToolsExtensionsOnlyForDev } from './devTools';
 import { preventAllPermissionRequests } from './preventAllPermissionRequests';
@@ -114,10 +112,6 @@ app.on('second-instance', (event, argv, cwd) => {
 });
 
 function createWindow() {
-  setInterval(() => {
-    benchmarkCron(store.getState, dispatchFromMain);
-  }, WS_RECONNECT_PERIOD);
-
   // Create the browser window.
   browserWindow = new BrowserWindow({
     width: 1200,

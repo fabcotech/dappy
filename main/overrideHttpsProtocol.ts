@@ -174,8 +174,10 @@ const tryToLoad = async ({ dns, debug, request, partitionIdHash, dappyBrowserVie
 
     s += rightPad(` | cook: ${getCookiesHeaderResp.numberOfCookies.lax}lax ${getCookiesHeaderResp.numberOfCookies.strict}strict`, 22)
     // todo
+
+
     /* if (s.cert) {
-      options.ca = decodeURI(decodeURI(s.cert));
+      options.ca = Buffer.from(s.cert, 'base64').toString('utf8')
     } */
 
     if (request.referrer) {

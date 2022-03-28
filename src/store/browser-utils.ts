@@ -5,7 +5,7 @@ import { refreshOrAppendRecord } from '/utils/zone';
 
 export const browserUtils = {
   deleteStorageIndexed: (
-    key: 'previews' | 'tabs' | 'transactions' | 'blockchains' | 'records' | 'accounts' | 'cookies',
+    key: 'previews' | 'tabs' | 'transactions' | 'networks' | 'records' | 'accounts' | 'cookies',
     value: string[]
   ) => {
     return new Promise<void>((resolve, reject) => {
@@ -13,7 +13,7 @@ export const browserUtils = {
       const doOperation = () => {
         try {
           if (
-            !['previews', 'tabs', 'blockchains', 'records', 'accounts', 'transactions', 'cookies'].find(
+            !['previews', 'tabs', 'networks', 'records', 'accounts', 'transactions', 'cookies'].find(
               (k) => k === key
             )
           ) {
@@ -94,7 +94,7 @@ export const browserUtils = {
     });
   },
   saveStorageIndexed: (
-    key: 'previews' | 'tabs' | 'blockchains' | 'records' | 'accounts' | 'transactions' | 'cookies',
+    key: 'previews' | 'tabs' | 'networks' | 'records' | 'accounts' | 'transactions' | 'cookies',
     value: { [id: string]: any }
   ) => {
     return new Promise<void>((resolve, reject) => {
@@ -102,7 +102,7 @@ export const browserUtils = {
       const doOperation = () => {
         try {
           if (
-            !['previews', 'tabs', 'blockchains', 'records', 'accounts', 'transactions', 'cookies'].find(
+            !['previews', 'tabs', 'networks', 'records', 'accounts', 'transactions', 'cookies'].find(
               (k) => k === key
             )
           ) {
@@ -141,7 +141,7 @@ export const browserUtils = {
       let i = 0;
       const doOperation = () => {
         try {
-          if (!['ui', 'settings', 'benchmarks', 'rchainInfos'].find((k) => k === key)) {
+          if (!['ui', 'settings', 'rchainInfos'].find((k) => k === key)) {
             i = 3;
             reject('Unknown db key ' + key);
           }
@@ -179,7 +179,7 @@ export const browserUtils = {
       const doOperation = () => {
         try {
           if (
-            !['ui', 'settings', 'benchmarks', 'rchainInfos', 'blockchains', 'tabs', 'accounts', 'transactions'].find(
+            !['ui', 'settings', 'rchainInfos', 'networks', 'tabs', 'accounts', 'transactions'].find(
               (k) => k === key
             )
           ) {
@@ -190,9 +190,6 @@ export const browserUtils = {
           const objectStore = tx.objectStore(key);
           objectStore.delete(index);
 
-          if (key === 'blockchain') {
-            getDb().transaction('benchmarks', 'readwrite').objectStore('benchmarks').delete(index);
-          }
           resolve();
         } catch (e) {
           console.log(e);

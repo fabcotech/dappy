@@ -4,9 +4,8 @@ import xs from 'xstream';
 
 import './AddBlockchain.scss';
 import { CHAIN_IDS } from '../../../CONSTANTS';
-import { PREDEFINED_BLOCKCHAINS } from '../../../BLOCKCHAINS';
-import { BlockchainNode } from '../../../models';
 import { GlossaryHint } from '/components/utils/Hint';
+import { DappyNetworkId, DappyNetworkMember, dappyNetworks } from 'dappy-lookup';
 
 const ERRORS: { [key: string]: string } = {
   REQUIRED: 'This fileld is required',
@@ -16,7 +15,7 @@ const ERRORS: { [key: string]: string } = {
 };
 
 interface AddBlockchainProps {
-  add: (values: { platform: 'rchain'; chainId: string; chainName: string; nodes: BlockchainNode[] }) => void;
+  add: (values: { platform: 'rchain'; chainId: string; chainName: string; nodes: DappyNetworkMember[] }) => void;
   existingChainIds: string[];
 }
 
@@ -63,36 +62,13 @@ const FormChainIdComponent = (props: any) => (
     {props.touched && props.touched.chainId && props.errors && props.errors.chainId && (
       <p className="text-danger">{ERRORS[props.errors.chainId]}</p>
     )}
-    {props.values.chainId && (
-      <div>
-        <div className="field is-horizontal">
-          <label className="label">Network name</label>
-          <div className="control">
-            <Field
-              className={`input ${
-                props.touched &&
-                props.touched.customChainName &&
-                props.errors &&
-                props.errors.customChainName &&
-                'is-danger'
-              }`}
-              type="text"
-              name="chainName"
-              placeholder="Network name"
-            />
-          </div>
-        </div>
-        {props.touched && props.touched.chainName && props.errors && props.errors.chainName && (
-          <p className="text-danger">{ERRORS[props.errors.chainName]}</p>
-        )}
-      </div>
-    )}
   </div>
 );
 
 export class AddBlockchain extends React.Component<AddBlockchainProps, {}> {
   state = {};
-  defaultBlockchain = PREDEFINED_BLOCKCHAINS[0];
+
+  defaultDappyNetwork = dappyNetworks[Object.keys(dappyNetworks)[0] as DappyNetworkId];
 
   render() {
     return (
@@ -101,8 +77,8 @@ export class AddBlockchain extends React.Component<AddBlockchainProps, {}> {
           initialValues={
             {
               platform: 'rchain',
-              chainId: this.defaultBlockchain.chainId,
-              chainName: this.defaultBlockchain.chainName,
+              chainId: Object.keys(dappyNetworks)[0],
+              chainName: Object.keys(dappyNetworks)[0],
               nodes: [],
               defaultNodes: 'none',
             } as {
@@ -131,12 +107,6 @@ export class AddBlockchain extends React.Component<AddBlockchainProps, {}> {
             }
             if (values.chainId && !/^[a-z0-9]+$/i.test(values.chainId)) {
               errors.chainId = 'ONLY_ALPHANUMERIC';
-            }
-            if (values.chainName && !/^[a-z0-9. ()]+$/i.test(values.chainName)) {
-              errors.chainName = 'ONLY_ALPHANUMERIC_AND_DOT';
-            }
-            if (values.chainName && !values.chainName) {
-              errors.chainName = 'REQUIRED';
             }
 
             return errors;
@@ -223,25 +193,25 @@ export class AddBlockchain extends React.Component<AddBlockchainProps, {}> {
                     }}>
                     Do not add any nodes by default
                   </label>
-                  {PREDEFINED_BLOCKCHAINS.map((pb) => {
+                  {Object.keys(dappyNetworks).map((pb: string) => {
                     return (
-                      <Fragment key={pb.chainName}>
+                      <Fragment key={pb}>
                         <input
                           className="radio is-checkradio is-link is-inverted"
                           onChange={() => {}}
                           type="radio"
-                          checked={values.defaultNodes === pb.chainName}
+                          checked={values.defaultNodes === pb}
                           name="defaultNodes"></input>
                         <label
                           onClick={() => {
-                            setFieldValue('chainId', pb.chainId);
+                            setFieldValue('chainId', pb);
                             setFieldTouched('chainId');
-                            setFieldValue('chainName', pb.chainName);
+                            setFieldValue('chainName', pb);
                             setFieldTouched('chainName');
-                            setFieldValue('nodes', pb.nodes);
-                            setFieldValue('defaultNodes', pb.chainName);
+                            setFieldValue('nodes', dappyNetworks[pb as DappyNetworkId]);
+                            setFieldValue('defaultNodes', pb);
                           }}>
-                          Add nodes of network <b>{pb.chainName}</b>
+                          Add nodes of network <b>{pb}</b>
                         </label>
                       </Fragment>
                     );

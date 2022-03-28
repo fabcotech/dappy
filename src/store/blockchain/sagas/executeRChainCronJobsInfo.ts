@@ -40,7 +40,6 @@ const executeRChainCronJobsInfo = function* (action: Action) {
       the Dappy network
     */
     const indexes = blockchain.nodes.map(getNodeIndex);
-
     multiCall(
       { type: 'info' },
       {

@@ -21,20 +21,16 @@ const saveBlockchainsToStorage = function* (action: Action) {
     blockchain = blockchains[payload.chainId];
     yield put(fromSettings.updateNodeUrlsCompletedAction(payload));
     executeRChainCronJobs = (blockchain.platform === 'rchain' && !rchainInfos) || !rchainInfos[payload.chainId];
-  } else if (action.type === fromSettings.UPDATE_NODE_ACTIVE) {
-    const payload: fromSettings.UpdateNodeActivePayload = action.payload;
-
-    yield put(fromSettings.updateNodeActiveCompletedAction(payload));
   }
 
   blockchains = yield select(fromSettings.getBlockchains);
   try {
-    yield browserUtils.saveStorageIndexed('blockchains', blockchains);
+    yield browserUtils.saveStorageIndexed('networks', blockchains);
   } catch (e) {
     yield put(
       fromMain.saveErrorAction({
         errorCode: 2001,
-        error: 'Unable to save blockchains',
+        error: 'Unable to save networks',
         trace: e,
       })
     );
@@ -49,9 +45,8 @@ const saveBlockchainsToStorage = function* (action: Action) {
 };
 
 export const saveBlockchainsToStorageSaga = function* () {
-  yield takeEvery(fromSettings.UPDATE_NODE_ACTIVE, saveBlockchainsToStorage);
+  yield takeEvery(fromSettings.UPDATE_BLOCKCHAINS_FROM_STORAGE, saveBlockchainsToStorage);
   yield takeEvery(fromSettings.UPDATE_NODES, saveBlockchainsToStorage);
   yield takeEvery(fromSettings.CREATE_BLOCKCHAIN, saveBlockchainsToStorage);
   yield takeEvery(fromSettings.UPDATE_BLOCKCHAINS_FROM_STORAGE, saveBlockchainsToStorage);
-  yield takeEvery(fromSettings.ADD_NODES_IF_DO_NOT_EXIST, saveBlockchainsToStorage);
 };

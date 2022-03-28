@@ -1,5 +1,5 @@
-import { BlockchainNode } from '/models';
+import { DappyNetworkMember } from 'dappy-lookup';
 
-export const getNodeIndex = (node: Partial<BlockchainNode>) => {
-  return `${node.ip}---${node.host}`;
+export const getNodeIndex = (node: Partial<DappyNetworkMember>) => {
+  return `${node.ip}---${node.hostname}`;
 };
