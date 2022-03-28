@@ -92,12 +92,7 @@ export const reducer = (state = initialState, action: Action): State => {
         ...state,
         blockchains: {
           ...state.blockchains,
-          [payload.chainId]: {
-            chainId: payload.chainId,
-            chainName: payload.chainName,
-            platform: payload.platform,
-            nodes: payload.nodes,
-          },
+          [payload.chainId]: payload,
         },
       };
     }

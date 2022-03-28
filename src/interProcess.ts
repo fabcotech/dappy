@@ -1,4 +1,4 @@
-import { DappyNetworkMember } from 'dappy-lookup';
+import { DappyNetworkMember, NamePacket } from 'dappy-lookup';
 import { Store } from 'redux';
 
 import {
@@ -15,7 +15,7 @@ import { Action } from '/store';
 
 const actionsAwaitingEphemeralToken: any[] = [];
 
-export const dappyLookup = (body: { method: "lookup", hostname: string, type: string, chainId: string }): Promise<any> => {
+export const dappyLookup = (body: { method: "lookup", hostname: string, type: string, chainId: string }): Promise<NamePacket> => {
   return window.dappyLookup(body);
 };
 
@@ -100,18 +100,35 @@ export const interProcess = (store: Store) => {
   }, 0);
 
   window.dappyLookup = (a) => {
-    const interProcess = new XMLHttpRequest();
-    interProcess.open('POST', 'interprocess://dappy-lookup');
-    interProcess.setRequestHeader(
-      'Data',
-      encodeURI(
-        JSON.stringify({
-          uniqueEphemeralToken: uniqueEphemeralToken,
-          value: a,
-        })
-      )
-    );
-    interProcess.send();
+    return new Promise((resolve, reject) => {
+      const interProcess = new XMLHttpRequest();
+      interProcess.open('POST', 'interprocess://dappy-lookup');
+      interProcess.setRequestHeader(
+        'Data',
+        encodeURI(
+          JSON.stringify({
+            uniqueEphemeralToken: uniqueEphemeralToken,
+            value: a,
+          })
+        )
+      );
+      interProcess.send();
+      interProcess.onload = (a) => {
+        console.log(interProcess.responseText)
+        try {
+          const r = JSON.parse(interProcess.responseText);
+          if (r.success) {
+            resolve(r.data);
+          } else {
+            reject({ message: r.error });
+          }
+        } catch (e) {
+          console.log(interProcess.responseText);
+          console.log(e);
+          reject({ message: 'could not parse response' });
+        }
+      };
+    });
   };
 
   window.copyToClipboard = (a) => {

@@ -13,8 +13,6 @@ export const initialState: State = {};
 export const reducer = (state = initialState, action: any): State => {
   switch (action.type) {
     case SYNC_BLOCKCHAINS: {
-      console.log('SYNC_BLOCKCHAINS');
-      console.log(action.payload);
       return action.payload;
     }
 

@@ -14,8 +14,6 @@ export const httpBrowserToNode = (data: { [key: string]: any }, node: DappyNetwo
       return;
     }
     try {
-      console.log('httpBrowserToNode')
-      console.log(node)
       const ip = node.ip;
       const hostname = node.hostname;
       const port = node.port;

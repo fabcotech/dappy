@@ -24,6 +24,7 @@ const saveBlockchainsToStorage = function* (action: Action) {
   }
 
   blockchains = yield select(fromSettings.getBlockchains);
+  console.log(blockchains)
   try {
     yield browserUtils.saveStorageIndexed('networks', blockchains);
   } catch (e) {

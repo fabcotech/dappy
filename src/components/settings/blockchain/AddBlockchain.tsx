@@ -115,7 +115,7 @@ export class AddBlockchain extends React.Component<AddBlockchainProps, {}> {
             this.props.add({
               platform: values.platform,
               chainId: values.chainId,
-              chainName: values.chainName,
+              chainName: values.chainId,
               nodes: values.nodes,
             });
 

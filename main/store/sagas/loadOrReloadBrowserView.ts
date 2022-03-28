@@ -15,15 +15,18 @@ import { preventAllPermissionRequests } from '../../preventAllPermissionRequests
 import { store } from '../';
 
 import * as fromSettingsMain from '../settings';
+import * as fromBlockchainsMain from '../blockchains';
 import * as fromDappsRenderer from '../../../src/store/dapps';
 import * as fromHistoryRenderer from '../../../src/store/history';
-import { DappyLoadError, Tab } from '/models';
+import { Blockchain, DappyLoadError, Tab } from '/models';
+import { DappyNetworkMember } from 'dappy-lookup';
 
 const development = !!process.defaultApp;
 
 const loadOrReloadBrowserView = function* (action: any) {
   const payload: { tab: Tab } = action.payload;
   const settings: fromSettingsMain.State = yield select(fromSettingsMain.getSettings)
+  const blockchains: { [chainId: string]: Blockchain } = yield select(fromBlockchainsMain.getBlockchains)
   const browserViews: {
     [tabId: string]: DappyBrowserView;
   } = yield select(fromBrowserViews.getBrowserViewsMain);
@@ -31,6 +34,26 @@ const loadOrReloadBrowserView = function* (action: any) {
     fromBrowserViews.getBrowserViewsPositionMain
   );
 
+  let dappyNetworkMembers: undefined | DappyNetworkMember[] = undefined;
+  if (payload.tab.data.isDappyNameSystem) {
+    if (blockchains[payload.tab.data.chainId as string]) {
+      dappyNetworkMembers = blockchains[payload.tab.data.chainId as string].nodes
+    } else {
+      action.meta.dispatchFromMain({
+        action: fromDappsRenderer.loadResourceFailedAction({
+            tabId: payload.tab.id,
+            url: payload.tab.url,
+            error: {
+              error: DappyLoadError.DappyLookup,
+              args: {
+                message: "Network not found"
+              }
+            }
+          })
+      });
+      return;
+    }
+  }
   const url = new URL(payload.tab.url);
   const viewSession = session.fromPartition(`persist:main:${url.host}`, { cache: true });
 
@@ -165,6 +188,7 @@ const loadOrReloadBrowserView = function* (action: any) {
   });
   if (payload.tab.data.isDappyNameSystem) {
     overrideHttpsProtocol({
+      dappyNetworkMembers: dappyNetworkMembers as DappyNetworkMember[],
       dappyBrowserView: newBrowserViews[payload.tab.id],
       dispatchFromMain: action.meta.dispatchFromMain,
       session: viewSession,
@@ -209,7 +233,7 @@ const loadOrReloadBrowserView = function* (action: any) {
   } else {
     try {
       yield view.webContents.loadURL(payload.tab.url);
-      if (settings.devMode) {
+      if (settings.settings.devMode) {
         view.webContents.openDevTools();
       }
     } catch (err) {

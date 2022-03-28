@@ -1,6 +1,6 @@
 import { createStore, applyMiddleware, combineReducers, Store } from 'redux';
 import createSagaMiddleware from 'redux-saga';
-import { DappyNetworkId, DappyNetworkMember, dappyNetworks } from 'dappy-lookup';
+import { DappyNetworkId, NamePacket, dappyNetworks } from 'dappy-lookup';
 import { all } from 'redux-saga/effects';
 import xstream from 'xstream';
 import throttle from 'xstream/extra/throttle';
@@ -49,7 +49,7 @@ declare global {
     Sentry: any;
     uniqueEphemeralToken: string;
     messageFromMain: (a: any) => void;
-    dappyLookup: (body: any) => Promise<any>;
+    dappyLookup: (parameters: any) => Promise<NamePacket>;
     singleDappyCall: (body: any, parameters: any) => Promise<any>;
     multiDappyCall: (body: any, parameters: any) => Promise<MultiCallResult>;
     getIpAddressAndCert: (a: { host: string }) => Promise<{ cert: string; ip: string }>;
@@ -456,25 +456,11 @@ dbReq.onsuccess = (event) => {
   const requestBlockchains = blockchainsStore.getAll();
   requestBlockchains.onsuccess = (e) => {
     let blockchainsToCheck = requestBlockchains.result;
+    console.log(blockchainsToCheck)
     blockchainsToCheck.map(bc => {
-      if (!bc.hasOwnProperty('auto')) {
-        if (!!dappyNetworks[bc.chainId as DappyNetworkId] ) {
-          console.log('yes')
-          bc.auto = true;
-          bc.nodes = dappyNetworks[bc.chainId as DappyNetworkId];
-        } else {
-          console.log('no')
-          bc.auto = false;
-          bc.nodes = (bc.nodes || []).map((n: any) => {
-            return {
-              ip: bc.ip,
-              port: "",
-              scheme: "https",
-              caCert: bc.cert as string,
-              hostname: bc.host as string,
-            } as DappyNetworkMember
-          })
-        }
+      if (bc.auto && !!dappyNetworks[bc.chainId as DappyNetworkId]) {
+        bc.auto = true;
+        bc.nodes = dappyNetworks[bc.chainId as DappyNetworkId];
       }
       return bc;
     })

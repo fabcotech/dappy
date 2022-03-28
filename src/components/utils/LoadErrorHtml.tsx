@@ -24,6 +24,7 @@ const TITLES: { [key: string]: string } = {
   [DappyLoadError.InvalidManifest]: 'Invalid response',
   [DappyLoadError.InvalidSignature]: 'Invalid signature',
   [DappyLoadError.RecordNotFound]: 'Record not found',
+  [DappyLoadError.DappyLookup]: 'Lookup error',
   [DappyLoadError.DNSResolutionError]: 'Name System (DNS) resolution error',
   [DappyLoadError.DappyResolutionError]: 'Dappy Name System resolution error',
   [BeesLoadError.OutOfNodes]: 'Out of nodes to query',
@@ -63,6 +64,7 @@ const DESCRIPTIONS: { [key: string]: (args: { [key: string]: any }) => JSX.Eleme
     <p>Response received from the blockchain could not be parsed as a valid file {args.message ? args.message : undefined }</p>
   ,
   [DappyLoadError.InvalidRecords]: (args) => <p>Record found "{args.name}" is invalid : ${args.message}</p>,
+  [DappyLoadError.DappyLookup]: (args) => <p>Lookup error : {args.message}</p>,
   [DappyLoadError.InvalidSignature]: (args) =>
     <p>The signature of the response received from the blockchain does not match the public key associated with the name</p>,
   [DappyLoadError.RecordNotFound]: (args) => <p>Could not find a record associated with name "{args.name}"</p>,

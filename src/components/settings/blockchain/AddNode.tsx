@@ -8,7 +8,7 @@ const REGEXP_HOST = /^(?!\.)^[a-z0-9.]*$/;
 
 interface AddNodeProps {
   formNodes: { ip: string; hostname: string; port: string; caCert: string }[];
-  addNode: (values: { ip: string; port: string; hostname: string; caCert: undefined | string }) => void;
+  addNode: (values: { ip: string; port: string; hostname: string; caCert: string }) => void;
   cancel: () => void;
 }
 
@@ -45,7 +45,7 @@ export class AddNode extends React.Component<AddNodeProps, {}> {
   render() {
     return (
       <Formik
-        initialValues={{ ip: '', port: '', hostname: '', caCert: '' }}
+        initialValues={{ ip: '127.0.0.1', port: '3002', hostname: 'dappynode', caCert: '' }}
         validate={(values: { ip?: string; port?: string; caCert?: string; hostname?: string }) => {
           const errors: { ip?: string; port?: string; caCert?: string; hostname?: string } = {};
 

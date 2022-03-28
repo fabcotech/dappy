@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Formik, Form, FieldArray } from 'formik';
 import { connect } from 'react-redux';
-import { DappyNetworkId, dappyNetworks } from 'dappy-lookup';
+import { DappyNetworkId, DappyNetworkMember, dappyNetworks } from 'dappy-lookup';
 
 import './Blockchains.scss';
 
@@ -16,6 +16,26 @@ import { TopTabs } from './TopTabs';
 import { GlossaryHint } from '/components/utils/Hint';
 
 const REGEXP_IP = /^(?!\.)^[a-z0-9.-]*(:\d{2,5})?$/;
+
+const CheckBoxComponent = (props: any) => {
+  return (
+    <div className="field is-horizontal">
+      <div className="control">
+        <input
+          className="is-checkradio is-link is-inverted"
+          id="exampleCheckbox"
+          type="checkbox"
+          onChange={() => {}}
+          checked={props.checked}
+        />
+        <label onClick={() => props.click()}>
+          {props.label}
+        </label>
+      </div>
+    </div>
+  );
+};
+
 
 interface BlockchainsProps {
   blockchains: { [chainId: string]: Blockchain };
@@ -128,8 +148,11 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
     });
   };
 
-  onAddBlockchain = (values: fromSettings.CreateBlockchainPayload) => {
-    this.props.createBlockchain(values);
+  onAddBlockchain = (values: { platform: "rchain", chainId: string; chainName: string; nodes: DappyNetworkMember[] }) => {
+    this.props.createBlockchain({
+      ...values,
+      auto: !!dappyNetworks[values.chainId as DappyNetworkId]
+    });
   };
 
   onRemoveBlockchain = () => {
@@ -213,19 +236,15 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
             this.props.updateNodes({
               chainId: b.chainId,
               nodes: values.formNodes.map((formNode) => {
-                const fn = b.nodes.find((no) => no.ip === formNode.ip);
                 return {
-                  ip: formNode.ip,
-                  port: "",
-                  hostname: formNode.hostname,
-                  caCert: formNode.caCert,
+                  ...formNode,
                   scheme: "https",
                 };
               }),
             });
             setSubmitting(false);
           }}
-          render={({ values, touched, submitForm, errors, setFieldValue }) => {
+          render={({ values, touched, submitForm, errors }) => {
             const selectedBlockchain = this.state.selectedBlockchain as Blockchain;
             const rchainInfo: RChainInfo | undefined =
               this.props.rchainInfos &&
@@ -291,12 +310,24 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                   name="formNodes"
                   render={(arrayHelpers) => (
                     <div>
+                      { selectedBlockchain &&
+                        <>
+                          <br />
+                          <CheckBoxComponent
+                            checked={selectedBlockchain.auto}
+                            label="Auto update nodes"
+                            click={() => {
+                              this.props.createBlockchain({
+                                ...this.state.selectedBlockchain as Blockchain,
+                                auto: !selectedBlockchain.auto
+                              });
+                            }
+                          }/>
+                        </>
+                      }
                       <br />
                       {values.formNodes && values.formNodes.length > 0
                         ? values.formNodes.map((formNode, index) => {
-                            const bc = this.state.selectedBlockchain as Blockchain;
-                            const node = bc.nodes.find((n) => n.ip === formNode.ip);
-
                             let ipIsDomainName = !REGEXP_IP.test(formNode.ip);
                             if (
                               (formNode.ip.match(new RegExp(/[.]/g)) || []).length !== 3 &&
@@ -306,10 +337,10 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                             }
 
                             return (
-                              <React.Fragment key={formNode.ip}>
+                              <React.Fragment key={formNode.ip + formNode.port}>
                                 <div className="node-field field has-addons">
                                   <div className="node-box">
-                                    <b className="ip">{formNode.ip}</b>
+                                    <b className="ip">{formNode.ip}{formNode.port ? `:${formNode.port}` : ''}</b>
                                     <b className="host">{formNode.hostname}</b>
                                     {formNode.caCert ? (
                                       <span className="cert">{Buffer.from(formNode.caCert, "base64").toString('utf8').substr(100, 20)}</span>

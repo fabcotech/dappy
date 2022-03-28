@@ -11,7 +11,7 @@ export enum DappyLoadError {
   InvalidManifest = "Invalid manifest",
   InvalidSignature = "Invalid signature",
   InvalidRecords = "Invalid records",
-  InvalidNodes = "Invalid nodes",
+  DappyLookup = "Lookup error",
   InvalidServers = "Invalid servers",
   PostParseError = "Parse error after multicall",
   UnknownCriticalError = "Unknown critical error",

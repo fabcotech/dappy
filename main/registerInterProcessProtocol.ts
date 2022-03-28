@@ -1,6 +1,6 @@
 import { Session, clipboard, dialog } from 'electron';
 import crypto from 'crypto';
-import { DappyNetworkMember } from 'dappy-lookup';
+import { DappyNetworkMember, lookup } from 'dappy-lookup';
 import { Store } from 'redux';
 import fs from 'fs';
 import path from 'path';
@@ -157,13 +157,41 @@ export const registerInterProcessProtocol = (
     }
 
     if (request.url === 'interprocess://dappy-lookup') {
+      console.log('interprocess://dappy-lookup')
+      console.log(request.headers['Data'])
       try {
         const data = JSON.parse(decodeURI(request.headers['Data']));
-        const action: any = data.action;
-        console.log(action);
+        const value: any = data.value;
+        console.log('----------');
+        console.log(value);
+
+
+        if (data.value.method === "lookup") {
+          if (data.value.type === "TXT") {
+            lookup(data.value.hostname, data.value.type).then(a => {
+              callback(Buffer.from(JSON.stringify({
+                success: true,
+                data: a
+              })));
+            });
+          } else {
+            callback(Buffer.from(JSON.stringify({
+              success: false,
+              error: "unknown type"
+            })));
+          }
+        } else {
+          callback(Buffer.from(JSON.stringify({
+            success: false,
+            error: "unknown method"
+          })));
+        }
+
       } catch (err) {
-        console.log(err);
-        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when dappy-lookup'));
+        callback(Buffer.from(JSON.stringify({
+          success: false,
+          error: err.message
+        })));
       }
     }
 

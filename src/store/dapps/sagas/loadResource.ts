@@ -1,9 +1,9 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
 import { readPursesDataTerm } from 'rchain-token';
 import { BeesLoadCompleted, BeesLoadErrors } from 'beesjs';
-import { lookup } from 'dappy-lookup';
+import { lookup, NameAnswer } from 'dappy-lookup';
 
-import { multiCall } from '/interProcess';
+import { dappyLookup, multiCall } from '/interProcess';
 import { MultiCallResult } from '/models/MultiCall';
 import * as fromDapps from '..';
 import * as fromSettings from '../../settings';
@@ -180,58 +180,46 @@ const loadResource = function* (action: Action) {
       html and load it in a tab
     */
 
-    console.log(lookup);
-    console.log(url.hostname);
-    let recordsA;
+    /* let txts: NamePacket | undefined = undefined;
     try {
-      recordsA = yield lookup(url.hostname, 'A', {
-        dappyNetwork: [{
-          scheme: 'http',
-          hostname: '127.0.0.1',
-          port: '3001',
-          ip: '127.0.0.1',
-          caCert: Buffer.from(`-----BEGIN CERTIFICATE-----
-          MIIC2TCCAcGgAwIBAgIUNc14iQdhu/lkPg9N729pukjcpBEwDQYJKoZIhvcNAQEL
-          BQAwFDESMBAGA1UEAwwJZGFwcHlub2RlMB4XDTIxMTEzMDEwMjkxOFoXDTMwMDIx
-          NjEwMjkxOFowFDESMBAGA1UEAwwJZGFwcHlub2RlMIIBIjANBgkqhkiG9w0BAQEF
-          AAOCAQ8AMIIBCgKCAQEAnQj7eSGs0jbu0wKf+gfHHw86PePlUXKRMVi77PH5kV/K
-          XhGwx5uRY0WZQmfTta/cY6t8NzOp7NpAy3PmPUy4MKYD7CBYROQpLIT4v/0wLZPd
-          JaWaSTwfFODhSv8vdUSzh9QxwBuRxMBY0A2f1rSb1BbNaIPmnXw272rqYFfRTuMw
-          ZOrfOE4CbkPNNY18qfTXZwj9zkNswNRSrK/0kIQOot97oQMZc3lKwwxyERl0Foty
-          y6iqeVfz+bXZl3thLKJYZpBjKC2jvXtrdBfzQr8Fa1E6j1LCr0J0KF/dbxCdC5hY
-          XkDwn9dWfnCOpNI9vWMOIqxf4IXo8gk5KgGwWcRj/QIDAQABoyMwITAfBgNVHREE
-          GDAWgglsb2NhbGhvc3SCCWRhcHB5bm9kZTANBgkqhkiG9w0BAQsFAAOCAQEATCvb
-          GWnOtYlRNdYoRui3yyTiVWenSLuTbnm4CINjQF/NomKmodGIEhjs2TUGRiM8Rh/v
-          vPA7TMFFF68bsGp7DFh1MBj8NfujD0KPH7oUIfDnv5GSwD3ZSp7eGF89SAlFTw46
-          XbAcOrWymuSbcK4d5HBQf9BqOnxoszAUI/LZx8I691Xf0pRaqKTcRXwX0X+49Qjh
-          KxqIRMg3q/vaQTDweUGMjQIsePQS1iVB+YWt/5u/XTBIgZMNU1O4lzeYv1UBdXuK
-          QLrQ8zTgELzjhmBxMAbWNbIJgGt9SiJc1DbQqw/9PkV4AT7bnmW2/b3g1lXxhIQX
-          OpyG0qbp3I7+8Hp8Ww==
-          -----END CERTIFICATE-----`, 'utf8').toString('base64')
-        }]
+      txts = yield dappyLookup({
+        method: "lookup",
+        type: "TXT",
+        hostname: url.host,
+        chainId: namesBlockchain.chainId
       });
     } catch (err) {
-      console.log(err);
+      yield put(
+        fromDapps.loadResourceFailedAction({
+          tabId: tabId,
+          url: payload.url,
+          error: {
+            error: DappyLoadError.DappyLookup,
+            args: { message: err.message },
+          },
+        })
+      );
+      return;
     }
-    console.log(recordsA);
-    console.log(recordsA);
-    console.log(recordsA);  
-
-    const txts = fakeDappyLookup.lookup(url.host, 'txt');
 
     let csp = '';
-    const cspRecord = txts.find(a => a.hasOwnProperty('value') && a.value === 'publicKey');
+    const cspRecord = (txts as NamePacket).answers.find(a => a.name === "CSP");
     if (cspRecord) {
-      csp  = (cspRecord as RRTXT).value;
+      csp  = (cspRecord as NameAnswer).data;
     }
 
     let publicKey = '';
-    const publicKeyRecord = txts.find(a => a.hasOwnProperty('value') && a.value === 'publicKey');
+    const publicKeyRecord = (txts as NamePacket).answers.find(a => a.name === "PUBLIC_KEY");
     if (publicKeyRecord) {
-      publicKey  = (publicKeyRecord as RRTXT).value;
+      publicKey  = (publicKeyRecord as NameAnswer).data;
     }
-  
-    const dappAddress = txts.find(a => a.hasOwnProperty('value') && a.value === 'dapp');
+
+    let dappAddress = '';
+    const dappAddressRecord = (txts as NamePacket).answers.find(a => a.name === "DAPP_ADDRESS");
+    if (dappAddressRecord) {
+      dappAddress  = (dappAddressRecord as NameAnswer).data;
+    } */
+    let dappAddress = undefined;
       
     /*
       If dappy-lookup finds a dapp record for address, then we must get

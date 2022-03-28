@@ -59,6 +59,7 @@ export const updateSettingsFailedAction = (values: { errorCode: number; error: s
 export interface CreateBlockchainPayload {
   platform: 'rchain';
   chainId: string;
+  auto: boolean;
   chainName: string;
   nodes: DappyNetworkMember[];
 }
