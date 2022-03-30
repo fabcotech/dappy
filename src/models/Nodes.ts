@@ -1,4 +1,4 @@
-import { BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
+import { BeesLoadCompleted, BeesLoadErrorWithArgs } from '@fabcotech/bees';
 
 export interface NodeFromNetwork {
   ip: string;

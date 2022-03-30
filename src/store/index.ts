@@ -1,6 +1,6 @@
 import { createStore, applyMiddleware, combineReducers, Store } from 'redux';
 import createSagaMiddleware from 'redux-saga';
-import { DappyNetworkId, NamePacket, dappyNetworks } from 'dappy-lookup';
+import { DappyNetworkId, NamePacket, dappyNetworks } from '@fabcotech/dappy-lookup';
 import { all } from 'redux-saga/effects';
 import xstream from 'xstream';
 import throttle from 'xstream/extra/throttle';
@@ -456,7 +456,6 @@ dbReq.onsuccess = (event) => {
   const requestBlockchains = blockchainsStore.getAll();
   requestBlockchains.onsuccess = (e) => {
     let blockchainsToCheck = requestBlockchains.result;
-    console.log(blockchainsToCheck)
     blockchainsToCheck.map(bc => {
       if (bc.auto && !!dappyNetworks[bc.chainId as DappyNetworkId]) {
         bc.auto = true;
@@ -464,7 +463,6 @@ dbReq.onsuccess = (event) => {
       }
       return bc;
     })
-    console.log(blockchainsToCheck)
     validateBlockchains(blockchainsToCheck)
       .then((blockchains) => {
         asyncActionsOver += 1;

@@ -1,6 +1,6 @@
 import { delay, call, put, select, take } from 'redux-saga/effects';
 import { CRON_JOBS_LOG_CONTRACT_PERIOD } from '/CONSTANTS';
-import { DappyNetworkMember } from 'dappy-lookup';
+import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 
 import { singleCall } from '/interProcess';
 import { SingleCallResult } from '/models';

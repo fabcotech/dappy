@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Formik, Form, FieldArray } from 'formik';
 import { connect } from 'react-redux';
-import { DappyNetworkId, DappyNetworkMember, dappyNetworks } from 'dappy-lookup';
+import { DappyNetworkId, DappyNetworkMember, dappyNetworks } from '@fabcotech/dappy-lookup';
 
 import './Blockchains.scss';
 

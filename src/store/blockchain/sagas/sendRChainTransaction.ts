@@ -1,6 +1,6 @@
 import { takeEvery, put, select } from 'redux-saga/effects';
 import { rhoValToJs } from 'rchain-toolkit/dist/utils';
-import { DappyNetworkMember } from 'dappy-lookup';
+import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 
 import { Blockchain, TransactionStatus, MultiCallError, SingleCallResult } from '/models';
 import * as fromBlockchain from '..';

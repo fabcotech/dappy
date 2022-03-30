@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { BeesLoadErrors, BeesLoadCompleted } from 'beesjs';
+import { BeesLoadErrors, BeesLoadCompleted } from '@fabcotech/bees';
 
 import { TransitoryState, Tab, LastLoadError, Identification } from '/models';
 import * as fromActions from './actions';

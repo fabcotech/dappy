@@ -1,7 +1,7 @@
 import { blake2b } from 'blakejs';
 import * as zlib from 'zlib';
 import * as elliptic from 'elliptic';
-import { BeesLoadError } from 'beesjs';
+import { BeesLoadError } from '@fabcotech/bees';
 
 import { DappyFile } from '/models';
 import { validateDpy, validateFile } from '/store/decoders/Dpy';

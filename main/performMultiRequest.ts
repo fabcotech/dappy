@@ -1,8 +1,8 @@
 import http from 'http';
-import { resolver, BeesLoadError } from 'beesjs';
+import { resolver, BeesLoadError } from '@fabcotech/bees';
 
 import { getNodeFromIndex } from '../src/utils/getNodeFromIndex';
-import { MultiCallBody, MultiCallParameters, MultiCallResult, MultiCallError } from '../src/models/';
+import { MultiCallBody, MultiCallParameters, MultiCallResult, MultiCallError, DappyLoadError } from '../src/models/';
 import * as fromBlockchains from './store/blockchains';
 import { httpBrowserToNode } from './httpBrowserToNode';
 
@@ -134,7 +134,7 @@ export const performMultiRequest = (
         console.log(e);
         reject({
           error: {
-            error: BeesLoadError.UnknownCriticalError,
+            error: DappyLoadError.UnknownCriticalError,
             args: {},
           },
           loadState: {},

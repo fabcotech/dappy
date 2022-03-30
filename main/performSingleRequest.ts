@@ -1,4 +1,4 @@
-import { DappyNetworkMember } from 'dappy-lookup';
+import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 import { httpBrowserToNode } from './httpBrowserToNode';
 
 /* browser to node */

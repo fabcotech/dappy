@@ -5,7 +5,7 @@ import xs from 'xstream';
 import './AddBlockchain.scss';
 import { CHAIN_IDS } from '../../../CONSTANTS';
 import { GlossaryHint } from '/components/utils/Hint';
-import { DappyNetworkId, DappyNetworkMember, dappyNetworks } from 'dappy-lookup';
+import { DappyNetworkId, DappyNetworkMember, dappyNetworks } from '@fabcotech/dappy-lookup';
 
 const ERRORS: { [key: string]: string } = {
   REQUIRED: 'This fileld is required',

@@ -1,6 +1,6 @@
 import Ajv from 'ajv';
 
-import { BeesLoadErrorWithArgs, BeesLoadError } from 'beesjs';
+import { BeesLoadErrorWithArgs, BeesLoadError } from '@fabcotech/bees';
 
 const ajv = new Ajv();
 const schema = {

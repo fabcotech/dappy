@@ -1,4 +1,4 @@
-import { DappyNetworkMember } from 'dappy-lookup';
+import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 import https from 'https';
 
 import { VERSION, WS_PAYLOAD_PAX_SIZE } from '../src/CONSTANTS';

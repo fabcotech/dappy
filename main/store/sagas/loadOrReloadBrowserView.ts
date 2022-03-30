@@ -3,6 +3,7 @@ import path from 'path';
 import https from 'https';
 import { BrowserView, app, session } from 'electron';
 import { blake2b } from 'blakejs';
+import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 
 import * as fromBrowserViews from '../browserViews';
 import { DappyBrowserView } from '../../models';
@@ -16,16 +17,16 @@ import { store } from '../';
 
 import * as fromSettingsMain from '../settings';
 import * as fromBlockchainsMain from '../blockchains';
+import * as fromSettingsRenderer from '../../../src/store/settings';
 import * as fromDappsRenderer from '../../../src/store/dapps';
 import * as fromHistoryRenderer from '../../../src/store/history';
 import { Blockchain, DappyLoadError, Tab } from '/models';
-import { DappyNetworkMember } from 'dappy-lookup';
 
 const development = !!process.defaultApp;
 
 const loadOrReloadBrowserView = function* (action: any) {
   const payload: { tab: Tab } = action.payload;
-  const settings: fromSettingsMain.State = yield select(fromSettingsMain.getSettings)
+  const settings: fromSettingsRenderer.Settings = yield select(fromSettingsMain.getSettings)
   const blockchains: { [chainId: string]: Blockchain } = yield select(fromBlockchainsMain.getBlockchains)
   const browserViews: {
     [tabId: string]: DappyBrowserView;
@@ -233,7 +234,7 @@ const loadOrReloadBrowserView = function* (action: any) {
   } else {
     try {
       yield view.webContents.loadURL(payload.tab.url);
-      if (settings.settings.devMode) {
+      if (settings.devMode) {
         view.webContents.openDevTools();
       }
     } catch (err) {

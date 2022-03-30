@@ -3,10 +3,8 @@ import fs from 'fs';
 import { CookiesSetDetails, ProtocolRequest, Cookie, ProtocolResponse } from 'electron';
 import cookieParser from 'set-cookie-parser';
 
-import * as fromCookies from '../src/store/cookies';
 import { DappyBrowserView } from './models';
-import { Cookie as DappyCookie } from '/models';
-import { DappyNetworkMember, lookup } from 'dappy-lookup';
+import { DappyNetworkMember, lookup, NameAnswer, nodeLookup } from '@fabcotech/dappy-lookup';
 
 let sameSites: { [a: string]: 'lax' | 'strict' | 'no_restriction' } = {
   lax: 'lax',
@@ -85,23 +83,49 @@ interface makeTryToLoadParams {
 
 export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, partitionIdHash, dappyBrowserView, setIsFirstRequest, getIsFirstRequest, setCookie, getBlobData }: makeTryToLoadParams) => {
   let over = false;
+  const url = new URL(request.url);
 
-  console.log('tryToLoad.dns', dns)
-  console.log(request)
+  console.log('tryToLoad.dns', dns, request.url)
+
+  let ca: string[] | undefined = undefined;
+  let networkHosts: string[] | undefined = undefined;
+  if (dns) {
+    networkHosts = [url.hostname];
+  } else {
+    try {
+      networkHosts = (await lookup(url.hostname, 'A', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data)
+      ca = (await lookup(url.hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data);
+    } catch (err) {
+      return Promise.resolve({
+        data: "NS LOOKUP ERROR",
+        headers: {},
+        statusCode: 523
+      });
+    }
+  }
+
+  console.log('networkHosts')
+  console.log(networkHosts)
+  console.log('ca')
+  console.log(ca)
 
   async function load(i: number = 0) {
 
+    if (!networkHosts || !(networkHosts as string[])[i]) {
+      if (debug) console.log(`[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${url.pathname})`);
+      /*
+        Will catch in main/store/sagas/loadOrReloadBrowserView.ts L193
+      */
+      return Promise.resolve({
+        data: "Failed to load",
+        headers: {},
+        statusCode: 503
+      });
+    }
+
     let s = "";
 
-    let networkHosts: string[] | undefined = undefined;
-    const url = new URL(request.url);
     const isFirstRequest = getIsFirstRequest();
-
-    console.log('A', url.hostname);
-    console.log(dappyNetworkMembers);
-    console.log(await lookup(url.hostname, 'A', dappyNetworkMembers));
-    console.log('CERT', url.hostname);
-    console.log(await lookup(url.hostname, 'CERT', dappyNetworkMembers));
   
     if (debug) {
       if (isFirstRequest) {
@@ -110,16 +134,6 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
         s += `[https load ${partitionIdHash}] ${rightPad(request.url, 32)} ${i}`;
       }
     }
-
-    if (networkHosts === undefined) {
-      if (dns) {
-        networkHosts = [url.hostname];
-      } else {
-        networkHosts = [url.hostname];
-      }
-    }
-    console.log('networkHosts');
-    console.log(networkHosts);
 
     let port = url.port ? url.port : "443";
 
@@ -139,35 +153,36 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
     */
     setIsFirstRequest(false);
 
-    const options: https.RequestOptions = {
-      host: await lookup(url.hostname, 'A'),
-      method: request.method,
-      path: path,
-      ca: await lookup(url.hostname, 'CERT'),
-      minVersion: 'TLSv1.2',
-      rejectUnauthorized: true,
-      headers: {
-        ...request.headers,
-        host: url.hostname,
-        Cookie: getCookiesHeaderResp.cookieHeader,
-        Origin: `https://${dappyBrowserView.host}`,
-      },
-    };
-
-    s += rightPad(` | cook: ${getCookiesHeaderResp.numberOfCookies.lax}lax ${getCookiesHeaderResp.numberOfCookies.strict}strict`, 22)
-    // todo
-
-
-    /* if (s.cert) {
-      options.ca = Buffer.from(s.cert, 'base64').toString('utf8')
-    } */
-
-    if (request.referrer) {
-      options.headers!.referrer = request.referrer;
-    }
-
+    
     return new Promise<ProtocolResponse>((resolve) => {
       try {
+        const options: https.RequestOptions = {
+          host: networkHosts[i] as string,
+          port: port,
+          method: request.method,
+          path: path,
+          ...(ca ? { ca: ca } : {}),
+          minVersion: 'TLSv1.2',
+          rejectUnauthorized: true,
+          headers: {
+            ...request.headers,
+            host: url.hostname,
+            Cookie: getCookiesHeaderResp.cookieHeader,
+            Origin: `https://${dappyBrowserView.host}`,
+          },
+        };
+    
+        s += rightPad(` | cook: ${getCookiesHeaderResp.numberOfCookies.lax}lax ${getCookiesHeaderResp.numberOfCookies.strict}strict`, 22)
+        // todo
+    
+    
+        /* if (s.cert) {
+          options.ca = Buffer.from(s.cert, 'base64').toString('utf8')
+        } */
+    
+        if (request.referrer) {
+          options.headers!.referrer = request.referrer;
+        }
         const req = https
           .request(options, (resp) => {
 

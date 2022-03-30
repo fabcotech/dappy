@@ -1,12 +1,12 @@
 import https from 'https';
 import { Session, CookiesSetDetails, CookiesGetFilter, ProtocolRequest, Cookie, ProtocolResponse } from 'electron';
+import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 
 import * as fromCookies from '../src/store/cookies';
 import { DappyBrowserView } from './models';
 import { Cookie as DappyCookie } from '/models';
 import { DispatchFromMainArg } from './main';
 import { tryToLoad } from './tryToLoad';
-import { DappyNetworkMember } from 'dappy-lookup';
 
 const executeSentryRequest = (request: ProtocolRequest): Promise<ProtocolResponse> => {
   return new Promise((resolve, reject) => {
@@ -53,7 +53,7 @@ interface InterceptHttpsRequestsParams {
 
 const makeInterceptHttpsRequests = ({ dappyNetworkMembers, dappyBrowserView, partitionIdHash, setCookie, getBlobData, setIsFirstRequest, getIsFirstRequest }: InterceptHttpsRequestsParams) => {
   const debug = !process.env.PRODUCTION;
-  console.log('makeInterceptHttpsRequests')
+
   return async (request: ProtocolRequest, callback: (response: Electron.ProtocolResponse) => void) => {
     // todo : cleaner sentry.io handling
     /*
@@ -72,10 +72,8 @@ const makeInterceptHttpsRequests = ({ dappyNetworkMembers, dappyBrowserView, par
       return;
     }
 
-    /*
-      Dappy name system
-    */
-    if (new URL(request.url).host.endsWith('.dappy')) {
+    /* Dappy name system */
+    if (new URL(request.url).hostname.endsWith('.dappy')) {
       try {
         callback(await tryToLoad({ dappyNetworkMembers, partitionIdHash, dns: false, debug, dappyBrowserView, setIsFirstRequest, getIsFirstRequest, setCookie, request, getBlobData }));
       } catch (err) {
@@ -83,16 +81,10 @@ const makeInterceptHttpsRequests = ({ dappyNetworkMembers, dappyBrowserView, par
         callback({});
       }
 
-    /*
-      DNS
-    */
+    /* DNS */
     } else {
-      try {
-        callback(await tryToLoad({ dappyNetworkMembers: [], partitionIdHash, dns: true, debug, dappyBrowserView, setIsFirstRequest, getIsFirstRequest, setCookie, request, getBlobData }));
-      } catch (err) {
-        console.log(err);
-        callback({});
-      }
+      // forbidden for now
+      callback({});
     }
   };
 };

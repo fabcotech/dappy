@@ -10,7 +10,6 @@ import { dispatchInMain } from '/interProcess';
 const browserViewToBeDisplayed = function* (action: Action) {
   const shouldBrowserViewsBeDisplayed: undefined | string = yield select(fromMain.getShouldBrowserViewsBeDisplayed);
 
-  console.log('shouldBrowserViewsBeDisplayed', shouldBrowserViewsBeDisplayed)
   dispatchInMain({
     type: '[MAIN] Display only browser view x',
     payload: {

@@ -1,5 +1,5 @@
-import { BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
-import { DappyNetworkMember } from 'dappy-lookup';
+import { BeesLoadCompleted, BeesLoadErrorWithArgs } from '@fabcotech/bees';
+import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 import * as fromReducer from './reducer';
 
 import { Blockchain, Account  } from '/models';

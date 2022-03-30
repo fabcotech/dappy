@@ -1,5 +1,5 @@
 import { takeEvery, select, put } from 'redux-saga/effects';
-import { BeesLoadCompleted, BeesLoadErrorWithArgs, BeesLoadError } from 'beesjs';
+import { BeesLoadCompleted, BeesLoadErrorWithArgs, BeesLoadError } from '@fabcotech/bees';
 import Ajv from 'ajv';
 
 import * as fromSettings from '..';

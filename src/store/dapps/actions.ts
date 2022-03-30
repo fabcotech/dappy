@@ -1,4 +1,4 @@
-import { BeesLoadErrors, BeesLoadCompleted, BeesLoadErrorWithArgs } from 'beesjs';
+import { BeesLoadErrors, BeesLoadCompleted, BeesLoadErrorWithArgs } from '@fabcotech/bees';
 import {
   Tab,
   Identification,

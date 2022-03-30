@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { BeesLoadError, BeesLoadErrorWithArgs } from 'beesjs';
+import { BeesLoadError, BeesLoadErrorWithArgs } from '@fabcotech/bees';
 
 import { DappyLoadError, DappyLoadErrorWithArgs } from '/models/';
 import './LoadErrorHtml.scss';

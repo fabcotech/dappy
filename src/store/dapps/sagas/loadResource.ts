@@ -1,7 +1,7 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
 import { readPursesDataTerm } from 'rchain-token';
-import { BeesLoadCompleted, BeesLoadErrors } from 'beesjs';
-import { lookup, NameAnswer } from 'dappy-lookup';
+import { BeesLoadCompleted, BeesLoadErrors } from '@fabcotech/bees';
+import { NameAnswer } from '@fabcotech/dappy-lookup';
 
 import { dappyLookup, multiCall } from '/interProcess';
 import { MultiCallResult } from '/models/MultiCall';
@@ -136,7 +136,7 @@ const loadResource = function* (action: Action) {
   /*
     Dappy name system
   */
-  if (url.host.endsWith('.dappy')) {
+  if (url.hostname.endsWith('.dappy')) {
     console.log(`Dappy: host is ${url.hostname}`)
     if (!namesBlockchain || !rchainInfos[namesBlockchain.chainId]) {
       yield put(
@@ -173,19 +173,13 @@ const loadResource = function* (action: Action) {
       );
       return;
     }
-  
-    /*
-      Does this address point to a dapp ?
-      If yes then we'll have do download the 
-      html and load it in a tab
-    */
 
-    /* let txts: NamePacket | undefined = undefined;
+    let txts: NamePacket | undefined = undefined;
     try {
       txts = yield dappyLookup({
         method: "lookup",
         type: "TXT",
-        hostname: url.host,
+        hostname: url.hostname,
         chainId: namesBlockchain.chainId
       });
     } catch (err) {
@@ -202,24 +196,24 @@ const loadResource = function* (action: Action) {
       return;
     }
 
+    // todo parse CSP to make sure it's valid
     let csp = '';
-    const cspRecord = (txts as NamePacket).answers.find(a => a.name === "CSP");
+    const cspRecord = (txts as NamePacket).answers.find(a => a.data.startsWith("CSP="));
     if (cspRecord) {
-      csp  = (cspRecord as NameAnswer).data;
+      csp  = (cspRecord as NameAnswer).data.replace('CSP=', '');
     }
 
     let publicKey = '';
-    const publicKeyRecord = (txts as NamePacket).answers.find(a => a.name === "PUBLIC_KEY");
+    const publicKeyRecord = (txts as NamePacket).answers.find(a => a.data.startsWith("PUBLIC_KEY="));
     if (publicKeyRecord) {
-      publicKey  = (publicKeyRecord as NameAnswer).data;
+      publicKey = (publicKeyRecord as NameAnswer).data.replace('PUBLIC_KEY=', '');
     }
 
     let dappAddress = '';
-    const dappAddressRecord = (txts as NamePacket).answers.find(a => a.name === "DAPP_ADDRESS");
+    const dappAddressRecord = (txts as NamePacket).answers.find(a => a.data.startsWith("DAPP_ADDRESS="));
     if (dappAddressRecord) {
-      dappAddress  = (dappAddressRecord as NameAnswer).data;
-    } */
-    let dappAddress = undefined;
+      dappAddress  = (dappAddressRecord as NameAnswer).data.replace('DAPP_ADDRESS=', '');
+    }
       
     /*
       If dappy-lookup finds a dapp record for address, then we must get
@@ -248,7 +242,7 @@ const loadResource = function* (action: Action) {
       if (s.length === 2) {
         fileContractId = s[0];
         filePurseId = s[1] || 'index';
-      } else if (s.lngth === 3) {
+      } else if (s.length === 3) {
         masterRegistryUri = s[0];
         fileContractId = s[1];
         filePurseId = s[2] || 'index';
@@ -365,6 +359,7 @@ const loadResource = function* (action: Action) {
       /*
         Not tested
       */
+        console.log('publicKey', publicKey)
       yield put(
         fromDapps.launchTabCompletedAction({
           tab: {
@@ -402,9 +397,9 @@ const loadResource = function* (action: Action) {
           title: url.hostname + url.pathname,
           url: url.toString(),
           data: {
+            publicKey: publicKey,
             isDappyNameSystem: true,
             chainId: namesBlockchain.chainId,
-            publicKey: undefined,
           }
         },
       })

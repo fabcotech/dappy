@@ -1,4 +1,4 @@
-import { BeesLoadErrorWithArgs } from 'beesjs';
+import { BeesLoadErrorWithArgs } from '@fabcotech/bees';
 import {
   Record,
   RChainInfos,

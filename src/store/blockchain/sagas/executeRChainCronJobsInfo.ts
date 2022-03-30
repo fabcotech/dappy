@@ -1,5 +1,5 @@
 import { takeEvery, select, put } from 'redux-saga/effects';
-import { BeesLoadError } from 'beesjs';
+import { BeesLoadError } from '@fabcotech/bees';
 
 import { store } from '/store';
 import * as fromBlockchain from '..';

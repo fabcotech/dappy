@@ -1,4 +1,4 @@
-import { DappyNetworkMember, NamePacket } from 'dappy-lookup';
+import { DappyNetworkMember, NamePacket } from '@fabcotech/dappy-lookup';
 import { Store } from 'redux';
 
 import {
@@ -10,7 +10,7 @@ import {
 } from '/models';
 import * as fromDapps from './store/dapps';
 import * as fromMain from './store/main';
-import { BeesLoadError } from 'beesjs';
+import { BeesLoadError } from '@fabcotech/bees';
 import { Action } from '/store';
 
 const actionsAwaitingEphemeralToken: any[] = [];
@@ -114,7 +114,6 @@ export const interProcess = (store: Store) => {
       );
       interProcess.send();
       interProcess.onload = (a) => {
-        console.log(interProcess.responseText)
         try {
           const r = JSON.parse(interProcess.responseText);
           if (r.success) {

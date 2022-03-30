@@ -1,15 +1,15 @@
 import { Session, clipboard, dialog } from 'electron';
 import crypto from 'crypto';
-import { DappyNetworkMember, lookup } from 'dappy-lookup';
+import { DappyNetworkMember, lookup } from '@fabcotech/dappy-lookup';
 import { Store } from 'redux';
 import fs from 'fs';
 import path from 'path';
 import pem from 'pem';
 
 import { getIpAddressAndCert } from './getIpAddressAndCert';
-import { MultiCallBody, MultiCallParameters } from '../src/models';
+import { Blockchain, MultiCallBody, MultiCallParameters } from '../src/models';
 import { EXECUTE_RCHAIN_CRON_JOBS } from '../src/store/blockchain';
-import * as fromBlockchains from './store/blockchains';
+import * as fromBlockchainsMain from './store/blockchains';
 import { performMultiRequest } from './performMultiRequest';
 import { performSingleRequest } from './performSingleRequest';
 import * as fromMainBrowserViews from './store/browserViews';
@@ -116,7 +116,7 @@ export const registerInterProcessProtocol = (
           parameters.comparer = (res) => res;
         }
 
-        const blockchains = fromBlockchains.getBlockchains(store.getState());
+        const blockchains = fromBlockchainsMain.getBlockchains(store.getState());
         performMultiRequest(body, parameters, blockchains)
           .then((result) => {
             callback(
@@ -157,23 +157,40 @@ export const registerInterProcessProtocol = (
     }
 
     if (request.url === 'interprocess://dappy-lookup') {
-      console.log('interprocess://dappy-lookup')
-      console.log(request.headers['Data'])
+
+      const blockchains: { [chainId: string]: Blockchain } = fromBlockchainsMain.getBlockchains(store.getState())
+
+
+      const first = Object.keys(blockchains)[0];
+      if (!first) {
+        callback(Buffer.from(JSON.stringify({
+          success: false,
+          error: "no dappy network"
+        })));
+        return;
+      }
+
+      console.log(first);
+      console.log(blockchains[first].nodes);
+
+      console.log('interprocess://dappy-lookup');
+      console.log(request.headers['Data']);
       try {
         const data = JSON.parse(decodeURI(request.headers['Data']));
-        const value: any = data.value;
-        console.log('----------');
-        console.log(value);
-
-
         if (data.value.method === "lookup") {
           if (data.value.type === "TXT") {
-            lookup(data.value.hostname, data.value.type).then(a => {
+            lookup(data.value.hostname, data.value.type, { dappyNetwork: blockchains[first].nodes }).then(a => {
               callback(Buffer.from(JSON.stringify({
                 success: true,
                 data: a
               })));
-            });
+            })
+            .catch(err => {
+              callback(Buffer.from(JSON.stringify({
+                success: false,
+                error: err.message
+              })));
+            })
           } else {
             callback(Buffer.from(JSON.stringify({
               success: false,
@@ -206,7 +223,7 @@ export const registerInterProcessProtocol = (
           });
         } else if (action.type === fromMainBrowserViews.DESTROY_BROWSER_VIEW) {
           store.dispatch({ ...action, meta: { browserWindow: browserWindow } });
-        } else if (action.type === fromBlockchains.SYNC_BLOCKCHAINS) {
+        } else if (action.type === fromBlockchainsMain.SYNC_BLOCKCHAINS) {
           store.dispatch(action);
         } else {
           store.dispatch(action);

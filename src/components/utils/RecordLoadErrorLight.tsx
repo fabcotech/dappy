@@ -1,5 +1,5 @@
 import React from 'react';
-import { BeesLoadError } from 'beesjs';
+import { BeesLoadError } from '@fabcotech/bees';
 
 import { LoadRecordsError } from '/models';
 
