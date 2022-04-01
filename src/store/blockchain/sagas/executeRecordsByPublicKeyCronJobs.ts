@@ -50,7 +50,7 @@ const executeRecordsByPublicKeyCronJobs = function* (action: Action) {
       }
     )
       .then((a) => {
-        const resultFromBlockchain = JSON.parse(a.result.data);
+        const resultFromBlockchain = JSON.parse(a.result);
         const records = resultFromBlockchain.records;
 
         records.forEach(async (recordFromBlockchain: any) => {

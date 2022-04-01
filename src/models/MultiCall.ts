@@ -16,10 +16,7 @@ export interface MultiCallBody {
 }
 
 export interface MultiCallResult {
-  result: {
-    data: any;
-    nodeUrlsLength: number;
-  };
+  result: any;
   loadState: BeesLoadCompleted;
   loadErrors: BeesLoadErrors;
 }

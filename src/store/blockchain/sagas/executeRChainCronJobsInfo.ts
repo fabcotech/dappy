@@ -52,7 +52,7 @@ const executeRChainCronJobsInfo = function* (action: Action) {
       }
     )
       .then((a) => {
-        const resultFromDappyNode = JSON.parse(a.result.data);
+        const resultFromDappyNode = JSON.parse(a.result);
         validateDappyNodeInfo(resultFromDappyNode.data)
           .then((valid) => {
             store.dispatch(

@@ -112,10 +112,7 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
   async function load(i: number = 0) {
 
     if (!networkHosts || !(networkHosts as string[])[i]) {
-      if (debug) console.log(`[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${url.pathname})`);
-      /*
-        Will catch in main/store/sagas/loadOrReloadBrowserView.ts L193
-      */
+      if (debug) console.log(`[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${url.hostname})`);
       return Promise.resolve({
         data: "Failed to load",
         headers: {},
@@ -157,11 +154,11 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
     return new Promise<ProtocolResponse>((resolve) => {
       try {
         const options: https.RequestOptions = {
-          host: networkHosts[i] as string,
+          host: (networkHosts as string[])[i] as string,
           port: port,
           method: request.method,
           path: path,
-          ...(ca ? { ca: ca } : {}),
+          ...(ca ? { ca: ca[0] } : {}),
           minVersion: 'TLSv1.2',
           rejectUnauthorized: true,
           headers: {

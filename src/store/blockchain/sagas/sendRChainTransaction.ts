@@ -171,7 +171,7 @@ const sendRChainTransaction = function* (action: Action) {
                 }
               )
                 .then((resp) => {
-                  const parsedResp = JSON.parse(resp.result.data);
+                  const parsedResp = JSON.parse(resp.result);
                   if (parsedResp && parsedResp.data && parsedResp.data.expr) {
                     resolve(parsedResp.data.expr);
                     if (interval) clearInterval(interval);

@@ -53,7 +53,7 @@ export const registerDappyNetworkProtocol = (
         },
         blockchains
       ).then(multiCallResult => {
-        const json = JSON.parse(multiCallResult.result.data);
+        const json = JSON.parse(multiCallResult.result);
         if (!json.success) {
           callback(json.error);
           return;
@@ -86,7 +86,7 @@ export const registerDappyNetworkProtocol = (
         },
         blockchains
       ).then(multiCallResult => {
-        const json = JSON.parse(multiCallResult.result.data);
+        const json = JSON.parse(multiCallResult.result);
         if (!json.success) {
           callback(json.error);
           return;
@@ -124,7 +124,7 @@ export const registerDappyNetworkProtocol = (
         },
         blockchains
       ).then(multiCallResult => {
-        const json = JSON.parse(multiCallResult.result.data);
+        const json = JSON.parse(multiCallResult.result);
         if (!json.success) {
           callback(json.error);
           return;
@@ -162,7 +162,7 @@ export const registerDappyNetworkProtocol = (
         },
         blockchains
       ).then(multiCallResult => {
-        const json = JSON.parse(multiCallResult.result.data);
+        const json = JSON.parse(multiCallResult.result);
         if (!json.success) {
           callback(json.error);
           return;
@@ -200,7 +200,7 @@ export const registerDappyNetworkProtocol = (
         },
         blockchains
       ).then(multiCallResult => {
-        const json = JSON.parse(multiCallResult.result.data);
+        const json = JSON.parse(multiCallResult.result);
         if (!json.success) {
           callback(json.error);
           return;

@@ -2,7 +2,7 @@ import { BeesLoadCompleted, BeesLoadErrorWithArgs } from '@fabcotech/bees';
 import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 import * as fromReducer from './reducer';
 
-import { Blockchain, Account  } from '/models';
+import { Blockchain, Account, DappyLoadErrorWithArgs  } from '/models';
 
 export const UPDATE_RESOLVER_SETTINGS = '[Settings] Update resolvers settings';
 export const UPDATE_DEV_MODE = '[Settings] Update dev mode';
@@ -171,7 +171,7 @@ export const updateAccountBalanceAction = (values: UpdateAccountsBalancePayload)
 export interface UpdateAccountBalanceFailedPayload {
   loadState: BeesLoadCompleted;
   date: string;
-  error: BeesLoadErrorWithArgs;
+  error: BeesLoadErrorWithArgs | DappyLoadErrorWithArgs;
 }
 export const updateAccountBalanceFailedAction = (values: UpdateAccountBalanceFailedPayload) => ({
   type: UPDATE_ACCOUNTS_BALANCE_FAILED,

@@ -1,5 +1,5 @@
 import { takeEvery, select, put } from 'redux-saga/effects';
-import { BeesLoadCompleted, BeesLoadErrorWithArgs, BeesLoadError } from '@fabcotech/bees';
+import { BeesLoadCompleted, BeesLoadErrorWithArgs } from '@fabcotech/bees';
 import Ajv from 'ajv';
 
 import * as fromSettings from '..';
@@ -8,7 +8,7 @@ import * as fromBlockchain from '/store/blockchain/';
 import { LOGREV_TO_REV_RATE } from '/CONSTANTS';
 import { blockchain as blockchainUtils } from '/utils/blockchain';
 import { getNodeIndex } from '/utils/getNodeIndex';
-import { Account, Blockchain, MultiCallResult } from '/models';
+import { Account, Blockchain, DappyLoadError, MultiCallResult } from '/models';
 import { Action } from '../actions';
 import { multiCall } from '/interProcess';
 
@@ -84,13 +84,13 @@ const executeAccountsCronJobs = function* (action: Action) {
 
   let responseParsed: any;
   try {
-    responseParsed = JSON.parse((multiCallResult as MultiCallResult).result.data);
+    responseParsed = JSON.parse((multiCallResult as MultiCallResult).result);
   } catch (e) {
     yield put(
       fromSettings.updateAccountBalanceFailedAction({
         date: new Date().toISOString(),
         error: {
-          error: BeesLoadError.FailedToParseResponse,
+          error: DappyLoadError.FailedToParseResponse,
           args: { message: e.message || e },
         },
         loadState: (multiCallResult as MultiCallResult).loadState,
@@ -112,7 +112,7 @@ const executeAccountsCronJobs = function* (action: Action) {
       fromSettings.updateAccountBalanceFailedAction({
         date: new Date().toISOString(),
         error: {
-          error: BeesLoadError.FailedToParseResponse,
+          error: DappyLoadError.FailedToParseResponse,
           args: { message: err.message || err },
         },
         loadState: (multiCallResult as MultiCallResult).loadState,
@@ -139,7 +139,7 @@ const executeAccountsCronJobs = function* (action: Action) {
     yield put(
       fromSettings.updateAccountBalanceFailedAction({
         date: new Date().toISOString(),
-        error: { error: BeesLoadError.FailedToParseResponse } as BeesLoadErrorWithArgs,
+        error: { error: DappyLoadError.FailedToParseResponse, args: {} },
         loadState: (multiCallResult as MultiCallResult).loadState as BeesLoadCompleted,
       })
     );

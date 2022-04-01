@@ -293,7 +293,7 @@ const loadResource = function* (action: Action) {
       let dataFromBlockchainParsed: undefined | { data: { results: { data: string }[] } };
       let verifiedDappyFile: DappyFile | undefined = undefined;
       try {
-        dataFromBlockchain = (multiCallResult as MultiCallResult).result.data;
+        dataFromBlockchain = (multiCallResult as MultiCallResult).result;
         dataFromBlockchainParsed = JSON.parse(dataFromBlockchain) as { data: { results: { data: string }[] } };
         verifiedDappyFile = yield validateAndReturnFile(
           dataFromBlockchainParsed.data.results[0].data,

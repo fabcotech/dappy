@@ -129,7 +129,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
           multiCallId: fromBlockchain.LISTEN_FOR_DATA_AT_NAME,
         })
           .then((resp) => {
-            const parsedResp = JSON.parse(resp.result.data);
+            const parsedResp = JSON.parse(resp.result);
             let p;
             try {
               p = JSON.parse(parsedResp.data.results[0].data);

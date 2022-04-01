@@ -1,8 +1,8 @@
 import http from 'http';
-import { resolver, BeesLoadError } from '@fabcotech/bees';
+import { resolver } from '@fabcotech/bees';
 
 import { getNodeFromIndex } from '../src/utils/getNodeFromIndex';
-import { MultiCallBody, MultiCallParameters, MultiCallResult, MultiCallError, DappyLoadError } from '../src/models/';
+import { MultiCallBody, MultiCallParameters, MultiCallResult, MultiCallError } from '../src/models/';
 import * as fromBlockchains from './store/blockchains';
 import { httpBrowserToNode } from './httpBrowserToNode';
 
@@ -14,8 +14,8 @@ export const performMultiRequest = (
 ): Promise<MultiCallResult> => {
   return new Promise((resolve, reject) => {
     resolver(
-      (index) => {
-        const a = getNodeFromIndex(index);
+      (id) => {
+        const a = getNodeFromIndex(id);
         return new Promise(async (resolve2, reject2) => {
           if (
             blockchains[parameters.chainId] &&
@@ -28,7 +28,7 @@ export const performMultiRequest = (
                 resolve2({
                   type: 'ERROR',
                   status: 500,
-                  nodeUrl: index,
+                  id: id,
                 });
                 over = true;
               }
@@ -44,7 +44,7 @@ export const performMultiRequest = (
                 resolve2({
                   type: 'SUCCESS',
                   data: resp as string,
-                  nodeUrl: index,
+                  id: id,
                 });
                 over = true;
               }
@@ -52,7 +52,7 @@ export const performMultiRequest = (
               resolve2({
                 type: 'ERROR',
                 status: 500,
-                nodeUrl: index,
+                id: id,
               });
               over = true;
             }
@@ -60,7 +60,7 @@ export const performMultiRequest = (
             // fallback on HTTP
             if (body.type === 'get-nodes') {
               http
-                .get(`http://${index.split('---')[0]}/get-nodes?network=${body.body.network}`, (resp) => {
+                .get(`http://${id.split('---')[0]}/get-nodes?network=${body.body.network}`, (resp) => {
                   let data = '';
 
                   resp.on('data', (chunk) => {
@@ -68,11 +68,11 @@ export const performMultiRequest = (
                   });
 
                   resp.on('end', () => {
-                    console.log('[get-nodes] Successfully fell back on HTTP for ' + index);
+                    console.log('[get-nodes] Successfully fell back on HTTP for ' + id);
                     resolve2({
                       type: 'SUCCESS',
                       data: data as string,
-                      nodeUrl: index,
+                      id: id,
                     });
                   });
                 })
@@ -80,66 +80,46 @@ export const performMultiRequest = (
                   resolve2({
                     type: 'ERROR',
                     status: 500,
-                    nodeUrl: index,
+                    id: id,
                   });
                 });
             } else {
               resolve2({
                 type: 'ERROR',
                 status: 500,
-                nodeUrl: index,
+                id: id,
               });
             }
           }
         });
       },
       parameters.urls,
-      parameters.resolverMode,
       parameters.resolverAccuracy,
       parameters.resolverAbsolute,
       parameters.comparer
-    ).subscribe({
-      next: (a) => {
-        if (a.status === 'failed') {
-          reject({
-            error: a.loadError,
-            loadState: a.loadState,
-          } as MultiCallError);
-          return;
-        } else if (a.status === 'loading') {
-          // do nothing
-        } else if (a.status === 'completed') {
-          let data = {
-            data: '',
-            nodeUrlsLength: 0,
-          };
-          Object.keys(a.loadState).forEach((key) => {
-            if (a.loadState[key].nodeUrls.length > data.nodeUrlsLength) {
-              data = {
-                data: a.loadState[key].data,
-                nodeUrlsLength: a.loadState[key].nodeUrls.length,
-              };
-            }
-          });
-
-          resolve({
-            result: data,
-            loadState: a.loadState,
-            loadErrors: a.loadErrors,
-          });
-        }
-      },
-      error: (e) => {
-        console.log('Unknwon error in resolver');
-        console.log(e);
+    ).then((resolved) => {
+      if (resolved.status === 'failed') {
         reject({
-          error: {
-            error: DappyLoadError.UnknownCriticalError,
-            args: {},
-          },
-          loadState: {},
-        });
-      },
+          error: resolved.loadError,
+          loadState: resolved.loadState,
+        } as MultiCallError);
+        return;
+      }
+
+      let data: any = undefined;
+      let idsLenth = 0;
+      Object.keys(resolved.loadState).forEach((key) => {
+        if (resolved.loadState[key].ids.length > idsLenth) {
+          idsLenth = resolved.loadState[key].ids.length;
+          data = resolved.loadState[key].data;
+        }
+      });
+
+      resolve({
+        result: data,
+        loadState: resolved.loadState,
+        loadErrors: resolved.loadErrors,
+      });
     });
   });
 };

@@ -97,7 +97,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
     }
 
     try {
-      const dataFromBlockchain = multiCallResult.result.data;
+      const dataFromBlockchain = multiCallResult.result;
       const dataFromBlockchainParsed: { data: { results: { data: string }[] } } = JSON.parse(dataFromBlockchain);
       const val = rchainToolkit.utils.rhoValToJs(JSON.parse(dataFromBlockchainParsed.data.results[0].data).expr[0]);
       if (!RCHAIN_TOKEN_SUPPORTED_VERSIONS.includes(val.version)) {

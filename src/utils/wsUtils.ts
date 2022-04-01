@@ -30,7 +30,7 @@ export const multiCallParseAndValidate = async (
     },
     options
   ).then((r) => {
-    const dataFromBlockchain = r.result.data;
+    const dataFromBlockchain = r.result;
     const dataFromBlockchainParsed: { data: { results: { data: string }[] } } = JSON.parse(dataFromBlockchain);
 
     var parsedResults = dataFromBlockchainParsed.data.results.map((r, i) => requests[i].parse(r));
