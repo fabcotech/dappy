@@ -30,7 +30,6 @@ import {
   validateDappyNodeFullInfo,
   validateTabs,
   validateTransactionStates,
-  validateCookies,
 } from './decoders';
 import fromEvent from 'xstream/extra/fromEvent';
 import { DEVELOPMENT, RELOAD_INDEXEDDB_PERIOD } from '../CONSTANTS';
@@ -160,7 +159,7 @@ const sagas = function* rootSaga() {
 sagaMiddleware.run(sagas);
 
 const dispatchInitActions = () => {
-  if (asyncActionsOver === 10) {
+  if (asyncActionsOver === 9) {
     store.dispatch(
       fromUi.setBodyDimensionsAction({ bodyDimensions: [document.body.clientWidth, document.body.clientHeight] })
     );
@@ -171,7 +170,7 @@ const dispatchInitActions = () => {
   }
 };
 
-const DB_MIGRATION_NUMBER = 23;
+const DB_MIGRATION_NUMBER = 24;
 export const dbReq: IDBOpenDBRequest = window.indexedDB.open('dappy', DB_MIGRATION_NUMBER);
 export let db: undefined | IDBDatabase;
 
@@ -204,34 +203,6 @@ dbReq.onupgradeneeded = (event) => {
   }
   if (!db.objectStoreNames.contains('accounts')) {
     db.createObjectStore('accounts', { keyPath: 'name' });
-  }
-
-  if (db.objectStoreNames.contains('cookies')) {
-    // change keyPath from dappyDomain to host
-
-    const store = (dbReq.transaction as IDBTransaction).objectStore('cookies');
-    if (store.keyPath !== 'host') {
-      const a = db.deleteObjectStore('cookies');
-      const b = db.createObjectStore('cookies', { keyPath: 'host' });
-      console.log(a);
-      console.log(b);
-      console.log('[migration] Migration from cookies.address to cookies.host ok');
-    }
-  } else {
-    db.createObjectStore('cookies', { keyPath: 'host' });
-  }
-
-  if (db.objectStoreNames.contains('records')) {
-    const store = (dbReq.transaction as IDBTransaction).objectStore('records');
-    if (store.keyPath !== 'id') {
-      const a = db.deleteObjectStore('records');
-      const b = db.createObjectStore('records', { keyPath: 'id' });
-      console.log(a);
-      console.log(b);
-      console.log('[migration] Migration from records.name to records.id ok');
-    }
-  } else {
-    db.createObjectStore('records', { keyPath: 'id' });
   }
 };
 
@@ -425,31 +396,6 @@ dbReq.onsuccess = (event) => {
       });
   };
 
-  // COOKIES
-  const cookiesTx = openedDB.transaction('cookies', 'readonly');
-  var cookiesStore = cookiesTx.objectStore('cookies');
-  const requestCookes = cookiesStore.getAll();
-  requestCookes.onsuccess = (e) => {
-    const cookiesToCheck = requestCookes.result;
-    validateCookies(cookiesToCheck)
-      .then((cookiesFromStorage) => {
-        asyncActionsOver += 1;
-        store.dispatch(fromCookies.updateCookiesFromStorageAction({ cookiesFromStorage: cookiesFromStorage }));
-        dispatchInitActions();
-      })
-      .catch((e) => {
-        asyncActionsOver += 1;
-        store.dispatch(
-          fromMain.saveErrorAction({
-            errorCode: 2053,
-            error: 'Unable to read cookies from storage',
-            trace: e,
-          })
-        );
-        dispatchInitActions();
-      });
-  };
-
   // BLOCKCHAINS
   const blockchainsTx = openedDB.transaction('networks', 'readonly');
   var blockchainsStore = blockchainsTx.objectStore('networks');
@@ -598,94 +544,94 @@ dbReq.onsuccess = (event) => {
         );
         dispatchInitActions();
       });
+  }
 
-    // ACCOUNTS
-    const accountsTx = openedDB.transaction('accounts', 'readonly');
-    var accountsStore = accountsTx.objectStore('accounts');
-    const requestAccounts = accountsStore.getAll();
-    requestAccounts.onsuccess = (e) => {
-      let accounts = requestAccounts.result;
-      accounts = accounts.map((a) => {
-        return {
-          ...a,
-          boxes: a.boxes || [],
-        };
-      });
+  // ACCOUNTS
+  const accountsTx = openedDB.transaction('accounts', 'readonly');
+  var accountsStore = accountsTx.objectStore('accounts');
+  const requestAccounts = accountsStore.getAll();
+  requestAccounts.onsuccess = (e) => {
+    let accounts = requestAccounts.result;
+    accounts = accounts.map((a) => {
+      return {
+        ...a,
+        boxes: a.boxes || [],
+      };
+    });
 
-      validateAccounts(accounts)
-        .then(() => {
-          asyncActionsOver += 1;
-          store.dispatch(
-            fromSettings.updateAccountsFromStorageAction({
-              accounts: accounts,
-            })
-          );
-          dispatchInitActions();
-        })
-        .catch((err) => {
-          console.error(err);
-          asyncActionsOver += 1;
-          store.dispatch(
-            fromMain.saveErrorAction({
-              errorCode: 2037,
-              error: 'Unable to read accounts from storage',
-              trace: accounts,
-            })
-          );
-          dispatchInitActions();
-        });
-    };
-
-    // RCHAIN INFOS
-    const rchainInfosTx = openedDB.transaction('rchainInfos', 'readonly');
-    var rchainInfosStore = rchainInfosTx.objectStore('rchainInfos');
-    const requestRChainInfos = rchainInfosStore.getAll();
-    requestRChainInfos.onsuccess = (e) => {
-      let rchainInfos = requestRChainInfos.result;
-      if (!rchainInfos) {
+    validateAccounts(accounts)
+      .then(() => {
         asyncActionsOver += 1;
+        store.dispatch(
+          fromSettings.updateAccountsFromStorageAction({
+            accounts: accounts,
+          })
+        );
         dispatchInitActions();
-        return;
-      }
-
-      rchainInfos = rchainInfos.map(ri => {
-        // .wrappedRevContractId introuced in 0.5.4
-        if (ri.info && !ri.info.wrappedRevContractId) {
-          ri.info.wrappedRevContractId = 'notconfigured'
-        }
-        // rchain-token 16 new price format
-        if (ri.info && typeof ri.info.namePrice === 'number') {
-          ri.info.namePrice = null
-        }
-        return ri;
+      })
+      .catch((err) => {
+        console.error(err);
+        asyncActionsOver += 1;
+        store.dispatch(
+          fromMain.saveErrorAction({
+            errorCode: 2037,
+            error: 'Unable to read accounts from storage',
+            trace: accounts,
+          })
+        );
+        dispatchInitActions();
       });
-
-      Promise.all(
-        rchainInfos.map((ri: any) => {
-          return validateDappyNodeFullInfo(ri);
-        })
-      )
-        .then((valid) => {
-          asyncActionsOver += 1;
-          store.dispatch(fromBlockchain.updateRChainBlockchainInfosFromStorageAction({ rchainInfos: rchainInfos }));
-          dispatchInitActions();
-        })
-        .catch((err) => {
-          console.error(err);
-          asyncActionsOver += 1;
-          store.dispatch(
-            fromMain.saveErrorAction({
-              errorCode: 2016,
-              error: 'Unable to read RChain infos from storage',
-              trace: err,
-            })
-          );
-          dispatchInitActions();
-        });
-    };
-
-    registerIDBOpenDBRequestErrorListener(dbReq);
   };
+
+  // RCHAIN INFOS
+  const rchainInfosTx = openedDB.transaction('rchainInfos', 'readonly');
+  var rchainInfosStore = rchainInfosTx.objectStore('rchainInfos');
+  const requestRChainInfos = rchainInfosStore.getAll();
+  requestRChainInfos.onsuccess = (e) => {
+    let rchainInfos = requestRChainInfos.result;
+    if (!rchainInfos) {
+      asyncActionsOver += 1;
+      dispatchInitActions();
+      return;
+    }
+
+    rchainInfos = rchainInfos.map(ri => {
+      // .wrappedRevContractId introuced in 0.5.4
+      if (ri.info && !ri.info.wrappedRevContractId) {
+        ri.info.wrappedRevContractId = 'notconfigured'
+      }
+      // rchain-token 16 new price format
+      if (ri.info && typeof ri.info.namePrice === 'number') {
+        ri.info.namePrice = null
+      }
+      return ri;
+    });
+
+    Promise.all(
+      rchainInfos.map((ri: any) => {
+        return validateDappyNodeFullInfo(ri);
+      })
+    )
+      .then((valid) => {
+        asyncActionsOver += 1;
+        store.dispatch(fromBlockchain.updateRChainBlockchainInfosFromStorageAction({ rchainInfos: rchainInfos }));
+        dispatchInitActions();
+      })
+      .catch((err) => {
+        console.error(err);
+        asyncActionsOver += 1;
+        store.dispatch(
+          fromMain.saveErrorAction({
+            errorCode: 2016,
+            error: 'Unable to read RChain infos from storage',
+            trace: err,
+          })
+        );
+        dispatchInitActions();
+      });
+  };
+
+  registerIDBOpenDBRequestErrorListener(dbReq);
 
   const uniqueEphemeralTokenInterval = setInterval(() => {
     if (window.uniqueEphemeralToken) {
