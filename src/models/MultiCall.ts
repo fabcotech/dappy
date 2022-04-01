@@ -15,18 +15,18 @@ export interface MultiCallBody {
   [key: string]: any;
 }
 
-export interface MultiCallResult {
+export interface MultiRequestResult {
   result: any;
   loadState: BeesLoadCompleted;
   loadErrors: BeesLoadErrors;
 }
 
-export interface MultiCallError {
+export interface MultiRequestError {
   error: BeesLoadErrorWithArgs;
   loadState: BeesLoadCompleted;
 }
 
-export interface SingleCallResult {
+export interface SingleRequestResult {
   success: boolean;
   error?: { message: string };
   data?: any;

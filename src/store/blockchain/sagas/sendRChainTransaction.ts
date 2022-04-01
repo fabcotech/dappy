@@ -2,14 +2,14 @@ import { takeEvery, put, select } from 'redux-saga/effects';
 import { rhoValToJs } from 'rchain-toolkit/dist/utils';
 import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 
-import { Blockchain, TransactionStatus, MultiCallError, SingleCallResult } from '/models';
+import { Blockchain, TransactionStatus, MultiRequestError, SingleRequestResult } from '/models';
 import * as fromBlockchain from '..';
 import { buildUnforgeableNameQuery } from '/utils/buildUnforgeableNameQuery';
 import * as fromMain from '/store/main';
-import { multiCall } from '/interProcess';
+import { multiRequest } from '/interProcess';
 import { Action, store } from '/store/';
 import * as fromSettings from '/store/settings';
-import { singleCall } from '/interProcess';
+import { singleRequest } from '/interProcess';
 import { validateRchainTokenOperationResult } from '/store/decoders';
 import { getNodeIndex } from '/utils/getNodeIndex';
 
@@ -65,15 +65,15 @@ const sendRChainTransaction = function* (action: Action) {
         nameQty: 1,
       };
 
-      let prepareDeployResponse: undefined | SingleCallResult;
-      prepareDeployResponse = yield singleCall(
+      let prepareDeployResponse: undefined | SingleRequestResult;
+      prepareDeployResponse = yield singleRequest(
         { type: 'api/prepare-deploy', body: channelRequest },
         node as DappyNetworkMember
       );
 
       // TODO random node / multiple nodes to avoid failing if
       // downtime on a single node
-      unforgeableName = JSON.parse((prepareDeployResponse as SingleCallResult).data).names[0];
+      unforgeableName = JSON.parse((prepareDeployResponse as SingleRequestResult).data).names[0];
     } catch (err) {
       const p: fromBlockchain.RChainTransactionErrorPayload = {
         id: payload.id,
@@ -88,10 +88,10 @@ const sendRChainTransaction = function* (action: Action) {
     }
   }
 
-  let deployResponse: undefined | SingleCallResult = undefined;
+  let deployResponse: undefined | SingleRequestResult = undefined;
   try {
-    deployResponse = yield singleCall({ type: 'api/deploy', body: payload.transaction }, node as DappyNetworkMember);
-    if (!(deployResponse as SingleCallResult).data.startsWith('"Success')) {
+    deployResponse = yield singleRequest({ type: 'api/deploy', body: payload.transaction }, node as DappyNetworkMember);
+    if (!(deployResponse as SingleRequestResult).data.startsWith('"Success')) {
       yield put(
         fromBlockchain.rChainTransactionErrorAction({
           id: payload.id,
@@ -132,7 +132,7 @@ const sendRChainTransaction = function* (action: Action) {
       fromBlockchain.updateRChainTransactionStatusAction({
         id: payload.id,
         status: TransactionStatus.Aired,
-        value: (deployResponse as SingleCallResult).data as string,
+        value: (deployResponse as SingleRequestResult).data as string,
       })
     );
 
@@ -152,7 +152,7 @@ const sendRChainTransaction = function* (action: Action) {
               return;
             }
             try {
-              multiCall(
+              multiRequest(
                 {
                   type: 'api/listen-for-data-at-name',
                   body: {
@@ -179,7 +179,7 @@ const sendRChainTransaction = function* (action: Action) {
                     console.log('Did not find transaction data (unforgeable name), will try again in 15 seconds');
                   }
                 })
-                .catch((err: MultiCallError) => {
+                .catch((err: MultiRequestError) => {
                   reject(err.error.error);
                 });
             } catch (err) {

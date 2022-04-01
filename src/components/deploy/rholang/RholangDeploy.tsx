@@ -4,8 +4,8 @@ import { rhoValToJs } from 'rchain-toolkit/dist/utils';
 
 import { buildUnforgeableDeployQuery } from '/utils/buildUnforgeableDeployQuery';
 import { buildUnforgeableNameQuery } from '/utils/buildUnforgeableNameQuery';
-import { multiCall } from '/interProcess';
-import { Account, Blockchain, RChainInfos, TransactionState, TransactionStatus, MultiCallError } from '/models';
+import { multiRequest } from '/interProcess';
+import { Account, Blockchain, RChainInfos, TransactionState, TransactionStatus, MultiRequestError } from '/models';
 import * as fromBlockchain from '/store/blockchain';
 import * as fromMain from '/store/main';
 import * as fromSettings from '/store/settings';
@@ -120,7 +120,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
       try {
         const blockchainId = Object.keys(this.props.blockchains)[0];
         let nodes = this.props.blockchains[blockchainId].nodes;
-        multiCall(query, {
+        multiRequest(query, {
           chainId: blockchainId,
           urls: nodes.map(getNodeIndex),
           resolverMode: this.props.settings.resolverMode,
@@ -166,7 +166,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
               });
             }
           })
-          .catch((err: MultiCallError) => {
+          .catch((err: MultiRequestError) => {
             console.log('Error when getting transaction data (unforgeable name)');
             console.log(err.error.error);
             this.props.openModal({

@@ -1,5 +1,5 @@
 import { MultiCallParameters } from '/models';
-import { multiCall } from '/interProcess';
+import { multiRequest } from '/interProcess';
 
 interface ValidationError {
   dataPath: string;
@@ -17,11 +17,11 @@ export interface RequestResult<TResult> {
   validationErrors: ValidationError[];
 }
 
-export const multiCallParseAndValidate = async (
+export const multiRequestParseAndValidate = async (
   requests: Request[],
   options: MultiCallParameters
 ): Promise<RequestResult<any>[]> => {
-  return multiCall(
+  return multiRequest(
     {
       type: 'explore-deploy-x',
       body: {

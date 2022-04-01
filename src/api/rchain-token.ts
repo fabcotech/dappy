@@ -3,7 +3,7 @@ import * as rchainToolkit from 'rchain-toolkit';
 
 import * as fromBlockchain from '/store/blockchain';
 import { Blockchain, RChainContractConfig, RChainTokenPurse, MultiCallParameters } from '/models';
-import { multiCallParseAndValidate, RequestResult } from '/utils/wsUtils';
+import { multiRequestParseAndValidate, RequestResult } from '/utils/wsUtils';
 import { getNodeIndex } from '/utils/getNodeIndex';
 import { rchainTokenValidators } from '/store/decoders';
 
@@ -20,7 +20,7 @@ export const getPursesAndContractConfig = async ({
   contractId: string;
   version: string;
 }) =>
-  multiCallParseAndValidate(
+  multiRequestParseAndValidate(
     [
       {
         query: () => readPursesTerm({ masterRegistryUri, contractId, pursesIds }),
@@ -49,7 +49,7 @@ export const getPurses = async ({
   contractId: string;
   version: string;
 }) =>
-  multiCallParseAndValidate(
+  multiRequestParseAndValidate(
     [
       {
         query: () => readPursesTerm({ masterRegistryUri, contractId, pursesIds }),
@@ -69,7 +69,7 @@ export const getContractConfig = async ({
   masterRegistryUri: string;
   contractId: string;
 }) => {
-  return multiCallParseAndValidate(
+  return multiRequestParseAndValidate(
     [
       {
         query: () => readConfigTerm({ masterRegistryUri, contractId }),

@@ -8,9 +8,9 @@ import * as fromBlockchain from '/store/blockchain/';
 import { LOGREV_TO_REV_RATE } from '/CONSTANTS';
 import { blockchain as blockchainUtils } from '/utils/blockchain';
 import { getNodeIndex } from '/utils/getNodeIndex';
-import { Account, Blockchain, DappyLoadError, MultiCallResult } from '/models';
+import { Account, Blockchain, DappyLoadError, MultiRequestResult } from '/models';
 import { Action } from '../actions';
-import { multiCall } from '/interProcess';
+import { multiRequest } from '/interProcess';
 
 const ajv = new Ajv();
 const balancesSchema = {
@@ -54,9 +54,9 @@ const executeAccountsCronJobs = function* (action: Action) {
     return;
   }
 
-  let multiCallResult: MultiCallResult | undefined = undefined;
+  let multiRequestResult: MultiRequestResult | undefined = undefined;
   try {
-    multiCallResult = yield multiCall(
+    multiRequestResult = yield multiRequest(
       {
         type: 'explore-deploy-x',
         body: { terms: Object.keys(accounts).map((k) => blockchainUtils.rchain.balanceTerm(accounts[k].address)) },
@@ -84,7 +84,7 @@ const executeAccountsCronJobs = function* (action: Action) {
 
   let responseParsed: any;
   try {
-    responseParsed = JSON.parse((multiCallResult as MultiCallResult).result);
+    responseParsed = JSON.parse((multiRequestResult as MultiRequestResult).result);
   } catch (e) {
     yield put(
       fromSettings.updateAccountBalanceFailedAction({
@@ -93,7 +93,7 @@ const executeAccountsCronJobs = function* (action: Action) {
           error: DappyLoadError.FailedToParseResponse,
           args: { message: e.message || e },
         },
-        loadState: (multiCallResult as MultiCallResult).loadState,
+        loadState: (multiRequestResult as MultiRequestResult).loadState,
       })
     );
     return;
@@ -115,7 +115,7 @@ const executeAccountsCronJobs = function* (action: Action) {
           error: DappyLoadError.FailedToParseResponse,
           args: { message: err.message || err },
         },
-        loadState: (multiCallResult as MultiCallResult).loadState,
+        loadState: (multiRequestResult as MultiRequestResult).loadState,
       })
     );
     return;
@@ -140,7 +140,7 @@ const executeAccountsCronJobs = function* (action: Action) {
       fromSettings.updateAccountBalanceFailedAction({
         date: new Date().toISOString(),
         error: { error: DappyLoadError.FailedToParseResponse, args: {} },
-        loadState: (multiCallResult as MultiCallResult).loadState as BeesLoadCompleted,
+        loadState: (multiRequestResult as MultiRequestResult).loadState as BeesLoadCompleted,
       })
     );
     return;

@@ -3,7 +3,7 @@ import { CRON_JOBS_LOG_CONTRACT_PERIOD } from '/CONSTANTS';
 import { EXECUTE_NODES_CRON_JOBS } from '/store/blockchain';
 import { getNameSystemContractId } from '/store/blockchain';
 import { delay, select, call, put, take } from 'redux-saga/effects';
-import { singleCall } from '/interProcess';
+import { singleRequest } from '/interProcess';
 import { getFirstReadyNode } from '/store/settings';
 import { updateContractLogsAction } from '../actions';
 import { getFakeBlockChainNode, getFakeLogs } from '/fakeData';
@@ -36,7 +36,7 @@ describe('saga ui cronJobContractLogs', () => {
     expect(saga.next().value).toEqual(select(getFirstReadyNode));
     expect(saga.next(fakeNode as any).value).toEqual(
       call(
-        singleCall,
+        singleRequest,
         {
           type: 'get-contract-logs',
           body: { contract: contractId },

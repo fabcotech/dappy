@@ -1,8 +1,7 @@
-import http from 'http';
 import { resolver } from '@fabcotech/bees';
 
 import { getNodeFromIndex } from '../src/utils/getNodeFromIndex';
-import { MultiCallBody, MultiCallParameters, MultiCallResult, MultiCallError } from '../src/models/';
+import { MultiCallBody, MultiCallParameters, MultiRequestResult, MultiRequestError } from '../src/models/';
 import * as fromBlockchains from './store/blockchains';
 import { httpBrowserToNode } from './httpBrowserToNode';
 
@@ -11,19 +10,20 @@ export const performMultiRequest = (
   body: MultiCallBody,
   parameters: MultiCallParameters,
   blockchains: fromBlockchains.State
-): Promise<MultiCallResult> => {
+): Promise<MultiRequestResult> => {
   return new Promise((resolve, reject) => {
     resolver(
       (id) => {
         const a = getNodeFromIndex(id);
         return new Promise(async (resolve2, reject2) => {
+          let timeout = null;
           if (
             blockchains[parameters.chainId] &&
             blockchains[parameters.chainId].nodes.find((n) => n.ip === a.ip && n.hostname === a.hostname)
           ) {
             const node = blockchains[parameters.chainId].nodes.find((n) => n.ip === a.ip && n.hostname === a.hostname);
             let over = false;
-            setTimeout(() => {
+            timeout = setTimeout(() => {
               if (!over) {
                 resolve2({
                   type: 'ERROR',
@@ -34,13 +34,9 @@ export const performMultiRequest = (
               }
             }, 50000);
             try {
-              const requestId = Math.round(Math.random() * 1000000).toString();
-              let newBodyForRequest = {
-                ...body,
-                requestId: requestId,
-              };
-              const resp = await httpBrowserToNode(newBodyForRequest, node, 50000);
+              const resp = await httpBrowserToNode(body, node, 50000);
               if (!over) {
+                clearTimeout(timeout);
                 resolve2({
                   type: 'SUCCESS',
                   data: resp as string,
@@ -55,42 +51,17 @@ export const performMultiRequest = (
                 id: id,
               });
               over = true;
+              clearTimeout(timeout);
             }
-          } else {
-            // fallback on HTTP
-            if (body.type === 'get-nodes') {
-              http
-                .get(`http://${id.split('---')[0]}/get-nodes?network=${body.body.network}`, (resp) => {
-                  let data = '';
-
-                  resp.on('data', (chunk) => {
-                    data += chunk.toString('utf8');
-                  });
-
-                  resp.on('end', () => {
-                    console.log('[get-nodes] Successfully fell back on HTTP for ' + id);
-                    resolve2({
-                      type: 'SUCCESS',
-                      data: data as string,
-                      id: id,
-                    });
-                  });
-                })
-                .on('error', (err) => {
-                  resolve2({
-                    type: 'ERROR',
-                    status: 500,
-                    id: id,
-                  });
-                });
-            } else {
-              resolve2({
-                type: 'ERROR',
-                status: 500,
-                id: id,
-              });
-            }
+            return;
           }
+
+          resolve2({
+            type: 'ERROR',
+            status: 500,
+            id: id,
+          });
+          if (timeout) clearTimeout(timeout);
         });
       },
       parameters.urls,
@@ -102,7 +73,7 @@ export const performMultiRequest = (
         reject({
           error: resolved.loadError,
           loadState: resolved.loadState,
-        } as MultiCallError);
+        } as MultiRequestError);
         return;
       }
 

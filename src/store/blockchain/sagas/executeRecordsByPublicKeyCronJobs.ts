@@ -7,8 +7,8 @@ import * as fromMain from '/store/main';
 import { Blockchain } from '/models';
 import { Action } from '/store/';
 import { validateRecordFromNetwork } from '/store/decoders';
-import { MultiCallError, Account, Record } from '/models/';
-import { multiCall } from '/interProcess';
+import { MultiRequestError, Account, Record } from '/models/';
+import { multiRequest } from '/interProcess';
 import { getNodeIndex } from '/utils/getNodeIndex';
 
 const executeRecordsByPublicKeyCronJobs = function* (action: Action) {
@@ -35,7 +35,7 @@ const executeRecordsByPublicKeyCronJobs = function* (action: Action) {
     */
     const indexes = namesBlockchain.nodes.map(getNodeIndex);
 
-    multiCall(
+    multiRequest(
       {
         type: 'get-x-records-by-public-key',
         body: { publicKeys: Object.keys(publicKeys).slice(0, 5) },
@@ -86,7 +86,7 @@ const executeRecordsByPublicKeyCronJobs = function* (action: Action) {
         });
         return;
       })
-      .catch((err: MultiCallError) => {
+      .catch((err: MultiRequestError) => {
         console.log('executeRecordsByPublicKeyCronJobs');
         console.log(err);
       });

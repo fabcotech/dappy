@@ -5,10 +5,10 @@ import { store } from '/store';
 import * as fromBlockchain from '..';
 import * as fromSettings from '/store/settings';
 import * as fromMain from '/store/main';
-import { Blockchain, RChainInfos, RChainInfo, MultiCallError } from '/models';
+import { Blockchain, RChainInfos, RChainInfo, MultiRequestError } from '/models';
 import { Action } from '/store/';
 import { validateDappyNodeInfo } from '/store/decoders';
-import { multiCall } from '/interProcess';
+import { multiRequest } from '/interProcess';
 import { getNodeIndex } from '/utils/getNodeIndex';
 import { RCHAIN_INFOS_EXPIRATION } from '/CONSTANTS';
 
@@ -40,7 +40,7 @@ const executeRChainCronJobsInfo = function* (action: Action) {
       the Dappy network
     */
     const indexes = blockchain.nodes.map(getNodeIndex);
-    multiCall(
+    multiRequest(
       { type: 'info' },
       {
         chainId: chainId,
@@ -76,7 +76,7 @@ const executeRChainCronJobsInfo = function* (action: Action) {
             );
           });
       })
-      .catch((err: MultiCallError) => {
+      .catch((err: MultiRequestError) => {
         store.dispatch(
           fromBlockchain.updateRChainBlockchainInfoFailedAction({
             chainId: blockchain.chainId,

@@ -8,13 +8,13 @@ import {
   Account,
   PartialRecord,
   Blockchain,
-  MultiCallResult,
+  MultiRequestResult,
   IPServer,
 } from '/models';
 import { validateRecordFromNetwork } from '/store/decoders';
 import * as fromBlockchain from '/store/blockchain';
 import { getNodeIndex } from '/utils/getNodeIndex';
-import { multiCall } from '/interProcess';
+import { multiRequest } from '/interProcess';
 import { rchainWallet } from '/utils/wallets';
 
 import { TransactionForm } from '../utils';
@@ -90,9 +90,9 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
     const indexes = this.props.namesBlockchain.nodes.map(getNodeIndex);
 
     // todo only ask for names that are not in this.state.availables
-    let multiCallResult;
+    let multiRequestResult;
     try {
-      multiCallResult = await multiCall(
+      multiRequestResult = await multiRequest(
         {
           type: 'get-x-records',
           body: {
@@ -119,7 +119,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
     }
 
     try {
-      const dataFromBlockchain = (multiCallResult as MultiCallResult).result;
+      const dataFromBlockchain = (multiRequestResult as MultiRequestResult).result;
       const dataFromBlockchainParsed: { records: any } = JSON.parse(dataFromBlockchain);
       const record = dataFromBlockchainParsed.records[0];
 

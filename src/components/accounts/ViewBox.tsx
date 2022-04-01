@@ -5,7 +5,7 @@ import Ajv from 'ajv';
 
 import * as fromBlockchain from '/store/blockchain';
 import { Blockchain, RChainInfos, Account } from '/models';
-import { multiCall, copyToClipboard } from '/interProcess';
+import { multiRequest, copyToClipboard } from '/interProcess';
 import { toRGB } from '/utils/color';
 import { DAPPY_TOKEN_CONTRACT_ID, RCHAIN_TOKEN_SUPPORTED_VERSIONS } from '/CONSTANTS';
 import { getNodeIndex } from '/utils/getNodeIndex';
@@ -56,7 +56,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
       readBox: undefined,
       refreshing: true,
     });
-    let multiCallResult;
+    let multiRequestResult;
     if (!this.props.namesBlockchain) {
       this.setState({
         refreshing: false,
@@ -66,7 +66,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
     }
     try {
       const indexes = this.props.namesBlockchain.nodes.filter((n) => n.readyState === 1).map(getNodeIndex);
-      multiCallResult = await multiCall(
+      multiRequestResult = await multiRequest(
         {
           type: 'explore-deploy-x',
           body: {
@@ -97,7 +97,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
     }
 
     try {
-      const dataFromBlockchain = multiCallResult.result;
+      const dataFromBlockchain = multiRequestResult.result;
       const dataFromBlockchainParsed: { data: { results: { data: string }[] } } = JSON.parse(dataFromBlockchain);
       const val = rchainToolkit.utils.rhoValToJs(JSON.parse(dataFromBlockchainParsed.data.results[0].data).expr[0]);
       if (!RCHAIN_TOKEN_SUPPORTED_VERSIONS.includes(val.version)) {

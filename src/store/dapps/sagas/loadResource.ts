@@ -3,8 +3,8 @@ import { readPursesDataTerm } from 'rchain-token';
 import { BeesLoadCompleted, BeesLoadErrors } from '@fabcotech/bees';
 import { NameAnswer } from '@fabcotech/dappy-lookup';
 
-import { dappyLookup, multiCall } from '/interProcess';
-import { MultiCallResult } from '/models/MultiCall';
+import { dappyLookup, multiRequest } from '/interProcess';
+import { MultiRequestResult } from '/models/MultiCall';
 import * as fromDapps from '..';
 import * as fromSettings from '../../settings';
 import * as fromBlockchain from '../../blockchain';
@@ -250,13 +250,13 @@ const loadResource = function* (action: Action) {
         throw new Error('Unable to parse dapp address');
       }
   
-      let multiCallResult: undefined | MultiCallResult;
+      let multiRequestResult: undefined | MultiRequestResult;
       try {
         let indexes = namesBlockchain.nodes
           .map(getNodeIndex);
         indexes = blockchainUtils.shuffle(indexes);
     
-        multiCallResult = yield multiCall(
+        multiRequestResult = yield multiRequest(
           {
             type: 'explore-deploy-x',
             body: {
@@ -293,7 +293,7 @@ const loadResource = function* (action: Action) {
       let dataFromBlockchainParsed: undefined | { data: { results: { data: string }[] } };
       let verifiedDappyFile: DappyFile | undefined = undefined;
       try {
-        dataFromBlockchain = (multiCallResult as MultiCallResult).result;
+        dataFromBlockchain = (multiRequestResult as MultiRequestResult).result;
         dataFromBlockchainParsed = JSON.parse(dataFromBlockchain) as { data: { results: { data: string }[] } };
         verifiedDappyFile = yield validateAndReturnFile(
           dataFromBlockchainParsed.data.results[0].data,
@@ -373,8 +373,8 @@ const loadResource = function* (action: Action) {
               publicKey: publicKey,
               html: dappHtml,
               loadState: {
-                completed: (multiCallResult as MultiCallResult).loadState,
-                errors: (multiCallResult as MultiCallResult).loadErrors,
+                completed: (multiRequestResult as MultiRequestResult).loadState,
+                errors: (multiRequestResult as MultiRequestResult).loadErrors,
                 pending: [],
               },
             }

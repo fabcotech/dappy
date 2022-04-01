@@ -3,10 +3,10 @@ import { Store } from 'redux';
 
 import {
   MultiCallBody,
-  MultiCallError,
+  MultiRequestError,
   MultiCallParameters,
-  MultiCallResult,
-  SingleCallResult,
+  MultiRequestResult,
+  SingleRequestResult,
 } from '/models';
 import * as fromDapps from './store/dapps';
 import * as fromMain from './store/main';
@@ -19,12 +19,12 @@ export const dappyLookup = (body: { method: "lookup", hostname: string, type: st
   return window.dappyLookup(body);
 };
 
-export const singleCall = (body: { [key: string]: any }, node: DappyNetworkMember): Promise<SingleCallResult> => {
-  return window.singleDappyCall(body, node);
+export const singleRequest = (body: { [key: string]: any }, node: DappyNetworkMember): Promise<SingleRequestResult> => {
+  return window.dappySingleRequest(body, node);
 };
 
-export const multiCall = (body: MultiCallBody, parameters: MultiCallParameters): Promise<MultiCallResult> => {
-  return window.multiDappyCall(body, parameters);
+export const multiRequest = (body: MultiCallBody, parameters: MultiCallParameters): Promise<MultiRequestResult> => {
+  return window.dappyMultiRequest(body, parameters);
 };
 
 export const copyToClipboard = (a: string) => {
@@ -195,7 +195,7 @@ export const interProcess = (store: Store) => {
     interProcess.send();
   };
 
-  window.singleDappyCall = (body, node) => {
+  window.singleDappyRequest = (body, node) => {
     return new Promise((resolve, reject) => {
       const interProcess = new XMLHttpRequest();
       interProcess.open('POST', 'interprocess://single-dappy-call');
@@ -232,7 +232,7 @@ export const interProcess = (store: Store) => {
     });
   };
 
-  window.multiDappyCall = (body, parameters) => {
+  window.dappyMultiRequest = (body, parameters) => {
     return new Promise((resolve, reject) => {
       const interProcess = new XMLHttpRequest();
       interProcess.open('POST', 'interprocess://multi-dappy-call');
@@ -256,14 +256,14 @@ export const interProcess = (store: Store) => {
         try {
           const r = JSON.parse(interProcess.responseText);
           if (r.success) {
-            resolve(r.data as MultiCallResult);
+            resolve(r.data as MultiRequestResult);
           } else {
-            reject(r as MultiCallError);
+            reject(r as MultiRequestError);
           }
         } catch (e) {
           console.log(interProcess.responseText);
           console.log(e);
-          reject({ error: { error: BeesLoadError.FailedToParseResponse, args: {} }, loadState: {} } as MultiCallError);
+          reject({ error: { error: BeesLoadError.FailedToParseResponse, args: {} }, loadState: {} } as MultiRequestError);
         }
       };
     });

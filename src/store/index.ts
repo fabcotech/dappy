@@ -41,7 +41,7 @@ import { initCronJobs } from './initCronJobs';
 import { interProcess } from '../interProcess';
 import { browserUtils } from './browser-utils';
 
-import { MultiCallResult } from '../models';
+import { MultiRequestResult } from '../models';
 // import { upgrades } from './upgrades';
 
 declare global {
@@ -50,8 +50,8 @@ declare global {
     uniqueEphemeralToken: string;
     messageFromMain: (a: any) => void;
     dappyLookup: (parameters: any) => Promise<NamePacket>;
-    singleDappyCall: (body: any, parameters: any) => Promise<any>;
-    multiDappyCall: (body: any, parameters: any) => Promise<MultiCallResult>;
+    dappySingleRequest: (body: any, parameters: any) => Promise<any>;
+    dappyMultiRequest: (body: any, parameters: any) => Promise<MultiRequestResult>;
     getIpAddressAndCert: (a: { host: string }) => Promise<{ cert: string; ip: string }>;
     generateCertificateAndKey: (altNames: string[]) => Promise<{ key: string; certificate: string }>;
     triggerCommand: (command: string, payload?: { [key: string]: string }) => void;
