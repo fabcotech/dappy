@@ -7,29 +7,31 @@ describe('settings selectors', () => {
     const state: Partial<State> = {
       blockchains: {
         foo: {
-          chainId: 'local',
-          chainName: 'local',
+          auto: true,
+          chainId: 'foo',
+          chainName: 'foo',
           platform: 'rchain',
           nodes: [],
         },
         local: {
+          auto: true,
           chainId: 'local',
           chainName: 'local',
           platform: 'rchain',
           nodes: [
             {
               ip: '127.0.0.1',
-              host: 'dappy.dev',
-              origin: 'user',
-              readyState: 1,
-              ssl: true,
+              hostname: 'dappy.dev',
+              scheme: 'https',
+              port: '443',
+              caCert: '----BEGIN CERT----'
             },
             {
-              ip: '192.168.0.1',
-              host: 'dappy.dev',
-              origin: 'user',
-              readyState: 1,
-              ssl: true,
+              ip: '127.0.0.1',
+              hostname: 'dappy.dev',
+              scheme: 'https',
+              port: '443',
+              caCert: '----BEGIN CERT----'
             },
           ],
         },

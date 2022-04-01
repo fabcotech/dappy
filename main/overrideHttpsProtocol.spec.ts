@@ -1,4 +1,5 @@
-import { parseUrl, isCookieDomainSentWithHost } from './overrideHttpsProtocol';
+import { parseUrl } from './overrideHttpsProtocol';
+import { isCookieDomainSentWithHost } from './tryToLoad';
 
 describe('override http protocols', () => {
   it('parseUrl', () => {

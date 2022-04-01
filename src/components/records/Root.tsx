@@ -17,7 +17,6 @@ import { getContractConfig } from '/api/rchain-token';
 import { AddRecord } from './AddRecord';
 import { PurchaseRecord } from './PurchaseRecord';
 import { UpdateRecord } from './UpdateRecord';
-import { Requests } from './Requests';
 import { Records } from './Records';
 
 import './Records.scss';
@@ -107,9 +106,6 @@ export function RootComponent(props: RecordsRootProps) {
               {t('update name')} <i className="fa fa-pen fa-after" />
             </a>
           </li>
-          <li className={tab === 'requests' ? 'is-active' : ''}>
-            <a onClick={() => setTab('requests')}>{t('request', true)}</a>
-          </li>
         </ul>
       </div>
       {tab === 'add-name' ? <AddRecord records={props.records} addRecord={props.addRecord} /> : undefined}
@@ -136,7 +132,6 @@ export function RootComponent(props: RecordsRootProps) {
           sendRChainTransaction={props.sendRChainTransaction}
         />
       ) : undefined}
-      {tab === 'requests' ? <Requests /> : undefined}
       {tab === 'names' ? (
         <Records
           setTab={setTab}

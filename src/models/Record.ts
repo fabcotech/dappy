@@ -1,4 +1,5 @@
 import { BeesLoadCompleted, BeesLoadErrorWithArgs } from '@fabcotech/bees';
+import { DappyLoadErrorWithArgs } from './DappyLoadError';
 
 export interface RecordFromNetwork {
   id: string;
@@ -35,7 +36,7 @@ export interface LoadRecordsError {
   date: string;
   time: number;
   loadState: BeesLoadCompleted;
-  error: BeesLoadErrorWithArgs;
+  error: BeesLoadErrorWithArgs | DappyLoadErrorWithArgs;
 }
 
 export interface PartialRecord {

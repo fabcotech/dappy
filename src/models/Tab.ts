@@ -1,4 +1,4 @@
-import { BeesLoadCompleted, BeesLoadErrors, BeesLoadErrorWithArgs } from "beesjs";
+import { BeesLoadCompleted, BeesLoadErrors, BeesLoadErrorWithArgs } from "@fabcotech/bees";
 import { DappyLoadErrorWithArgs } from "./DappyLoadError";
 
 export interface LastLoadError {

@@ -28,7 +28,6 @@ const TITLES: { [key: string]: string } = {
   [DappyLoadError.DNSResolutionError]: 'Name System (DNS) resolution error',
   [DappyLoadError.DappyResolutionError]: 'Dappy Name System resolution error',
   [BeesLoadError.OutOfNodes]: 'Out of nodes to query',
-  [BeesLoadError.UnstableState]: 'Unstable or unsafe state',
   [BeesLoadError.UnaccurateState]: 'Unaccurate state',
 };
 
@@ -52,8 +51,6 @@ const DESCRIPTIONS: { [key: string]: (args: { [key: string]: any }) => JSX.Eleme
       </p>,
   [DappyLoadError.ResourceNotFound]: (args) =>
     <p>The resource on the blockchain was not found, make sure that the following resource exists : {args.url}</p>,
-  [BeesLoadError.InsufficientNumberOfNodes]: (args) =>
-    <p>There is not enough nodes to query to resolve the request, the request requires at least ${args.expected} but there are only ${args.got} nodes to query. Lower your resolver settings or retry later</p>,
   [DappyLoadError.ServerError]: (args) => <p>Server error : {args.message}</p>,
   [DappyLoadError.MissingBlockchainData]: (args) =>
     <p>Data is missing from the blockchain, please run the benchmaks for blockchain {args.chainId}</p>,
@@ -74,8 +71,6 @@ const DESCRIPTIONS: { [key: string]: (args: { [key: string]: any }) => JSX.Eleme
     const n = args.alreadyQueried === 1 ? 'request' : 'requests';
     return <p>Not enough available nodes to query to resolve the request. Needed {args.resolverAbsolute} identical responses, queried {args.alreadyQueried} nodes successfully {n}. Lower your resolver settings or retry later</p>;
   },
-  [BeesLoadError.UnstableState]: (args) =>
-    <p>The requests resulted in ${args.numberOfLoadStates} different responses from {args.numberOfLoadStates} different group of nodes. The resource you are querying is in an unstable/unsecure state, retry later</p>,
   [BeesLoadError.UnaccurateState]: (args) =>
     <p>There are two many different responses, the settings can not be satisfied : {args.loadStates
       .map((l: any) => `${l.okResponses} (${l.percent}%) of response ${l.key}`)

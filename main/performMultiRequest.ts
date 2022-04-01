@@ -1,14 +1,14 @@
 import { resolver } from '@fabcotech/bees';
 
 import { getNodeFromIndex } from '../src/utils/getNodeFromIndex';
-import { MultiCallBody, MultiCallParameters, MultiRequestResult, MultiRequestError } from '../src/models/';
+import { MultiRequestBody, MultiRequestParameters, MultiRequestResult, MultiRequestError } from '../src/models/';
 import * as fromBlockchains from './store/blockchains';
 import { httpBrowserToNode } from './httpBrowserToNode';
 
 /* browser to network */
 export const performMultiRequest = (
-  body: MultiCallBody,
-  parameters: MultiCallParameters,
+  body: MultiRequestBody,
+  parameters: MultiRequestParameters,
   blockchains: fromBlockchains.State
 ): Promise<MultiRequestResult> => {
   return new Promise((resolve, reject) => {

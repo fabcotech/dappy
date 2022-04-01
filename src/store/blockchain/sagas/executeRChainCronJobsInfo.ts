@@ -35,8 +35,7 @@ const executeRChainCronJobsInfo = function* (action: Action) {
     const blockchain = rchainBlockchains[chainId];
 
     /*
-      Do not touch the lines below, do not add a condition on n.readyState or n.active
-      rchain infos are level 1 data, they must be retreived by asking ALL members of
+      RChainInfos is level 1 data, it must be retreived by asking ALL members of
       the Dappy network
     */
     const indexes = blockchain.nodes.map(getNodeIndex);

@@ -7,7 +7,7 @@ import path from 'path';
 import pem from 'pem';
 
 import { getIpAddressAndCert } from './getIpAddressAndCert';
-import { Blockchain, MultiCallBody, MultiCallParameters } from '../src/models';
+import { Blockchain, MultiRequestBody, MultiRequestParameters } from '../src/models';
 import { EXECUTE_RCHAIN_CRON_JOBS } from '../src/store/blockchain';
 import * as fromBlockchainsMain from './store/blockchains';
 import { performMultiRequest } from './performMultiRequest';
@@ -100,11 +100,11 @@ export const registerInterProcessProtocol = (
     }
 
     /* browser to node */
-    if (request.url === 'interprocess://multi-dappy-call') {
+    if (request.url === 'interprocess://dappy-multi-request') {
       try {
         const data = JSON.parse(decodeURI(request.headers['Data']));
-        const parameters: MultiCallParameters = data.parameters;
-        const body: MultiCallBody = data.body;
+        const parameters: MultiRequestParameters = data.parameters;
+        const body: MultiRequestBody = data.body;
 
         if (parameters.multiCallId === EXECUTE_RCHAIN_CRON_JOBS) {
           parameters.comparer = (res: any) => {
@@ -133,16 +133,16 @@ export const registerInterProcessProtocol = (
           });
       } catch (err) {
         console.log(err);
-        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when multi-dappy-call'));
+        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when dappy-multi-request'));
       }
     }
 
     /* browser to node */
-    if (request.url === 'interprocess://single-dappy-call') {
+    if (request.url === 'interprocess://dappy-single-request') {
       try {
         const data = JSON.parse(decodeURI(request.headers['Data']));
         const node: DappyNetworkMember = data.node;
-        const body: MultiCallBody = data.body;
+        const body: MultiRequestBody = data.body;
         performSingleRequest(body, node)
           .then((a) => {
             callback(Buffer.from(a));
@@ -152,7 +152,7 @@ export const registerInterProcessProtocol = (
           });
       } catch (err) {
         console.log(err);
-        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when single-dappy-call'));
+        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when dappy-single-request'));
       }
     }
 

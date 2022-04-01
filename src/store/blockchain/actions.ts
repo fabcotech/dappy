@@ -6,8 +6,6 @@ import {
   TransactionStatus,
   TransactionOrigin,
   LoadRecordsError,
-  LoadNodesError,
-  NodeFromNetwork,
   RChainInfo,
   TransactionState,
   TransactionOriginDeploy,
@@ -28,9 +26,6 @@ export const UPDATE_RCHAIN_BLOCKCHAIN_INFO_COMPLETED = '[Blockchain] Update RCha
 export const UPDATE_RCHAIN_BLOCKCHAIN_LAST_BLOCK_COMPLETED =
   '[Blockchain] Update RChain blockchain last block completed';
 export const UPDATE_RCHAIN_BLOCKCHAIN_INFO_FAILED = '[Blockchain] Update RChain blockchain info failed';
-
-export const GET_NODES_FAILED = '[Blockchain] Get nodes failed';
-export const GET_NODES_COMPLETED = '[Blockchain] Get nodes completed';
 
 export const UPDATE_RECORDS_FROM_STORAGE = '[Blockchain] Update records from storage';
 export const GET_ALL_RECORDS_FAILED = '[Blockchain] Get all records failed';
@@ -102,19 +97,6 @@ export interface UpdateRChainBlockchainInfoFailedPayload {
 }
 export const updateRChainBlockchainInfoFailedAction = (values: UpdateRChainBlockchainInfoFailedPayload) => ({
   type: UPDATE_RCHAIN_BLOCKCHAIN_INFO_FAILED,
-  payload: values,
-});
-
-export const getNodesFailedAction = (values: LoadNodesError) => ({
-  type: GET_NODES_FAILED,
-  payload: values,
-});
-
-export interface GetNodesCompletedAction {
-  nodes: NodeFromNetwork[];
-}
-export const getNodesCompletedAction = (values: GetNodesCompletedAction) => ({
-  type: GET_NODES_COMPLETED,
   payload: values,
 });
 

@@ -2,7 +2,7 @@ import { readPursesTerm, readConfigTerm } from 'rchain-token';
 import * as rchainToolkit from 'rchain-toolkit';
 
 import * as fromBlockchain from '/store/blockchain';
-import { Blockchain, RChainContractConfig, RChainTokenPurse, MultiCallParameters } from '/models';
+import { Blockchain, RChainContractConfig, RChainTokenPurse, MultiRequestParameters } from '/models';
 import { multiRequestParseAndValidate, RequestResult } from '/utils/wsUtils';
 import { getNodeIndex } from '/utils/getNodeIndex';
 import { rchainTokenValidators } from '/store/decoders';
@@ -33,7 +33,7 @@ export const getPursesAndContractConfig = async ({
         validate: rchainTokenValidators[version].contractConfig,
       },
     ],
-    getExploreDeployXOptions(blockchain.chainId, getIndexes(blockchain))
+    getExploreDeployXOptions(blockchain.chainId, blockchain.nodes.map(getNodeIndex))
   ) as Promise<[RequestResult<Record<string, RChainTokenPurse>>, RequestResult<RChainContractConfig>]>;
 
 export const getPurses = async ({
@@ -57,7 +57,7 @@ export const getPurses = async ({
         validate: rchainTokenValidators[version].purses,
       },
     ],
-    getExploreDeployXOptions(blockchain.chainId, getIndexes(blockchain))
+    getExploreDeployXOptions(blockchain.chainId, blockchain.nodes.map(getNodeIndex))
   ) as Promise<[RequestResult<Record<string, RChainTokenPurse>>]>;
 
 export const getContractConfig = async ({
@@ -77,7 +77,7 @@ export const getContractConfig = async ({
         validate: (payload: any) => rchainTokenValidators[payload.version].contractConfig(payload),
       },
     ],
-    getExploreDeployXOptions(blockchain.chainId, getIndexes(blockchain))
+    getExploreDeployXOptions(blockchain.chainId, blockchain.nodes.map(getNodeIndex))
   ) as Promise<[RequestResult<RChainContractConfig>]>;
 }
 
@@ -90,9 +90,7 @@ const parseRhoValToJs = (r: { data: string }) => {
   return undefined;
 };
 
-const getIndexes = (blockchain: Blockchain) => blockchain.nodes.filter((n) => n.readyState === 1).map(getNodeIndex);
-
-const getExploreDeployXOptions = (chainId: string, indexes: string[]): MultiCallParameters => ({
+const getExploreDeployXOptions = (chainId: string, indexes: string[]): MultiRequestParameters => ({
   chainId,
   urls: indexes,
   resolverMode: 'absolute',

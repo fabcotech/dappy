@@ -45,10 +45,7 @@ export const reducer = (state = initialState, action: Action): State => {
 
       const blockchains: { [chainId: string]: Blockchain } = {};
       blockchainsFromStorage.forEach((blockchain) => {
-        blockchains[blockchain.chainId] = {
-          ...blockchain,
-          nodes: blockchain.nodes.map((n) => ({ ...n, readyState: 3 })),
-        };
+        blockchains[blockchain.chainId] = blockchain;
       });
 
       return {
@@ -293,6 +290,5 @@ export const getIsLoadReady = createSelector(getBlockchains, getSettings, (block
     return false;
   }
 
-  const nodes = firstBlockchain.nodes.filter((n) => n.active && n.readyState === 1);
-  return nodes.length >= settings.resolverAbsolute;
+  return firstBlockchain.nodes.length >= settings.resolverAbsolute;
 });

@@ -1,14 +1,14 @@
 import React from 'react';
 import { BeesLoadError } from '@fabcotech/bees';
 
-import { LoadRecordsError } from '/models';
+import { DappyLoadError, LoadRecordsError } from '/models';
 
 export function RecordLoadErrorLight(props: { loadError: LoadRecordsError; instance: string }) {
   let loadStatesNumber = Object.keys(props.loadError.loadState).length;
   let nodeUrlsReached = 0;
 
   Object.keys(props.loadError.loadState).forEach((k) => {
-    nodeUrlsReached += props.loadError.loadState[k].nodeUrls.length;
+    nodeUrlsReached += props.loadError.loadState[k].ids.length;
   });
   
   if (loadStatesNumber === 0) {
@@ -23,7 +23,7 @@ export function RecordLoadErrorLight(props: { loadError: LoadRecordsError; insta
     );
   }
 
-  if (props.loadError.error.error === BeesLoadError.InvalidRecords) {
+  if (props.loadError.error.error === DappyLoadError.InvalidRecords) {
     return <span>Records received could not be parsed</span>;
   }
 

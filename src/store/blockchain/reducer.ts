@@ -23,7 +23,7 @@ export interface State {
   records: {
     records: { [name: string]: Record };
     date: string;
-    loadErrors: LoadRecordsError[];
+    loadErrors: (LoadRecordsError)[];
     loadSuccesses: LoadRecordsSuccess[];
   };
   loadNodesErrors: LoadNodesError[];
@@ -61,14 +61,6 @@ export const reducer = (state = initialState, action: any): State => {
           ...state.rchain,
           cronStream: payload.stream,
         },
-      };
-    }
-
-    case fromActions.GET_NODES_FAILED: {
-      const payload: LoadNodesError = action.payload;
-      return {
-        ...state,
-        loadNodesErrors: [payload].concat(state.loadNodesErrors),
       };
     }
 

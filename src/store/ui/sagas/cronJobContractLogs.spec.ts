@@ -1,12 +1,13 @@
+import { delay, select, call, put, take } from 'redux-saga/effects';
+
 import { cronJobContractLogs, fetchContractLogs } from './cronJobContractLogs';
 import { CRON_JOBS_LOG_CONTRACT_PERIOD } from '/CONSTANTS';
 import { EXECUTE_NODES_CRON_JOBS } from '/store/blockchain';
 import { getNameSystemContractId } from '/store/blockchain';
-import { delay, select, call, put, take } from 'redux-saga/effects';
 import { singleRequest } from '/interProcess';
 import { getFirstReadyNode } from '/store/settings';
 import { updateContractLogsAction } from '../actions';
-import { getFakeBlockChainNode, getFakeLogs } from '/fakeData';
+import { getFakeDappyNetworkMember, getFakeLogs } from '/fakeData';
 import { getContractLogs } from '../reducer';
 
 describe('saga ui cronJobContractLogs', () => {
@@ -28,7 +29,7 @@ describe('saga ui cronJobContractLogs', () => {
     expect(saga.next(undefined).value).toEqual(delay(CRON_JOBS_LOG_CONTRACT_PERIOD));
   });
   it('should fetch and save logs', () => {
-    const fakeNode = getFakeBlockChainNode();
+    const fakeNode = getFakeDappyNetworkMember();
     const contractId = 'dappynamesystem';
     const saga = fetchContractLogs(contractId);
     const r = { data: ['a', 'b', 'c'] };

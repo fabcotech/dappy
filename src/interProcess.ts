@@ -2,9 +2,10 @@ import { DappyNetworkMember, NamePacket } from '@fabcotech/dappy-lookup';
 import { Store } from 'redux';
 
 import {
-  MultiCallBody,
+  DappyLoadError,
+  MultiRequestBody,
   MultiRequestError,
-  MultiCallParameters,
+  MultiRequestParameters,
   MultiRequestResult,
   SingleRequestResult,
 } from '/models';
@@ -23,7 +24,7 @@ export const singleRequest = (body: { [key: string]: any }, node: DappyNetworkMe
   return window.dappySingleRequest(body, node);
 };
 
-export const multiRequest = (body: MultiCallBody, parameters: MultiCallParameters): Promise<MultiRequestResult> => {
+export const multiRequest = (body: MultiRequestBody, parameters: MultiRequestParameters): Promise<MultiRequestResult> => {
   return window.dappyMultiRequest(body, parameters);
 };
 
@@ -195,10 +196,10 @@ export const interProcess = (store: Store) => {
     interProcess.send();
   };
 
-  window.singleDappyRequest = (body, node) => {
+  window.dappySingleRequest = (body, node) => {
     return new Promise((resolve, reject) => {
       const interProcess = new XMLHttpRequest();
-      interProcess.open('POST', 'interprocess://single-dappy-call');
+      interProcess.open('POST', 'interprocess://dappy-single-request');
       interProcess.setRequestHeader(
         'Data',
         encodeURI(
@@ -235,7 +236,7 @@ export const interProcess = (store: Store) => {
   window.dappyMultiRequest = (body, parameters) => {
     return new Promise((resolve, reject) => {
       const interProcess = new XMLHttpRequest();
-      interProcess.open('POST', 'interprocess://multi-dappy-call');
+      interProcess.open('POST', 'interprocess://dappy-multi-request');
       interProcess.setRequestHeader(
         'Data',
         encodeURI(
@@ -263,7 +264,7 @@ export const interProcess = (store: Store) => {
         } catch (e) {
           console.log(interProcess.responseText);
           console.log(e);
-          reject({ error: { error: BeesLoadError.FailedToParseResponse, args: {} }, loadState: {} } as MultiRequestError);
+          reject({ error: { error: DappyLoadError.FailedToParseResponse, args: {} }, loadState: {} } as MultiRequestError);
         }
       };
     });

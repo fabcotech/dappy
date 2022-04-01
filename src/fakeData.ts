@@ -1,10 +1,10 @@
+import { DappyNetworkMember  } from '@fabcotech/dappy-lookup';
 import {
   RChainTokenPurse,
   Account,
   RChainInfos,
   Blockchain,
   RChainContractConfig,
-  BlockchainNode,
   TransactionState,
   TransactionStatus,
 } from '/models';
@@ -67,6 +67,7 @@ export const getFakeRChainInfos = (rchainInfos: Partial<RChainInfos> = {}): RCha
 
 export const getFakeBlockChain = (blockChain: Partial<Blockchain> = {}): Blockchain => ({
   platform: 'rchain',
+  auto: false,
   chainId: 'chain1',
   chainName: 'chain1',
   nodes: [],
@@ -82,14 +83,13 @@ export const getFakeRChainContractConfig = (contractConfig: Partial<RChainContra
   ...contractConfig,
 });
 
-export const getFakeBlockChainNode = (blockChainNode: Partial<BlockchainNode> = {}) => ({
+export const getFakeDappyNetworkMember = (dappyNetworkMember: Partial<DappyNetworkMember> = {}): DappyNetworkMember => ({
+  scheme: 'https',
   ip: '127.0.0.1',
-  host: 'dappy.dev',
-  origin: 'user' as BlockchainNode['origin'],
-  active: true,
-  readyState: 1 as BlockchainNode['readyState'],
-  ssl: true,
-  ...blockChainNode,
+  port: '443',
+  hostname: 'dappy.dev',
+  caCert: '-----BEGIN CERT------',
+  ...dappyNetworkMember,
 });
 
 export const getFakeLogs = (contractId: string = 'foo') => ({

@@ -1,4 +1,4 @@
-import { MultiCallParameters } from '/models';
+import { MultiRequestParameters } from '/models';
 import { multiRequest } from '/interProcess';
 
 interface ValidationError {
@@ -19,7 +19,7 @@ export interface RequestResult<TResult> {
 
 export const multiRequestParseAndValidate = async (
   requests: Request[],
-  options: MultiCallParameters
+  options: MultiRequestParameters
 ): Promise<RequestResult<any>[]> => {
   return multiRequest(
     {

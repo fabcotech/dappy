@@ -1,7 +1,8 @@
 import { BeesLoadErrors, BeesLoadCompleted, BeesLoadErrorWithArgs } from '@fabcotech/bees';
+import { DappyLoadError, DappyLoadErrorWithArgs } from './DappyLoadError';
 import { ResolverMode } from './Settings';
 
-export interface MultiCallParameters {
+export interface MultiRequestParameters {
   chainId: string;
   urls: string[];
   resolverMode: ResolverMode;
@@ -11,7 +12,7 @@ export interface MultiCallParameters {
   comparer?: (a: any) => void;
 }
 
-export interface MultiCallBody {
+export interface MultiRequestBody {
   [key: string]: any;
 }
 
@@ -22,7 +23,7 @@ export interface MultiRequestResult {
 }
 
 export interface MultiRequestError {
-  error: BeesLoadErrorWithArgs;
+  error: BeesLoadErrorWithArgs | DappyLoadErrorWithArgs;
   loadState: BeesLoadCompleted;
 }
 

@@ -65,7 +65,7 @@ export class ViewBoxComponent extends React.Component<BoxProps, BoxState> {
       return;
     }
     try {
-      const indexes = this.props.namesBlockchain.nodes.filter((n) => n.readyState === 1).map(getNodeIndex);
+      const indexes = this.props.namesBlockchain.nodes.map(getNodeIndex);
       multiRequestResult = await multiRequest(
         {
           type: 'explore-deploy-x',
