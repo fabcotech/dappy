@@ -351,6 +351,10 @@ export const reducer = (state = initialState, action: Action): State => {
         ...state,
         tabs: state.tabs.map((tab, i) => {
           if (tab.id === payload.tab.id) {
+            return {
+              ...payload.tab,
+              counter: payload.tab.counter + 1
+            }
             return payload.tab;
           } else {
             return tab;
