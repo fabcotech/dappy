@@ -3,7 +3,7 @@ import path from 'path';
 import https from 'https';
 import { BrowserView, app, session } from 'electron';
 import { blake2b } from 'blakejs';
-import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
+import { DappyNetworkMember, lookup } from '@fabcotech/dappy-lookup';
 
 import * as fromBrowserViews from '../browserViews';
 import { DappyBrowserView } from '../../models';
@@ -332,7 +332,7 @@ const loadOrReloadBrowserView = function* (action: any) {
     e.preventDefault();
   });
 
-  view.webContents.on('page-favicon-updated', (a, favicons) => {
+  view.webContents.on('page-favicon-updated', async (a, favicons) => {
     if (favicons && favicons[0] && typeof favicons[0] === 'string') {
       if (favicons[0].startsWith('data:image')) {
         action.meta.dispatchFromMain({
@@ -344,52 +344,92 @@ const loadOrReloadBrowserView = function* (action: any) {
       } else if (favicons[0].startsWith('https://')) {
 
         const urlFav = new URL(favicons[0]);
+
         try {
-          let options: https.RequestOptions = {
-            rejectUnauthorized: true,
-            minVersion: 'TLSv1.2',
-            /* no dns */
-            host: urlFav.hostname,
-            port: urlFav.port || "443",
-            path: urlFav.pathname + urlFav.search,
-            method: 'GET',
-            headers: {},
-          };
-          // todo
-          // get CERT with dappylookup
-          /* if (CA) {
-            options = {
-              ...options,
-              ca: decodeURI(decodeURI(serverAuthorized.cert)),
-            }
-          } */
-          https.request(
-            options,
-            (res) => {
-              if (res.statusCode !== 200) {
-                console.error(`Could not get favicon (status !== 200) for ${urlFav.host}`);
-                console.log(favicons[0]);
-                return;
-              }
-              let s = Buffer.from('');
-              res.on('data', (a) => {
-                s = Buffer.concat([s, a]);
-              });
-              res.on('end', () => {
-                // todo limit size of favicon ???
-                const faviconAsBase64 = 'data:' + res.headers['content-type'] + ';base64,' + s.toString('base64');
-                action.meta.dispatchFromMain({
-                  action: fromDappsRenderer.didChangeFaviconAction({
-                    tabId: payload.tab.id,
-                    img: faviconAsBase64,
-                  }),
+          if (urlFav.hostname.endsWith('.dappy')) {
+            const networkHosts = (await lookup(urlFav.hostname, 'A', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data)
+            const ca = (await lookup(urlFav.hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data)
+            let options: https.RequestOptions = {
+              rejectUnauthorized: true,
+              minVersion: 'TLSv1.2',
+              /* no dns */
+              host: networkHosts[0],
+              ...(ca ? { ca: ca[0] } : {}),
+              port: urlFav.port || "443",
+              path: urlFav.pathname + urlFav.search,
+              method: 'GET',
+              headers: {
+                host: urlFav.hostname
+              },
+            };
+            https.request(
+              options,
+              (res) => {
+                if (res.statusCode !== 200) {
+                  console.error(`Could not get favicon (status !== 200) for ${urlFav.host}`);
+                  console.log(favicons[0]);
+                  return;
+                }
+                let s = Buffer.from('');
+                res.on('data', (a) => {
+                  s = Buffer.concat([s, a]);
                 });
-              });
-            }
-          ).on('error', err => {
-            console.error('[dapp] Could not get favicon (1) ' + favicons[0]);
-            console.error(err);
-          }).end();
+                res.on('end', () => {
+                  // todo limit size of favicon ???
+                  const faviconAsBase64 = 'data:' + res.headers['content-type'] + ';base64,' + s.toString('base64');
+                  action.meta.dispatchFromMain({
+                    action: fromDappsRenderer.didChangeFaviconAction({
+                      tabId: payload.tab.id,
+                      img: faviconAsBase64,
+                    }),
+                  });
+                });
+              }
+            ).on('error', err => {
+              console.error('[dapp] Could not get favicon (1) ' + favicons[0]);
+              console.error(err);
+            }).end();
+          } else {
+            let options: https.RequestOptions = {
+              rejectUnauthorized: true,
+              minVersion: 'TLSv1.2',
+              /* no dns */
+              host: urlFav.hostname,
+              port: urlFav.port || "443",
+              path: urlFav.pathname + urlFav.search,
+              method: 'GET',
+              headers: {
+                host: urlFav.hostname
+              },
+            };
+            https.request(
+              options,
+              (res) => {
+                if (res.statusCode !== 200) {
+                  console.error(`Could not get favicon (status !== 200) for ${urlFav.host}`);
+                  console.log(favicons[0]);
+                  return;
+                }
+                let s = Buffer.from('');
+                res.on('data', (a) => {
+                  s = Buffer.concat([s, a]);
+                });
+                res.on('end', () => {
+                  // todo limit size of favicon ???
+                  const faviconAsBase64 = 'data:' + res.headers['content-type'] + ';base64,' + s.toString('base64');
+                  action.meta.dispatchFromMain({
+                    action: fromDappsRenderer.didChangeFaviconAction({
+                      tabId: payload.tab.id,
+                      img: faviconAsBase64,
+                    }),
+                  });
+                });
+              }
+            ).on('error', err => {
+              console.error('[dapp] Could not get favicon (1) ' + favicons[0]);
+              console.error(err);
+            }).end();
+          }
         } catch (err) {
           console.error('[dapp] Could not get favicon (2) ' + favicons[0]);
           console.error(err);

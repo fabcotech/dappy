@@ -159,7 +159,7 @@ const sagas = function* rootSaga() {
 sagaMiddleware.run(sagas);
 
 const dispatchInitActions = () => {
-  if (asyncActionsOver === 9) {
+  if (asyncActionsOver === 8) {
     store.dispatch(
       fromUi.setBodyDimensionsAction({ bodyDimensions: [document.body.clientWidth, document.body.clientHeight] })
     );
@@ -478,73 +478,6 @@ dbReq.onsuccess = (event) => {
         dispatchInitActions();
       });
   };
-
-  // RECORDS
-  const recordsTx = openedDB.transaction('records', 'readonly');
-  var recordsStore = recordsTx.objectStore('records');
-  const requestRecords = recordsStore.getAll();
-  requestRecords.onsuccess = (e) => {
-    let records = requestRecords.result;
-    const recordsWithoutBox = records.filter((r) => {
-      return typeof r.boxId !== 'string';
-    });
-    if (recordsWithoutBox.length) {
-      console.log(`[migration] found ${recordsWithoutBox.length} records with no .boxId property, removing them now`);
-      browserUtils
-        .deleteStorageIndexed(
-          'records',
-          recordsWithoutBox.map((r) => r.id)
-        )
-        .then((a) => {
-          console.log('[migration] successfully deleted invalid records');
-        })
-        .catch((err) => {
-          console.error(err);
-          store.dispatch(
-            fromMain.saveErrorAction({
-              errorCode: 2049,
-              error: 'Could not delete invalid records from storage',
-              trace: err,
-            })
-          );
-        });
-    }
-    records = records
-      .map((r) => {
-        if (r.nonce) {
-          const newR = { ...r };
-          delete newR.nonce;
-          return newR;
-        }
-        return r;
-      })
-      .filter((r) => {
-        return typeof r.boxId === 'string';
-      });
-
-    validateRecords(records)
-      .then(() => {
-        asyncActionsOver += 1;
-        store.dispatch(
-          fromBlockchain.updateRecordsFromStorageAction({
-            records: records,
-          })
-        );
-        dispatchInitActions();
-      })
-      .catch((err) => {
-        console.error(err)
-        asyncActionsOver += 1;
-        store.dispatch(
-          fromMain.saveErrorAction({
-            errorCode: 2029,
-            error: 'Unable to read records from storage',
-            trace: records,
-          })
-        );
-        dispatchInitActions();
-      });
-  }
 
   // ACCOUNTS
   const accountsTx = openedDB.transaction('accounts', 'readonly');

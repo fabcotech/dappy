@@ -33,15 +33,21 @@ export const isCookieDomainSentWithHost = (cookieDomain: string | undefined, hos
   if (cookieDomain === `.${host}`) return true;
 
   // TLD cookies not sent fo 2nd/3rd/etc levels
-  // do not send cookie if domain = .com or com
+  // do not send cookie if domain = .com or com or .dappy or dappy
   if (cookieDomain.startsWith('.') && (cookieDomain.match(/\./g) || []).length === 1) return false;
   if ((cookieDomain.match(/\./g) || []).length === 0) return false;
 
-  // does host matches a sublevel of cookieDOmain ?
+  // does host matches a sublevel of cookieDomain ?
   // turns example.com into .example.com
-  let secondLevel = cookieDomain.startsWith('.') ? cookieDomain : `.${cookieDomain}`; 
-  if (host.endsWith(secondLevel)) return true;
+  const cookieDomainWithPrefix = cookieDomain.startsWith('.') ? cookieDomain : `.${cookieDomain}`;
 
+  // do sent cookies if cookieDomain = example.com and host = api.example.com
+  if (host.endsWith(cookieDomainWithPrefix)) return true;
+
+  // do not sent cookies if:
+  // cookieDomain = api.example.com and host = example.com
+  // cookieDomain = api.example.com and host = pro.example.com
+  // cookieDomain = eeexample.com and host = example.com
   return false;
 }
 
@@ -103,11 +109,6 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
       });
     }
   }
-
-  console.log('networkHosts')
-  console.log(networkHosts)
-  console.log('ca')
-  console.log(ca)
 
   async function load(i: number = 0) {
 
@@ -195,7 +196,7 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
                     if (c.domain === url.host) return true;
                     if (c.domain === `.${url.host}`) return true;
 
-                    // example.com wants to set a cookie on api.example.com
+                    // Set-Cookie from request on example.com wants to set a cookie on api.example.com
                     if (c.domain.endsWith(`.${url.host}`)) return true;
                     return false
                   } else {
