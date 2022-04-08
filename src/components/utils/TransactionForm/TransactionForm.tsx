@@ -5,7 +5,6 @@ import * as rchainToolkit from 'rchain-toolkit';
 
 import { Account } from '/models';
 import { DEFAULT_PHLO_LIMIT } from '/CONSTANTS';
-import { PrivateKeyWarning } from '..';
 import { AccountSelect } from '../AccountSelect';
 
 import './TransactionForm.scss';
@@ -122,7 +121,6 @@ export class TransactionFormComponent extends React.Component<TransactionFormPro
           return (
             <form className="transaction-form" onSubmit={handleSubmit}>
               <h5 className="is-6 title">{t('transaction')}</h5>
-              <PrivateKeyWarning />
               {!this.props.publicKey && this.props.address ? (
                 <div className="field is-horizontal">
                   <label className="label">{t('for address')}</label>

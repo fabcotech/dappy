@@ -393,9 +393,6 @@ module.exports.translations = {
   "cert must be set": {
     "one": "必须设置证书"
   },
-  "at least on ip server": {
-    "one": "至少一台IP服务器必须链接到您的域名"
-  },
   "name request errors": {
     "one": "名称请求错误"
   },
@@ -741,5 +738,23 @@ module.exports.translations = {
   },
   "what is a dappy network ?": {
     "one": "什么是dappy网络？"
+  },
+  "what is a box ?": {
+    "one": "什么是盒子 ?"
+  },
+  "what is rev ?": {
+    "one": "rev是什么 ?"
+  },
+  "why can't I see my balance for ETH and other EVM wallets ?": {
+    "one": "为什么我不能在我的eth或EVM钱包里看到我的数量 ?"
+  },
+  "what is a FT contract ?": {
+    "one": "什么是同质代币合约 ? "
+  },
+  "what is a NFT contract ?": {
+    "one": "什么是非同质代币合约 ?"
+  },
+  "what is multi-requests ?": {
+    "one": "什么是多路请求 ?"
   }
 }

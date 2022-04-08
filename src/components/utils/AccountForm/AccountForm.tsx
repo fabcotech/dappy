@@ -5,7 +5,6 @@ import * as elliptic from 'elliptic';
 import { Account } from '/models';
 import { encrypt, decrypt, passwordFromStringToBytes } from '/utils/crypto';
 import './AccountForm.scss';
-import { PrivateKeyWarning } from '../';
 import { rchainWallet, evmWallet } from '/utils/wallets';
 
 const ec = new elliptic.ec('secp256k1');
@@ -139,7 +138,6 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
         render={({ values, errors, touched, handleSubmit, isSubmitting, setFieldValue }) => {
           return (
             <form className="account-form" onSubmit={handleSubmit}>
-              <PrivateKeyWarning />
               <div className="field is-horizontal">
                 <label className="label">Name*</label>
                 <div className="control">

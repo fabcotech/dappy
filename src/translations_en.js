@@ -393,9 +393,6 @@ module.exports.translations = {
   "cert must be set": {
     "one": "Certificate must be set"
   },
-  "at least on ip server": {
-    "one": "At least one IP server must be linked to your name"
-  },
   "name request errors": {
     "one": "Name request errors"
   },
@@ -806,7 +803,7 @@ module.exports.translations = {
     "one": "Skip"
   },
   "dappy account description": {
-    "one": "Dappy accounts or wallets allow you to own and send REV, the native currency of RChain blockchain. You will also be able to sign transactions, deploy token contracts and interact with other blockchain applications."
+    "one": "We noticed you have no accounts configured. You can create or import one upfront. Don't worry you will also be able to do it later !"
   },
   "create account": {
     "one": "Create account"
@@ -903,5 +900,26 @@ module.exports.translations = {
   },
   "use public ca paragraph": {
     "one": "Use certificates from the public Certificate Authorities"
+  },
+  "what is a box ?": {
+    "one": "What is a box ?"
+  },
+  "what is rev ?": {
+    "one": "What is REV ?"
+  },
+  "why can't I see my balance for ETH and other EVM wallets ?": {
+    "one": "Why can't I see my balance for ETH and other EVM wallets ?"
+  },
+  "copy": {
+    "one": "Copy"
+  },
+  "what is a FT contract ?": {
+    "one": "What is a FT contract ?"
+  },
+  "what is a NFT contract ?": {
+    "one": "What is a NFT contract ?"
+  },
+  "what is multi-requests ?": {
+    "one": "What is multi-requests ?"
   }
 }

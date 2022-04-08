@@ -8,7 +8,6 @@ import { Account, Identification } from '/models';
 
 import './TransactionForm/TransactionForm.scss'; // todo: extract style and create IdentificationForm.scss or use bulma css classes and remove import
 import { AccountSelect } from './AccountSelect';
-import { PrivateKeyWarning } from '.';
 
 interface IdentificationFormProps {
   accounts?: { [accountName: string]: Account };
@@ -97,7 +96,6 @@ export class IdentificationForm extends React.Component<IdentificationFormProps,
         render={({ errors, touched, handleSubmit, setFieldValue }) => {
           return (
             <form className="transaction-form" onSubmit={handleSubmit}>
-              <PrivateKeyWarning />
               {this.props.identification.publicKey ? (
                 <div className="field is-horizontal">
                   <label className="label is-6 title">{t('public key to identify')}</label>

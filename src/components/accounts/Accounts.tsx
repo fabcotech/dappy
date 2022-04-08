@@ -26,18 +26,23 @@ import image_avalanche from '/images/avalanche120x120.png';
 
 import './Accounts.scss';
 
-export const UpdateBalancesButton = ({ updating, updateBalances }: { updating: boolean; updateBalances: () => void }) =>
-  updating ? (
-    <a title={t('update balances')} className="disabled underlined-link">
+export const UpdateBalancesButton = ({ updating, updateBalances, disabled }: { updating: boolean; disabled: boolean; updateBalances: () => void; }) => {
+  if (updating) {
+    return <a  title={t('update balances')} className="disabled underlined-link">
       <i className="fa fa-before fa-redo rotating"></i>
       {t('update balances')}
-    </a>
-  ) : (
-    <a title={t('update balances')} className="underlined-link" onClick={() => updateBalances()}>
-      <i className="fa fa-before fa-redo"></i>
-      {t('update balances')}
-    </a>
-  );
+    </a>;
+  }
+
+  return <a title={t('update balances')} className={`${disabled ? 'disabled' : ''} underlined-link`} onClick={() => {
+    if (!disabled) {
+      updateBalances()
+    }
+  }}>
+    <i className="fa fa-before fa-redo"></i>
+    {t('update balances')}
+  </a>;
+}
 
 export const HideBalancesButton = ({
   isBalancesHidden,
@@ -45,15 +50,15 @@ export const HideBalancesButton = ({
 }: {
   isBalancesHidden: boolean;
   toggleBalancesVisibility: () => void;
-}) => (
-  <a
+}) => {
+  return <a
     title={t(`${isBalancesHidden ? 'show' : 'hide'} balances`)}
     className="underlined-link ml-2"
     onClick={toggleBalancesVisibility}>
     <i data-testid="hbb-icon" className={`fa fa-before fa-eye${isBalancesHidden ? '' : '-slash'}`}></i>
     {isBalancesHidden ? t('show balances') : t('hide balances')}
-  </a>
-);
+  </a>;
+};
 
 interface RChainAccountsProps {
   accounts: Record<string, AccountModel>;
@@ -61,6 +66,7 @@ interface RChainAccountsProps {
 }
 
 export const RChainAccounts = ({ accounts, setTab }: RChainAccountsProps) => {
+  if (!Object.values(accounts).filter(a => a.platform === 'rchain').length) return null;
   return (
     <div className="mb-4">
       {Object.keys(accounts).length === 0 ? (
@@ -171,7 +177,11 @@ export function AccountsComponent(props: AccountsProps) {
             <GlossaryHint term="what is a box ?" displayTerm />
           </p>
           <div className="my-3">
-            <UpdateBalancesButton updating={props.executingAccountsCronJobs} updateBalances={props.updateBalances} />
+            <UpdateBalancesButton
+              disabled={Object.keys(props.accounts).length === 0}
+              updating={props.executingAccountsCronJobs}
+              updateBalances={props.updateBalances}
+            />
             <HideBalancesButton
               isBalancesHidden={props.isBalancesHidden}
               toggleBalancesVisibility={props.toggleBalancesVisibility}
