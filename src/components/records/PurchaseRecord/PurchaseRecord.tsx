@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { creditAndSwapTerm } from 'rchain-token';
+import { NameZone } from '@fabcotech/dappy-lookup';
 import * as rc from 'rchain-toolkit';
 
 import {
@@ -149,14 +150,38 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
     const id = blockchainUtils.getUniqueTransactionId();
     this.transactionId = id;
 
-    const data: { [key: string]: any } = {
-      email: partialRecord.email,
-      csp: partialRecord.csp,
-      badges: partialRecord.badges || {},
-      servers: partialRecord.servers || [],
-    };
+    // IP app
+    let zone: NameZone = {
+      "origin": partialRecord.id,
+      "ttl": 3600,
+      "records": []
+    }
+
+    // dapp
     if (partialRecord.address) {
-      data.address = partialRecord.address;
+      zone.records.push({
+        name: '@',
+        type: 'TXT',
+        data: `DAPP=${partialRecord.address}`
+      })
+    }
+    // CONTRACT.PURSE
+
+    /* todo CSP max size is 255 characters */
+    if (partialRecord.csp) {
+      zone.records.push({
+        name: '@',
+        type: 'TXT',
+        data: `CSP=${partialRecord.csp}`
+      })
+    }
+
+    if (partialRecord.email) {
+      zone.records.push({
+        name: '@',
+        type: 'TXT',
+        data: `EMAIL=${partialRecord.email}`
+      })
     }
 
     const term = creditAndSwapTerm({
@@ -170,7 +195,7 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
         contractId: this.state.contractId,
         boxId: this.state.box,
         quantity: 1,
-        data: Buffer.from(JSON.stringify(data), 'utf8').toString('hex'),
+        data: Buffer.from(JSON.stringify(zone), 'utf8').toString('hex'),
         newId: this.state.name,
         merge: false,
       }
@@ -355,6 +380,12 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
               {this.state.loadingPurse && <i className="fa fa-before fa-redo rotating"></i>}
               {t('lookup name')}
             </button>
+            {
+              !this.props.contractConfigs[this.state.contractId] &&
+              <p className="text-danger name-error">
+                {t('could not retrieve contract config')}
+              </p>
+            }
           </div>
         </div>
         {this.state.loadedPurse && (
@@ -367,7 +398,6 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
             />
             {isPurchasable(this.state.loadedPurse, this.state.name) && (
               <RecordForm
-                special={info.special}
                 validateName
                 nameDisabledAndForced={this.state.name}
                 filledRecord={this.onFilledRecords}

@@ -4,6 +4,7 @@ import { Formik, Field } from 'formik';
 import { IPServer, RChainInfo, PartialRecord } from '/models';
 import { BadgeAppreciation } from '../utils/BadgeAppreciation';
 import { IPServersComponent } from './IPServers';
+import { openExternal } from '../../interProcess';
 
 import './RecordsForm.scss';
 import { GlossaryHint } from '../utils/Hint';
@@ -12,7 +13,6 @@ interface RecordFormProps {
   validateName: undefined | boolean;
   nameDisabledAndForced: undefined | string;
   partialRecord: PartialRecord | undefined;
-  special: RChainInfo['special'] | undefined;
   filledRecord: (t: undefined | PartialRecord) => void;
 }
 
@@ -47,7 +47,6 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
   badgeAppreciationInput: undefined | HTMLInputElement = undefined;
 
   state: {
-    special: boolean;
     servers: IPServer[];
     settingUpIpServers: boolean;
     badge: string;
@@ -55,7 +54,6 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
     badgeAppreciationPrefix: 'BS' | 'BW' | 'BD';
     availables: { [key: string]: boolean };
   } = {
-    special: false,
     servers: [],
     settingUpIpServers: false,
     badge: '',
@@ -112,56 +110,24 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
             names: [],
           };
 
-          if (this.state.special) {
-            [0, 1, 2, 3].forEach((i) => {
-              if (!values.names[i]) {
-                errors.names[i] = t('field required');
-              } else if (this.props.validateName && !/^[a-z][a-z0-9]*$/.test(values.names[i])) {
-                errors.names[i] = t('record regexp');
-              } else if (values.names[i].length < 1 || values.names[i].length > 24) {
-                errors.names[i] = t('record length');
-              } else if ([0, 1, 2, 3].filter((j) => values.names[j] === values.names[i]).length > 1) {
-                errors.names[i] = 'This name is duplicate';
-              }
-            });
-          } else {
-            if (!values.names[0]) {
-              errors.names[0] = t('field required');
-            } else if (this.props.validateName && !/^[a-z][a-z0-9]*$/.test(values.names[0])) {
-              errors.names[0] = t('record regexp');
-              // } else if (values.names[0].length < 1 || values.names[0].length > 24) {
-              // errors.names[i] = t('record length');
-            }
-
-            if (values.type === 'ip') {
-              if (!this.state.servers.length) {
-                errors.servers = t('at least on ip server');
-              }
-            }
+          if (!values.names[0]) {
+            errors.names[0] = t('field required');
+          } else if (this.props.validateName && !/^[a-z][a-z0-9]*$/.test(values.names[0])) {
+            errors.names[0] = t('record regexp');
+            // } else if (values.names[0].length < 1 || values.names[0].length > 24) {
+            // errors.names[i] = t('record length');
           }
 
           if (Object.keys(errors).length === 1 && errors.names.length === 0) {
-            if (this.state.special && this.props.special) {
-              this.props.filledRecord({
-                id: [this.props.special.name].concat(values.names).join(','),
-                boxId: 'willbeignored',
-                servers: this.state.servers,
-                address: values.address,
-                email: values.email,
-                csp: values.csp,
-                badges: values.badges,
-              });
-            } else {
-              this.props.filledRecord({
-                id: values.names[0],
-                boxId: 'willbeignored',
-                servers: this.state.servers,
-                address: values.address,
-                email: values.email,
-                csp: values.csp,
-                badges: values.badges,
-              });
-            }
+            this.props.filledRecord({
+              id: values.names[0],
+              boxId: 'willbeignored',
+              servers: this.state.servers,
+              address: values.address,
+              email: values.email,
+              csp: values.csp,
+              badges: values.badges,
+            });
           } else {
             this.props.filledRecord(undefined);
           }
@@ -199,68 +165,6 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
             );
           }
 
-          const SpecialComponent = (p: { special: RChainInfo['special']; setSpecial: (a: boolean) => void }) => {
-            if (p.special) {
-              return (
-                <p className="special-offer text-blue">
-                  <i className="fa fa-before fa-gifts"></i>
-                  Special offer going on, get 4 names for the price of one{' '}
-                  {this.state.special ? (
-                    <span className="activate" onClick={() => p.setSpecial(false)}>
-                      cancel
-                    </span>
-                  ) : (
-                    <span className="activate" onClick={() => p.setSpecial(true)}>
-                      activate offer
-                    </span>
-                  )}
-                  <span className="small">
-                    {p.special.max - p.special.current} names still available out of {p.special.max}
-                  </span>
-                </p>
-              );
-            }
-
-            return <span></span>;
-          };
-
-          // special is available and activated
-          if (this.state.special) {
-            return (
-              <form>
-                <div className="record-form">
-                  <h5 className="is-6 title">{t('record')}</h5>
-                  <div className="field is-horizontal">
-                    <label className="label">{t('name')}*</label>
-
-                    <div className="control">
-                      {[0, 1, 2, 3].map((i) => {
-                        return (
-                          <Fragment key={i}>
-                            <Field
-                              className="input name-input"
-                              type="text"
-                              name={`names.${i}`}
-                              placeholder={`name ${i}`}
-                            />
-                            {touched.names && (touched as any).names[i] && errors.names && errors.names[i] && (
-                              <p className="text-danger name-error no-padding">{(errors as any).names[i]}</p>
-                            )}
-                          </Fragment>
-                        );
-                      })}
-                      <SpecialComponent
-                        special={this.props.special}
-                        setSpecial={(a) => this.setState({ special: a })}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </form>
-            );
-          }
-
-          // special is not activated or not available
           return (
             <form>
               <div className="record-form">
@@ -282,12 +186,6 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                   <p className="text-danger">{(errors as any).names[0]}</p>
                 )}
                 <div className="field is-horizontal">
-                  <label className="label"></label>
-                  <div className="control">
-                    <SpecialComponent special={this.props.special} setSpecial={(a) => this.setState({ special: a })} />
-                  </div>
-                </div>
-                <div className="field is-horizontal">
                   <label className="label">{t('application type')}*</label>
                   <div className="control">
                     <span>
@@ -305,8 +203,12 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                 {values.type === 'ip' ? (
                   <Fragment>
                     <div className="field is-horizontal">
-                      <label className="label">{t('ip server', true)}*</label>
+                      <label className="label"></label>
                       <div className="control">
+                        Use dappy-cli to administer your zone (A, AAAA, TXT, CERT)
+                      </div>
+                      {/*<label className="label">{t('ip server', true)}*</label>
+                       <div className="control">
                         {this.state.servers.map((s) => {
                           return (
                             <div className="server-ro" key={s.ip + s.host}>
@@ -328,7 +230,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                         <button type="button" className="button is-link is-small" onClick={this.onToggleSetupIpServers}>
                           {t('setup ip servers')}
                         </button>
-                      </div>
+                      </div> */}
                     </div>
                     {errors.servers && <p className="text-danger">{(errors as any).servers}</p>}
                   </Fragment>
@@ -343,7 +245,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                     {touched.address && errors.address && <p className="text-danger">{(errors as any).address}</p>}
                   </Fragment>
                 )}
-                <div className="field is-horizontal">
+                {/* CSP  <div className="field is-horizontal">
                   <label className="label">{t('csp')}</label>
                   <div className="control">
                     <a
@@ -362,12 +264,18 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                     </a>
                     <Field className="textarea" as="textarea" name="csp" placeholder="default-src 'self'" />
                     <p className="help">
-                      See <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP">documentation from Mozilla</a>
+                      See
+                      <a onClick={(e) => {
+                        e.preventDefault();
+                        openExternal("https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP")
+                        }}
+                        href="#"
+                      > documentation from Mozilla</a>
                     </p>
                   </div>
                 </div>
-                {touched.csp && errors.csp && <p className="text-danger">{(errors as any).csp}</p>}
-                <div className="field is-horizontal badges-field">
+                {touched.csp && errors.csp && <p className="text-danger">{(errors as any).csp}</p>} */}
+                {/* BADGES <div className="field is-horizontal badges-field">
                   <label className="label">{t('reputation badges')}*</label>
                   <div className="control">
                     <p className="limited-width">
@@ -454,7 +362,7 @@ export class RecordForm extends React.Component<RecordFormProps, {}> {
                       Add
                     </button>
                   </div>
-                </div>
+                </div> */}
                 <div className="field is-horizontal">
                   <label className="label">{t('email for record')}</label>
                   <div className="control">
