@@ -102,14 +102,14 @@ export const NoAccountFormComponent = ({ onClose, createAccount }: NoAccountForm
                   onClose();
                   e.preventDefault();
                 }}
-                className="button is-light">
+                className="button is-light is-medium">
                 {t('skip')}
               </button>
             </div>
             <div className="control">
               <button
                 disabled={!account}
-                className="button is-link"
+                className="button is-link is-medium"
                 onClick={() => {
                   if (account) {
                     createAccount({ account });

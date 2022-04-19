@@ -1,12 +1,16 @@
 .theme-default {
   .button.is-link {
-    background: linear-gradient(45deg, #103373, #204e87);
-    &:hover {
-      background: linear-gradient(45deg, #0d2655, #204e87);
+    background: linear-gradient(45deg, #103373, #3268ab);
+    box-shadow: 0px 0px 23px #3268ab inset;
+    
+    &:not(.disabled):hover {
+      background: linear-gradient(45deg, #103373, #3268ab);
+      box-shadow: 0px 0px 5px #3268ab inset;
     }
-    &:active {
-      background: linear-gradient(45deg, #21518b, #11367a);
+    &:not(.disabled):active {
+      background: linear-gradient(45deg, #0b2657, #3268ab);
       border: 1px solid #21518b;
+      box-shadow: 0px 0px 5px #3268ab inset;
     }
   }
 

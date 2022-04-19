@@ -31,7 +31,7 @@ export class UpdateLanguageComponent extends React.Component<UpdateLanguageProps
                 <br />
                 <div className="field is-horizontal">
                   <label>{t('language')}</label>
-                  <div className="select">
+                  <div className="select is-medium">
                     <Field component="select" name="language">
                       <option value="en">{t('english')}</option>
                       <option value="cn">{t('chinese')}</option>
@@ -40,7 +40,7 @@ export class UpdateLanguageComponent extends React.Component<UpdateLanguageProps
                 </div>
                 <div className="field is-horizontal is-grouped pt20">
                   <div className="control">
-                    <button disabled={values.language === this.props.language} type="submit" className="button is-link">
+                    <button disabled={values.language === this.props.language} type="submit" className="button is-link is-medium">
                       {t('submit')}
                     </button>
                   </div>

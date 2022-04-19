@@ -29,10 +29,10 @@ export function AddAccountsComponent(props: AddAccountsProps) {
         <div className="control">
           <button
             type="submit"
-            className="button is-link"
+            className="button is-link is-medium"
             disabled={!account}
             onClick={() => (account ? props.createAccount(account) : undefined)}>
-            {t('submit')}
+            {t('add account')}
           </button>
         </div>
       </div>

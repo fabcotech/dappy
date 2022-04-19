@@ -72,6 +72,9 @@ li.update-available {
   }
   .menu-list li {
     position: relative;
+    a {
+      font-weight: 600;
+    }
     a:hover {
       cursor: default;
     }

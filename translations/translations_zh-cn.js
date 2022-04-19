@@ -1050,14 +1050,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "at least on ip server",
-    "definition": "至少一台IP服务器必须链接到您的域名",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "name request errors",
     "definition": "名称请求错误",
     "context": "Settings > Names > Requests",
@@ -2445,6 +2437,62 @@ module.exports.translations = [
     "term": "use public ca paragraph",
     "definition": null,
     "context": "Purchase record",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "what is a box ?",
+    "definition": "什么是盒子 ?",
+    "context": "Help",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "what is rev ?",
+    "definition": "rev是什么 ?",
+    "context": "Help",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "why can't I see my balance for ETH and other EVM wallets ?",
+    "definition": "为什么我不能在我的eth或EVM钱包里看到我的数量 ?",
+    "context": "Help",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "copy",
+    "definition": null,
+    "context": "",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "what is a FT contract ?",
+    "definition": "什么是同质代币合约 ? ",
+    "context": "Help",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "what is a NFT contract ?",
+    "definition": "什么是非同质代币合约 ?",
+    "context": "Help",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "what is multi-requests ?",
+    "definition": "什么是多路请求 ?",
+    "context": "Help",
     "term_plural": "",
     "reference": "",
     "comment": ""

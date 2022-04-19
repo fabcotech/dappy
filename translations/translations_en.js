@@ -1063,14 +1063,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "at least on ip server",
-    "definition": "At least one IP server must be linked to your name",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "name request errors",
     "definition": "Name request errors",
     "context": "Settings > Names > Requests",
@@ -2204,7 +2196,7 @@ module.exports.translations = [
   },
   {
     "term": "dappy account description",
-    "definition": "Dappy accounts or wallets allow you to own and send REV, the native currency of RChain blockchain. You will also be able to sign transactions, deploy token contracts and interact with other blockchain applications.",
+    "definition": "We noticed you have no accounts configured. You can create or import one upfront. Don't worry you will also be able to do it later !",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -2462,6 +2454,62 @@ module.exports.translations = [
     "term": "use public ca paragraph",
     "definition": "Use certificates from the public Certificate Authorities",
     "context": "Purchase record",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "what is a box ?",
+    "definition": "What is a box ?",
+    "context": "Help",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "what is rev ?",
+    "definition": "What is REV ?",
+    "context": "Help",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "why can't I see my balance for ETH and other EVM wallets ?",
+    "definition": "Why can't I see my balance for ETH and other EVM wallets ?",
+    "context": "Help",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "copy",
+    "definition": "Copy",
+    "context": "",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "what is a FT contract ?",
+    "definition": "What is a FT contract ?",
+    "context": "Help",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "what is a NFT contract ?",
+    "definition": "What is a NFT contract ?",
+    "context": "Help",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "what is multi-requests ?",
+    "definition": "What is multi-requests ?",
+    "context": "Help",
     "term_plural": "",
     "reference": "",
     "comment": ""

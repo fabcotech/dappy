@@ -182,7 +182,7 @@ export class ResolverComponent extends React.Component<ResolverProps, {}> {
                           values.resolverAccuracy === this.props.settings.resolverAccuracy)
                       }
                       type="submit"
-                      className="button is-link">
+                      className="button is-link is-medium">
                       {t('submit')}
                     </button>
                   </div>

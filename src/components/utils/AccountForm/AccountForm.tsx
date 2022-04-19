@@ -140,15 +140,15 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
             <form className="account-form" onSubmit={handleSubmit}>
               <div className="field is-horizontal">
                 <label className="label">Name*</label>
-                <div className="control">
-                  <Field className="input" type="text" name="name" placeholder="Account name" />
+                <div className="control is-medium">
+                  <Field className="input is-medium" type="text" name="name" placeholder="Account name" />
                 </div>
               </div>
               {touched.name && errors.name && <p className="text-danger">{(errors as any).name}</p>}
               <div className="field is-horizontal">
                 <label className="label">{t('blockchain type')}*</label>
-                <div className="control">
-                  <div className="select">
+                <div className="control is-medium">
+                  <div className="select is-medium">
                     <Field as="select" name="platform">
                       <option value="evm">Ethereum / EVM</option>
                       <option value="rchain">Rchain</option>
@@ -158,8 +158,8 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
               </div>
               <div className="field is-horizontal">
                 <label className="label">{t('public key')}*</label>
-                <div className="control">
-                  <span className="public-key">{this.publicKey || t('public key derived')}</span>
+                <div className="control is-medium">
+                  <span className="public-key ">{this.publicKey || t('public key derived')}</span>
                 </div>
               </div>
               <div className="field is-horizontal">
@@ -171,7 +171,7 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
               <div className="field is-horizontal">
                 <label className="label">{t('private key')}*</label>
                 <div className="control">
-                  <Field className="input" type="password" name="privatekey" placeholder={t('private key')} />
+                  <Field className="input is-medium" type="password" name="privatekey" placeholder={t('private key')} />
                   <button
                     type="button"
                     className="button is-link is-small generate-private-key"
@@ -184,7 +184,7 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
               <div className="field is-horizontal">
                 <label className="label">{t('password')}*</label>
                 <div className="control">
-                  <Field className="input" type="password" name="password" placeholder={t('password')} />
+                  <Field className="input is-medium" type="password" name="password" placeholder={t('password')} />
                 </div>
               </div>
               {touched.password && errors.password && <p className="text-danger">{(errors as any).password}</p>}
