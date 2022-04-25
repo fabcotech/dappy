@@ -7,7 +7,7 @@ describe('Accounts', () => {
   it('<UpdateBalancesButton /> should trigger update balances on click', () => {
     const updateBalances = jest.fn();
 
-    render(<UpdateBalancesButton updating={true} updateBalances={updateBalances} />);
+    render(<UpdateBalancesButton disabled={true} updating={true} updateBalances={updateBalances} />);
     expect(screen.queryByTitle('update balances')).toHaveClass('disabled');
     userEvent.click(screen.getByTitle('update balances'));
     expect(updateBalances).not.toHaveBeenCalled();
@@ -15,7 +15,7 @@ describe('Accounts', () => {
     cleanup();
     updateBalances.mockClear();
 
-    render(<UpdateBalancesButton updating={false} updateBalances={updateBalances} />);
+    render(<UpdateBalancesButton disabled={false} updating={false} updateBalances={updateBalances} />);
     expect(screen.getByTitle('update balances')).not.toHaveClass('disabled');
     userEvent.click(screen.getByTitle('update balances'));
     expect(updateBalances).toHaveBeenCalled();

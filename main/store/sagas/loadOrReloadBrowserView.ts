@@ -459,7 +459,7 @@ const loadOrReloadBrowserView = function* (action: any) {
       e.preventDefault();
       return;
     }
-  
+
     if (parsedFutureUrl.protocol === 'https:') {
       if (parsedFutureUrl.host !== url.host) {
         console.log('[nav] will navigate to another host', url.host, '->', parsedFutureUrl.host);
@@ -503,7 +503,7 @@ const loadOrReloadBrowserView = function* (action: any) {
             error: {
               error: DappyLoadError.DangerousLink,
               args: {
-                url: url,
+                url: futureUrl,
               }
             }
           })
@@ -512,6 +512,7 @@ const loadOrReloadBrowserView = function* (action: any) {
   };
 
   view.webContents.on('will-redirect', (e, futureUrl) => {
+    console.log('will-redirect', futureUrl);
     if (new URL(futureUrl).host !== url.host) {
       console.log('will redirect, must change session', url.host, '->', new URL(futureUrl).host)
     }
@@ -519,11 +520,6 @@ const loadOrReloadBrowserView = function* (action: any) {
 
   view.webContents.on('did-redirect-navigation', (e, url) => {
     console.log('did-redirect-navigation', url);
-    
-  });
-
-  view.webContents.addListener('will-redirect', (e, futureUrl) => {
-    console.log('will-redirect', futureUrl)
   });
 
   view.webContents.on('will-navigate', (e, futureUrl) => {

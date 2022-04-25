@@ -52,9 +52,9 @@ class FetchContractComponent extends React.Component<FetchContractProps, {}> {
     }
 
     let dNetwork = false;
-    if (Object.keys(this.props.availableBlockchains)[0] === MAIN_CHAIN_ID) {
+    /* if (Object.keys(this.props.availableBlockchains)[0] === MAIN_CHAIN_ID) {
       dNetwork = true;
-    }
+    } */
 
     return (
       <div className="fetch-contract">

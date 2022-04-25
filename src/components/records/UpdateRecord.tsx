@@ -348,7 +348,6 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
                 nameDisabledAndForced={this.state.loadedRecord.id}
                 partialRecord={this.state.loadedRecord}
                 filledRecord={(a) => this.setState({ newRecord: a })}
-                special={undefined}
                 validateName={undefined}
               />
             </>

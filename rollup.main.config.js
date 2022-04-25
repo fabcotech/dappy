@@ -18,7 +18,6 @@ export default {
     'electron',
     /* All the following modules are included in Node JS, exlude/external them*/
     'fs',
-    'isarray',
     'os',
     'dns',
     'crypto',

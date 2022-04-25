@@ -36,7 +36,6 @@ export const AddRecord = (props: AddRecordProps) => {
         filledRecord={(a: PartialRecord | undefined) => setPartialRecord(a)}
         partialRecord={partialRecord}
         validateName={undefined}
-        special={undefined}
       />
       <div className="field is-horizontal is-grouped pt20">
         <div className="control">

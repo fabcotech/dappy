@@ -91,8 +91,6 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
   let over = false;
   const url = new URL(request.url);
 
-  console.log('tryToLoad.dns', dns, request.url)
-
   let ca: string[] | undefined = undefined;
   let networkHosts: string[] | undefined = undefined;
   if (dns) {

@@ -3,8 +3,6 @@ import https from 'https';
 
 import { VERSION, WS_PAYLOAD_PAX_SIZE } from '../src/CONSTANTS';
 
-const dappyNetworkAgents: { [key: string]: https.Agent } = {};
-
 export const httpBrowserToNode = (data: { [key: string]: any }, node: DappyNetworkMember, timeout?: number) => {
   return new Promise((resolve, reject) => {
     const s = JSON.stringify(data);
@@ -19,18 +17,11 @@ export const httpBrowserToNode = (data: { [key: string]: any }, node: DappyNetwo
       const port = node.port;
       const caCert = node.caCert ? Buffer.from(node.caCert, 'base64').toString('utf8') : 'INVALIDCERT';
 
-      if (!dappyNetworkAgents[`${ip}-${caCert}`]) {
-        dappyNetworkAgents[`${ip}-${caCert}`] = new https.Agent({
-          /* no dns */
-          host: ip,
-          rejectUnauthorized: true, // true by default
-          minVersion: 'TLSv1.3',
-          ca: caCert,
-        });
-      }
-
       const options: https.RequestOptions = {
-        agent: dappyNetworkAgents[`${ip}-${caCert}`],
+        minVersion: 'TLSv1.3',
+        rejectUnauthorized: true,
+        ca: caCert,
+        host: ip,
         method: 'POST',
         port: port,
         path: `/${data.type}`,
