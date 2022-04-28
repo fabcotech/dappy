@@ -13,34 +13,17 @@ export interface RChainInfo {
   rchainNamesContractId: string;
   wrappedRevContractId: string;
   rchainNetwork: string;
+  rchainShardId: string;
   namePrice: null | [String, Number] | [String, String];
-  special?: {
-    name: string;
-    max: number;
-    current: number;
-  };
-}
-
-export interface Payment {
-  phloPrice: number;
-  phloLimit: number;
-  timestamp: number;
-  term: string;
-  validAfterBlockNumber: number;
 }
 
 export interface DeployData {
   timestamp: number;
   term: string;
+  shardId: string;
   phloPrice: number;
   phloLimit: number;
   validAfterBlockNumber: number;
-}
-
-export interface Transaction extends Payment {
-  deployer: Buffer;
-  sig: Buffer; // Buffer for transport, should be Uint8Array
-  sigAlgorithm: 'secp256k1';
 }
 
 export interface DeployOptions {

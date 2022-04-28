@@ -4,6 +4,7 @@ import { getNodeFromIndex } from '../src/utils/getNodeFromIndex';
 import { MultiRequestBody, MultiRequestParameters, MultiRequestResult, MultiRequestError } from '../src/models/';
 import * as fromBlockchains from './store/blockchains';
 import { httpBrowserToNode } from './httpBrowserToNode';
+import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 
 /* browser to network */
 export const performMultiRequest = (
@@ -34,7 +35,7 @@ export const performMultiRequest = (
               }
             }, 50000);
             try {
-              const resp = await httpBrowserToNode(body, node, 50000);
+              const resp = await httpBrowserToNode(body, node as DappyNetworkMember, 50000);
               if (!over) {
                 clearTimeout(timeout);
                 resolve2({

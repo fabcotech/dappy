@@ -19,6 +19,7 @@ const dappyNodeInfoSchema = {
     rchainNamesContractId: { 'type': 'string' },
     namePrice: { "anyOf": [{ type: "null" }, { type: "array", validate: validateRChainTokenPrice }] },
     rchainNetwork: { 'type': 'string' },
+    rchainShardId: { 'type': 'string' },
   },
   required: ['lastFinalizedBlockNumber', 'dappyNodeVersion', 'rnodeVersion',  'rchainNamesMasterRegistryUri', 'wrappedRevContractId', 'rchainNamesContractId', 'rchainNetwork'],
 };

@@ -12,6 +12,7 @@ import {
   TransactionValue,
   EthereumSignedTransaction,
   EthereumTransaction,
+  DappyLoadErrorWithArgs,
 } from '/models';
 
 export const EXECUTE_CRON_JOBS = '[Blockchain] Execute cron jobs';
@@ -93,7 +94,7 @@ export const updateRChainBlockchainInfoCompletedAction = (values: UpdateRChainBl
 export interface UpdateRChainBlockchainInfoFailedPayload {
   chainId: string;
   date: string;
-  error: BeesLoadErrorWithArgs;
+  error: BeesLoadErrorWithArgs | DappyLoadErrorWithArgs;
 }
 export const updateRChainBlockchainInfoFailedAction = (values: UpdateRChainBlockchainInfoFailedPayload) => ({
   type: UPDATE_RCHAIN_BLOCKCHAIN_INFO_FAILED,

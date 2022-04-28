@@ -537,6 +537,11 @@ dbReq.onsuccess = (event) => {
       if (ri.info && typeof ri.info.namePrice === 'number') {
         ri.info.namePrice = null
       }
+      // dappy browser 0.5.5 and shardId in RChain DeployData
+      if (ri.info && typeof ri.info.rchainShardId !== 'string') {
+        ri.info.rchainShardId = 'unknown';
+      }
+
       return ri;
     });
 

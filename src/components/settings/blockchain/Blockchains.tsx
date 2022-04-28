@@ -266,6 +266,10 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                       <td>{rchainInfo ? rchainInfo.rchainNetwork : 'unknown'}</td>
                     </tr>
                     <tr>
+                      <td>{t('rchain shard id')}</td>
+                      <td>{rchainInfo ? rchainInfo.rchainShardId : 'unknown'}</td>
+                    </tr>
+                    <tr>
                       <td>{t('last known block height')}</td>
                       <td>{rchainInfo ? rchainInfo.lastFinalizedBlockNumber : 'unknown'}</td>
                     </tr>

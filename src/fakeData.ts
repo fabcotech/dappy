@@ -61,6 +61,7 @@ export const getFakeRChainInfos = (rchainInfos: Partial<RChainInfos> = {}): RCha
     wrappedRevContractId: 'nosrev',
     rnodeVersion: 'RChain Node 0.12.1 (28aa7954c3b8f6e9a9774a74214dcf2f3b69667b)',
     rchainNetwork: 'fakenet',
+    rchainShardId: 'fakenet5',
   },
   ...rchainInfos,
 });

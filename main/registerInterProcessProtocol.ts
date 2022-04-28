@@ -110,7 +110,7 @@ export const registerInterProcessProtocol = (
           parameters.comparer = (res: any) => {
             const json = JSON.parse(res as string);
             // do not include json.rnodeVersion that might differ
-            return `${json.data.rchainNetwork}-${json.data.lastFinalizedBlockNumber}-${json.data.rchainNamesRegistryUri}`;
+            return `${json.data.rchainNetwork}-${json.data.rchainShardId}-${json.data.lastFinalizedBlockNumber}-${json.data.rchainNamesRegistryUri}`;
           };
         } else {
           parameters.comparer = (res) => res;

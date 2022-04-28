@@ -5,7 +5,7 @@ import { store } from '/store';
 import * as fromBlockchain from '..';
 import * as fromSettings from '/store/settings';
 import * as fromMain from '/store/main';
-import { Blockchain, RChainInfos, RChainInfo, MultiRequestError } from '/models';
+import { DappyLoadError, Blockchain, RChainInfos, RChainInfo, MultiRequestError } from '/models';
 import { Action } from '/store/';
 import { validateDappyNodeInfo } from '/store/decoders';
 import { multiRequest } from '/interProcess';
@@ -68,7 +68,7 @@ const executeRChainCronJobsInfo = function* (action: Action) {
                 chainId: blockchain.chainId,
                 date: new Date().toISOString(),
                 error: {
-                  error: BeesLoadError.FailedToParseResponse,
+                  error: DappyLoadError.FailedToParseResponse,
                   args: {},
                 },
               })
