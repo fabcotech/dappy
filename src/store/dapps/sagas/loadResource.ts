@@ -196,13 +196,6 @@ const loadResource = function* (action: Action) {
       return;
     }
 
-    // todo parse CSP to make sure it's valid
-    let csp = '';
-    const cspRecord = (txts as NamePacket).answers.find(a => a.data.startsWith("CSP="));
-    if (cspRecord) {
-      csp  = (cspRecord as NameAnswer).data.replace('CSP=', '');
-    }
-
     let publicKey = '';
     const publicKeyRecord = (txts as NamePacket).answers.find(a => a.data.startsWith("PUBLIC_KEY="));
     if (publicKeyRecord) {
@@ -359,7 +352,6 @@ const loadResource = function* (action: Action) {
       /*
         Not tested
       */
-        console.log('publicKey', publicKey)
       yield put(
         fromDapps.launchTabCompletedAction({
           tab: {

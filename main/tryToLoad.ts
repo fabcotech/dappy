@@ -4,7 +4,7 @@ import { CookiesSetDetails, ProtocolRequest, Cookie, ProtocolResponse } from 'el
 import cookieParser from 'set-cookie-parser';
 
 import { DappyBrowserView } from './models';
-import { DappyNetworkMember, lookup, NameAnswer, nodeLookup } from '@fabcotech/dappy-lookup';
+import { DappyNetworkMember, lookup, NameAnswer, NamePacket, nodeLookup } from '@fabcotech/dappy-lookup';
 
 let sameSites: { [a: string]: 'lax' | 'strict' | 'no_restriction' } = {
   lax: 'lax',
@@ -106,6 +106,23 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
         statusCode: 523
       });
     }
+  }
+
+  // Content-Security-Policy through TXT records
+  let txts: string[] | undefined = undefined;
+  try {
+    txts = (await lookup(url.hostname, 'TXT', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data)
+  } catch (err) {
+    return Promise.resolve({
+      data: "NS LOOKUP ERROR",
+      headers: {},
+      statusCode: 523
+    });
+  }
+  let csp = '';
+  const cspRecord = (txts || []).find(a => a.startsWith("CSP="));
+  if (cspRecord) {
+    csp = (cspRecord as string).replace('CSP=', '');
   }
 
   async function load(i: number = 0) {
@@ -251,9 +268,15 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
             };
             */
             if (!over) {
+              const headers = resp.headers as Record<string, string | string[]>;
+              if (isFirstRequest) {
+                // todo what if there is a CSP in the html document with <meta> ?
+                console.log('[csp top-level rq] ' + url.hostname + path + ' ' + csp);
+                headers['Content-Security-Policy'] = csp
+              }
               resolve({
                 data: resp,
-                headers: resp.headers as Record<string, string | string[]>,
+                headers: headers,
               });
               over = true;
             }
