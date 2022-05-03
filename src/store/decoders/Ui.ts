@@ -6,6 +6,7 @@ const navigationPaths = [
   '/settings/blockchain',
   '/settings/gcu',
   '/names',
+  '/auth',
   '/accounts',
   '/deploy/file-upload',
   '/dapps',

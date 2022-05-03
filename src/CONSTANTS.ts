@@ -32,3 +32,5 @@ export const DEVELOPMENT = typeof location !== 'undefined' && location.host === 
 export const LOGS_PER_CONTRACT = 200;
 
 export const FAKE_BALANCE = 1000000;
+
+export const BLITZ_AUTHENTICATION = true;

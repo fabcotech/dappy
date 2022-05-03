@@ -1,0 +1,14 @@
+.auth {
+  background: #fafafa;
+
+  &>h3 {
+    @media screen and (max-width: 769px) {
+      padding-left: 58px;
+    }
+  }
+
+  textarea {
+    font-size: 1.4rem;
+    font-weight: 500;
+  }
+}

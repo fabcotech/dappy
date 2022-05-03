@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { NavigationUrl } from '/models';
+import { NavigationUrl, RChainInfos } from '/models';
 
 import './Menu.scss';
 import { MenuMobile } from '.';
 import { UpdateBrowserLink } from '/components/utils';
-import { VERSION } from '/CONSTANTS';
+import { BLITZ_AUTHENTICATION, VERSION } from '/CONSTANTS';
 
 interface MenuComponentProps {
   tabsListDisplay: number;
@@ -15,6 +15,7 @@ interface MenuComponentProps {
   isNavigationInAccounts: boolean;
   isNavigationInDeploy: boolean;
   isNavigationInTransactions: boolean;
+  isNavigationInAuth: boolean;
   isBeta: boolean;
   currentVersion: undefined | string;
   isAwaitingUpdate: boolean;
@@ -190,6 +191,17 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
               {t('menu transactions')}
             </a>
           </li>
+          {
+            BLITZ_AUTHENTICATION &&
+            <li>
+              <a
+                className={this.props.isNavigationInAuth ? 'is-active' : ''}
+                onClick={() => this.props.navigate('/auth')}>
+                <i className="fa fa-receipt fa-before" />
+                {t('menu auth')}
+              </a>
+            </li>
+          }
         </ul>
         <div className="drag-side"></div>
       </aside>

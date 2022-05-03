@@ -6,7 +6,6 @@ import * as fromBlockchainsMain from './store/blockchains';
 import * as fromSettingsMain from './store/settings';
 import { performMultiRequest } from './performMultiRequest';
 
-import { splitSearch } from '../src/utils/splitSearch';
 import { getNodeIndex } from '../src/utils/getNodeIndex';
 
 /* browser process - main process */

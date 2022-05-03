@@ -4,14 +4,17 @@ import fs from 'fs';
 import { CookiesSetDetails, ProtocolRequest, Cookie, ProtocolResponse } from 'electron';
 import cookieParser from 'set-cookie-parser';
 import { readPursesDataTerm } from '@fabcotech/rchain-token';
+import { DappyNetworkMember, lookup } from '@fabcotech/dappy-lookup';
 
 import { getHtmlFromFile } from './utils/getHtmlFromFile';
 import { getHtmlError } from './utils/getHtmlError';
 import { validateAndReturnFile } from './utils/validateAndReturnFile';
 import { shuffle } from './utils/shuffle';
 import { getNodeIndex } from '/utils/getNodeIndex';
+import { generateSignature, respondToChallenge } from './blitz';
+
 import { DappyBrowserView } from './models';
-import { DappyNetworkMember, lookup, NameAnswer, NamePacket, nodeLookup } from '@fabcotech/dappy-lookup';
+
 import { Blockchain, DappyFile, MultiRequestResult } from '/models';
 import { performMultiRequest } from './performMultiRequest';
 import * as fromBlockchain from '/store/blockchain';
@@ -378,18 +381,77 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
         };
     
         s += rightPad(` | cook: ${getCookiesHeaderResp.numberOfCookies.lax}lax ${getCookiesHeaderResp.numberOfCookies.strict}strict`, 22)
-        // todo
-    
-    
-        /* if (s.cert) {
-          options.ca = Buffer.from(s.cert, 'base64').toString('utf8')
-        } */
-    
+
         if (request.referrer) {
           options.headers!.referrer = request.referrer;
         }
         const req = https
-          .request(options, (resp) => {
+          .request(options, async (resp) => {
+
+            if (resp.headers['blitz-authentication']) {
+              console.log('[blitz-authentication] challenge proposed by server !');
+              const payload = JSON.parse(resp.headers['blitz-authentication']);
+              if (payload.host === url.host) {
+                console.log('[blitz-authentication] ok ! server host matches with host in payload');
+
+                const PRIVATE_KEY = "28a5c9ac133b4449ca38e9bdf7cacdce31079ef6b3ac2f0a080af83ecff98b36";
+
+                const signatureHex = generateSignature(resp.headers['blitz-authentication'] as string, PRIVATE_KEY);
+                console.log("[blitz-authentication] signature is :", signatureHex.slice(0,40) + '...');
+                try {
+                  const respCookies = await respondToChallenge(options, {
+                    publicKey: "04be064356846e36e485408df50b877dd99ba406d87208add4c92b3c7d4e4c663c2fbc6a1e6534c7e5c0aec00b26486fad1daf20079423b7c8ebffbbdff3682b58",
+                    signature: signatureHex,
+                    nonce: payload.nonce
+                  }, 2000);
+
+                  try {
+                    respCookies.cookies
+                      .filter(c => {
+                        if (c.domain) {
+                          if (c.domain === url.host) return true;
+                          if (c.domain === `.${url.host}`) return true;
+
+                          // Set-Cookie from request on example.com wants to set a cookie on api.example.com
+                          if (c.domain.endsWith(`.${url.host}`)) return true;
+                          return false
+                        } else {
+                          return true;
+                        }
+                      })
+                      .forEach((vc) => {
+                        setCookie({
+                          url: `https://${url.host}`,
+                          domain: vc.domain,
+                          name: vc.name,
+                          value: vc.value,
+                          expirationDate: vc.expires ? new Date(vc.expires).getTime() / 1000 : undefined,
+                          secure: true,
+                          httpOnly: vc.httpOnly,
+                          sameSite: sameSites[vc.sameSite || ''] || 'lax',
+                        });
+                      });
+                      if (respCookies.location) {
+                        over = true;
+                        resolve({
+                         statusCode: 302,
+                         headers: {
+                           location: respCookies.location
+                         }
+                       });
+                       return;
+                      }
+                  } catch (err) {
+                    console.log('[blitz-authentication] failed could not set cookies');
+                  }
+                } catch (err) {
+                  console.log(err)
+                  console.log('[blitz-authentication] failed when responding to challenge');
+                }
+              } else {
+                console.log('[blitz-authentication] abandon, hosts do not match')
+              }
+            }
 
             let respCookies: cookieParser.Cookie[] = [];
             if (resp.headers && resp.headers['set-cookie'] && resp.headers['set-cookie'].length) {
@@ -463,7 +525,7 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
               const headers = resp.headers as Record<string, string | string[]>;
               if (isFirstRequest) {
                 // todo what if there is a CSP in the html document with <meta> ?
-                console.log('[csp top-level rq] ' + url.hostname + path + ' ' + csp);
+                console.log('[csp top-level   ] ' + url.hostname+ url.host + path + ' ' + csp);
                 headers['Content-Security-Policy'] = csp
               }
               resolve({

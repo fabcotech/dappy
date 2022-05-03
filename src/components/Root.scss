@@ -101,6 +101,9 @@
     & > .transactions {
       z-index: 3;
     }
+    & > .auth {
+      z-index: 6;
+    }
     .top-window-buttons {
 
       position: absolute;

@@ -12,6 +12,7 @@ import { Home } from './home';
 import { Root as DeployRoot } from './deploy';
 import { Root as SettingsRoot } from './settings';
 import { Root as RecordRoot } from './records';
+import { Root as AuthRoot } from './auth';
 import { Root as AccountsRoot } from './accounts';
 import { Root as TransactionsRoot } from './transactions';
 import { Menu } from './Menu';
@@ -35,6 +36,7 @@ interface RootComponentProps {
   isNavigationInAccounts: boolean;
   isNavigationInTransactions: boolean;
   isNavigationInDeploy: boolean;
+  isNavigationInAuth: boolean;
   isBeta: boolean;
   platform: fromUi.State['platform'];
   currentVersion: undefined | string;
@@ -159,6 +161,7 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
               isNavigationInAccounts={this.props.isNavigationInAccounts}
               isNavigationInDeploy={this.props.isNavigationInDeploy}
               isNavigationInTransactions={this.props.isNavigationInTransactions}
+              isNavigationInAuth={this.props.isNavigationInAuth}
               isMobile={this.props.isMobile}
               isBeta={this.props.isBeta}
               currentVersion={this.props.currentVersion}
@@ -186,6 +189,9 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
               ) : undefined}
               {this.props.isNavigationInDeploy ? (
                 <DeployRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
+              ) : undefined}
+              {this.props.isNavigationInAuth ? (
+                <AuthRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
               ) : undefined}
               <Home />
               {this.props.isNavigationInTransactions ? <TransactionsRoot /> : undefined}
@@ -215,6 +221,7 @@ export const Root = connect(
     isNavigationInAccounts: fromUi.getIsNavigationInAccounts(state),
     isNavigationInTransactions: fromUi.getIsNavigationInTransactions(state),
     isNavigationInDeploy: fromUi.getIsNavigationInDeploy(state),
+    isNavigationInAuth: fromUi.getIsNavigationInAuth(state),
     navigationUrl: fromUi.getNavigationUrl(state),
     isMobile: fromUi.getIsMobile(state),
     language: fromUi.getLanguage(state),

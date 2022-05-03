@@ -218,6 +218,10 @@ export const getIsNavigationInDeploy = createSelector(getNavigationUrl, (navigat
   navigationUrl.startsWith('/deploy')
 );
 
+export const getIsNavigationInAuth = createSelector(getNavigationUrl, (navigationUrl: string) =>
+  navigationUrl.startsWith('/auth')
+);
+
 export const getIsNavigationInTransactions = createSelector(getNavigationUrl, (navigationUrl: string) =>
   navigationUrl.startsWith('/transactions')
 );

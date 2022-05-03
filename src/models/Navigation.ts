@@ -9,4 +9,5 @@ export type NavigationUrl =
   | '/'
   | '/dapps'
   | '/transactions'
-  | '/names';
+  | '/names'
+  | '/auth';
