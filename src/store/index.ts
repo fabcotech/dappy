@@ -57,6 +57,9 @@ declare global {
     initContextMenu: () => void;
     copyToClipboard: (a: string) => void;
     dispatchInMain: (a: Action) => void;
+    maximize: () => void;
+    minimize: () => void;
+    close: () => void;
     openExternal: (url: string) => void;
     t: (a: string, plural?: boolean) => void;
     translations: {

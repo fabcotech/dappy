@@ -1,6 +1,5 @@
 html, body {
   height: 100vh;
-  background: #fafafa;
   overflow: hidden;
 }
 
@@ -166,6 +165,10 @@ a.underlined-link {
   font-size: 0.8em;
 }
 
+.text-mid {
+  font-size: 1.3rem;
+  font-weight: 300;
+}
 .modal {
   padding-top: 50px;
   padding-bottom: 50px;

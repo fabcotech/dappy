@@ -99,6 +99,22 @@ export const registerInterProcessProtocol = (
         });
     }
 
+    if (request.url === 'interprocess://maximize') {
+      if (browserWindow.isMaximized()) {
+        browserWindow.unmaximize();
+      } else {
+        browserWindow.maximize();
+      }
+    }
+
+    if (request.url === 'interprocess://minimize') {
+      browserWindow.minimize()
+    }
+
+    if (request.url === 'interprocess://close') {
+      browserWindow.close()
+    }
+
     /* browser to node */
     if (request.url === 'interprocess://dappy-multi-request') {
       try {

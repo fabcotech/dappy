@@ -44,20 +44,11 @@ module.exports.translations = {
   "settings network paragraph": {
     "one": "Dappy performs multiple requests to load resources from the blockchain. Any time a user of third party web application whishes to load a blockchain resource (could be a file or any kind of data). Dappy will query multiple members of the network (blockchain).\n\nYou can configure the rules dappy must apply to accept or reject the result of a resource query.\n\n\n<b>Number of nodes:</b> How many nodes will be queried at each resource load, it must be inferior or equal to the number of available nodes of the blockchain.\n<b>Accuracy:</b> Rules to define if a response will be accepted. If we set it to 100%, if any of the nodes responds with something different than the others, the response and query is discarded. If we set it to 70%, a response will be considered trustable/safe if at least 70% of the queried nodes have sent that same response."
   },
-  "resolver": {
-    "one": "Resolver"
-  },
   "auto": {
     "one": "Auto"
   },
   "custom": {
     "one": "Custom"
-  },
-  "number of nodes": {
-    "one": "Number of nodes"
-  },
-  "accuracy": {
-    "one": "Accuracy"
   },
   "submit": {
     "one": "Submit"
@@ -66,7 +57,7 @@ module.exports.translations = {
     "one": "Development"
   },
   "settings development paragraph": {
-    "one": "Turn the development mode and a devtool will pop each time a web application launches."
+    "one": "Turn the development mode on and a devtool will pop each time a web application launches."
   },
   "development mode": {
     "one": "Development mode"
@@ -140,7 +131,7 @@ module.exports.translations = {
     "one": "Last known block height"
   },
   "nodes paragraph": {
-    "one": "You can add as many nodes as you want. At each request, dappy selects randomly n nodes (n is the <i>Number of nodes</i> value) among the available nodes and performs the call. The more nodes there\nis, the more accurate, secure and decentralized the navigation will be.\n\n\nEach days, dappy runs benchmarks to check available nodes."
+    "one": "Dappy need a network to do co-resolution. You can reference a network below, use the default one (d) or another one."
   },
   "added by the user": {
     "one": "Added by the user"
@@ -197,9 +188,6 @@ module.exports.translations = {
   },
   "loaded at": {
     "one": "Loaded at"
-  },
-  "add local name paragraph": {
-    "one": "In addition to the names that are automatically loaded from the blockchain you can add your custom names that will only be used locally. You must know the public key that will be used to verify the data loaded, and the blockchain address."
   },
   "record": {
     "one": "Record"
@@ -318,7 +306,7 @@ module.exports.translations = {
     "other": "Accounts"
   },
   "add account paragraph": {
-    "one": "Accounts allow you to avoid inputing your private key each time you need to send a transaction, and keep track of your REV balances. You can have as many accounts as you wish. The private keys are encrypted using a password you are the only one to know.\n\nThe main account will be auto-selected when asking to select an account to pay the transaction with.\n\n<b>Note: </b>Block creation and balance update with multi-request takes approximately 10 minutes on mainnet."
+    "one": "Accounts secure your private keys with a password. They can be used to manage cryptocurrency, and authenticate to websites without papsswords.<br /><br /><b>Note : </b>cryptocurrency balances are loaded with co-resolution, just like service discovery for websites on dappy !"
   },
   "main": {
     "one": "Main"
@@ -615,7 +603,7 @@ module.exports.translations = {
     "one": "This program does not interact with any private server of FABCO / DAPPY. It does not rely on any centralized service or server. The private keys are stored on your computer, and encrypted with your password. Dappy browser is open source but largely unaudited software. We advise you to only use secondary REV/ETH addresses with small amounts.\n\nUSE DAPPY, TRANSFER FUNDS, REFERENCE PRIVATE KEYS AND PUBLIC KEYS AT YOUR OWN RISKS."
   },
   "purchase a name 2": {
-    "one": "Name is the core asset of the dappy ecosystem, you can use a name to reference your website on the internet network (IP application), you can point your name to a HTML file or any other file that you have uploaded on the blockchain (dapp), you can also use it to receive payments, or as a speculative asset."
+    "one": "A name is your identifier in the dappy network. Your name can be used to exposed websites to the internet, and in some case to authenticate securely to protected websites."
   },
   "operation on name successful": {
     "one": "✓ Transaction was successfully sent to the blockchain. Your name should appear or be updated in thirty or fourty minutes, after the transaction is processed, and the new name indexed by network members."
@@ -630,10 +618,7 @@ module.exports.translations = {
     "one": "Add a local name for testing"
   },
   "update name paragraph 2": {
-    "one": "The data associated to a name can be updated anytime by the owner. It can point to another file on the blockchain, or be turned from dapp to IP app and vice versa."
-  },
-  "add local name dev": {
-    "one": "Add local name (development)"
+    "one": "Often a zone file is associated with a name. Just like in the DNS, administrator can add A, AAAA, CERT or TEXT records. Dappy browser right now does not provide full features interface for managing a zone."
   },
   "update name properties": {
     "one": "Update name properties"
@@ -809,7 +794,7 @@ module.exports.translations = {
     "one": "Create account"
   },
   "no accounts configured": {
-    "one": "No accounts is configured"
+    "one": "No accounts configured"
   },
   "box not found": {
     "one": "No token boxes found"
@@ -921,5 +906,8 @@ module.exports.translations = {
   },
   "what is multi-requests ?": {
     "one": "What is multi-requests ?"
+  },
+  "rchain shard id": {
+    "one": "Shard ID"
   }
 }

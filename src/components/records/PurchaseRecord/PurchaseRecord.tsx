@@ -289,7 +289,7 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
     return (
       <Fragment>
         <h3 className="subtitle is-4">{t('purchase a name')}</h3>
-        <p className="limited-width">{t('purchase a name 2')} </p>
+        <p className="limited-width text-mid">{t('purchase a name 2')} </p>
         <br />
         <TransactionForm
           chooseBox

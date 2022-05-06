@@ -94,7 +94,7 @@
 .fetch-contract {
   grid-column: 1;
   display: grid;
-  grid-template-rows: 50px calc(100% - 50px);
+  grid-template-rows: $navigationBarHeight auto;
   grid-template-columns: 100%;
   width: 100%;
   height: 100%;

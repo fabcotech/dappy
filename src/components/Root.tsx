@@ -21,6 +21,7 @@ import { DEVELOPMENT } from '/CONSTANTS';
 import { GCU_TEXT, GCU_VERSION } from '/GCU';
 import { NoAccountForm } from './utils/NoAccountForm';
 import { initTranslate } from '/utils/translate';
+import { maximize, minimize, close } from '/interProcess';
 
 interface RootComponentProps {
   tabsListDisplay: number;
@@ -165,6 +166,11 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
               navigate={this.props.navigate}
             />
             <div className="root-right">
+              <div className="fc top-window-buttons">
+                <i onClick={() => minimize()} className="fa fa-minus"></i>
+                <i onClick={() => maximize()} className="square-max"></i>
+                <i onClick={() => close()} className="fa fa-times"></i>
+              </div>
               {this.props.isNavigationInSettings ? (
                 <SettingsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
               ) : undefined}

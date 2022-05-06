@@ -172,7 +172,7 @@ export function AccountsComponent(props: AccountsProps) {
       {tab === 'accounts' ? (
         <div>
           <h3 className="subtitle is-4"></h3>
-          <p className="limited-width mw42rem" dangerouslySetInnerHTML={{ __html: t('add account paragraph') }}></p>
+          <p className="limited-width text-mid" dangerouslySetInnerHTML={{ __html: t('add account paragraph') }}></p>
           <p className="block mt-4">
             <GlossaryHint term="what is a box ?" displayTerm />
           </p>

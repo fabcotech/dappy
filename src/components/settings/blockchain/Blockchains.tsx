@@ -309,7 +309,7 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                   </div>
                 ) : undefined}
                 <br />
-                <p className="limited-width" dangerouslySetInnerHTML={{ __html: t('nodes paragraph') }}></p>
+                <p className="text-mid limited-width">{t('nodes paragraph')}</p>
                 <FieldArray
                   name="formNodes"
                   render={(arrayHelpers) => (

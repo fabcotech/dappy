@@ -238,7 +238,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
       return (
         <Fragment>
           <h3 className="subtitle is-4">{t('update a name')}</h3>
-          <p className="limited-width">
+          <p className="limited-width text-mid">
             {t('operation on name successful')}
             {t('warning wait for update')}
           </p>
@@ -273,9 +273,9 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
     return (
       <Fragment>
         <h3 className="subtitle is-4">{t('update a name')}</h3>
-        <p className="limited-width">{t('update name paragraph 2')}</p>
+        <p className="limited-width text-mid">{t('update name paragraph 2')}</p>
         <br />
-        <p className="limited-width">{t('warning wait for update')}</p>
+        <p className="limited-width text-mid">{t('warning wait for update')}</p>
         <br />
         <TransactionForm
           chooseBox={true}

@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import './Resolver.scss';
 import * as fromSettings from '../../../store/settings';
 
 interface FactorySettingsProps {

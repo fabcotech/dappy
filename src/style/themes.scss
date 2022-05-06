@@ -1,4 +1,10 @@
 .theme-default {
+  .top-window-buttons {
+    i {
+      border-color: #111;
+      color: #111;
+    }
+  }
   .button.is-link {
     background: linear-gradient(45deg, #103373, #3268ab);
     box-shadow: 0px 0px 23px #3268ab inset;

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Resolver, Development, FactorySettings, UpdateLanguage } from './settings';
+import { Development, FactorySettings, UpdateLanguage } from './settings';
 import { Blockchains } from './blockchain';
 import { NavigationUrl } from '/models';
 import './Root.scss';
@@ -54,8 +54,6 @@ export class RootComponent extends React.Component<RootProps, {}> {
         </div>
         {this.props.navigationUrl === '/settings' ? (
           <React.Fragment>
-            <Resolver />
-            <br />
             <Development />
             <br />
             <UpdateLanguage />

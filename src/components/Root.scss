@@ -98,6 +98,31 @@
     & > .transactions {
       z-index: 3;
     }
+    .top-window-buttons {
+      position: absolute;
+      top: 0px;
+      right: 15px;
+      width: 100px;
+      justify-content: space-around;
+      height: $navigationBarHeight;
+      z-index: 10;
+
+      i {
+        font-size: 1.1rem;
+      }
+      .square-max {
+        width: 17px;
+        height: 17px;
+        border-style: solid;
+        border-width: 3px;
+        border-radius: 4px;
+        transform: translateY(-1px);
+      }
+
+      i.fa-times {
+        font-size: 1.2rem;
+      }
+    }
   }
   &.is-mobile {
     grid-template-columns: 100%;

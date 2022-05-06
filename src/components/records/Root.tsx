@@ -14,7 +14,6 @@ import * as fromBlockchain from '/store/blockchain';
 import * as fromSettings from '/store/settings';
 import { getContractConfig } from '/api/rchain-token';
 
-import { AddRecord } from './AddRecord';
 import { PurchaseRecord } from './PurchaseRecord';
 import { UpdateRecord } from './UpdateRecord';
 import { Records } from './Records';
@@ -34,11 +33,10 @@ interface RecordsRootProps {
 }
 
 export function RootComponent(props: RecordsRootProps) {
-  const [tab, setTab] = useState('names');
+  const [tab, setTab] = useState('purchase-name');
   const [contractConfigs, setContractConfigs] = useState<Record<string, RChainContractConfig>>({});
 
   const queryAndCacheContractConfig = async (contractId: string) => {
-    console.log('contractConfigs[contractId]', contractConfigs[contractId])
     if (contractConfigs[contractId]) {
       return;
     }
@@ -88,14 +86,6 @@ export function RootComponent(props: RecordsRootProps) {
       <h3 className="subtitle is-3">{t('name system')}</h3>
       <div className="tabs">
         <ul>
-          <li className={tab === 'names' ? 'is-active' : ''}>
-            <a onClick={() => setTab('names')}>{t('name', true)}</a>
-          </li>
-          <li className={tab === 'add-name' ? 'is-active' : ''}>
-            <a onClick={() => setTab('add-name')}>
-              {t('add local name dev')} <i className="fa fa-plus fa-after" />
-            </a>
-          </li>
           <li className={tab === 'purchase-name' ? 'is-active' : ''}>
             <a onClick={() => setTab('purchase-name')}>
               {t('purchase name')} <i className="fa fa-plus fa-after" />
@@ -108,7 +98,6 @@ export function RootComponent(props: RecordsRootProps) {
           </li>
         </ul>
       </div>
-      {tab === 'add-name' ? <AddRecord records={props.records} addRecord={props.addRecord} /> : undefined}
       {tab === 'purchase-name' ? (
         <PurchaseRecord
           transactions={props.transactions}
@@ -130,14 +119,6 @@ export function RootComponent(props: RecordsRootProps) {
           namesBlockchain={props.namesBlockchain}
           namesBlockchainInfos={props.namesBlockchainInfos}
           sendRChainTransaction={props.sendRChainTransaction}
-        />
-      ) : undefined}
-      {tab === 'names' ? (
-        <Records
-          setTab={setTab}
-          accounts={props.accounts}
-          records={props.records}
-          recordNamesInAlphaOrder={props.recordNamesInAlphaOrder}
         />
       ) : undefined}
     </div>

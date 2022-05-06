@@ -48,6 +48,18 @@ export const getIpAddressAndCert = (a: { host: string }) => {
   return window.getIpAddressAndCert(a);
 };
 
+export const maximize = () => {
+  return window.maximize();
+};
+
+export const minimize = () => {
+  return window.minimize();
+};
+
+export const close = () => {
+  return window.close();
+};
+
 export const interProcess = (store: Store) => {
   let uniqueEphemeralToken = '';
   setInterval(() => {
@@ -324,6 +336,51 @@ export const interProcess = (store: Store) => {
         }
       };
     });
+  };
+
+  window.minimize = () => {
+    const interProcess = new XMLHttpRequest();
+    interProcess.open('POST', 'interprocess://minimize');
+    interProcess.setRequestHeader(
+      'Data',
+      encodeURI(
+        JSON.stringify({
+          uniqueEphemeralToken: uniqueEphemeralToken,
+          action: null,
+        })
+      )
+    );
+    interProcess.send();
+  };
+
+  window.maximize = () => {
+    const interProcess = new XMLHttpRequest();
+    interProcess.open('POST', 'interprocess://maximize');
+    interProcess.setRequestHeader(
+      'Data',
+      encodeURI(
+        JSON.stringify({
+          uniqueEphemeralToken: uniqueEphemeralToken,
+          action: null,
+        })
+      )
+    );
+    interProcess.send();
+  };
+
+  window.close = () => {
+    const interProcess = new XMLHttpRequest();
+    interProcess.open('POST', 'interprocess://close');
+    interProcess.setRequestHeader(
+      'Data',
+      encodeURI(
+        JSON.stringify({
+          uniqueEphemeralToken: uniqueEphemeralToken,
+          action: null,
+        })
+      )
+    );
+    interProcess.send();
   };
 
   /* 

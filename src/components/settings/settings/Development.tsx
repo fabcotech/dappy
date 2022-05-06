@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Formik } from 'formik';
 import { connect } from 'react-redux';
 
-import './Resolver.scss';
 import * as fromSettings from '../../../store/settings';
 
 interface DevelopmentProps {
@@ -42,7 +41,7 @@ export class DevelopmentComponent extends React.Component<DevelopmentProps, {}> 
             return (
               <form className="limited-width">
                 <h3 className="subtitle is-4">{t('development')}</h3>
-                <p className="limited-width">
+                <p className="text-mid limited-width">
                   {t('settings development paragraph')}
                   <br />
                   <br />

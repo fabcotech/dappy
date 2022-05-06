@@ -116,7 +116,8 @@ function createWindow() {
   browserWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    // frame: false,
+    frame: false,
+    transparent: true,
     webPreferences: {
       nodeIntegration: false,
       sandbox: true,
@@ -129,6 +130,7 @@ function createWindow() {
   preventAllPermissionRequests(browserSession);
   overrideHttpProtocol( { session: browserSession });
   overrideHttpsProtocol({
+    dappyNetworkMembers: [],
     dappyBrowserView: undefined,
     session: browserSession,
     dispatchFromMain,
