@@ -96,4 +96,9 @@ li.update-available {
       top: 13px;
     }
   }
+  .drag-side {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-app-region: drag;
+  }
 }

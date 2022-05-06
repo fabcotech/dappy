@@ -108,6 +108,7 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
               </a>
             </li>
           </ul>
+          <div className="drag-side"></div>
         </aside>
       );
     }
@@ -190,6 +191,7 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
             </a>
           </li>
         </ul>
+        <div className="drag-side"></div>
       </aside>
     );
   }

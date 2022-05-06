@@ -66,6 +66,9 @@
   & > .root-left {
     grid-row: 1;
     grid-column: 1;
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: max-content max-content auto;
   }
   & > .root-right {
     grid-row: 1;
@@ -99,6 +102,7 @@
       z-index: 3;
     }
     .top-window-buttons {
+
       position: absolute;
       top: 0px;
       right: 15px;
@@ -107,6 +111,21 @@
       height: $navigationBarHeight;
       z-index: 10;
 
+      .drag-top, .drag-bottom {
+        left: 0px;
+        height: 12px;
+        width: 100%;
+        position: absolute;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-app-region: drag;
+      }
+      .drag-bottom {
+        bottom: 0px;
+      }
+      .drag-top {
+        top: 0px;
+      }
       i {
         font-size: 1.1rem;
       }
