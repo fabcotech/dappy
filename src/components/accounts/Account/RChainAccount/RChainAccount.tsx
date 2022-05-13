@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useContext } from 'react';
 import { connect } from 'react-redux';
-import { deployBoxTerm } from 'rchain-token';
+import { deployBoxTerm } from '@fabcotech/rchain-token';
 
 import { Account as AccountModel, Blockchain, RChainInfos } from '/models';
 import * as fromSettings from '/store/settings';

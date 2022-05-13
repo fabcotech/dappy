@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createPursesTerm } from 'rchain-token';
+import { createPursesTerm } from '@fabcotech/rchain-token';
 
 import { rchainTokenValidators } from '/store/decoders';
 import { RCHAIN_TOKEN_SUPPORTED_VERSIONS } from '/CONSTANTS';

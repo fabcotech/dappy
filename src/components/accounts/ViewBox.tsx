@@ -1,6 +1,6 @@
 import React from 'react';
-import { readBoxTerm } from 'rchain-token';
-import * as rchainToolkit from 'rchain-toolkit';
+import { readBoxTerm } from '@fabcotech/rchain-token';
+import * as rchainToolkit from '@fabcotech/rchain-toolkit';
 import Ajv from 'ajv';
 
 import * as fromBlockchain from '/store/blockchain';

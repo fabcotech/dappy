@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { withdrawTerm } from 'rchain-token';
+import { withdrawTerm } from '@fabcotech/rchain-token';
 
 import * as fromBlockchain from '/store/blockchain';
 import { RChainTokenPurse, Account, RChainInfos } from '/models';

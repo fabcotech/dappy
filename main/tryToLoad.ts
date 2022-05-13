@@ -1,10 +1,20 @@
 import https from 'https';
+import stream from 'stream';
 import fs from 'fs';
 import { CookiesSetDetails, ProtocolRequest, Cookie, ProtocolResponse } from 'electron';
 import cookieParser from 'set-cookie-parser';
+import { readPursesDataTerm } from '@fabcotech/rchain-token';
 
+import { getHtmlFromFile } from './utils/getHtmlFromFile';
+import { getHtmlError } from './utils/getHtmlError';
+import { validateAndReturnFile } from './utils/validateAndReturnFile';
+import { shuffle } from './utils/shuffle';
+import { getNodeIndex } from '/utils/getNodeIndex';
 import { DappyBrowserView } from './models';
 import { DappyNetworkMember, lookup, NameAnswer, NamePacket, nodeLookup } from '@fabcotech/dappy-lookup';
+import { Blockchain, DappyFile, MultiRequestResult } from '/models';
+import { performMultiRequest } from './performMultiRequest';
+import * as fromBlockchain from '/store/blockchain';
 
 let sameSites: { [a: string]: 'lax' | 'strict' | 'no_restriction' } = {
   lax: 'lax',
@@ -119,21 +129,167 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
       statusCode: 523
     });
   }
+
+  let dappAddress = '';
+  const dappAddressRecord = txts.find(a => a.startsWith("DAPP_ADDRESS="));
+  if (dappAddressRecord) {
+    dappAddress  = dappAddressRecord.replace('DAPP_ADDRESS=', '');
+  }
+
   let csp = '';
   const cspRecord = (txts || []).find(a => a.startsWith("CSP="));
   if (cspRecord) {
     csp = (cspRecord as string).replace('CSP=', '');
   }
 
+  // ============
+  // DAPP
+  // ============
+  if (dappAddress) {
+    console.log('dapp address resolved by name system ' + dappAddress);
+
+    const st = new stream.PassThrough();
+
+    const s = (dappAddress || '').split('.');
+    let masterRegistryUri = dappyBrowserView.data.rchainNamesMasterRegistryUri;
+    let fileContractId = '';
+    let filePurseId = '';
+
+
+    //A dapp address can be master.contract.purse or contract.purse
+    if (s.length === 2) {
+      fileContractId = s[0];
+      filePurseId = s[1] || 'index';
+    } else if (s.length === 3) {
+      masterRegistryUri = s[0];
+      fileContractId = s[1];
+      filePurseId = s[2] || 'index';
+    } else {
+      throw new Error('Unable to parse dapp address');
+    }
+
+    const indexes = shuffle((dappyBrowserView.data.blockchain as Blockchain).nodes
+      .map(getNodeIndex));
+    let multiRequestResult: undefined | MultiRequestResult;
+
+    try {
+      multiRequestResult = await performMultiRequest(
+        {
+          type: 'explore-deploy-x',
+          body: {
+            terms: [
+              readPursesDataTerm({
+                masterRegistryUri: masterRegistryUri,
+                contractId: fileContractId,
+                pursesIds: [filePurseId],
+              }),
+            ],
+          },
+        },
+        {
+          chainId: dappyBrowserView.data.chainId as string,
+          urls: indexes,
+          // todo get values from dappy-lookup
+          resolverMode: 'absolute',
+          resolverAccuracy: 100,
+          resolverAbsolute: 1,
+          multiCallId: fromBlockchain.EXPLORE_DEPLOY_X,
+        },
+        {
+          [dappyBrowserView.data.chainId as string]: (dappyBrowserView.data.blockchain as Blockchain)
+        }
+      );
+    } catch (err) {
+      st.push(getHtmlError("dapp error", "Failed to retreive HTML"))
+      st.end()
+      return {
+        data: st,
+        headers: {},
+        statusCode: 404
+      };
+    }
+  
+    let dataFromBlockchain;
+    let dataFromBlockchainParsed: undefined | { data: { results: { data: string }[] } };
+    let verifiedDappyFile: DappyFile | undefined = undefined;
+    try {
+      dataFromBlockchain = (multiRequestResult as MultiRequestResult).result;
+      dataFromBlockchainParsed = JSON.parse(dataFromBlockchain) as { data: { results: { data: string }[] } };
+      verifiedDappyFile = await validateAndReturnFile(
+        dataFromBlockchainParsed.data.results[0].data,
+        filePurseId,
+        '',
+        false
+      );
+    } catch (e) {
+      st.push(getHtmlError("dapp error", "Failed to validate HTML file"))
+      st.end()
+      return {
+        data: st,
+        headers: {},
+        statusCode: 404
+      };
+    }
+  
+    const dappyFile = verifiedDappyFile as DappyFile;
+  
+    if (!['text/html', 'application/dappy'].includes(dappyFile.mimeType)) {
+      st.push(getHtmlError("dapp error", "Only application/dappy and text/html files can be handled"))
+      st.end()
+      return {
+        data: st,
+        headers: {},
+        statusCode: 404
+      };
+    }
+  
+    let dappHtml: undefined | any;
+    try {
+      dappHtml = getHtmlFromFile(dappyFile);
+    } catch (e) {
+      st.push(getHtmlError("dapp error", "Failed to get HTML from file (gzip)"))
+      st.end()
+      return {
+        data: st,
+        headers: {},
+        statusCode: 404
+      };
+    }
+
+    let headers: { [a: string]: string } = {
+      'Content-Type': 'text/html; charset=utf-8',
+    };
+    const isFirstRequest = getIsFirstRequest();
+    if (isFirstRequest && csp) {
+      // todo what if there is a CSP in the html document with <meta> ?
+      console.log('[csp top-level rq] ' + url.hostname + ' ' + csp);
+      headers['Content-Security-Policy'] = csp
+    }
+    setIsFirstRequest(false);
+
+    st.push(dappHtml)
+    st.end()
+    return {
+      data: st,
+      headers: headers
+    };
+  }
+
+  // ============
+  // IP APP
+  // ============
   async function load(i: number = 0) {
 
     if (!networkHosts || !(networkHosts as string[])[i]) {
       if (debug) console.log(`[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${url.hostname})`);
-      return Promise.resolve({
-        data: "Failed to load",
+      const st = new stream.PassThrough();
+      st.push(getHtmlError("IP app error", "Failed to load"))
+      st.end()
+      return {
+        data: st,
         headers: {},
         statusCode: 503
-      });
+      };
     }
 
     let s = "";
@@ -298,11 +454,11 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
                 console.log(`[https load] Resource for app (${dappyBrowserView.tabId}) failed to load (${url.pathname})`);
               }
 
-              /*
-                Will catch in main/store/sagas/loadOrReloadBrowserView.ts L193
-              */
+              const st = new stream.PassThrough();
+              st.push(getHtmlError("IP app error", err.message || "Could not load"))
+              st.end()
               resolve({
-                data: err.message,
+                data: st,
                 headers: {},
                 statusCode: statusCode
               });
@@ -355,11 +511,14 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
           load(i + 1);
         } else {
           if (debug) console.log(`[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${url.pathname})`);
-              /*
-                Will catch in main/store/sagas/loadOrReloadBrowserView.ts L193
-              */
+          /*
+            Will catch in main/store/sagas/loadOrReloadBrowserView.ts L193
+          */
+          const st = new stream.PassThrough();
+          st.push(getHtmlError("IP app error", err.message || "Could not to load"))
+          st.end()
           resolve({
-            data: err.message,
+            data: st,
             headers: {},
             statusCode: statusCode
           });

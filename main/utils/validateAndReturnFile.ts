@@ -1,10 +1,9 @@
-import { blake2b } from 'blakejs';
 import * as zlib from 'zlib';
-import * as elliptic from 'elliptic';
+import elliptic from 'elliptic';
 import { BeesLoadError } from '@fabcotech/bees';
 
 import { DappyFile, DappyLoadError } from '/models';
-import { validateDpy, validateFile } from '/store/decoders/Dpy';
+import { validateDpy, validateFile } from './Dpy';
 
 const ec = new elliptic.ec('secp256k1');
 
@@ -24,7 +23,7 @@ export const validateAndReturnFile = async (
   } catch (err) {
     throw new Error(
       JSON.stringify({
-        error: BeesLoadError.FailedToParseResponse,
+        error: DappyLoadError.FailedToParseResponse,
         args: {
           message: 'File does not exist',
         },

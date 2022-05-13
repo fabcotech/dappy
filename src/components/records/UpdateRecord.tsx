@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { updatePurseDataTerm } from 'rchain-token';
+import { updatePurseDataTerm } from '@fabcotech/rchain-token';
 
 import {
   Record,

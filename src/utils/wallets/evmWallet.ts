@@ -1,8 +1,9 @@
-import { Wallet } from './wallet';
-
 import { TxData, Transaction, JsonTx } from '@ethereumjs/tx';
 import Common from '@ethereumjs/common';
-import { utils } from 'rchain-toolkit';
+import * as rchainToolkit from '@fabcotech/rchain-toolkit';
+
+import { Wallet } from './wallet';
+
 
 export const evmWallet: Wallet<TxData & { chainId: number }, JsonTx> = {
   signTransaction: (tx, privateKey) => {
@@ -21,9 +22,9 @@ export const evmWallet: Wallet<TxData & { chainId: number }, JsonTx> = {
   },
 
   publicKeyFromPrivateKey: (privateKey: string) => {
-    return utils.publicKeyFromPrivateKey(privateKey);
+    return rchainToolkit.utils.publicKeyFromPrivateKey(privateKey);
   },
   addressFromPublicKey: (publicKey: string) => {
-    return utils.ethAddressFromPublicKey(publicKey);
+    return rchainToolkit.utils.ethAddressFromPublicKey(publicKey);
   },
 };

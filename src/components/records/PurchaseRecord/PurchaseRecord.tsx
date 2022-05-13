@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
-import { creditAndSwapTerm } from 'rchain-token';
+import { creditAndSwapTerm } from '@fabcotech/rchain-token';
 import { NameZone } from '@fabcotech/dappy-lookup';
-import * as rc from 'rchain-toolkit';
+import * as rchainToolkit from '@fabcotech/rchain-toolkit';
 
 import {
   Account as AccountModel,
@@ -185,7 +185,7 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
     }
 
     const term = creditAndSwapTerm({
-        revAddress: rc.utils.revAddressFromPublicKey(this.state.publickey),
+        revAddress: rchainToolkit.utils.revAddressFromPublicKey(this.state.publickey),
         quantity: this.state.loadedPurse?.price![1],
         masterRegistryUri: this.props.namesBlockchainInfos.info.rchainNamesMasterRegistryUri,
         boxId: this.state.box

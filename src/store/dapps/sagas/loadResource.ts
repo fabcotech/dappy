@@ -1,32 +1,23 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
-import { readPursesDataTerm } from 'rchain-token';
-import { BeesLoadCompleted, BeesLoadErrors } from '@fabcotech/bees';
 import { NameAnswer } from '@fabcotech/dappy-lookup';
 
-import { dappyLookup, multiRequest } from '/interProcess';
-import { MultiRequestResult } from '/models/MultiCall';
+import { dappyLookup } from '/interProcess';
 import * as fromDapps from '..';
 import * as fromSettings from '../../settings';
 import * as fromBlockchain from '../../blockchain';
 import * as fromUi from '../../ui';
-import { blockchain as blockchainUtils } from '/utils/blockchain';
-import { getNodeIndex } from '/utils/getNodeIndex';
-import { validateAndReturnFile } from '/utils/validateAndReturnFile';
 import {
   Blockchain,
   RChainInfos,
-  DappyFile,
   RChainInfo,
   Tab,
 } from '../../../models';
 import { Action } from '../../';
 
-import fakeDappyLookup from '/utils/fakeDappyLookup'
-import { NamePacket, NameQuestion, RRTXT } from '/models/FakeDappyLookup';
+import { NamePacket } from '/models/FakeDappyLookup';
 import { MAIN_CHAIN_ID } from '/CONSTANTS';
 import { DappyLoadError } from '/models/DappyLoadError';
 import { checkIfValidIP } from '/utils/checkIfValidIp';
-
 
 const loadResource = function* (action: Action) {
   const payload: fromDapps.LoadResourcePayload = action.payload;
@@ -201,180 +192,6 @@ const loadResource = function* (action: Action) {
     if (publicKeyRecord) {
       publicKey = (publicKeyRecord as NameAnswer).data.replace('PUBLIC_KEY=', '');
     }
-
-    let dappAddress = '';
-    const dappAddressRecord = (txts as NamePacket).answers.find(a => a.data.startsWith("DAPP_ADDRESS="));
-    if (dappAddressRecord) {
-      dappAddress  = (dappAddressRecord as NameAnswer).data.replace('DAPP_ADDRESS=', '');
-    }
-      
-    /*
-      If dappy-lookup finds a dapp record for address, then we must get
-      the content of the file, it may be in another NFT contract and.or
-      master
-  
-      For example pro.dappy can point to a HTML file (dapp) at
-      contractxyz.purse123
-    */
-    if (dappAddress) {
-    
-      /*
-        Maybe some day we'll want to check the signature of the file
-      */
-      const checkSignature = false;
-  
-      console.log('dapp address resolved by name system ' + dappAddress);
-      const s = (dappAddress || '').split('.');
-      let masterRegistryUri = info.rchainNamesMasterRegistryUri;
-      let fileContractId = '';
-      let filePurseId = '';
-  
-      /*
-        A dapp address can be master.contract.purse or contract.purse
-      */
-      if (s.length === 2) {
-        fileContractId = s[0];
-        filePurseId = s[1] || 'index';
-      } else if (s.length === 3) {
-        masterRegistryUri = s[0];
-        fileContractId = s[1];
-        filePurseId = s[2] || 'index';
-      } else {
-        throw new Error('Unable to parse dapp address');
-      }
-  
-      let multiRequestResult: undefined | MultiRequestResult;
-      try {
-        let indexes = namesBlockchain.nodes
-          .map(getNodeIndex);
-        indexes = blockchainUtils.shuffle(indexes);
-    
-        multiRequestResult = yield multiRequest(
-          {
-            type: 'explore-deploy-x',
-            body: {
-              terms: [
-                readPursesDataTerm({
-                  masterRegistryUri: masterRegistryUri,
-                  contractId: fileContractId,
-                  pursesIds: [filePurseId],
-                }),
-              ],
-            },
-          },
-          {
-            chainId: namesBlockchain.chainId,
-            urls: indexes,
-            resolverMode: settings.resolverMode,
-            resolverAccuracy: settings.resolverAccuracy,
-            resolverAbsolute: settings.resolverAbsolute,
-            multiCallId: fromBlockchain.LISTEN_FOR_DATA_AT_NAME,
-          }
-        );
-      } catch (err) {
-        yield put(
-          fromDapps.loadResourceFailedAction({
-            tabId: tabId,
-            url: payload.url,
-            error: err.error,
-          })
-        );
-        return;
-      }
-    
-      let dataFromBlockchain;
-      let dataFromBlockchainParsed: undefined | { data: { results: { data: string }[] } };
-      let verifiedDappyFile: DappyFile | undefined = undefined;
-      try {
-        dataFromBlockchain = (multiRequestResult as MultiRequestResult).result;
-        dataFromBlockchainParsed = JSON.parse(dataFromBlockchain) as { data: { results: { data: string }[] } };
-        verifiedDappyFile = yield validateAndReturnFile(
-          dataFromBlockchainParsed.data.results[0].data,
-          filePurseId,
-          '',
-          checkSignature
-        );
-      } catch (e) {
-        let error;
-        try {
-          error = JSON.parse(e.message);
-        } catch (e2) {
-          error = {
-            error: DappyLoadError.FailedToParseResponse,
-            args: {
-              message: 'Unknown parsing error',
-            },
-          };
-        }
-    
-        yield put(fromDapps.loadResourceFailedAction({ tabId: tabId, url: payload.url, error: error }));
-        return;
-      }
-    
-      const dappyFile = verifiedDappyFile as DappyFile;
-    
-      if (dappyFile.mimeType !== 'application/dappy') {
-        // todo handle non-dappy files
-      }
-    
-      let dappHtml: undefined | any;
-      try {
-        dappHtml = blockchainUtils.getHtmlFromFile(dappyFile);
-      } catch (e) {
-        yield put(
-          fromDapps.loadResourceFailedAction({
-            tabId: tabId,
-            url: payload.url,
-            error: { error: DappyLoadError.FailedToParseResponse, args: { message: 'could not get html from response' } },
-          })
-        );
-        return;
-      }
-    
-      const loadStates: {
-        [dappId: string]: {
-          completed: BeesLoadCompleted;
-          errors: BeesLoadErrors;
-          pending: string[];
-        };
-      } = yield select(fromDapps.getLoadStates);
-    
-      /*
-        todo is this safe enough ? See main/store/sagas/loadOrReloadBrowserView.ts
-    
-        the dapp HTML will be stored as a file in APP_ROOT/dist/cache/dapp.html,
-        we want to avoid strange behavior by allowing file path extensions
-      */
-      let safePath = '';
-      if (url.pathname && url.pathname.startsWith('?') && !url.pathname.includes('/')) {
-        safePath = url.pathname
-      }
-      /*
-        Not tested
-      */
-      yield put(
-        fromDapps.launchTabCompletedAction({
-          tab: {
-            ...tab,
-            active: true,
-            title: url.hostname + url.pathname,
-            url: `${url.origin}${safePath}`,
-            data: {
-              isDappyNameSystem: true,
-              chainId: namesBlockchain.chainId,
-              publicKey: publicKey,
-              html: dappHtml,
-              loadState: {
-                completed: (multiRequestResult as MultiRequestResult).loadState,
-                errors: (multiRequestResult as MultiRequestResult).loadErrors,
-                pending: [],
-              },
-            }
-          },
-        })
-      );
-      return;
-    }
   
     /*
       IP application / regular website
@@ -392,6 +209,7 @@ const loadResource = function* (action: Action) {
             publicKey: publicKey,
             isDappyNameSystem: true,
             chainId: namesBlockchain.chainId,
+            rchainNamesMasterRegistryUri: info.rchainNamesMasterRegistryUri,
           }
         },
       })

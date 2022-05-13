@@ -1,5 +1,5 @@
 import { blake2b } from 'blakejs';
-import * as rchainToolkit from 'rchain-toolkit';
+import * as rchainToolkit from '@fabcotech/rchain-toolkit';
 import * as elliptic from 'elliptic';
 import Ajv from 'ajv';
 

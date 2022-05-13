@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import path from 'path';
 
 // todo, cannot do import, why ?
-const rchainToolkit = require('rchain-toolkit');
+const rchainToolkit = require('@fabcotech/rchain-toolkit');
 
 import * as fromCommon from '../src/common';
 import * as fromIdentificationsMain from './store/identifications';
@@ -204,9 +204,10 @@ export const registerInterProcessDappProtocol = (
 
         // RCHAIN
         const okBlockchains = fromBlockchainsMain.getOkBlockchainsMain(state);
+
         const chainId = Object.keys(okBlockchains)[0];
         try {
-          if (chainId) {
+          if (!chainId) {
             dispatchFromMain({
               action: fromBlockchain.saveFailedRChainTransactionAction({
                 blockchainId: chainId,

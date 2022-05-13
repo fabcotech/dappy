@@ -1,7 +1,7 @@
 var DappyRChain = (function () {
     'use strict';
 
-    /*! *****************************************************************************
+    /******************************************************************************
     Copyright (c) Microsoft Corporation.
 
     Permission to use, copy, modify, and/or distribute this software for any
@@ -391,6 +391,62 @@ var DappyRChain = (function () {
             var _this = this;
             this.identifications = {};
             this.transactions = {};
+            this.jobs = {};
+            this.getTransactionValueJob = function (id, transaction) {
+                console.log('getTransactionValueJob', id);
+                try {
+                    if (_this.jobs[id]) {
+                        return;
+                    }
+                    if (typeof transaction.value !== 'string') {
+                        return;
+                    }
+                    _this.jobs[id] = true;
+                    if (!_this.rchainWeb) {
+                        console.warn('Cannot get transaction value, RChainWeb is not in scope');
+                        return;
+                    }
+                    var i_1 = 0;
+                    var ongoing_1 = false;
+                    var s_1 = setInterval(function () {
+                        console.log('setInterval', i_1);
+                        if (ongoing_1) {
+                            return;
+                        }
+                        ongoing_1 = true;
+                        if (i_1 > 12) {
+                            clearInterval(s_1);
+                            return;
+                        }
+                        i_1 += 1;
+                        var unforgeableId = transaction.value.slice(transaction.value.indexOf(': ') + 2).replace('"', '');
+                        console.log(transaction.value);
+                        console.log(unforgeableId);
+                        _this.rchainWeb.dataAtName({
+                            name: {
+                                UnforgDeploy: { data: unforgeableId },
+                            },
+                            depth: 3,
+                        }).then(function (dan) {
+                            ongoing_1 = false;
+                            console.log('ok');
+                            console.log(dan);
+                            if (JSON.parse(dan) && JSON.parse(dan).exprs && JSON.parse(dan).exprs.length) {
+                                console.log(RChainWeb.utils.rhoValToJs(dan.exprs[0]));
+                                clearInterval(s_1);
+                            }
+                        })
+                            .catch(function (err) {
+                            ongoing_1 = false;
+                            console.log(err);
+                        });
+                    }, 10000);
+                }
+                catch (err) {
+                    console.warn('failed to get transaction value');
+                    console.log(err);
+                }
+            };
             this.sendMessageToHost = function (m) {
                 return new Promise(function (resolve, reject) {
                     var interProcess2 = new XMLHttpRequest();
@@ -462,6 +518,14 @@ var DappyRChain = (function () {
                     }
                 };
             };
+            console.log('RChainWeb', RChainWeb);
+            if (typeof RChainWeb !== 'undefined') {
+                this.rchainWeb = new RChainWeb.http({
+                    readOnlyHost: "dappynetwork://",
+                    validatorHost: "dappynetwork://",
+                });
+                console.log(this.rchainWeb);
+            }
         }
         default_1.prototype.fetch = function (url) {
             return new Promise(function (resolve, reject) {
@@ -544,6 +608,9 @@ var DappyRChain = (function () {
         };
         default_1.prototype.updateTransactions = function (transactions) {
             var _this = this;
+            Object.keys(transactions).forEach(function (key) {
+                _this.getTransactionValueJob(key, transactions[key]);
+            });
             Object.keys(this.transactions).forEach(function (key) {
                 var callTransaction = Object.values(transactions).find(function (t) { return t.origin.origin === 'dapp' && t.origin.callId === key; });
                 if (callTransaction) {

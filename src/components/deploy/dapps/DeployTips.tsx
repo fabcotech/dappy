@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { deployTerm, createPursesTerm } from 'rchain-token';
+import { deployTerm, createPursesTerm } from '@fabcotech/rchain-token';
 import './DeployTips.scss';
 import { formatAmount, formatAmountNoDecimal } from '/utils/formatAmount';
 

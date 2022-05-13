@@ -87,8 +87,10 @@ export class RChainTransactionModalComponent extends React.Component<RChainTrans
     const payload: fromCommon.SendRChainTransactionFromMiddlewarePayload = (this.props.modal as any).parameters;
 
     let validAfterBlockNumber = 0;
+    let shardId = 'dev';
     if (this.props.rchainInfos && this.props.rchainInfos[payload.chainId]) {
       validAfterBlockNumber = this.props.rchainInfos[payload.chainId].info.lastFinalizedBlockNumber;
+      shardId = this.props.rchainInfos[payload.chainId].info.rchainShardId
     }
 
     let term = payload.parameters.term;
@@ -117,6 +119,7 @@ export class RChainTransactionModalComponent extends React.Component<RChainTrans
         term: term as string,
         timestamp: new Date().valueOf(),
         phloPrice: 1,
+        shardId: shardId,
         phloLimit: this.state.phloLimit,
         validAfterBlockNumber: validAfterBlockNumber,
       },

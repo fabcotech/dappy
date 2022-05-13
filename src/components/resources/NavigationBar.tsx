@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { utils } from 'rchain-toolkit';
+import * as rchainToolkit from '@fabcotech/rchain-toolkit';
 
 import { WithSuggestions } from './WithSuggestions';
 import * as fromDapps from '/store/dapps';
@@ -222,7 +222,7 @@ export const NavigationBar = connect(
       sendRChainPayment: (chainId: string, publicKey: string, tabId: string, address: string) => {
         let revAddress;
         try {
-          revAddress = utils.revAddressFromPublicKey(publicKey);
+          revAddress = rchainToolkit.utils.revAddressFromPublicKey(publicKey);
         } catch (err) {
           dispatch(
             fromMain.openDappModalAction({

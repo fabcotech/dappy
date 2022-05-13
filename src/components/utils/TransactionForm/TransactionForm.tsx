@@ -1,7 +1,7 @@
 import React from 'react';
 import * as elliptic from 'elliptic';
 import { Formik, Field } from 'formik';
-import * as rchainToolkit from 'rchain-toolkit';
+import * as rchainToolkit from '@fabcotech/rchain-toolkit';
 
 import { Account } from '/models';
 import { DEFAULT_PHLO_LIMIT } from '/CONSTANTS';

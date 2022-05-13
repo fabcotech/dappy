@@ -2,7 +2,7 @@ import * as React from 'react';
 import xs, { Stream } from 'xstream';
 import debounce from 'xstream/extra/debounce';
 import { connect } from 'react-redux';
-import * as rchainToolkit from 'rchain-toolkit';
+import * as rchainToolkit from '@fabcotech/rchain-toolkit';
 
 import { State as StoreState } from '/store';
 import * as fromMain from '/store/main';
@@ -181,8 +181,10 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
     const fromAddress = rchainToolkit.utils.revAddressFromPublicKey(this.state.publickey);
 
     let validAfterBlockNumber = 0;
+    let shardId = 'dev';
     if (this.props.rchainInfos && this.props.rchainInfos[payload.chainId]) {
       validAfterBlockNumber = this.props.rchainInfos[payload.chainId].info.lastFinalizedBlockNumber;
+      shardId = this.props.rchainInfos[payload.chainId].info.rchainShardId
     }
 
     const deployOptions = rchainWallet.signTransaction(
@@ -192,6 +194,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
           to: payload.parameters.to || this.state.to,
           amount: payload.parameters.amount || this.state.amount,
         }),
+        shardId: shardId,
         timestamp: new Date().valueOf(),
         phloPrice: 1,
         phloLimit: this.state.phloLimit,

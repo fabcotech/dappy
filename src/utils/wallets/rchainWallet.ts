@@ -1,4 +1,4 @@
-import { utils } from 'rchain-toolkit';
+import * as rchainToolkit from '@fabcotech/rchain-toolkit';
 
 import { Wallet } from './wallet';
 
@@ -6,6 +6,7 @@ interface RChainTransaction {
   timestamp: number;
   phloLimit: number;
   phloPrice: number;
+  shardId: string,
   validAfterBlockNumber: number;
   term: string;
 }
@@ -19,25 +20,24 @@ interface RChainSignedTransaction {
 
 export const rchainWallet: Wallet<RChainTransaction, RChainSignedTransaction> = {
   signTransaction: (tx, privateKey) => {
-    const dd = utils.getDeployOptions(
-      'secp256k1',
-      tx.timestamp,
-      tx.term,
-      privateKey,
-      utils.publicKeyFromPrivateKey(privateKey),
-      tx.phloPrice,
-      tx.phloLimit,
+    const dd = rchainToolkit.utils.getDeployOptions({
+      timestamp: tx.timestamp,
+      term: tx.term,
+      privateKey: privateKey,
+      shardId: tx.shardId,
+      phloPrice: tx.phloPrice,
+      phloLimit: tx.phloLimit,
       // todo change to -1
-      tx.validAfterBlockNumber || 1
-    );
+      validAfterBlockNumber: tx.validAfterBlockNumber || 1
+    });
 
     return dd;
   },
   publicKeyFromPrivateKey: (privateKey: string) => {
-    return utils.publicKeyFromPrivateKey(privateKey);
+    return rchainToolkit.utils.publicKeyFromPrivateKey(privateKey);
   },
   addressFromPublicKey: (publicKey: string) => {
-    return utils.revAddressFromPublicKey(publicKey);
+    return rchainToolkit.utils.revAddressFromPublicKey(publicKey);
   },
 };
 

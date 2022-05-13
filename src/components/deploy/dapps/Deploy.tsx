@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { deployTerm } from 'rchain-token';
+import { deployTerm } from '@fabcotech/rchain-token';
 
 import * as fromUi from '/store/ui';
 import * as fromMain from '/store/main';

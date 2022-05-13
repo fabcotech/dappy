@@ -33,6 +33,78 @@ export default class {
       reject: (a: { error: string; transaction?: TransactionState }) => void;
     };
   } = {};
+  jobs: {
+    [id: string]: boolean
+  } = {};
+  rchainWeb: any;
+
+  constructor() {
+    console.log('RChainWeb', RChainWeb);
+    if (typeof RChainWeb !== 'undefined') {
+      this.rchainWeb = new RChainWeb.http({
+        readOnlyHost: "dappynetwork://",
+        validatorHost: "dappynetwork://",
+      })
+      console.log(this.rchainWeb)
+    }
+  }
+
+  getTransactionValueJob = (id, transaction) => {
+    console.log('getTransactionValueJob', id);
+    try {
+      if (this.jobs[id]) {
+        return
+      }
+      if (typeof transaction.value !== 'string') {
+        return;
+      }
+      this.jobs[id] = true;
+      if (!this.rchainWeb) {
+        console.warn('Cannot get transaction value, RChainWeb is not in scope');
+        return;
+      }
+      let i = 0;
+      let ongoing = false;
+      let s = setInterval(() => {
+        console.log('setInterval', i);
+        if (ongoing) {
+          return;
+        }
+        ongoing = true;
+        if (i > 12) {
+          clearInterval(s);
+          return;
+        }
+        i += 1;
+        const unforgeableId = transaction.value.slice(transaction.value.indexOf(': ') + 2).replace('"', '')
+        console.log(transaction.value)
+        console.log(unforgeableId);
+        this.rchainWeb.dataAtName({
+          name: {
+            UnforgDeploy: { data: unforgeableId },
+          },
+          depth: 3,
+        }).then(dan => {
+          ongoing = false;
+          console.log('ok');
+          console.log(dan);
+          if (JSON.parse(dan) && JSON.parse(dan).exprs && JSON.parse(dan).exprs.length) {
+            console.log(RChainWeb.utils.rhoValToJs(dan.exprs[0]))
+            clearInterval(s);
+          }
+        })
+        .catch(err => {
+          ongoing = false;
+          console.log(err);
+        })
+  
+      }, 10000)
+
+    } catch (err) {
+      console.warn('failed to get transaction value')
+      console.log(err);
+    }
+  }
 
   sendMessageToHost = (m) => {
     return new Promise((resolve, reject) => {
@@ -203,6 +275,10 @@ export default class {
   };
 
   updateTransactions(transactions: { [transactionId: string]: TransactionState }) {
+    Object.keys(transactions).forEach((key) => {
+      this.getTransactionValueJob(key, transactions[key])
+    });
+
     Object.keys(this.transactions).forEach((key) => {
       const callTransaction = Object.values(transactions).find(
         (t) => t.origin.origin === 'dapp' && t.origin.callId === key

@@ -1,4 +1,5 @@
 import { BeesLoadCompleted, BeesLoadErrors, BeesLoadErrorWithArgs } from "@fabcotech/bees";
+import { Blockchain } from "./Blockchain";
 import { DappyLoadErrorWithArgs } from "./DappyLoadError";
 
 export interface LastLoadError {
@@ -23,6 +24,8 @@ export interface Tab {
     isDappyNameSystem?: boolean,
     publicKey?: string | undefined,
     chainId?: string | undefined,
+    blockchain?: Blockchain | undefined,
+    rchainNamesMasterRegistryUri?: string | undefined,
     html?: string | undefined,
     loadState?: {
       completed: BeesLoadCompleted;

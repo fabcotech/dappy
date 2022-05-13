@@ -152,6 +152,10 @@ const loadOrReloadBrowserView = function* (action: any) {
     title: payload.tab.title,
     host: new URL(payload.tab.url).host,
     browserView: view,
+    data: {
+      ...payload.tab.data,
+      blockchain: blockchains[payload.tab.data.chainId as string] as Blockchain,
+    },
     visible: true,
   };
 
@@ -225,34 +229,26 @@ const loadOrReloadBrowserView = function* (action: any) {
     payload: newBrowserViews,
   });
 
-  /* browser to server
-    If payload.tab.data.html then it is a dapp
-  */
-  if (!!payload.tab.data.html) {
-    const htmlPath = path.join(app.getAppPath(), 'dist/dapp.html');
-    yield view.webContents.loadURL(`file://${htmlPath}${new URL(payload.tab.url).pathname}`);
-  } else {
-    try {
-      yield view.webContents.loadURL(payload.tab.url);
-      if (settings.devMode) {
-        view.webContents.openDevTools();
-      }
-    } catch (err) {
-      action.meta.dispatchFromMain({
-        action: fromDappsRenderer.loadResourceFailedAction({
-            tabId: payload.tab.id,
-            url: payload.tab.url,
-            error: {
-              error: DappyLoadError.ServerError,
-              args: {
-                url: payload.tab.url,
-                message: err.message
-              }
-            }
-          })
-      });
-      return;
+  try {
+    yield view.webContents.loadURL(payload.tab.url);
+    if (settings.devMode) {
+      view.webContents.openDevTools();
     }
+  } catch (err) {
+    action.meta.dispatchFromMain({
+      action: fromDappsRenderer.loadResourceFailedAction({
+          tabId: payload.tab.id,
+          url: payload.tab.url,
+          error: {
+            error: DappyLoadError.ServerError,
+            args: {
+              url: payload.tab.url,
+              message: err.message
+            }
+          }
+        })
+    });
+    return;
   }
 
   // ==============================

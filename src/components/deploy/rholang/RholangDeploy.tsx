@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
-import { rhoValToJs } from 'rchain-toolkit/dist/utils';
+import * as rchainToolkit from '@fabcotech/rchain-toolkit';
 
 import { buildUnforgeableDeployQuery } from '/utils/buildUnforgeableDeployQuery';
 import { buildUnforgeableNameQuery } from '/utils/buildUnforgeableNameQuery';
@@ -139,7 +139,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
             if (parsedResp && parsedResp.data && parsedResp.data.expr) {
               this.setState({
                 parsedResp: JSON.stringify(parsedResp.data, null, 2),
-                jsValue: JSON.stringify(rhoValToJs(parsedResp.data.expr), null, 2),
+                jsValue: JSON.stringify(rchainToolkit.utils.rhoValToJs(parsedResp.data.expr), null, 2),
                 run: 0,
                 nodes: nodes.map((p) => `${p.ip}, ${p.hostname}`),
               });
@@ -151,7 +151,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
               const expr = p.expr;
               this.setState({
                 parsedResp: expr[0] ? JSON.stringify(expr[0], null, 2) : 'No data',
-                jsValue: expr[0] ? JSON.stringify(rhoValToJs(expr[0]), null, 2) : 'No data',
+                jsValue: expr[0] ? JSON.stringify(rchainToolkit.utils.rhoValToJs(expr[0]), null, 2) : 'No data',
                 run: 0,
                 nodes: nodes.map((p) => `${p.ip}, ${p.hostname}`),
               });
@@ -305,7 +305,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
         this.deployId = this.deployId.substr(0, this.deployId.length - 1);
         this.unforgeableName = '';
         this.initStep3({
-          type: 'api/listen-for-data-at-name',
+          type: 'api/data-at-name',
           body: {
             name: buildUnforgeableDeployQuery(this.deployId),
             depth: depth,
@@ -327,11 +327,11 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
       });
     }
     let runningGetDataAtName = false;
-    let getDataAtName = this.query && this.query.type === 'api/listen-for-data-at-name';
+    let getDataAtName = this.query && this.query.type === 'api/data-at-name';
     let runningExploreDeploy = false;
     let exploreDeploy = this.query && this.query.type === 'explore-deploy-x';
     if (this.state.run > 0 && !this.state.parsedResp && this.query) {
-      runningGetDataAtName = this.query.type === 'api/listen-for-data-at-name';
+      runningGetDataAtName = this.query.type === 'api/data-at-name';
       runningExploreDeploy = this.query.type === 'explore-deploy-x';
     }
 
@@ -361,7 +361,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
                     onClick={() => {
                       this.unforgeableName = '';
                       this.initStep3({
-                        type: 'api/listen-for-data-at-name',
+                        type: 'api/data-at-name',
                         body: {
                           name: buildUnforgeableDeployQuery(this.deployId),
                           depth: depth,
@@ -391,7 +391,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
                     onClick={() => {
                       this.deployId = '';
                       this.initStep3({
-                        type: 'api/listen-for-data-at-name',
+                        type: 'api/data-at-name',
                         body: {
                           name: buildUnforgeableNameQuery(this.unforgeableName),
                           depth: depth,

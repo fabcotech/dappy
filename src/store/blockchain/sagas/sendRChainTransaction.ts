@@ -1,5 +1,5 @@
 import { takeEvery, put, select } from 'redux-saga/effects';
-import { rhoValToJs } from 'rchain-toolkit/dist/utils';
+import * as rchainToolkit from '@fabcotech/rchain-toolkit';
 import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 
 import { Blockchain, TransactionStatus, MultiRequestError, SingleRequestResult } from '/models';
@@ -55,7 +55,7 @@ const sendRChainTransaction = function* (action: Action) {
 
   const node = rchainBlockchains[payload.blockchainId].nodes[0];
 
-  let previewPrivateName = ['record', 'dapp', 'rchain-token', 'transfer'].includes(payload.origin.origin);
+  let previewPrivateName = ['record', 'rchain-token', 'transfer'].includes(payload.origin.origin);
   let unforgeableName = '';
   if (previewPrivateName) {
     try {
@@ -154,7 +154,7 @@ const sendRChainTransaction = function* (action: Action) {
             try {
               multiRequest(
                 {
-                  type: 'api/listen-for-data-at-name',
+                  type: 'api/data-at-name',
                   body: {
                     name: unforgeableNameQuery,
                     depth: 5,
@@ -199,7 +199,7 @@ const sendRChainTransaction = function* (action: Action) {
         return;
       }
 
-      const jsValue = rhoValToJs(dataAtNameResponseExpr);
+      const jsValue = rchainToolkit.utils.rhoValToJs(dataAtNameResponseExpr);
       if (payload.origin.origin === 'record') {
         validateRchainTokenOperationResult(jsValue)
           .then(() => {
@@ -228,14 +228,6 @@ const sendRChainTransaction = function* (action: Action) {
             };
             store.dispatch(fromBlockchain.rChainTransactionErrorAction(p));
           });
-      } else if (payload.origin.origin === 'dapp') {
-        store.dispatch(
-          fromBlockchain.updateRChainTransactionStatusAction({
-            id: payload.id,
-            status: TransactionStatus.Completed,
-            value: jsValue,
-          })
-        );
       } else if (payload.origin.origin === 'transfer') {
         store.dispatch(
           fromBlockchain.updateRChainTransactionStatusAction({

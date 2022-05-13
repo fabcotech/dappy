@@ -1,5 +1,5 @@
-import { readPursesTerm, readConfigTerm } from 'rchain-token';
-import * as rchainToolkit from 'rchain-toolkit';
+import { readPursesTerm, readConfigTerm } from '@fabcotech/rchain-token';
+import * as rchainToolkit from '@fabcotech/rchain-toolkit';
 
 import * as fromBlockchain from '/store/blockchain';
 import { Blockchain, RChainContractConfig, RChainTokenPurse, MultiRequestParameters } from '/models';
