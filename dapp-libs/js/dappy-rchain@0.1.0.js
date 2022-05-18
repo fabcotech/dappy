@@ -392,16 +392,25 @@ var DappyRChain = (function () {
             this.identifications = {};
             this.transactions = {};
             this.jobs = {};
-            this.getTransactionValueJob = function (id, transaction) {
-                console.log('getTransactionValueJob', id);
+            this.calls = {};
+            this.eventListenners = [];
+            this.addEventListenner = function (listenner) {
+                _this.eventListenners = _this.eventListenners.concat(listenner);
+            };
+            this.triggerEvent = function (a) {
+                _this.eventListenners.forEach(function (e) {
+                    e(a);
+                });
+            };
+            this.getTransactionValueJob = function (transaction) {
+                var callId = transaction.origin.callId;
                 try {
-                    if (_this.jobs[id]) {
+                    if (_this.jobs[callId])
+                        console.log('job already initiated for ', callId);
+                    if (_this.jobs[callId] || !_this.calls[callId] || typeof transaction.value !== 'string') {
                         return;
                     }
-                    if (typeof transaction.value !== 'string') {
-                        return;
-                    }
-                    _this.jobs[id] = true;
+                    _this.jobs[callId] = true;
                     if (!_this.rchainWeb) {
                         console.warn('Cannot get transaction value, RChainWeb is not in scope');
                         return;
@@ -409,7 +418,6 @@ var DappyRChain = (function () {
                     var i_1 = 0;
                     var ongoing_1 = false;
                     var s_1 = setInterval(function () {
-                        console.log('setInterval', i_1);
                         if (ongoing_1) {
                             return;
                         }
@@ -420,8 +428,6 @@ var DappyRChain = (function () {
                         }
                         i_1 += 1;
                         var unforgeableId = transaction.value.slice(transaction.value.indexOf(': ') + 2).replace('"', '');
-                        console.log(transaction.value);
-                        console.log(unforgeableId);
                         _this.rchainWeb.dataAtName({
                             name: {
                                 UnforgDeploy: { data: unforgeableId },
@@ -429,10 +435,15 @@ var DappyRChain = (function () {
                             depth: 3,
                         }).then(function (dan) {
                             ongoing_1 = false;
-                            console.log('ok');
-                            console.log(dan);
-                            if (JSON.parse(dan) && JSON.parse(dan).exprs && JSON.parse(dan).exprs.length) {
-                                console.log(RChainWeb.utils.rhoValToJs(dan.exprs[0]));
+                            var parsed = JSON.parse(dan);
+                            if (parsed && parsed.exprs && parsed.exprs.length) {
+                                console.log('Value retrieved ! post-deploy-data-at-name, callId:', callId);
+                                _this.triggerEvent({
+                                    type: 'post-deploy-data-at-name',
+                                    callId: callId,
+                                    val: RChainWeb.utils.rhoValToJs(parsed.exprs[0].expr),
+                                    expr: parsed.exprs[0].expr,
+                                });
                                 clearInterval(s_1);
                             }
                         })
@@ -518,13 +529,14 @@ var DappyRChain = (function () {
                     }
                 };
             };
-            console.log('RChainWeb', RChainWeb);
-            if (typeof RChainWeb !== 'undefined') {
+            if (typeof RChainWeb === 'undefined') {
+                console.warn('DappyRChain needs RChainWeb in global scope. Without it it cannot retrieve transactions results.');
+            }
+            else {
                 this.rchainWeb = new RChainWeb.http({
                     readOnlyHost: "dappynetwork://",
                     validatorHost: "dappynetwork://",
                 });
-                console.log(this.rchainWeb);
             }
         }
         default_1.prototype.fetch = function (url) {
@@ -576,6 +588,7 @@ var DappyRChain = (function () {
             var _this = this;
             var promise = new Promise(function (resolve, reject) {
                 var callId = new Date().valueOf().toString() + Math.round(Math.random() * 1000000).toString();
+                _this.calls[callId] = true;
                 _this.sendMessageToHost(sendRChainTransactionFromSandboxAction({
                     parameters: parameters,
                     callId: callId,
@@ -595,6 +608,7 @@ var DappyRChain = (function () {
             var _this = this;
             var promise = new Promise(function (resolve, reject) {
                 var callId = new Date().valueOf().toString() + Math.round(Math.random() * 1000000).toString();
+                _this.calls[callId] = true;
                 _this.sendMessageToHost(sendRChainPaymentRequestFromSandboxAction({
                     parameters: parameters,
                     callId: callId,
@@ -608,9 +622,15 @@ var DappyRChain = (function () {
         };
         default_1.prototype.updateTransactions = function (transactions) {
             var _this = this;
+            /*
+              Get value on deployId
+            */
             Object.keys(transactions).forEach(function (key) {
-                _this.getTransactionValueJob(key, transactions[key]);
+                _this.getTransactionValueJob(transactions[key]);
             });
+            /*
+              Resolve / Reject the Promise
+            */
             Object.keys(this.transactions).forEach(function (key) {
                 var callTransaction = Object.values(transactions).find(function (t) { return t.origin.origin === 'dapp' && t.origin.callId === key; });
                 if (callTransaction) {

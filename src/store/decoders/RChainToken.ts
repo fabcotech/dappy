@@ -32,7 +32,7 @@ export const validateRChainTokenPrice = (data: any) => {
 };
 
 const readBox1400 = {
-  schemaId: 'read-box-16.0.0',
+  schemaId: 'read-box-17.0.6',
   type: 'object',
   properties: {
     version: { type: 'string' },
@@ -48,7 +48,7 @@ const readBox1400 = {
   required: ['purses', 'superKeys', 'version', 'publicKey'],
 };
 const purses1400 = {
-  schemaId: 'purses-16.0.0',
+  schemaId: 'purses-17.0.6',
   type: 'object',
   patternProperties: {
     '.{1,}': {
@@ -66,7 +66,7 @@ const purses1400 = {
 };
 
 const contractConfig1400 = {
-  schemaId: 'contract-config-16.0.0',
+  schemaId: 'contract-config-17.0.6',
   type: 'object',
   properties: {
     contractId: { type: 'string' },
@@ -84,7 +84,7 @@ const contractConfig1400 = {
 };
 
 const createPursePayload1400 = {
-  schemaId: 'create-purse-payload-16.0.0',
+  schemaId: 'create-purse-payload-17.0.6',
   type: 'object',
   properties: {
     boxId: { type: 'string' },
@@ -126,10 +126,10 @@ interface RChainTokenTypes {
   createPursePayload: (obj: any) => ValidationError[];
 }
 
-export const LATEST_PROTOCOL_VERSION = '16.0.0';
+export const LATEST_PROTOCOL_VERSION = '17.0.6';
 
 export const rchainTokenValidators: Record<string, RChainTokenTypes> = {
-  ['16.0.0']: {
+  ['17.0.6']: {
     readBox: validate(readBox1400),
     purses: validate(purses1400),
     contractConfig: validate(contractConfig1400),
