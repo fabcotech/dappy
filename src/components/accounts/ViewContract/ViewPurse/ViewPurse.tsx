@@ -194,8 +194,10 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                         const timestamp = new Date().valueOf();
 
                         let validAfterBlockNumber = 0;
+                        let shardId = '';
                         if (this.props.rchainInfos && this.props.rchainInfos) {
                           validAfterBlockNumber = this.props.rchainInfos.info.lastFinalizedBlockNumber;
+                          shardId = this.props.rchainInfos.info.rchainShardId;
                         }
                         const term = withdrawTerm({
                           masterRegistryUri: this.props.rchainInfos.info.rchainNamesMasterRegistryUri,
@@ -213,6 +215,7 @@ export class ViewPurseComponent extends React.Component<ViewPurseProps, ViewPurs
                             phloPrice: 1,
                             phloLimit: RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
                             validAfterBlockNumber: validAfterBlockNumber,
+                            shardId: shardId,
                           },
                           this.props.privateKey as string
                         );

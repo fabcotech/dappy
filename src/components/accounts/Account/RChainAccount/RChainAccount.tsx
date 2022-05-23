@@ -201,8 +201,10 @@ export const RChainAccountComponent = ({
                       }
 
                       let validAfterBlockNumber = 0;
+                      let shardId = '';
                       if (rchainInfos && rchainInfos[chainId]) {
                         validAfterBlockNumber = rchainInfos[chainId].info.lastFinalizedBlockNumber;
+                        shardId = rchainInfos[chainId].info.rchainShardId;
                       }
                       const term = deployBoxTerm({
                         boxId: 'box' + new Date().getTime().toString().slice(7),
@@ -213,6 +215,7 @@ export const RChainAccountComponent = ({
                         {
                           term: term,
                           timestamp: timestamp,
+                          shardId: shardId,
                           phloPrice: 1,
                           phloLimit: RCHAIN_TOKEN_OPERATION_PHLO_LIMIT,
                           validAfterBlockNumber: validAfterBlockNumber,

@@ -202,9 +202,12 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
     );
 
     let validAfterBlockNumber = 0;
+    let shardId = '';
     if (this.props.namesBlockchainInfos.info) {
+      shardId = this.props.namesBlockchainInfos.info.rchainShardId;
       validAfterBlockNumber = this.props.namesBlockchainInfos.info.lastFinalizedBlockNumber;
     }
+
 
     const phloPrice = 1;
     const deployOptions = rchainWallet.signTransaction(
@@ -212,6 +215,7 @@ export class PurchaseRecordComponent extends React.Component<PurchaseRecordProps
         term: term,
         timestamp: new Date().valueOf(),
         phloPrice: phloPrice,
+        shardId: shardId,
         phloLimit: this.state.phloLimit,
         validAfterBlockNumber: validAfterBlockNumber,
       },

@@ -9,12 +9,13 @@ describe('RChain Wallet', () => {
         phloPrice: 10,
         validAfterBlockNumber: 1,
         term: 'any',
+        shardId: 'dev',
       },
       'e331b6d69882b4cb4ea581d88e0b604039a3de5967688d3dcffdd2270c0fd109'
     );
 
     expect(signedTx.signature).toEqual(
-      '30440220248b5ec0839b14f58738ba5207a99e678e179b8e136327b787e62dd962c998bb022043f0ff411b66b6c964e23262e41f9372a76c7ea0b286cd3172c6e9d71395d9d9'
+      '3044022077dbf1d3f1b048dc110d14365aea7aa252dcd0c5fa329ae8fa79c87c5701adcd0220304eb9d79736335bdcf9e405baa2e1a993ce83f965640e85f4db68e7da6e543b'
     );
     expect(signedTx.deployer).toEqual(
       rchainWallet.publicKeyFromPrivateKey('e331b6d69882b4cb4ea581d88e0b604039a3de5967688d3dcffdd2270c0fd109')
