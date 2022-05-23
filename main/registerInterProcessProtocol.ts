@@ -186,11 +186,6 @@ export const registerInterProcessProtocol = (
         return;
       }
 
-      console.log(first);
-      console.log(blockchains[first].nodes);
-
-      console.log('interprocess://dappy-lookup');
-      console.log(request.headers['Data']);
       try {
         const data = JSON.parse(decodeURI(request.headers['Data']));
         if (data.value.method === "lookup") {

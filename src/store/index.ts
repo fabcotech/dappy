@@ -26,7 +26,6 @@ import {
   validateSettings,
   validateBlockchains,
   validateUi,
-  validateRecords,
   validateDappyNodeFullInfo,
   validateTabs,
   validateTransactionStates,
@@ -38,7 +37,6 @@ import { loggerSaga } from './utils';
 import { PREDEFINED_TABS } from '../TABS';
 import { initCronJobs } from './initCronJobs';
 import { interProcess } from '../interProcess';
-import { browserUtils } from './browser-utils';
 
 import { MultiRequestResult } from '../models';
 // import { upgrades } from './upgrades';
@@ -406,6 +404,9 @@ dbReq.onsuccess = (event) => {
   requestBlockchains.onsuccess = (e) => {
     let blockchainsToCheck = requestBlockchains.result;
     blockchainsToCheck.map(bc => {
+      if (!bc.hasOwnProperty('auto')) {
+        bc.auto = true;
+      }
       if (bc.auto && !!dappyNetworks[bc.chainId as DappyNetworkId]) {
         bc.auto = true;
         bc.nodes = dappyNetworks[bc.chainId as DappyNetworkId];

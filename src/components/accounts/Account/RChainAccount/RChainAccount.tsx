@@ -210,6 +210,7 @@ export const RChainAccountComponent = ({
                         boxId: 'box' + new Date().getTime().toString().slice(7),
                         masterRegistryUri: rchainInfos[chainId].info.rchainNamesMasterRegistryUri,
                         publicKey: account.publicKey,
+                        revAddress: rchainWallet.addressFromPublicKey(account.publicKey)
                       });
                       const deployOptions = rchainWallet.signTransaction(
                         {

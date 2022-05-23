@@ -56,7 +56,6 @@ const sendRChainTransaction = function* (action: Action) {
   const node = rchainBlockchains[payload.blockchainId].nodes[0];
 
   let previewPrivateName = ['record', 'rchain-token', 'transfer'].includes(payload.origin.origin);
-  let unforgeableName = '';
   if (previewPrivateName) {
     try {
       const channelRequest = {
@@ -65,15 +64,8 @@ const sendRChainTransaction = function* (action: Action) {
         nameQty: 1,
       };
 
-      let prepareDeployResponse: undefined | SingleRequestResult;
-      prepareDeployResponse = yield singleRequest(
-        { type: 'api/prepare-deploy', body: channelRequest },
-        node as DappyNetworkMember
-      );
-
       // TODO random node / multiple nodes to avoid failing if
-      // downtime on a single node
-      unforgeableName = JSON.parse((prepareDeployResponse as SingleRequestResult).data).names[0];
+      // downtime on deploy on a single node
     } catch (err) {
       const p: fromBlockchain.RChainTransactionErrorPayload = {
         id: payload.id,
@@ -91,7 +83,8 @@ const sendRChainTransaction = function* (action: Action) {
   let deployResponse: undefined | SingleRequestResult = undefined;
   try {
     deployResponse = yield singleRequest({ type: 'api/deploy', body: payload.transaction }, node as DappyNetworkMember);
-    if (!(deployResponse as SingleRequestResult).data.startsWith('"Success')) {
+    const resp = (deployResponse as SingleRequestResult).data as string;
+    if (!resp.startsWith('"Success')) {
       yield put(
         fromBlockchain.rChainTransactionErrorAction({
           id: payload.id,
@@ -101,6 +94,9 @@ const sendRChainTransaction = function* (action: Action) {
       );
       return;
     }
+
+    const unforgeableId = resp.toString().slice(resp.toString().indexOf(': ') + 2).replace('"', '');
+    console.log('unforgeableId', unforgeableId)
 
     if (payload.alert) {
       let message = t('transaction successful');
@@ -137,7 +133,7 @@ const sendRChainTransaction = function* (action: Action) {
     );
 
     if (previewPrivateName) {
-      const unforgeableNameQuery = buildUnforgeableNameQuery(unforgeableName);
+      const unforgeableNameQuery = buildUnforgeableNameQuery(unforgeableId);
       let interval: NodeJS.Timeout | undefined;
       let dataAtNameResponseExpr: { [key: string]: any } | undefined;
       try {

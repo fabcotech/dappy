@@ -15,7 +15,7 @@ import { rchainWallet } from '/utils/wallets';
 
 import './RholangDeploy.scss';
 
-const defaultRholang = `new a, stdout(\`rho:io:stdout\`), deployId(\`rho:rchain:deployId\`) in {\n  a!("bonjour !") |\n  stdout!("bonjour !") |\n  deployId!("bonjour !")\n}`;
+const defaultRholang = `new stdout(\`rho:io:stdout\`), deployId(\`rho:rchain:deployId\`) in {\n  stdout!("bonjour !") |\n  deployId!("bonjour !")\n}`;
 const depth = 5;
 
 interface RholangDeployProps {
@@ -249,8 +249,10 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
 
         const term = this.state.rholang;
         let validAfterBlockNumber = 0;
+        let shardId = '';
         if (this.props.rchainInfos && this.props.rchainInfos[chainId]) {
           validAfterBlockNumber = this.props.rchainInfos[chainId].info.lastFinalizedBlockNumber;
+          shardId = this.props.rchainInfos[chainId].info.rchainShardId;
         }
         const deployOptions = rchainWallet.signTransaction(
           {
@@ -258,6 +260,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
             timestamp: timestamp,
             phloPrice: 1,
             phloLimit: this.state.phloLimit,
+            shardId: shardId,
             validAfterBlockNumber: validAfterBlockNumber,
           },
           this.state.privatekey
@@ -301,8 +304,7 @@ export class RholangDeployComponent extends React.Component<RholangDeployProps, 
       const transaction = this.props.transactions[this.transactionId];
       this.transactionId = '';
       if (transaction.value && typeof transaction.value === 'string') {
-        this.deployId = transaction.value.slice(24);
-        this.deployId = this.deployId.substr(0, this.deployId.length - 1);
+        this.deployId = transaction.value.slice(transaction.value.indexOf(': ') + 2).replace('"', '');
         this.unforgeableName = '';
         this.initStep3({
           type: 'api/data-at-name',

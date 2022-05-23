@@ -30,6 +30,7 @@ export default {
     'zlib',
     'events',
     'url',
+    'isarray',
     'util',
     'string_decoder',
   ],

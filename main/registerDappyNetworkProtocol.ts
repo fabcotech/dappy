@@ -31,6 +31,7 @@ export const registerDappyNetworkProtocol = (
       .map(getNodeIndex);
 
     if (request.url === "dappynetwork:///explore-deploys") {
+      console.log('dappynetwork:///explore-deploys');
       let data = {};
       try {
         data = JSON.parse(request.headers.Data);
@@ -68,6 +69,7 @@ export const registerDappyNetworkProtocol = (
         console.log(err)
       })
     } else if (request.url === 'dappynetwork:///api/explore-deploy') {
+      console.log('dappynetwork:///api/explore-deploy')
       performMultiRequest(
         {
           type: 'api/explore-deploy',
