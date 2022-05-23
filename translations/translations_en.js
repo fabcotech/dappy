@@ -121,14 +121,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "resolver",
-    "definition": "Resolver",
-    "context": "Settings > Settings",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "auto",
     "definition": "Auto",
     "context": "Settings > Settings",
@@ -139,22 +131,6 @@ module.exports.translations = [
   {
     "term": "custom",
     "definition": "Custom",
-    "context": "Settings > Settings",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "number of nodes",
-    "definition": "Number of nodes",
-    "context": "Settings > Settings",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "accuracy",
-    "definition": "Accuracy",
     "context": "Settings > Settings",
     "term_plural": "",
     "reference": "",
@@ -178,7 +154,7 @@ module.exports.translations = [
   },
   {
     "term": "settings development paragraph",
-    "definition": "Turn the development mode and a devtool will pop each time a web application launches.",
+    "definition": "Turn the development mode on and a devtool will pop each time a web application launches.",
     "context": "Settings > Settings",
     "term_plural": "",
     "reference": "",
@@ -376,7 +352,7 @@ module.exports.translations = [
   },
   {
     "term": "nodes paragraph",
-    "definition": "You can add as many nodes as you want. At each request, dappy selects randomly n nodes (n is the <i>Number of nodes</i> value) among the available nodes and performs the call. The more nodes there\nis, the more accurate, secure and decentralized the navigation will be.\n\n\nEach days, dappy runs benchmarks to check available nodes.",
+    "definition": "Dappy need a network to do co-resolution. You can reference a network below, use the default one (d) or another one.",
     "context": "Settings > Network",
     "term_plural": "",
     "reference": "",
@@ -528,14 +504,6 @@ module.exports.translations = [
     "term": "loaded at",
     "definition": "Loaded at",
     "context": "Settings > Names > Names",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "add local name paragraph",
-    "definition": "In addition to the names that are automatically loaded from the blockchain you can add your custom names that will only be used locally. You must know the public key that will be used to verify the data loaded, and the blockchain address.",
-    "context": "Settings > Names > Add local name",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -861,7 +829,7 @@ module.exports.translations = [
   },
   {
     "term": "add account paragraph",
-    "definition": "Accounts allow you to avoid inputing your private key each time you need to send a transaction, and keep track of your REV balances. You can have as many accounts as you wish. The private keys are encrypted using a password you are the only one to know.\n\nThe main account will be auto-selected when asking to select an account to pay the transaction with.\n\n<b>Note: </b>Block creation and balance update with multi-request takes approximately 10 minutes on mainnet.",
+    "definition": "Accounts secure your private keys with a password. They can be used to manage cryptocurrency, and authenticate to websites without papsswords.<br /><br /><b>Note : </b>cryptocurrency balances are loaded with co-resolution, just like service discovery for websites on dappy !",
     "context": "Settings > Accounts > Add account",
     "term_plural": "",
     "reference": "",
@@ -1678,7 +1646,7 @@ module.exports.translations = [
   },
   {
     "term": "purchase a name 2",
-    "definition": "Name is the core asset of the dappy ecosystem, you can use a name to reference your website on the internet network (IP application), you can point your name to a HTML file or any other file that you have uploaded on the blockchain (dapp), you can also use it to receive payments, or as a speculative asset.",
+    "definition": "A name is your identifier in the dappy network. Your name can be used to exposed websites to the internet, and in some case to authenticate securely to protected websites.",
     "context": "Settings > Names > Purchase name",
     "term_plural": "",
     "reference": "",
@@ -1718,16 +1686,8 @@ module.exports.translations = [
   },
   {
     "term": "update name paragraph 2",
-    "definition": "The data associated to a name can be updated anytime by the owner. It can point to another file on the blockchain, or be turned from dapp to IP app and vice versa.",
+    "definition": "Often a zone file is associated with a name. Just like in the DNS, administrator can add A, AAAA, CERT or TEXT records. Dappy browser right now does not provide full features interface for managing a zone.",
     "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "add local name dev",
-    "definition": "Add local name (development)",
-    "context": "Settings > Names",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -2212,7 +2172,7 @@ module.exports.translations = [
   },
   {
     "term": "no accounts configured",
-    "definition": "No accounts is configured",
+    "definition": "No accounts configured",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -2510,6 +2470,14 @@ module.exports.translations = [
     "term": "what is multi-requests ?",
     "definition": "What is multi-requests ?",
     "context": "Help",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "rchain shard id",
+    "definition": "Shard ID",
+    "context": "Settings > Networks",
     "term_plural": "",
     "reference": "",
     "comment": ""
