@@ -36,6 +36,7 @@ interface RootComponentProps {
   isNavigationInTransactions: boolean;
   isNavigationInDeploy: boolean;
   isBeta: boolean;
+  platform: fromUi.State['platform'];
   currentVersion: undefined | string;
   gcu: undefined | string;
   shouldDisplayAccountCreationForm: boolean;
@@ -166,13 +167,16 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
               navigate={this.props.navigate}
             />
             <div className="root-right">
-              <div className="fc top-window-buttons">
-                <div className="drag-top"></div>
-                <div className="drag-bottom"></div>
-                <i onClick={() => minimize()} className="fa fa-minus"></i>
-                <i onClick={() => maximize()} className="square-max"></i>
-                <i onClick={() => close()} className="fa fa-times"></i>
-              </div>
+              {
+                this.props.platform && this.props.platform !== 'darwin' &&
+                <div className="fc top-window-buttons">
+                  <div className="drag-top"></div>
+                  <div className="drag-bottom"></div>
+                  <i onClick={() => minimize()} className="fa fa-minus"></i>
+                  <i onClick={() => maximize()} className="square-max"></i>
+                  <i onClick={() => close()} className="fa fa-times"></i>
+                </div>
+              }
               {this.props.isNavigationInSettings ? (
                 <SettingsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
               ) : undefined}
@@ -216,6 +220,7 @@ export const Root = connect(
     language: fromUi.getLanguage(state),
     currentVersion: fromMain.getCurrentVersion(state),
     gcu: fromUi.getGcu(state),
+    platform: fromUi.getPlatform(state),
     shouldDisplayAccountCreationForm: shouldDisplayAccountCreationForm(state),
     isAwaitingUpdate: false,
     isBeta: fromMain.getIsBeta(state),

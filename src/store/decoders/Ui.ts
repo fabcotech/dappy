@@ -22,6 +22,7 @@ export const uiSchema = yup
     tabsListDisplay: yup.number().required(),
     devMode: yup.boolean().required(),
     gcu: yup.string(),
+    platform: yup.string(),
     navigationUrl: yup
       .string()
       .required()

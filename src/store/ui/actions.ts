@@ -12,12 +12,21 @@ export const UPDATE_GCU = '[Ui] Update gcu';
 export const UPDATE_CONTRACT_LOGS = '[Ui] Update contract logs';
 export const UPDATE_SHOW_ACCOUNT_CREATION_AT_STARTUP = '[Ui] Update show account creation at startup';
 export const TOGGLE_BALANCES_VISIBILITY = '[Ui] Toggle balance visibility';
+export const UPDATE_PLATFORM = '[Ui] Update Platform';
 
 export interface UpdateUiFromStoragePayload {
   uiState: fromReducer.State;
 }
 export const updateUiFromStorageAction = (values: UpdateUiFromStoragePayload) => ({
   type: UPDATE_UI_FROM_STORAGE,
+  payload: values,
+});
+
+export interface UpdatePlatform {
+  platform: fromReducer.State['platform'];
+}
+export const updatePlatformAction = (values: UpdatePlatform) => ({
+  type: UPDATE_PLATFORM,
   payload: values,
 });
 

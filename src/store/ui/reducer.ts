@@ -7,6 +7,7 @@ import { NavigationUrl, Language } from '/models';
 
 export interface State {
   gcu: undefined | string;
+  platform: 'aix' | 'darwin' | 'freebsd' | 'linux' | 'openbsd' | 'sunos' | 'win32' | undefined;
   language: Language;
   menuCollapsed: boolean;
   devMode: boolean;
@@ -24,6 +25,7 @@ export interface State {
 export const initialState: State = {
   gcu: undefined,
   language: 'en',
+  platform: undefined,
   menuCollapsed: false,
   devMode: false,
   tabsListDisplay: 1,
@@ -118,6 +120,15 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
+    case fromActions.UPDATE_PLATFORM: {
+      const payload: fromActions.UpdatePlatform = action.payload;
+
+      return {
+        ...state,
+        platform: payload.platform,
+      };
+    }
+
     case fromActions.UPDATE_LANGUAGE: {
       const payload: fromActions.UpdateLanguagePayload = action.payload;
 
@@ -168,6 +179,8 @@ export const getMenuCollapsed = createSelector(getUiState, (state: State) => sta
 export const getTabsListDisplay = createSelector(getUiState, (state: State) => state.tabsListDisplay);
 
 export const getDevMode = createSelector(getUiState, (state: State) => state.devMode);
+
+export const getPlatform = createSelector(getUiState, (state: State) => state.platform);
 
 export const getNavigationUrl = createSelector(getUiState, (state: State) => state.navigationUrl);
 

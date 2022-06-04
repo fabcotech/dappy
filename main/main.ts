@@ -32,7 +32,12 @@ let browserWindow: undefined | BrowserWindow = undefined;
 let dispatchesFromMainAwaiting: {
   type: string;
   payload: any;
-}[] = [];
+}[] = [{
+  type: '[Ui] Update Platform',
+  payload: {
+    platform: process.platform
+  }
+}];
 const getDispatchesFromMainAwaiting = () => {
   const t = (
     [] as {
@@ -120,7 +125,8 @@ function createWindow() {
   browserWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    frame: false,
+    // leave frame on osx / mac
+    frame: process.platform === 'darwin',
     transparent: true,
     webPreferences: {
       nodeIntegration: false,
