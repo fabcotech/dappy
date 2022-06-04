@@ -2,9 +2,10 @@ import { Session, app } from 'electron';
 import fs from 'fs';
 import path from 'path';
 
-const csss = fs.readdirSync(path.join(app.getAppPath(), 'dist/renderer/css'));
-const jss = fs.readdirSync(path.join(app.getAppPath(), 'dist/renderer/js'));
-const files = jss.concat(csss);
+const csss = fs.readdirSync(path.join(app.getAppPath(), 'dist/renderer/css'))
+const jss = fs.readdirSync(path.join(app.getAppPath(), 'dist/renderer/js'))
+const fontss = fs.readdirSync(path.join(app.getAppPath(), 'dist/renderer/fonts'))
+const files = jss.concat(csss).concat(fontss);
 
 export const registerDappyLocalProtocol = (session: Session) => {
   return session.protocol.registerBufferProtocol('dappyl', (request, callback) => {
