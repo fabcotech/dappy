@@ -107,6 +107,7 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
     networkHosts = [url.hostname];
   } else {
     try {
+      // todo support ipv6 / AAAA ?
       networkHosts = (await lookup(url.hostname, 'A', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data)
       ca = (await lookup(url.hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data);
     } catch (err) {
@@ -200,7 +201,7 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
         }
       );
     } catch (err) {
-      st.push(getHtmlError("dapp error", "Failed to retreive HTML"))
+      st.push(getHtmlError("Dapp error", "Failed to retreive HTML from the blockchain"))
       st.end()
       return {
         data: st,
@@ -222,7 +223,14 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
         false
       );
     } catch (e) {
-      st.push(getHtmlError("dapp error", "Failed to validate HTML file"))
+      st.push(getHtmlError(
+        "Dapp error",
+        "Failed to validate HTML file retrieved from the blockchain",
+        {
+          type: 'dapp',
+          log: `DAPP TXT ${dappAddressRecord}`
+        }
+      ));
       st.end()
       return {
         data: st,
@@ -234,7 +242,14 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
     const dappyFile = verifiedDappyFile as DappyFile;
   
     if (!['text/html', 'application/dappy'].includes(dappyFile.mimeType)) {
-      st.push(getHtmlError("dapp error", "Only application/dappy and text/html files can be handled"))
+      st.push(getHtmlError(
+        "Invalid dapp format",
+        "Only application/dappy and text/html files can be handled",
+        {
+          type: 'dapp',
+          log: `DAPP TXT ${dappAddressRecord}`
+        }
+      ))
       st.end()
       return {
         data: st,
@@ -247,7 +262,14 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
     try {
       dappHtml = getHtmlFromFile(dappyFile);
     } catch (e) {
-      st.push(getHtmlError("dapp error", "Failed to get HTML from file (gzip)"))
+      st.push(getHtmlError(
+        "Dapp parsing error",
+        "Failed to get HTML from archive (gzip)",
+        {
+          type: 'dapp',
+          log: `DAPP TXT ${dappAddressRecord}`
+        }
+      ))
       st.end()
       return {
         data: st,
@@ -283,7 +305,21 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
     if (!networkHosts || !(networkHosts as string[])[i]) {
       if (debug) console.log(`[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${url.hostname})`);
       const st = new stream.PassThrough();
-      st.push(getHtmlError("IP app error", "Failed to load"))
+      if (!networkHosts || networkHosts.length === 0) {
+        st.push(getHtmlError(
+          "Lookup error",
+          "Name system zone has no A or AAAA record",
+        ))
+      } else {
+        st.push(getHtmlError(
+          "IP app error",
+          "Failed to load IP application, check that the servers are reachable and properly configured",
+          {
+            type: 'ip app',
+            log: (networkHosts || []).join('\n')
+          }
+        ))
+      }
       st.end()
       return {
         data: st,
@@ -455,7 +491,14 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
               }
 
               const st = new stream.PassThrough();
-              st.push(getHtmlError("IP app error", err.message || "Could not load"))
+              st.push(getHtmlError(
+                "IP app error",
+                err.message || "Failed to load IP application, check that the servers are reachable and properly configured",
+                {
+                  type: 'ip app',
+                  log: (networkHosts || []).join('\n')
+                }
+              ))
               st.end()
               resolve({
                 data: st,
@@ -515,7 +558,14 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
             Will catch in main/store/sagas/loadOrReloadBrowserView.ts L193
           */
           const st = new stream.PassThrough();
-          st.push(getHtmlError("IP app error", err.message || "Could not to load"))
+          st.push(getHtmlError(
+            "IP app error",
+            err.message || "Failed to load IP application, check that the servers are reachable and properly configured",
+            {
+              type: 'ip app',
+              log: (networkHosts || []).join('\n')
+            }
+          ))
           st.end()
           resolve({
             data: st,

@@ -16,6 +16,9 @@ export const registerDappyLocalProtocol = (session: Session) => {
       } else if (filePath.endsWith('.css')) {
         const buf = fs.readFileSync(path.join(app.getAppPath(), 'dist/renderer/', filePath));
         callback(buf);
+      } else if (filePath.endsWith('.ttf')) {
+        const buf = fs.readFileSync(path.join(app.getAppPath(), 'dist/', filePath))
+        callback(buf);
       } else {
         callback(Buffer.from(''));
       }
