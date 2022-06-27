@@ -45,9 +45,11 @@ li.update-available {
       flex-direction: column;
     }
     &.not-collapsed {
-      -webkit-user-select: none;
-      user-select: none;
-      -webkit-app-region: drag;
+      li:nth-child(1), li:nth-child(2) {
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-app-region: drag;
+      }
       width: 100%;
       height: auto;
       display: flex;
