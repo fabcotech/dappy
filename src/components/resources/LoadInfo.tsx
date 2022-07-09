@@ -2,6 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 
 import './LoadInfo.scss';
+import { DAPPY_NAME_SYSTEM_VISUAL_TLD } from '/CONSTANTS';
 import { Blockchain, Tab } from '/models';
 import * as fromMain from '/store/main';
 import * as fromSettings from '/store/settings';
@@ -27,7 +28,7 @@ class LoadInfoComponent extends React.Component<LoadInfoComponentProps> {
       }
     }
 
-    if (host.endsWith('.dappy')) {
+    if (host.endsWith(`.${DAPPY_NAME_SYSTEM_VISUAL_TLD}`)) {
       return (
         <div className="load-info-background">
           <div className="load-info">

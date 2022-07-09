@@ -37,7 +37,7 @@ class NavigationBarHomeComponent extends WithSuggestions {
           <input
             spellCheck="false"
             ref={this.setInputEl}
-            placeholder={`Type dappy or ${this.props.namesBlockchainId}:dappy`}
+            placeholder={``}
             className={`${this.state.pristine ? 'pristine' : ''} input`}
             value={this.state.url || ''}
             onChange={this.onChange}

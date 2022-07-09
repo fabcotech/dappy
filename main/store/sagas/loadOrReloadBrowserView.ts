@@ -342,7 +342,7 @@ const loadOrReloadBrowserView = function* (action: any) {
         const urlFav = new URL(favicons[0]);
 
         try {
-          if (urlFav.hostname.endsWith('.dappy')) {
+          if (urlFav.hostname.endsWith('.d')) {
             const networkHosts = (await lookup(urlFav.hostname, 'A', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data)
             const ca = (await lookup(urlFav.hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data)
             let options: https.RequestOptions = {

@@ -17,6 +17,7 @@ export const VERSION = process.env.PACKAGE_VERSION;
 
 export const RCHAIN_TOKEN_SUPPORTED_VERSIONS = ['17.0.6'];
 
+export const DAPPY_NAME_SYSTEM_VISUAL_TLD = 'd';
 export const MAIN_CHAIN_ID = 'd';
 export const DAPPY_TOKEN_CONTRACT_ID = 'dappytoken';
 export const CHAIN_IDS: { [chainId: string]: { name: string; platform: 'rchain' } } = {

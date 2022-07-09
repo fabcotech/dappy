@@ -2,7 +2,7 @@ import { NamePacket, ReturnCode, RR } from "/models/FakeDappyLookup";
 
 const dappyLookup = {
 
-  // host: pro.dappy, type: 'TXT'
+  // host: pro.d, type: 'TXT'
 
   lookup: (host: string, type: string, cacheHandler?: any) => {
     return {

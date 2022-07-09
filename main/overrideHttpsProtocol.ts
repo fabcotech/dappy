@@ -7,6 +7,7 @@ import { DappyBrowserView } from './models';
 import { Cookie as DappyCookie } from '/models';
 import { DispatchFromMainArg } from './main';
 import { tryToLoad } from './tryToLoad';
+import { DAPPY_NAME_SYSTEM_VISUAL_TLD } from '/CONSTANTS';
 
 const executeSentryRequest = (request: ProtocolRequest): Promise<ProtocolResponse> => {
   return new Promise((resolve, reject) => {
@@ -73,7 +74,7 @@ const makeInterceptHttpsRequests = ({ dappyNetworkMembers, dappyBrowserView, par
     }
 
     /* Dappy name system */
-    if (new URL(request.url).hostname.endsWith('.dappy')) {
+    if (new URL(request.url).hostname.endsWith(`.${DAPPY_NAME_SYSTEM_VISUAL_TLD}`)) {
       try {
         callback(await tryToLoad({ dappyNetworkMembers, partitionIdHash, dns: false, debug, dappyBrowserView, setIsFirstRequest, getIsFirstRequest, setCookie, request, getBlobData }));
       } catch (err) {

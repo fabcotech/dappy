@@ -43,7 +43,7 @@ export const isCookieDomainSentWithHost = (cookieDomain: string | undefined, hos
   if (cookieDomain === `.${host}`) return true;
 
   // TLD cookies not sent fo 2nd/3rd/etc levels
-  // do not send cookie if domain = .com or com or .dappy or dappy
+  // do not send cookie if domain = .com or com or .d or dappy
   if (cookieDomain.startsWith('.') && (cookieDomain.match(/\./g) || []).length === 1) return false;
   if ((cookieDomain.match(/\./g) || []).length === 0) return false;
 
@@ -436,7 +436,7 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
 
               /*
                 todo, how to know a request is first hand navigation ?
-                all .dappy first hand navigations must have the dappy CSP
+                all .d first hand navigations must have the dappy CSP
                 override
               */
               over = true;

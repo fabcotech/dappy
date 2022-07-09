@@ -22,8 +22,8 @@ describe('isCookieDomainSentWithHost', () => {
     expect(isCookieDomainSentWithHost('jiojiojio', 'example.com')).toEqual(false);
     expect(isCookieDomainSentWithHost('com', 'example.com')).toEqual(false);
     expect(isCookieDomainSentWithHost('.com', 'example.com')).toEqual(false);
-    expect(isCookieDomainSentWithHost('tech', 'hello.dappy.com')).toEqual(false);
-    expect(isCookieDomainSentWithHost('dappy', 'hello.dappy')).toEqual(false);
+    expect(isCookieDomainSentWithHost('tech', 'hello.d.com')).toEqual(false);
+    expect(isCookieDomainSentWithHost('dappy', 'hello.d')).toEqual(false);
   });
 
   it('should send cookie with host', () => {
@@ -32,7 +32,7 @@ describe('isCookieDomainSentWithHost', () => {
     expect(isCookieDomainSentWithHost('.example.com', 'pro.example.com')).toEqual(true);
     expect(isCookieDomainSentWithHost('.example.com', 'hey.pro.example.com')).toEqual(true);
     expect(isCookieDomainSentWithHost('example.com', 'hey.pro.example.com')).toEqual(true);
-    expect(isCookieDomainSentWithHost('pro.hi.dappy', 'pro.hi.dappy')).toEqual(true);
-    expect(isCookieDomainSentWithHost('pro.hi.dappy', 'hey.pro.hi.dappy')).toEqual(true);
+    expect(isCookieDomainSentWithHost('pro.hi.d', 'pro.hi.d')).toEqual(true);
+    expect(isCookieDomainSentWithHost('pro.hi.d', 'hey.pro.hi.d')).toEqual(true);
   });
 });

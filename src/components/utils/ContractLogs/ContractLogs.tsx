@@ -12,6 +12,7 @@ import { dustToRev } from '/utils/unit';
 import { Blockchain } from '/models';
 import { searchToAddress } from '/utils/searchToAddress';
 import { LoadResourcePayload } from '/store/dapps';
+import { DAPPY_NAME_SYSTEM_VISUAL_TLD } from '/CONSTANTS';
 
 const parseLogTs = (l: string) => {
   const match = l.match(/^[^,]+,(\d+),/);
@@ -76,7 +77,7 @@ const goToPurse =
   (namesBlockchain: Blockchain | undefined, loadResource: (a: LoadResourcePayload) => void) => (purseName: string) => {
     if (namesBlockchain) {
       loadResource({
-        url: `https://${purseName}.dappy`,
+        url: `https://${purseName}.${DAPPY_NAME_SYSTEM_VISUAL_TLD}`,
       });
     }
   };
