@@ -493,6 +493,7 @@ dbReq.onsuccess = (event) => {
       return {
         ...a,
         boxes: a.boxes || [],
+        whitelist: a.whitelist || [],
       };
     });
 

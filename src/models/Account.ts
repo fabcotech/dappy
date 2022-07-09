@@ -7,4 +7,5 @@ export interface Account {
   main: boolean;
   balance: number;
   boxes: string[];
+  whitelist: { host: string; blitz: boolean; transactions: boolean }[];
 }

@@ -125,6 +125,7 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
                 main: false,
                 balance: 0,
                 boxes: [],
+                whitelist: []
               });
               this.error = undefined;
             } catch (err) {

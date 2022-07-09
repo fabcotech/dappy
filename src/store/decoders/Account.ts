@@ -15,6 +15,11 @@ export const accountSchema = yup
       .string()
       .matches(/rchain|evm/)
       .required(),
+    whitelist: yup.array().of(yup.object().shape({
+      host: yup.string().required(),
+      blitz: yup.boolean().required(),
+      transactions: yup.boolean().required(),
+    }).required()),
     boxes: yup.array().of(yup.string().required()),
   })
   .required()
