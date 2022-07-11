@@ -153,8 +153,8 @@ git commit -m "chore: bump electron to latest version"
 Package for windows (on windows)
 ```
 # ENV variables, add the two following environment variables to your system
-Fill the certificateFile entry in the build.yml file:         C:\Users\joe\path\to\certificate.p12
-Fill the certificatePassword entry in the build.yml:          password_for_certificate
+Fill the certificateFile entry in the electron-builder.yml file:         C:\Users\joe\path\to\certificate.p12
+Fill the certificatePassword entry in the electron-builder.yml:          password_for_certificate
 
 # 64 bits
 npm run package:windows:64
