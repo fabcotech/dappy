@@ -16,6 +16,10 @@ jobs:
         with:
           node-version: 16
           cache: 'npm'
+      - run: git config --global user.name "GitHub CD bot"
+      - run: git config --global user.email "contact@fabco.tech"
+      # upgrade npm version in package.json to the tag used in the release.
+      - run: npm version ${{ github.event.release.tag_name }}          
       - run: ./scripts/build-macos-x64.sh
       - name: upload macos 64 artifact
         uses: actions/upload-release-asset@v1
