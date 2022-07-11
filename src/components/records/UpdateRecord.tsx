@@ -188,8 +188,10 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
     this.transactionId = id;
 
     let validAfterBlockNumber = 0;
+    let shardId = 'dev';
     if (this.props.namesBlockchainInfos) {
       validAfterBlockNumber = this.props.namesBlockchainInfos.info.lastFinalizedBlockNumber;
+      shardId = this.props.namesBlockchainInfos.info.rchainShardId;
     }
 
     const deployOptions = rchainWallet.signTransaction(
@@ -199,6 +201,7 @@ export class UpdateRecord extends React.Component<UpdateRecordProps, {}> {
         phloPrice: 1,
         phloLimit: this.state.phloLimit,
         validAfterBlockNumber: validAfterBlockNumber,
+        shardId: shardId,
       },
       this.state.privatekey
     );
