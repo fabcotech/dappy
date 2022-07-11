@@ -49,8 +49,8 @@ export const respondToChallenge = (options: https.RequestOptions,  challengeResp
         method: 'post',
         path: '/blitz-authenticate',
         headers: {
-          host: options.headers.host,
-          Origin: options.headers.Origin,
+          host: (options.headers || {}).host,
+          Origin: (options.headers || {}).Origin,
           'Blitz-Authentication-Response': JSON.stringify(challengeResponse)
         }
       }, (resp) => {
@@ -68,8 +68,8 @@ export const respondToChallenge = (options: https.RequestOptions,  challengeResp
                   location: null
                 });
               } else {
-                let redirectUrl = new URL(resp.headers.location);
-                if (redirectUrl.hostname === options.headers.host) {
+                let redirectUrl = new URL(resp.headers.location as string);
+                if (redirectUrl.hostname === (options.headers || {}).host) {
                   resolve({
                     cookies: respCookies,
                     location: resp.headers.location as string

@@ -390,7 +390,7 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
 
             if (resp.headers['blitz-authentication']) {
               console.log('[blitz-authentication] challenge proposed by server !');
-              const payload = JSON.parse(resp.headers['blitz-authentication']);
+              const payload = JSON.parse(resp.headers['blitz-authentication'] as string);
               if (payload.host === url.host) {
                 console.log('[blitz-authentication] ok ! server host matches with host in payload');
 
