@@ -20,6 +20,7 @@ export const getFakeRChainAccount = (account: Partial<Account> = {}): Account =>
   main: true,
   balance: 1000000,
   boxes: ['box1', 'box2'],
+  whitelist: [],
   ...account,
 });
 
@@ -35,6 +36,7 @@ export const getFakeEVMAccount = (account: Partial<Account> = {}): Account => ({
   main: true,
   balance: 1000000,
   boxes: [],
+  whitelist: [],
   ...account,
 });
 
