@@ -108,12 +108,7 @@ sudo apt-get install ruby-dev build-essential
 sudo gem install fpm
 fpm --version
 
-rm -rf dist/ && git rm -rf dist/
-
-npm run build
-npm run build:main
-
-git add -f main.js dist/*
+npm run build:all:prod
 ```
 
 #### Register new release to sentry
@@ -150,7 +145,7 @@ npm ci
 
 To prevent any electron security issue, update electron to the latest version
 ```
-npm i electron@latest
+npm i -D electron@latest
 git add package.json package-lock.json
 git commit -m "chore: bump electron to latest version"
 ```
