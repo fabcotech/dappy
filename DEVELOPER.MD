@@ -157,23 +157,23 @@ Fill the certificateFile entry in the build.yml file:         C:\Users\joe\path\
 Fill the certificatePassword entry in the build.yml:          password_for_certificate
 
 # 64 bits
-npm run electron-builder:dist:windows:64
+npm run package:windows:64
 # rename the .exe created in output/ or it will be overwritten (by 32 bits)
 
 # 32 bits
-npm run electron-builder:dist:windows:32
+npm run package:windows:32
 ```
 
 Package for linux (on linux)
 ```
-npm run electron-builder:dist:linux:deb
-npm run electron-builder:dist:linux:rpm
+npm run package:linux:deb
+npm run package:linux:rpm
 ```
 
 On mac (on macOS)
 ```
 # Install XCode
-npm run electron-builder:dist:mac
+npm run package:mac
 ```
 
 See https://www.electron.build/code-signing.html for signing on macOS
