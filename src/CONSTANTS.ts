@@ -68,3 +68,9 @@ export const BRAND_NAME: undefined | string = undefined;
   BRAND_IMG: undefined | string = brand_img;
 */
 export const BRAND_IMG: undefined | string = undefined;
+
+/*
+  BRAND_IMG_2 is the png image that fits
+  with white/clear background
+*/
+export const BRAND_IMG_2: undefined | string = undefined;

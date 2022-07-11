@@ -179,14 +179,14 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
               </span>
             </li>
           }
-          <li className="update-available pl-2 pt-1 pb-2">
+          {/* <li className="update-available pl-2 pt-1 pb-2">
             <UpdateBrowserLink
               clickWarning={() => {}}
               light={false}
               version={VERSION}
               namesBlockchainInfos={this.props.namesBlockchainInfos}
             />
-          </li>
+          </li> */}
           <li>
             <a onClick={this.props.toggleMenuCollapsed} className="menu-icon">
               <i className="fa fa-bars" />

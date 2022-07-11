@@ -52,7 +52,7 @@ li.update-available {
     }
     &.not-collapsed {
       li.with-img {
-        height: 200px;
+        height: auto;
       }
       li:nth-child(1), li:nth-child(2) {
         -webkit-user-select: none;

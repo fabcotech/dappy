@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import { MAIN_CHAIN_ID, VERSION } from '/CONSTANTS';
+import { BRAND_IMG, BRAND_NAME, MAIN_CHAIN_ID, VERSION } from '/CONSTANTS';
 import './FetchContract.scss';
 import * as fromSettings from '/store/settings';
 import * as fromUi from '/store/ui';
@@ -62,13 +62,19 @@ class FetchContractComponent extends React.Component<FetchContractProps, {}> {
         <div className="home-page p-1">
           <div className="header">
             <div className="froggy">
-              <div className="img">
-                <div className="froggy-01"></div>
-              </div>
               <div className="text">
                 <div>
-                  <h3 className="title is-1">dappy</h3>
+                  <h3 className="title is-1">
+                    {
+                      typeof BRAND_NAME === 'string' ?
+                      BRAND_NAME : "dappy"
+                    }
+                  </h3>
                   <h4 className="title is-2">release {VERSION}</h4>
+                  {
+                    BRAND_IMG &&
+                    <img src={BRAND_IMG} />
+                  }
                 </div>
               </div>
             </div>
