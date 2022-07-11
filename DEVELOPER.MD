@@ -145,7 +145,7 @@ Check the version in package.json, it will be the app version
 
 On every OS
 ```
-npm i -g electron-builder
+npm ci
 ```
 
 To prevent any electron security issue, update electron to the latest version
