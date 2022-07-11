@@ -31,7 +31,7 @@ import {
   validateTransactionStates,
 } from './decoders';
 import fromEvent from 'xstream/extra/fromEvent';
-import { ACCESS_ACCOUNTS, ACCESS_DEPLOY, ACCESS_NAME_SYSTEM, ACCESS_SECURITY, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, DEVELOPMENT, RELOAD_INDEXEDDB_PERIOD } from '../CONSTANTS';
+import { ACCESS_ACCOUNTS, ACCESS_DEPLOY, ACCESS_NAME_SYSTEM, ACCESS_SECURITY, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, ACCESS_WHITELIST, DEVELOPMENT, RELOAD_INDEXEDDB_PERIOD } from '../CONSTANTS';
 import { validateAccounts } from './decoders/Account';
 import { loggerSaga } from './utils';
 import { PREDEFINED_TABS } from '../TABS';
@@ -300,10 +300,18 @@ dbReq.onsuccess = (event) => {
     if (ui.navigationUrl === '/auth' && !ACCESS_SECURITY) ui.navigationUrl = '/'
     if (ui.navigationUrl.startsWith('/deploy') && !ACCESS_DEPLOY) ui.navigationUrl = '/';
     if (ui.navigationUrl === '/transactions' && !ACCESS_TRANSACTIONS) ui.navigationUrl = '/';
+    if (ui.navigationUrl === '/whitelist' && !ACCESS_WHITELIST) ui.navigationUrl = '/';
 
     if (ui.hasOwnProperty('dappsListDisplay')) {
       ui = { ...ui, tabsListDisplay: ui.dappsListDisplay };
       delete ui.dappsListDisplay;
+    }
+
+    if (!ui.hasOwnProperty('whitelist')) {
+      ui = {
+        ...ui,
+        whitelist: [{ host: '*', topLevel: true, secondLevel: true }]
+      }
     }
 
     validateUi(ui)

@@ -1,0 +1,25 @@
+@import "../../style/variables.scss";
+
+.whitelist {
+  background: #fafafa;
+
+  &>h3 {
+    @media screen and (max-width: 769px) {
+      padding-left: 58px;
+    }
+  }
+
+  textarea {
+    font-size: 1.4rem;
+    font-weight: 500;
+    min-width: 700px;
+    width: 700px;
+    &.with-error {
+      border: 1px solid $failed;
+    }
+  }
+  .text-danger {
+    font-size: 1.1rem;
+    padding: 1rem 0px;
+  }
+}

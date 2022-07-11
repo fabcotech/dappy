@@ -28,11 +28,11 @@ export class RootComponent extends React.Component<RootProps, {}> {
   render() {
     return (
       <div className="p20 auth">
-        <h3 className="subtitle is-3">{t('menu auth')}</h3>
+        <h3 className="subtitle is-3">{t('auth title')}</h3>
         <p className="text-mid limited-width mb-2">
-          {t('menu auth 1')}
+          {t('auth 1')}
           <br/><br/>
-          {t('menu auth 2')}
+          {t('auth 2')}
         </p>
         {
           Object.keys(this.props.accounts).map(a => {
@@ -51,6 +51,7 @@ export class RootComponent extends React.Component<RootProps, {}> {
                     {t('copy public key')}
                   </a>
                 </label>
+                <label className="label">{t('whitelist of domains')}</label>
                 <div className="control">
                   <textarea
                     className={`textarea ${!!this.state.errors[a] ? 'with-error' : ''}`}

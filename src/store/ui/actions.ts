@@ -13,6 +13,7 @@ export const UPDATE_CONTRACT_LOGS = '[Ui] Update contract logs';
 export const UPDATE_SHOW_ACCOUNT_CREATION_AT_STARTUP = '[Ui] Update show account creation at startup';
 export const TOGGLE_BALANCES_VISIBILITY = '[Ui] Toggle balance visibility';
 export const UPDATE_PLATFORM = '[Ui] Update Platform';
+export const UPDATE_WHITELIST = '[Ui] Update whitelist';
 
 export interface UpdateUiFromStoragePayload {
   uiState: fromReducer.State;
@@ -27,6 +28,14 @@ export interface UpdatePlatform {
 }
 export const updatePlatformAction = (values: UpdatePlatform) => ({
   type: UPDATE_PLATFORM,
+  payload: values,
+});
+
+export interface UpdateWhitelist {
+  whitelist: fromReducer.State['whitelist'];
+}
+export const updateWhitelistAction = (values: UpdateWhitelist) => ({
+  type: UPDATE_WHITELIST,
   payload: values,
 });
 

@@ -4,7 +4,7 @@ import { NavigationUrl, RChainInfos } from '/models';
 import './Menu.scss';
 import { MenuMobile } from '.';
 import { UpdateBrowserLink } from '/components/utils';
-import { ACCESS_ACCOUNTS, ACCESS_DEPLOY, ACCESS_NAME_SYSTEM, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, ACCESS_SECURITY, VERSION, LEFT_MENU_COLORS, BRAND_NAME, BRAND_IMG } from '/CONSTANTS';
+import { ACCESS_ACCOUNTS, ACCESS_DEPLOY, ACCESS_NAME_SYSTEM, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, ACCESS_SECURITY, VERSION, LEFT_MENU_COLORS, BRAND_NAME, BRAND_IMG, ACCESS_WHITELIST } from '/CONSTANTS';
 
 interface MenuComponentProps {
   tabsListDisplay: number;
@@ -16,6 +16,7 @@ interface MenuComponentProps {
   isNavigationInDeploy: boolean;
   isNavigationInTransactions: boolean;
   isNavigationInAuth: boolean;
+  isNavigationInWhitelist: boolean;
   isBeta: boolean;
   currentVersion: undefined | string;
   isAwaitingUpdate: boolean;
@@ -47,6 +48,7 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
           isNavigationInDeploy={this.props.isNavigationInDeploy}
           isNavigationInTransactions={this.props.isNavigationInTransactions}
           isNavigationInAuth={this.props.isNavigationInAuth}
+          isNavigationInWhitelist={this.props.isNavigationInWhitelist}
           namesBlockchainInfos={this.props.namesBlockchainInfos}
           navigate={this.props.navigate}
         />
@@ -120,6 +122,16 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
                   className={this.props.isNavigationInAuth ? 'is-active' : ''}
                   onClick={() => this.props.navigate('/auth')}>
                   <i className="fa fa-bolt fa-before" />
+                </a>
+              </li>
+            }
+            {
+              ACCESS_WHITELIST &&
+              <li>
+                <a
+                  className={this.props.isNavigationInAuth ? 'is-active' : ''}
+                  onClick={() => this.props.navigate('/whitelist')}>
+                  <i className="fa fa-table-list fa-before" />
                 </a>
               </li>
             }
@@ -247,6 +259,17 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
                 onClick={() => this.props.navigate('/auth')}>
                 <i className="fa fa-bolt fa-before" />
                 {t('menu auth')}
+              </a>
+            </li>
+          }
+          {
+            ACCESS_WHITELIST &&
+            <li>
+              <a
+                className={this.props.isNavigationInWhitelist ? 'is-active' : ''}
+                onClick={() => this.props.navigate('/whitelist')}>
+                <i className="fa fa-list-ul fa-before" />
+                {t('menu whitelist')}
               </a>
             </li>
           }

@@ -2173,7 +2173,7 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "menu auth 1",
+    "term": "auth 1",
     "definition": "Dappy allows you to protect your wallets and accounts by listing the domains that are authorized to interact with them.",
     "context": "Auth",
     "term_plural": "",
@@ -2181,7 +2181,7 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "menu auth 2",
+    "term": "auth 2",
     "definition": "Diligently list the domains that you trust for each account. You can also use wildcard * to authorize all of them.",
     "context": "Auth",
     "term_plural": "",
@@ -2199,6 +2199,46 @@ module.exports.translations = [
   {
     "term": "save auth",
     "definition": "Save security settings",
+    "context": "Auth",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "menu whitelist",
+    "definition": "Whitelist",
+    "context": "Whitelist",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "whitelist 1",
+    "definition": "For maximum security, you can setup a global whitelist, only the domains that are not listed will be blocked",
+    "context": "Whitelist",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "whitelist title",
+    "definition": "Global whitelist (browsing security)",
+    "context": "Whitelist",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "auth title",
+    "definition": "Accounts whitelists (wallets and authentication security)",
+    "context": "Auth",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "whitelist of domains",
+    "definition": "Whitelist of domains",
     "context": "Auth",
     "term_plural": "",
     "reference": "",

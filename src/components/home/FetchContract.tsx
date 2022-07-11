@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import { BRAND_IMG, BRAND_NAME, MAIN_CHAIN_ID, VERSION } from '/CONSTANTS';
+import { BRAND_IMG_2, BRAND_NAME, VERSION } from '/CONSTANTS';
 import './FetchContract.scss';
 import * as fromSettings from '/store/settings';
 import * as fromUi from '/store/ui';
@@ -70,12 +70,12 @@ class FetchContractComponent extends React.Component<FetchContractProps, {}> {
                       BRAND_NAME : "dappy"
                     }
                   </h3>
-                  <h4 className="title is-2">release {VERSION}</h4>
-                  {
-                    BRAND_IMG &&
-                    <img src={BRAND_IMG} />
-                  }
+                  <h4 className="title is-2">v{VERSION}</h4>
                 </div>
+                {
+                  BRAND_IMG_2 &&
+                  <img src={BRAND_IMG_2} />
+                }
               </div>
             </div>
             {dNetwork ? (

@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 
 import * as fromActions from './actions';
-import { ACCESS_ACCOUNTS, ACCESS_DEPLOY, ACCESS_NAME_SYSTEM, ACCESS_SECURITY, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, LOGS_PER_CONTRACT } from '/CONSTANTS';
+import { ACCESS_ACCOUNTS, ACCESS_DEPLOY, ACCESS_NAME_SYSTEM, ACCESS_SECURITY, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, ACCESS_WHITELIST, LOGS_PER_CONTRACT } from '/CONSTANTS';
 import { Action } from '../';
 import { NavigationUrl, Language } from '/models';
 
@@ -20,6 +20,7 @@ export interface State {
   };
   showAccountCreationAtStartup: boolean;
   isBalancesHidden: boolean;
+  whitelist: { host: string; topLevel: boolean; secondLevel: boolean }[];
 }
 
 export const initialState: State = {
@@ -35,6 +36,7 @@ export const initialState: State = {
   contractLogs: {},
   showAccountCreationAtStartup: true,
   isBalancesHidden: false,
+  whitelist: [{ host: '*', topLevel: true, secondLevel: true }]
 };
 
 const onlyUnique = (value: string, index: number, self: string[]) => self.indexOf(value) === index;
@@ -110,6 +112,7 @@ export const reducer = (state = initialState, action: Action): State => {
       if (payload.navigationUrl === '/auth' && !ACCESS_SECURITY) payload.navigationUrl = '/'
       if (payload.navigationUrl.startsWith('/deploy') && !ACCESS_DEPLOY) payload.navigationUrl = '/'
       if (payload.navigationUrl === '/transactions' && !ACCESS_TRANSACTIONS) payload.navigationUrl = '/'
+      if (payload.navigationUrl === '/whitelist' && !ACCESS_WHITELIST) payload.navigationUrl = '/'
 
       return {
         ...state,
@@ -134,6 +137,15 @@ export const reducer = (state = initialState, action: Action): State => {
       return {
         ...state,
         platform: payload.platform,
+      };
+    }
+
+    case fromActions.UPDATE_WHITELIST: {
+      const payload: fromActions.UpdateWhitelist = action.payload;
+
+      return {
+        ...state,
+        whitelist: payload.whitelist,
       };
     }
 
@@ -190,6 +202,8 @@ export const getDevMode = createSelector(getUiState, (state: State) => state.dev
 
 export const getPlatform = createSelector(getUiState, (state: State) => state.platform);
 
+export const getWhitelist = createSelector(getUiState, (state: State) => state.whitelist);
+
 export const getNavigationUrl = createSelector(getUiState, (state: State) => state.navigationUrl);
 
 export const getGcu = createSelector(getUiState, (state: State) => state.gcu);
@@ -228,6 +242,10 @@ export const getIsNavigationInDeploy = createSelector(getNavigationUrl, (navigat
 
 export const getIsNavigationInAuth = createSelector(getNavigationUrl, (navigationUrl: string) =>
   navigationUrl.startsWith('/auth')
+);
+
+export const getIsNavigationInWhitelist = createSelector(getNavigationUrl, (navigationUrl: string) =>
+  navigationUrl.startsWith('/whitelist')
 );
 
 export const getIsNavigationInTransactions = createSelector(getNavigationUrl, (navigationUrl: string) =>

@@ -10,4 +10,5 @@ export type NavigationUrl =
   | '/dapps'
   | '/transactions'
   | '/names'
-  | '/auth';
+  | '/auth'
+  | '/whitelist';

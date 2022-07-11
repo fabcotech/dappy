@@ -1,6 +1,6 @@
 import * as React from 'react';
 import './MenuMobile.scss';
-import { ACCESS_ACCOUNTS, ACCESS_DEPLOY, ACCESS_NAME_SYSTEM, ACCESS_SECURITY, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, BLITZ_AUTHENTICATION } from '/CONSTANTS';
+import { ACCESS_ACCOUNTS, ACCESS_DEPLOY, ACCESS_NAME_SYSTEM, ACCESS_SECURITY, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, ACCESS_WHITELIST, BLITZ_AUTHENTICATION } from '/CONSTANTS';
 import { NavigationUrl, RChainInfos } from '/models';
 
 interface MenuMobileComponentProps {
@@ -12,6 +12,7 @@ interface MenuMobileComponentProps {
   isNavigationInDeploy: boolean;
   isNavigationInTransactions: boolean;
   isNavigationInAuth: boolean;
+  isNavigationInWhitelist: boolean;
   isBeta: boolean;
   backgroundMenuLeft: string;
   currentVersion: undefined | string;
@@ -111,6 +112,17 @@ class MenuMobileComponent extends React.Component<MenuMobileComponentProps, {}> 
                   onClick={() => this.onCollapseMobileMenuAndNavigate('/transactions')}>
                   <i className="fa fa-receipt fa-before" />
                   {t('menu auth')}
+                </a>
+              </li>
+            }
+            {
+              ACCESS_WHITELIST &&
+              <li>
+                <a
+                  className={this.props.isNavigationInWhitelist ? 'is-active' : ''}
+                  onClick={() => this.onCollapseMobileMenuAndNavigate('/whitelist')}>
+                  <i className="fa fa-receipt fa-before" />
+                  {t('menu whitelist')}
                 </a>
               </li>
             }

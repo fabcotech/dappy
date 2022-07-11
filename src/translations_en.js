@@ -794,10 +794,10 @@ module.exports.translations = {
   "rchain shard id": {
     "one": "Shard ID"
   },
-  "menu auth 1": {
+  "auth 1": {
     "one": "Dappy allows you to protect your wallets and accounts by listing the domains that are authorized to interact with them."
   },
-  "menu auth 2": {
+  "auth 2": {
     "one": "Diligently list the domains that you trust for each account. You can also use wildcard * to authorize all of them."
   },
   "menu auth": {
@@ -805,5 +805,20 @@ module.exports.translations = {
   },
   "save auth": {
     "one": "Save security settings"
+  },
+  "menu whitelist": {
+    "one": "Whitelist"
+  },
+  "whitelist 1": {
+    "one": "For maximum security, you can setup a global whitelist, only the domains that are not listed will be blocked"
+  },
+  "whitelist title": {
+    "one": "Global whitelist (browsing security)"
+  },
+  "auth title": {
+    "one": "Accounts whitelists (wallets and authentication security)"
+  },
+  "whitelist of domains": {
+    "one": "Whitelist of domains"
   }
 }

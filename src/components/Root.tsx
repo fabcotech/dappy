@@ -13,6 +13,7 @@ import { Root as DeployRoot } from './deploy';
 import { Root as SettingsRoot } from './settings';
 import { Root as RecordRoot } from './records';
 import { Root as AuthRoot } from './auth';
+import { Root as WhitelistRoot } from './whitelist';
 import { Root as AccountsRoot } from './accounts';
 import { Root as TransactionsRoot } from './transactions';
 import { Menu } from './Menu';
@@ -37,6 +38,7 @@ interface RootComponentProps {
   isNavigationInTransactions: boolean;
   isNavigationInDeploy: boolean;
   isNavigationInAuth: boolean;
+  isNavigationInWhitelist: boolean;
   isBeta: boolean;
   platform: fromUi.State['platform'];
   currentVersion: undefined | string;
@@ -162,6 +164,7 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
               isNavigationInDeploy={this.props.isNavigationInDeploy}
               isNavigationInTransactions={this.props.isNavigationInTransactions}
               isNavigationInAuth={this.props.isNavigationInAuth}
+              isNavigationInWhitelist={this.props.isNavigationInWhitelist}
               isMobile={this.props.isMobile}
               isBeta={this.props.isBeta}
               currentVersion={this.props.currentVersion}
@@ -193,6 +196,9 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
               {this.props.isNavigationInAuth ? (
                 <AuthRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
               ) : undefined}
+              {this.props.isNavigationInWhitelist ? (
+                <WhitelistRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
+              ) : undefined}
               <Home />
               {this.props.isNavigationInTransactions ? <TransactionsRoot /> : undefined}
             </div>
@@ -222,6 +228,7 @@ export const Root = connect(
     isNavigationInTransactions: fromUi.getIsNavigationInTransactions(state),
     isNavigationInDeploy: fromUi.getIsNavigationInDeploy(state),
     isNavigationInAuth: fromUi.getIsNavigationInAuth(state),
+    isNavigationInWhitelist: fromUi.getIsNavigationInWhitelist(state),
     navigationUrl: fromUi.getNavigationUrl(state),
     isMobile: fromUi.getIsMobile(state),
     language: fromUi.getLanguage(state),
