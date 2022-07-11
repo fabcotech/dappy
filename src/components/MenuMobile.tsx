@@ -1,5 +1,6 @@
 import * as React from 'react';
 import './MenuMobile.scss';
+import { ACCESS_ACCOUNTS, ACCESS_DEPLOY, ACCESS_NAME_SYSTEM, ACCESS_SECURITY, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, BLITZ_AUTHENTICATION } from '/CONSTANTS';
 import { NavigationUrl, RChainInfos } from '/models';
 
 interface MenuMobileComponentProps {
@@ -10,7 +11,9 @@ interface MenuMobileComponentProps {
   isNavigationInAccounts: boolean;
   isNavigationInDeploy: boolean;
   isNavigationInTransactions: boolean;
+  isNavigationInAuth: boolean;
   isBeta: boolean;
+  backgroundMenuLeft: string;
   currentVersion: undefined | string;
   isAwaitingUpdate: boolean;
   namesBlockchainInfos: RChainInfos | undefined;
@@ -37,7 +40,10 @@ class MenuMobileComponent extends React.Component<MenuMobileComponentProps, {}> 
 
   render() {
     return (
-      <div className={`mobile-menu ${this.state.mobileMenuCollapsed ? 'collapsed' : ''}`}>
+      <div
+        style={ this.props.backgroundMenuLeft ? { background: this.props.backgroundMenuLeft } : {}}
+        className={`mobile-menu ${this.state.mobileMenuCollapsed ? 'collapsed' : ''}`}
+      >
         <ul className="menu-mobile-list top fc">
           <li onClick={this.onToggleMobileMenu} className="bars">
             <a className="menu-icon">
@@ -64,46 +70,72 @@ class MenuMobileComponent extends React.Component<MenuMobileComponentProps, {}> 
                 {this.props.tabsListDisplay === 0 ? <i className="fa fa-eye fa-after"></i> : undefined}
               </a>
             </li>
-            <li>
-              <a
-                className={this.props.isNavigationInSettings ? 'is-active' : ''}
-                onClick={() => this.onCollapseMobileMenuAndNavigate('/settings')}>
-                <i className="fa fa-wrench fa-before" />
-                {t('menu settings')}
-              </a>
-            </li>
-            <li>
-              <a
-                className={this.props.isNavigationInNames ? 'is-active' : ''}
-                onClick={() => this.onCollapseMobileMenuAndNavigate('/names')}>
-                <i className="fa fa-before rotated-d">d</i>
-                {t('name system')}
-              </a>
-            </li>
-            <li>
-              <a
-                className={this.props.isNavigationInAccounts ? 'is-active' : ''}
-                onClick={() => this.onCollapseMobileMenuAndNavigate('/accounts')}>
-                <i className="fa fa-money-check fa-before" />
-                {t('menu accounts')}
-              </a>
-            </li>
-            <li>
-              <a
-                className={this.props.isNavigationInDeploy ? 'is-active' : ''}
-                onClick={() => this.onCollapseMobileMenuAndNavigate('/deploy/dapp')}>
-                <i className="fa fa-angle-double-up fa-before" />
-                {t('menu deploy')}
-              </a>
-            </li>
-            <li>
-              <a
-                className={this.props.isNavigationInTransactions ? 'is-active' : ''}
-                onClick={() => this.onCollapseMobileMenuAndNavigate('/transactions')}>
-                <i className="fa fa-receipt fa-before" />
-                {t('menu transactions')}
-              </a>
-            </li>
+            {
+              ACCESS_SETTINGS &&
+              <li>
+                <a
+                  className={this.props.isNavigationInSettings ? 'is-active' : ''}
+                  onClick={() => this.onCollapseMobileMenuAndNavigate('/settings')}>
+                  <i className="fa fa-wrench fa-before" />
+                  {t('menu settings')}
+                </a>
+              </li>
+            }
+            {
+              ACCESS_NAME_SYSTEM && 
+              <li>
+                <a
+                  className={this.props.isNavigationInNames ? 'is-active' : ''}
+                  onClick={() => this.onCollapseMobileMenuAndNavigate('/names')}>
+                  <i className="fa fa-before rotated-d">d</i>
+                  {t('name system')}
+                </a>
+              </li>
+            }
+            {
+              ACCESS_ACCOUNTS &&
+              <li>
+                <a
+                  className={this.props.isNavigationInAccounts ? 'is-active' : ''}
+                  onClick={() => this.onCollapseMobileMenuAndNavigate('/accounts')}>
+                  <i className="fa fa-money-check fa-before" />
+                  {t('menu accounts')}
+                </a>
+              </li>
+            }
+            {
+              ACCESS_SECURITY &&
+              <li>
+                <a
+                  className={this.props.isNavigationInTransactions ? 'is-active' : ''}
+                  onClick={() => this.onCollapseMobileMenuAndNavigate('/transactions')}>
+                  <i className="fa fa-receipt fa-before" />
+                  {t('menu auth')}
+                </a>
+              </li>
+            }
+            {
+              ACCESS_DEPLOY &&
+              <li>
+                <a
+                  className={this.props.isNavigationInDeploy ? 'is-active' : ''}
+                  onClick={() => this.onCollapseMobileMenuAndNavigate('/deploy/dapp')}>
+                  <i className="fa fa-angle-double-up fa-before" />
+                  {t('menu deploy')}
+                </a>
+              </li>
+            }
+            {
+              ACCESS_TRANSACTIONS &&
+              <li>
+                <a
+                  className={this.props.isNavigationInTransactions ? 'is-active' : ''}
+                  onClick={() => this.onCollapseMobileMenuAndNavigate('/transactions')}>
+                  <i className="fa fa-receipt fa-before" />
+                  {t('menu transactions')}
+                </a>
+              </li>
+            }
             {this.props.isAwaitingUpdate ? undefined : undefined}
           </ul>
         ) : undefined}

@@ -70,7 +70,7 @@ export function RootComponent(props: RecordsRootProps) {
     !props.namesBlockchain
   ) {
     return (
-      <div className="settings-names p20 has-background-white">
+      <div className="settings-names p20">
         <h3 className="subtitle is-4">{t('purchase a name')}</h3>
         <p
           className="limited-width"
@@ -82,7 +82,7 @@ export function RootComponent(props: RecordsRootProps) {
   }
 
   return (
-    <div className="settings-names p20 has-background-white">
+    <div className="settings-names p20">
       <h3 className="subtitle is-3">{t('name system')}</h3>
       <div className="tabs">
         <ul>

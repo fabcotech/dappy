@@ -8,9 +8,6 @@ module.exports.translations = {
   "menu transactions": {
     "one": "Transactions"
   },
-  "search dapps": {
-    "one": "Browse dapps"
-  },
   "ip application": {
     "one": "IP application",
     "other": "IP applications"
@@ -23,14 +20,8 @@ module.exports.translations = {
     "one": "Dapp",
     "other": "Dapps"
   },
-  "ip app security paragraph": {
-    "one": "All of the data, such as the pages you visit, the passwords you enter, are only transmitted encrypted to the following authorized servers:"
-  },
   "decentralized application": {
     "one": "decentralized application"
-  },
-  "dapp security paragraph": {
-    "one": "This application has been loaded directly from the Dappy network (blockchain).\n\nIt has been loaded from the following endpoints:"
   },
   "reload": {
     "one": "reload"
@@ -40,15 +31,6 @@ module.exports.translations = {
   },
   "menu networks": {
     "one": "Networks"
-  },
-  "settings network paragraph": {
-    "one": "Dappy performs multiple requests to load resources from the blockchain. Any time a user of third party web application whishes to load a blockchain resource (could be a file or any kind of data). Dappy will query multiple members of the network (blockchain).\n\nYou can configure the rules dappy must apply to accept or reject the result of a resource query.\n\n\n<b>Number of nodes:</b> How many nodes will be queried at each resource load, it must be inferior or equal to the number of available nodes of the blockchain.\n<b>Accuracy:</b> Rules to define if a response will be accepted. If we set it to 100%, if any of the nodes responds with something different than the others, the response and query is discarded. If we set it to 70%, a response will be considered trustable/safe if at least 70% of the queried nodes have sent that same response."
-  },
-  "auto": {
-    "one": "Auto"
-  },
-  "custom": {
-    "one": "Custom"
   },
   "submit": {
     "one": "Submit"
@@ -133,12 +115,6 @@ module.exports.translations = {
   "nodes paragraph": {
     "one": "Dappy need a network to do co-resolution. You can reference a network below, use the default one (d) or another one."
   },
-  "added by the user": {
-    "one": "Added by the user"
-  },
-  "retreived from dappy network": {
-    "one": "Retreived from dappy network"
-  },
   "cancel": {
     "one": "Cancel"
   },
@@ -198,10 +174,6 @@ module.exports.translations = {
   "ip": {
     "one": "IP"
   },
-  "ip server": {
-    "one": "IP server",
-    "other": "IP servers"
-  },
   "setup ip servers": {
     "one": "Setup IP servers"
   },
@@ -244,25 +216,12 @@ module.exports.translations = {
   "update a name": {
     "one": "Update a name"
   },
-  "name request successes": {
-    "one": "Name request successes"
-  },
   "duration": {
     "one": "Duration"
-  },
-  "nodes reached": {
-    "one": "Nodes reached"
-  },
-  "nodes not reached": {
-    "one": "Nodes not reached"
   },
   "error": {
     "one": "Error",
     "other": "Errors"
-  },
-  "success": {
-    "one": "Success",
-    "other": "Successes"
   },
   "deploy (step 1)": {
     "one": "Deploy (step 1)"
@@ -295,18 +254,12 @@ module.exports.translations = {
   "field required": {
     "one": "This field is required"
   },
-  "value must between 1 and 10": {
-    "one": "Value must be between 1 and 10"
-  },
-  "value must between 51 and 100": {
-    "one": "Value must be between 51 and 100"
-  },
   "account": {
     "one": "Account",
     "other": "Accounts"
   },
   "add account paragraph": {
-    "one": "Accounts secure your private keys with a password. They can be used to manage cryptocurrency, and authenticate to websites without papsswords.<br /><br /><b>Note : </b>cryptocurrency balances are loaded with co-resolution, just like service discovery for websites on dappy !"
+    "one": "Accounts secure your private keys with a password. They can be used to manage cryptocurrency, and authenticate to websites without passwords.<br /><br /><b>Note : </b>cryptocurrency balances are loaded with co-resolution, just like service discovery for websites on dappy !"
   },
   "main": {
     "one": "Main"
@@ -336,32 +289,11 @@ module.exports.translations = {
   "add account": {
     "one": "Add account"
   },
-  "import nodes": {
-    "one": "Import nodes"
-  },
   "ok": {
     "one": "Ok"
   },
-  "do you want import nodes": {
-    "one": "Do you want to import the following nodes ?"
-  },
-  "yes import": {
-    "one": "Yes import"
-  },
-  "this node is on": {
-    "one": "This node is on, click to deactivate it"
-  },
-  "this node is off": {
-    "one": "This node is off, click to activate it"
-  },
   "add a node": {
     "one": "Add a node"
-  },
-  "ssl established": {
-    "one": "Encrypted SSL connection established"
-  },
-  "ssl not established": {
-    "one": "Encrypted SSL connection failed to be established"
   },
   "remove server": {
     "one": "Remove server"
@@ -380,9 +312,6 @@ module.exports.translations = {
   },
   "cert must be set": {
     "one": "Certificate must be set"
-  },
-  "name request errors": {
-    "one": "Name request errors"
   },
   "wrong password": {
     "one": "Wrong password"
@@ -477,9 +406,6 @@ module.exports.translations = {
   "stop tab": {
     "one": "Stop tab"
   },
-  "reputation badges": {
-    "one": "Badges"
-  },
   "result": {
     "one": "Result",
     "other": "Results"
@@ -539,26 +465,14 @@ module.exports.translations = {
   "quantity": {
     "one": "Quantity"
   },
-  "check accounts": {
-    "one": "Check your accounts"
-  },
   "deploy ft": {
     "one": "Deploy a contract for fungibles (FT)"
   },
   "deploy nft": {
     "one": "Deploy a contract for non-fungibles (NFT)"
   },
-  "d network is live": {
-    "one": "d network is live"
-  },
-  "d network definition": {
-    "one": "d network is the main network of dappy. Join the future of the internet and get a name on dappy now !"
-  },
   "copy address": {
     "one": "copy address"
-  },
-  "record length": {
-    "one": "Name length must be between 1 and 24"
   },
   "name is available": {
     "one": "Name is available !"
@@ -598,9 +512,6 @@ module.exports.translations = {
   },
   "deploy contract": {
     "one": "Deploy contract"
-  },
-  "dappy opensource warning": {
-    "one": "This program does not interact with any private server of FABCO / DAPPY. It does not rely on any centralized service or server. The private keys are stored on your computer, and encrypted with your password. Dappy browser is open source but largely unaudited software. We advise you to only use secondary REV/ETH addresses with small amounts.\n\nUSE DAPPY, TRANSFER FUNDS, REFERENCE PRIVATE KEYS AND PUBLIC KEYS AT YOUR OWN RISKS."
   },
   "purchase a name 2": {
     "one": "A name is your identifier in the dappy network. Your name can be used to exposed websites to the internet, and in some case to authenticate securely to protected websites."
@@ -650,23 +561,8 @@ module.exports.translations = {
   "just transaction successful": {
     "one": "Transaction successful"
   },
-  "update nft purse price": {
-    "one": "Update purse (NFT) price"
-  },
-  "update per token price": {
-    "one": "Update per token price (FT)"
-  },
   "transaction successful update price": {
     "one": "Transaction for updating the purse price has been deployed."
-  },
-  "nft for sale": {
-    "one": "NFT for sale"
-  },
-  "for sale": {
-    "one": "Tokens for sale"
-  },
-  "per token": {
-    "one": "per token"
   },
   "not for sale": {
     "one": "not for sale"
@@ -700,12 +596,6 @@ module.exports.translations = {
   },
   "download image for social networks": {
     "one": "Download image for social networks"
-  },
-  "csp": {
-    "one": "Content Security Policy header"
-  },
-  "update cost of minting": {
-    "one": "Update cost of minting"
   },
   "check account": {
     "one": "check account"
@@ -847,14 +737,8 @@ module.exports.translations = {
   "token quantity": {
     "one": "Quantity of tokens"
   },
-  "price per token": {
-    "one": "Price per token"
-  },
   "max gas fees": {
     "one": "Max gas fees"
-  },
-  "max total cost": {
-    "one": "Total max cost"
   },
   "hide balances": {
     "one": "Hide balances"
@@ -909,5 +793,17 @@ module.exports.translations = {
   },
   "rchain shard id": {
     "one": "Shard ID"
+  },
+  "menu auth 1": {
+    "one": "Dappy allows you to protect your wallets and accounts by listing the domains that are authorized to interact with them."
+  },
+  "menu auth 2": {
+    "one": "Diligently list the domains that you trust for each account. You can also use wildcard * to authorize all of them."
+  },
+  "menu auth": {
+    "one": "Account security"
+  },
+  "save auth": {
+    "one": "Save security settings"
   }
 }

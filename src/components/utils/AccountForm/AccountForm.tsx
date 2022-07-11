@@ -125,7 +125,7 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
                 main: false,
                 balance: 0,
                 boxes: [],
-                whitelist: []
+                whitelist: [{ host: '*', blitz: true, transactions: true }]
               });
               this.error = undefined;
             } catch (err) {

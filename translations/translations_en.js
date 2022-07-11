@@ -24,14 +24,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "search dapps",
-    "definition": "Browse dapps",
-    "context": "search dapps in tabs list",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "ip application",
     "definition": {
       "one": "IP application",
@@ -65,25 +57,9 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "ip app security paragraph",
-    "definition": "All of the data, such as the pages you visit, the passwords you enter, are only transmitted encrypted to the following authorized servers:",
-    "context": "when you click on IP",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "decentralized application",
     "definition": "decentralized application",
     "context": "full term for dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "dapp security paragraph",
-    "definition": "This application has been loaded directly from the Dappy network (blockchain).\n\nIt has been loaded from the following endpoints:",
-    "context": "",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -108,30 +84,6 @@ module.exports.translations = [
     "term": "menu networks",
     "definition": "Networks",
     "context": "",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "settings network paragraph",
-    "definition": "Dappy performs multiple requests to load resources from the blockchain. Any time a user of third party web application whishes to load a blockchain resource (could be a file or any kind of data). Dappy will query multiple members of the network (blockchain).\n\nYou can configure the rules dappy must apply to accept or reject the result of a resource query.\n\n\n<b>Number of nodes:</b> How many nodes will be queried at each resource load, it must be inferior or equal to the number of available nodes of the blockchain.\n<b>Accuracy:</b> Rules to define if a response will be accepted. If we set it to 100%, if any of the nodes responds with something different than the others, the response and query is discarded. If we set it to 70%, a response will be considered trustable/safe if at least 70% of the queried nodes have sent that same response.",
-    "context": "Settings > Settings",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "auto",
-    "definition": "Auto",
-    "context": "Settings > Settings",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "custom",
-    "definition": "Custom",
-    "context": "Settings > Settings",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -359,22 +311,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "added by the user",
-    "definition": "Added by the user",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "retreived from dappy network",
-    "definition": "Retreived from dappy network",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "cancel",
     "definition": "Cancel",
     "context": "Settings > Network",
@@ -533,17 +469,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "ip server",
-    "definition": {
-      "one": "IP server",
-      "other": "IP servers"
-    },
-    "context": "Settings > Names > Add local name",
-    "term_plural": "IP servers",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "setup ip servers",
     "definition": "Setup IP servers",
     "context": "Settings > Names > Add local name",
@@ -656,14 +581,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "name request successes",
-    "definition": "Name request successes",
-    "context": "Settings > Names > Requests",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "requested at",
     "definition": "Requested at",
     "context": "Settings > Names > Requests",
@@ -680,22 +597,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "nodes reached",
-    "definition": "Nodes reached",
-    "context": "Settings > Names > Requests",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "nodes not reached",
-    "definition": "Nodes not reached",
-    "context": "Settings > Names > Requests",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "error",
     "definition": {
       "one": "Error",
@@ -703,17 +604,6 @@ module.exports.translations = [
     },
     "context": "Settings > Names > Requests",
     "term_plural": "Errors",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "success",
-    "definition": {
-      "one": "Success",
-      "other": "Successes"
-    },
-    "context": "Settings > Names > Requests",
-    "term_plural": "Successes",
     "reference": "",
     "comment": ""
   },
@@ -801,22 +691,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "value must between 1 and 10",
-    "definition": "Value must be between 1 and 10",
-    "context": "error in form",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "value must between 51 and 100",
-    "definition": "Value must be between 51 and 100",
-    "context": "error in form",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "account",
     "definition": {
       "one": "Account",
@@ -829,7 +703,7 @@ module.exports.translations = [
   },
   {
     "term": "add account paragraph",
-    "definition": "Accounts secure your private keys with a password. They can be used to manage cryptocurrency, and authenticate to websites without papsswords.<br /><br /><b>Note : </b>cryptocurrency balances are loaded with co-resolution, just like service discovery for websites on dappy !",
+    "definition": "Accounts secure your private keys with a password. They can be used to manage cryptocurrency, and authenticate to websites without passwords.<br /><br /><b>Note : </b>cryptocurrency balances are loaded with co-resolution, just like service discovery for websites on dappy !",
     "context": "Settings > Accounts > Add account",
     "term_plural": "",
     "reference": "",
@@ -911,14 +785,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "import nodes",
-    "definition": "Import nodes",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "ok",
     "definition": "Ok",
     "context": "",
@@ -927,56 +793,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "do you want import nodes",
-    "definition": "Do you want to import the following nodes ?",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "yes import",
-    "definition": "Yes import",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "this node is on",
-    "definition": "This node is on, click to deactivate it",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "this node is off",
-    "definition": "This node is off, click to activate it",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "add a node",
     "definition": "Add a node",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "ssl established",
-    "definition": "Encrypted SSL connection established",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "ssl not established",
-    "definition": "Encrypted SSL connection failed to be established",
     "context": "Settings > Network",
     "term_plural": "",
     "reference": "",
@@ -1026,14 +844,6 @@ module.exports.translations = [
     "term": "cert must be set",
     "definition": "Certificate must be set",
     "context": "error in form",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name request errors",
-    "definition": "Name request errors",
-    "context": "Settings > Names > Requests",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1303,14 +1113,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "reputation badges",
-    "definition": "Badges",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "result",
     "definition": {
       "one": "Result",
@@ -1477,14 +1279,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "check accounts",
-    "definition": "Check your accounts",
-    "context": "Home",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "deploy ft",
     "definition": "Deploy a contract for fungibles (FT)",
     "context": "Home",
@@ -1501,33 +1295,9 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "d network is live",
-    "definition": "d network is live",
-    "context": "Home",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "d network definition",
-    "definition": "d network is the main network of dappy. Join the future of the internet and get a name on dappy now !",
-    "context": "Home",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "copy address",
     "definition": "copy address",
     "context": "Transactions",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "record length",
-    "definition": "Name length must be between 1 and 24",
-    "context": "Settings > Names > Purchase name",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1632,14 +1402,6 @@ module.exports.translations = [
     "term": "deploy contract",
     "definition": "Deploy contract",
     "context": "Deploy > Dapps",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "dappy opensource warning",
-    "definition": "This program does not interact with any private server of FABCO / DAPPY. It does not rely on any centralized service or server. The private keys are stored on your computer, and encrypted with your password. Dappy browser is open source but largely unaudited software. We advise you to only use secondary REV/ETH addresses with small amounts.\n\nUSE DAPPY, TRANSFER FUNDS, REFERENCE PRIVATE KEYS AND PUBLIC KEYS AT YOUR OWN RISKS.",
-    "context": "Settings > Names > Purchase name",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1773,48 +1535,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "update nft purse price",
-    "definition": "Update purse (NFT) price",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "update per token price",
-    "definition": "Update per token price (FT)",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "transaction successful update price",
     "definition": "Transaction for updating the purse price has been deployed.",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "nft for sale",
-    "definition": "NFT for sale",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "for sale",
-    "definition": "Tokens for sale",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "per token",
-    "definition": "per token",
     "context": "Settings > Account",
     "term_plural": "",
     "reference": "",
@@ -1903,22 +1625,6 @@ module.exports.translations = [
   {
     "term": "download image for social networks",
     "definition": "Download image for social networks",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "csp",
-    "definition": "Content Security Policy header",
-    "context": "",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "update cost of minting",
-    "definition": "Update cost of minting",
     "context": "Settings > Account",
     "term_plural": "",
     "reference": "",
@@ -2315,24 +2021,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "price per token",
-    "definition": "Price per token",
-    "context": "Purchase record",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "max gas fees",
     "definition": "Max gas fees",
-    "context": "Purchase record",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "max total cost",
-    "definition": "Total max cost",
     "context": "Purchase record",
     "term_plural": "",
     "reference": "",
@@ -2478,6 +2168,38 @@ module.exports.translations = [
     "term": "rchain shard id",
     "definition": "Shard ID",
     "context": "Settings > Networks",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "menu auth 1",
+    "definition": "Dappy allows you to protect your wallets and accounts by listing the domains that are authorized to interact with them.",
+    "context": "Auth",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "menu auth 2",
+    "definition": "Diligently list the domains that you trust for each account. You can also use wildcard * to authorize all of them.",
+    "context": "Auth",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "menu auth",
+    "definition": "Account security",
+    "context": "Auth",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "save auth",
+    "definition": "Save security settings",
+    "context": "Auth",
     "term_plural": "",
     "reference": "",
     "comment": ""

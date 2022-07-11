@@ -33,4 +33,38 @@ export const LOGS_PER_CONTRACT = 200;
 
 export const FAKE_BALANCE = 1000000;
 
+/*
+  If blitz is activated, header verification and exchange will
+  take place, no matter if ACCESS_SECURITY is true or false, it meanse
+  that you can have ACCESS_SECURITY=false and default account settings
+  that will make blitz work
+*/
 export const BLITZ_AUTHENTICATION = true;
+
+// WHITE LABEL
+/*
+  Sections you can or cannot navigate to
+*/
+export const ACCESS_SETTINGS = true;
+export const ACCESS_NAME_SYSTEM = true;
+export const ACCESS_ACCOUNTS = true;
+export const ACCESS_SECURITY = true;
+export const ACCESS_DEPLOY = true;
+export const ACCESS_TRANSACTIONS = true;
+/*
+  Remove LEFT_MENU_COLORS or set it to undefined if
+  you don't want special colors ex: ['#7fcaff', '#8fdaff']
+*/
+export const LEFT_MENU_COLORS: undefined | [string, string] = undefined;
+
+export const BRAND_NAME: undefined | string = undefined;
+
+/*
+  Iin order to add an image you must add your logo
+  (png 512x512) in /images, then import it :
+  import brand_img from '/images/labo_mercier.png';
+
+  and export it in this file :
+  BRAND_IMG: undefined | string = brand_img;
+*/
+export const BRAND_IMG: undefined | string = undefined;

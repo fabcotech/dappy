@@ -12,6 +12,8 @@
   textarea {
     font-size: 1.4rem;
     font-weight: 500;
+    min-width: 700px;
+    width: 700px;
     &.with-error {
       border: 1px solid $failed;
     }

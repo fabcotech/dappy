@@ -2,6 +2,12 @@
 @import "node_modules/bulma/sass/utilities/initial-variables.sass";
 
 li.dappy {
+  &.long {
+    font-size: 1.3rem;
+  }
+  &.short {
+    font-size: 2rem;
+  }
   display: flex;
   align-items: flex-start;
   flex-direction: column;
@@ -45,6 +51,9 @@ li.update-available {
       flex-direction: column;
     }
     &.not-collapsed {
+      li.with-img {
+        height: 200px;
+      }
       li:nth-child(1), li:nth-child(2) {
         -webkit-user-select: none;
         user-select: none;

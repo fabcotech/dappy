@@ -1,5 +1,10 @@
 import * as yup from 'yup';
 
+/*
+  If you ever change this also change logic in
+  src/store/ui/reducer.ts NAVIGATE
+  src/store/index.ts
+*/
 const navigationPaths = [
   '/',
   '/settings',

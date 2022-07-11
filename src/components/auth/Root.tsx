@@ -29,10 +29,10 @@ export class RootComponent extends React.Component<RootProps, {}> {
     return (
       <div className="p20 auth">
         <h3 className="subtitle is-3">{t('menu auth')}</h3>
-        <p className="limited-width mb-2">
-          Safe authentication protects you and the web services you interact with from phishing. Authentication will use asymetric cryptography instead of passwords.
+        <p className="text-mid limited-width mb-2">
+          {t('menu auth 1')}
           <br/><br/>
-          Simply provide a list of trusted hosts for each one of your account.
+          {t('menu auth 2')}
         </p>
         {
           Object.keys(this.props.accounts).map(a => {
@@ -42,7 +42,7 @@ export class RootComponent extends React.Component<RootProps, {}> {
               <div className="field">
                 <label className="label">
                   Public key {' '}
-                  <b>{this.props.accounts[a].publicKey.slice(0,100)}</b>
+                  <b>{this.props.accounts[a].publicKey.slice(0,30)}…</b>
                   <a
                     type="button"
                     className="underlined-link"
@@ -55,7 +55,7 @@ export class RootComponent extends React.Component<RootProps, {}> {
                   <textarea
                     className={`textarea ${!!this.state.errors[a] ? 'with-error' : ''}`}
                     rows={8}
-                    placeholder={`hello.d\nonlinewebservice.d\nbitconnect.d`}
+                    placeholder={`hello.d\nonlinewebservice.d\n*.onlinewebservice.d\nbitconnect.d`}
                     defaultValue={this.props.accounts[a].whitelist.map(a => a.host).join('\n')}
                     onChange={(e) => {
                       try {
@@ -126,7 +126,7 @@ export class RootComponent extends React.Component<RootProps, {}> {
                   }
                 })
               }}>
-              {t('save safe authentication lists')}
+              {t('save auth')}
             </button>
           </div>
         </div>

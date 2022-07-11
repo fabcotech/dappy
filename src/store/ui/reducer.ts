@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 
 import * as fromActions from './actions';
-import { LOGS_PER_CONTRACT } from '/CONSTANTS';
+import { ACCESS_ACCOUNTS, ACCESS_DEPLOY, ACCESS_NAME_SYSTEM, ACCESS_SECURITY, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, LOGS_PER_CONTRACT } from '/CONSTANTS';
 import { Action } from '../';
 import { NavigationUrl, Language } from '/models';
 
@@ -103,6 +103,14 @@ export const reducer = (state = initialState, action: Action): State => {
           newTabsListDisplay = 1;
         }
       }
+
+      if (payload.navigationUrl === '/names' && !ACCESS_NAME_SYSTEM) payload.navigationUrl = '/';  
+      if (payload.navigationUrl.startsWith('/settings') && !ACCESS_SETTINGS) payload.navigationUrl = '/'
+      if (payload.navigationUrl === '/accounts' && !ACCESS_ACCOUNTS) payload.navigationUrl = '/'
+      if (payload.navigationUrl === '/auth' && !ACCESS_SECURITY) payload.navigationUrl = '/'
+      if (payload.navigationUrl.startsWith('/deploy') && !ACCESS_DEPLOY) payload.navigationUrl = '/'
+      if (payload.navigationUrl === '/transactions' && !ACCESS_TRANSACTIONS) payload.navigationUrl = '/'
+
       return {
         ...state,
         windowDimensions: state.windowDimensions,
