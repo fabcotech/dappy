@@ -11,7 +11,7 @@ export default {
   input: 'main/main.ts',
   output: {
     format: 'cjs',
-    file: 'main.js',
+    file: 'dist/main/main.js',
     sourcemap: !production,
   },
   external: [

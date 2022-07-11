@@ -32,10 +32,12 @@ let dispatchesFromMainAwaiting: {
   payload: any;
 }[] = [];
 const getDispatchesFromMainAwaiting = () => {
-  const t = ([] as {
-    type: string;
-    payload: any;
-  }[]).concat(dispatchesFromMainAwaiting);
+  const t = (
+    [] as {
+      type: string;
+      payload: any;
+    }[]
+  ).concat(dispatchesFromMainAwaiting);
   dispatchesFromMainAwaiting = [];
 
   return t;
@@ -128,7 +130,7 @@ function createWindow() {
   });
   const browserSession = session.fromPartition(partition);
   preventAllPermissionRequests(browserSession);
-  overrideHttpProtocol( { session: browserSession });
+  overrideHttpProtocol({ session: browserSession });
   overrideHttpsProtocol({
     dappyNetworkMembers: [],
     dappyBrowserView: undefined,
@@ -152,7 +154,7 @@ function createWindow() {
 
   // and load the index.html of the app.
   if (process.env.PRODUCTION) {
-    browserWindow.loadFile('dist/index.html');
+    browserWindow.loadFile('dist/renderer/index.html');
   } else {
     browserWindow.loadURL('http://localhost:3033');
   }

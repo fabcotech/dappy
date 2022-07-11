@@ -9,7 +9,8 @@ files:
   # TODO exclude not needed stuff in 'files:' section to reduce app packages size, can save megabytes, so a significant improvement
   - "dist/**/*"
   - "icons/**/*"
-  - "main.js"
+extraMetadata:
+  main: dist/main/main.js  
 asar: true
 
 win:
