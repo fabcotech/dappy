@@ -2,7 +2,7 @@ name: Publish on github
 
 on:
   release:
-    types: [published]
+    types: [created, published]
 
 jobs:
   publish: 
