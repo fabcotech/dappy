@@ -144,10 +144,19 @@ npm ci
 ```
 
 Package for windows (on windows)
-```
-# ENV variables, add the two following environment variables to your system
-Fill the certificateFile entry in the electron-builder.yml file:         C:\Users\joe\path\to\certificate.p12
-Fill the certificatePassword entry in the electron-builder.yml:          password_for_certificate
+
+By modifing electron-builder.yml file:
+- Fill the certificateFile entry:         C:\Users\joe\path\to\certificate.p12
+- Fill the certificatePassword entry:          password_for_certificate
+
+By adding the two following environment variables to your system:
+- CSC_LINK: base 64 encoded pfx/p12 file (`base64 <certificate_file>`) (windows env variables must be less than 8192 characters, otherwise they will be truncated)
+- CSC_KEY_PASSWORD: password_for_certificate
+
+If your certificate p12/pfx file is longer than 8192 characters (`wc -c <certificate_file>`), obviously it contains certificates that are not needed to sign electron app. You can prune them using openssl cli using this procedure:
+- Converting certificate p12/pfx file to pem: `openssl pkcs12 -info -in <certificate_file> -nodes -out <certificate_file>.pem`
+- Prune unecessary certificates using a text editor
+- Converting certifcate pem file to pfx: `openssl pkcs12 -in <certificate_file>.pem -export -out FABCO_CERTIFICATE_2022_SHORT.pfx`
 
 # 64 bits
 npm run package:windows:64
@@ -156,6 +165,8 @@ npm run package:windows:64
 # 32 bits
 npm run package:windows:32
 ```
+
+
 
 Package for linux (on linux)
 ```
