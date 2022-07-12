@@ -1,3 +1,3 @@
-npm ci
-npm run build:all:prod
-npm run package:windows:64
+call npm ci
+call npm run build:all:prod
+call npm run package:windows:64
