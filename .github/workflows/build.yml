@@ -1,8 +1,9 @@
 name: Publish on github
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - '**'
 
 jobs:
   publish_on_win_32:
@@ -16,9 +17,6 @@ jobs:
         with:
           node-version: 16
           cache: 'npm'
-      - run: git config --global user.name "GitHub CD bot"
-      - run: git config --global user.email "contact@fabco.tech"
-      - run: npm version ${{ github.event.release.tag_name }}
       - run: .\scripts\build-win-ia32.bat
         env:
           CSC_LINK: ${{ secrets.CSC_LINK }}
@@ -43,9 +41,6 @@ jobs:
         with:
           node-version: 16
           cache: 'npm'
-      - run: git config --global user.name "GitHub CD bot"
-      - run: git config --global user.email "contact@fabco.tech"
-      - run: npm version ${{ github.event.release.tag_name }}
       - run: .\scripts\build-win-x64.bat
         env:
           CSC_LINK: ${{ secrets.CSC_LINK }}
@@ -71,9 +66,6 @@ jobs:
         with:
           node-version: 16
           cache: 'npm'
-      - run: git config --global user.name "GitHub CD bot"
-      - run: git config --global user.email "contact@fabco.tech"
-      - run: npm version ${{ github.event.release.tag_name }}
       - run: ./scripts/build-linux-x86_64.sh
       - name: upload linux rpm artifact
         uses: actions/upload-release-asset@v1
@@ -95,9 +87,6 @@ jobs:
         with:
           node-version: 16
           cache: 'npm'
-      - run: git config --global user.name "GitHub CD bot"
-      - run: git config --global user.email "contact@fabco.tech"
-      - run: npm version ${{ github.event.release.tag_name }}          
       - run: ./scripts/build-linux-amd64-deb.sh
       - name: upload linux deb artifact
         uses: actions/upload-release-asset@v1
@@ -119,9 +108,6 @@ jobs:
         with:
           node-version: 16
           cache: 'npm'
-      - run: git config --global user.name "GitHub CD bot"
-      - run: git config --global user.email "contact@fabco.tech"
-      - run: npm version ${{ github.event.release.tag_name }}          
       - run: ./scripts/build-macos-x64.sh
       - name: upload macos 64 artifact
         uses: actions/upload-release-asset@v1

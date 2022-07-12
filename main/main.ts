@@ -11,6 +11,8 @@ import { store } from './store';
 import { installDevToolsExtensionsOnlyForDev } from './devTools';
 import { preventAllPermissionRequests } from './preventAllPermissionRequests';
 
+const { autoUpdater } = require('electron-updater');
+
 /*
   CAREFUL
   Partition is the cold storage identifier on the OS where dappy is installed,
@@ -158,6 +160,8 @@ function createWindow() {
   } else {
     browserWindow.loadURL('http://localhost:3033');
   }
+
+  autoUpdater.checkForUpdatesAndNotify();
 
   // Open the DevTools.
   // browserWindow.webContents.openDevTools()
