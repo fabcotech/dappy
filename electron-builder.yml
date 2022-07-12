@@ -33,7 +33,6 @@ linux:
 mac:
   category: public.app-category.productivity
   icon: icons/png/icon-512x512.png
-  target: dmg
   protocols:
     name: "dappy-protocol"
     schemes:
