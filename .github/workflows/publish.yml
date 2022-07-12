@@ -5,7 +5,57 @@ on:
     types: [published]
 
 jobs:
-  publish: 
+  publish_rpm:
+    runs-on: ubuntu-latest
+    container:
+      image: centos:latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.release.target_commitish }}    
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'npm'
+      - run: git config --global user.name "GitHub CD bot"
+      - run: git config --global user.email "contact@fabco.tech"
+      - run: npm version ${{ github.event.release.tag_name }}
+      - run: ./scripts/build-linux-x86_64.sh
+      - name: upload linux rpm artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./output/dappy-${{ github.event.release.tag_name }}-linux-x86_64.rpm
+          asset_name: dappy-${{ github.event.release.tag_name }}-linux-x86_64.rpm
+          asset_content_type: application/octet-stream
+  publish_deb:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.release.target_commitish }}    
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'npm'
+      - run: git config --global user.name "GitHub CD bot"
+      - run: git config --global user.email "contact@fabco.tech"
+      - run: npm version ${{ github.event.release.tag_name }}          
+      - run: ./scripts/build-linux-amd64-deb.sh
+      - name: upload linux deb artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./output/dappy-${{ github.event.release.tag_name }}-linux-amd64.deb
+          asset_name: dappy-${{ github.event.release.tag_name }}-linux-amd64.deb
+          asset_content_type: application/octet-stream
+  publish_on_macos: 
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -18,7 +68,6 @@ jobs:
           cache: 'npm'
       - run: git config --global user.name "GitHub CD bot"
       - run: git config --global user.email "contact@fabco.tech"
-      # upgrade npm version in package.json to the tag used in the release.
       - run: npm version ${{ github.event.release.tag_name }}          
       - run: ./scripts/build-macos-x64.sh
       - name: upload macos 64 artifact
@@ -29,24 +78,4 @@ jobs:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: ./output/dappy-${{ github.event.release.tag_name }}-mac-x64.dmg
           asset_name: dappy-${{ github.event.release.tag_name }}-mac-x64.dmg
-          asset_content_type: application/octet-stream
-      - run: ./scripts/build-linux-amd64-deb.sh
-      - name: upload linux deb artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./output/dappy-${{ github.event.release.tag_name }}-linux-amd64.deb
-          asset_name: dappy-${{ github.event.release.tag_name }}-linux-amd64.deb
-          asset_content_type: application/octet-stream
-      - run: ./scripts/build-linux-x86_64.sh
-      - name: upload linux rpm artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./output/dappy-${{ github.event.release.tag_name }}-linux-x86_64.rpm
-          asset_name: dappy-${{ github.event.release.tag_name }}-linux-x86_64.rpm
           asset_content_type: application/octet-stream
