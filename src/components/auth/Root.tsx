@@ -7,7 +7,7 @@ import './Root.scss';
 import { connect } from 'react-redux';
 import { copyToClipboard } from '/interProcess';
 import { updateAccountAction } from '/store/settings';
-
+import { validateWhitelistDomain } from '/utils/validateWhitelistDomain';
 
 interface RootProps {
   accounts: { [key: string]: Account };
@@ -61,9 +61,7 @@ export class RootComponent extends React.Component<RootProps, {}> {
                     onChange={(e) => {
                       try {
                         const splitByLine = e.target.value.split('\n').filter(a => !!a);
-                        const validLines = splitByLine.filter(a => {
-                          return /^(([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])$/g.test(a)
-                        })
+                        const validLines = splitByLine.filter(validateWhitelistDomain)
                         if (validLines.length === splitByLine.length) {
                           this.setState({
                             errors: {

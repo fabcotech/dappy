@@ -3,6 +3,7 @@ import * as React from 'react';
 import { NavigationUrl } from '/models';
 import './Root.scss';
 import { connect } from 'react-redux';
+import { validateWhitelistDomain } from '/utils/validateWhitelistDomain';
 import * as fromUi from '/store/ui';
 
 interface RootProps {
@@ -39,9 +40,7 @@ export class RootComponent extends React.Component<RootProps, {}> {
               onChange={(e) => {
                 try {
                   const splitByLine = e.target.value.split('\n').filter(a => !!a);
-                  const validLines = splitByLine.filter(a => {
-                    return /^(([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9\-]*[a-z0-9])$/g.test(a)
-                  })
+                  const validLines = splitByLine.filter(validateWhitelistDomain)
                   if (validLines.length === splitByLine.length) {
                     this.setState({
                       error: undefined,
