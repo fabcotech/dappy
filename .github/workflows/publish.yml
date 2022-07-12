@@ -20,6 +20,9 @@ jobs:
       - run: git config --global user.email "contact@fabco.tech"
       - run: npm version ${{ github.event.release.tag_name }}
       - run: .\scripts\build-win-ia32.bat
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
       - name: upload windows artifact
         uses: actions/upload-release-asset@v1
         env:
@@ -44,6 +47,9 @@ jobs:
       - run: git config --global user.email "contact@fabco.tech"
       - run: npm version ${{ github.event.release.tag_name }}
       - run: .\scripts\build-win-x64.bat
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}      
       - name: upload windows artifact
         uses: actions/upload-release-asset@v1
         env:
