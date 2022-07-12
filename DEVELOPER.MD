@@ -158,7 +158,7 @@ npm ci
 If your certificate p12/pfx file is longer than 8192 characters (`wc -c <certificate_file>`), obviously it contains certificates that are not needed to sign electron app. You can prune them using openssl cli using this procedure:
 - Converting certificate p12/pfx file to pem: `openssl pkcs12 -info -in <certificate_file> -nodes -out <certificate_file>.pem`
 - Prune unecessary certificates using a text editor
-- Converting certifcate pem file to pfx: `openssl pkcs12 -in <certificate_file>.pem -export -out FABCO_CERTIFICATE_2022_SHORT.pfx`
+- Converting certifcate pem file to pfx: `openssl pkcs12 -in <certificate_file>.pem -export -out <certificate_file>.pfx`
 
 #### 64 bits
 
