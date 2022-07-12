@@ -20,6 +20,7 @@
     "build:dappyethereum": "cross-env NODE_ENV=production npx rollup -c rollup.dappy-ethereum.config.js",
     "package:linux:deb": "./scripts/outdated.sh electron && electron-builder -c electron-builder.yml --x64 --publish never --linux deb",
     "package:linux:rpm": "./scripts/outdated.sh electron && electron-builder -c electron-builder.yml --x64 --publish never --linux rpm",
+    "package:linux:app-image": "./scripts/outdated.sh electron && electron-builder -c electron-builder.yml --x64 --publish never --linux AppImage",
     "package:windows:64": "electron-builder -c electron-builder.yml --x64 --publish never --win nsis",
     "package:windows:32": "electron-builder -c electron-builder.yml --ia32 --publish never --win nsis",
     "package:mac": "./scripts/outdated.sh electron && electron-builder -c electron-builder.yml --publish never --mac",
