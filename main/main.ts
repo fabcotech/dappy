@@ -167,6 +167,8 @@ function createWindow() {
     browserWindow.loadURL('http://localhost:3033');
   }
 
+  autoUpdater.checkForUpdatesAndNotify();
+
   // Open the DevTools.
   // browserWindow.webContents.openDevTools()
 
