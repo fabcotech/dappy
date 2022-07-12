@@ -16,9 +16,9 @@ asar: true
 win:
   target: NSIS
   icon: icons/ico/icon-win256x256.ico
-  forceCodeSigning: true
-  certificateFile: C:\Users\joe\path\to\certificate.p12
-  certificatePassword: password_for_certificate
+  # forceCodeSigning: true
+  # certificateFile: C:\Users\joe\path\to\certificate.p12
+  # certificatePassword: password_for_certificate
 
 nsis:
   installerIcon: icons/ico/icon-win256x256.ico
