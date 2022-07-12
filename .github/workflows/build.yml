@@ -21,15 +21,6 @@ jobs:
         env:
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-      - name: upload windows artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: .\output\dappy-${{ github.event.release.tag_name }}-win-ia32.exe
-          asset_name: dappy-${{ github.event.release.tag_name }}-win-ia32.exe
-          asset_content_type: application/octet-stream
   publish_on_win_64:
     runs-on: windows-latest
     steps:
@@ -45,15 +36,6 @@ jobs:
         env:
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}      
-      - name: upload windows artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: .\output\dappy-${{ github.event.release.tag_name }}-win-x64.exe
-          asset_name: dappy-${{ github.event.release.tag_name }}-win-x64.exe
-          asset_content_type: application/octet-stream          
   publish_rpm:
     runs-on: ubuntu-latest
     steps:
@@ -67,15 +49,6 @@ jobs:
           node-version: 16
           cache: 'npm'
       - run: ./scripts/build-linux-x86_64.sh
-      - name: upload linux rpm artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./output/dappy-${{ github.event.release.tag_name }}-linux-x86_64.rpm
-          asset_name: dappy-${{ github.event.release.tag_name }}-linux-x86_64.rpm
-          asset_content_type: application/octet-stream
   publish_deb:
     runs-on: ubuntu-latest
     steps:
@@ -88,15 +61,6 @@ jobs:
           node-version: 16
           cache: 'npm'
       - run: ./scripts/build-linux-amd64-deb.sh
-      - name: upload linux deb artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./output/dappy-${{ github.event.release.tag_name }}-linux-amd64.deb
-          asset_name: dappy-${{ github.event.release.tag_name }}-linux-amd64.deb
-          asset_content_type: application/octet-stream
   publish_on_macos: 
     runs-on: macos-latest
     steps:
@@ -109,12 +73,3 @@ jobs:
           node-version: 16
           cache: 'npm'
       - run: ./scripts/build-macos-x64.sh
-      - name: upload macos 64 artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./output/dappy-${{ github.event.release.tag_name }}-mac-x64.dmg
-          asset_name: dappy-${{ github.event.release.tag_name }}-mac-x64.dmg
-          asset_content_type: application/octet-stream
