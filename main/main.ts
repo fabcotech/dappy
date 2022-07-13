@@ -11,7 +11,7 @@ import { store } from './store';
 import { installDevToolsExtensionsOnlyForDev } from './devTools';
 import { preventAllPermissionRequests } from './preventAllPermissionRequests';
 
-const { autoUpdater } = require('electron-updater');
+import { initAutoUpdater } from './autoUpdater';
 
 /*
   CAREFUL
@@ -115,31 +115,6 @@ app.on('second-instance', (event, argv, cwd) => {
   return;
 });
 
-function sendStatusToWindow(text) {
-  browserWindow.webContents.send('message', text);
-}
-
-autoUpdater.on('checking-for-update', () => {
-  sendStatusToWindow('Checking for update...');
-});
-autoUpdater.on('update-available', () => {
-  sendStatusToWindow('Update available.');
-});
-autoUpdater.on('update-not-available', () => {
-  sendStatusToWindow('Update not available.');
-});
-autoUpdater.on('error', (err) => {
-  sendStatusToWindow('Error in auto-updater. ' + err);
-});
-autoUpdater.on('download-progress', (progressObj: any) => {
-  let log_message = 'Download speed: ' + progressObj.bytesPerSecond;
-  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
-  log_message = log_message + ' (' + progressObj.transferred + '/' + progressObj.total + ')';
-  sendStatusToWindow(log_message);
-});
-autoUpdater.on('update-downloaded', () => {
-  sendStatusToWindow('Update downloaded');
-});
 function createWindow() {
   // Create the browser window.
   browserWindow = new BrowserWindow({
@@ -186,8 +161,6 @@ function createWindow() {
     browserWindow.loadURL('http://localhost:3033');
   }
 
-  autoUpdater.checkForUpdatesAndNotify();
-
   // Open the DevTools.
   // browserWindow.webContents.openDevTools()
 
@@ -198,6 +171,8 @@ function createWindow() {
     // when you should delete the corresponding element.
     browserWindow = undefined;
   });
+
+  initAutoUpdater();
 }
 
 // This method will be called when Electron has finished
