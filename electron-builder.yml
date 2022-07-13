@@ -37,6 +37,7 @@ mac:
     name: "dappy-protocol"
     schemes:
       - "dappy"
+  afterSign: ./scripts/notarize.js",
 
 protocols:
   - name: "dappy-protocol"

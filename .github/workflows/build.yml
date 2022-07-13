@@ -79,3 +79,6 @@ jobs:
       - run: ./scripts/build-macos-x64.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: "true"
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
