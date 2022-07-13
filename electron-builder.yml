@@ -13,6 +13,8 @@ extraMetadata:
   main: dist/main/main.js  
 asar: true
 
+afterSign: ./scripts/notarize.js
+
 win:
   target: NSIS
   icon: icons/ico/icon-win256x256.ico
@@ -37,7 +39,7 @@ mac:
     name: "dappy-protocol"
     schemes:
       - "dappy"
-  afterSign: ./scripts/notarize.js",
+  entitlements: ./scripts/entitlements.mac.plist
 
 protocols:
   - name: "dappy-protocol"
