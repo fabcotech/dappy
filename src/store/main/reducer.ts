@@ -36,7 +36,7 @@ export interface State {
 
 export const initialState: State = {
   currentVersion: VERSION,
-  isBeta: true,
+  isBeta: false,
   versionAwaitingUpdate: undefined,
   errors: [],
   modals: [],
