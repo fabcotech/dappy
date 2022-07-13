@@ -37,6 +37,9 @@ Please [install](https://nodejs.dev/) NodeJS >= version 16
 ```sh
 npm install
 
+# Generate electron main app
+npm run build:main:dev
+
 # Parcel server on localhost:3033, live reload of css and js
 npm run start:parcel
 
