@@ -16,9 +16,9 @@ Read more on [https://dappy.tech](https://dappy.tech).
 
 ## Installation
 
-### On linux
+### On Linux
 
-1. Install [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher) for desktop integration: https://github.com/TheAssassin/AppImageLauncher#installation ([release page](https://github.com/TheAssassin/AppImageLauncher#installation))
+1. Install [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher) for desktop integration: ([release page](https://github.com/TheAssassin/AppImageLauncher#installation))
 2. Download and execute latest dappy-X.X.X-linux-x86_64.AppImage file on [dappy release page](https://github.com/fabcotech/dappy/releases)
 3. AppImageLauncher will prompt you to integrate dappy, confirm it and voilà !
 
