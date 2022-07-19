@@ -6,6 +6,22 @@ on:
       - '**'
 
 jobs:
+  publish_on_win_32:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.release.target_commitish }}    
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'npm'
+      - run: .\scripts\build-win-ia32.bat
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}      
+          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}   
   publish_on_win_64:
     runs-on: windows-latest
     steps:
