@@ -40,6 +40,9 @@ mac:
     schemes:
       - "dappy"
   entitlements: ./scripts/entitlements.mac.plist
+  
+dmg:
+  sign: false
 
 protocols:
   - name: "dappy-protocol"
