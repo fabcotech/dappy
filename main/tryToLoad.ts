@@ -135,7 +135,7 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
   }
 
   let dappAddress = '';
-  const dappAddressRecord = txts.find(a => a.startsWith("DAPP_ADDRESS="));
+  const dappAddressRecord = (txts || []).find(a => a.startsWith("DAPP_ADDRESS="));
   if (dappAddressRecord) {
     dappAddress  = dappAddressRecord.replace('DAPP_ADDRESS=', '');
   }
