@@ -54,7 +54,7 @@ li.update-available {
       li.with-img {
         height: auto;
       }
-      li:nth-child(1), li:nth-child(2) {
+      li:nth-child(1) {
         -webkit-user-select: none;
         user-select: none;
         -webkit-app-region: drag;
