@@ -20,20 +20,20 @@ export const getHtmlError = (title: string, error: string, supp?: { type: 'ip ap
       </style>
     </head>
     <body class="fc">
-      <div style="margin-bottom: 10px; color: #6a6a6a; border-radius: 4px;width: 400px;height:200px;border:1px solid #ddd;padding: 2rem; background: #fafafa;">
+      <div style="margin-bottom: 10px; color: #6a6a6a; border-radius: 4px;width: 600px;height:200px;border:1px solid #ddd;padding: 2rem; background: #fafafa;">
       <h3 style="margin-top: 0px; font-weight: 300; font-size: 1.6rem;">${title || 'Error'}</h3>
       <p style="font-weight: 300; font-size: 1.2rem;">${error || 'Unknown error'}</p>
       </div>
       ${
         supp && supp.type === 'ip app' ?
-        `<div style="color: #5a5a5a; border-radius: 4px;width: 400px;border:1px solid #ddd;padding: 0.5rem; background: #efefef;">
+        `<div style="color: #5a5a5a; border-radius: 4px;width: 600px;border:1px solid #ddd;padding: 0.5rem; background: #efefef;">
           <p>Resolved as IP application</p>
           <pre style="padding: 4px;">${supp.log}</pre>
         </div>` : ''
       }
       ${
         supp && supp.type === 'dapp' ?
-        `<div style="color: #5a5a5a; border-radius: 4px;width: 400px;border:1px solid #ddd;padding: 0.5rem; background: #efefef;">
+        `<div style="color: #5a5a5a; border-radius: 4px;width: 600px;border:1px solid #ddd;padding: 0.5rem; background: #efefef;">
           <p>Resolved as dapp (HTML on the blockchain)</p>
           <pre style="padding: 4px;">${supp.log}</pre>
         </div>` : ''

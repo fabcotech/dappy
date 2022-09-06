@@ -45,28 +45,26 @@ export const BLITZ_AUTHENTICATION = true;
 /*
   Sections you can or cannot navigate to
 */
-export const ACCESS_SETTINGS = true;
-export const ACCESS_NAME_SYSTEM = true;
+export const ACCESS_SETTINGS = false;
+export const ACCESS_NAME_SYSTEM = false;
 export const ACCESS_ACCOUNTS = true;
 export const ACCESS_SECURITY = true;
-export const ACCESS_WHITELIST = true;
-export const ACCESS_DEPLOY = true;
-export const ACCESS_TRANSACTIONS = true;
+export const ACCESS_WHITELIST = false;
+export const ACCESS_DEPLOY = false;
+export const ACCESS_TRANSACTIONS = false;
 /*
   Remove LEFT_MENU_COLORS or set it to undefined if
   you don't want special colors ex: ['#7fcaff', '#8fdaff']
 */
-export const LEFT_MENU_COLORS: undefined | [string, string] = undefined;
+export const LEFT_MENU_COLORS: undefined | [string, string] = ['#111111', '#333333'];
 
-export const BRAND_NAME: undefined | string = undefined;
+export const BRAND_NAME: undefined | string = "adidas pro";
 
 /*
-  Iin order to add an image you must add your logo
-  (png 512x512) in /images, then import it :
-  import brand_img from '/images/labo_mercier.png';
-
-  and export it in this file :
-  BRAND_IMG: undefined | string = brand_img;
+  In order to add an image you must add your logo
+  (png 512x512) in /images, then get the exact file name
+  (after build) :
+  BRAND_IMG = "/adidas.60112933.png"
 */
 export const BRAND_IMG: undefined | string = undefined;
 
