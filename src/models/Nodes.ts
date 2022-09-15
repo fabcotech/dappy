@@ -9,10 +9,3 @@ export interface NodeFromNetwork {
   cert: string;
 }
 
-export interface LoadNodesError {
-  chainId: string;
-  date: string;
-  time: number;
-  loadState: BeesLoadCompleted;
-  error: BeesLoadErrorWithArgs;
-}

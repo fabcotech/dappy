@@ -4,10 +4,8 @@ import { Blockchain } from '/models';
 interface TopTabsProps {
   blockchains: { [chainId: string]: Blockchain };
   addFormDisplayed: boolean;
-  requestsDisplayed: boolean;
   onSelectChain: (key: string) => void;
   onToggleAddForm: () => void;
-  onToggleRequests: () => void;
 }
 
 export const TopTabs = (props: TopTabsProps) => {
@@ -19,7 +17,6 @@ export const TopTabs = (props: TopTabsProps) => {
         {keys.map((key) => (
           <li key={key}>
             <a className={key === 'd' ? 'tab-d-network' : ''} onClick={() => props.onSelectChain(key)}>
-              {props.blockchains[key].platform === 'rchain' && <i className="rchain20 fa-before" />}
               {props.blockchains[key].chainName}
             </a>
           </li>
@@ -35,9 +32,6 @@ export const TopTabs = (props: TopTabsProps) => {
             </a>
           </li>
         )}
-        <li className={`${props.requestsDisplayed ? 'is-active' : ''}`}>
-          <a onClick={() => props.onToggleRequests()}>{t('request', true)}</a>
-        </li>
       </ul>
     </div>
   );

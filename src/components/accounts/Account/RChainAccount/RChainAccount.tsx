@@ -53,8 +53,10 @@ export const RChainAccountComponent = ({
           {!!namesBlockchain ? (
             <a
               title={t('send revs')}
-              className="underlined-link"
-              onClick={() => sendRChainPayment(account, (namesBlockchain as Blockchain).chainId)}>
+              className="underlined-link disabled"
+              onClick={() => {
+                // sendRChainPayment(account, (namesBlockchain as Blockchain).chainId)
+              }}>
               <i className="fa fa-before fa-money-bill-wave"></i>
               {t('send revs')}
             </a>

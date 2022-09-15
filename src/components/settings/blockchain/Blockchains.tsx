@@ -5,10 +5,9 @@ import { DappyNetworkId, DappyNetworkMember, dappyNetworks } from '@fabcotech/da
 
 import './Blockchains.scss';
 
-import { Blockchain, RChainInfos, RChainInfo } from '../../../models';
-import { AddBlockchain, Requests } from '.';
+import { Blockchain } from '../../../models';
+import { AddBlockchain } from '.';
 import * as fromSettings from '../../../store/settings';
-import * as fromBlockchain from '../../../store/blockchain';
 import * as fromMain from '../../../store/main';
 import * as fromUi from '../../../store/ui';
 import { AddNode } from './AddNode';
@@ -50,7 +49,6 @@ interface BlockchainsState {
   selectedChainId: undefined | string;
   addFormDisplayed: boolean;
   addNodeFormDisplayed: boolean;
-  requestsDisplayed: boolean;
   dropErrors: string[];
   formKey: number;
   selectedBlockchain: undefined | Blockchain;
@@ -62,7 +60,6 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
     selectedChainId: undefined,
     addFormDisplayed: false,
     addNodeFormDisplayed: false,
-    requestsDisplayed: false,
     dropErrors: [],
     formKey: 1,
     selectedBlockchain: undefined,
@@ -129,21 +126,12 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
     this.setState({
       selectedChainId: chainId,
       addFormDisplayed: false,
-      requestsDisplayed: false,
     });
   };
 
   onToggleAddForm = () => {
     this.setState({
       addFormDisplayed: !this.state.addFormDisplayed,
-      requestsDisplayed: false,
-    });
-  };
-
-  onToggleRequests = () => {
-    this.setState({
-      addFormDisplayed: false,
-      requestsDisplayed: !this.state.requestsDisplayed,
     });
   };
 
@@ -194,10 +182,8 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
         <TopTabs
           blockchains={this.props.blockchains}
           addFormDisplayed={this.state.addFormDisplayed}
-          requestsDisplayed={this.state.requestsDisplayed}
           onSelectChain={this.onSelectChain}
           onToggleAddForm={this.onToggleAddForm}
-          onToggleRequests={this.onToggleRequests}
         />
         {this.displayContent()}
       </div>
@@ -207,10 +193,6 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
   displayContent() {
     if (this.state.addFormDisplayed || !this.state.selectedBlockchain) {
       return <AddBlockchain add={this.onAddBlockchain} existingChainIds={Object.keys(this.props.blockchains)} />;
-    }
-
-    if (this.state.requestsDisplayed) {
-      return <Requests />;
     }
 
     return (

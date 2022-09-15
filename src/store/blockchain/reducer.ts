@@ -10,7 +10,6 @@ import {
   TransactionState,
   LoadRecordsSuccess,
   LoadRecordsError,
-  LoadNodesError,
 } from '/models';
 
 export interface State {
@@ -26,7 +25,6 @@ export interface State {
     loadErrors: (LoadRecordsError)[];
     loadSuccesses: LoadRecordsSuccess[];
   };
-  loadNodesErrors: LoadNodesError[];
   transactions: /* TODO: rename to transactionStates */ {
     [transactionId: string]: TransactionState;
   };
@@ -45,7 +43,6 @@ export const initialState: State = {
     loadErrors: [],
     loadSuccesses: [],
   },
-  loadNodesErrors: [],
   transactions: {},
 };
 
@@ -348,8 +345,6 @@ export const getLoadRecordsSuccesses = createSelector(
   getBlockchainState,
   (state: State) => state.records.loadSuccesses
 );
-
-export const getLoadNodesErrors = createSelector(getBlockchainState, (state: State) => state.loadNodesErrors);
 
 export const getDappTransactions = createSelector(getTransactions, (transactions) =>
   Object.values(transactions).filter((t) => t.origin.origin === 'dapp')

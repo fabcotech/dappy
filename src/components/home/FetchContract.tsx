@@ -18,16 +18,8 @@ interface FetchContractProps {
 }
 
 class FetchContractComponent extends React.Component<FetchContractProps, {}> {
-  onNavigateToDeploy = () => {
-    this.props.navigate('/deploy/dapp');
-  };
-
   onNavigateToAccounts = () => {
     this.props.navigate('/accounts');
-  };
-
-  onNavigateToNames = () => {
-    this.props.navigate('/names');
   };
 
   render() {
@@ -84,9 +76,6 @@ class FetchContractComponent extends React.Component<FetchContractProps, {}> {
                 <p>
                   {t('d network definition')}
                   <a></a>
-                </p>
-                <p className="purchase">
-                  <a onClick={this.onNavigateToNames}>purchase a name</a>
                 </p>
               </div>
             ) : undefined}

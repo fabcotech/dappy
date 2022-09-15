@@ -102,10 +102,6 @@ const sendRChainTransaction = function* (action: Action) {
       let message = t('transaction successful');
       if (payload.origin.origin === 'transfer') {
         message = t('transaction successful rev');
-      } else if (payload.origin.origin === 'rchain-token' && payload.origin.operation === 'update-purse-price') {
-        message = t('transaction successful update price');
-      } else if (payload.origin.origin === 'rchain-token' && payload.origin.operation === 'withdraw') {
-        message = t('transaction successful withdraw');
       }
       yield put(
         fromMain.openModalAction({
@@ -194,35 +190,7 @@ const sendRChainTransaction = function* (action: Action) {
       }
 
       const jsValue = rchainToolkit.utils.rhoValToJs(dataAtNameResponseExpr);
-      if (payload.origin.origin === 'record') {
-        validateRchainTokenOperationResult(jsValue)
-          .then(() => {
-            if (jsValue.status === 'completed') {
-              store.dispatch(
-                fromBlockchain.updateRChainTransactionStatusAction({
-                  id: payload.id,
-                  status: TransactionStatus.Completed,
-                  value: jsValue,
-                })
-              );
-            } else {
-              const p: fromBlockchain.RChainTransactionErrorPayload = {
-                id: payload.id,
-                value: jsValue,
-                alert: payload.alert,
-              };
-              store.dispatch(fromBlockchain.rChainTransactionErrorAction(p));
-            }
-          })
-          .catch(() => {
-            const p: fromBlockchain.RChainTransactionErrorPayload = {
-              id: payload.id,
-              value: { message: 'Could not parse deploy data', value: 'failed' },
-              alert: payload.alert,
-            };
-            store.dispatch(fromBlockchain.rChainTransactionErrorAction(p));
-          });
-      } else if (payload.origin.origin === 'transfer') {
+      if (payload.origin.origin === 'transfer') {
         store.dispatch(
           fromBlockchain.updateRChainTransactionStatusAction({
             id: payload.id,
@@ -230,32 +198,6 @@ const sendRChainTransaction = function* (action: Action) {
             value: jsValue,
           })
         );
-      } else if (payload.origin.origin === 'rchain-token') {
-        if (jsValue.status === 'completed') {
-          let value: { [key: string]: string } = { status: jsValue.status };
-          if (payload.origin.operation === 'deploy') {
-            value.contractId = jsValue.contractId;
-            value.masterRegistryUri = jsValue.masterRegistryUri;
-          } else if (payload.origin.operation === 'tips') {
-            value.contractId = jsValue.contractId;
-            value.masterRegistryUri = jsValue.masterRegistryUri;
-          }
-          store.dispatch(
-            fromBlockchain.updateRChainTransactionStatusAction({
-              id: payload.id,
-              status: TransactionStatus.Completed,
-              value: value,
-            })
-          );
-        } else {
-          store.dispatch(
-            fromBlockchain.updateRChainTransactionStatusAction({
-              id: payload.id,
-              status: TransactionStatus.Failed,
-              value: jsValue,
-            })
-          );
-        }
       }
     }
   } catch (err) {

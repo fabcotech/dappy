@@ -150,15 +150,6 @@ export class AddBlockchain extends React.Component<AddBlockchainProps, {}> {
                 <br />
                 <br />
               </p>
-              <FormPlatformComponent
-                setFieldValue={setFieldValue}
-                values={values}
-                handleChange={handleChange}
-                handleBlur={handleBlur}
-                errors={errors}
-                touched={touched}
-              />
-
               <FormChainIdComponent
                 setFieldValue={setFieldValue}
                 values={values}
@@ -223,7 +214,7 @@ export class AddBlockchain extends React.Component<AddBlockchainProps, {}> {
                 <div className="control">
                   <button
                     type="submit"
-                    className="button is-link"
+                    className="button is-link is-medium"
                     disabled={isSubmitting || (errors && !!Object.keys(errors).length)}>
                     {!isSubmitting && 'Add network'}
                     {isSubmitting && 'Submitting'}

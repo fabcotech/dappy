@@ -12,7 +12,6 @@ const saveBlockchainsToStorage = function* (action: Action) {
   let blockchains: { [chainId: string]: Blockchain } = yield select(fromSettings.getBlockchains);
 
   let blockchain: undefined | Blockchain = undefined;
-  let executeRChainCronJobs = false;
   if (action.type === fromSettings.CREATE_BLOCKCHAIN) {
     const payload: fromSettings.CreateBlockchainPayload = action.payload;
     yield put(fromSettings.createBlockchainCompletedAction(payload));
@@ -20,7 +19,6 @@ const saveBlockchainsToStorage = function* (action: Action) {
     const payload: fromSettings.UpdateNodesPayload = action.payload;
     blockchain = blockchains[payload.chainId];
     yield put(fromSettings.updateNodeUrlsCompletedAction(payload));
-    executeRChainCronJobs = (blockchain.platform === 'rchain' && !rchainInfos) || !rchainInfos[payload.chainId];
   }
 
   blockchains = yield select(fromSettings.getBlockchains);
@@ -34,13 +32,6 @@ const saveBlockchainsToStorage = function* (action: Action) {
         trace: e,
       })
     );
-  }
-
-  if (executeRChainCronJobs) {
-    yield new Promise((resolve) => {
-      setTimeout(resolve, 5000);
-    });
-    yield put(fromBlockchain.executeRChainCronJobsAction());
   }
 };
 
