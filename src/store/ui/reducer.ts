@@ -39,20 +39,6 @@ export const initialState: State = {
   whitelist: [{ host: '*', topLevel: true, secondLevel: true }]
 };
 
-const onlyUnique = (value: string, index: number, self: string[]) => self.indexOf(value) === index;
-
-export const updateContractLogsReducer = (state = initialState, action: Action) => {
-  const { contract, logs }: fromActions.UpdateContractLogsPayload = action.payload;
-
-  return {
-    ...state,
-    contractLogs: {
-      ...state.contractLogs,
-      [contract]: [...logs, ...(state.contractLogs[contract] || [])].filter(onlyUnique).slice(0, LOGS_PER_CONTRACT),
-    },
-  };
-};
-
 export const updateShowAccountCreationAtStartupReducer = (state = initialState, action: Action) => {
   const { show }: fromActions.updateShowAccountCreationAtStartupPayload = action.payload;
 
@@ -164,10 +150,6 @@ export const reducer = (state = initialState, action: Action): State => {
         ...state,
         gcu: payload.gcu,
       };
-    }
-
-    case fromActions.UPDATE_CONTRACT_LOGS: {
-      return updateContractLogsReducer(state, action);
     }
 
     case fromActions.UPDATE_SHOW_ACCOUNT_CREATION_AT_STARTUP: {

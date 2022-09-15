@@ -78,14 +78,20 @@ export const RChainAccountComponent = ({
           </div>
           <WalletAddress address={account.address} />
         </div>
-        <span title={account.balance.toString()} className={`num ${isBalancesHidden ? 'blur' : ''}`}>
-          {formatAmount(isBalancesHidden ? FAKE_BALANCE : account.balance)}
-        </span>
-        <span className="unit">{t('rev', true)}</span>
-        <GlossaryHint term="what is rev ?" />
-        {!isBalancesHidden && (
-          <span className="dust">{account.balance * LOGREV_TO_REV_RATE}</span>
-        )}
+        {
+          true ?
+          <span>Balances are disabled</span> :
+          <>
+            <span title={account.balance.toString()} className={`num ${isBalancesHidden ? 'blur' : ''}`}>
+              {formatAmount(isBalancesHidden ? FAKE_BALANCE : account.balance)}
+            </span>
+            <span className="unit">{t('rev', true)}</span>
+            <GlossaryHint term="what is rev ?" />
+            {!isBalancesHidden && (
+              <span className="dust">{account.balance * LOGREV_TO_REV_RATE}</span>
+            )}
+          </>
+        }
       </div>
       <a
         title="Remove the account forever"

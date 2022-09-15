@@ -52,18 +52,6 @@ export const initialState: State = {
 export const reducer = (state = initialState, action: any): State => {
   switch (action.type) {
 
-    case fromActions.SAVE_RCHAIN_CRON_JOBS_STREAM: {
-      const payload: fromActions.SaveRChainConJobsStreamPayload = action.payload;
-
-      return {
-        ...state,
-        rchain: {
-          ...state.rchain,
-          cronStream: payload.stream,
-        },
-      };
-    }
-
     case fromActions.UPDATE_RCHAIN_BLOCKCHAIN_INFO_COMPLETED: {
       const payload: fromActions.UpdateRChainBlockchainInfoCompletedPayload = action.payload;
 

@@ -9,7 +9,6 @@ export const SET_BODY_DIMENSIONS = '[Ui] Set body dimensions';
 export const UPDATE_NAVIGATION_SUGGESTIONS_DISPLAY = '[Ui] Update navigation suggestions display';
 export const UPDATE_LANGUAGE = '[Ui] Update language';
 export const UPDATE_GCU = '[Ui] Update gcu';
-export const UPDATE_CONTRACT_LOGS = '[Ui] Update contract logs';
 export const UPDATE_SHOW_ACCOUNT_CREATION_AT_STARTUP = '[Ui] Update show account creation at startup';
 export const TOGGLE_BALANCES_VISIBILITY = '[Ui] Toggle balance visibility';
 export const UPDATE_PLATFORM = '[Ui] Update Platform';
@@ -87,11 +86,6 @@ export interface UpdateContractLogsPayload {
   contract: string;
   logs: string[];
 }
-
-export const updateContractLogsAction = (values: UpdateContractLogsPayload) => ({
-  type: UPDATE_CONTRACT_LOGS,
-  payload: values,
-});
 
 export interface updateShowAccountCreationAtStartupPayload {
   show: boolean;

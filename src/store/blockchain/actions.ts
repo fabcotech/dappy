@@ -17,11 +17,6 @@ import {
 
 export const EXECUTE_CRON_JOBS = '[Blockchain] Execute cron jobs';
 
-export const EXECUTE_RCHAIN_CRON_JOBS = '[Blockchain] Execute RChain cron jobs';
-export const EXECUTE_NODES_CRON_JOBS = '[Blockchain] Execute Nodes cron jobs';
-export const EXECUTE_RECORDS_BY_PUBLIC_KEY_CRON_JOBS = '[Blockchain] Execute records by public key cron jobs';
-export const SAVE_RCHAIN_CRON_JOBS_STREAM = '[Blockchain] Save RChain cron jobs stream';
-
 export const UPDATE_RCHAIN_BLOCKCHAIN_INFOS_FROM_STORAGE = '[Blockchain] Update RChain blockchain infos from storage';
 export const UPDATE_RCHAIN_BLOCKCHAIN_INFO_COMPLETED = '[Blockchain] Update RChain blockchain info completed';
 export const UPDATE_RCHAIN_BLOCKCHAIN_LAST_BLOCK_COMPLETED =
@@ -50,26 +45,6 @@ export const LISTEN_FOR_DATA_AT_NAME = '[Common] Listen for data at name';
 export const GET_ONE_RECORD = '[Common] Get one record';
 export const GET_X_RECORDS = '[Common] Get x records';
 export const EXPLORE_DEPLOY_X = '[Common] Explore deploy x';
-
-export const executeNodesCronJobsAction = () => ({
-  type: EXECUTE_NODES_CRON_JOBS,
-});
-
-export const executeRecordsByPublicKeyCronJobsAction = () => ({
-  type: EXECUTE_RECORDS_BY_PUBLIC_KEY_CRON_JOBS,
-});
-
-export const executeRChainCronJobsAction = () => ({
-  type: EXECUTE_RCHAIN_CRON_JOBS,
-});
-
-export interface SaveRChainConJobsStreamPayload {
-  stream: NodeJS.Timeout;
-}
-export const saveRChainCronJobsStreamAction = (values: SaveRChainConJobsStreamPayload) => ({
-  type: SAVE_RCHAIN_CRON_JOBS_STREAM,
-  payload: values,
-});
 
 export interface UpdateRChainBlockchainInfosFromStoragePayload {
   rchainInfos: RChainInfos[];
