@@ -31,7 +31,7 @@ import {
   validateTransactionStates,
 } from './decoders';
 import fromEvent from 'xstream/extra/fromEvent';
-import { ACCESS_ACCOUNTS, ACCESS_DEPLOY, ACCESS_NAME_SYSTEM, ACCESS_SECURITY, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, ACCESS_WHITELIST, DEVELOPMENT, RELOAD_INDEXEDDB_PERIOD } from '../CONSTANTS';
+import { ACCESS_ACCOUNTS, ACCESS_SECURITY, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, ACCESS_WHITELIST, DEVELOPMENT, RELOAD_INDEXEDDB_PERIOD } from '../CONSTANTS';
 import { validateAccounts } from './decoders/Account';
 import { loggerSaga } from './utils';
 import { PREDEFINED_TABS } from '../TABS';
@@ -292,13 +292,14 @@ dbReq.onsuccess = (event) => {
       ui.navigationUrl = '/accounts';
     } else if (ui.navigationUrl === '/settings/names') {
       ui.navigationUrl = '/names';
+    } else if (ui.navigationUrl.startsWith('/deploy')) {
+      ui.navigationUrl = '/';
     }
 
-    if (ui.navigationUrl === '/names' && !ACCESS_NAME_SYSTEM) ui.navigationUrl = '/';
+    if (ui.navigationUrl === '/names') ui.navigationUrl = '/';
     if (ui.navigationUrl.startsWith('/settings') && !ACCESS_SETTINGS) ui.navigationUrl = '/';
     if (ui.navigationUrl === '/accounts' && !ACCESS_ACCOUNTS) ui.navigationUrl = '/';
     if (ui.navigationUrl === '/auth' && !ACCESS_SECURITY) ui.navigationUrl = '/'
-    if (ui.navigationUrl.startsWith('/deploy') && !ACCESS_DEPLOY) ui.navigationUrl = '/';
     if (ui.navigationUrl === '/transactions' && !ACCESS_TRANSACTIONS) ui.navigationUrl = '/';
     if (ui.navigationUrl === '/whitelist' && !ACCESS_WHITELIST) ui.navigationUrl = '/';
 

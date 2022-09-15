@@ -10,10 +10,6 @@ export interface RChainTokenDeployPayload {
   masterRegistryUri: string;
   contractId: string;
 }
-export interface RChainTokenDeployBoxPayload {
-  status: string;
-  boxId: string;
-}
 
 export type Fee = [string, number];
 
@@ -54,7 +50,6 @@ export interface RChainTokenCreatePursePayload {
 export type RChainTokenOperation =
   | 'withdraw'
   | 'update-purse-price'
-  | 'deploy-box'
   | 'tips'
   | 'deploy'
   | 'create-purses'

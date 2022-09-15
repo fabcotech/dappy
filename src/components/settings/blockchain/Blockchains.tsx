@@ -39,7 +39,6 @@ const CheckBoxComponent = (props: any) => {
 
 interface BlockchainsProps {
   blockchains: { [chainId: string]: Blockchain };
-  rchainInfos: { [chainId: string]: RChainInfos };
   namesBlockchain: Blockchain | undefined;
   isTablet: boolean;
   updateNodes: (values: fromSettings.UpdateNodesPayload) => void;
@@ -246,54 +245,18 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
           }}
           render={({ values, touched, submitForm, errors }) => {
             const selectedBlockchain = this.state.selectedBlockchain as Blockchain;
-            const rchainInfo: RChainInfo | undefined =
-              this.props.rchainInfos &&
-              this.props.rchainInfos[selectedBlockchain.chainId] &&
-              this.props.rchainInfos[selectedBlockchain.chainId].info;
-
             return (
               <Form className="nodes-form limited-width">
                 <h3 className="subtitle is-4 blockchain-title">
                   {t('network')}
-                  {selectedBlockchain.platform === 'rchain' && <i className="rchain20 fa-after" />}
                   {selectedBlockchain.chainName}
                   <GlossaryHint term="what is a dappy network ?" />
                 </h3>
                 <table className="network-variables">
                   <tbody>
                     <tr>
-                      <td>{t('rchain network')}</td>
-                      <td>{rchainInfo ? rchainInfo.rchainNetwork : 'unknown'}</td>
-                    </tr>
-                    <tr>
-                      <td>{t('rchain shard id')}</td>
-                      <td>{rchainInfo ? rchainInfo.rchainShardId : 'unknown'}</td>
-                    </tr>
-                    <tr>
-                      <td>{t('last known block height')}</td>
-                      <td>{rchainInfo ? rchainInfo.lastFinalizedBlockNumber : 'unknown'}</td>
-                    </tr>
-                    <tr>
-                      <td>{t('name price')}</td>
-                      <td>
-                        {
-                          rchainInfo && rchainInfo.namePrice ?
-                          `${rchainInfo.namePrice[1]} ${rchainInfo.namePrice[0]}`
-                          : 'unknown'
-                        }
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>{t('name system master registry uri')}</td>
-                      <td>{rchainInfo ? rchainInfo.rchainNamesMasterRegistryUri : 'unknown'}</td>
-                    </tr>
-                    <tr>
-                      <td>{t('name system contract id')}</td>
-                      <td>{rchainInfo ? rchainInfo.rchainNamesContractId : 'unknown'}</td>
-                    </tr>
-                    <tr>
-                      <td>{t('wrapped rev contract id')}</td>
-                      <td>{rchainInfo ? rchainInfo.wrappedRevContractId : 'unknown'}</td>
+                        <td>{t('network id')}</td>
+                        <td>{selectedBlockchain.chainId}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -454,7 +417,6 @@ export const Blockchains = connect(
       namesBlockchain: fromSettings.getNamesBlockchain(state),
       blockchains: fromSettings.getBlockchains(state),
       isTablet: fromUi.getIsTablet(state),
-      rchainInfos: fromBlockchain.getRChainInfos(state),
     };
   },
   (dispatch) => ({

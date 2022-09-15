@@ -45,13 +45,11 @@ export const BLITZ_AUTHENTICATION = true;
 /*
   Sections you can or cannot navigate to
 */
-export const ACCESS_SETTINGS = false;
-export const ACCESS_NAME_SYSTEM = false;
+export const ACCESS_SETTINGS = true;
 export const ACCESS_ACCOUNTS = true;
 export const ACCESS_SECURITY = true;
-export const ACCESS_WHITELIST = false;
-export const ACCESS_DEPLOY = false;
-export const ACCESS_TRANSACTIONS = false;
+export const ACCESS_WHITELIST = true;
+export const ACCESS_TRANSACTIONS = true;
 /*
   Remove LEFT_MENU_COLORS or set it to undefined if
   you don't want special colors ex: ['#7fcaff', '#8fdaff']

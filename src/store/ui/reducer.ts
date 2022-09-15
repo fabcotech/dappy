@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 
 import * as fromActions from './actions';
-import { ACCESS_ACCOUNTS, ACCESS_DEPLOY, ACCESS_NAME_SYSTEM, ACCESS_SECURITY, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, ACCESS_WHITELIST, LOGS_PER_CONTRACT } from '/CONSTANTS';
+import { ACCESS_ACCOUNTS, ACCESS_SECURITY, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, ACCESS_WHITELIST, LOGS_PER_CONTRACT } from '/CONSTANTS';
 import { Action } from '../';
 import { NavigationUrl, Language } from '/models';
 
@@ -105,12 +105,11 @@ export const reducer = (state = initialState, action: Action): State => {
           newTabsListDisplay = 1;
         }
       }
-
-      if (payload.navigationUrl === '/names' && !ACCESS_NAME_SYSTEM) payload.navigationUrl = '/';  
+ 
       if (payload.navigationUrl.startsWith('/settings') && !ACCESS_SETTINGS) payload.navigationUrl = '/'
       if (payload.navigationUrl === '/accounts' && !ACCESS_ACCOUNTS) payload.navigationUrl = '/'
       if (payload.navigationUrl === '/auth' && !ACCESS_SECURITY) payload.navigationUrl = '/'
-      if (payload.navigationUrl.startsWith('/deploy') && !ACCESS_DEPLOY) payload.navigationUrl = '/'
+      if (payload.navigationUrl.startsWith('/deploy')) payload.navigationUrl = '/'
       if (payload.navigationUrl === '/transactions' && !ACCESS_TRANSACTIONS) payload.navigationUrl = '/'
       if (payload.navigationUrl === '/whitelist' && !ACCESS_WHITELIST) payload.navigationUrl = '/'
 
@@ -223,10 +222,6 @@ export const getIsNavigationInSettings = createSelector(getNavigationUrl, (navig
   navigationUrl.startsWith('/settings')
 );
 
-export const getIsNavigationInNames = createSelector(getNavigationUrl, (navigationUrl: string) =>
-  navigationUrl.startsWith('/names')
-);
-
 export const getIsNavigationInAccounts = createSelector(getNavigationUrl, (navigationUrl: string) =>
   navigationUrl.startsWith('/accounts')
 );
@@ -234,10 +229,6 @@ export const getIsNavigationInAccounts = createSelector(getNavigationUrl, (navig
 export const getIsNavigationInDapps = createSelector(
   getNavigationUrl,
   (navigationUrl: string) => navigationUrl === '/' || navigationUrl.startsWith('/dapps')
-);
-
-export const getIsNavigationInDeploy = createSelector(getNavigationUrl, (navigationUrl: string) =>
-  navigationUrl.startsWith('/deploy')
 );
 
 export const getIsNavigationInAuth = createSelector(getNavigationUrl, (navigationUrl: string) =>

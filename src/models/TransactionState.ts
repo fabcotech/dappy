@@ -3,17 +3,8 @@ import { EthereumSignedTransaction } from './Ethereum';
 import {
   DeployOptions,
   TransactionOriginTransfer,
-  TransactionOriginRecord,
-  TransactionOriginDeploy,
-  TransactionOriginRholang,
 } from './RChain';
-import {
-  RChainTokenDeployPayload,
-  RChainTokenDeployBoxPayload,
-  RChainTokenUpdatePursePriceReturn,
-  RChainTokenCreatePursesReturn,
-  TransactionOriginRChainToken,
-} from './RChainToken';
+
 
 export interface TransactionAddressValue {
   status: string;
@@ -35,11 +26,7 @@ export type TransactionValue =
   | string
   | undefined
   | TransactionAddressValue
-  | { message: string }
-  | RChainTokenDeployPayload
-  | RChainTokenDeployBoxPayload
-  | RChainTokenUpdatePursePriceReturn
-  | RChainTokenCreatePursesReturn;
+  | { message: string };
 
 export interface TransactionOriginDapp {
   origin: 'dapp';
@@ -51,11 +38,7 @@ export interface TransactionOriginDapp {
 
 export type TransactionOrigin =
   | TransactionOriginDapp
-  | TransactionOriginTransfer
-  | TransactionOriginRecord
-  | TransactionOriginDeploy
-  | TransactionOriginRholang
-  | TransactionOriginRChainToken;
+  | TransactionOriginTransfer;
 
 export interface TransactionState {
   platform: 'rchain' | 'evm';

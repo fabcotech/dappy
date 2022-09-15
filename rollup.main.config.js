@@ -41,6 +41,7 @@ export default {
     json(),
     replace({
       'process.env.PRODUCTION': production ? 'true' : 'false',
+      'process.env.PACKAGE_VERSION': `'${require('./package.json').version}'`,
     }),
   ],
 };

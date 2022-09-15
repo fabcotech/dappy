@@ -6,19 +6,16 @@ import './Root.scss';
 import { State as RootState } from '/store';
 import * as fromUi from '/store/ui';
 import * as fromMain from '/store/main';
-import * as fromBlockchain from '/store/blockchain';
 import * as fromSettings from '/store/settings';
 import { Home } from './home';
-import { Root as DeployRoot } from './deploy';
 import { Root as SettingsRoot } from './settings';
-import { Root as RecordRoot } from './records';
 import { Root as AuthRoot } from './auth';
 import { Root as WhitelistRoot } from './whitelist';
 import { Root as AccountsRoot } from './accounts';
 import { Root as TransactionsRoot } from './transactions';
 import { Menu } from './Menu';
 import { Modal, Gcu } from './utils';
-import { NavigationUrl, Language, RChainInfos } from '/models';
+import { NavigationUrl, Language } from '/models';
 import { DEVELOPMENT } from '/CONSTANTS';
 import { GCU_TEXT, GCU_VERSION } from '/GCU';
 import { NoAccountForm } from './utils/NoAccountForm';
@@ -33,10 +30,8 @@ interface RootComponentProps {
   language: Language;
   isNavigationInDapps: boolean;
   isNavigationInSettings: boolean;
-  isNavigationInNames: boolean;
   isNavigationInAccounts: boolean;
   isNavigationInTransactions: boolean;
-  isNavigationInDeploy: boolean;
   isNavigationInAuth: boolean;
   isNavigationInWhitelist: boolean;
   isBeta: boolean;
@@ -47,7 +42,6 @@ interface RootComponentProps {
   isAwaitingUpdate: boolean;
   modal: fromMain.Modal | undefined;
   initializationOver: boolean;
-  namesBlockchainInfos: RChainInfos | undefined;
   toggleMenuCollapsed: () => void;
   updateGcu: () => void;
   navigate: (navigationUrl: NavigationUrl) => void;
@@ -159,9 +153,7 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
               toggleMenuCollapsed={this.props.toggleMenuCollapsed}
               isNavigationInDapps={this.props.isNavigationInDapps}
               isNavigationInSettings={this.props.isNavigationInSettings}
-              isNavigationInNames={this.props.isNavigationInNames}
               isNavigationInAccounts={this.props.isNavigationInAccounts}
-              isNavigationInDeploy={this.props.isNavigationInDeploy}
               isNavigationInTransactions={this.props.isNavigationInTransactions}
               isNavigationInAuth={this.props.isNavigationInAuth}
               isNavigationInWhitelist={this.props.isNavigationInWhitelist}
@@ -169,7 +161,6 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
               isBeta={this.props.isBeta}
               currentVersion={this.props.currentVersion}
               isAwaitingUpdate={this.props.isAwaitingUpdate}
-              namesBlockchainInfos={this.props.namesBlockchainInfos}
               navigate={this.props.navigate}
             />
             <div className="root-right">
@@ -186,12 +177,8 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
               {this.props.isNavigationInSettings ? (
                 <SettingsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
               ) : undefined}
-              {this.props.isNavigationInNames ? <RecordRoot /> : undefined}
               {this.props.isNavigationInAccounts ? (
                 <AccountsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
-              ) : undefined}
-              {this.props.isNavigationInDeploy ? (
-                <DeployRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
               ) : undefined}
               {this.props.isNavigationInAuth ? (
                 <AuthRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
@@ -223,10 +210,8 @@ export const Root = connect(
     menuCollapsed: fromUi.getMenuCollapsed(state),
     isNavigationInDapps: fromUi.getIsNavigationInDapps(state),
     isNavigationInSettings: fromUi.getIsNavigationInSettings(state),
-    isNavigationInNames: fromUi.getIsNavigationInNames(state),
     isNavigationInAccounts: fromUi.getIsNavigationInAccounts(state),
     isNavigationInTransactions: fromUi.getIsNavigationInTransactions(state),
-    isNavigationInDeploy: fromUi.getIsNavigationInDeploy(state),
     isNavigationInAuth: fromUi.getIsNavigationInAuth(state),
     isNavigationInWhitelist: fromUi.getIsNavigationInWhitelist(state),
     navigationUrl: fromUi.getNavigationUrl(state),
@@ -240,7 +225,6 @@ export const Root = connect(
     isBeta: fromMain.getIsBeta(state),
     modal: fromMain.getModal(state),
     initializationOver: fromMain.getInitializationOver(state),
-    namesBlockchainInfos: fromBlockchain.getNamesBlockchainInfos(state),
   }),
   (dispatch) => ({
     navigate: (navigationUrl: NavigationUrl) => dispatch(fromUi.navigateAction({ navigationUrl: navigationUrl })),

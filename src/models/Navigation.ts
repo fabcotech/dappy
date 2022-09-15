@@ -3,12 +3,8 @@ export type NavigationUrl =
   | '/settings/blockchains'
   | '/settings/gcu'
   | '/accounts'
-  | '/deploy/file-upload'
-  | '/deploy/dapp'
-  | '/deploy/rholang'
   | '/'
   | '/dapps'
   | '/transactions'
-  | '/names'
   | '/auth'
   | '/whitelist';

@@ -102,8 +102,6 @@ const sendRChainTransaction = function* (action: Action) {
       let message = t('transaction successful');
       if (payload.origin.origin === 'transfer') {
         message = t('transaction successful rev');
-      } else if (payload.origin.origin === 'rchain-token' && payload.origin.operation === 'deploy-box') {
-        message = t('transaction successful box');
       } else if (payload.origin.origin === 'rchain-token' && payload.origin.operation === 'update-purse-price') {
         message = t('transaction successful update price');
       } else if (payload.origin.origin === 'rchain-token' && payload.origin.operation === 'withdraw') {
@@ -235,15 +233,7 @@ const sendRChainTransaction = function* (action: Action) {
       } else if (payload.origin.origin === 'rchain-token') {
         if (jsValue.status === 'completed') {
           let value: { [key: string]: string } = { status: jsValue.status };
-          if (payload.origin.accountName && payload.origin.operation === 'deploy-box') {
-            store.dispatch(
-              fromSettings.saveAccountTokenBoxAction({
-                accountName: payload.origin.accountName,
-                boxId: jsValue.boxId as string,
-              })
-            );
-            value.boxId = jsValue.boxId;
-          } else if (payload.origin.operation === 'deploy') {
+          if (payload.origin.operation === 'deploy') {
             value.contractId = jsValue.contractId;
             value.masterRegistryUri = jsValue.masterRegistryUri;
           } else if (payload.origin.operation === 'tips') {

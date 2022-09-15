@@ -43,17 +43,9 @@ export interface TransactionOriginTransfer {
   origin: 'transfer';
   accountName: undefined | string;
 }
-export interface TransactionOriginRecord {
-  origin: 'record';
-  recordName: string;
-  accountName: string;
-}
+
 export interface TransactionOriginDeploy {
   origin: 'deploy';
-  accountName: string;
-}
-export interface TransactionOriginRholang {
-  origin: 'rholang';
   accountName: string;
 }
 

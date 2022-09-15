@@ -8,9 +8,7 @@ import * as fromBlockchain from '/store/blockchain';
 import { State } from '/store';
 import { getIsBalancesHidden, toggleBalanceVisibility } from '/store/ui';
 import { AddAccount } from './AddAccount';
-import { ViewBox } from './ViewBox';
 import { GlossaryHint } from '/components/utils/Hint';
-import { AccountsContext } from './AccountsContext';
 
 import image_rchain from '/images/rchain40.png';
 import image_ethereum from '/images/ethereum120x120.png';
@@ -21,6 +19,7 @@ import image_moonbeam from '/images/moonbeam120x120.png';
 import image_moonriver from '/images/moonriver120x120.png';
 import image_evmos from '/images/evmos120x120.png';
 import image_starkware from '/images/starkware120x120.png';
+import image_stark from '/images/stark.png';
 import image_binance_smart_chain from '/images/binance120x120.png';
 import image_avalanche from '/images/avalanche120x120.png';
 
@@ -129,7 +128,6 @@ export const EVMAcconts = ({ accounts }: EVMAccountsProps) => {
 
 interface AccountsProps {
   accounts: { [name: string]: AccountModel };
-  rchainInfos: { [chainId: string]: RChainInfos };
   namesBlockchain: Blockchain | undefined;
   executingAccountsCronJobs: boolean;
   isBalancesHidden: boolean;
@@ -140,20 +138,6 @@ interface AccountsProps {
 
 export function AccountsComponent(props: AccountsProps) {
   const [tab, setTab] = useState('accounts');
-  const [viewBox, setViewBox] = useState<undefined | { boxId: string; account: AccountModel }>(undefined);
-
-  if (typeof viewBox !== 'undefined') {
-    // todo make sure rchaininfo exists
-    return (
-      <ViewBox
-        back={() => setViewBox(undefined)}
-        namesBlockchain={props.namesBlockchain}
-        rchainInfos={props.rchainInfos[(props.namesBlockchain as Blockchain).chainId] as RChainInfos}
-        boxId={viewBox.boxId}
-        account={viewBox.account}
-        sendRChainTransaction={props.sendRChainTransaction}></ViewBox>
-    );
-  }
 
   return (
     <div className="settings-accounts pb20 accounts">
@@ -173,9 +157,6 @@ export function AccountsComponent(props: AccountsProps) {
         <div>
           <h3 className="subtitle is-4"></h3>
           <p className="limited-width text-mid" dangerouslySetInnerHTML={{ __html: t('add account paragraph') }}></p>
-          <p className="block mt-4">
-            <GlossaryHint term="what is a box ?" displayTerm />
-          </p>
           <div className="my-3">
             <UpdateBalancesButton
               disabled={Object.keys(props.accounts).length === 0}
@@ -188,10 +169,8 @@ export function AccountsComponent(props: AccountsProps) {
             />
           </div>
           <div>
-            <AccountsContext.Provider value={{ setViewBox }}>
-              <RChainAccounts accounts={props.accounts} setTab={setTab} />
-              <EVMAcconts accounts={props.accounts} />
-            </AccountsContext.Provider>
+            <RChainAccounts accounts={props.accounts} setTab={setTab} />
+            <EVMAcconts accounts={props.accounts} />
           </div>
         </div>
       ) : undefined}
@@ -203,7 +182,6 @@ export function AccountsComponent(props: AccountsProps) {
 export const Accounts = connect(
   (state: State) => ({
     accounts: fromSettings.getAccounts(state),
-    rchainInfos: fromBlockchain.getRChainInfos(state),
     namesBlockchain: fromSettings.getNamesBlockchain(state),
     executingAccountsCronJobs: fromSettings.getExecutingAccountsCronJobs(state),
     isBalancesHidden: getIsBalancesHidden(state),

@@ -4,12 +4,9 @@ import { NameAnswer } from '@fabcotech/dappy-lookup';
 import { dappyLookup } from '/interProcess';
 import * as fromDapps from '..';
 import * as fromSettings from '../../settings';
-import * as fromBlockchain from '../../blockchain';
 import * as fromUi from '../../ui';
 import {
   Blockchain,
-  RChainInfos,
-  RChainInfo,
   Tab,
 } from '../../../models';
 import { Action } from '../../';
@@ -21,10 +18,8 @@ import { checkIfValidIP } from '/utils/checkIfValidIp';
 
 const loadResource = function* (action: Action) {
   const payload: fromDapps.LoadResourcePayload = action.payload;
-  const settings: fromSettings.Settings = yield select(fromSettings.getSettings);
   const namesBlockchain: undefined | Blockchain = yield select(fromSettings.getNamesBlockchain);
   let tabs: Tab[] = yield select(fromDapps.getTabs);
-  const rchainInfos: { [chainId: string]: RChainInfos } = yield select(fromBlockchain.getRChainInfos);
   const isNavigationInDapps: boolean = yield select(fromUi.getIsNavigationInDapps);
 
   if (!isNavigationInDapps) {
@@ -129,7 +124,7 @@ const loadResource = function* (action: Action) {
   */
   if (url.hostname.endsWith(`.${DAPPY_NAME_SYSTEM_VISUAL_TLD}`)) {
     console.log(`Dappy: host is ${url.hostname}`)
-    if (!namesBlockchain || !rchainInfos[namesBlockchain.chainId]) {
+    if (!namesBlockchain) {
       yield put(
         fromDapps.loadResourceFailedAction({
           tabId: tabId,
@@ -142,8 +137,7 @@ const loadResource = function* (action: Action) {
       );
       return;
     }
-    const info: RChainInfo = rchainInfos[namesBlockchain.chainId].info;
-    
+
     yield put(
       fromDapps.initTransitoryStateAndResetLoadErrorAction({
         tabId: tabId,
@@ -209,7 +203,6 @@ const loadResource = function* (action: Action) {
             publicKey: publicKey,
             isDappyNameSystem: true,
             chainId: namesBlockchain.chainId,
-            rchainNamesMasterRegistryUri: info.rchainNamesMasterRegistryUri,
           }
         },
       })

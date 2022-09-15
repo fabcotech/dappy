@@ -65,15 +65,6 @@ li.update-available {
       align-items: flex-start;
       justify-content: center;
       flex-direction: column;
-      li.update-available {
-        a {
-          padding: 0px;
-          margin: 0px;
-        }
-        a:hover {
-          background-color: transparent;
-        }
-      }
     }
   }
   &.collapsed {

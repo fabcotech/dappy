@@ -1,9 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 
 import { Account as AccountModel } from '/models';
 
 import { RChainAccount } from './RChainAccount';
-import { AccountsContext } from '../AccountsContext';
 
 import { EVMAccount } from './EVMAccount';
 interface AccountProps {
@@ -13,8 +12,7 @@ interface AccountProps {
 export const Account = ({ account }: AccountProps) => {
   switch (account.platform) {
     case 'rchain':
-      const { setViewBox } = useContext(AccountsContext);
-      return <RChainAccount account={account} setViewBox={setViewBox} />;
+      return <RChainAccount account={account} />;
     case 'evm':
       return <EVMAccount account={account} />;
   }

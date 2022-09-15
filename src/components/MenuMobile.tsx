@@ -1,15 +1,13 @@
 import * as React from 'react';
 import './MenuMobile.scss';
-import { ACCESS_ACCOUNTS, ACCESS_DEPLOY, ACCESS_NAME_SYSTEM, ACCESS_SECURITY, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, ACCESS_WHITELIST, BLITZ_AUTHENTICATION } from '/CONSTANTS';
-import { NavigationUrl, RChainInfos } from '/models';
+import { ACCESS_ACCOUNTS, ACCESS_SECURITY, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, ACCESS_WHITELIST } from '/CONSTANTS';
+import { NavigationUrl } from '/models';
 
 interface MenuMobileComponentProps {
   tabsListDisplay: number;
   isNavigationInDapps: boolean;
   isNavigationInSettings: boolean;
-  isNavigationInNames: boolean;
   isNavigationInAccounts: boolean;
-  isNavigationInDeploy: boolean;
   isNavigationInTransactions: boolean;
   isNavigationInAuth: boolean;
   isNavigationInWhitelist: boolean;
@@ -17,7 +15,6 @@ interface MenuMobileComponentProps {
   backgroundMenuLeft: string;
   currentVersion: undefined | string;
   isAwaitingUpdate: boolean;
-  namesBlockchainInfos: RChainInfos | undefined;
   navigate: (navigationUrl: NavigationUrl) => void;
 }
 
@@ -83,17 +80,6 @@ class MenuMobileComponent extends React.Component<MenuMobileComponentProps, {}> 
               </li>
             }
             {
-              ACCESS_NAME_SYSTEM && 
-              <li>
-                <a
-                  className={this.props.isNavigationInNames ? 'is-active' : ''}
-                  onClick={() => this.onCollapseMobileMenuAndNavigate('/names')}>
-                  <i className="fa fa-before rotated-d">d</i>
-                  {t('name system')}
-                </a>
-              </li>
-            }
-            {
               ACCESS_ACCOUNTS &&
               <li>
                 <a
@@ -123,17 +109,6 @@ class MenuMobileComponent extends React.Component<MenuMobileComponentProps, {}> 
                   onClick={() => this.onCollapseMobileMenuAndNavigate('/whitelist')}>
                   <i className="fa fa-receipt fa-before" />
                   {t('menu whitelist')}
-                </a>
-              </li>
-            }
-            {
-              ACCESS_DEPLOY &&
-              <li>
-                <a
-                  className={this.props.isNavigationInDeploy ? 'is-active' : ''}
-                  onClick={() => this.onCollapseMobileMenuAndNavigate('/deploy/dapp')}>
-                  <i className="fa fa-angle-double-up fa-before" />
-                  {t('menu deploy')}
                 </a>
               </li>
             }

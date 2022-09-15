@@ -4,11 +4,9 @@ import { DateTime } from 'luxon';
 import {
   TransactionState,
   TransactionOriginDapp,
-  TransactionOriginRecord,
   Blockchain,
   TransactionStatus,
   RChainTokenDeployPayload,
-  RChainTokenDeployBoxPayload,
   TransactionOrigin,
   TransactionAddressValue,
 } from '/models';
@@ -26,50 +24,6 @@ const AddressResult = ({ value }: { value: TransactionAddressValue }) => (
     </a>
   </span>
 );
-
-const isDeployBox = (state: TransactionState) =>
-  state.origin.origin === 'rchain-token' &&
-  state.origin.operation === 'deploy-box' &&
-  state.status === 'completed' &&
-  state.value &&
-  state.value.hasOwnProperty('boxId');
-
-const DeployBoxResult = ({ value }: { value: RChainTokenDeployBoxPayload }) => (
-  <span>
-    {`Box address is ${value.boxId} `}
-    <a type="button" onClick={() => copyToClipboard(value.boxId)}>
-      {t('copy box id')}
-    </a>
-  </span>
-);
-
-const isRChainTokenDeploy = (state: TransactionState) =>
-  state.origin.origin === 'rchain-token' &&
-  state.origin.operation === 'deploy' &&
-  state.status === 'completed' &&
-  state.value &&
-  state.value.hasOwnProperty('masterRegistryUri') &&
-  state.value.hasOwnProperty('contractId');
-
-const RChainTokenDeployResult = ({ value }: { value: RChainTokenDeployPayload }) => (
-  <span>
-    {`Contract address is ${value.masterRegistryUri}.${value.contractId} `}
-    <a type="button" onClick={() => copyToClipboard(value.masterRegistryUri + '.' + value.contractId)}>
-      {t('copy address')}
-    </a>
-    {' or '}
-    <a type="button" onClick={() => copyToClipboard(value.contractId)}>
-      {t('copy contract id')}
-    </a>
-  </span>
-);
-
-const isRChainTokenTip = (state: TransactionState) =>
-  state.origin.origin === 'rchain-token' &&
-  state.origin.operation === 'tips' &&
-  state.status === 'completed' &&
-  state.value &&
-  state.value.hasOwnProperty('contractId');
 
 const RChainTokenTipResult = ({ value }: { value: RChainTokenDeployPayload }) => (
   <span>
@@ -89,12 +43,6 @@ const getResult = (transactionState: TransactionState) => {
     return <span>{transactionState.value}</span>;
   } else if (isAddress(transactionState)) {
     return <AddressResult value={transactionState.value as TransactionAddressValue} />;
-  } else if (isDeployBox(transactionState)) {
-    return <DeployBoxResult value={transactionState.value as RChainTokenDeployBoxPayload} />;
-  } else if (isRChainTokenDeploy(transactionState)) {
-    return <RChainTokenDeployResult value={transactionState.value as RChainTokenDeployPayload} />;
-  } else if (isRChainTokenTip(transactionState)) {
-    return <RChainTokenTipResult value={transactionState.value as RChainTokenDeployPayload} />;
   } else {
     return <span>{JSON.stringify(transactionState.value)}</span>;
   }
@@ -103,15 +51,9 @@ const getResult = (transactionState: TransactionState) => {
 const getOrigin = (origin: TransactionOrigin) => {
   switch (origin.origin) {
     case 'transfer':
-    case 'deploy':
-    case 'rholang':
       return origin.origin;
-    case 'rchain-token':
-      return `rchain-token ${origin.operation}`;
     case 'dapp':
       return `dapp ${(origin as TransactionOriginDapp).dappTitle}`;
-    case 'record':
-      return `record ${(origin as TransactionOriginRecord).recordName}`;
   }
 };
 interface TransactionListItemProps {
