@@ -3,7 +3,6 @@ import { Formik, Field } from 'formik';
 import xs from 'xstream';
 
 import './AddBlockchain.scss';
-import { CHAIN_IDS } from '../../../CONSTANTS';
 import { GlossaryHint } from '/components/utils/Hint';
 import { DappyNetworkId, DappyNetworkMember, dappyNetworks } from '@fabcotech/dappy-lookup';
 
@@ -18,31 +17,6 @@ interface AddBlockchainProps {
   add: (values: { platform: 'rchain'; chainId: string; chainName: string; nodes: DappyNetworkMember[] }) => void;
   existingChainIds: string[];
 }
-
-const FormPlatformComponent = (props: any) => (
-  <div className="field is-horizontal">
-    <label className="label">Platform</label>
-    <div className="control">
-      <div className="select">
-        <Field
-          component="select"
-          name="platform"
-          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-            const value = e.target.value;
-            if (props.value !== 'rchain' && value === 'rchain') {
-              const chainIdKey = Object.keys(CHAIN_IDS).find((key) =>
-                CHAIN_IDS[key] ? CHAIN_IDS[key].platform === 'rchain' : false
-              );
-              props.setFieldValue('platform', 'rchain');
-              props.setFieldValue('chainId', chainIdKey as string);
-            }
-          }}>
-          <option value="rchain">RChain</option>
-        </Field>
-      </div>
-    </div>
-  </div>
-);
 
 const FormChainIdComponent = (props: any) => (
   <div className="chainid-and-custom-chainid">

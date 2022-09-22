@@ -17,12 +17,6 @@ export const VERSION = process.env.PACKAGE_VERSION;
 
 export const MAIN_CHAIN_ID = 'd';
 export const DAPPY_TOKEN_CONTRACT_ID = 'dappytoken';
-export const CHAIN_IDS: { [chainId: string]: { name: string; platform: 'rchain' } } = {
-  betanetwork: {
-    name: 'Beta network',
-    platform: 'rchain',
-  },
-};
 
 export const DEVELOPMENT = typeof location !== 'undefined' && location.host === 'localhost:3033';
 
