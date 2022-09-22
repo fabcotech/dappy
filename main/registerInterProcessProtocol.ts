@@ -121,15 +121,7 @@ export const registerInterProcessProtocol = (
         const parameters: MultiRequestParameters = data.parameters;
         const body: MultiRequestBody = data.body;
 
-        if (parameters.multiCallId === EXECUTE_RCHAIN_CRON_JOBS) {
-          parameters.comparer = (res: any) => {
-            const json = JSON.parse(res as string);
-            // do not include json.rnodeVersion that might differ
-            return `${json.data.rchainNetwork}-${json.data.rchainShardId}-${json.data.lastFinalizedBlockNumber}-${json.data.rchainNamesRegistryUri}`;
-          };
-        } else {
-          parameters.comparer = (res) => res;
-        }
+        parameters.comparer = (res) => res;
 
         const blockchains = fromBlockchainsMain.getBlockchains(store.getState());
         performMultiRequest(body, parameters, blockchains)
