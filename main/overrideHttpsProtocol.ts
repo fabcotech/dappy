@@ -7,7 +7,6 @@ import { DappyBrowserView } from './models';
 import { Cookie as DappyCookie } from '/models';
 import { DispatchFromMainArg } from './main';
 import { tryToLoad } from './tryToLoad';
-import { DAPPY_NAME_SYSTEM_VISUAL_TLD } from '/CONSTANTS';
 
 const executeSentryRequest = (request: ProtocolRequest): Promise<ProtocolResponse> => {
   return new Promise((resolve, reject) => {
@@ -52,7 +51,7 @@ interface InterceptHttpsRequestsParams {
   getIsFirstRequest: () => boolean;
 }
 
-const makeInterceptHttpsRequests = ({ dappyNetworkMembers, dappyBrowserView, partitionIdHash, setCookie, getBlobData, setIsFirstRequest, getIsFirstRequest }: InterceptHttpsRequestsParams) => {
+const makeInterceptHttpsRequests = ({ chainId, dappyNetworkMembers, dappyBrowserView, partitionIdHash, setCookie, getBlobData, setIsFirstRequest, getIsFirstRequest }: InterceptHttpsRequestsParams) => {
   const debug = !process.env.PRODUCTION;
 
   return async (request: ProtocolRequest, callback: (response: Electron.ProtocolResponse) => void) => {
@@ -74,7 +73,7 @@ const makeInterceptHttpsRequests = ({ dappyNetworkMembers, dappyBrowserView, par
     }
 
     /* Dappy name system */
-    if (new URL(request.url).hostname.endsWith(`.${DAPPY_NAME_SYSTEM_VISUAL_TLD}`)) {
+    if (new URL(request.url).hostname.endsWith(`.${chainId}`)) {
       try {
         callback(await tryToLoad({ dappyNetworkMembers, partitionIdHash, dns: false, debug, dappyBrowserView, setIsFirstRequest, getIsFirstRequest, setCookie, request, getBlobData }));
       } catch (err) {
@@ -84,6 +83,7 @@ const makeInterceptHttpsRequests = ({ dappyNetworkMembers, dappyBrowserView, par
 
     /* DNS */
     } else {
+      console.log(`Unknown TLD ${new URL(request.url).hostname} only .${chainId} is supported with current configuration`)
       // forbidden for now
       callback({});
     }
@@ -127,6 +127,7 @@ const makeCookiesOnChange =
   };
 
 interface OverrideHttpProtocolsParams {
+  chainId: string;
   dappyNetworkMembers: DappyNetworkMember[];
   dappyBrowserView: DappyBrowserView | undefined;
   session: Session;
@@ -136,7 +137,7 @@ interface OverrideHttpProtocolsParams {
   getIsFirstRequest: () => boolean;
 }
 
-export const overrideHttpsProtocol = ({ dappyNetworkMembers, dappyBrowserView, session, partitionIdHash, dispatchFromMain, setIsFirstRequest, getIsFirstRequest }: OverrideHttpProtocolsParams) => {
+export const overrideHttpsProtocol = ({ chainId, dappyNetworkMembers, dappyBrowserView, session, partitionIdHash, dispatchFromMain, setIsFirstRequest, getIsFirstRequest }: OverrideHttpProtocolsParams) => {
   
   const getBlobData = (blobUUID: string) => {
     return session.getBlobData(blobUUID);
@@ -154,6 +155,7 @@ export const overrideHttpsProtocol = ({ dappyNetworkMembers, dappyBrowserView, s
   return session.protocol.interceptStreamProtocol(
     'https',
     makeInterceptHttpsRequests({
+      chainId,
       dappyNetworkMembers,
       dappyBrowserView,
       partitionIdHash,

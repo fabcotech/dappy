@@ -193,6 +193,7 @@ const loadOrReloadBrowserView = function* (action: any) {
   });
   if (payload.tab.data.isDappyNameSystem) {
     overrideHttpsProtocol({
+      chainId: payload.tab.data.chainId || '',
       dappyNetworkMembers: dappyNetworkMembers as DappyNetworkMember[],
       dappyBrowserView: newBrowserViews[payload.tab.id],
       dispatchFromMain: action.meta.dispatchFromMain,

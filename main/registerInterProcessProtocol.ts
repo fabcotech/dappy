@@ -8,7 +8,6 @@ import pem from 'pem';
 
 import { getIpAddressAndCert } from './getIpAddressAndCert';
 import { Blockchain, MultiRequestBody, MultiRequestParameters } from '../src/models';
-import { EXECUTE_RCHAIN_CRON_JOBS } from '../src/store/blockchain';
 import * as fromBlockchainsMain from './store/blockchains';
 import { performMultiRequest } from './performMultiRequest';
 import { performSingleRequest } from './performSingleRequest';

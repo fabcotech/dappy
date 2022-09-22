@@ -2,7 +2,6 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 
 import './LoadInfo.scss';
-import { DAPPY_NAME_SYSTEM_VISUAL_TLD } from '/CONSTANTS';
 import { Blockchain, Tab } from '/models';
 import * as fromMain from '/store/main';
 import * as fromSettings from '/store/settings';
@@ -28,27 +27,13 @@ class LoadInfoComponent extends React.Component<LoadInfoComponentProps> {
       }
     }
 
-    if (host.endsWith(`.${DAPPY_NAME_SYSTEM_VISUAL_TLD}`)) {
-      return (
-        <div className="load-info-background">
-          <div className="load-info">
-            <h5>{!!this.props.tab.data.html ? t('decentralized application') : t('ip application')}</h5>
-            <h6>{host}</h6>
-            <h6>
-              Internet url <b>https://go.dappy.tech/go/{this.props.tab.url}</b>
-            </h6>
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div className="load-info-background">
         <div className="load-info">
-          <h5>{t('ip application')}</h5>
+          <h5>{!!this.props.tab.data.html ? t('decentralized application') : t('ip application')}</h5>
           <h6>{host}</h6>
           <h6>
-            Internet url <b>{this.props.tab.url}</b>
+            Internet url <b>https://go.dappy.tech/go/{this.props.tab.url}</b>
           </h6>
         </div>
       </div>

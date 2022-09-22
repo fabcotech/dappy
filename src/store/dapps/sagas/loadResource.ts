@@ -12,7 +12,7 @@ import {
 import { Action } from '../../';
 
 import { NamePacket } from '/models/FakeDappyLookup';
-import { DAPPY_NAME_SYSTEM_VISUAL_TLD, MAIN_CHAIN_ID } from '/CONSTANTS';
+import { MAIN_CHAIN_ID } from '/CONSTANTS';
 import { DappyLoadError } from '/models/DappyLoadError';
 import { checkIfValidIP } from '/utils/checkIfValidIp';
 
@@ -122,7 +122,7 @@ const loadResource = function* (action: Action) {
   /*
     Dappy name system
   */
-  if (url.hostname.endsWith(`.${DAPPY_NAME_SYSTEM_VISUAL_TLD}`)) {
+  if (namesBlockchain && url.hostname.endsWith(`.${namesBlockchain.chainId}`)) {
     console.log(`Dappy: host is ${url.hostname}`)
     if (!namesBlockchain) {
       yield put(

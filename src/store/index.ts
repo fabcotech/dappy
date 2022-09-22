@@ -34,7 +34,6 @@ import fromEvent from 'xstream/extra/fromEvent';
 import { ACCESS_ACCOUNTS, ACCESS_SECURITY, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, ACCESS_WHITELIST, DEVELOPMENT, RELOAD_INDEXEDDB_PERIOD } from '../CONSTANTS';
 import { validateAccounts } from './decoders/Account';
 import { loggerSaga } from './utils';
-import { PREDEFINED_TABS } from '../TABS';
 import { initCronJobs } from './initCronJobs';
 import { interProcess } from '../interProcess';
 
@@ -396,8 +395,6 @@ dbReq.onsuccess = (event) => {
         asyncActionsOver += 1;
         if (tabs.length) {
           store.dispatch(fromDapps.updatTabsFromStorageAction({ tabs: tabs }));
-        } else {
-          store.dispatch(fromDapps.updatTabsFromStorageAction({ tabs: PREDEFINED_TABS }));
         }
         dispatchInitActions();
       })

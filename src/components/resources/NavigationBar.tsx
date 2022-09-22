@@ -12,7 +12,6 @@ import * as fromMain from '/store/main';
 import { Tab } from '/models';
 import { State as StoreState } from '/store';
 import './NavigationBar.scss';
-import { DAPPY_NAME_SYSTEM_VISUAL_TLD } from '/CONSTANTS';
 
 class NavigationBarComponent extends WithSuggestions {
   onShowLoadInfo = () => {
@@ -160,7 +159,7 @@ export const NavigationBar = connect(
     if (tab) {
       url = tab.url;
       try {
-        if (tab.url && new URL(tab.url).hostname.endsWith(`.${DAPPY_NAME_SYSTEM_VISUAL_TLD}`) && tab.data.html) {
+        if (tab.url && tab.data.html) {
           appType = 'DA';
         }
       } catch (err) {
