@@ -140,6 +140,7 @@ function createWindow() {
   preventAllPermissionRequests(browserSession);
   overrideHttpProtocol({ session: browserSession });
   overrideHttpsProtocol({
+    chainId: '',
     dappyNetworkMembers: [],
     dappyBrowserView: undefined,
     session: browserSession,
