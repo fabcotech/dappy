@@ -8,9 +8,9 @@ The main features dappy includes are:
 - Secure javascript execution without any network access by default.
 - The dappy network as a source of authority, "à la place" of regular web centralized services.
 
-Two types of applications exist on dappy, both of them also have extended micropayment, tipping and defi capabilities:
-- Dapps: 100% blockchain hosted, no-server web applications.
-- IP apps: HTTPS only websites that use the dappy name system instead of the DNS.
+Two types of applications exist on dappy :
+- IP apps: HTTPS only websites that use the dappy name system instead of the DNS and Certificate Authorities.
+- Dapps: 100% blockchain hosted, no-server web applications (not actively developed currently).
 
 Read more on [https://dappy.tech](https://dappy.tech).
 
@@ -49,13 +49,15 @@ npm run start:electron
 
 See [DEVELOPER.MD](https://github.com/fabcotech/dappy/blob/master/DEVELOPER.MD) if you want to understand the stack, run, compile, contribute, or play with dappy browser as a developer.
 
-## Networks (deltanetwork, betanetwork etc...)
+## Networks (d, gamma etc...)
 
-One or more networks can be included by default. Each of them may include many nodes/members, members of a same dappy network must be connected to the same blockchain platform, it is up to the members of a network to maintain proper infrastructure.
+The reference of the dappy network(s) that may be included in a given adppy browser (white label or regular) release are loaded from another library, **dappy-lookup** which is the library responsible for co-resolution of records (A, AAAA, TXT, CERT) in the dappy name system.
 
-The code for running a node (dev or production) is [dappy-node](https://github.com/fabcotech/dappy-node), please check the [glossary](https://dappy.tech/glossary) if you are not familiar with the terminology around the dappy system.
+## Node / name system resolver
 
-Currently two networks are referenced in dappy browser, betanetwork (RChain mainnet) and deltanetwork (RChain testnet).
+**dappy-node** is the web server responsible for exposing a DoH (DNS over HTTPS) interface and that each member of the dappy network must run.
+
+[dappy-node](https://github.com/fabcotech/dappy-tools/tree/master/packages/dappy-node)
 
 ## License
 
