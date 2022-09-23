@@ -111,7 +111,7 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
   } else {
     try {
       // todo support ipv6 / AAAA ?
-      networkHosts = (await lookup(url.hostname, 'A', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data)
+      networkHosts = (await lookup(url.hostname, 'A', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data);
       ca = (await lookup(url.hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data);
     } catch (err) {
       return Promise.resolve({

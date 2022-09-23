@@ -42,6 +42,7 @@ export const parseUrl = (url: string): { host?: string; path?: string } => {
 };
 
 interface InterceptHttpsRequestsParams {
+  chainId: string;
   dappyNetworkMembers: DappyNetworkMember[];
   dappyBrowserView: DappyBrowserView | undefined;
   partitionIdHash: string;
