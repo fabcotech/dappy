@@ -124,19 +124,6 @@ const loadResource = function* (action: Action) {
   */
   if (namesBlockchain && url.hostname.endsWith(`.${namesBlockchain.chainId}`)) {
     console.log(`Dappy: host is ${url.hostname}`)
-    if (!namesBlockchain) {
-      yield put(
-        fromDapps.loadResourceFailedAction({
-          tabId: tabId,
-          url: payload.url,
-          error: {
-            error: DappyLoadError.MissingBlockchainData,
-            args: { chainId: 'unknown' },
-          },
-        })
-      );
-      return;
-    }
 
     yield put(
       fromDapps.initTransitoryStateAndResetLoadErrorAction({
