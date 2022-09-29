@@ -103,6 +103,28 @@ interface makeTryToLoadParams {
 export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, partitionIdHash, dappyBrowserView, setIsFirstRequest, getIsFirstRequest, setCookie, getBlobData }: makeTryToLoadParams) => {
   let over = false;
   const url = new URL(request.url);
+  let hostname = url.hostname;
+
+  /* CNAME
+    check if the record has a CNAME / alias, if so
+    hostname must be replaceed
+    todo : this should be recursive
+  */
+  let cname: undefined | string = undefined;
+  try {
+    cname = (await lookup(url.hostname, 'CNAME', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data)[0];
+    if (cname) {
+      console.log(`[name system    ] found CNAME ${url.hostname}->${cname}`)
+      hostname = cname;
+    }
+  } catch (err) {
+    console.log(err);
+    return Promise.resolve({
+      data: "NS LOOKUP ERROR",
+      headers: {},
+      statusCode: 523
+    });
+  }
 
   let ca: string[] | undefined = undefined;
   let networkHosts: string[] | undefined = undefined;
@@ -111,9 +133,12 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
   } else {
     try {
       // todo support ipv6 / AAAA ?
-      networkHosts = (await lookup(url.hostname, 'A', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data);
-      ca = (await lookup(url.hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data);
+      networkHosts = (await lookup(hostname, 'A', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data);
+      console.log(`[name system    ] found A ${networkHosts.join(',')}`);
+      ca = (await lookup(hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data);
+      console.log(`[name system    ] found CERT ${ca[0].slice(0,10)}...`);
     } catch (err) {
+      console.log(err);
       return Promise.resolve({
         data: "NS LOOKUP ERROR",
         headers: {},
@@ -125,8 +150,9 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
   // Content-Security-Policy through TXT records
   let txts: string[] | undefined = undefined;
   try {
-    txts = (await lookup(url.hostname, 'TXT', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data)
+    txts = (await lookup(hostname, 'TXT', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data)
   } catch (err) {
+    console.log(err);
     return Promise.resolve({
       data: "NS LOOKUP ERROR",
       headers: {},
@@ -137,12 +163,14 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
   let dappAddress = '';
   const dappAddressRecord = (txts || []).find(a => a.startsWith("DAPP_ADDRESS="));
   if (dappAddressRecord) {
+    console.log(`[ns] found TXT/DAPP_ADDRESS ${dappAddressRecord.slice(0,10)}...`);
     dappAddress  = dappAddressRecord.replace('DAPP_ADDRESS=', '');
   }
 
   let csp = '';
   const cspRecord = (txts || []).find(a => a.startsWith("CSP="));
   if (cspRecord) {
+    console.log(`[ns] found TXT/CSP ${(cspRecord as string).slice(0,10)}...`);
     csp = (cspRecord as string).replace('CSP=', '');
   }
 
@@ -153,150 +181,12 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
     console.log('dapp address resolved by name system ' + dappAddress);
 
     const st = new stream.PassThrough();
-
-    const s = (dappAddress || '').split('.');
-    let masterRegistryUri = dappyBrowserView.data.rchainNamesMasterRegistryUri;
-    let fileContractId = '';
-    let filePurseId = '';
-
-
-    //A dapp address can be master.contract.purse or contract.purse
-    if (s.length === 2) {
-      fileContractId = s[0];
-      filePurseId = s[1] || 'index';
-    } else if (s.length === 3) {
-      masterRegistryUri = s[0];
-      fileContractId = s[1];
-      filePurseId = s[2] || 'index';
-    } else {
-      throw new Error('Unable to parse dapp address');
-    }
-
-    const indexes = shuffle((dappyBrowserView.data.blockchain as Blockchain).nodes
-      .map(getNodeIndex));
-    let multiRequestResult: undefined | MultiRequestResult;
-
-    try {
-      multiRequestResult = await performMultiRequest(
-        {
-          type: 'explore-deploy-x',
-          body: {
-            terms: [
-              readPursesDataTerm({
-                masterRegistryUri: masterRegistryUri,
-                contractId: fileContractId,
-                pursesIds: [filePurseId],
-              }),
-            ],
-          },
-        },
-        {
-          chainId: dappyBrowserView.data.chainId as string,
-          urls: indexes,
-          // todo get values from dappy-lookup
-          resolverMode: 'absolute',
-          resolverAccuracy: 100,
-          resolverAbsolute: 1,
-          multiCallId: fromBlockchain.EXPLORE_DEPLOY_X,
-        },
-        {
-          [dappyBrowserView.data.chainId as string]: (dappyBrowserView.data.blockchain as Blockchain)
-        }
-      );
-    } catch (err) {
-      st.push(getHtmlError("Dapp error", "Failed to retreive HTML from the blockchain"))
-      st.end()
-      return {
-        data: st,
-        headers: {},
-        statusCode: 404
-      };
-    }
-  
-    let dataFromBlockchain;
-    let dataFromBlockchainParsed: undefined | { data: { results: { data: string }[] } };
-    let verifiedDappyFile: DappyFile | undefined = undefined;
-    try {
-      dataFromBlockchain = (multiRequestResult as MultiRequestResult).result;
-      dataFromBlockchainParsed = JSON.parse(dataFromBlockchain) as { data: { results: { data: string }[] } };
-      verifiedDappyFile = await validateAndReturnFile(
-        dataFromBlockchainParsed.data.results[0].data,
-        filePurseId,
-        '',
-        false
-      );
-    } catch (e) {
-      st.push(getHtmlError(
-        "Dapp error",
-        "Failed to validate HTML file retrieved from the blockchain",
-        {
-          type: 'dapp',
-          log: `DAPP TXT ${dappAddressRecord}`
-        }
-      ));
-      st.end()
-      return {
-        data: st,
-        headers: {},
-        statusCode: 404
-      };
-    }
-  
-    const dappyFile = verifiedDappyFile as DappyFile;
-  
-    if (!['text/html', 'application/dappy'].includes(dappyFile.mimeType)) {
-      st.push(getHtmlError(
-        "Invalid dapp format",
-        "Only application/dappy and text/html files can be handled",
-        {
-          type: 'dapp',
-          log: `DAPP TXT ${dappAddressRecord}`
-        }
-      ))
-      st.end()
-      return {
-        data: st,
-        headers: {},
-        statusCode: 404
-      };
-    }
-  
-    let dappHtml: undefined | any;
-    try {
-      dappHtml = getHtmlFromFile(dappyFile);
-    } catch (e) {
-      st.push(getHtmlError(
-        "Dapp parsing error",
-        "Failed to get HTML from archive (gzip)",
-        {
-          type: 'dapp',
-          log: `DAPP TXT ${dappAddressRecord}`
-        }
-      ))
-      st.end()
-      return {
-        data: st,
-        headers: {},
-        statusCode: 404
-      };
-    }
-
-    let headers: { [a: string]: string } = {
-      'Content-Type': 'text/html; charset=utf-8',
-    };
-    const isFirstRequest = getIsFirstRequest();
-    if (isFirstRequest && csp) {
-      // todo what if there is a CSP in the html document with <meta> ?
-      console.log('[csp top-level rq] ' + url.hostname + ' ' + csp);
-      headers['Content-Security-Policy'] = csp
-    }
-    setIsFirstRequest(false);
-
-    st.push(dappHtml)
+    st.push(getHtmlError("Dapp error", "Failed to retreive HTML from the blockchain"))
     st.end()
     return {
       data: st,
-      headers: headers
+      headers: {},
+      statusCode: 404
     };
   }
 
@@ -306,7 +196,7 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
   async function load(i: number = 0) {
 
     if (!networkHosts || !(networkHosts as string[])[i]) {
-      if (debug) console.log(`[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${url.hostname})`);
+      if (debug) console.log(`[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${hostname})`);
       const st = new stream.PassThrough();
       if (!networkHosts || networkHosts.length === 0) {
         st.push(getHtmlError(
@@ -374,7 +264,7 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
           rejectUnauthorized: true,
           headers: {
             ...request.headers,
-            host: url.hostname,
+            host: hostname,
             Cookie: getCookiesHeaderResp.cookieHeader,
             Origin: `https://${dappyBrowserView.host}`,
           },
@@ -525,7 +415,7 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
               const headers = resp.headers as Record<string, string | string[]>;
               if (isFirstRequest) {
                 // todo what if there is a CSP in the html document with <meta> ?
-                console.log('[csp top-level   ] ' + url.hostname+ url.host + path + ' ' + csp);
+                console.log('[csp top-level   ] ' + hostname+ url.host + path + ' ' + csp);
                 headers['Content-Security-Policy'] = csp
               }
               resolve({
