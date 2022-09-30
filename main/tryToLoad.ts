@@ -89,6 +89,7 @@ const getCookiesHeader = async (dappyBrowserView: DappyBrowserView, url: string,
 
 interface makeTryToLoadParams {
   dappyNetworkMembers: DappyNetworkMember[];
+  chainId: string;
   dns: boolean;
   debug: boolean;
   request: ProtocolRequest;
@@ -100,7 +101,7 @@ interface makeTryToLoadParams {
   getBlobData: (blobUUID: string) => Promise<Buffer>;
 }
 
-export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, partitionIdHash, dappyBrowserView, setIsFirstRequest, getIsFirstRequest, setCookie, getBlobData }: makeTryToLoadParams) => {
+export const tryToLoad = async ({ chainId, dappyNetworkMembers, dns, debug, request, partitionIdHash, dappyBrowserView, setIsFirstRequest, getIsFirstRequest, setCookie, getBlobData }: makeTryToLoadParams) => {
   let over = false;
   const url = new URL(request.url);
   let hostname = url.hostname;
@@ -134,9 +135,17 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
     try {
       // todo support ipv6 / AAAA ?
       networkHosts = (await lookup(hostname, 'A', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data);
-      console.log(`[name system    ] found A ${networkHosts.join(',')}`);
+      if (networkHosts.length) {
+        console.log(`[name system    ] found A ${networkHosts.join(',')}`);
+      } else {
+        console.log(`[name system err] no A records`);
+      }
       ca = (await lookup(hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data);
-      console.log(`[name system    ] found CERT ${ca[0].slice(0,10)}...`);
+      if (ca[0]) {
+        console.log(`[name system    ] found CERT ${ca[0].slice(0,10)}...`);
+      } else {
+        console.log(`[name system err] no CERT record`);
+      }
     } catch (err) {
       console.log(err);
       return Promise.resolve({
@@ -188,6 +197,19 @@ export const tryToLoad = async ({ dappyNetworkMembers, dns, debug, request, part
       headers: {},
       statusCode: 404
     };
+  }
+
+
+  console.log(url.hostname);
+  console.log(hostname);
+  console.log(url.hostname.split('.')[url.hostname.split('.').length - 1]);
+
+  /*
+    If there was a CNAME, .gamma or .d may be
+    missing at the end
+  */
+  if (!hostname.endsWith(`.chainId`)) {
+    hostname = `${hostname}.${chainId}`
   }
 
   // ============

@@ -76,7 +76,7 @@ const makeInterceptHttpsRequests = ({ chainId, dappyNetworkMembers, dappyBrowser
     /* Dappy name system */
     if (new URL(request.url).hostname.endsWith(`.${chainId}`)) {
       try {
-        callback(await tryToLoad({ dappyNetworkMembers, partitionIdHash, dns: false, debug, dappyBrowserView, setIsFirstRequest, getIsFirstRequest, setCookie, request, getBlobData }));
+        callback(await tryToLoad({ chainId, dappyNetworkMembers, partitionIdHash, dns: false, debug, dappyBrowserView, setIsFirstRequest, getIsFirstRequest, setCookie, request, getBlobData }));
       } catch (err) {
         console.log(err);
         callback({});
