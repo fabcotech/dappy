@@ -3,21 +3,11 @@ import stream from 'stream';
 import fs from 'fs';
 import { CookiesSetDetails, ProtocolRequest, Cookie, ProtocolResponse } from 'electron';
 import cookieParser from 'set-cookie-parser';
-import { readPursesDataTerm } from '@fabcotech/rchain-token';
-import { DappyNetworkMember, lookup } from '@fabcotech/dappy-lookup';
 
-import { getHtmlFromFile } from './utils/getHtmlFromFile';
 import { getHtmlError } from './utils/getHtmlError';
-import { validateAndReturnFile } from './utils/validateAndReturnFile';
-import { shuffle } from './utils/shuffle';
-import { getNodeIndex } from '/utils/getNodeIndex';
-import { generateSignature, respondToChallenge } from './blitz';
-
 import { DappyBrowserView } from './models';
 
-import { Blockchain, DappyFile, MultiRequestResult } from '/models';
-import { performMultiRequest } from './performMultiRequest';
-import * as fromBlockchain from '/store/blockchain';
+const { lookup } = require('@fabcotech/dappy-lookup');
 
 let sameSites: { [a: string]: 'lax' | 'strict' | 'no_restriction' } = {
   lax: 'lax',
@@ -27,12 +17,12 @@ let sameSites: { [a: string]: 'lax' | 'strict' | 'no_restriction' } = {
 };
 
 const rightPad = (str: string, num: number) => {
-  let s = str.slice(0,num);
+  let s = str.slice(0, num);
   for (let i = 0; i < num - str.length; i += 1) {
-    s += ' '
+    s += ' ';
   }
   return s;
-}
+};
 
 const onlyLaxCookieOnFirstRequest = (isFirstRequest: boolean, cookie: Cookie) =>
   isFirstRequest ? cookie.sameSite === 'lax' : true;
@@ -62,9 +52,14 @@ export const isCookieDomainSentWithHost = (cookieDomain: string | undefined, hos
   // cookieDomain = api.example.com and host = pro.example.com
   // cookieDomain = eeexample.com and host = example.com
   return false;
-}
+};
 
-const getCookiesHeader = async (dappyBrowserView: DappyBrowserView, url: string, isFirstRequest: boolean, s: string) => {
+const getCookiesHeader = async (
+  dappyBrowserView: DappyBrowserView,
+  url: string,
+  isFirstRequest: boolean,
+  s: string
+) => {
   const host = new URL(url).host;
   let cookies: Cookie[] = [];
   cookies = await dappyBrowserView.browserView.webContents.session.cookies.get({
@@ -81,9 +76,9 @@ const getCookiesHeader = async (dappyBrowserView: DappyBrowserView, url: string,
   return {
     cookieHeader: okCookies.map((c) => `${c.name}=${c.value}`).join('; '),
     numberOfCookies: {
-      lax: okCookies.filter(c => c.sameSite === 'lax').length,
-      strict: okCookies.filter(c => c.sameSite === 'strict').length,
-    }
+      lax: okCookies.filter((c) => c.sameSite === 'lax').length,
+      strict: okCookies.filter((c) => c.sameSite === 'strict').length,
+    },
   };
 };
 
@@ -101,7 +96,19 @@ interface makeTryToLoadParams {
   getBlobData: (blobUUID: string) => Promise<Buffer>;
 }
 
-export const tryToLoad = async ({ chainId, dappyNetworkMembers, dns, debug, request, partitionIdHash, dappyBrowserView, setIsFirstRequest, getIsFirstRequest, setCookie, getBlobData }: makeTryToLoadParams) => {
+export const tryToLoad = async ({
+  chainId,
+  dappyNetworkMembers,
+  dns,
+  debug,
+  request,
+  partitionIdHash,
+  dappyBrowserView,
+  setIsFirstRequest,
+  getIsFirstRequest,
+  setCookie,
+  getBlobData,
+}: makeTryToLoadParams) => {
   let over = false;
   const url = new URL(request.url);
   let hostname = url.hostname;
@@ -113,17 +120,17 @@ export const tryToLoad = async ({ chainId, dappyNetworkMembers, dns, debug, requ
   */
   let cname: undefined | string = undefined;
   try {
-    cname = (await lookup(url.hostname, 'CNAME', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data)[0];
+    cname = (await lookup(hostname, 'CNAME', { dappyNetwork: dappyNetworkMembers })).answers.map((a) => a.data)[0];
     if (cname) {
-      console.log(`[name system    ] found CNAME ${url.hostname}->${cname}`)
+      console.log(`[name system    ] found CNAME ${url.hostname} -> ${cname}`);
       hostname = cname;
     }
   } catch (err) {
     console.log(err);
     return Promise.resolve({
-      data: "NS LOOKUP ERROR",
+      data: 'NS LOOKUP ERROR',
       headers: {},
-      statusCode: 523
+      statusCode: 523,
     });
   }
 
@@ -134,24 +141,26 @@ export const tryToLoad = async ({ chainId, dappyNetworkMembers, dns, debug, requ
   } else {
     try {
       // todo support ipv6 / AAAA ?
-      networkHosts = (await lookup(hostname, 'A', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data);
+      networkHosts = (await lookup(hostname, 'A', { dappyNetwork: dappyNetworkMembers })).answers.map((a) => a.data);
+      console.log(networkHosts);
       if (networkHosts.length) {
         console.log(`[name system    ] found A ${networkHosts.join(',')}`);
       } else {
         console.log(`[name system err] no A records`);
       }
-      ca = (await lookup(hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data);
+      console.log(hostname, 'CERT');
+      ca = (await lookup(hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map((a) => a.data);
       if (ca[0]) {
-        console.log(`[name system    ] found CERT ${ca[0].slice(0,10)}...`);
+        console.log(`[name system    ] found CERT ${ca[0].slice(0, 10)}...`);
       } else {
         console.log(`[name system err] no CERT record`);
       }
     } catch (err) {
       console.log(err);
       return Promise.resolve({
-        data: "NS LOOKUP ERROR",
+        data: 'NS LOOKUP ERROR',
         headers: {},
-        statusCode: 523
+        statusCode: 523,
       });
     }
   }
@@ -159,27 +168,27 @@ export const tryToLoad = async ({ chainId, dappyNetworkMembers, dns, debug, requ
   // Content-Security-Policy through TXT records
   let txts: string[] | undefined = undefined;
   try {
-    txts = (await lookup(hostname, 'TXT', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data)
+    txts = (await lookup(hostname, 'TXT', { dappyNetwork: dappyNetworkMembers })).answers.map((a) => a.data);
   } catch (err) {
     console.log(err);
     return Promise.resolve({
-      data: "NS LOOKUP ERROR",
+      data: 'NS LOOKUP ERROR',
       headers: {},
-      statusCode: 523
+      statusCode: 523,
     });
   }
 
   let dappAddress = '';
-  const dappAddressRecord = (txts || []).find(a => a.startsWith("DAPP_ADDRESS="));
+  const dappAddressRecord = (txts || []).find((a) => a.startsWith('DAPP_ADDRESS='));
   if (dappAddressRecord) {
-    console.log(`[ns] found TXT/DAPP_ADDRESS ${dappAddressRecord.slice(0,10)}...`);
-    dappAddress  = dappAddressRecord.replace('DAPP_ADDRESS=', '');
+    console.log(`[ns] found TXT/DAPP_ADDRESS ${dappAddressRecord.slice(0, 10)}...`);
+    dappAddress = dappAddressRecord.replace('DAPP_ADDRESS=', '');
   }
 
   let csp = '';
-  const cspRecord = (txts || []).find(a => a.startsWith("CSP="));
+  const cspRecord = (txts || []).find((a) => a.startsWith('CSP='));
   if (cspRecord) {
-    console.log(`[ns] found TXT/CSP ${(cspRecord as string).slice(0,10)}...`);
+    console.log(`[ns] found TXT/CSP ${(cspRecord as string).slice(0, 10)}...`);
     csp = (cspRecord as string).replace('CSP=', '');
   }
 
@@ -190,63 +199,56 @@ export const tryToLoad = async ({ chainId, dappyNetworkMembers, dns, debug, requ
     console.log('dapp address resolved by name system ' + dappAddress);
 
     const st = new stream.PassThrough();
-    st.push(getHtmlError("Dapp error", "Failed to retreive HTML from the blockchain"))
-    st.end()
+    st.push(getHtmlError('Dapp error', 'Failed to retreive HTML from the blockchain'));
+    st.end();
     return {
       data: st,
       headers: {},
-      statusCode: 404
+      statusCode: 404,
     };
   }
-
-
-  console.log(url.hostname);
-  console.log(hostname);
-  console.log(url.hostname.split('.')[url.hostname.split('.').length - 1]);
 
   /*
     If there was a CNAME, .gamma or .d may be
     missing at the end
   */
-  if (!hostname.endsWith(`.chainId`)) {
-    hostname = `${hostname}.${chainId}`
+  if (!hostname.endsWith(`.${chainId}`)) {
+    hostname = `${hostname}.${chainId}`;
   }
 
   // ============
   // IP APP
   // ============
   async function load(i: number = 0) {
-
     if (!networkHosts || !(networkHosts as string[])[i]) {
       if (debug) console.log(`[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${hostname})`);
       const st = new stream.PassThrough();
       if (!networkHosts || networkHosts.length === 0) {
-        st.push(getHtmlError(
-          "Lookup error",
-          "Name system zone has no A or AAAA record",
-        ))
+        st.push(getHtmlError('Lookup error', 'Name system zone has no A or AAAA record'));
       } else {
-        st.push(getHtmlError(
-          "IP app error",
-          "Failed to load IP application, check that the servers are reachable and properly configured",
-          {
-            type: 'ip app',
-            log: (networkHosts || []).join('\n')
-          }
-        ))
+        st.push(
+          getHtmlError(
+            'IP app error',
+            'Failed to load IP application, check that the servers are reachable and properly configured',
+            {
+              type: 'ip app',
+              log: (networkHosts || []).join('\n'),
+            }
+          )
+        );
       }
-      st.end()
+      st.end();
       return {
         data: st,
         headers: {},
-        statusCode: 503
+        statusCode: 503,
       };
     }
 
-    let s = "";
+    let s = '';
 
     const isFirstRequest = getIsFirstRequest();
-  
+
     if (debug) {
       if (isFirstRequest) {
         s += `[https load ${partitionIdHash}] first hand navigation ${rightPad(request.url, 32)} ${i}`;
@@ -255,14 +257,14 @@ export const tryToLoad = async ({ chainId, dappyNetworkMembers, dns, debug, requ
       }
     }
 
-    let port = url.port ? url.port : "443";
+    let port = url.port ? url.port : '443';
 
     let path = `/`;
     if (url.pathname) {
       path = url.pathname;
     }
     if (url.search) {
-      path += url.search
+      path += url.search;
     }
 
     const getCookiesHeaderResp = await getCookiesHeader(dappyBrowserView, url.origin, isFirstRequest, s);
@@ -273,7 +275,6 @@ export const tryToLoad = async ({ chainId, dappyNetworkMembers, dns, debug, requ
     */
     setIsFirstRequest(false);
 
-    
     return new Promise<ProtocolResponse>((resolve) => {
       try {
         const options: https.RequestOptions = {
@@ -291,16 +292,19 @@ export const tryToLoad = async ({ chainId, dappyNetworkMembers, dns, debug, requ
             Origin: `https://${dappyBrowserView.host}`,
           },
         };
-    
-        s += rightPad(` | cook: ${getCookiesHeaderResp.numberOfCookies.lax}lax ${getCookiesHeaderResp.numberOfCookies.strict}strict`, 22)
+
+        s += rightPad(
+          ` | cook: ${getCookiesHeaderResp.numberOfCookies.lax}lax ${getCookiesHeaderResp.numberOfCookies.strict}strict`,
+          22
+        );
 
         if (request.referrer) {
           options.headers!.referrer = request.referrer;
         }
         const req = https
           .request(options, async (resp) => {
-
-            if (resp.headers['blitz-authentication']) {
+            // BLITZ
+            /* if (resp.headers['blitz-authentication']) {
               console.log('[blitz-authentication] challenge proposed by server !');
               const payload = JSON.parse(resp.headers['blitz-authentication'] as string);
               if (payload.host === url.host) {
@@ -363,7 +367,7 @@ export const tryToLoad = async ({ chainId, dappyNetworkMembers, dns, debug, requ
               } else {
                 console.log('[blitz-authentication] abandon, hosts do not match')
               }
-            }
+            } */
 
             let respCookies: cookieParser.Cookie[] = [];
             if (resp.headers && resp.headers['set-cookie'] && resp.headers['set-cookie'].length) {
@@ -372,14 +376,14 @@ export const tryToLoad = async ({ chainId, dappyNetworkMembers, dns, debug, requ
               });
 
               respCookies
-                .filter(c => {
+                .filter((c) => {
                   if (c.domain) {
                     if (c.domain === url.host) return true;
                     if (c.domain === `.${url.host}`) return true;
 
                     // Set-Cookie from request on example.com wants to set a cookie on api.example.com
                     if (c.domain.endsWith(`.${url.host}`)) return true;
-                    return false
+                    return false;
                   } else {
                     return true;
                   }
@@ -401,12 +405,9 @@ export const tryToLoad = async ({ chainId, dappyNetworkMembers, dns, debug, requ
             /*
               Redirection is only ok if it is undergoing a first request
             */
-            if (
-              isFirstRequest &&
-              [300, 301, 302, 303, 304, 307, 308, 309].find(a => a === resp.statusCode)
-            ) {
+            if (isFirstRequest && [300, 301, 302, 303, 304, 307, 308, 309].find((a) => a === resp.statusCode)) {
               s += rightPad(` | ${resp.statusCode} redirect`, 10);
-              if (respCookies.length) s += ` (${respCookies.length} cook)`
+              if (respCookies.length) s += ` (${respCookies.length} cook)`;
 
               /*
                 todo, how to know a request is first hand navigation ?
@@ -414,31 +415,31 @@ export const tryToLoad = async ({ chainId, dappyNetworkMembers, dns, debug, requ
                 override
               */
               over = true;
-               resolve({
+              resolve({
                 statusCode: resp.statusCode,
                 headers: {
-                  ...resp.headers as Record<string, string | string[]>,
+                  ...(resp.headers as Record<string, string | string[]>),
                   'set-cookie': '',
-                }
+                },
               });
               return;
             }
 
             s += rightPad(` | ${resp.statusCode}`, 7);
-            
+
             if (debug) console.log(s);
             // todo csp
             /* resp.headers = {
               ...resp.headers,
-              'Content-Security-Policy': dappyBrowserView.csp || "default-src 'self'",
-            };
-            */
+              'Content-Security-Policy': csp || "default-src 'self'",
+            }; */
+
             if (!over) {
               const headers = resp.headers as Record<string, string | string[]>;
               if (isFirstRequest) {
                 // todo what if there is a CSP in the html document with <meta> ?
-                console.log('[csp top-level   ] ' + hostname+ url.host + path + ' ' + csp);
-                headers['Content-Security-Policy'] = csp
+                console.log('[csp top-level   ] ' + hostname + url.host + path + ' ' + csp);
+                headers['Content-Security-Policy'] = csp;
               }
               resolve({
                 data: resp,
@@ -461,31 +462,35 @@ export const tryToLoad = async ({ chainId, dappyNetworkMembers, dns, debug, requ
               load(i + 1);
             } else {
               if (debug) {
-                console.log(`[https load] Resource for app (${dappyBrowserView.tabId}) failed to load (${url.pathname})`);
+                console.log(
+                  `[https load] Resource for app (${dappyBrowserView.tabId}) failed to load (${url.pathname})`
+                );
               }
 
               const st = new stream.PassThrough();
-              st.push(getHtmlError(
-                "IP app error",
-                err.message || "Failed to load IP application, check that the servers are reachable and properly configured",
-                {
-                  type: 'ip app',
-                  log: (networkHosts || []).join('\n')
-                }
-              ))
-              st.end()
+              st.push(
+                getHtmlError(
+                  'IP app error',
+                  err.message ||
+                    'Failed to load IP application, check that the servers are reachable and properly configured',
+                  {
+                    type: 'ip app',
+                    log: (networkHosts || []).join('\n'),
+                  }
+                )
+              );
+              st.end();
               resolve({
                 data: st,
                 headers: {},
-                statusCode: statusCode
+                statusCode: statusCode,
               });
               over = true;
               return;
             }
           });
-        
-        if (request.uploadData && request.uploadData[0]) {
 
+        if (request.uploadData && request.uploadData[0]) {
           const handleUploadData = async () => {
             const uds = request.uploadData as Electron.UploadData[];
 
@@ -509,7 +514,7 @@ export const tryToLoad = async ({ chainId, dappyNetworkMembers, dns, debug, requ
             if ((request.uploadData || []).length === 0) {
               req.end();
             }
-          }
+          };
           handleUploadData();
         } else {
           req.end();
@@ -527,24 +532,28 @@ export const tryToLoad = async ({ chainId, dappyNetworkMembers, dns, debug, requ
         if ((networkHosts as string[])[i + 1]) {
           load(i + 1);
         } else {
-          if (debug) console.log(`[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${url.pathname})`);
+          if (debug)
+            console.log(`[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${url.pathname})`);
           /*
             Will catch in main/store/sagas/loadOrReloadBrowserView.ts L193
           */
           const st = new stream.PassThrough();
-          st.push(getHtmlError(
-            "IP app error",
-            err.message || "Failed to load IP application, check that the servers are reachable and properly configured",
-            {
-              type: 'ip app',
-              log: (networkHosts || []).join('\n')
-            }
-          ))
-          st.end()
+          st.push(
+            getHtmlError(
+              'IP app error',
+              err.message ||
+                'Failed to load IP application, check that the servers are reachable and properly configured',
+              {
+                type: 'ip app',
+                log: (networkHosts || []).join('\n'),
+              }
+            )
+          );
+          st.end();
           resolve({
             data: st,
             headers: {},
-            statusCode: statusCode
+            statusCode: statusCode,
           });
           over = true;
           return;

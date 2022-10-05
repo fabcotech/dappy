@@ -164,53 +164,75 @@ export const registerInterProcessProtocol = (
     }
 
     if (request.url === 'interprocess://dappy-lookup') {
-
-      const blockchains: { [chainId: string]: Blockchain } = fromBlockchainsMain.getBlockchains(store.getState())
-
+      const blockchains: { [chainId: string]: Blockchain } = fromBlockchainsMain.getBlockchains(store.getState());
 
       const first = Object.keys(blockchains)[0];
       if (!first) {
-        callback(Buffer.from(JSON.stringify({
-          success: false,
-          error: "no dappy network"
-        })));
+        callback(
+          Buffer.from(
+            JSON.stringify({
+              success: false,
+              error: 'no dappy network',
+            })
+          )
+        );
         return;
       }
 
       try {
         const data = JSON.parse(decodeURI(request.headers['Data']));
-        if (data.value.method === "lookup") {
-          if (data.value.type === "TXT") {
-            lookup(data.value.hostname, data.value.type, { dappyNetwork: blockchains[first].nodes }).then(a => {
-              callback(Buffer.from(JSON.stringify({
-                success: true,
-                data: a
-              })));
-            })
-            .catch(err => {
-              callback(Buffer.from(JSON.stringify({
-                success: false,
-                error: err.message
-              })));
-            })
+        if (data.value.method === 'lookup') {
+          if (data.value.type === 'TXT') {
+            lookup(data.value.hostname, data.value.type, { dappyNetwork: blockchains[first].nodes })
+              .then((a) => {
+                callback(
+                  Buffer.from(
+                    JSON.stringify({
+                      success: true,
+                      data: a,
+                    })
+                  )
+                );
+              })
+              .catch((err) => {
+                callback(
+                  Buffer.from(
+                    JSON.stringify({
+                      success: false,
+                      error: err.message,
+                    })
+                  )
+                );
+              });
           } else {
-            callback(Buffer.from(JSON.stringify({
-              success: false,
-              error: "unknown type"
-            })));
+            callback(
+              Buffer.from(
+                JSON.stringify({
+                  success: false,
+                  error: 'unknown type',
+                })
+              )
+            );
           }
         } else {
-          callback(Buffer.from(JSON.stringify({
-            success: false,
-            error: "unknown method"
-          })));
+          callback(
+            Buffer.from(
+              JSON.stringify({
+                success: false,
+                error: 'unknown method',
+              })
+            )
+          );
         }
-
       } catch (err) {
-        callback(Buffer.from(JSON.stringify({
-          success: false,
-          error: err.message
-        })));
+        callback(
+          Buffer.from(
+            JSON.stringify({
+              success: false,
+              error: err.message,
+            })
+          )
+        );
       }
     }
 

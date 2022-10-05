@@ -113,18 +113,6 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
       return <Gcu version={GCU_VERSION} text={GCU_TEXT} continue={this.props.updateGcu}></Gcu>;
     }
 
-    if (this.props.initializationOver && this.props.shouldDisplayAccountCreationForm && !this.state.accountCreationFormClosed) {
-      return (
-        <NoAccountForm
-          onClose={() => {
-            this.setState({
-              accountCreationFormClosed: true,
-            });
-          }}
-        />
-      );
-    }
-
     let klasses = 'root theme-default';
     if (this.props.isMobile) {
       klasses += ' is-mobile';

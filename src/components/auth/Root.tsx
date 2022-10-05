@@ -111,7 +111,7 @@ export class RootComponent extends React.Component<RootProps, {}> {
         }
         <div className="field is-horizontal is-grouped pt20">
           <div className="control">
-            <button
+            { Object.keys(this.props.accounts).length > 0 && <button
               type="submit"
               className="button is-link is-medium"
               disabled={Object.keys(this.state.errors).filter(e => !!this.state.errors[e]).length > 0}
@@ -126,7 +126,7 @@ export class RootComponent extends React.Component<RootProps, {}> {
                 })
               }}>
               {t('save auth')}
-            </button>
+            </button> }
           </div>
         </div>
       </div>
