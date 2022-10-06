@@ -1,11 +1,11 @@
 import https from 'https';
 import stream from 'stream';
 import fs from 'fs';
-import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
+import { DappyNetworkMember, RRA, RRCNAME, RRTXT, RRCERT } from '@fabcotech/dappy-lookup';
 import { CookiesSetDetails, ProtocolRequest, ProtocolResponse } from 'electron';
 import cookieParser from 'set-cookie-parser';
 
-import { getCookiesHeader } from './utils/cookie';
+import { getCookiesHeader, isCookieDomainSentWithHost } from './utils/cookie';
 import { getHtmlError } from './utils/getHtmlError';
 import { DappyBrowserView } from './models';
 
@@ -64,7 +64,9 @@ export const tryToLoad = async ({
   */
   let cname: undefined | string = undefined;
   try {
-    cname = (await lookup(hostname, 'CNAME', { dappyNetwork: dappyNetworkMembers })).answers.map((a) => a.data)[0];
+    cname = (await lookup(hostname, 'CNAME', { dappyNetwork: dappyNetworkMembers })).answers.map(
+      (a: RRCNAME) => a.data
+    )[0];
     if (cname) {
       console.log(`[name system    ] found CNAME ${url.hostname} -> ${cname}`);
       hostname = cname;
@@ -85,17 +87,19 @@ export const tryToLoad = async ({
   } else {
     try {
       // todo support ipv6 / AAAA ?
-      networkHosts = (await lookup(hostname, 'A', { dappyNetwork: dappyNetworkMembers })).answers.map((a) => a.data);
+      networkHosts = (await lookup(hostname, 'A', { dappyNetwork: dappyNetworkMembers })).answers.map(
+        (a: RRA) => a.data
+      );
 
-      if (networkHosts.length) {
-        console.log(`[name system     ] found A ${networkHosts.join(',')}`);
+      if ((networkHosts as string[]).length) {
+        console.log(`[name system     ] found A ${(networkHosts as string[]).join(',')}`);
       } else {
         console.log(`[name system err ] no A records`);
       }
 
-      ca = (await lookup(hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map((a) => a.data);
-      if (ca[0]) {
-        console.log(`[name system     ] found CERT ${ca[0].slice(0, 10)}...`);
+      ca = (await lookup(hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map((a: RRCERT) => a.data);
+      if ((ca as string[])[0]) {
+        console.log(`[name system     ] found CERT ${(ca as string[])[0].slice(0, 10)}...`);
       } else {
         console.log(`[name system err ] no CERT record`);
       }
@@ -112,7 +116,7 @@ export const tryToLoad = async ({
   // Content-Security-Policy through TXT records
   let txts: string[] | undefined = undefined;
   try {
-    txts = (await lookup(hostname, 'TXT', { dappyNetwork: dappyNetworkMembers })).answers.map((a) => a.data);
+    txts = (await lookup(hostname, 'TXT', { dappyNetwork: dappyNetworkMembers })).answers.map((a: RRTXT) => a.data);
   } catch (err) {
     console.log(err);
     return Promise.resolve({
@@ -212,9 +216,7 @@ export const tryToLoad = async ({
     }
 
     const host = new URL(url).host;
-    const cookies = await dappyBrowserView.browserView.webContents.session.cookies.get({
-      url: `https://${host}`,
-    });
+    const cookies = await dappyBrowserView.browserView.webContents.session.cookies.get({ url: `https://${host}` });
     const getCookiesHeaderResp = getCookiesHeader(cookies, isFirstRequest, host);
 
     /*
@@ -325,16 +327,8 @@ export const tryToLoad = async ({
 
               respCookies
                 .filter((c) => {
-                  if (c.domain) {
-                    if (c.domain === url.host) return true;
-                    if (c.domain === `.${url.host}`) return true;
-
-                    // Set-Cookie from request on example.com wants to set a cookie on api.example.com
-                    if (c.domain.endsWith(`.${url.host}`)) return true;
-                    return false;
-                  } else {
-                    return true;
-                  }
+                  if (!c.domain) return true;
+                  return isCookieDomainSentWithHost(c.domain, url.host);
                 })
                 .forEach((vc) => {
                   setCookie({
