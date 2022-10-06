@@ -375,7 +375,7 @@ export const tryToLoad = async ({
             }
             resp.headers = {
               ...resp.headers,
-              'Content-Security-Policy': csp || "default-src 'self'",
+              'Content-Security-Policy': csp || '',
             };
 
             if (!over) {
