@@ -4,7 +4,6 @@ import './DisplayError.scss';
 import { TransitoryState, Tab } from '/models';
 import { LoadErrorHtml } from '../utils';
 
-
 interface DisplayErrorComponentProps {
   transitoryStates: { [tabId: string]: TransitoryState };
   zIndex: number;
@@ -20,17 +19,8 @@ class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps> 
     if (this.el) {
       this.el.style.zIndex = nextProps.zIndex.toString();
     }
-    if (
-      !this.props.tab ||
-      (nextProps.tab && nextProps.tab.lastError !== this.props.tab.lastError)
-    ) {
-      return true;
-    }
-    if (this.props.transitoryStates !== nextProps.transitoryStates) {
-      return true;
-    }
 
-    return false;
+    return true;
   }
 
   onClearSearchAndLoadError = () => {
@@ -72,10 +62,7 @@ class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps> 
             <div
               onClick={(e) => {
                 if (transitoryState !== 'loading') {
-                  this.props.loadResource(
-                    this.props.tab.url,
-                    this.props.tab.id
-                  );
+                  this.props.loadResource(this.props.tab.url, this.props.tab.id);
                 }
               }}>
               <span>Retry</span>

@@ -376,11 +376,10 @@ export const tryToLoad = async ({
             s += rightPad(` | ${resp.statusCode}`, 7);
 
             if (debug) console.log(s);
-            // todo csp
-            /* resp.headers = {
+            resp.headers = {
               ...resp.headers,
               'Content-Security-Policy': csp || "default-src 'self'",
-            }; */
+            };
 
             if (!over) {
               const headers = resp.headers as Record<string, string | string[]>;

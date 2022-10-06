@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import './Resources.scss';
 import * as fromDapps from '/store/dapps';
 import * as fromMain from '/store/main';
-import {  TransitoryState, Tab } from '/models';
+import { TransitoryState, Tab } from '/models';
 import { DisplayError, NavigationBar } from '.';
 import { Modal } from '../utils';
 
@@ -34,7 +34,7 @@ class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
                 key={tab.id}
                 style={{ zIndex: (this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10 + 1 }}
                 className="dapp-modal">
-                <Modal tabId={tab.id}/>
+                <Modal tabId={tab.id} />
               </div>
             );
           }
@@ -68,12 +68,12 @@ class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
             <React.Fragment key={tabId}>
               <NavigationBar key={`${tabId}-${zIndex}`} zIndex={zIndex} tab={tab} />
               <DisplayError
-                  zIndex={(this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10}
-                  transitoryStates={this.props.transitoryStates}
-                  tab={tab}
-                  clearSearchAndLoadError={this.props.clearSearchAndLoadError}
-                  loadResource={this.props.loadResource}
-                />
+                zIndex={(this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10}
+                transitoryStates={this.props.transitoryStates}
+                tab={tab}
+                clearSearchAndLoadError={this.props.clearSearchAndLoadError}
+                loadResource={this.props.loadResource}
+              />
             </React.Fragment>
           );
         })}
