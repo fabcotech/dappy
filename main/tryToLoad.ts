@@ -5,7 +5,7 @@ import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 import { CookiesSetDetails, ProtocolRequest, ProtocolResponse } from 'electron';
 import cookieParser from 'set-cookie-parser';
 
-import { onlyLaxCookieOnFirstRequest, isCookieDomainSentWithHost, getCookiesHeader } from './utils/cookie';
+import { getCookiesHeader } from './utils/cookie';
 import { getHtmlError } from './utils/getHtmlError';
 import { DappyBrowserView } from './models';
 
@@ -86,18 +86,18 @@ export const tryToLoad = async ({
     try {
       // todo support ipv6 / AAAA ?
       networkHosts = (await lookup(hostname, 'A', { dappyNetwork: dappyNetworkMembers })).answers.map((a) => a.data);
-      console.log(networkHosts);
+
       if (networkHosts.length) {
-        console.log(`[name system    ] found A ${networkHosts.join(',')}`);
+        console.log(`[name system     ] found A ${networkHosts.join(',')}`);
       } else {
-        console.log(`[name system err] no A records`);
+        console.log(`[name system err ] no A records`);
       }
-      console.log(hostname, 'CERT');
+
       ca = (await lookup(hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map((a) => a.data);
       if (ca[0]) {
-        console.log(`[name system    ] found CERT ${ca[0].slice(0, 10)}...`);
+        console.log(`[name system     ] found CERT ${ca[0].slice(0, 10)}...`);
       } else {
-        console.log(`[name system err] no CERT record`);
+        console.log(`[name system err ] no CERT record`);
       }
     } catch (err) {
       console.log(err);
@@ -125,14 +125,14 @@ export const tryToLoad = async ({
   let dappAddress = '';
   const dappAddressRecord = (txts || []).find((a) => a.startsWith('DAPP_ADDRESS='));
   if (dappAddressRecord) {
-    console.log(`[ns] found TXT/DAPP_ADDRESS ${dappAddressRecord.slice(0, 10)}...`);
+    console.log(`[name system     ] found TXT/DAPP_ADDRESS ${dappAddressRecord.slice(0, 10)}...`);
     dappAddress = dappAddressRecord.replace('DAPP_ADDRESS=', '');
   }
 
-  let csp = '';
+  let csp = "default-src 'self'";
   const cspRecord = (txts || []).find((a) => a.startsWith('CSP='));
   if (cspRecord) {
-    console.log(`[ns] found TXT/CSP ${(cspRecord as string).slice(0, 10)}...`);
+    console.log(`[name system     ] found TXT/CSP ${(cspRecord as string).slice(0, 10)}...`);
     csp = (cspRecord as string).replace('CSP=', '');
   }
 
@@ -195,9 +195,9 @@ export const tryToLoad = async ({
 
     if (debug) {
       if (isFirstRequest) {
-        s += `[https load ${partitionIdHash}] first hand navigation ${rightPad(request.url, 32)} ${i}`;
+        s += `[https load ${partitionIdHash}] CODE top-level ${rightPad(request.url, 32)} ${i}`;
       } else {
-        s += `[https load ${partitionIdHash}] ${rightPad(request.url, 32)} ${i}`;
+        s += `[https load ${partitionIdHash}] CODE ${rightPad(request.url, 32)} ${i}`;
       }
     }
 
@@ -351,14 +351,14 @@ export const tryToLoad = async ({
             }
 
             /*
-              Redirection is only ok if it is undergoing a first request
+              Redirection is only ok if it is undergoing a first hand navigation / top-level
             */
             if (isFirstRequest && [300, 301, 302, 303, 304, 307, 308, 309].find((a) => a === resp.statusCode)) {
-              s += rightPad(` | ${resp.statusCode} redirect`, 10);
+              s = s.replace(/CODE/g, `\x1b[34m${resp.statusCode}\x1b[0m`);
               if (respCookies.length) s += ` (${respCookies.length} cook)`;
-
+              if (debug) console.log(s);
               /*
-                todo, how to know a request is first hand navigation ?
+                todo, how to know a request is first hand navigation / top-level ?
                 all .d first hand navigations must have the dappy CSP
                 override
               */
@@ -373,24 +373,21 @@ export const tryToLoad = async ({
               return;
             }
 
-            s += rightPad(` | ${resp.statusCode}`, 7);
+            s = s.replace(/CODE/g, `\x1b[32m${resp.statusCode}\x1b[0m`);
 
             if (debug) console.log(s);
+            if (isFirstRequest) {
+              console.log(`[CSP top-level   ] ${url.host} ${path} ${csp}`);
+            }
             resp.headers = {
               ...resp.headers,
               'Content-Security-Policy': csp || "default-src 'self'",
             };
 
             if (!over) {
-              const headers = resp.headers as Record<string, string | string[]>;
-              if (isFirstRequest) {
-                // todo what if there is a CSP in the html document with <meta> ?
-                console.log('[csp top-level   ] ' + hostname + url.host + path + ' ' + csp);
-                headers['Content-Security-Policy'] = csp;
-              }
               resolve({
                 data: resp,
-                headers: headers,
+                headers: resp.headers as Record<string, string | string[]>,
               });
               over = true;
             }

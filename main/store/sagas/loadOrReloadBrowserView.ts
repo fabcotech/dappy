@@ -26,8 +26,8 @@ const development = !!process.defaultApp;
 
 const loadOrReloadBrowserView = function* (action: any) {
   const payload: { tab: Tab } = action.payload;
-  const settings: fromSettingsRenderer.Settings = yield select(fromSettingsMain.getSettings)
-  const blockchains: { [chainId: string]: Blockchain } = yield select(fromBlockchainsMain.getBlockchains)
+  const settings: fromSettingsRenderer.Settings = yield select(fromSettingsMain.getSettings);
+  const blockchains: { [chainId: string]: Blockchain } = yield select(fromBlockchainsMain.getBlockchains);
   const browserViews: {
     [tabId: string]: DappyBrowserView;
   } = yield select(fromBrowserViews.getBrowserViewsMain);
@@ -38,19 +38,19 @@ const loadOrReloadBrowserView = function* (action: any) {
   let dappyNetworkMembers: undefined | DappyNetworkMember[] = undefined;
   if (payload.tab.data.isDappyNameSystem) {
     if (blockchains[payload.tab.data.chainId as string]) {
-      dappyNetworkMembers = blockchains[payload.tab.data.chainId as string].nodes
+      dappyNetworkMembers = blockchains[payload.tab.data.chainId as string].nodes;
     } else {
       action.meta.dispatchFromMain({
         action: fromDappsRenderer.loadResourceFailedAction({
-            tabId: payload.tab.id,
-            url: payload.tab.url,
-            error: {
-              error: DappyLoadError.DappyLookup,
-              args: {
-                message: "Network not found"
-              }
-            }
-          })
+          tabId: payload.tab.id,
+          url: payload.tab.url,
+          error: {
+            error: DappyLoadError.DappyLookup,
+            args: {
+              message: 'Network not found',
+            },
+          },
+        }),
       });
       return;
     }
@@ -92,9 +92,7 @@ const loadOrReloadBrowserView = function* (action: any) {
 
   */
   const sameTabIdBrowserViewId = Object.keys(browserViews).find((id) => {
-    return (
-      browserViews[id].tabId === payload.tab.id
-    );
+    return browserViews[id].tabId === payload.tab.id;
   });
   if (sameTabIdBrowserViewId) {
     if (development) {
@@ -169,25 +167,22 @@ const loadOrReloadBrowserView = function* (action: any) {
   */
   let partitionIdHash = '';
   if (!process.env.PRODUCTION) {
-    partitionIdHash = Buffer.from(blake2b(new Uint8Array(Buffer.from(viewSession.storagePath || '')), 0, 32)).toString('base64').slice(0,5);
-    console.log('[part] :', partitionIdHash, viewSession.storagePath, 'used for cookies, blobs, localstorage etc.')
+    partitionIdHash = Buffer.from(blake2b(new Uint8Array(Buffer.from(viewSession.storagePath || '')), 0, 32))
+      .toString('base64')
+      .slice(0, 5);
+    console.log('[part] :', partitionIdHash, viewSession.storagePath, 'used for cookies, blobs, localstorage etc.');
   }
 
   let isFirstRequest = true;
   const setIsFirstRequest = (a: boolean) => {
     isFirstRequest = a;
-  }
+  };
   const getIsFirstRequest = () => {
     return isFirstRequest;
-  }
+  };
   preventAllPermissionRequests(viewSession);
   // todo, avoid circular ref to "store" (see logs when "npm run build:main")
-  registerInterProcessDappProtocol(
-    newBrowserViews[payload.tab.id],
-    viewSession,
-    store,
-    action.meta.dispatchFromMain
-  );
+  registerInterProcessDappProtocol(newBrowserViews[payload.tab.id], viewSession, store, action.meta.dispatchFromMain);
   overrideHttpProtocol({
     session: viewSession,
   });
@@ -200,11 +195,11 @@ const loadOrReloadBrowserView = function* (action: any) {
       session: viewSession,
       partitionIdHash: partitionIdHash,
       setIsFirstRequest,
-      getIsFirstRequest
+      getIsFirstRequest,
     });
   }
   registerDappyNetworkProtocol(newBrowserViews[payload.tab.id], viewSession, store);
-  registerDappyLocalProtocol(viewSession)
+  registerDappyLocalProtocol(viewSession);
 
   /*
     Hide all other browser views
@@ -238,16 +233,16 @@ const loadOrReloadBrowserView = function* (action: any) {
   } catch (err) {
     action.meta.dispatchFromMain({
       action: fromDappsRenderer.loadResourceFailedAction({
-          tabId: payload.tab.id,
-          url: payload.tab.url,
-          error: {
-            error: DappyLoadError.ServerError,
-            args: {
-              url: payload.tab.url,
-              message: err.message
-            }
-          }
-        })
+        tabId: payload.tab.id,
+        url: payload.tab.url,
+        error: {
+          error: DappyLoadError.ServerError,
+          args: {
+            url: payload.tab.url,
+            message: err.message,
+          },
+        },
+      }),
     });
     return;
   }
@@ -339,29 +334,31 @@ const loadOrReloadBrowserView = function* (action: any) {
           }),
         });
       } else if (favicons[0].startsWith('https://')) {
-
         const urlFav = new URL(favicons[0]);
 
         try {
           if (urlFav.hostname.endsWith('.d')) {
-            const networkHosts = (await lookup(urlFav.hostname, 'A', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data)
-            const ca = (await lookup(urlFav.hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map(a => a.data)
+            const networkHosts = (
+              await lookup(urlFav.hostname, 'A', { dappyNetwork: dappyNetworkMembers })
+            ).answers.map((a) => a.data);
+            const ca = (await lookup(urlFav.hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map(
+              (a) => a.data
+            );
             let options: https.RequestOptions = {
               rejectUnauthorized: true,
               minVersion: 'TLSv1.2',
               /* no dns */
               host: networkHosts[0],
               ...(ca ? { ca: ca[0] } : {}),
-              port: urlFav.port || "443",
+              port: urlFav.port || '443',
               path: urlFav.pathname + urlFav.search,
               method: 'GET',
               headers: {
-                host: urlFav.hostname
+                host: urlFav.hostname,
               },
             };
-            https.request(
-              options,
-              (res) => {
+            https
+              .request(options, (res) => {
                 if (res.statusCode !== 200) {
                   console.error(`Could not get favicon (status !== 200) for ${urlFav.host}`);
                   console.log(favicons[0]);
@@ -381,27 +378,27 @@ const loadOrReloadBrowserView = function* (action: any) {
                     }),
                   });
                 });
-              }
-            ).on('error', err => {
-              console.error('[dapp] Could not get favicon (1) ' + favicons[0]);
-              console.error(err);
-            }).end();
+              })
+              .on('error', (err) => {
+                console.error('[dapp] Could not get favicon (1) ' + favicons[0]);
+                console.error(err);
+              })
+              .end();
           } else {
             let options: https.RequestOptions = {
               rejectUnauthorized: true,
               minVersion: 'TLSv1.2',
               /* no dns */
               host: urlFav.hostname,
-              port: urlFav.port || "443",
+              port: urlFav.port || '443',
               path: urlFav.pathname + urlFav.search,
               method: 'GET',
               headers: {
-                host: urlFav.hostname
+                host: urlFav.hostname,
               },
             };
-            https.request(
-              options,
-              (res) => {
+            https
+              .request(options, (res) => {
                 if (res.statusCode !== 200) {
                   console.error(`Could not get favicon (status !== 200) for ${urlFav.host}`);
                   console.log(favicons[0]);
@@ -421,11 +418,12 @@ const loadOrReloadBrowserView = function* (action: any) {
                     }),
                   });
                 });
-              }
-            ).on('error', err => {
-              console.error('[dapp] Could not get favicon (1) ' + favicons[0]);
-              console.error(err);
-            }).end();
+              })
+              .on('error', (err) => {
+                console.error('[dapp] Could not get favicon (1) ' + favicons[0]);
+                console.error(err);
+              })
+              .end();
           }
         } catch (err) {
           console.error('[dapp] Could not get favicon (2) ' + favicons[0]);
@@ -437,7 +435,7 @@ const loadOrReloadBrowserView = function* (action: any) {
 
   view.webContents.on('page-title-updated', (a, title) => {
     if (title !== view.webContents.getTitle()) {
-      title = title
+      title = title;
       action.meta.dispatchFromMain({
         action: fromDappsRenderer.updateTabUrlAndTitleAction({
           url: view.webContents.getURL(),
@@ -468,14 +466,10 @@ const loadOrReloadBrowserView = function* (action: any) {
           }),
         });
       } else {
-
         let currentUrl = new URL(view.webContents.getURL());
         if (
           tabFavorite &&
-          (
-            parsedFutureUrl.hostname !== currentUrl.hostname ||
-            parsedFutureUrl.pathname !== currentUrl.hostname
-          )
+          (parsedFutureUrl.hostname !== currentUrl.hostname || parsedFutureUrl.pathname !== currentUrl.hostname)
         ) {
           e.preventDefault();
           action.meta.dispatchFromMain({
@@ -495,15 +489,15 @@ const loadOrReloadBrowserView = function* (action: any) {
       // todo display error message instead of directly openning
       action.meta.dispatchFromMain({
         action: fromDappsRenderer.loadResourceFailedAction({
-            tabId: payload.tab.id,
-            url: payload.tab.url,
-            error: {
-              error: DappyLoadError.DangerousLink,
-              args: {
-                url: futureUrl,
-              }
-            }
-          })
+          tabId: payload.tab.id,
+          url: payload.tab.url,
+          error: {
+            error: DappyLoadError.DangerousLink,
+            args: {
+              url: futureUrl,
+            },
+          },
+        }),
       });
     }
   };
@@ -511,7 +505,7 @@ const loadOrReloadBrowserView = function* (action: any) {
   view.webContents.on('will-redirect', (e, futureUrl) => {
     console.log('will-redirect', futureUrl);
     if (new URL(futureUrl).host !== url.host) {
-      console.log('will redirect, must change session', url.host, '->', new URL(futureUrl).host)
+      console.log('will redirect, must change session', url.host, '->', new URL(futureUrl).host);
     }
   });
 
@@ -547,7 +541,7 @@ const loadOrReloadBrowserView = function* (action: any) {
         }),
       });
     }
-  }
+  };
 
   // ==============================
   // In tab javascript executions
@@ -560,9 +554,9 @@ const loadOrReloadBrowserView = function* (action: any) {
   if (!!payload.tab.data.html) {
     yield view.webContents.executeJavaScript(`
     window.write("${encodeURIComponent(payload.tab.data.html)}")
-    `)
+    `);
   }
-  
+
   /*
     Context menu
     IP app will instantly execute window.initContextMenu();
@@ -571,7 +565,7 @@ const loadOrReloadBrowserView = function* (action: any) {
   yield view.webContents.executeJavaScript(`
   window.initContextMenu = () => { const paste=["Paste",(e,t,o)=>{navigator.clipboard.readText().then(function(e){const t=o.value,n=o.selectionStart;o.value=t.slice(0,n)+e+t.slice(n)}),e.remove()}],copy=["Copy",(e,t,o)=>{navigator.clipboard.writeText(t),e.remove()}];document.addEventListener("contextmenu",e=>{let t=[];const o=window.getSelection()&&window.getSelection().toString();if(o&&(t=[copy]),"TEXTAREA"!==e.target.tagName&&"INPUT"!==e.target.tagName||(t=t.concat([paste])),0===t.length)return;const n=document.createElement("div");n.className="context-menu",n.style.width="160px",n.style.color="#fff",n.style.backgroundColor="rgba(04, 04, 04, 0.8)",n.style.top=e.clientY-5+"px",n.style.left=e.clientX-5+"px",n.style.position="absolute",n.style.zIndex=10,n.style.fontSize="16px",n.style.borderRadius="2px",n.style.fontFamily="fira",n.addEventListener("mouseleave",()=>{n.remove()}),t.forEach(t=>{const l=document.createElement("div");l.style.padding="6px",l.style.cursor="pointer",l.style.borderBottom="1px solid #aaa",l.addEventListener("mouseenter",()=>{console.log("onmouseenter"),l.style.backgroundColor="rgba(255, 255, 255, 0.1)",l.style.color="#fff"}),l.addEventListener("mouseleave",()=>{console.log("onmouseleave"),l.style.backgroundColor="transparent",l.style.color="#fff"}),l.innerText=t[0],l.addEventListener("click",()=>t[1](n,o,e.target)),n.appendChild(l)}),document.body.appendChild(n)}); }; window.initContextMenu();
   `);
-  
+
   /*
     Equivalent of window.location, dapps and IP apps can know
     from which host they've been loaded

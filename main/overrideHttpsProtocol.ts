@@ -52,7 +52,16 @@ interface InterceptHttpsRequestsParams {
   getIsFirstRequest: () => boolean;
 }
 
-const makeInterceptHttpsRequests = ({ chainId, dappyNetworkMembers, dappyBrowserView, partitionIdHash, setCookie, getBlobData, setIsFirstRequest, getIsFirstRequest }: InterceptHttpsRequestsParams) => {
+const makeInterceptHttpsRequests = ({
+  chainId,
+  dappyNetworkMembers,
+  dappyBrowserView,
+  partitionIdHash,
+  setCookie,
+  getBlobData,
+  setIsFirstRequest,
+  getIsFirstRequest,
+}: InterceptHttpsRequestsParams) => {
   const debug = !process.env.PRODUCTION;
 
   return async (request: ProtocolRequest, callback: (response: Electron.ProtocolResponse) => void) => {
@@ -76,15 +85,31 @@ const makeInterceptHttpsRequests = ({ chainId, dappyNetworkMembers, dappyBrowser
     /* Dappy name system */
     if (new URL(request.url).hostname.endsWith(`.${chainId}`)) {
       try {
-        callback(await tryToLoad({ chainId, dappyNetworkMembers, partitionIdHash, dns: false, debug, dappyBrowserView, setIsFirstRequest, getIsFirstRequest, setCookie, request, getBlobData }));
+        callback(
+          await tryToLoad({
+            chainId,
+            dappyNetworkMembers,
+            partitionIdHash,
+            dns: false,
+            debug,
+            dappyBrowserView,
+            setIsFirstRequest,
+            getIsFirstRequest,
+            setCookie,
+            request,
+            getBlobData,
+          })
+        );
       } catch (err) {
         console.log(err);
         callback({});
       }
 
-    /* DNS */
+      /* DNS */
     } else {
-      console.log(`Unknown TLD ${new URL(request.url).hostname} only .${chainId} is supported with current configuration`)
+      console.log(
+        `Unknown TLD ${new URL(request.url).hostname} only .${chainId} is supported with current configuration`
+      );
       // forbidden for now
       callback({});
     }
@@ -138,11 +163,19 @@ interface OverrideHttpProtocolsParams {
   getIsFirstRequest: () => boolean;
 }
 
-export const overrideHttpsProtocol = ({ chainId, dappyNetworkMembers, dappyBrowserView, session, partitionIdHash, dispatchFromMain, setIsFirstRequest, getIsFirstRequest }: OverrideHttpProtocolsParams) => {
-  
+export const overrideHttpsProtocol = ({
+  chainId,
+  dappyNetworkMembers,
+  dappyBrowserView,
+  session,
+  partitionIdHash,
+  dispatchFromMain,
+  setIsFirstRequest,
+  getIsFirstRequest,
+}: OverrideHttpProtocolsParams) => {
   const getBlobData = (blobUUID: string) => {
     return session.getBlobData(blobUUID);
-  }
+  };
 
   session.cookies.on(
     'changed',

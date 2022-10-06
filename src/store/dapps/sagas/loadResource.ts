@@ -5,10 +5,7 @@ import { dappyLookup } from '/interProcess';
 import * as fromDapps from '..';
 import * as fromSettings from '../../settings';
 import * as fromUi from '../../ui';
-import {
-  Blockchain,
-  Tab,
-} from '../../../models';
+import { Blockchain, Tab } from '../../../models';
 import { Action } from '../../';
 
 import { NamePacket } from '/models/FakeDappyLookup';
@@ -77,10 +74,10 @@ const loadResource = function* (action: Action) {
   if (!payload.url.startsWith('https://')) {
     validAddress = `https://${payload.url}`;
   }
-  let url = new URL("https://nothing");
+  let url = new URL('https://nothing');
   try {
     url = new URL(validAddress);
-    if (url.protocol !== "https:") {
+    if (url.protocol !== 'https:') {
       yield put(
         fromDapps.loadResourceFailedAction({
           tabId: tabId,
@@ -110,7 +107,7 @@ const loadResource = function* (action: Action) {
     );
     return;
   }
- 
+
   yield put(
     fromDapps.focusAndActivateTabAction({
       tabId: tabId,
@@ -123,7 +120,7 @@ const loadResource = function* (action: Action) {
     Dappy name system
   */
   if (namesBlockchain && url.hostname.endsWith(`.${namesBlockchain.chainId}`)) {
-    console.log(`Dappy: host is ${url.hostname}`)
+    console.log(`Dappy: host is ${url.hostname}`);
 
     yield put(
       fromDapps.initTransitoryStateAndResetLoadErrorAction({
@@ -131,7 +128,7 @@ const loadResource = function* (action: Action) {
         resourceId: resourceId,
       })
     );
-    
+
     if (!namesBlockchain) {
       yield put(
         fromDapps.loadResourceFailedAction({
@@ -149,10 +146,10 @@ const loadResource = function* (action: Action) {
     let txts: NamePacket | undefined = undefined;
     try {
       txts = yield dappyLookup({
-        method: "lookup",
-        type: "TXT",
+        method: 'lookup',
+        type: 'TXT',
         hostname: url.hostname,
-        chainId: namesBlockchain.chainId
+        chainId: namesBlockchain.chainId,
       });
     } catch (err) {
       yield put(
@@ -169,16 +166,17 @@ const loadResource = function* (action: Action) {
     }
 
     let publicKey = '';
-    const publicKeyRecord = (txts as NamePacket).answers.find(a => a.data.startsWith("PUBLIC_KEY="));
+    const publicKeyRecord = (txts as NamePacket).answers.find((a) => a.data.startsWith('PUBLIC_KEY='));
     if (publicKeyRecord) {
       publicKey = (publicKeyRecord as NameAnswer).data.replace('PUBLIC_KEY=', '');
     }
-  
+
     /*
       IP application / regular website
       We are not yet sure that address points to some A/AAAA records
       but we are sure there is no dapp / file, we can launch it
     */
+    console.log('launchTabCompletedAction');
     yield put(
       fromDapps.launchTabCompletedAction({
         tab: {
@@ -190,7 +188,7 @@ const loadResource = function* (action: Action) {
             publicKey: publicKey,
             isDappyNameSystem: true,
             chainId: namesBlockchain.chainId,
-          }
+          },
         },
       })
     );
@@ -201,7 +199,7 @@ const loadResource = function* (action: Action) {
   /*
     DNS / Domain Name System .com .net etc...
   */
-  console.log(`DNS: host is ${url.hostname}`)
+  console.log(`DNS: host is ${url.hostname}`);
   yield put(
     fromDapps.initTransitoryStateAndResetLoadErrorAction({
       tabId: tabId,
@@ -221,7 +219,7 @@ const loadResource = function* (action: Action) {
           isIp: checkIfValidIP(url.host),
           chainId: undefined,
           publicKey: undefined,
-        }
+        },
       },
     })
   );
