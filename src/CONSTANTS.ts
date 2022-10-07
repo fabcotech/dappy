@@ -45,9 +45,9 @@ export const ACCESS_TRANSACTIONS = false;
   Remove LEFT_MENU_COLORS or set it to undefined if
   you don't want special colors ex: ['#7fcaff', '#8fdaff']
 */
-export const LEFT_MENU_COLORS: undefined | [string, string] = ['#111111', '#333333'];
+export const LEFT_MENU_COLORS: undefined | [string, string] = undefined;
 
-export const BRAND_NAME: undefined | string = "adidas pro";
+export const BRAND_NAME: undefined | string = undefined;
 
 /*
   In order to add an image you must add your logo
