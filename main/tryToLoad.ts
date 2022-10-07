@@ -133,7 +133,7 @@ export const tryToLoad = async ({
     dappAddress = dappAddressRecord.replace('DAPP_ADDRESS=', '');
   }
 
-  let csp = "default-src 'self'";
+  let csp = '';
   const cspRecord = (txts || []).find((a) => a.startsWith('CSP='));
   if (cspRecord) {
     console.log(`[name system     ] found TXT/CSP ${(cspRecord as string).slice(0, 10)}...`);
