@@ -46,7 +46,7 @@ const saveUiToStorage = function* (action: Action) {
     }
   }
   const x = menuWidth + dappsTabsWidth;
-  const y = 50;
+  const y = uiState.platform === 'darwin' ? 78 : 50;
   if (uiState.windowDimensions) {
     const browserViewsPosition = {
       x,
