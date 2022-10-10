@@ -41,10 +41,10 @@ npm install
 npm run build:main:dev
 
 # Parcel server on localhost:3033, live reload of css and js
-npm run start:parcel
+npm run start:renderer
 
 # Electron
-npm run start:electron
+npm run start:main
 ```
 
 See [DEVELOPER.MD](https://github.com/fabcotech/dappy/blob/master/DEVELOPER.MD) if you want to understand the stack, run, compile, contribute, or play with dappy browser as a developer.

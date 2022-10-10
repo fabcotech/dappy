@@ -9,8 +9,8 @@
   "main": "dist/main/main.js",
   "scripts": {
     "check": "tsc --pretty --jsx react --noEmit",
-    "start:parcel": "npx parcel serve src/index.html -p 3033 --target browser",
-    "start:electron": "cross-env NODE_ENV=development electron --unhandled-rejections=strict --trace-warnings .",
+    "start:renderer": "npx parcel serve src/index.html -p 3033 --target browser",
+    "start:main": "cross-env NODE_ENV=development electron --unhandled-rejections=strict --trace-warnings .",
     "clean:dist": "rm -rf dist",
     "build:main:dev": " mkdir -p dist/renderer/ && cp -r dapp-libs/* dist/renderer/ && npx rollup -c rollup.main.config.js",
     "build:main:dev:watch": "npm run build:main:dev -- -w",
@@ -93,6 +93,7 @@
     "jest": "^27.2.5",
     "parcel-bundler": "1.12.5",
     "parcel-plugin-package-version": "^1.0.2",
+    "playwright": "^1.26.1",
     "prettier": "2.5.1",
     "rollup": "1.26.0",
     "rollup-plugin-commonjs": "^10.1.0",

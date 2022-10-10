@@ -35,10 +35,10 @@ Dappy is no-DNS, name requests (DNS lookups) are similar to any other request ad
 npm install
 
 # Parcel server on localhost:3033, live reload of css and js
-npm run start:parcel
+npm run start:renderer
 
 # Electron
-npm run start:electron
+npm run start:main
 ```
 
 Please join us anytime [https://discord.gg/8Cu5UFV](https://discord.gg/8Cu5UFV) if you have question(s)/issue(s).
