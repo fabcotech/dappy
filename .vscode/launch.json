@@ -5,6 +5,19 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "e2e (gamma)",
+      "request": "launch",
+      "runtimeArgs": [
+        "run-script",
+        "test:integration:gamma"
+      ],
+      "runtimeExecutable": "npm",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
+    },
+    {
       "name": "main (electron)",
       "type": "node",
       "request": "launch",
@@ -14,6 +27,6 @@
         "."
       ],
       "outputCapture": "std"
-    }
+    },
   ]
 }

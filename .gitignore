@@ -11,3 +11,7 @@ translations/env.js
 .parcel-cache
 dist
 main.js
+/test-results/
+/playwright-report/
+/playwright/.cache/
+tests-examples
