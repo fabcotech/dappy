@@ -27,8 +27,8 @@
     "package:mac": "./scripts/outdated.sh electron && electron-builder -c electron-builder.yml --mac -p onTagOrDraft",
     "security-audit": "./scripts/outdated.sh electron && npm audit --production --audit-level=high",
     "test": "jest",
-    "test:integration:gamma": "DAPPY_NETWORK=gamma playwright test",
-    "test:integration:d": "DAPPY_NETWORK=d playwright test",
+    "test:integration:gamma": "PARTITION=test DAPPY_NETWORK=gamma playwright test",
+    "test:integration:d": "PARTITION=test DAPPY_NETWORK=d playwright test",
     "prepare": "husky install"
   },
   "prettier": {
@@ -42,7 +42,7 @@
     "@ethereumjs/common": "^2.6.0",
     "@ethereumjs/tx": "^3.4.0",
     "@fabcotech/bees": "2.0.5",
-    "@fabcotech/dappy-lookup": "*",
+    "@fabcotech/dappy-lookup": "2.3.11",
     "@fabcotech/rchain-token": "17.0.6",
     "@fabcotech/rchain-toolkit": "3.0.0",
     "@sentry/browser": "6.7.1",

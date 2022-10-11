@@ -20,7 +20,7 @@ import { getRendererParams } from './rendererParams';
   changing this will remove everything that is in dappy localStorage
   PRIVATE KEYS LOST, ACCOUNTS LOST, TABS LOST etc.....
 */
-const partition = `persist:dappy0.3.0`;
+const partition = process.env.PARTITION || 'persist:dappy0.3.0';
 
 protocol.registerSchemesAsPrivileged([
   { scheme: 'dappy', privileges: { standard: true, secure: true, bypassCSP: true } },

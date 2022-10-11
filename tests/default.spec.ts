@@ -9,11 +9,15 @@ test.describe('dappy browser should works', () => {
   let app: ElectronApplication;
 
   test.beforeAll(async () => {
-    app = await electron.launch({ args: ['dist/main/main.js', `--network=${config.dappyNetwork}`] });
+    app = await electron.launch({ args: ['.', `--network=${config.dappyNetwork}`], cwd: '.' });
   });
 
-  test('go to default.dappy', async ({ page }) => {
+  test('go to default.dappy', async () => {
     const window = await app.firstWindow();
+
+    // Validate GCU form
+    await window.getByRole('checkbox').click();
+    await window.getByRole('button').click();
 
     await window.locator('[aria-label="address"]').fill(`default.dappy.${config.dappyNetwork}`);
 

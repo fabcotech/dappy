@@ -40,7 +40,10 @@
         ".",
         "--network=gamma"
       ],
-      "outputCapture": "std"
+      "outputCapture": "std",
+      "env": {
+        "PARTITION": "test"
+      }
     },
   ]
 }

@@ -1,0 +1,29 @@
+name: Integration tests on gamma
+on:
+  push:
+    branches: [ '**' ]
+  pull_request:
+    branches: [ '**' ]
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+    - name: Install dependencies
+      run: npm ci
+    - name: build renderer
+      run: npm run build:renderer:prod
+    - name: build main 
+      run: npm run build:main:prod
+    - name: run integration tests
+      run: npm run test:integration:gamma
+    - uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
