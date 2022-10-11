@@ -28,6 +28,7 @@
     "security-audit": "./scripts/outdated.sh electron && npm audit --production --audit-level=high",
     "test": "jest",
     "test:integration:gamma": "DAPPY_NETWORK=gamma playwright test",
+    "test:integration:d": "DAPPY_NETWORK=d playwright test",
     "prepare": "husky install"
   },
   "prettier": {

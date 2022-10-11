@@ -5,11 +5,24 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "e2e (gamma)",
+      "name": "test integ (gamma)",
       "request": "launch",
       "runtimeArgs": [
         "run-script",
         "test:integration:gamma"
+      ],
+      "runtimeExecutable": "npm",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node"
+    },
+    {
+      "name": "test integ (d)",
+      "request": "launch",
+      "runtimeArgs": [
+        "run-script",
+        "test:integration:d"
       ],
       "runtimeExecutable": "npm",
       "skipFiles": [
@@ -24,7 +37,8 @@
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
       "args": [
-        "."
+        ".",
+        "--network=gamma"
       ],
       "outputCapture": "std"
     },

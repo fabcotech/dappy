@@ -12,6 +12,7 @@ import { installDevToolsExtensionsOnlyForDev } from './devTools';
 import { preventAllPermissionRequests } from './preventAllPermissionRequests';
 
 import { initAutoUpdater } from './autoUpdater';
+import { getRendererParams } from './rendererParams';
 
 /*
   CAREFUL
@@ -163,11 +164,14 @@ function createWindow() {
 
   browserWindow.setMenuBarVisibility(false);
 
+  const rendererParams = getRendererParams(process.argv.slice(2));
   // and load the index.html of the app.
   if (process.env.PRODUCTION) {
-    browserWindow.loadFile('dist/renderer/index.html');
+    browserWindow.loadFile('dist/renderer/index.html', {
+      search: rendererParams,
+    });
   } else {
-    browserWindow.loadURL('http://localhost:3033');
+    browserWindow.loadURL(`http://localhost:3033${rendererParams}`);
   }
 
   // Open the DevTools.

@@ -9,7 +9,7 @@ test.describe('dappy browser should works', () => {
   let app: ElectronApplication;
 
   test.beforeAll(async () => {
-    app = await electron.launch({ args: ['dist/main/main.js'], cwd: './' });
+    app = await electron.launch({ args: ['dist/main/main.js', `--network=${config.dappyNetwork}`] });
   });
 
   test('go to default.dappy', async ({ page }) => {
