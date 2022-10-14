@@ -125,7 +125,7 @@ jobs:
 
   notify-gamma-failure-on-discord:
     if: ${{ failure() }}
-    needs: test
+    needs: test-gamma
     runs-on: ubuntu-latest
     env:
       DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_GAMMA }}
@@ -136,7 +136,7 @@ jobs:
 
   notify-d-failure-on-discord:
     if: ${{ failure() }}
-    needs: test
+    needs: test-d
     runs-on: ubuntu-latest
     env:
       DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_D }}
