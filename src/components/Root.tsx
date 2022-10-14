@@ -68,10 +68,7 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
   };
 
   shouldComponentUpdate = (nextProps: RootComponentProps) => {
-    if (
-      this.props.initializationOver === false &&
-      nextProps.initializationOver === true
-    ) {
+    if (this.props.initializationOver === false && nextProps.initializationOver === true) {
       /* No animation if less than 200ms of loading */
       if (new Date().getTime() - (this.t as number) < 200) {
         this.setState({ transitionOver: true });
@@ -83,7 +80,7 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
     }
 
     return true;
-  }
+  };
 
   componentDidCatch(error: Error) {
     console.error('An error occured in components');
@@ -125,14 +122,12 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
 
     return (
       <div className={klasses}>
-        {
-          (!this.props.initializationOver || !this.state.transitionOver) &&
+        {(!this.props.initializationOver || !this.state.transitionOver) && (
           <div ref={this.setLoadingEl} className={k}>
             <p>dappy browser</p>
           </div>
-        }
-        {
-          this.props.initializationOver &&
+        )}
+        {this.props.initializationOver && (
           <>
             {this.props.modal ? <Modal /> : undefined}
             <Menu
@@ -152,8 +147,7 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
               navigate={this.props.navigate}
             />
             <div className="root-right">
-              {
-                this.props.platform && this.props.platform !== 'darwin' &&
+              {this.props.platform && false && (
                 <div className="fc top-window-buttons">
                   <div className="drag-top"></div>
                   <div className="drag-bottom"></div>
@@ -161,7 +155,7 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
                   <i onClick={() => maximize()} className="square-max"></i>
                   <i onClick={() => close()} className="fa fa-times"></i>
                 </div>
-              }
+              )}
               {this.props.isNavigationInSettings ? (
                 <SettingsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
               ) : undefined}
@@ -178,7 +172,7 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
               {this.props.isNavigationInTransactions ? <TransactionsRoot /> : undefined}
             </div>
           </>
-        }
+        )}
       </div>
     );
   }

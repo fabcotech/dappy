@@ -8,7 +8,6 @@ import * as fromMain from '/store/main';
 import { Action } from '/store/';
 
 const saveBlockchainsToStorage = function* (action: Action) {
-  const rchainInfos: { [chainId: string]: RChainInfos } = yield select(fromBlockchain.getRChainInfos);
   let blockchains: { [chainId: string]: Blockchain } = yield select(fromSettings.getBlockchains);
 
   let blockchain: undefined | Blockchain = undefined;
