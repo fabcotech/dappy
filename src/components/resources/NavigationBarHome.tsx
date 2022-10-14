@@ -41,7 +41,8 @@ class NavigationBarHomeComponent extends WithSuggestions {
             className={`${this.state.pristine ? 'pristine' : ''} input`}
             value={this.state.url || ''}
             onChange={this.onChange}
-            onKeyDown={this.onKeyDown}></input>
+            onKeyDown={this.onKeyDown}
+            aria-label="address"></input>
         </div>
       </div>
     );
