@@ -1,16 +1,13 @@
 name: Integration tests
+
 on:
   push:
     branches: [ '**' ]
   pull_request:
     branches: [ '**' ]
+
 jobs:
-  test:
-    strategy:
-      matrix:
-        dappy-network:
-        - gamma
-        - d
+  build:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
@@ -24,6 +21,34 @@ jobs:
       run: npm run build:renderer:prod
     - name: build main 
       run: npm run build:main:prod
+    - uses: actions/upload-artifact@master
+      with:
+        name: build-files
+        path: |
+          node_modules
+          dist
+        retention-days: 1
+
+  test:
+    needs: build
+    strategy:
+      matrix:
+        dappy-network:
+        - gamma
+        - d
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+    - uses: actions/download-artifact@master
+      with:
+        name: my-artifact
+        path: |
+          node_modules
+          dist                 
     - name: run integration tests
       run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- npm run test:integration:${{ matrix.dappy-network }}
     - uses: actions/upload-artifact@v3
@@ -32,3 +57,13 @@ jobs:
         name: playwright-report
         path: playwright-report/
         retention-days: 30
+
+  clean-up:
+    if: ${{ always() }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: geekyeggo/delete-artifact@v2
+      with:
+          name: build-files
+          failOnError: false
