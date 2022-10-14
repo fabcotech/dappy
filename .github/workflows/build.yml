@@ -3,7 +3,7 @@ name: Publish on github
 on:
   push:
     branches:
-      - '**'
+      - master
 
 jobs:
   publish_on_win_32:
