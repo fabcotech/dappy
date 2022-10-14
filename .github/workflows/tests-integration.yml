@@ -62,6 +62,10 @@ jobs:
           dist                 
     - name: run integration tests
       run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- npm run test:integration:${{ matrix.dappy-network }}
+      if: matrix.os == 'ubuntu-latest'
+    - name: run integration tests
+      run: npm run test:integration:${{ matrix.dappy-network }}
+      if: matrix.os != 'ubuntu-latest'
     - uses: actions/upload-artifact@v3
       if: always()
       with:
