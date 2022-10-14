@@ -4,7 +4,7 @@ import { CREATE_BLOCKCHAIN } from '/store/settings';
 function tryParseArg(
   arg: string
 ): { valid: false; arg: undefined } | { valid: true; arg: { name: string; value: string } } {
-  const m = arg.match(/^--(.+)=(.+)$/);
+  const m = arg.match(/^--([^=]+)=?(.+)?$/);
 
   if (m) {
     return {

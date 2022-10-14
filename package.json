@@ -10,7 +10,7 @@
   "scripts": {
     "check": "tsc --pretty --jsx react --noEmit",
     "start:renderer": "npx parcel serve src/index.html -p 3033 --target browser",
-    "start:main": "cross-env NODE_ENV=development electron --unhandled-rejections=strict --trace-warnings .",
+    "start:main": "cross-env NODE_ENV=development electron . --unhandled-rejections=strict --trace-warnings",
     "clean:dist": "rm -rf dist",
     "build:main:dev": " mkdir -p dist/renderer/ && cp -r dapp-libs/* dist/renderer/ && npx rollup -c rollup.main.config.js",
     "build:main:dev:watch": "npm run build:main:dev -- -w",

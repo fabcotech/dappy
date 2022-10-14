@@ -7,6 +7,9 @@ describe('rendererParams', () => {
   it('should throw unknown argument', () => {
     expect(() => getRendererParams(['invalid'])).toThrowError('Invalid argument invalid');
   });
+  it('should not throw invalid argument', () => {
+    expect(() => getRendererParams(['--invalid'])).not.toThrowError();
+  });
   it('should not throw on unknown argument', () => {
     expect(() => getRendererParams(['--unknown=unknown'])).not.toThrowError();
   });
