@@ -35,12 +35,50 @@ jobs:
           dist
         retention-days: 1
 
-  test:
+  test-gamma:
     needs: build
     strategy:
       matrix:
         dappy-network:
         - gamma
+        os: 
+        - ubuntu-latest
+        - windows-latest
+        - macos-latest
+
+    continue-on-error: true
+    timeout-minutes: 60
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+    - name: Install dependencies
+      run: npm i        
+    - uses: actions/download-artifact@master
+      with:
+        name: build-files-${{ matrix.os }}
+        path: |
+          dist                 
+    - name: run integration tests
+      run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- npm run test:integration:${{ matrix.dappy-network }}
+      if: matrix.os == 'ubuntu-latest'
+    - name: run integration tests
+      run: npm run test:integration:${{ matrix.dappy-network }}
+      if: matrix.os != 'ubuntu-latest'
+    - uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: playwright-report-${{ matrix.os }}-${{ matrix.dappy-network }}
+        path: playwright-report/
+        retention-days: 30
+
+  test-d:
+    needs: build
+    strategy:
+      matrix:
+        dappy-network:
         - d
         os: 
         - ubuntu-latest
@@ -84,3 +122,25 @@ jobs:
       with:
           name: build-files-*
           failOnError: false
+
+  notify-gamma-failure-on-discord:
+    if: ${{ failure() }}
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_GAMMA }}
+    steps:
+    - uses: Ilshidur/action-discord@master
+      with:
+        args: ${{ GITHUB_ACTION }} failed
+
+  notify-d-failure-on-discord:
+    if: ${{ failure() }}
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_D }}
+    steps:
+    - uses: Ilshidur/action-discord@master
+      with:
+        args: ${{ GITHUB_ACTION }} failed        
