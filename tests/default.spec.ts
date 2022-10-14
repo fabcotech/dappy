@@ -10,7 +10,7 @@ test.describe('dappy browser should works', () => {
 
   test.beforeAll(async () => {
     app = await electron.launch({
-      env: { PARTITION: process.env.PARTITION || 'test' },
+      // env: { PARTITION: process.env.PARTITION || 'test' },
       args: ['.', `--network=${config.dappyNetwork}`],
       cwd: '.',
     });
