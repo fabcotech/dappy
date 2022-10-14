@@ -132,7 +132,7 @@ jobs:
     steps:
     - uses: Ilshidur/action-discord@master
       with:
-        args: ${{ GITHUB_ACTION }} failed
+        args: Integration tests on gamma network failed
 
   notify-d-failure-on-discord:
     if: ${{ failure() }}
@@ -143,4 +143,4 @@ jobs:
     steps:
     - uses: Ilshidur/action-discord@master
       with:
-        args: ${{ GITHUB_ACTION }} failed        
+        args: Integration tests on d network failed       
