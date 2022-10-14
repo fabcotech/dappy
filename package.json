@@ -27,8 +27,8 @@
     "package:mac": "./scripts/outdated.sh electron && electron-builder -c electron-builder.yml --mac -p onTagOrDraft",
     "security-audit": "./scripts/outdated.sh electron && npm audit --production --audit-level=high",
     "test": "jest",
-    "test:integration:gamma": "PARTITION=test DAPPY_NETWORK=gamma playwright test",
-    "test:integration:d": "PARTITION=test DAPPY_NETWORK=d playwright test",
+    "test:integration:gamma": "cross-env PARTITION=test DAPPY_NETWORK=gamma playwright test",
+    "test:integration:d": "cross-env PARTITION=test DAPPY_NETWORK=d playwright test",
     "prepare": "husky install"
   },
   "prettier": {
