@@ -420,61 +420,88 @@ dbReq.onsuccess = (event) => {
   };
 
   // BLOCKCHAINS
-  const blockchainsTx = openedDB.transaction('networks', 'readonly');
-  var blockchainsStore = blockchainsTx.objectStore('networks');
-  const requestBlockchains = blockchainsStore.getAll();
-  requestBlockchains.onsuccess = (e) => {
-    let blockchainsToCheck = requestBlockchains.result;
-    blockchainsToCheck.map((bc) => {
-      if (!bc.hasOwnProperty('auto')) {
-        bc.auto = true;
-      }
-      if (bc.auto && !!dappyNetworks[bc.chainId as DappyNetworkId]) {
-        bc.auto = true;
-        bc.nodes = dappyNetworks[bc.chainId as DappyNetworkId];
-      }
-      return bc;
-    });
-    validateBlockchains(blockchainsToCheck)
-      .then((blockchains) => {
-        asyncActionsOver += 1;
-        // todo what if blockchains from dappy-lookup have changed ?
-        // we need to update store
-        if (blockchains.length) {
-          store.dispatch(fromSettings.updateBlockchainsFromStorageAction(blockchains));
-        } else {
-          const chainId = Object.keys(dappyNetworks)[0];
-          store.dispatch(fromSettings.updateBlockchainsFromStorageAction([{
+  const argNetwork = new URLSearchParams(window.location.search).get('network');
+  if (argNetwork) {
+    setTimeout(() => {
+      store.dispatch(
+        fromSettings.updateBlockchainsFromStorageAction([
+          {
             platform: 'rchain',
+            chainId: argNetwork,
+            chainName: argNetwork,
+            nodes: dappyNetworks[argNetwork as DappyNetworkId],
             auto: true,
-            chainId: chainId,
-            chainName: chainId,
-            nodes: dappyNetworks[chainId as DappyNetworkId]
-          }]));
+          },
+        ])
+      );
+      asyncActionsOver += 1;
+      dispatchInitActions();
+    });
+  } else {
+    const blockchainsTx = openedDB.transaction('networks', 'readonly');
+    var blockchainsStore = blockchainsTx.objectStore('networks');
+    const requestBlockchains = blockchainsStore.getAll();
+    requestBlockchains.onsuccess = (e) => {
+      let blockchainsToCheck = requestBlockchains.result;
+      blockchainsToCheck.map((bc) => {
+        if (!bc.hasOwnProperty('auto')) {
+          bc.auto = true;
         }
-        dispatchInitActions();
-      })
-      .catch((e) => {
-        console.log(e)
-        asyncActionsOver += 1;
-        const chainId = Object.keys(dappyNetworks)[0];
-        store.dispatch(fromSettings.updateBlockchainsFromStorageAction([{
-          platform: 'rchain',
-          auto: true,
-          chainId: chainId,
-          chainName: chainId,
-          nodes: dappyNetworks[chainId as DappyNetworkId]
-        }]));
-        store.dispatch(
-          fromMain.saveErrorAction({
-            errorCode: 2004,
-            error: 'Unable to read blockchains from storage',
-            trace: e,
-          })
-        );
-        dispatchInitActions();
+        if (bc.auto && !!dappyNetworks[bc.chainId as DappyNetworkId]) {
+          bc.auto = true;
+          bc.nodes = dappyNetworks[bc.chainId as DappyNetworkId];
+        }
+        return bc;
       });
-  };
+      validateBlockchains(blockchainsToCheck)
+        .then((blockchains) => {
+          asyncActionsOver += 1;
+          // todo what if blockchains from dappy-lookup have changed ?
+          // we need to update store
+          if (blockchains.length) {
+            store.dispatch(fromSettings.updateBlockchainsFromStorageAction(blockchains));
+          } else {
+            const chainId = Object.keys(dappyNetworks)[0];
+            store.dispatch(
+              fromSettings.updateBlockchainsFromStorageAction([
+                {
+                  platform: 'rchain',
+                  auto: true,
+                  chainId: chainId,
+                  chainName: chainId,
+                  nodes: dappyNetworks[chainId as DappyNetworkId],
+                },
+              ])
+            );
+          }
+          dispatchInitActions();
+        })
+        .catch((e) => {
+          console.log(e);
+          asyncActionsOver += 1;
+          const chainId = Object.keys(dappyNetworks)[0];
+          store.dispatch(
+            fromSettings.updateBlockchainsFromStorageAction([
+              {
+                platform: 'rchain',
+                auto: true,
+                chainId: chainId,
+                chainName: chainId,
+                nodes: dappyNetworks[chainId as DappyNetworkId],
+              },
+            ])
+          );
+          store.dispatch(
+            fromMain.saveErrorAction({
+              errorCode: 2004,
+              error: 'Unable to read blockchains from storage',
+              trace: e,
+            })
+          );
+          dispatchInitActions();
+        });
+    };
+  }
 
   // TRANSACTIONS
   const transactionsTx = openedDB.transaction('transactions', 'readonly');
@@ -514,8 +541,8 @@ dbReq.onsuccess = (event) => {
     accounts = accounts.map((a) => {
       return {
         ...a,
-        boxes: a.boxes || [] as Account["boxes"],
-        whitelist: a.whitelist || [{ host: '*', blitz: true, transactions: true }] as Account["whitelist"],
+        boxes: a.boxes || ([] as Account['boxes']),
+        whitelist: a.whitelist || ([{ host: '*', blitz: true, transactions: true }] as Account['whitelist']),
       };
     });
 
@@ -555,14 +582,14 @@ dbReq.onsuccess = (event) => {
       return;
     }
 
-    rchainInfos = rchainInfos.map(ri => {
+    rchainInfos = rchainInfos.map((ri) => {
       // .wrappedRevContractId introuced in 0.5.4
       if (ri.info && !ri.info.wrappedRevContractId) {
-        ri.info.wrappedRevContractId = 'notconfigured'
+        ri.info.wrappedRevContractId = 'notconfigured';
       }
       // rchain-token 16 new price format
       if (ri.info && typeof ri.info.namePrice === 'number') {
-        ri.info.namePrice = null
+        ri.info.namePrice = null;
       }
       // dappy browser 0.5.5 and shardId in RChain DeployData
       if (ri.info && typeof ri.info.rchainShardId !== 'string') {

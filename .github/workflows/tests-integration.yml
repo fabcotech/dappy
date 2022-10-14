@@ -1,0 +1,86 @@
+name: Integration tests
+
+on:
+  push:
+    branches: [ '**' ]
+  pull_request:
+    branches: [ '**' ]
+  schedule:
+    - cron: "0 1 * * *"
+jobs:
+  build:
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        os: 
+        - ubuntu-latest
+        - windows-latest
+        - macos-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+    - name: Install dependencies
+      run: npm i
+    - name: build renderer
+      run: npm run build:renderer:prod
+    - name: build main 
+      run: npm run build:main:prod
+    - uses: actions/upload-artifact@master
+      with:
+        name: build-files-${{ matrix.os }}
+        path: |
+          dist
+        retention-days: 1
+
+  test:
+    needs: build
+    strategy:
+      matrix:
+        dappy-network:
+        - gamma
+        - d
+        os: 
+        - ubuntu-latest
+        - windows-latest
+        - macos-latest
+
+    continue-on-error: true
+    timeout-minutes: 60
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 16
+    - name: Install dependencies
+      run: npm i        
+    - uses: actions/download-artifact@master
+      with:
+        name: build-files-${{ matrix.os }}
+        path: |
+          dist                 
+    - name: run integration tests
+      run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- npm run test:integration:${{ matrix.dappy-network }}
+      if: matrix.os == 'ubuntu-latest'
+    - name: run integration tests
+      run: npm run test:integration:${{ matrix.dappy-network }}
+      if: matrix.os != 'ubuntu-latest'
+    - uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: playwright-report-${{ matrix.os }}-${{ matrix.dappy-network }}
+        path: playwright-report/
+        retention-days: 30
+
+  clean-up:
+    if: ${{ always() }}
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: geekyeggo/delete-artifact@v2
+      with:
+          name: build-files-*
+          failOnError: false

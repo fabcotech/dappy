@@ -11,14 +11,16 @@ export const Gcu = (props: { version: string; text: string; continue: () => void
       <p className="gcu-text">{props.text}</p>
       <div className="field is-horizontal">
         <div className="control">
+          <label htmlFor="exampleCheckbox">I have read and I agree to the general conditions of use</label>
           <input
-            className="is-checkradio is-link is-inverted"
+            className="is-inverted"
             id="exampleCheckbox"
             type="checkbox"
-            onChange={() => {}}
+            onChange={() => {
+              setAgree(!agree);
+            }}
             checked={agree}
           />
-          <label onClick={() => setAgree(!agree)}>I have read and I agree to the general conditions of use</label>
         </div>
       </div>
       <button className="button is-light" disabled={!agree} onClick={() => props.continue()}>

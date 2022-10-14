@@ -12,6 +12,7 @@ import { installDevToolsExtensionsOnlyForDev } from './devTools';
 import { preventAllPermissionRequests } from './preventAllPermissionRequests';
 
 import { initAutoUpdater } from './autoUpdater';
+import { getRendererParams } from './rendererParams';
 
 /*
   CAREFUL
@@ -19,7 +20,7 @@ import { initAutoUpdater } from './autoUpdater';
   changing this will remove everything that is in dappy localStorage
   PRIVATE KEYS LOST, ACCOUNTS LOST, TABS LOST etc.....
 */
-const partition = `persist:dappy0.3.0`;
+const partition = process.env.PARTITION || 'persist:dappy0.3.0';
 
 protocol.registerSchemesAsPrivileged([
   { scheme: 'dappy', privileges: { standard: true, secure: true, bypassCSP: true } },
@@ -163,11 +164,14 @@ function createWindow() {
 
   browserWindow.setMenuBarVisibility(false);
 
+  const rendererParams = getRendererParams(process.argv.slice(2));
   // and load the index.html of the app.
   if (process.env.PRODUCTION) {
-    browserWindow.loadFile('dist/renderer/index.html');
+    browserWindow.loadFile('dist/renderer/index.html', {
+      search: rendererParams,
+    });
   } else {
-    browserWindow.loadURL('http://localhost:3033');
+    browserWindow.loadURL(`http://localhost:3033${rendererParams}`);
   }
 
   // Open the DevTools.
