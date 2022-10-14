@@ -6,6 +6,11 @@ on:
     branches: [ '**' ]
 jobs:
   test:
+    strategy:
+      matrix:
+        dappy-network:
+        - gamma
+        - d
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
@@ -20,7 +25,7 @@ jobs:
     - name: build main 
       run: npm run build:main:prod
     - name: run integration tests
-      run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- npm run test:integration:gamma
+      run: xvfb-run --auto-servernum --server-args="-screen 0 1280x960x24" -- npm run test:integration:${{ matrix.dappy-network }}
     - uses: actions/upload-artifact@v3
       if: always()
       with:

@@ -3,13 +3,17 @@ import { ElectronApplication, _electron as electron } from 'playwright';
 
 test.describe('dappy browser should works', () => {
   const config = {
-    dappyNetwork: process.env.DAPPY_NETWORK || 'local',
+    dappyNetwork: process.env.DAPPY_NETWORK || 'gamma',
   };
 
   let app: ElectronApplication;
 
   test.beforeAll(async () => {
-    app = await electron.launch({ args: ['.', `--network=${config.dappyNetwork}`], cwd: '.' });
+    app = await electron.launch({
+      env: { PARTITION: process.env.PARTITION || 'test' },
+      args: ['.', `--network=${config.dappyNetwork}`],
+      cwd: '.',
+    });
   });
 
   test('go to default.dappy', async () => {
