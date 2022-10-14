@@ -70,7 +70,7 @@ jobs:
     - uses: actions/upload-artifact@v3
       if: always()
       with:
-        name: playwright-report
+        name: playwright-report-${{ matrix.os }}-${{ matrix.dappy-network }}
         path: playwright-report/
         retention-days: 30
 
