@@ -29,7 +29,7 @@ jobs:
       run: npm run build:main:prod
     - uses: actions/upload-artifact@master
       with:
-        name: build-files-${{ matrix.dappy-network }}
+        name: build-files-${{ matrix.os }}
         path: |
           dist
         retention-days: 1
@@ -57,7 +57,7 @@ jobs:
       run: npm i        
     - uses: actions/download-artifact@master
       with:
-        name: build-files-${{ matrix.dappy-network }}
+        name: build-files-${{ matrix.os }}
         path: |
           dist                 
     - name: run integration tests
