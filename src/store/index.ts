@@ -31,7 +31,15 @@ import {
   validateTransactionStates,
 } from './decoders';
 import fromEvent from 'xstream/extra/fromEvent';
-import { ACCESS_ACCOUNTS, ACCESS_SECURITY, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, ACCESS_WHITELIST, DEVELOPMENT, RELOAD_INDEXEDDB_PERIOD } from '../CONSTANTS';
+import {
+  ACCESS_ACCOUNTS,
+  ACCESS_SECURITY,
+  ACCESS_SETTINGS,
+  ACCESS_TRANSACTIONS,
+  ACCESS_WHITELIST,
+  DEVELOPMENT,
+  RELOAD_INDEXEDDB_PERIOD,
+} from '../CONSTANTS';
 import { validateAccounts } from './decoders/Account';
 import { loggerSaga } from './utils';
 import { initCronJobs } from './initCronJobs';
@@ -298,7 +306,7 @@ dbReq.onsuccess = (event) => {
     if (ui.navigationUrl === '/names') ui.navigationUrl = '/';
     if (ui.navigationUrl.startsWith('/settings') && !ACCESS_SETTINGS) ui.navigationUrl = '/';
     if (ui.navigationUrl === '/accounts' && !ACCESS_ACCOUNTS) ui.navigationUrl = '/';
-    if (ui.navigationUrl === '/auth' && !ACCESS_SECURITY) ui.navigationUrl = '/'
+    if (ui.navigationUrl === '/auth' && !ACCESS_SECURITY) ui.navigationUrl = '/';
     if (ui.navigationUrl === '/transactions' && !ACCESS_TRANSACTIONS) ui.navigationUrl = '/';
     if (ui.navigationUrl === '/whitelist' && !ACCESS_WHITELIST) ui.navigationUrl = '/';
 
@@ -310,8 +318,8 @@ dbReq.onsuccess = (event) => {
     if (!ui.hasOwnProperty('whitelist')) {
       ui = {
         ...ui,
-        whitelist: [{ host: '*', topLevel: true, secondLevel: true }]
-      }
+        whitelist: [{ host: '*', topLevel: true, secondLevel: true }],
+      };
     }
 
     validateUi(ui)
@@ -417,7 +425,7 @@ dbReq.onsuccess = (event) => {
   const requestBlockchains = blockchainsStore.getAll();
   requestBlockchains.onsuccess = (e) => {
     let blockchainsToCheck = requestBlockchains.result;
-    blockchainsToCheck.map(bc => {
+    blockchainsToCheck.map((bc) => {
       if (!bc.hasOwnProperty('auto')) {
         bc.auto = true;
       }
@@ -426,7 +434,7 @@ dbReq.onsuccess = (event) => {
         bc.nodes = dappyNetworks[bc.chainId as DappyNetworkId];
       }
       return bc;
-    })
+    });
     validateBlockchains(blockchainsToCheck)
       .then((blockchains) => {
         asyncActionsOver += 1;

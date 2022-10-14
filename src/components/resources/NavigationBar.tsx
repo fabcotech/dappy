@@ -111,30 +111,6 @@ class NavigationBarComponent extends WithSuggestions {
             onChange={this.onChange}
             onKeyDown={this.onKeyDown}
           />
-          <div
-            className={`fc tip-div ${this.props.resourceLoaded && this.props.publicKey && this.props.chainId && !!this.props.tab
-              ? 'resource-loaded'
-              : ''
-              }`}>
-            {this.props.resourceLoaded && this.props.tab && this.props.publicKey && this.props.chainId && !!this.props.tab ? (
-              <i
-                title="Tip the owner of this app"
-                onClick={() => {
-                  // always true
-                  if (this.props.sendRChainPayment) {
-                    this.props.sendRChainPayment(
-                      this.props.chainId as string,
-                      this.props.publicKey as string,
-                      (this.props.tab as Tab).id,
-                      new URL(this.props.url as string).hostname
-                    );
-                  }
-                }}
-                className="fa fa-money-bill-wave"></i>
-            ) : (
-              <i title="Tipping unavailable" className="fa fa-money-bill-wave"></i>
-            )}
-          </div>
           {this.state.pristine ? undefined : (
             <span className="reset" onClick={this.onReset}>
               <i className="fa fa-times" />
@@ -154,8 +130,6 @@ export const NavigationBar = connect(
     let resourceLoaded = false;
     let appType: 'DA' | 'IP' = 'IP';
     let url = undefined;
-    let publicKey: string | undefined = '';
-    let chainId: string | undefined = '';
     if (tab) {
       url = tab.url;
       try {
@@ -167,11 +141,7 @@ export const NavigationBar = connect(
       }
       if (appType === 'DA') {
         resourceLoaded = true;
-        publicKey = tab.data && tab.data.publicKey ? tab.data.publicKey : undefined;
-        chainId = tab.data && tab.data.chainId ? tab.data.chainId : undefined;
       } else {
-        publicKey = tab.data && tab.data.publicKey ? tab.data.publicKey : undefined;
-        chainId = tab.data && tab.data.chainId ? tab.data.chainId : undefined;
         resourceLoaded = !transitoryStates[tab.id] || !['loading', 'reloading'].includes(transitoryStates[tab.id]);
       }
     }
@@ -190,8 +160,6 @@ export const NavigationBar = connect(
       resourceLoaded: resourceLoaded,
       appType: appType,
       url: url,
-      publicKey: publicKey,
-      chainId: chainId,
       transitoryState: tab ? transitoryStates[tab.id] : undefined,
       canGoForward: fromHistory.getCanGoForward(state),
       canGoBackward: fromHistory.getCanGoBackward(state),
@@ -219,42 +187,6 @@ export const NavigationBar = connect(
       updateTabSearch: (a: fromDapps.UpdateTabSearchPayload) => dispatch(fromDapps.updateTabSearchAction(a)),
       goForward: (tabId: string) => dispatch(fromHistory.goForwardAction({ tabId: tabId })),
       goBackward: (tabId: string) => dispatch(fromHistory.goBackwardAction({ tabId: tabId })),
-      sendRChainPayment: (chainId: string, publicKey: string, tabId: string, address: string) => {
-        let revAddress;
-        try {
-          revAddress = rchainToolkit.utils.revAddressFromPublicKey(publicKey);
-        } catch (err) {
-          dispatch(
-            fromMain.openDappModalAction({
-              title: 'Failed to tip',
-              parameters: {},
-              text: 'Could not get REV address from public key ' + publicKey,
-              buttons: [],
-              tabId: tabId,
-            })
-          );
-          return;
-        }
-        const parameters: fromCommon.RChainPaymentRequestParameters = {
-          from: undefined,
-          to: revAddress,
-          amount: undefined,
-        };
-        dispatch(
-          fromMain.openDappModalAction({
-            title: 'PAYMENT_REQUEST_MODAL',
-            text: `tip ${address}`,
-            parameters: {
-              parameters: parameters,
-              chainId: chainId,
-              tabId: tabId,
-              origin: { origin: 'transfer' },
-            },
-            buttons: [],
-            tabId: tabId,
-          })
-        );
-      },
     };
   }
 )(NavigationBarComponent);

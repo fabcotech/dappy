@@ -19,8 +19,6 @@ export interface WithSuggestionsComponentProps {
   url: string | undefined;
   navigationSuggestionsDisplayed?: boolean;
   zIndex?: number;
-  publicKey: string | undefined;
-  chainId: string | undefined;
   showLoadInfos: (tabId: string, parameters: any) => void;
   isDisplayed?: (a: boolean) => void;
   stopTab: (tabId: string) => void;
@@ -29,7 +27,6 @@ export interface WithSuggestionsComponentProps {
   updateTabSearch: (a: fromDapps.UpdateTabSearchPayload) => void;
   goForward: (tabId: string) => void;
   goBackward: (tabId: string) => void;
-  sendRChainPayment?: (chainId: string, publicKey: string, tabId: string, hostname: string) => void;
 }
 export interface WithSuggestionsComponentState {
   pristine: boolean;
@@ -154,7 +151,7 @@ export class WithSuggestionsComponent extends React.Component<
 
           this.props.loadResource({
             url: e.url as string,
-            tabId: this.props.tab ? this.props.tab.id : undefined
+            tabId: this.props.tab ? this.props.tab.id : undefined,
           });
           if (this.inputEl) {
             this.inputEl.blur();
@@ -177,7 +174,7 @@ export class WithSuggestionsComponent extends React.Component<
     });
   };
 
-  onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = e => {
+  onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
     if (e.key === 'Enter' && this.stream) {
       this.stream.shamefullySendNext({ url: this.state.url || '', launch: true });
     }
