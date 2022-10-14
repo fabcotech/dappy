@@ -46,6 +46,7 @@ jobs:
         - windows-latest
         - macos-latest
 
+    continue-on-error: true
     timeout-minutes: 60
     runs-on: ${{ matrix.os }}
     steps:
