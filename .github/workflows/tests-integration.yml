@@ -1,4 +1,4 @@
-name: Integration tests on gamma
+name: Integration tests
 on:
   push:
     branches: [ '**' ]
