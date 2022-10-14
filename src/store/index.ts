@@ -167,7 +167,6 @@ const sagas = function* rootSaga() {
 sagaMiddleware.run(sagas);
 
 const dispatchInitActions = () => {
-  console.log('asyncActionsOver', asyncActionsOver);
   if (asyncActionsOver === 8) {
     store.dispatch(
       fromUi.setBodyDimensionsAction({ bodyDimensions: [document.body.clientWidth, document.body.clientHeight] })
