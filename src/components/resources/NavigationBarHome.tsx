@@ -60,8 +60,6 @@ export const NavigationBarHome = connect(
       resourceLoaded: false,
       transitoryState: undefined,
       tab: undefined,
-      publicKey: undefined,
-      chainId: undefined,
       canGoForward: false,
       canGoBackward: false,
       search: undefined,

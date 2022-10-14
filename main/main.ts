@@ -129,8 +129,8 @@ function createWindow() {
     width: 1200,
     height: 800,
     // leave frame on osx / mac
-    frame: process.platform === 'darwin',
-    transparent: process.platform !== 'darwin',
+    frame: true,
+    transparent: false,
     webPreferences: {
       nodeIntegration: false,
       sandbox: true,
