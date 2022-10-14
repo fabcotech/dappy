@@ -115,7 +115,7 @@ jobs:
 
   clean-up:
     if: ${{ always() }}
-    needs: test
+    needs: [test-gamma, test-d]
     runs-on: ubuntu-latest
     steps:
     - uses: geekyeggo/delete-artifact@v2
