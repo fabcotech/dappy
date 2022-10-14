@@ -46,7 +46,7 @@ jobs:
       run: npm i        
     - uses: actions/download-artifact@master
       with:
-        name: my-artifact
+        name: build-files
         path: |
           dist                 
     - name: run integration tests
