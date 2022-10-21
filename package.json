@@ -30,6 +30,7 @@
     "test:integration:gamma": "cross-env PARTITION=test DAPPY_NETWORK=gamma playwright test",
     "test:integration:d": "cross-env PARTITION=test DAPPY_NETWORK=d playwright test",
     "lint": "eslint src --ext .ts",
+    "test:types": "npx tsc --project ./tsconfig.json --noEmit",
     "prepare": "husky install"
   },
   "prettier": {
