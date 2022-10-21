@@ -29,6 +29,7 @@
     "test": "jest",
     "test:integration:gamma": "cross-env PARTITION=test DAPPY_NETWORK=gamma playwright test",
     "test:integration:d": "cross-env PARTITION=test DAPPY_NETWORK=d playwright test",
+    "lint": "eslint src --ext .ts",
     "prepare": "husky install"
   },
   "prettier": {

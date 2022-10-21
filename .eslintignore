@@ -1,0 +1,8 @@
+dist
+node_modules
+output
+playwright-report
+dapp-libs
+dappy-x
+installers
+jest

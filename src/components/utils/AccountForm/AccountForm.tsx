@@ -1,13 +1,13 @@
 import React from 'react';
 import { Formik, Field } from 'formik';
-import * as elliptic from 'elliptic';
+import { ec as Ec } from 'elliptic';
 
 import { Account } from '/models';
 import { encrypt, decrypt, passwordFromStringToBytes } from '/utils/crypto';
 import './AccountForm.scss';
 import { rchainWallet, evmWallet } from '/utils/wallets';
 
-const ec = new elliptic.ec('secp256k1');
+const ec = new Ec('secp256k1');
 
 interface AccountFormProps {
   names: string[];
@@ -19,21 +19,19 @@ const PASSWORD_REGEXP_LOWER = /^(?=.*?[a-z])/;
 const PASSWORD_REGEXP_NUMBER = /^(?=.*?[0-9])/;
 const PASSWORD_REGEXP_SPECIAL = /^(?=.*?[#?!@$%^&*-])/;
 
-export class AccountForm extends React.Component<AccountFormProps, {}> {
-  constructor(props: AccountFormProps) {
-    super(props);
-  }
-
+const onGeneratePrivateKey = (setFieldValue: (a: string, b: string) => void) => {
+  const key = ec.genKeyPair();
+  const privateKey = key.getPrivate().toString(16);
+  setFieldValue('privatekey', privateKey);
+};
+export class AccountForm extends React.Component<AccountFormProps> {
   publicKey = '';
-  address = '';
-  passwordWarnings: string[] = [];
-  error: string | undefined = undefined;
 
-  onGeneratePrivateKey = (setFieldValue: (a: string, b: string) => void) => {
-    var key = ec.genKeyPair();
-    const privateKey = key.getPrivate().toString(16);
-    setFieldValue('privatekey', privateKey);
-  };
+  address = '';
+
+  passwordWarnings: string[] = [];
+
+  error: string | undefined = undefined;
 
   render() {
     return (
@@ -50,7 +48,7 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
           }
         }
         validate={(values) => {
-          let errors: {
+          const errors: {
             name?: string;
             privatekey?: string;
             password?: string;
@@ -80,6 +78,7 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
                   this.address = rchainWallet.addressFromPublicKey(this.publicKey);
                   break;
                 case 'evm':
+                default:
                   this.address = evmWallet.addressFromPublicKey(this.publicKey);
                   break;
               }
@@ -89,7 +88,7 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
             }
           }
 
-          let passwordWarnings = [];
+          const passwordWarnings = [];
           if (!PASSWORD_REGEXP_UPPER.test(values.password)) {
             passwordWarnings.push(t('at least one upper'));
           }
@@ -121,22 +120,22 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
                 name: values.name,
                 publicKey: this.publicKey,
                 address: this.address,
-                encrypted: encrypted,
+                encrypted,
                 main: false,
                 balance: 0,
                 boxes: [],
-                whitelist: [{ host: '*', blitz: true, transactions: true }]
+                whitelist: [{ host: '*', blitz: true, transactions: true }],
               });
               this.error = undefined;
             } catch (err) {
               console.error(err);
-              this.error = 'Something went wrong when encrypting private key : ' + err;
+              this.error = `Something went wrong when encrypting private key : ${err}`;
             }
           }
 
           return errors;
         }}
-        render={({ values, errors, touched, handleSubmit, isSubmitting, setFieldValue }) => {
+        render={({ errors, touched, handleSubmit, setFieldValue }) => {
           return (
             <form className="account-form" onSubmit={handleSubmit}>
               <div className="field is-horizontal">
@@ -176,7 +175,7 @@ export class AccountForm extends React.Component<AccountFormProps, {}> {
                   <button
                     type="button"
                     className="button is-link is-small generate-private-key"
-                    onClick={() => this.onGeneratePrivateKey(setFieldValue)}>
+                    onClick={() => onGeneratePrivateKey(setFieldValue)}>
                     {t('generate private key')}
                   </button>
                 </div>
