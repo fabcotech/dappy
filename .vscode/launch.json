@@ -42,7 +42,7 @@
       ],
       "outputCapture": "std",
       "env": {
-        "PARTITION": "test"
+        "PARTITION": "persist:test"
       }
     },
   ]
