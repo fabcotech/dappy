@@ -12,4 +12,18 @@ module.exports = {
   },
   transformIgnorePatterns: ['node_modules/(?!beesjs/.*)'],
   modulePathIgnorePatterns: ['tests'],
+  transform: {
+    '^.+\\.(t|j)sx?$': [
+      '@swc/jest',
+      {
+        jsc: {
+          transform: {
+            react: {
+              runtime: 'automatic',
+            },
+          },
+        },
+      },
+    ],
+  },
 };
