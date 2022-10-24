@@ -33,13 +33,6 @@
     "test:types": "npx tsc --project ./tsconfig.json --noEmit",
     "prepare": "husky install"
   },
-  "prettier": {
-    "printWidth": 120,
-    "singleQuote": true,
-    "jsxBracketSameLine": true,
-    "parser": "typescript",
-    "trailingComma": "es5"
-  },
   "dependencies": {
     "@ethereumjs/common": "^2.6.0",
     "@ethereumjs/tx": "^3.4.0",
