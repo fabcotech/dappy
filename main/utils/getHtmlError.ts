@@ -8,6 +8,7 @@ export const getHtmlError = (title: string, error: string, supp?: { type: 'ip ap
           box-sizing: border-box;  
         }
         body {
+          background: #fff;
           margin: 0;
           padding: 0;
           display: flex;

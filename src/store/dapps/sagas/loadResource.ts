@@ -93,6 +93,7 @@ const loadResource = function* (action: Action) {
       return;
     }
   } catch (err) {
+    console.log(err);
     yield put(
       fromDapps.loadResourceFailedAction({
         tabId,
@@ -180,7 +181,6 @@ const loadResource = function* (action: Action) {
       We are not yet sure that address points to some A/AAAA records
       but we are sure there is no dapp / file, we can launch it
     */
-    console.log('launchTabCompletedAction');
     yield put(
       fromDapps.launchTabCompletedAction({
         tab: {

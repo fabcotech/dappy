@@ -57,7 +57,7 @@ class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps> 
             </div>
           </div>
         ) : undefined}
-        {!this.props.tab.lastError ? (
+        {!!transitoryState && !this.props.tab.lastError ? (
           <div className={`retry ${transitoryState}`}>
             <div
               onClick={(e) => {
