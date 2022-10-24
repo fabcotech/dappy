@@ -1,5 +1,5 @@
 export interface Account {
-  platform: 'rchain' | 'evm';
+  platform: 'rchain' | 'evm' | 'certificate';
   name: string;
   publicKey: string;
   address: string;
