@@ -11,20 +11,27 @@ import {
 } from '/models';
 import * as fromDapps from './store/dapps';
 import * as fromMain from './store/main';
-import { BeesLoadError } from '@fabcotech/bees';
 import { Action } from '/store';
 
 const actionsAwaitingEphemeralToken: any[] = [];
 
-export const dappyLookup = (body: { method: "lookup", hostname: string, type: string, chainId: string }): Promise<NamePacket> => {
+export const dappyLookup = (body: {
+  method: 'lookup';
+  hostname: string;
+  type: string;
+  chainId: string;
+}): Promise<NamePacket> => {
   return window.dappyLookup(body);
 };
 
-export const singleRequest = (body: { [key: string]: any }, node: DappyNetworkMember): Promise<SingleRequestResult> => {
+export const singleRequest = (body: Record<string, any>, node: DappyNetworkMember): Promise<SingleRequestResult> => {
   return window.dappySingleRequest(body, node);
 };
 
-export const multiRequest = (body: MultiRequestBody, parameters: MultiRequestParameters): Promise<MultiRequestResult> => {
+export const multiRequest = (
+  body: MultiRequestBody,
+  parameters: MultiRequestParameters
+): Promise<MultiRequestResult> => {
   return window.dappyMultiRequest(body, parameters);
 };
 
@@ -63,20 +70,20 @@ export const close = () => {
 export const interProcess = (store: Store) => {
   let uniqueEphemeralToken = '';
   setInterval(() => {
-    const interProcess = new XMLHttpRequest();
-    interProcess.open('POST', 'interprocess://get-dispatches-from-main-awaiting');
-    interProcess.setRequestHeader(
+    const req = new XMLHttpRequest();
+    req.open('POST', 'interprocess://get-dispatches-from-main-awaiting');
+    req.setRequestHeader(
       'Data',
       encodeURI(
         JSON.stringify({
-          uniqueEphemeralToken: uniqueEphemeralToken,
+          uniqueEphemeralToken,
         })
       )
     );
-    interProcess.send();
-    interProcess.onload = (a) => {
+    req.send();
+    req.onload = () => {
       try {
-        const r: { actions: [] } = JSON.parse(interProcess.responseText);
+        const r: { actions: [] } = JSON.parse(req.responseText);
         r.actions.forEach((action) => {
           store.dispatch(action);
         });
@@ -87,11 +94,11 @@ export const interProcess = (store: Store) => {
   }, 1500);
 
   setTimeout(() => {
-    const interProcess = new XMLHttpRequest();
-    interProcess.open('POST', 'interprocess://ask-unique-ephemeral-token');
-    interProcess.send('');
-    interProcess.onload = (a) => {
-      const r = JSON.parse(interProcess.responseText);
+    const req = new XMLHttpRequest();
+    req.open('POST', 'interprocess://ask-unique-ephemeral-token');
+    req.send('');
+    req.onload = () => {
+      const r = JSON.parse(req.responseText);
       window.uniqueEphemeralToken = r.uniqueEphemeralToken;
       uniqueEphemeralToken = r.uniqueEphemeralToken;
       if (actionsAwaitingEphemeralToken.length) {
@@ -114,48 +121,48 @@ export const interProcess = (store: Store) => {
 
   window.dappyLookup = (a) => {
     return new Promise((resolve, reject) => {
-      const interProcess = new XMLHttpRequest();
-      interProcess.open('POST', 'interprocess://dappy-lookup');
-      interProcess.setRequestHeader(
+      const req = new XMLHttpRequest();
+      req.open('POST', 'interprocess://dappy-lookup');
+      req.setRequestHeader(
         'Data',
         encodeURI(
           JSON.stringify({
-            uniqueEphemeralToken: uniqueEphemeralToken,
+            uniqueEphemeralToken,
             value: a,
           })
         )
       );
-      interProcess.send();
-      interProcess.onload = (a) => {
+      req.send();
+      req.onload = () => {
         try {
-          const r = JSON.parse(interProcess.responseText);
+          const r = JSON.parse(req.responseText);
           if (r.success) {
             resolve(r.data);
           } else {
-            reject({ message: r.error });
+            reject(new Error(r.error));
           }
         } catch (e) {
-          console.log(interProcess.responseText);
+          console.log(req.responseText);
           console.log(e);
-          reject({ message: 'could not parse response' });
+          reject(new Error('could not parse response'));
         }
       };
     });
   };
 
   window.copyToClipboard = (a) => {
-    const interProcess = new XMLHttpRequest();
-    interProcess.open('POST', 'interprocess://copy-to-clipboard');
-    interProcess.setRequestHeader(
+    const req = new XMLHttpRequest();
+    req.open('POST', 'interprocess://copy-to-clipboard');
+    req.setRequestHeader(
       'Data',
       encodeURI(
         JSON.stringify({
-          uniqueEphemeralToken: uniqueEphemeralToken,
+          uniqueEphemeralToken,
           value: a,
         })
       )
     );
-    interProcess.send();
+    req.send();
   };
 
   window.dispatchInMain = (action) => {
@@ -163,83 +170,83 @@ export const interProcess = (store: Store) => {
       actionsAwaitingEphemeralToken.push(action);
       return;
     }
-    const interProcess = new XMLHttpRequest();
-    interProcess.open('POST', 'interprocess://dispatch-in-main');
-    interProcess.setRequestHeader(
+    const req = new XMLHttpRequest();
+    req.open('POST', 'interprocess://dispatch-in-main');
+    req.setRequestHeader(
       'Data',
       encodeURI(
         JSON.stringify({
-          uniqueEphemeralToken: uniqueEphemeralToken,
-          action: action,
+          uniqueEphemeralToken,
+          action,
         })
       )
     );
-    interProcess.send();
+    req.send();
   };
 
   window.triggerCommand = (command, payload = undefined) => {
-    const interProcess = new XMLHttpRequest();
-    interProcess.open('POST', 'interprocess://trigger-command');
-    interProcess.setRequestHeader(
+    const req = new XMLHttpRequest();
+    req.open('POST', 'interprocess://trigger-command');
+    req.setRequestHeader(
       'Data',
       encodeURI(
         JSON.stringify({
-          uniqueEphemeralToken: uniqueEphemeralToken,
-          command: command,
-          payload: payload,
+          uniqueEphemeralToken,
+          command,
+          payload,
         })
       )
     );
-    interProcess.send();
+    req.send();
   };
 
   window.openExternal = (url) => {
-    const interProcess = new XMLHttpRequest();
-    interProcess.open('POST', 'interprocess://open-external');
-    interProcess.setRequestHeader(
+    const req = new XMLHttpRequest();
+    req.open('POST', 'interprocess://open-external');
+    req.setRequestHeader(
       'Data',
       encodeURI(
         JSON.stringify({
-          uniqueEphemeralToken: uniqueEphemeralToken,
+          uniqueEphemeralToken,
           value: url,
         })
       )
     );
-    interProcess.send();
+    req.send();
   };
 
   window.dappySingleRequest = (body, node) => {
     return new Promise((resolve, reject) => {
-      const interProcess = new XMLHttpRequest();
-      interProcess.open('POST', 'interprocess://dappy-single-request');
-      interProcess.setRequestHeader(
+      const req = new XMLHttpRequest();
+      req.open('POST', 'interprocess://dappy-single-request');
+      req.setRequestHeader(
         'Data',
         encodeURI(
           JSON.stringify({
-            uniqueEphemeralToken: uniqueEphemeralToken,
-            body: body,
-            node: node,
+            uniqueEphemeralToken,
+            body,
+            node,
           })
         )
       );
       // this should never happen
-      interProcess.onerror = (e) => {
+      req.onerror = (e) => {
         console.log(e);
-        reject({ message: 'Unknown error' });
+        reject(new Error('Unknown error'));
       };
-      interProcess.send();
-      interProcess.onload = (a) => {
+      req.send();
+      req.onload = () => {
         try {
-          const r = JSON.parse(interProcess.responseText);
+          const r = JSON.parse(req.responseText);
           if (r.success) {
             resolve(r);
           } else {
             reject(r.error || { message: 'Unknown error' });
           }
         } catch (e) {
-          console.log(interProcess.responseText);
+          console.log(req.responseText);
           console.log(e);
-          reject({ message: 'could not parse response' });
+          reject(new Error('could not parse response'));
         }
       };
     });
@@ -247,36 +254,39 @@ export const interProcess = (store: Store) => {
 
   window.dappyMultiRequest = (body, parameters) => {
     return new Promise((resolve, reject) => {
-      const interProcess = new XMLHttpRequest();
-      interProcess.open('POST', 'interprocess://dappy-multi-request');
-      interProcess.setRequestHeader(
+      const req = new XMLHttpRequest();
+      req.open('POST', 'interprocess://dappy-multi-request');
+      req.setRequestHeader(
         'Data',
         encodeURI(
           JSON.stringify({
-            uniqueEphemeralToken: uniqueEphemeralToken,
-            parameters: parameters,
-            body: body,
+            uniqueEphemeralToken,
+            parameters,
+            body,
           })
         )
       );
-      interProcess.send();
+      req.send();
       // this should never happen
-      interProcess.onerror = (e) => {
+      req.onerror = (e) => {
         console.log(e);
-        reject({ message: 'Unknown error' });
+        reject(new Error('Unknown error'));
       };
-      interProcess.onload = (a) => {
+      req.onload = () => {
         try {
-          const r = JSON.parse(interProcess.responseText);
+          const r = JSON.parse(req.responseText);
           if (r.success) {
             resolve(r.data as MultiRequestResult);
           } else {
             reject(r as MultiRequestError);
           }
         } catch (e) {
-          console.log(interProcess.responseText);
+          console.log(req.responseText);
           console.log(e);
-          reject({ error: { error: DappyLoadError.FailedToParseResponse, args: {} }, loadState: {} } as MultiRequestError);
+          reject({
+            error: { error: DappyLoadError.FailedToParseResponse, args: {} },
+            loadState: {},
+          } as MultiRequestError);
         }
       };
     });
@@ -284,26 +294,26 @@ export const interProcess = (store: Store) => {
 
   window.generateCertificateAndKey = (altNames: string[]) => {
     return new Promise((resolve, reject) => {
-      const interProcess = new XMLHttpRequest();
-      interProcess.open('POST', 'interprocess://generate-certificate-and-key');
-      interProcess.setRequestHeader(
+      const req = new XMLHttpRequest();
+      req.open('POST', 'interprocess://generate-certificate-and-key');
+      req.setRequestHeader(
         'Data',
         encodeURI(
           JSON.stringify({
-            uniqueEphemeralToken: uniqueEphemeralToken,
+            uniqueEphemeralToken,
             parameters: {
-              altNames: altNames,
+              altNames,
             },
           })
         )
       );
-      interProcess.send();
-      interProcess.onload = (a) => {
+      req.send();
+      req.onload = () => {
         try {
-          const r = JSON.parse(interProcess.responseText);
+          const r = JSON.parse(req.responseText);
           resolve(r);
         } catch (e) {
-          reject({ message: 'could not parse response' });
+          reject(new Error('could not parse response'));
         }
       };
     });
@@ -311,141 +321,75 @@ export const interProcess = (store: Store) => {
 
   window.getIpAddressAndCert = (parameters) => {
     return new Promise((resolve, reject) => {
-      const interProcess = new XMLHttpRequest();
-      interProcess.open('POST', 'interprocess://get-ip-address-and-cert');
-      interProcess.setRequestHeader(
+      const req = new XMLHttpRequest();
+      req.open('POST', 'interprocess://get-ip-address-and-cert');
+      req.setRequestHeader(
         'Data',
         encodeURI(
           JSON.stringify({
-            uniqueEphemeralToken: uniqueEphemeralToken,
-            parameters: parameters,
+            uniqueEphemeralToken,
+            parameters,
           })
         )
       );
-      interProcess.send();
-      interProcess.onload = (a) => {
+      req.send();
+      req.onload = () => {
         try {
-          const r = JSON.parse(interProcess.responseText);
+          const r = JSON.parse(req.responseText);
           if (r.success) {
             resolve(r.data);
           } else {
             reject(r.error);
           }
         } catch (e) {
-          reject({ message: 'could not parse response' });
+          reject(new Error('could not parse response'));
         }
       };
     });
   };
 
   window.minimize = () => {
-    const interProcess = new XMLHttpRequest();
-    interProcess.open('POST', 'interprocess://minimize');
-    interProcess.setRequestHeader(
+    const req = new XMLHttpRequest();
+    req.open('POST', 'interprocess://minimize');
+    req.setRequestHeader(
       'Data',
       encodeURI(
         JSON.stringify({
-          uniqueEphemeralToken: uniqueEphemeralToken,
+          uniqueEphemeralToken,
           action: null,
         })
       )
     );
-    interProcess.send();
+    req.send();
   };
 
   window.maximize = () => {
-    const interProcess = new XMLHttpRequest();
-    interProcess.open('POST', 'interprocess://maximize');
-    interProcess.setRequestHeader(
+    const req = new XMLHttpRequest();
+    req.open('POST', 'interprocess://maximize');
+    req.setRequestHeader(
       'Data',
       encodeURI(
         JSON.stringify({
-          uniqueEphemeralToken: uniqueEphemeralToken,
+          uniqueEphemeralToken,
           action: null,
         })
       )
     );
-    interProcess.send();
+    req.send();
   };
 
   window.close = () => {
-    const interProcess = new XMLHttpRequest();
-    interProcess.open('POST', 'interprocess://close');
-    interProcess.setRequestHeader(
+    const req = new XMLHttpRequest();
+    req.open('POST', 'interprocess://close');
+    req.setRequestHeader(
       'Data',
       encodeURI(
         JSON.stringify({
-          uniqueEphemeralToken: uniqueEphemeralToken,
+          uniqueEphemeralToken,
           action: null,
         })
       )
     );
-    interProcess.send();
+    req.send();
   };
-
-  /* 
-// todo shortcuts don't work on linux/ubuntu
-const itemZoomIn = new remote.MenuItem({
-  label: 'Zoom in',
-  //accelerator: 'CommandOrControl+Up',
-  role: 'zoomIn',
-});
-const itemZoomOut = new remote.MenuItem({
-  label: 'Zoom out',
-  // accelerator: 'CommandOrControl+Down',
-  role: 'zoomOut',
-});
-const itemZoomReset = new remote.MenuItem({
-  label: 'Reset zoom',
-  //accelerator: 'CommandOrControl+=',
-  role: 'resetZoom',
-});
-const itemToggleDevTools = new remote.MenuItem({
-  label: 'Toggle dev tools',
-  //accelerator: 'CommandOrControl+I',
-  role: 'toggleDevTools',
-});
-
-const itemCopy = new remote.MenuItem({
-  label: 'Copy',
-  accelerator: 'CommandOrControl+C',
-  role: 'copy',
-});
-const itemSelectAll = new remote.MenuItem({
-  label: 'Select All',
-  accelerator: 'CommandOrControl+A',
-  role: 'selectAll',
-});
-const itemPaste = new remote.MenuItem({
-  label: 'Paste',
-  accelerator: 'CommandOrControl+V',
-  role: 'paste',
-});
-
-const menu = new remote.Menu();
-menu.append(itemCopy);
-menu.append(itemSelectAll);
-menu.append(itemZoomIn);
-menu.append(itemZoomOut);
-menu.append(itemZoomReset);
-menu.append(itemToggleDevTools);
-
-const menuWithPaste = new remote.Menu();
-menuWithPaste.append(itemCopy);
-menuWithPaste.append(itemSelectAll);
-menuWithPaste.append(itemPaste);
-menuWithPaste.append(itemZoomIn);
-menuWithPaste.append(itemZoomOut);
-menuWithPaste.append(itemZoomReset);
-menuWithPaste.append(itemToggleDevTools);
-
-window.addEventListener('contextmenu', (e) => {
-  e.preventDefault();
-  if (e.target.tagName && ['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
-    menuWithPaste.popup({ window: remote.getCurrentWindow() });
-  } else {
-    menu.popup({ window: remote.getCurrentWindow() });
-  }
-});
- */
 };
