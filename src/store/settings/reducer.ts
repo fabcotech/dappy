@@ -244,6 +244,10 @@ export const getAvailableBlockchains = createSelector(getBlockchains, (blockchai
   return availableBlockchains;
 });
 
+export const getFirstBlockchain = createSelector(getBlockchains, (blockchains) => {
+  return Object.values(blockchains).at(0);
+});
+
 export const getNamesBlockchain = createSelector(
   getAvailableBlockchains,
   (availableBlockchains): undefined | Blockchain => {
