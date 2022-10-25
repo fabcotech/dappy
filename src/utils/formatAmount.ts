@@ -4,9 +4,9 @@ const formatter = new Intl.NumberFormat('en-US', {
   });
 
 export const formatAmount = (amount: number) => {
-  return formatter.format(amount).substr(1)
+  return formatter.format(amount).substr(1);
 };
 
 export const formatAmountNoDecimal = (amount: number) => {
-  return formatter.format(amount).substr(1, formatter.format(amount).length - 4)
+  return formatter.format(amount).substr(1, formatter.format(amount).length - 4);
 };

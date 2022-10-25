@@ -8,7 +8,7 @@ import {
   ACCESS_TRANSACTIONS,
   ACCESS_WHITELIST,
 } from '/CONSTANTS';
-import { Action } from '../';
+import { Action } from '..';
 import { NavigationUrl, Language } from '/models';
 
 export interface State {
@@ -98,13 +98,11 @@ export const reducer = (state = initialState, action: Action): State => {
         }
       }
 
-      if (payload.navigationUrl.startsWith('/settings') && !ACCESS_SETTINGS)
-        payload.navigationUrl = '/';
+      if (payload.navigationUrl.startsWith('/settings') && !ACCESS_SETTINGS) payload.navigationUrl = '/';
       if (payload.navigationUrl === '/accounts' && !ACCESS_ACCOUNTS) payload.navigationUrl = '/';
       if (payload.navigationUrl === '/auth' && !ACCESS_SECURITY) payload.navigationUrl = '/';
       if (payload.navigationUrl.startsWith('/deploy')) payload.navigationUrl = '/';
-      if (payload.navigationUrl === '/transactions' && !ACCESS_TRANSACTIONS)
-        payload.navigationUrl = '/';
+      if (payload.navigationUrl === '/transactions' && !ACCESS_TRANSACTIONS) payload.navigationUrl = '/';
       if (payload.navigationUrl === '/whitelist' && !ACCESS_WHITELIST) payload.navigationUrl = '/';
 
       return {
@@ -116,7 +114,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.UPDATE_NAVIGATION_SUGGESTIONS_DISPLAY: {
-      const payload: fromActions.UpdateNavigationSuggestinsDisplayPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -125,7 +123,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.UPDATE_PLATFORM: {
-      const payload: fromActions.UpdatePlatform = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -134,7 +132,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.UPDATE_WHITELIST: {
-      const payload: fromActions.UpdateWhitelist = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -143,7 +141,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.UPDATE_LANGUAGE: {
-      const payload: fromActions.UpdateLanguagePayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -152,7 +150,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.UPDATE_GCU: {
-      const payload: fromActions.UpdateGcuPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,

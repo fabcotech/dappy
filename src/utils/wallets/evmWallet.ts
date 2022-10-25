@@ -4,7 +4,6 @@ import * as rchainToolkit from '@fabcotech/rchain-toolkit';
 
 import { Wallet } from './wallet';
 
-
 export const evmWallet: Wallet<TxData & { chainId: number }, JsonTx> = {
   signTransaction: (tx, privateKey) => {
     if (tx.value) {

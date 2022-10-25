@@ -114,7 +114,7 @@ export const getFakeDappyNetworkMember = (
   ...dappyNetworkMember,
 });
 
-export const getFakeLogs = (contractId: string = 'foo') => ({
+export const getFakeLogs = (contractId = 'foo') => ({
   [contractId]: [],
 });
 

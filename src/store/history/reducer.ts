@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 
-import { Action } from '../';
+import { Action } from '..';
 import * as fromDapps from '../dapps';
 import * as fromActions from './actions';
 import { Session, Preview, SessionItem } from '/models';
@@ -25,17 +25,17 @@ export const reducer = (state = initialState, action: Action): State => {
     let tabId = '';
 
     if (action.type === fromDapps.LAUNCH_TAB_COMPLETED) {
-      const payload: fromDapps.LaunchTabCompletedPayload = action.payload;
+      const { payload } = action;
       url = payload.tab.url;
       tabId = payload.tab.id;
     } else if (action.type === fromActions.DID_NAVIGATE_IN_PAGE) {
-      const payload: fromActions.DidNavigateInPagePayload = action.payload;
+      const { payload } = action;
       url = payload.url;
       tabId = payload.tabId;
     }
 
     const session = state.sessions[tabId];
-    const sessionItem: SessionItem = { url: url };
+    const sessionItem: SessionItem = { url };
 
     if (session) {
       const mustAppendNewSessionItem = url !== session.items[session.cursor].url;
@@ -47,7 +47,7 @@ export const reducer = (state = initialState, action: Action): State => {
         if (!mustAppendNewSessionItem) {
           return state;
           // New resource ID, add item in session
-        } else {
+        }
           return {
             ...state,
             sessions: {
@@ -58,14 +58,14 @@ export const reducer = (state = initialState, action: Action): State => {
               },
             },
           };
-        }
+
         // cursor is not at the end
-      } else {
+      }
         // User hits enter but is reloading the same resource
         if (!mustAppendNewSessionItem) {
           return state;
           // Nremove useless branch of the tree, start new one
-        } else {
+        }
           const newItems = session.items.slice(0, session.cursor + 1).concat(sessionItem);
           return {
             ...state,
@@ -77,9 +77,7 @@ export const reducer = (state = initialState, action: Action): State => {
               },
             },
           };
-        }
-      }
-    } else {
+    }
       return {
         ...state,
         sessions: {
@@ -90,12 +88,11 @@ export const reducer = (state = initialState, action: Action): State => {
           },
         },
       };
-    }
   }
 
   switch (action.type) {
     case fromDapps.STOP_TAB: {
-      const payload: fromDapps.StopTabPayload = action.payload;
+      const { payload } = action;
 
       const newSessions = { ...state.sessions };
       delete newSessions[payload.tabId];
@@ -107,7 +104,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.GO_FORWARD_COMPLETED: {
-      const payload: fromActions.GoForwardPayload = action.payload;
+      const { payload } = action;
       const session = state.sessions[payload.tabId];
 
       return {
@@ -122,7 +119,7 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
     case fromActions.GO_BACKWARD_COMPLETED: {
-      const payload: fromActions.GoBackwardPayload = action.payload;
+      const { payload } = action;
       const session = state.sessions[payload.tabId];
 
       return {
@@ -136,7 +133,7 @@ export const reducer = (state = initialState, action: Action): State => {
         },
       };
     }
-  
+
     default:
       return state;
   }

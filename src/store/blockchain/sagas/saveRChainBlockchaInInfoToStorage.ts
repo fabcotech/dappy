@@ -6,8 +6,8 @@ import { browserUtils } from '/store/browser-utils';
 import { RChainInfos } from '/models';
 import { Action } from '/store/';
 
-const saveRChainBlockchainInfoToStorage = function*(action: Action) {
-  const payload: fromBlockchain.UpdateRChainBlockchainInfoCompletedPayload = action.payload;
+const saveRChainBlockchainInfoToStorage = function* (action: Action) {
+  const { payload } = action;
   const rchainInfos: { [chainId: string]: RChainInfos } = yield select(fromBlockchain.getRChainInfos);
   try {
     yield browserUtils.saveStorage('rchainInfos', rchainInfos[payload.chainId], true);
@@ -22,6 +22,6 @@ const saveRChainBlockchainInfoToStorage = function*(action: Action) {
   }
 };
 
-export const saveRChainBlockchainInfoToStorageSaga = function*() {
+export const saveRChainBlockchainInfoToStorageSaga = function* () {
   yield takeEvery(fromBlockchain.UPDATE_RCHAIN_BLOCKCHAIN_INFO_COMPLETED, saveRChainBlockchainInfoToStorage);
 };

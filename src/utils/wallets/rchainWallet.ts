@@ -23,7 +23,7 @@ export const rchainWallet: Wallet<RChainTransaction, RChainSignedTransaction> = 
     const dd = rchainToolkit.utils.getDeployOptions({
       timestamp: tx.timestamp,
       term: tx.term,
-      privateKey: privateKey,
+      privateKey,
       shardId: tx.shardId,
       phloPrice: tx.phloPrice,
       phloLimit: tx.phloLimit,

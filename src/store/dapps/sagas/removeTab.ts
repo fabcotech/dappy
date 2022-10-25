@@ -1,15 +1,14 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
 
-import { store } from '../..';
+import { store, Action } from '../..';
 import * as fromDapps from '..';
 import * as fromMain from '../../main';
 import { browserUtils } from '../../browser-utils';
 import { Tab } from '../../../models';
-import { Action } from '../..';
 
 const removeTab = function* (action: Action) {
-  const payload: fromDapps.RemoveTabPayload = action.payload;
-  const tabId = payload.tabId;
+  const { payload } = action;
+  const { tabId } = payload;
   const tabs: Tab[] = yield select(fromDapps.getTabs);
 
   try {
@@ -32,7 +31,7 @@ const removeTab = function* (action: Action) {
     yield browserUtils.removeInStorage('tabs', tabId);
 
     store.dispatch(
-      fromDapps.removeTabCompletedAction({ tabId: tabId })
+      fromDapps.removeTabCompletedAction({ tabId })
     );
   } catch (e) {
     yield put(

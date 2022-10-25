@@ -10,7 +10,7 @@ import { dispatchInMain } from '/interProcess';
 const saveTabs = function* (action: Action) {
   const tabs: Tab[] = yield select(fromDapps.getTabs);
 
-  const tabsToSave: { [id: string]: Omit<Tab, "lastError" | "data"> } = {};
+  const tabsToSave: { [id: string]: Omit<Tab, 'lastError' | 'data'> } = {};
   tabs.forEach((t, i) => {
     tabsToSave[t.id] = {
       id: t.id,
@@ -49,5 +49,5 @@ export const saveTabsSaga = function* () {
   yield takeEvery(fromDapps.SET_TAB_MUTED, saveTabs);
   yield takeEvery(fromDapps.SET_TAB_FAVORITE, saveTabs);
   yield takeEvery(fromDapps.DID_CHANGE_FAVICON, saveTabs);
-  yield takeEvery(fromDapps.UPDATE_TAB_URL_AND_TITLE, saveTabs)
+  yield takeEvery(fromDapps.UPDATE_TAB_URL_AND_TITLE, saveTabs);
 };

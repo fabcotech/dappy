@@ -1,6 +1,6 @@
-import { BeesLoadCompleted, BeesLoadErrors, BeesLoadErrorWithArgs } from "@fabcotech/bees";
-import { Blockchain } from "./Blockchain";
-import { DappyLoadErrorWithArgs } from "./DappyLoadError";
+import { BeesLoadCompleted, BeesLoadErrors, BeesLoadErrorWithArgs } from '@fabcotech/bees';
+import { Blockchain } from './Blockchain';
+import { DappyLoadErrorWithArgs } from './DappyLoadError';
 
 export interface LastLoadError {
   url: string;

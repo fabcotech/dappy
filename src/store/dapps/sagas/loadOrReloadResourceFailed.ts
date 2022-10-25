@@ -7,7 +7,7 @@ import { Action } from '../..';
 import { dispatchInMain } from '/interProcess';
 
 const loadOrReloadResourceFailed = function* (action: Action) {
-  const payload: fromDapps.LoadResourceFailedPayload = action.payload;
+  const { payload } = action;
 
   const tabs: Tab[] = yield select(fromDapps.getTabs);
   const tab = tabs.find((t) => t.id === payload.tabId);

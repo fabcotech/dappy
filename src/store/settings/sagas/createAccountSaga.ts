@@ -7,8 +7,8 @@ import { Action } from '/store';
 import { Account } from '/models';
 
 const createAccount = function* (action: Action) {
-  const payload: fromSettings.CreateAccountPayload = action.payload;
-  let account = payload.account;
+  const { payload } = action;
+  let { account } = payload;
   const accounts: {
     [key: string]: Account;
   } = yield select(fromSettings.getAccounts);
@@ -31,7 +31,7 @@ const createAccount = function* (action: Action) {
     );
   }
 
-  yield put(fromSettings.createAccountCompletedAction({ account: account }));
+  yield put(fromSettings.createAccountCompletedAction({ account }));
 };
 
 export const createAccountSaga = function* () {

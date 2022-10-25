@@ -5,7 +5,7 @@ import { Action } from '/store/';
 import { DEVELOPMENT } from '/CONSTANTS';
 
 const saveError = function* (action: Action) {
-  const payload: fromMain.SaveErrorPayload = action.payload;
+  const { payload } = action;
 
   if (DEVELOPMENT) {
     throw payload.error;

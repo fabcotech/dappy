@@ -1,1 +1,1 @@
-export { ContractMetadata } from "./ContractMetadata";
+export { ContractMetadata } from './ContractMetadata';

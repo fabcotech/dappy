@@ -18,8 +18,8 @@ export const splitSearch = (address: string): SplitSearch => {
   }
 
   return {
-    chainId: chainId,
-    search: search,
-    path: path,
+    chainId,
+    search,
+    path,
   };
 };

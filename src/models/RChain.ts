@@ -14,7 +14,7 @@ export interface RChainInfo {
   wrappedRevContractId: string;
   rchainNetwork: string;
   rchainShardId: string;
-  namePrice: null | [String, Number] | [String, String];
+  namePrice: null | [string, number] | [string, string];
 }
 
 export interface DeployData {

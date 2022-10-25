@@ -4,7 +4,7 @@ export interface ValidationError {
     dataPath: string;
     message: string;
 }
-  
+
 export const validate = (jsonSchema: any) => (obj: object): ValidationError[] => {
     const ajv = new Ajv();
     const validator = ajv.compile(jsonSchema);
@@ -13,4 +13,4 @@ export const validate = (jsonSchema: any) => (obj: object): ValidationError[] =>
         return validator.errors as ValidationError[];
     }
     return [];
-}
+};

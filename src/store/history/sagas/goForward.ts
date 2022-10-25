@@ -8,7 +8,7 @@ import { Action } from '/store';
 import { Session } from '/models';
 
 const goForward = function* (action: Action) {
-  const payload: fromHistory.GoForwardPayload = action.payload;
+  const { payload } = action;
   const sessions: {
     [tabId: string]: Session;
   } = yield select(fromHistory.getSessions);
@@ -18,7 +18,7 @@ const goForward = function* (action: Action) {
     yield put(
       fromMain.saveErrorAction({
         errorCode: 2036,
-        error: 'Session not found tabId : ' + payload.tabId,
+        error: `Session not found tabId : ${payload.tabId}`,
       })
     );
     return;
@@ -28,7 +28,7 @@ const goForward = function* (action: Action) {
     yield put(
       fromMain.saveErrorAction({
         errorCode: 2037,
-        error: 'Session item not found tabId : ' + payload.tabId,
+        error: `Session item not found tabId : ${payload.tabId}`,
       })
     );
     return;

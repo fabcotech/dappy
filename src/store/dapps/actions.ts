@@ -61,7 +61,7 @@ export interface InitTransitoryStateAndResetLoadErrorPayload {
 }
 export const initTransitoryStateAndResetLoadErrorAction = (payload: InitTransitoryStateAndResetLoadErrorPayload) => ({
   type: INIT_TRANSITORY_STATE_AND_RESET_LOAD_ERROR,
-  payload: payload,
+  payload,
 });
 
 export interface LoadResourcePayload {
@@ -70,7 +70,7 @@ export interface LoadResourcePayload {
 }
 export const loadResourceAction = (payload: LoadResourcePayload) => ({
   type: LOAD_RESOURCE,
-  payload: payload,
+  payload,
 });
 
 export interface UpdateLoadStatePayload {
@@ -154,7 +154,7 @@ export interface RemoveTabPayload {
 }
 export const removeTabAction = (payload: RemoveTabPayload) => ({
   type: REMOVE_TAB,
-  payload: payload,
+  payload,
 });
 
 export interface DidChangeFaviconPayload {
@@ -171,7 +171,7 @@ export interface RemoveTabCompletedPayload {
 }
 export const removeTabCompletedAction = (payload: RemoveTabCompletedPayload) => ({
   type: REMOVE_TAB_COMPLETED,
-  payload: payload,
+  payload,
 });
 
 export interface SaveIdentificationPayload {

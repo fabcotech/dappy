@@ -1,12 +1,12 @@
 import { put, takeEvery } from 'redux-saga/effects';
 
 import * as fromCookies from '..';
-import * as fromMain from '../../main/';
-import { Action } from '../../';
+import * as fromMain from '../../main';
+import { Action } from '../..';
 import { browserUtils } from '../../browser-utils';
 
 const saveCookies = function* (action: Action) {
-  const payload: fromCookies.SaveCookiesForDomainPayload = action.payload;
+  const { payload } = action;
 
   if (!payload.cookies || payload.cookies.length === 0) {
     return;

@@ -10,18 +10,18 @@ const dappyNodeInfoSchema = {
   type: 'object',
   properties: {
     lastFinalizedBlockNumber: { type: 'number' },
-    dappyNodeVersion: { 'type': 'string' },
-    rnodeVersion: { 'type': 'string' },
-    dappyBrowserMinVersion: { 'type': 'string',  },
-    dappyBrowserDownloadLink: { 'type': 'string' },
-    rchainNamesMasterRegistryUri: { 'type': 'string' },
-    wrappedRevContractId: { 'type': 'string' },
-    rchainNamesContractId: { 'type': 'string' },
-    namePrice: { "anyOf": [{ type: "null" }, { type: "array", validate: validateRChainTokenPrice }] },
-    rchainNetwork: { 'type': 'string' },
-    rchainShardId: { 'type': 'string' },
+    dappyNodeVersion: { type: 'string' },
+    rnodeVersion: { type: 'string' },
+    dappyBrowserMinVersion: { type: 'string', },
+    dappyBrowserDownloadLink: { type: 'string' },
+    rchainNamesMasterRegistryUri: { type: 'string' },
+    wrappedRevContractId: { type: 'string' },
+    rchainNamesContractId: { type: 'string' },
+    namePrice: { anyOf: [{ type: 'null' }, { type: 'array', validate: validateRChainTokenPrice }] },
+    rchainNetwork: { type: 'string' },
+    rchainShardId: { type: 'string' },
   },
-  required: ['lastFinalizedBlockNumber', 'dappyNodeVersion', 'rnodeVersion',  'rchainNamesMasterRegistryUri', 'wrappedRevContractId', 'rchainNamesContractId', 'rchainNetwork'],
+  required: ['lastFinalizedBlockNumber', 'dappyNodeVersion', 'rnodeVersion', 'rchainNamesMasterRegistryUri', 'wrappedRevContractId', 'rchainNamesContractId', 'rchainNetwork'],
 };
 
 const validateDappyNodeInfoSchema = validate(dappyNodeInfoSchema);
@@ -31,11 +31,11 @@ const dappyNodeInfoFullSchema = {
   type: 'object',
   properties: {
     chainId: { type: 'string' },
-    date: { 'type': 'string' },
+    date: { type: 'string' },
     info: dappyNodeInfoSchema,
   },
-  required: ["chainId", 'date', 'info']
-}
+  required: ['chainId', 'date', 'info']
+};
 const validateDappyNodeInfoFullSchema = validate(dappyNodeInfoFullSchema);
 
 export const validateDappyNodeFullInfo = (dnfi: any) => {
@@ -49,7 +49,7 @@ export const validateDappyNodeFullInfo = (dnfi: any) => {
     if (ve.length === 0) {
       resolve(true);
     } else {
-      reject(ve)
+      reject(ve);
     }
   });
 };
@@ -64,7 +64,7 @@ export const validateDappyNodeInfo = (dni: any) => {
     if (ve.length === 0) {
       resolve(true);
     } else {
-      reject(ve)
+      reject(ve);
     }
   });
 };

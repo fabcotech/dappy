@@ -17,7 +17,7 @@ describe('decoders', () => {
       fee: ['foo', 1],
     };
 
-    var errors = validator(contractConfig);
+    const errors = validator(contractConfig);
     expect(errors).toEqual([]);
   });
   it('should validate Purses', () => {
@@ -41,7 +41,7 @@ describe('decoders', () => {
       },
     };
 
-    var errors = validator(purses);
+    const errors = validator(purses);
     expect(errors).toEqual([]);
   });
   it('shoud validate Ui', () => {

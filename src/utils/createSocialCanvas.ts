@@ -96,7 +96,7 @@ export const createSocialCanvas = (
       if (fungible) {
         context.fillText(`I own ${quantity} tokens`, 40, 155);
       } else {
-        context.fillText(`I own NFT`, 40, 155);
+        context.fillText('I own NFT', 40, 155);
         if (purseId.length > 14) {
           context.font = '600 55px fira';
           context.fillText(`"${purseId}"`, 380, 155);
@@ -109,7 +109,7 @@ export const createSocialCanvas = (
       context.fillText(`in contract "${contractId}"`, 40, 195);
 
       context.font = '600 30px fira';
-      context.fillText(`d:dappy | dappy.tech`, 685, 480);
+      context.fillText('d:dappy | dappy.tech', 685, 480);
       if (mascot === 'none') {
         resolve(canvas.toDataURL('image/png'));
       } else {

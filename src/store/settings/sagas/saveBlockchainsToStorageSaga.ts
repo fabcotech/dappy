@@ -10,12 +10,12 @@ import { Action } from '/store/';
 const saveBlockchainsToStorage = function* (action: Action) {
   let blockchains: { [chainId: string]: Blockchain } = yield select(fromSettings.getBlockchains);
 
-  let blockchain: undefined | Blockchain = undefined;
+  let blockchain: undefined | Blockchain;
   if (action.type === fromSettings.CREATE_BLOCKCHAIN) {
-    const payload: fromSettings.CreateBlockchainPayload = action.payload;
+    const { payload } = action;
     yield put(fromSettings.createBlockchainCompletedAction(payload));
   } else if (action.type === fromSettings.UPDATE_NODES) {
-    const payload: fromSettings.UpdateNodesPayload = action.payload;
+    const { payload } = action;
     blockchain = blockchains[payload.chainId];
     yield put(fromSettings.updateNodeUrlsCompletedAction(payload));
   }

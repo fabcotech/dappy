@@ -6,6 +6,7 @@ import xstream from 'xstream';
 import throttle from 'xstream/extra/throttle';
 import debounce from 'xstream/extra/debounce';
 
+import fromEvent from 'xstream/extra/fromEvent';
 import { sagas as fromMainSagas } from './main/sagas';
 import { sagas as fromUiSagas } from './ui/sagas';
 import { sagas as fromDappsSagas } from './dapps/sagas';
@@ -30,7 +31,6 @@ import {
   validateTabs,
   validateTransactionStates,
 } from './decoders';
-import fromEvent from 'xstream/extra/fromEvent';
 import {
   ACCESS_ACCOUNTS,
   ACCESS_SECURITY,
@@ -110,7 +110,7 @@ const errorCatcherMiddleware = () => (next: (a: Action) => void) => (action: Act
 };
 
 const sagaMiddleware = createSagaMiddleware();
-let middlewares = [errorCatcherMiddleware, sagaMiddleware];
+const middlewares = [errorCatcherMiddleware, sagaMiddleware];
 
 const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || ((a: any) => a);
 
@@ -287,7 +287,7 @@ dbReq.onsuccess = (event) => {
 
   // UI
   const uiTx = openedDB.transaction('ui', 'readonly');
-  var uiObjectStore = uiTx.objectStore('ui');
+  const uiObjectStore = uiTx.objectStore('ui');
 
   const requestUI = uiObjectStore.get(0);
   requestUI.onsuccess = (e) => {
@@ -350,10 +350,10 @@ dbReq.onsuccess = (event) => {
 
   // SETTINGS
   const settingsTx = openedDB.transaction('settings', 'readonly');
-  var settingsObjectStore = settingsTx.objectStore('settings');
+  const settingsObjectStore = settingsTx.objectStore('settings');
   const requestSettings = settingsObjectStore.get(0);
   requestSettings.onsuccess = (e) => {
-    let settings = requestSettings.result;
+    const settings = requestSettings.result;
     if (typeof settings === 'undefined') {
       console.warn('settings not found in storage, probably first launch');
       asyncActionsOver += 1;
@@ -387,7 +387,7 @@ dbReq.onsuccess = (event) => {
 
   // TABS
   const tabsTx = openedDB.transaction('tabs', 'readonly');
-  var tabsStore = tabsTx.objectStore('tabs');
+  const tabsStore = tabsTx.objectStore('tabs');
   const requestTabs = tabsStore.getAll();
   requestTabs.onsuccess = (e) => {
     let tabsToCheck = requestTabs.result;
@@ -406,7 +406,7 @@ dbReq.onsuccess = (event) => {
       .then((tabs) => {
         asyncActionsOver += 1;
         if (tabs.length) {
-          store.dispatch(fromDapps.updatTabsFromStorageAction({ tabs: tabs }));
+          store.dispatch(fromDapps.updatTabsFromStorageAction({ tabs }));
         }
         dispatchInitActions();
       })
@@ -443,10 +443,10 @@ dbReq.onsuccess = (event) => {
     });
   } else {
     const blockchainsTx = openedDB.transaction('networks', 'readonly');
-    var blockchainsStore = blockchainsTx.objectStore('networks');
+    const blockchainsStore = blockchainsTx.objectStore('networks');
     const requestBlockchains = blockchainsStore.getAll();
     requestBlockchains.onsuccess = (e) => {
-      let blockchainsToCheck = requestBlockchains.result;
+      const blockchainsToCheck = requestBlockchains.result;
       blockchainsToCheck.map((bc) => {
         if (!bc.hasOwnProperty('auto')) {
           bc.auto = true;
@@ -471,7 +471,7 @@ dbReq.onsuccess = (event) => {
                 {
                   platform: 'rchain',
                   auto: true,
-                  chainId: chainId,
+                  chainId,
                   chainName: chainId,
                   nodes: dappyNetworks[chainId as DappyNetworkId],
                 },
@@ -489,7 +489,7 @@ dbReq.onsuccess = (event) => {
               {
                 platform: 'rchain',
                 auto: true,
-                chainId: chainId,
+                chainId,
                 chainName: chainId,
                 nodes: dappyNetworks[chainId as DappyNetworkId],
               },
@@ -509,7 +509,7 @@ dbReq.onsuccess = (event) => {
 
   // TRANSACTIONS
   const transactionsTx = openedDB.transaction('transactions', 'readonly');
-  var transactionsStore = transactionsTx.objectStore('transactions');
+  const transactionsStore = transactionsTx.objectStore('transactions');
   const requestTransactions = transactionsStore.getAll();
   requestTransactions.onsuccess = (e) => {
     const transactionsToCheck = requestTransactions.result;
@@ -518,7 +518,7 @@ dbReq.onsuccess = (event) => {
         asyncActionsOver += 1;
         store.dispatch(
           fromBlockchain.updateTransactionsFromStorageAction({
-            transactions: transactions,
+            transactions,
           })
         );
         dispatchInitActions();
@@ -576,7 +576,7 @@ dbReq.onsuccess = (event) => {
 
   // RCHAIN INFOS
   const rchainInfosTx = openedDB.transaction('rchainInfos', 'readonly');
-  var rchainInfosStore = rchainInfosTx.objectStore('rchainInfos');
+  const rchainInfosStore = rchainInfosTx.objectStore('rchainInfos');
   const requestRChainInfos = rchainInfosStore.getAll();
   requestRChainInfos.onsuccess = (e) => {
     let rchainInfos = requestRChainInfos.result;
@@ -611,7 +611,7 @@ dbReq.onsuccess = (event) => {
       .then((valid) => {
         asyncActionsOver += 1;
         store.dispatch(
-          fromBlockchain.updateRChainBlockchainInfosFromStorageAction({ rchainInfos: rchainInfos })
+          fromBlockchain.updateRChainBlockchainInfosFromStorageAction({ rchainInfos })
         );
         dispatchInitActions();
       })

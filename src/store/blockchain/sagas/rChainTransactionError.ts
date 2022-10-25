@@ -6,7 +6,7 @@ import * as fromMain from '/store/main';
 import { Action } from '/store/';
 
 const rChainTransactionError = function* (action: Action) {
-  const payload: fromBlockchain.RChainTransactionErrorPayload = action.payload;
+  const { payload } = action;
   const modals: { [resourceId: string]: fromMain.Modal[] } = yield select(fromMain.getDappModals);
 
   if (payload.tabId) {
@@ -28,7 +28,7 @@ const rChainTransactionError = function* (action: Action) {
       fromMain.openDappModalAction({
         tabId: payload.id,
         title: 'Transaction failure',
-        text: 'Transaction has failed to be sent, error : ' + (payload.value ? payload.value.message : 'unknown'),
+        text: `Transaction has failed to be sent, error : ${payload.value ? payload.value.message : 'unknown'}`,
         buttons: [
           {
             classNames: 'is-link',
@@ -42,7 +42,7 @@ const rChainTransactionError = function* (action: Action) {
     yield put(
       fromMain.openModalAction({
         title: 'Transaction failure',
-        text: 'Transaction has failed to be sent, error : ' + (payload.value ? payload.value.message : 'unknown'),
+        text: `Transaction has failed to be sent, error : ${payload.value ? payload.value.message : 'unknown'}`,
         buttons: [
           {
             classNames: 'is-link',

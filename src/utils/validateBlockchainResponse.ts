@@ -42,6 +42,7 @@ const schema = {
 };
 
 ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
+
 const validate = ajv.compile(schema);
 
 export const validateBlockchainResponse = (

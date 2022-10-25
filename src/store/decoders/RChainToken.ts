@@ -6,29 +6,27 @@ const ajv = new Ajv();
 
 export const validateRChainTokenPrice = (data: any) => {
   if (data === null) {
-    return true
-  } else if (Array.isArray(data) && data.length === 2) {
+    return true;
+  } if (Array.isArray(data) && data.length === 2) {
     if (
-      typeof data[0] === "string" &&
-      typeof data[1] === "string" && 
+      typeof data[0] === 'string' &&
+      typeof data[1] === 'string' &&
       data[0].length > 1 &&
       data[1].length > 1
     ) {
       return true;
-    } else if (
-      typeof data[0] === "string" &&
-      typeof data[1] === "number" && 
+    } if (
+      typeof data[0] === 'string' &&
+      typeof data[1] === 'number' &&
       data[0].length > 1 &&
       !isNaN(data[1]) &&
       data[1] !== 0
     ) {
       return true;
-    } else {
-      return false;
     }
-  } else {
-    return false;
+      return false;
   }
+    return false;
 };
 
 const readBox1400 = {
@@ -58,7 +56,7 @@ const purses1400 = {
         boxId: { type: 'string' },
         quantity: { type: 'integer' },
         timestamp: { type: 'integer' },
-        price: { "anyOf": [{ type: "null" }, { type: "array", validate: validateRChainTokenPrice }] },
+        price: { anyOf: [{ type: 'null' }, { type: 'array', validate: validateRChainTokenPrice }] },
       },
       required: ['id', 'quantity', 'boxId', 'timestamp'],
     },
@@ -129,7 +127,7 @@ interface RChainTokenTypes {
 export const LATEST_PROTOCOL_VERSION = '17.0.6';
 
 export const rchainTokenValidators: Record<string, RChainTokenTypes> = {
-  ['17.0.6']: {
+  '17.0.6': {
     readBox: validate(readBox1400),
     purses: validate(purses1400),
     contractConfig: validate(contractConfig1400),

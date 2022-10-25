@@ -6,7 +6,7 @@ import * as fromDapps from '..';
 import * as fromSettings from '../../settings';
 import * as fromUi from '../../ui';
 import { Blockchain, Tab } from '../../../models';
-import { Action } from '../../';
+import { Action } from '../..';
 
 import { NamePacket } from '/models/FakeDappyLookup';
 import { MAIN_CHAIN_ID } from '/CONSTANTS';
@@ -14,7 +14,7 @@ import { DappyLoadError } from '/models/DappyLoadError';
 import { checkIfValidIP } from '/utils/checkIfValidIp';
 
 const loadResource = function* (action: Action) {
-  const payload: fromDapps.LoadResourcePayload = action.payload;
+  const { payload } = action;
   const namesBlockchain: undefined | Blockchain = yield select(fromSettings.getNamesBlockchain);
   let tabs: Tab[] = yield select(fromDapps.getTabs);
   const isNavigationInDapps: boolean = yield select(fromUi.getIsNavigationInDapps);
@@ -32,7 +32,7 @@ const loadResource = function* (action: Action) {
       console.log('did not find tab from payload', tabId);
       yield put(
         fromDapps.loadResourceFailedAction({
-          tabId: tabId,
+          tabId,
           url: payload.url,
           error: {
             error: DappyLoadError.UnknownCriticalError,
@@ -58,11 +58,11 @@ const loadResource = function* (action: Action) {
     (tab.favorite && tab.url !== payload.url)
   ) {
     tabId = window.crypto.getRandomValues(new Uint32Array(4)).join('-');
-    resourceId = payload.url + '_' + tabId;
+    resourceId = `${payload.url}_${tabId}`;
     yield put(
       fromDapps.createTabAction({
-        tabId: tabId,
-        resourceId: resourceId,
+        tabId,
+        resourceId,
         url: payload.url,
       })
     );
@@ -80,7 +80,7 @@ const loadResource = function* (action: Action) {
     if (url.protocol !== 'https:') {
       yield put(
         fromDapps.loadResourceFailedAction({
-          tabId: tabId,
+          tabId,
           url: payload.url,
           error: {
             error: DappyLoadError.UnsupportedAddress,
@@ -95,7 +95,7 @@ const loadResource = function* (action: Action) {
   } catch (err) {
     yield put(
       fromDapps.loadResourceFailedAction({
-        tabId: tabId,
+        tabId,
         url: payload.url,
         error: {
           error: DappyLoadError.UnsupportedAddress,
@@ -110,8 +110,8 @@ const loadResource = function* (action: Action) {
 
   yield put(
     fromDapps.focusAndActivateTabAction({
-      tabId: tabId,
-      resourceId: resourceId,
+      tabId,
+      resourceId,
       url: payload.url,
     })
   );
@@ -124,15 +124,15 @@ const loadResource = function* (action: Action) {
 
     yield put(
       fromDapps.initTransitoryStateAndResetLoadErrorAction({
-        tabId: tabId,
-        resourceId: resourceId,
+        tabId,
+        resourceId,
       })
     );
 
     if (!namesBlockchain) {
       yield put(
         fromDapps.loadResourceFailedAction({
-          tabId: tabId,
+          tabId,
           url: payload.url,
           error: {
             error: DappyLoadError.ChainNotFound,
@@ -143,7 +143,7 @@ const loadResource = function* (action: Action) {
       return;
     }
 
-    let txts: NamePacket | undefined = undefined;
+    let txts: NamePacket | undefined;
     try {
       txts = yield dappyLookup({
         method: 'lookup',
@@ -189,7 +189,7 @@ const loadResource = function* (action: Action) {
           title: url.hostname + url.pathname,
           url: url.toString(),
           data: {
-            publicKey: publicKey,
+            publicKey,
             isDappyNameSystem: true,
             chainId: namesBlockchain.chainId,
           },
@@ -206,8 +206,8 @@ const loadResource = function* (action: Action) {
   console.log(`DNS: host is ${url.hostname}`);
   yield put(
     fromDapps.initTransitoryStateAndResetLoadErrorAction({
-      tabId: tabId,
-      resourceId: resourceId,
+      tabId,
+      resourceId,
     })
   );
 

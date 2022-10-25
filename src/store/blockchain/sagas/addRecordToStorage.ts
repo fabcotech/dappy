@@ -6,7 +6,7 @@ import { browserUtils } from '/store/browser-utils';
 import { Action } from '/store';
 
 const addRecordToStorage = function* (action: Action) {
-  const payload: fromBlockchain.AddRecordPayload = action.payload;
+  const { payload } = action;
 
   try {
     yield browserUtils.saveStorageIndexed('records', { [payload.record.id]: payload.record });

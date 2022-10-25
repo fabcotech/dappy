@@ -5,7 +5,7 @@ import { Action } from '/store';
 import { dispatchInMain } from '/interProcess';
 
 const updateSettingsCompleted = function* (action: Action) {
-  let settings: fromSettings.Settings = yield select(fromSettings.getSettings);
+  const settings: fromSettings.Settings = yield select(fromSettings.getSettings);
 
   dispatchInMain({ type: '[MAIN] Sync settings', payload: settings });
 

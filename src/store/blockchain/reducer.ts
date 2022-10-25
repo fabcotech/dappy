@@ -49,7 +49,7 @@ export const initialState: State = {
 export const reducer = (state = initialState, action: any): State => {
   switch (action.type) {
     case fromActions.UPDATE_RCHAIN_BLOCKCHAIN_INFO_COMPLETED: {
-      const payload: fromActions.UpdateRChainBlockchainInfoCompletedPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -89,7 +89,7 @@ export const reducer = (state = initialState, action: any): State => {
     }
 
     case fromActions.UPDATE_RCHAIN_BLOCKCHAIN_INFO_FAILED: {
-      const payload: fromActions.UpdateRChainBlockchainInfoFailedPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -101,7 +101,7 @@ export const reducer = (state = initialState, action: any): State => {
     }
 
     case fromActions.UPDATE_RECORDS_FROM_STORAGE: {
-      const payload: fromActions.UpdateRecordsFromStoragePayload = action.payload;
+      const { payload } = action;
 
       const records: { [name: string]: Record } = {};
       payload.records.forEach((record) => {
@@ -112,13 +112,13 @@ export const reducer = (state = initialState, action: any): State => {
         ...state,
         records: {
           ...state.records,
-          records: records,
+          records,
         },
       };
     }
 
     case fromActions.GET_ALL_RECORDS_FAILED: {
-      const payload: LoadRecordsError = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -130,7 +130,7 @@ export const reducer = (state = initialState, action: any): State => {
     }
 
     case fromActions.GET_ONE_RECORD_COMPLETED: {
-      const payload: fromActions.GetOneRecordCompletedPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -145,7 +145,7 @@ export const reducer = (state = initialState, action: any): State => {
     }
 
     case fromActions.REMOVE_OLD_RECORDS_COMPLETED: {
-      const payload: fromActions.RemoveOldRecordsCompletedPayload = action.payload;
+      const { payload } = action;
 
       const newRecords: { [key: string]: Record } = {};
       Object.keys(state.records.records).forEach((k) => {
@@ -165,7 +165,7 @@ export const reducer = (state = initialState, action: any): State => {
     }
 
     case fromActions.ADD_RECORD: {
-      const payload: fromActions.AddRecordPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -180,7 +180,7 @@ export const reducer = (state = initialState, action: any): State => {
     }
 
     case fromActions.UPDATE_TRANSACTIONS_FROM_STORAGE: {
-      const payload: { transactions: TransactionState[] } = action.payload;
+      const { payload } = action;
 
       const newTransactions: { [id: string]: TransactionState } = {};
       payload.transactions.forEach((t) => {
@@ -195,7 +195,7 @@ export const reducer = (state = initialState, action: any): State => {
 
     case fromActions.ADD_RCHAIN_TRANSACTION:
     case fromActions.SEND_RCHAIN_TRANSACTION: {
-      const payload: fromActions.SendRChainTransactionPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -219,7 +219,7 @@ export const reducer = (state = initialState, action: any): State => {
     }
 
     case fromActions.SAVE_ETHEREUM_TRANSACTION: {
-      const payload: fromActions.saveEthereumTransactionStatePayload = action.payload;
+      const { payload } = action;
       return {
         ...state,
         transactions: {
@@ -240,7 +240,7 @@ export const reducer = (state = initialState, action: any): State => {
     }
 
     case fromActions.SAVE_FAILED_RCHAIN_TRANSACTION: {
-      const payload: fromActions.SaveFailedRChainTransactionPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -261,7 +261,7 @@ export const reducer = (state = initialState, action: any): State => {
     }
 
     case fromActions.UPDATE_RCHAIN_TRANSACTION_STATUS: {
-      const payload: fromActions.UpdateRChainTransactionStatusPayload = action.payload;
+      const { payload } = action;
 
       let newTransaction: TransactionState = {
         ...state.transactions[payload.id],
@@ -291,7 +291,7 @@ export const reducer = (state = initialState, action: any): State => {
     }
 
     case fromActions.UPDATE_RCHAIN_TRANSACTION_VALUE: {
-      const payload: fromActions.UpdateRChainTransactionValuePayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -306,7 +306,7 @@ export const reducer = (state = initialState, action: any): State => {
     }
 
     case fromSettings.REMOVE_BLOCKCHAIN: {
-      const payload: fromSettings.RemoveBlockchainPayload = action.payload;
+      const { payload } = action;
 
       const newRChainInfos = { ...state.rchain.infos };
       delete newRChainInfos[payload.chainId];
@@ -367,9 +367,8 @@ export const getNamesBlockchainInfos = createSelector(
   (namesBlockchain, rchainInfos) => {
     if (namesBlockchain && rchainInfos[namesBlockchain.chainId]) {
       return rchainInfos[namesBlockchain.chainId];
-    } else {
-      return undefined;
     }
+      return undefined;
   }
 );
 

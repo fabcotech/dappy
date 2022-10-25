@@ -5,7 +5,7 @@ export const upgrades = {
         `[DB upgrade](from <0.2.8 to 0.2.8+) rchainInfos.info.rchainNetwork and .namePrice for blockchain ${ri.chainId} is absent, will set it to "unknown" and 1500000000`
       );
 
-      let newInfo = {
+      const newInfo = {
         ...ri.info,
         rchainNetwork: 'unknown',
         namePrice: 1500000000,
@@ -28,9 +28,9 @@ export const upgrades = {
   },
   '0.2.9': {
     ui: (db: any, ui: any) => {
-      console.warn(`[DB upgrade](from <0.2.9 to 0.2.9+) ui.language is absent, will set it to "en"`);
+      console.warn('[DB upgrade](from <0.2.9 to 0.2.9+) ui.language is absent, will set it to "en"');
 
-      let newUi = {
+      const newUi = {
         ...ui,
         language: 'en',
       };
@@ -39,11 +39,11 @@ export const upgrades = {
       const tx = db.transaction('ui', 'readwrite');
       const objectStore = tx.objectStore('ui');
       objectStore.put(newUi, 0);
-      console.warn(`[DB upgrade] ui updated in DB`);
+      console.warn('[DB upgrade] ui updated in DB');
       return newUi;
     },
     tabs: (db: any, tabs: any) => {
-      console.warn(`[DB upgrade](from <0.2.9 to 0.2.9+) tabs[n].muted is absent, will set it to false`);
+      console.warn('[DB upgrade](from <0.2.9 to 0.2.9+) tabs[n].muted is absent, will set it to false');
 
       const newTabs = tabs.map((t: any) => {
         return {
@@ -57,7 +57,7 @@ export const upgrades = {
       newTabs.forEach((t: any) => {
         objectStore.put(t);
       });
-      console.warn(`[DB upgrade] tabs updated in DB`);
+      console.warn('[DB upgrade] tabs updated in DB');
       return newTabs;
     },
   },

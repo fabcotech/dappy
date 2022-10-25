@@ -12,7 +12,7 @@ import { singleRequest, multiRequest } from '/interProcess';
 import { getNodeIndex } from '/utils/getNodeIndex';
 
 const sendRChainTransaction = function* (action: Action) {
-  const payload: fromBlockchain.SendRChainTransactionPayload = action.payload;
+  const { payload } = action;
   const rchainBlockchains: {
     [chainId: string]: Blockchain;
   } = yield select(fromSettings.getOkBlockchains);

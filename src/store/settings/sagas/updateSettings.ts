@@ -4,13 +4,13 @@ import { browserUtils } from '/store/browser-utils';
 import * as fromSettings from '..';
 import { Action } from '/store';
 
-const updateSettings = function*(action: Action) {
+const updateSettings = function* (action: Action) {
   let settings: fromSettings.Settings = yield select(fromSettings.getSettings);
   if (action.type === fromSettings.UPDATE_DEV_MODE) {
-    const payload: fromSettings.UpdateDevModePayload = action.payload;
+    const { payload } = action;
     settings.devMode = payload.flag;
   } else if (action.type === fromSettings.UPDATE_RESOLVER_SETTINGS) {
-    const payload: fromSettings.Settings = action.payload;
+    const { payload } = action;
     settings = {
       ...settings,
       ...payload,
@@ -32,7 +32,7 @@ const updateSettings = function*(action: Action) {
   yield put(fromSettings.updateSettingsCompletedAction(settings));
 };
 
-export const updateSettingsSaga = function*() {
+export const updateSettingsSaga = function* () {
   yield takeEvery(fromSettings.UPDATE_RESOLVER_SETTINGS, updateSettings);
   yield takeEvery(fromSettings.UPDATE_DEV_MODE, updateSettings);
 };

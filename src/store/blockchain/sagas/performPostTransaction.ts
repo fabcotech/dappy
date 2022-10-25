@@ -9,7 +9,7 @@ import { Action, store } from '/store/';
 import { searchToAddress } from '/utils/searchToAddress';
 
 const performPostTransaction = function* (action: Action) {
-  const payload: fromBlockchain.UpdateRChainTransactionStatusPayload = action.payload;
+  const { payload } = action;
   if (payload.status !== TransactionStatus.Completed) {
     return true;
   }

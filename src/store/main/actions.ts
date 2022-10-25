@@ -71,7 +71,7 @@ export interface DispatchWhenInitializationOverPayload {
 }
 export const dispatchWhenInitializationOverAction = (payload: DispatchWhenInitializationOverPayload) => ({
   type: DISPATCH_WHEN_INITIALIZATION_OVER,
-  payload: payload,
+  payload,
 });
 
 export interface UpdateLoasResourceWhenReadyPayload {

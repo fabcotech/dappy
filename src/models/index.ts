@@ -10,7 +10,7 @@ export * from './Account';
 export * from './Nodes';
 export * from './MultiCall';
 export * from './Dappy';
-export * from './History'
+export * from './History';
 export * from './Language';
 export * from './Cookie';
 export * from './RChainToken';

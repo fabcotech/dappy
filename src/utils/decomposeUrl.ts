@@ -18,13 +18,12 @@ export const decomposeUrl = (
     const withoutProtocol = protocolArray.slice(1).join('//');
     const pathArray = withoutProtocol.split('/');
     const host = pathArray.slice(0, 1)[0];
-    const path = '/' + pathArray.slice(1).join('/');
+    const path = `/${pathArray.slice(1).join('/')}`;
     return {
       protocol,
       host,
       path,
     };
-  } else {
-    throw new Error('Invalid url');
   }
+    throw new Error('Invalid url');
 };

@@ -42,6 +42,7 @@ const schema = {
 };
 
 ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
+
 const validate = ajv.compile(schema);
 
 const ec = new elliptic.ec('secp256k1');
@@ -60,9 +61,9 @@ export const blockchain = {
     const toSign = new Uint8Array(
       Buffer.from(
         JSON.stringify({
-          mimeType: mimeType,
-          name: name,
-          data: data,
+          mimeType,
+          name,
+          data,
         })
       )
     );
@@ -71,7 +72,7 @@ export const blockchain = {
     const signature = keyPair.sign(blake2Hash64);
     const signatureHex = Buffer.from(signature.toDER()).toString('hex');
     const pub: any = keyPair.getPublic().encode('hex', false);
-    if (!ec.verify(blake2Hash64, signature, pub , 'hex')) {
+    if (!ec.verify(blake2Hash64, signature, pub, 'hex')) {
       throw new Error('dpy signature verification failed');
     }
 
@@ -79,21 +80,21 @@ export const blockchain = {
   },
   createDpy: (data: string, mimeType: string, name: string, signature: string): string => {
     return JSON.stringify({
-      mimeType: mimeType,
-      name: name,
-      data: data,
-      signature: signature,
+      mimeType,
+      name,
+      data,
+      signature,
     });
   },
   getHtmlFromFile: (dappyFile: DappyFile): any => {
     return atob(dappyFile.data);
   },
   shuffle: (array: any[]) => {
-    let currentIndex = array.length,
-      temporaryValue,
-      randomIndex;
+    let currentIndex = array.length;
+      let temporaryValue;
+      let randomIndex;
 
-    while (0 !== currentIndex) {
+    while (currentIndex !== 0) {
       randomIndex = Math.floor(Math.random() * currentIndex);
       currentIndex -= 1;
 

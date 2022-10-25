@@ -79,7 +79,7 @@ export const getContractConfig = async ({
     ],
     getExploreDeployXOptions(blockchain.chainId, blockchain.nodes.map(getNodeIndex))
   ) as Promise<[RequestResult<RChainContractConfig>]>;
-}
+};
 
 const parseRhoValToJs = (r: { data: string }) => {
   const data = JSON.parse(r.data);

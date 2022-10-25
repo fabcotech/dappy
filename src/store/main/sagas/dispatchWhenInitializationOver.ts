@@ -1,6 +1,6 @@
 import { select, take, all } from 'redux-saga/effects';
 
-import * as fromMain from '../';
+import * as fromMain from '..';
 import { store } from '/store';
 
 export const dispatchWhenInitializationOverSaga = function* () {

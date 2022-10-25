@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 
-import { Action } from '../';
+import { Action } from '..';
 import * as fromActions from './actions';
 import { Cookie } from '../../models';
 
@@ -17,9 +17,9 @@ export const initialState: State = {
 export const reducer = (state = initialState, action: Action): State => {
   switch (action.type) {
     case fromActions.UPDATE_COOKIES_FROM_STORAGE: {
-      const payload: fromActions.UpdateCookiesFromStoragePayload = action.payload;
+      const { payload } = action;
 
-      let newCookies: { [address: string]: Cookie[] } = {};
+      const newCookies: { [address: string]: Cookie[] } = {};
       payload.cookiesFromStorage.forEach((c) => {
         newCookies[c.host] = c.cookies;
       });
@@ -30,7 +30,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.SAVE_COOKIES_FOR_DOMAIN_COMPLETED: {
-      const payload: fromActions.SaveCookiesForDomainPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,

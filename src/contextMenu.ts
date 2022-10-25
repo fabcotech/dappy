@@ -47,8 +47,8 @@ export const contextMenu = (document: any) => {
     div.style.width = '160px';
     div.style.color = '#fff';
     div.style.backgroundColor = 'rgba(04, 04, 04, 0.8)';
-    div.style.top = e.clientY - 5 + 'px';
-    div.style.left = e.clientX - 5 + 'px';
+    div.style.top = `${e.clientY - 5}px`;
+    div.style.left = `${e.clientX - 5}px`;
     div.style.position = 'absolute';
     div.style.zIndex = 10;
     div.style.fontSize = '16px';

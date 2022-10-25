@@ -7,7 +7,7 @@ import { Action, db, store } from '/store/';
 import { Record } from '/models';
 
 const removeOldRecords = function* (action: Action) {
-  const payload: fromBlockchain.RemoveOldRecordsPayload = action.payload;
+  const { payload } = action;
   const state = store.getState();
 
   const records: { [name: string]: Record } = yield fromBlockchain.getRecords(state);

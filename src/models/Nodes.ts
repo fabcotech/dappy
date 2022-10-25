@@ -8,4 +8,3 @@ export interface NodeFromNetwork {
   contact: string;
   cert: string;
 }
-

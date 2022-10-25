@@ -5,11 +5,9 @@ import { Action } from '../..';
 import { dispatchInMain } from '/interProcess';
 
 const transferIdentification = function* (action: Action) {
-  const payload: fromDapps.SaveIdentificationPayload = action.payload;
+  const { payload } = action;
 
-  dispatchInMain({ type: '[MAIN] Transfer identification', payload: payload });
-
-  return;
+  dispatchInMain({ type: '[MAIN] Transfer identification', payload });
 };
 
 export const transferIdentificationSaga = function* () {

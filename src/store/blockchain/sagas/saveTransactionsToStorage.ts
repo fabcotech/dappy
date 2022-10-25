@@ -7,8 +7,7 @@ import { Action, store } from '/store/';
 import { TransactionState } from '/models';
 
 const saveTransactionsToStorage = function* (action: Action) {
-  const payload: fromBlockchain.SaveFailedRChainTransactionPayload | fromBlockchain.SendRChainTransactionPayload =
-    action.payload;
+  const { payload } = action;
 
   const transactions: {
     [transactionId: string]: TransactionState;

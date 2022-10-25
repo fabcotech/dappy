@@ -1,4 +1,3 @@
-
 export enum RecordType {
   A = 'A',
   AAAA = 'AAAA',
@@ -26,14 +25,13 @@ export type RRTXT = ResourceRecord & {
   value: string;
 };
 
-
-export const isRRAAAA = (data: any): data is RRAAAA => false
+export const isRRAAAA = (data: any): data is RRAAAA => false;
 
 export type RRCERT = ResourceRecord & {
   cert: string;
 };
 
-export const isRRCERT = (data: any): data is RRCERT => false
+export const isRRCERT = (data: any): data is RRCERT => false;
 
 export type RR = RRA | RRAAAA | RRCERT | RRTXT;
 
@@ -42,14 +40,6 @@ export type RRAAAAData = string;
 export type RRCERTData = string;
 
 export type RRData = RRAData | RRAAAAData | RRCERTData;
-
-
-
-
-
-
-
-
 
 // NamePacket.ts
 

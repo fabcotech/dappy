@@ -3,7 +3,7 @@ import { createSelector } from 'reselect';
 import * as fromDapps from '../dapps';
 import * as fromUi from '../ui';
 import * as fromActions from './actions';
-import { Action } from '../';
+import { Action } from '..';
 import { VERSION } from '/CONSTANTS';
 
 export interface ModalButton {
@@ -64,7 +64,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.OPEN_MODAL: {
-      const payload: fromActions.OpenModalPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -80,7 +80,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.OPEN_DAPP_MODAL: {
-      const payload: fromActions.OpenDappModalPayload = action.payload;
+      const { payload } = action;
 
       let dappModalsState: Modal[] = state.dappModals[payload.tabId];
       if (!dappModalsState) {
@@ -113,7 +113,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.CLOSE_DAPP_MODAL: {
-      const payload: fromActions.CloseDappModalPayload = action.payload;
+      const { payload } = action;
 
       const dappModalsState: Modal[] = state.dappModals[payload.tabId];
 
@@ -127,9 +127,9 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.CLOSE_ALL_DAPP_MODALS: {
-      const payload: fromActions.CloseDappModalPayload = action.payload;
+      const { payload } = action;
 
-      let newDappModals = state.dappModals;
+      const newDappModals = state.dappModals;
       delete newDappModals[payload.tabId];
 
       return {
@@ -139,7 +139,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromDapps.STOP_TAB: {
-      const payload: fromDapps.StopTabPayload = action.payload;
+      const { payload } = action;
 
       // ugly, I know, should we include dappId in the payload ?
       const dappModalsToRemove = Object.keys(state.dappModals).filter((tabId) => tabId.includes(payload.tabId));
@@ -163,7 +163,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.DISPATCH_WHEN_INITIALIZATION_OVER: {
-      const payload: fromActions.DispatchWhenInitializationOverPayload = action.payload;
+      const { payload } = action;
       return {
         ...state,
         dispatchWhenInitializationOver: state.dispatchWhenInitializationOver.concat(payload.payload),
@@ -171,7 +171,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.UPDATE_LOAD_RESOURCE_WHEN_READY: {
-      const payload: fromActions.UpdateLoasResourceWhenReadyPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -213,7 +213,7 @@ export const getShouldBrowserViewsBeDisplayed = createSelector(
   (isNavigationInDapps, navigationSuggestionsDisplayed, dappModals, modal, tabsFocusOrder, tabs) => {
     // return undefined : no browser views displayed
     // return resourceId: string : the browser view corresponding to this resourceId should be displayed
-    if (!!modal) {
+    if (modal) {
       return undefined;
     }
     if (!navigationSuggestionsDisplayed && isNavigationInDapps && tabsFocusOrder.length > 0) {
@@ -224,8 +224,7 @@ export const getShouldBrowserViewsBeDisplayed = createSelector(
       }
 
       return undefined;
-    } else {
-      return undefined;
     }
+      return undefined;
   }
 );

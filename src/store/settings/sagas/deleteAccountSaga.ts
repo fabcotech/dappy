@@ -5,8 +5,8 @@ import * as fromSettings from '..';
 import * as fromMain from '/store/main';
 import { Action } from '/store';
 
-const deleteAccount = function*(action: Action) {
-  const payload: fromSettings.CreateAccountPayload = action.payload;
+const deleteAccount = function* (action: Action) {
+  const { payload } = action;
 
   try {
     yield browserUtils.removeInStorage('accounts', payload.account.name);
@@ -23,6 +23,6 @@ const deleteAccount = function*(action: Action) {
   yield put(fromSettings.deleteAccountCompletedAction(payload));
 };
 
-export const deleteAccountSaga = function*() {
+export const deleteAccountSaga = function* () {
   yield takeEvery(fromSettings.DELETE_ACCOUNT, deleteAccount);
 };

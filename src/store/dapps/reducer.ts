@@ -3,7 +3,7 @@ import { BeesLoadErrors, BeesLoadCompleted } from '@fabcotech/bees';
 
 import { TransitoryState, Tab, LastLoadError, Identification } from '/models';
 import * as fromActions from './actions';
-import { Action } from '../';
+import { Action } from '..';
 
 export interface State {
   search: string;
@@ -62,21 +62,21 @@ export const reducer = (state = initialState, action: Action): State => {
 
       return {
         ...state,
-        search: search,
+        search,
       };
     }
 
     case fromActions.CLEAR_SEARCH_AND_LOAD_ERROR: {
-      const payload: fromActions.ClearSearchAndLoadErrorPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
-        tabs: state.tabs.map(t => {
+        tabs: state.tabs.map((t) => {
           if (t.id === payload.tabId) {
             return {
               ...t,
               lastError: undefined
-            }
+            };
           }
           return t;
         }),
@@ -85,7 +85,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.INIT_TRANSITORY_STATE_AND_RESET_LOAD_ERROR: {
-      const payload: fromActions.InitTransitoryStateAndResetLoadErrorPayload = action.payload;
+      const { payload } = action;
 
       let newLastLoadErrors = state.lastLoadErrors;
       if (payload.tabId) {
@@ -103,7 +103,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.UPDATE_LOAD_STATE: {
-      const payload: fromActions.UpdateLoadStatePayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -115,7 +115,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.LOAD_RESOURCE_FAILED: {
-      const payload: fromActions.LoadResourceFailedPayload = action.payload;
+      const { payload } = action;
 
       const tab = state.tabs.find((t) => t.id === payload.tabId);
       // tab has been closed
@@ -135,12 +135,12 @@ export const reducer = (state = initialState, action: Action): State => {
 
       return {
         ...state,
-        tabs: state.tabs.map(t => {
+        tabs: state.tabs.map((t) => {
           if (t.id === payload.tabId) {
             return {
               ...t,
               lastError: { url: payload.url, error: payload.error }
-            }
+            };
           }
           return t;
         }),
@@ -154,12 +154,12 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.FOCUS_TAB: {
-      const payload: fromActions.FocusTabPayload = action.payload;
+      const { payload } = action;
       if (!state.tabs.find((d) => d.id === payload.tabId)) {
         return state;
       }
 
-      let newDappsFocusOrder = state.tabsFocusOrder.filter((id) => id !== payload.tabId).concat(payload.tabId);
+      const newDappsFocusOrder = state.tabsFocusOrder.filter((id) => id !== payload.tabId).concat(payload.tabId);
 
       return {
         ...state,
@@ -169,9 +169,9 @@ export const reducer = (state = initialState, action: Action): State => {
 
     case fromActions.FOCUS_AND_ACTIVATE_TAB: {
       const payload = action.payload as fromActions.FocusAndActivateTabPayload;
-      let tab = state.tabs.find((d) => d.id === payload.tabId);
+      const tab = state.tabs.find((d) => d.id === payload.tabId);
       if (!tab) {
-        console.error('tab ' + payload.tabId + ' should exist');
+        console.error(`tab ${payload.tabId} should exist`);
         return state;
       }
 
@@ -206,9 +206,8 @@ export const reducer = (state = initialState, action: Action): State => {
               ...tab,
               url: payload.url,
             };
-          } else {
-            return tab;
           }
+            return tab;
         }),
       };
     }
@@ -244,7 +243,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.DID_CHANGE_FAVICON: {
-      const payload: fromActions.DidChangeFaviconPayload = action.payload;
+      const { payload } = action;
        return {
         ...state,
         tabs: state.tabs.map((tab, i) => {
@@ -253,9 +252,8 @@ export const reducer = (state = initialState, action: Action): State => {
               ...tab,
               img: payload.img,
             };
-          } else {
-            return tab;
           }
+            return tab;
         }),
       };
     }
@@ -277,7 +275,7 @@ export const reducer = (state = initialState, action: Action): State => {
 
       const tab = state.tabs.find((t) => t.id === payload.tabId);
       if (!tab) {
-        console.error('tab ' + payload.tabId + ' should exist');
+        console.error(`tab ${payload.tabId} should exist`);
         return state;
       }
 
@@ -287,9 +285,8 @@ export const reducer = (state = initialState, action: Action): State => {
             ...t,
             active: false,
           };
-        } else {
-          return t;
         }
+          return t;
       });
 
       const newTransitoryStates = { ...state.transitoryStates };
@@ -306,7 +303,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.REMOVE_TAB_COMPLETED: {
-      const payload: fromActions.RemoveTabCompletedPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -322,7 +319,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.SAVE_IDENTIFICATION: {
-      const payload: fromActions.SaveIdentificationPayload = action.payload;
+      const { payload } = action;
 
       let dappIdentifications = state.identifications[payload.tabId];
       if (!dappIdentifications) {
@@ -342,7 +339,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.LAUNCH_TAB_COMPLETED: {
-      const payload: fromActions.LaunchTabCompletedPayload = action.payload;
+      const { payload } = action;
 
       const newLastLoadErrors = { ...state.lastLoadErrors };
       delete newLastLoadErrors[payload.tab.id];
@@ -354,18 +351,17 @@ export const reducer = (state = initialState, action: Action): State => {
             return {
               ...payload.tab,
               counter: payload.tab.counter + 1
-            }
+            };
             return payload.tab;
-          } else {
-            return tab;
           }
+            return tab;
         }),
       };
     }
 
     case fromActions.UPDATE_TRANSITORY_STATE: {
-      const payload: fromActions.UpdateTransitoryStatePayload = action.payload;
-    
+      const { payload } = action;
+
       if (!state.transitoryStates[payload.tabId]) {
         if (payload.transitoryState) {
           return {
@@ -375,9 +371,8 @@ export const reducer = (state = initialState, action: Action): State => {
               [payload.tabId]: payload.transitoryState,
             },
           };
-        } else {
-          return state;
         }
+          return state;
       }
 
       let newTransitoryStates = state.transitoryStates;
@@ -392,12 +387,12 @@ export const reducer = (state = initialState, action: Action): State => {
       return {
         ...state,
         transitoryStates: newTransitoryStates,
-        tabs: state.tabs.map(t => {
+        tabs: state.tabs.map((t) => {
           if (t.id === payload.tabId) {
             return {
               ...t,
               lastError: undefined
-            }
+            };
           }
           return t;
         }),
@@ -405,7 +400,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.SET_TAB_FAVORITE: {
-      const payload: fromActions.SetTabFavoritePayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -415,15 +410,14 @@ export const reducer = (state = initialState, action: Action): State => {
               ...tab,
               favorite: payload.favorite,
             };
-          } else {
-            return tab;
           }
+            return tab;
         }),
       };
     }
 
     case fromActions.SET_TAB_MUTED: {
-      const payload: fromActions.SetTabMutedPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -433,15 +427,14 @@ export const reducer = (state = initialState, action: Action): State => {
               ...tab,
               muted: payload.muted,
             };
-          } else {
-            return tab;
           }
+            return tab;
         }),
       };
     }
 
     case fromActions.UPDATE_TAB_URL_AND_TITLE: {
-      const payload: fromActions.UpdateTabUrlAndTitlePayload = action.payload;
+      const { payload } = action;
       return {
         ...state,
         tabs: state.tabs.map((tab: Tab) => {
@@ -451,9 +444,8 @@ export const reducer = (state = initialState, action: Action): State => {
               title: payload.title,
               url: payload.url,
             };
-          } else {
-            return tab;
           }
+            return tab;
         }),
       };
     }
@@ -506,7 +498,7 @@ export const getSearchTransitoryState = createSelector(
 export const getSearchLoadStates = createSelector(getSearch, getLoadStates, (search, loadStates):
   | undefined
   | { completed: BeesLoadCompleted; errors: BeesLoadErrors; pending: string[] } =>
-  search ? loadStates[search] : undefined
+  (search ? loadStates[search] : undefined)
 );
 
 export const getActiveTabs = createSelector(getTabs, (tabs) => {

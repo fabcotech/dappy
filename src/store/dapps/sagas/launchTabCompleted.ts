@@ -6,7 +6,7 @@ import { Action } from '../..';
 import { dispatchInMain } from '/interProcess';
 
 const launchTabCompleted = function* (action: Action) {
-  const payload: fromDapps.LaunchTabCompletedPayload = action.payload;
+  const { payload } = action;
   const tabs: Tab[] = yield select(fromDapps.getTabs);
 
   const tab: Tab = tabs.find((t) => t.id === payload.tab.id) as Tab;
@@ -15,7 +15,7 @@ const launchTabCompleted = function* (action: Action) {
   dispatchInMain({
     type: '[MAIN] Load or reload browser view',
     payload: {
-      tab: tab,
+      tab,
     },
   });
 };

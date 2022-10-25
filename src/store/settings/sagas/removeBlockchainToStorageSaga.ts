@@ -5,13 +5,13 @@ import * as fromSettings from '..';
 import * as fromMain from '/store/main';
 import { Action } from '/store/';
 
-const removeBlockchainsToStorage = function*(action: Action) {
-  const payload: fromSettings.RemoveBlockchainPayload = action.payload;
+const removeBlockchainsToStorage = function* (action: Action) {
+  const { payload } = action;
 
   try {
     yield browserUtils.removeInStorage('networks', payload.chainId);
   } catch (e) {
-    console.log(e)
+    console.log(e);
     yield put(
       fromMain.saveErrorAction({
         errorCode: 2032,
@@ -24,6 +24,6 @@ const removeBlockchainsToStorage = function*(action: Action) {
   yield put(fromSettings.removeBlockchainCompletedAction(payload));
 };
 
-export const removeBlockchainsToStorageSaga = function*() {
+export const removeBlockchainsToStorageSaga = function* () {
   yield takeEvery(fromSettings.REMOVE_BLOCKCHAIN, removeBlockchainsToStorage);
 };

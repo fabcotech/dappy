@@ -64,7 +64,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.UPDATE_NODES_COMPLETED: {
-      const payload: fromActions.UpdateNodesPayload = action.payload;
+      const { payload } = action;
 
       if (!state.blockchains[payload.chainId]) {
         return state;
@@ -83,7 +83,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.CREATE_BLOCKCHAIN_COMPLETED: {
-      const payload: fromActions.CreateBlockchainPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -95,7 +95,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.REMOVE_BLOCKCHAIN_COMPLETED: {
-      const payload: fromActions.RemoveBlockchainPayload = action.payload;
+      const { payload } = action;
       const newBlockchains = { ...state.blockchains };
       delete newBlockchains[payload.chainId];
 
@@ -106,7 +106,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.UPDATE_ACCOUNTS_FROM_STORAGE: {
-      const payload: fromActions.UpdateAccountsFromStoragePayload = action.payload;
+      const { payload } = action;
 
       const accounts: { [id: string]: Account } = {};
       payload.accounts.forEach((a) => {
@@ -119,7 +119,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.CREATE_ACCOUNT_COMPLETED: {
-      const payload: fromActions.CreateAccountPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -131,9 +131,9 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.DELETE_ACCOUNT_COMPLETED: {
-      const payload: fromActions.CreateAccountPayload = action.payload;
+      const { payload } = action;
 
-      let newAccounts = { ...state.accounts };
+      const newAccounts = { ...state.accounts };
       delete newAccounts[payload.account.name];
 
       return {
@@ -166,7 +166,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.UPDATE_ACCOUNTS_COMPLETED: {
-      const payload: fromActions.UpdateAccountsCompletedPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -179,7 +179,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.UPDATE_ACCOUNTS_BALANCE_FAILED: {
-      const payload: fromActions.UpdateAccountBalanceFailedPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,
@@ -188,7 +188,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.EXECUTE_ACCOUNTS_CRON_JOBS: {
-      const payload: fromActions.UpdateAccountsCompletedPayload = action.payload;
+      const { payload } = action;
 
       return {
         ...state,

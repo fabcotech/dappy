@@ -9,7 +9,7 @@ import * as fromDapps from '/store/dapps';
 import { Action } from '/store';
 
 const goBackward = function* (action: Action) {
-  const payload: fromHistory.GoBackwardPayload = action.payload;
+  const { payload } = action;
   const sessions: {
     [tabId: string]: Session;
   } = yield select(fromHistory.getSessions);
@@ -20,7 +20,7 @@ const goBackward = function* (action: Action) {
     yield put(
       fromMain.saveErrorAction({
         errorCode: 2038,
-        error: 'Session not found tabId : ' + payload.tabId,
+        error: `Session not found tabId : ${payload.tabId}`,
       })
     );
     return;
@@ -30,7 +30,7 @@ const goBackward = function* (action: Action) {
     yield put(
       fromMain.saveErrorAction({
         errorCode: 2039,
-        error: 'Session item not found tabId : ' + payload.tabId,
+        error: `Session item not found tabId : ${payload.tabId}`,
       })
     );
     return;
@@ -40,7 +40,7 @@ const goBackward = function* (action: Action) {
     yield put(
       fromMain.saveErrorAction({
         errorCode: 2039,
-        error: 'Session item not found tabId : ' + payload.tabId,
+        error: `Session item not found tabId : ${payload.tabId}`,
       })
     );
     return;
@@ -67,7 +67,7 @@ const goBackward = function* (action: Action) {
     Do not change cursor position if it is a "fake"
     backward because no active resource
   */
-  if (!!activeTab) {
+  if (activeTab) {
     yield put(fromHistory.goBackwardCompletedAction({ tabId: payload.tabId }));
   }
 };
