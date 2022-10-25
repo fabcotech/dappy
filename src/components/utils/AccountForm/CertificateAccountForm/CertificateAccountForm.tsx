@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ErrorMessage, Field, Formik } from 'formik';
 import { Account, CertificateAccount } from '/models';
 
@@ -6,9 +6,11 @@ function useGetCertificate() {
   const [key, setKey] = useState<string>('');
   const [cert, setCert] = useState<string>('');
 
-  window.generateCertificateAndKey([]).then(({ key: pKey, certificate }) => {
-    setKey(pKey);
-    setCert(certificate);
+  useEffect(() => {
+    window.generateCertificateAndKey([]).then(({ key: pKey, certificate }) => {
+      setKey(pKey);
+      setCert(certificate);
+    });
   });
 
   return [key, cert];
@@ -46,6 +48,14 @@ export function CertificateAccountForm({ fillAccount }: CertificateAccountFormPr
           errors.name = 'required';
         }
 
+        if (!key) {
+          errors.key = 'required';
+        }
+
+        if (!certificate) {
+          errors.certificate = 'required';
+        }
+
         if (containsNoError(values, errors)) {
           fillAccount({
             platform: 'certificate',
@@ -68,6 +78,8 @@ export function CertificateAccountForm({ fillAccount }: CertificateAccountFormPr
           </div>
         </div>
         <ErrorMessage name="name" render={(msg) => <p className="text-danger">{msg}</p>} />
+        <ErrorMessage name="certificate" render={(msg) => <p className="text-danger">{msg}</p>} />
+        <ErrorMessage name="key" render={(msg) => <p className="text-danger">{msg}</p>} />
       </>
     </Formik>
   );
