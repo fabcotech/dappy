@@ -12,7 +12,7 @@ interface AddAccountsProps {
 }
 
 export function AddAccountsComponent(props: AddAccountsProps) {
-  const [account, setAccount] = useState<Account | undefined>(undefined);
+  const [account, setAccount] = useState<Account>();
 
   if (account && props.accounts[account.name]) {
     props.setTab('accounts');
@@ -31,7 +31,8 @@ export function AddAccountsComponent(props: AddAccountsProps) {
             type="submit"
             className="button is-link is-medium"
             disabled={!account}
-            onClick={() => (account ? props.createAccount(account) : undefined)}>
+            onClick={() => (account ? props.createAccount(account) : undefined)}
+          >
             {t('add account')}
           </button>
         </div>

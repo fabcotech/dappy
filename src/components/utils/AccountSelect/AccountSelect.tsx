@@ -24,7 +24,10 @@ interface AccountSelectState {
   boxFound: string | undefined;
   passwordSuccess: boolean;
 }
-export class AccountSelectComponent extends React.Component<AccountSelectProps, AccountSelectState> {
+export class AccountSelectComponent extends React.Component<
+  AccountSelectProps,
+  AccountSelectState
+> {
   constructor(props: AccountSelectProps) {
     super(props);
     this.state = {
@@ -45,6 +48,7 @@ export class AccountSelectComponent extends React.Component<AccountSelectProps, 
     this.stream.compose(debounce(800)).subscribe({
       next: (data) => {
         try {
+          if (data.account.platform === 'certificate') return;
           const password = passwordFromStringToBytes(data.password);
           const decrypted = decrypt(data.account.encrypted, password);
           this.setState({
@@ -75,7 +79,11 @@ export class AccountSelectComponent extends React.Component<AccountSelectProps, 
     });
   }
 
-  getCurrentBoxName = (selectAccountName: string) => this.props.accounts[selectAccountName]?.boxes[0];
+  getCurrentBoxName = (selectAccountName: string) => {
+    const account = this.props.accounts[selectAccountName];
+    if (account.platform === 'certificate') return undefined;
+    return account.boxes[0];
+  };
 
   render() {
     if (!this.stream) {
@@ -90,17 +98,18 @@ export class AccountSelectComponent extends React.Component<AccountSelectProps, 
           password: '',
         }}
         validate={(values) => {
-          let errors: {
+          const errors: {
             account?: string;
             password?: string;
           } = {};
           const account = this.props.accounts[values.account];
           // always true
           if (this.stream) {
-            this.stream.shamefullySendNext({ account: account, password: values.password });
+            this.stream.shamefullySendNext({ account, password: values.password });
           }
           return errors;
-        }}>
+        }}
+      >
         {({ values, errors, touched, setFieldValue }) => {
           return (
             <div>
@@ -126,11 +135,15 @@ export class AccountSelectComponent extends React.Component<AccountSelectProps, 
                             });
                             setFieldValue('account', value);
                             setFieldValue('password', '');
-                          }}>
+                          }}
+                        >
                           {Object.keys(this.props.accounts)
                             .sort((a, b) => (this.props.accounts[a].main ? -1 : 1))
                             .map((k) => (
-                              <option key={this.props.accounts[k].name} value={this.props.accounts[k].name}>
+                              <option
+                                key={this.props.accounts[k].name}
+                                value={this.props.accounts[k].name}
+                              >
                                 {this.props.accounts[k].name}
                               </option>
                             ))}
@@ -150,7 +163,9 @@ export class AccountSelectComponent extends React.Component<AccountSelectProps, 
                     <div className="field">
                       <div className="control">
                         {this.getCurrentBoxName(values.account) ? (
-                          <span className="tag is-light">{this.getCurrentBoxName(values.account)}</span>
+                          <span className="tag is-light">
+                            {this.getCurrentBoxName(values.account)}
+                          </span>
                         ) : (
                           <p>{t('box not found')}</p>
                         )}
@@ -159,7 +174,9 @@ export class AccountSelectComponent extends React.Component<AccountSelectProps, 
                   </div>
                 </div>
               ) : undefined}
-              {touched.account && errors.account && <p className="text-danger">{(errors as any).privatekey}</p>}
+              {touched.account && errors.account && (
+                <p className="text-danger">{(errors as any).privatekey}</p>
+              )}
 
               {values.account ? (
                 <Fragment>

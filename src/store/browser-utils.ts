@@ -13,12 +13,18 @@ export const browserUtils = {
       const doOperation = () => {
         try {
           if (
-            !['previews', 'tabs', 'networks', 'records', 'accounts', 'transactions', 'cookies'].find(
-              (k) => k === key
-            )
+            ![
+              'previews',
+              'tabs',
+              'networks',
+              'records',
+              'accounts',
+              'transactions',
+              'cookies',
+            ].find((k) => k === key)
           ) {
             i = 3;
-            reject('Unknown db key ' + key);
+            reject(new Error(`Unknown db key ${key}`));
           }
           const tx = getDb().transaction(key, 'readwrite');
           const objectStore = tx.objectStore(key);
@@ -46,10 +52,7 @@ export const browserUtils = {
     });
   },
 
-  saveZone: (
-    host: string,
-    records: ZoneRecord[],
-  ) => {
+  saveZone: (host: string, records: ZoneRecord[]) => {
     return new Promise<void>((resolve, reject) => {
       let i = 0;
       const doOperation = () => {
@@ -57,21 +60,21 @@ export const browserUtils = {
           const tx = getDb().transaction('zones', 'readwrite');
           const objectStore = tx.objectStore(host);
 
-          let zone: { host: string; records: ZoneRecord[] } = { host: host, records: [] };
-          let found: Zone = objectStore.get(host) as Zone;
-        
+          let zone: { host: string; records: ZoneRecord[] } = { host, records: [] };
+          const found = objectStore.get(host) as unknown as Zone;
+
           if (found) {
             zone = found;
           }
 
           let newRecords = zone.records;
           records.forEach((r) => {
-            newRecords = refreshOrAppendRecord(newRecords, r)
-          })
+            newRecords = refreshOrAppendRecord(newRecords, r);
+          });
 
           objectStore.put({
             ...zone,
-            records: newRecords
+            records: newRecords,
           });
           resolve();
         } catch (e) {
@@ -102,12 +105,18 @@ export const browserUtils = {
       const doOperation = () => {
         try {
           if (
-            !['previews', 'tabs', 'networks', 'records', 'accounts', 'transactions', 'cookies'].find(
-              (k) => k === key
-            )
+            ![
+              'previews',
+              'tabs',
+              'networks',
+              'records',
+              'accounts',
+              'transactions',
+              'cookies',
+            ].find((k) => k === key)
           ) {
             i = 3;
-            reject('Unknown db key ' + key);
+            reject(new Error(`Unknown db key ${key}`));
           }
 
           const tx = getDb().transaction(key, 'readwrite');
@@ -143,7 +152,7 @@ export const browserUtils = {
         try {
           if (!['ui', 'settings', 'rchainInfos'].find((k) => k === key)) {
             i = 3;
-            reject('Unknown db key ' + key);
+            reject(new Error(`Unknown db key ${key}`));
           }
           const tx = getDb().transaction(key, 'readwrite');
           const objectStore = tx.objectStore(key);
@@ -184,7 +193,7 @@ export const browserUtils = {
             )
           ) {
             i = 3;
-            reject('Unknown db key ' + key);
+            reject(new Error(`Unknown db key ${key}`));
           }
           const tx = getDb().transaction(key, 'readwrite');
           const objectStore = tx.objectStore(key);
@@ -212,7 +221,7 @@ export const browserUtils = {
   },
 
   downloadFile: (filename: string, text: string) => {
-    var element = document.createElement('a');
+    const element = document.createElement('a');
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     element.setAttribute('download', filename);
     element.style.display = 'none';

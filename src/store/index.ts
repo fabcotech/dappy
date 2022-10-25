@@ -57,7 +57,9 @@ declare global {
     dappySingleRequest: (body: any, parameters: any) => Promise<any>;
     dappyMultiRequest: (body: any, parameters: any) => Promise<MultiRequestResult>;
     getIpAddressAndCert: (a: { host: string }) => Promise<{ cert: string; ip: string }>;
-    generateCertificateAndKey: (altNames: string[]) => Promise<{ key: string; certificate: string }>;
+    generateCertificateAndKey: (
+      altNames: string[]
+    ) => Promise<{ key: string; certificate: string }>;
     triggerCommand: (command: string, payload?: { [key: string]: string }) => void;
     initContextMenu: () => void;
     copyToClipboard: (a: string) => void;
@@ -169,7 +171,9 @@ sagaMiddleware.run(sagas);
 const dispatchInitActions = () => {
   if (asyncActionsOver === 8) {
     store.dispatch(
-      fromUi.setBodyDimensionsAction({ bodyDimensions: [document.body.clientWidth, document.body.clientHeight] })
+      fromUi.setBodyDimensionsAction({
+        bodyDimensions: [document.body.clientWidth, document.body.clientHeight],
+      })
     );
     setTimeout(() => {
       initCronJobs(store);
@@ -534,15 +538,15 @@ dbReq.onsuccess = (event) => {
 
   // ACCOUNTS
   const accountsTx = openedDB.transaction('accounts', 'readonly');
-  var accountsStore = accountsTx.objectStore('accounts');
+  const accountsStore = accountsTx.objectStore('accounts');
   const requestAccounts = accountsStore.getAll();
   requestAccounts.onsuccess = (e) => {
     let accounts = requestAccounts.result;
     accounts = accounts.map((a) => {
       return {
         ...a,
-        boxes: a.boxes || ([] as Account['boxes']),
-        whitelist: a.whitelist || ([{ host: '*', blitz: true, transactions: true }] as Account['whitelist']),
+        whitelist:
+          a.whitelist || ([{ host: '*', blitz: true, transactions: true }] as Account['whitelist']),
       };
     });
 
@@ -551,7 +555,7 @@ dbReq.onsuccess = (event) => {
         asyncActionsOver += 1;
         store.dispatch(
           fromSettings.updateAccountsFromStorageAction({
-            accounts: accounts,
+            accounts,
           })
         );
         dispatchInitActions();
@@ -606,7 +610,9 @@ dbReq.onsuccess = (event) => {
     )
       .then((valid) => {
         asyncActionsOver += 1;
-        store.dispatch(fromBlockchain.updateRChainBlockchainInfosFromStorageAction({ rchainInfos: rchainInfos }));
+        store.dispatch(
+          fromBlockchain.updateRChainBlockchainInfosFromStorageAction({ rchainInfos: rchainInfos })
+        );
         dispatchInitActions();
       })
       .catch((err) => {
@@ -642,11 +648,15 @@ dbReq.onsuccess = (event) => {
   interProcess(store);
 
   const windowResizeStream = fromEvent(window, 'resize', true);
-  xstream.merge(windowResizeStream.compose(throttle(600)), windowResizeStream.compose(debounce(600))).subscribe({
-    next: (x) => {
-      store.dispatch(
-        fromUi.setBodyDimensionsAction({ bodyDimensions: [document.body.clientWidth, document.body.clientHeight] })
-      );
-    },
-  });
+  xstream
+    .merge(windowResizeStream.compose(throttle(600)), windowResizeStream.compose(debounce(600)))
+    .subscribe({
+      next: (x) => {
+        store.dispatch(
+          fromUi.setBodyDimensionsAction({
+            bodyDimensions: [document.body.clientWidth, document.body.clientHeight],
+          })
+        );
+      },
+    });
 };

@@ -14,7 +14,6 @@ import { performSingleRequest } from './performSingleRequest';
 import * as fromMainBrowserViews from './store/browserViews';
 import { DispatchFromMainArg } from './main';
 
-let benchmarkCronRanOnce = false;
 let uniqueEphemeralTokenAskedOnce = false;
 let uniqueEphemeralToken = '';
 
@@ -37,27 +36,28 @@ export const registerInterProcessProtocol = (
           callback(
             Buffer.from(
               JSON.stringify({
-                uniqueEphemeralToken: uniqueEphemeralToken,
+                uniqueEphemeralToken,
                 loadResourceWhenReady: getLoadResourceWhenReady(),
               })
             )
           );
         });
-      } else {
-        callback(
-          Buffer.from(
-            JSON.stringify({
-              uniqueEphemeralToken: uniqueEphemeralToken,
-            })
-          )
-        );
-        return;
       }
+      callback(
+        Buffer.from(
+          JSON.stringify({
+            uniqueEphemeralToken,
+          })
+        )
+      );
+      return undefined;
     }
 
     let uniqueEphemeralTokenFromrequest = '';
     try {
-      uniqueEphemeralTokenFromrequest = JSON.parse(decodeURI(request.headers['Data'])).uniqueEphemeralToken;
+      uniqueEphemeralTokenFromrequest = JSON.parse(
+        decodeURI(request.headers.Data)
+      ).uniqueEphemeralToken;
       if (uniqueEphemeralToken !== uniqueEphemeralTokenFromrequest) {
         throw new Error();
       }
@@ -65,13 +65,13 @@ export const registerInterProcessProtocol = (
       console.log(request.url);
       console.log('[https] An unauthorized app tried to make an interprocess request');
       callback(Buffer.from(''));
-      return;
+      return undefined;
     }
 
     if (request.url === 'interprocess://get-ip-address-and-cert') {
       let host = '';
       try {
-        host = JSON.parse(decodeURI(request.headers['Data'])).parameters.host;
+        host = JSON.parse(decodeURI(request.headers.Data)).parameters.host;
       } catch (e) {}
 
       getIpAddressAndCert(host)
@@ -107,17 +107,17 @@ export const registerInterProcessProtocol = (
     }
 
     if (request.url === 'interprocess://minimize') {
-      browserWindow.minimize()
+      browserWindow.minimize();
     }
 
     if (request.url === 'interprocess://close') {
-      browserWindow.close()
+      browserWindow.close();
     }
 
     /* browser to node */
     if (request.url === 'interprocess://dappy-multi-request') {
       try {
-        const data = JSON.parse(decodeURI(request.headers['Data']));
+        const data = JSON.parse(decodeURI(request.headers.Data));
         const parameters: MultiRequestParameters = data.parameters;
         const body: MultiRequestBody = data.body;
 
@@ -138,16 +138,20 @@ export const registerInterProcessProtocol = (
           .catch((err) => {
             callback(Buffer.from(JSON.stringify(err)));
           });
-      } catch (err) {
-        console.log(err);
-        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when dappy-multi-request'));
+      } catch (err: any) {
+        if (err instanceof Error) {
+          console.log(err);
+          callback(
+            Buffer.from(err.message || '[interprocess] Error CRITICAL when dappy-multi-request')
+          );
+        }
       }
     }
 
     /* browser to node */
     if (request.url === 'interprocess://dappy-single-request') {
       try {
-        const data = JSON.parse(decodeURI(request.headers['Data']));
+        const data = JSON.parse(decodeURI(request.headers.Data));
         const node: DappyNetworkMember = data.node;
         const body: MultiRequestBody = data.body;
         performSingleRequest(body, node)
@@ -158,13 +162,19 @@ export const registerInterProcessProtocol = (
             callback(Buffer.from(JSON.stringify(err)));
           });
       } catch (err) {
-        console.log(err);
-        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when dappy-single-request'));
+        if (err instanceof Error) {
+          console.log(err);
+          callback(
+            Buffer.from(err.message || '[interprocess] Error CRITICAL when dappy-single-request')
+          );
+        }
       }
     }
 
     if (request.url === 'interprocess://dappy-lookup') {
-      const blockchains: { [chainId: string]: Blockchain } = fromBlockchainsMain.getBlockchains(store.getState());
+      const blockchains: { [chainId: string]: Blockchain } = fromBlockchainsMain.getBlockchains(
+        store.getState()
+      );
 
       const first = Object.keys(blockchains)[0];
       if (!first) {
@@ -176,11 +186,11 @@ export const registerInterProcessProtocol = (
             })
           )
         );
-        return;
+        return undefined;
       }
 
       try {
-        const data = JSON.parse(decodeURI(request.headers['Data']));
+        const data = JSON.parse(decodeURI(request.headers.Data));
         if (data.value.method === 'lookup') {
           if (data.value.type === 'TXT') {
             lookup(data.value.hostname, data.value.type, { dappyNetwork: blockchains[first].nodes })
@@ -225,66 +235,82 @@ export const registerInterProcessProtocol = (
           );
         }
       } catch (err) {
-        callback(
-          Buffer.from(
-            JSON.stringify({
-              success: false,
-              error: err.message,
-            })
-          )
-        );
+        if (err instanceof Error) {
+          callback(
+            Buffer.from(
+              JSON.stringify({
+                success: false,
+                error: err.message,
+              })
+            )
+          );
+        }
       }
     }
 
     if (request.url === 'interprocess://dispatch-in-main') {
       try {
-        const data = JSON.parse(decodeURI(request.headers['Data']));
+        const data = JSON.parse(decodeURI(request.headers.Data));
         const action: any = data.action;
         if (action.type === fromMainBrowserViews.LOAD_OR_RELOAD_BROWSER_VIEW) {
           store.dispatch({
             ...action,
-            meta: { openExternal: openExternal, browserWindow: browserWindow, dispatchFromMain: dispatchFromMain },
+            meta: {
+              openExternal,
+              browserWindow,
+              dispatchFromMain,
+            },
           });
         } else if (action.type === fromMainBrowserViews.DESTROY_BROWSER_VIEW) {
-          store.dispatch({ ...action, meta: { browserWindow: browserWindow } });
+          store.dispatch({ ...action, meta: { browserWindow } });
         } else if (action.type === fromBlockchainsMain.SYNC_BLOCKCHAINS) {
           store.dispatch(action);
         } else {
           store.dispatch(action);
         }
       } catch (err) {
-        console.log(err);
-        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when dispatch-in-main'));
+        if (err instanceof Error) {
+          console.log(err);
+          callback(
+            Buffer.from(err.message || '[interprocess] Error CRITICAL when dispatch-in-main')
+          );
+        }
       }
     }
 
     if (request.url === 'interprocess://open-external') {
       try {
-        const data = JSON.parse(decodeURI(request.headers['Data']));
-        const value: any = data.value;
+        const data = JSON.parse(decodeURI(request.headers.Data));
+        const { value } = data;
         openExternal(value);
       } catch (err) {
-        console.log(err);
-        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when open-external'));
+        if (err instanceof Error) {
+          console.log(err);
+          callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when open-external'));
+        }
       }
     }
 
     if (request.url === 'interprocess://copy-to-clipboard') {
       try {
-        const data = JSON.parse(decodeURI(request.headers['Data']));
-        const value: any = data.value;
+        const data = JSON.parse(decodeURI(request.headers.Data));
+        const { value } = data;
         clipboard.writeText(value);
       } catch (err) {
-        console.log(err);
-        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when copy-to-clipboard'));
+        if (err instanceof Error) {
+          console.log(err);
+          callback(
+            Buffer.from(err.message || '[interprocess] Error CRITICAL when copy-to-clipboard')
+          );
+        }
       }
     }
 
     if (request.url === 'interprocess://trigger-command') {
       try {
-        const data = JSON.parse(decodeURI(request.headers['Data']));
-        const command: any = data.command;
-        const payload: any = data.payload;
+        const data = JSON.parse(decodeURI(request.headers.Data));
+        const { command } = data;
+        const { payload } = data;
 
         if (command === 'download-file') {
           dialog
@@ -299,10 +325,10 @@ export const registerInterProcessProtocol = (
                     path.join(a.filePaths[0], payload.name || 'file'),
                     payload.data,
                     { encoding: 'base64' },
-                    (b) => {}
+                    () => {}
                   );
                 } else {
-                  console.error('a.filePaths[0] is not defined ' + a.filePaths[0]);
+                  console.error(`a.filePaths[0] is not defined ${a.filePaths[0]}`);
                 }
               }
             })
@@ -311,8 +337,12 @@ export const registerInterProcessProtocol = (
             });
         }
       } catch (err) {
-        console.log(err);
-        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when trigger-command'));
+        if (err instanceof Error) {
+          console.log(err);
+          callback(
+            Buffer.from(err.message || '[interprocess] Error CRITICAL when trigger-command')
+          );
+        }
       }
     }
 
@@ -327,13 +357,17 @@ export const registerInterProcessProtocol = (
     }
     if (request.url === 'interprocess://generate-certificate-and-key') {
       try {
-        const data = JSON.parse(decodeURI(request.headers['Data']));
+        const data = JSON.parse(decodeURI(request.headers.Data));
         pem.createCertificate(
           { days: 1000000, selfSigned: true, altNames: data.parameters.altNames },
-          function (err, keys) {
+          (err, keys) => {
             if (err) {
               console.log(err);
-              callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when generate-certificate-and-key'));
+              callback(
+                Buffer.from(
+                  err.message || '[interprocess] Error CRITICAL when generate-certificate-and-key'
+                )
+              );
               return;
             }
             callback(
@@ -347,8 +381,14 @@ export const registerInterProcessProtocol = (
           }
         );
       } catch (err) {
-        console.log(err);
-        callback(Buffer.from(err.message || '[interprocess] Error CRITICAL when generate-certificate-and-key'));
+        if (err instanceof Error) {
+          console.log(err);
+          callback(
+            Buffer.from(
+              err.message || '[interprocess] Error CRITICAL when generate-certificate-and-key'
+            )
+          );
+        }
       }
     }
   });

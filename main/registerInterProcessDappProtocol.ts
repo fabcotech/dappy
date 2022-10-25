@@ -1,11 +1,6 @@
-import { app, Session } from 'electron';
+import { Session } from 'electron';
 import { Store } from 'redux';
 import * as yup from 'yup';
-import path from 'path';
-
-// todo, cannot do import, why ?
-const rchainToolkit = require('@fabcotech/rchain-toolkit');
-
 import * as fromCommon from '../src/common';
 import * as fromIdentificationsMain from './store/identifications';
 import * as fromTransactionsMain from './store/transactions';
@@ -16,7 +11,12 @@ import { looksLikePublicKey } from '../src/utils/looksLikePublicKey';
 import { DappyBrowserView } from './models';
 import { DispatchFromMainArg } from './main';
 
-const hexString = yup.string().matches(/^0x[0-9a-fA-F]+$/, 'string must be in hexadecimal and starts with 0x');
+// todo, cannot do import, why ?
+const rchainToolkit = require('@fabcotech/rchain-toolkit');
+
+const hexString = yup
+  .string()
+  .matches(/^0x[0-9a-fA-F]+$/, 'string must be in hexadecimal and starts with 0x');
 
 const identifyFromSandboxSchema = yup
   .object()
@@ -104,17 +104,21 @@ export const registerInterProcessDappProtocol = (
   dappyBrowserView: DappyBrowserView,
   session: Session,
   store: Store,
-  dispatchFromMain: (a: DispatchFromMainArg) => void,
+  dispatchFromMain: (a: DispatchFromMainArg) => void
 ) => {
   return session.protocol.registerBufferProtocol('interprocessdapp', (request, callback) => {
     let data: { [a: string]: any } = {};
     try {
       data = JSON.parse(request.headers['Data']);
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
 
     if (request.url === 'interprocessdapp://get-identifications') {
       const identifications = fromIdentificationsMain.getIdentificationsMain(store.getState());
-      callback(Buffer.from(JSON.stringify({ identifications: identifications[dappyBrowserView.tabId] })));
+      callback(
+        Buffer.from(JSON.stringify({ identifications: identifications[dappyBrowserView.tabId] }))
+      );
     }
 
     if (request.url === 'interprocessdapp://get-transactions') {
@@ -128,7 +132,9 @@ export const registerInterProcessDappProtocol = (
         const payloadBeforeValid = data.action.payload;
 
         if (!payloadBeforeValid) {
-          console.error('[interprocessdapp://] dapp dispatched a transaction with an invalid payload');
+          console.error(
+            '[interprocessdapp://] dapp dispatched a transaction with an invalid payload'
+          );
           callback(Buffer.from('invalid payload'));
           return;
         }
@@ -163,8 +169,9 @@ export const registerInterProcessDappProtocol = (
         if (data.action.type === fromCommon.SIGN_ETHEREUM_TRANSACTION_FROM_SANDBOX) {
           signEthereumTransactionFromSandboxSchema
             .validate(payloadBeforeValid)
-            .then((valid) => {
-              const payload: fromCommon.SignEthereumTransactionFromSandboxPayload = payloadBeforeValid;
+            .then(() => {
+              const payload: fromCommon.SignEthereumTransactionFromSandboxPayload =
+                payloadBeforeValid;
               const id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
               const payload2: fromCommon.SignEthereumTransactionFromMiddlewarePayload = {
                 parameters: payload.parameters,
@@ -177,7 +184,7 @@ export const registerInterProcessDappProtocol = (
                 },
                 tabId: dappyBrowserView.tabId,
                 chainId: '',
-                id: id,
+                id,
               };
 
               dispatchFromMain({
@@ -231,23 +238,31 @@ export const registerInterProcessDappProtocol = (
         } catch (err) {
           console.error('[interprocessdapp://] unknown error');
           console.error(err);
-          callback(Buffer.from(err.message));
+          if (err instanceof Error) {
+            callback(Buffer.from(err.message));
+          }
           return;
         }
 
         if (data.action.type === fromCommon.SEND_RCHAIN_TRANSACTION_FROM_SANDBOX) {
           sendRChainTransactionFromSandboxSchema
             .validate(payloadBeforeValid)
-            .then((valid) => {
+            .then(() => {
               if (payloadBeforeValid.parameters.signatures) {
                 Object.keys(payloadBeforeValid.parameters.signatures).forEach((k) => {
-                  if (typeof k !== 'string' || typeof payloadBeforeValid.parameters.signatures[k] !== 'string') {
-                    throw new Error('[interprocessdapp://] payloadBeforeValid.parameters.signatures is not valid');
+                  if (
+                    typeof k !== 'string' ||
+                    typeof payloadBeforeValid.parameters.signatures[k] !== 'string'
+                  ) {
+                    throw new Error(
+                      '[interprocessdapp://] payloadBeforeValid.parameters.signatures is not valid'
+                    );
                   }
                 });
               }
 
-              const payload: fromCommon.SendRChainTransactionFromSandboxPayload = payloadBeforeValid;
+              const payload: fromCommon.SendRChainTransactionFromSandboxPayload =
+                payloadBeforeValid;
 
               const id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
               const payload2: fromCommon.SendRChainTransactionFromMiddlewarePayload = {
@@ -260,8 +275,8 @@ export const registerInterProcessDappProtocol = (
                   callId: payload.callId,
                 },
                 tabId: dappyBrowserView.tabId,
-                chainId: chainId,
-                id: id,
+                chainId,
+                id,
               };
 
               dispatchFromMain({
@@ -276,7 +291,9 @@ export const registerInterProcessDappProtocol = (
               callback(Buffer.from(''));
             })
             .catch((err: Error) => {
-              console.error('[interprocessdapp://] a dapp tried to send RChain transaction with an invalid schema');
+              console.error(
+                '[interprocessdapp://] a dapp tried to send RChain transaction with an invalid schema'
+              );
               console.error(err);
               callback(Buffer.from(err.message));
               return;
@@ -285,13 +302,18 @@ export const registerInterProcessDappProtocol = (
           sendRChainPaymentRequestFromSandboxSchema
             .validate(payloadBeforeValid)
             .then(() => {
-              const payload: fromCommon.SendRChainPaymentRequestFromSandboxPayload = payloadBeforeValid;
+              const payload: fromCommon.SendRChainPaymentRequestFromSandboxPayload =
+                payloadBeforeValid;
 
               if (looksLikePublicKey(payload.parameters.to)) {
                 try {
-                  payload.parameters.to = rchainToolkit.utils.revAddressFromPublicKey(payload.parameters.to);
+                  payload.parameters.to = rchainToolkit.utils.revAddressFromPublicKey(
+                    payload.parameters.to
+                  );
                 } catch (err) {
-                  console.error('[interprocessdapp://] failed to generate REV address based on public key');
+                  console.error(
+                    '[interprocessdapp://] failed to generate REV address based on public key'
+                  );
                   console.error(err);
                   callback(Buffer.from('failed to generate REV address based on public key'));
                   return;
@@ -302,14 +324,15 @@ export const registerInterProcessDappProtocol = (
               const payload2: fromCommon.SendRChainPaymentRequestFromMiddlewarePayload = {
                 parameters: payload.parameters,
                 origin: {
+                  accountName: undefined,
                   origin: 'dapp',
                   tabId: dappyBrowserView.tabId,
                   dappTitle: dappyBrowserView.title,
                   callId: payload.callId,
                 },
-                chainId: chainId,
+                chainId,
                 tabId: dappyBrowserView.tabId,
-                id: id,
+                id,
               };
 
               dispatchFromMain({
@@ -325,7 +348,9 @@ export const registerInterProcessDappProtocol = (
             })
             .catch((err: Error) => {
               // todo : does the dapp need to have this error returned ?
-              console.error('[interprocessdapp://] A dapp tried to send RChain transaction with an invalid schema');
+              console.error(
+                '[interprocessdapp://] A dapp tried to send RChain transaction with an invalid schema'
+              );
               console.error(err);
               callback(Buffer.from(err.message));
               return;
@@ -334,7 +359,9 @@ export const registerInterProcessDappProtocol = (
       } catch (err) {
         console.error('[interprocessdapp://] An error occured');
         console.error(err);
-        callback(Buffer.from(err.message));
+        if (err instanceof Error) {
+          callback(Buffer.from(err.message));
+        }
       }
     }
   });

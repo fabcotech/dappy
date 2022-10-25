@@ -1,15 +1,18 @@
-import { DappyNetworkMember  } from '@fabcotech/dappy-lookup';
+import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 import {
   RChainTokenPurse,
-  Account,
   RChainInfos,
   Blockchain,
   RChainContractConfig,
   TransactionState,
   TransactionStatus,
+  CertificateAccount,
+  BlockchainAccount,
 } from '/models';
 
-export const getFakeRChainAccount = (account: Partial<Account> = {}): Account => ({
+export const getFakeRChainAccount = (
+  account: Partial<BlockchainAccount> = {}
+): BlockchainAccount => ({
   platform: 'rchain',
   name: 'account1',
   publicKey:
@@ -24,7 +27,7 @@ export const getFakeRChainAccount = (account: Partial<Account> = {}): Account =>
   ...account,
 });
 
-export const getFakeEVMAccount = (account: Partial<Account> = {}): Account => ({
+export const getFakeEVMAccount = (account: Partial<BlockchainAccount> = {}): BlockchainAccount => ({
   platform: 'evm',
   name: 'account1',
   publicKey:
@@ -36,6 +39,18 @@ export const getFakeEVMAccount = (account: Partial<Account> = {}): Account => ({
   main: true,
   balance: 1000000,
   boxes: [],
+  whitelist: [],
+  ...account,
+});
+
+export const getFakeCertificateAccount = (
+  account: Partial<CertificateAccount> = {}
+): CertificateAccount => ({
+  platform: 'certificate',
+  name: 'account1',
+  key: 'privatekey',
+  certificate: 'certificate',
+  main: true,
   whitelist: [],
   ...account,
 });
@@ -57,7 +72,7 @@ export const getFakeRChainInfos = (rchainInfos: Partial<RChainInfos> = {}): RCha
     dappyBrowserMinVersion: '0.5.1',
     dappyBrowserDownloadLink: 'https://download',
     lastFinalizedBlockNumber: 12,
-    namePrice: ["nosrev", 50000000],
+    namePrice: ['nosrev', 50000000],
     rchainNamesContractId: 'contract1',
     rchainNamesMasterRegistryUri: 'nosd1g9idkg3dtuhucgy8bd3788iayddxpsnhnzspcw9dyms5an5up',
     wrappedRevContractId: 'nosrev',
@@ -77,7 +92,9 @@ export const getFakeBlockChain = (blockChain: Partial<Blockchain> = {}): Blockch
   ...blockChain,
 });
 
-export const getFakeRChainContractConfig = (contractConfig: Partial<RChainContractConfig> = {}) => ({
+export const getFakeRChainContractConfig = (
+  contractConfig: Partial<RChainContractConfig> = {}
+) => ({
   contractId: 'contract1',
   counter: 1,
   fungible: false,
@@ -86,7 +103,9 @@ export const getFakeRChainContractConfig = (contractConfig: Partial<RChainContra
   ...contractConfig,
 });
 
-export const getFakeDappyNetworkMember = (dappyNetworkMember: Partial<DappyNetworkMember> = {}): DappyNetworkMember => ({
+export const getFakeDappyNetworkMember = (
+  dappyNetworkMember: Partial<DappyNetworkMember> = {}
+): DappyNetworkMember => ({
   scheme: 'https',
   ip: '127.0.0.1',
   port: '443',
@@ -113,7 +132,9 @@ export const getFakeExistingNamePurchaseLog = (
   purse = 'foo'
 ) => `p,${date.getTime()},aaa,aaa,${nbToken},ft_${wrappedDustPrice}_wrappeddust,foo,${purse}`;
 
-export const getFakeTransactionState = (transactionState: Partial<TransactionState> = {}): TransactionState => ({
+export const getFakeTransactionState = (
+  transactionState: Partial<TransactionState> = {}
+): TransactionState => ({
   sentAt: new Date('01/01/2022').toISOString(),
   id: 'fake transaction id',
   blockchainId: 'fake blockchain id',

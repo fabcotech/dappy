@@ -22,7 +22,7 @@ export interface State {
   records: {
     records: { [name: string]: Record };
     date: string;
-    loadErrors: (LoadRecordsError)[];
+    loadErrors: LoadRecordsError[];
     loadSuccesses: LoadRecordsSuccess[];
   };
   transactions: /* TODO: rename to transactionStates */ {
@@ -48,7 +48,6 @@ export const initialState: State = {
 
 export const reducer = (state = initialState, action: any): State => {
   switch (action.type) {
-
     case fromActions.UPDATE_RCHAIN_BLOCKCHAIN_INFO_COMPLETED: {
       const payload: fromActions.UpdateRChainBlockchainInfoCompletedPayload = action.payload;
 
@@ -333,13 +332,25 @@ export const getBlockchainState = createSelector(
   (state: any) => state.blockchain
 );
 
-export const getRChainInfos = createSelector(getBlockchainState, (state: State) => state.rchain.infos);
+export const getRChainInfos = createSelector(
+  getBlockchainState,
+  (state: State) => state.rchain.infos
+);
 
-export const getRecords = createSelector(getBlockchainState, (state: State) => state.records.records);
+export const getRecords = createSelector(
+  getBlockchainState,
+  (state: State) => state.records.records
+);
 
-export const getTransactions = createSelector(getBlockchainState, (state: State) => state.transactions);
+export const getTransactions = createSelector(
+  getBlockchainState,
+  (state: State) => state.transactions
+);
 
-export const getLoadRecordsErrors = createSelector(getBlockchainState, (state: State) => state.records.loadErrors);
+export const getLoadRecordsErrors = createSelector(
+  getBlockchainState,
+  (state: State) => state.records.loadErrors
+);
 
 export const getLoadRecordsSuccesses = createSelector(
   getBlockchainState,
@@ -362,14 +373,19 @@ export const getNamesBlockchainInfos = createSelector(
   }
 );
 
-export const getNameSystemContractId = createSelector(getNamesBlockchainInfos, (i) => i?.info.rchainNamesContractId);
+export const getNameSystemContractId = createSelector(
+  getNamesBlockchainInfos,
+  (i) => i?.info.rchainNamesContractId
+);
 
-export const getRecordNamesInAlphaOrder = createSelector(getRecords, (records: { [name: string]: Record }) => {
-  return Object.keys(records).sort((a, b) => {
-    if (a < b) {
-      return -1;
-    } else {
+export const getRecordNamesInAlphaOrder = createSelector(
+  getRecords,
+  (records: { [name: string]: Record }) => {
+    return Object.keys(records).sort((a, b) => {
+      if (a < b) {
+        return -1;
+      }
       return 1;
-    }
-  });
-});
+    });
+  }
+);

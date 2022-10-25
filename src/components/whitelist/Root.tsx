@@ -7,65 +7,60 @@ import { validateWhitelistDomain } from '/utils/validateWhitelistDomain';
 import * as fromUi from '/store/ui';
 
 interface RootProps {
-  whitelist: fromUi.State["whitelist"];
+  whitelist: fromUi.State['whitelist'];
   navigationUrl: NavigationUrl;
-  updateWhitelist: (a: fromUi.State["whitelist"]) => void;
+  updateWhitelist: (a: fromUi.State['whitelist']) => void;
   navigate: (navigationUrl: NavigationUrl) => void;
 }
 
-export class RootComponent extends React.Component<RootProps, {}> {
+export class RootComponent extends React.Component<RootProps> {
   state: {
-    whitelist: fromUi.State["whitelist"]
-    error: undefined | string
+    whitelist: fromUi.State['whitelist'];
+    error: undefined | string;
   } = {
     whitelist: [],
-    error: undefined
+    error: undefined,
   };
 
   render() {
     return (
       <div className="p20 whitelist">
         <h3 className="subtitle is-3">{t('whitelist title')}</h3>
-        <p className="text-mid limited-width mb-2">
-          {t('whitelist 1')}
-        </p>
+        <p className="text-mid limited-width mb-2">{t('whitelist 1')}</p>
         <div className="field">
           <label className="label">{t('whitelist of domains')}</label>
           <div className="control">
             <textarea
-              className={`textarea ${!!this.state.error ? 'with-error' : ''}`}
+              className={`textarea ${this.state.error ? 'with-error' : ''}`}
               rows={8}
-              placeholder={`hello.d\nonlinewebservice.d\n*.onlinewebservice.d\nbitconnect.d`}
-              defaultValue={this.props.whitelist.map(a => a.host).join('\n')}
+              placeholder="hello.d\nonlinewebservice.d\n*.onlinewebservice.d\nbitconnect.d"
+              defaultValue={this.props.whitelist.map((a) => a.host).join('\n')}
               onChange={(e) => {
                 try {
-                  const splitByLine = e.target.value.split('\n').filter(a => !!a);
-                  const validLines = splitByLine.filter(validateWhitelistDomain)
+                  const splitByLine = e.target.value.split('\n').filter((a) => !!a);
+                  const validLines = splitByLine.filter(validateWhitelistDomain);
                   if (validLines.length === splitByLine.length) {
                     this.setState({
                       error: undefined,
-                      whitelist: validLines.map(a => {
-                        return { host: a, topLevel: true, secondLevel: true }
-                      })
+                      whitelist: validLines.map((a) => {
+                        return { host: a, topLevel: true, secondLevel: true };
+                      }),
                     });
                   } else {
                     this.setState({
                       error: 'Invalid lines, please provide only valid hosts ex: hello.d',
-                      whitelists: this.props.whitelist
+                      whitelists: this.props.whitelist,
                     });
                   }
                 } catch (err) {
                   this.setState({
                     error: 'Unable to parse',
-                    whitelist: this.props.whitelist
+                    whitelist: this.props.whitelist,
                   });
-                  return;
                 }
-              }}></textarea>
-              {
-                this.state.error &&
-                <p className="text-danger">{this.state.error}</p>
-              }
+              }}
+            ></textarea>
+            {this.state.error && <p className="text-danger">{this.state.error}</p>}
           </div>
         </div>
         <div className="field is-horizontal is-grouped pt20">
@@ -76,9 +71,10 @@ export class RootComponent extends React.Component<RootProps, {}> {
               disabled={!!this.state.error}
               onClick={() => {
                 if (this.state.whitelist) {
-                  this.props.updateWhitelist(this.state.whitelist)
+                  this.props.updateWhitelist(this.state.whitelist);
                 }
-              }}>
+              }}
+            >
               {t('save whitelist')}
             </button>
           </div>
@@ -93,7 +89,7 @@ export const Root = connect(
     whitelist: fromUi.getWhitelist(state),
   }),
   (dispatch) => ({
-    updateWhitelist: (a: fromUi.State["whitelist"]) =>
+    updateWhitelist: (a: fromUi.State['whitelist']) =>
       dispatch(
         fromUi.updateWhitelistAction({
           whitelist: a,

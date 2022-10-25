@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { blake2b } from 'blakejs';
 
@@ -13,7 +13,7 @@ import { rchainWallet } from '/utils/wallets';
 import { signSecp256k1 } from '/utils/signSecp256k1';
 
 import './RChainTransactionModal.scss';
-import { TransactionState, TransactionStatus, Account, RChainInfos } from '/models';
+import { TransactionState, TransactionStatus, RChainInfos, BlockchainAccount } from '/models';
 
 interface RChainTransactionModalComponentProps {
   modal: undefined | fromMain.Modal;
@@ -21,13 +21,13 @@ interface RChainTransactionModalComponentProps {
   isTablet: boolean;
   transactions: { [id: string]: TransactionState };
   rchainInfos: { [chainId: string]: RChainInfos };
-  accounts: { [accountName: string]: Account };
+  accounts: { [accountName: string]: BlockchainAccount };
   closeDappModal: (a: fromMain.CloseDappModalPayload) => void;
   sendRChainTransaction: (a: fromBlockchain.SendRChainTransactionPayload) => void;
   saveFailedRChainTransaction: (a: fromBlockchain.SaveFailedRChainTransactionPayload) => void;
 }
 
-export class RChainTransactionModalComponent extends React.Component<RChainTransactionModalComponentProps, {}> {
+export class RChainTransactionModalComponent extends Component<RChainTransactionModalComponentProps> {
   state: {
     privatekey: string;
     box: undefined | string;
@@ -53,7 +53,8 @@ export class RChainTransactionModalComponent extends React.Component<RChainTrans
   };
 
   onCloseModal = () => {
-    const payload: fromCommon.SendRChainTransactionFromMiddlewarePayload = (this.props.modal as any).parameters;
+    const payload: fromCommon.SendRChainTransactionFromMiddlewarePayload = (this.props.modal as any)
+      .parameters;
     this.props.saveFailedRChainTransaction({
       blockchainId: payload.chainId,
       platform: 'rchain',
@@ -64,7 +65,7 @@ export class RChainTransactionModalComponent extends React.Component<RChainTrans
         dappTitle: payload.origin.dappTitle,
         callId: payload.origin.callId,
       },
-      value: { message: `Discarded by user` },
+      value: { message: 'Discarded by user' },
       sentAt: new Date().toISOString(),
       id: new Date().getTime() + Math.round(Math.random() * 10000).toString(),
     });
@@ -84,20 +85,21 @@ export class RChainTransactionModalComponent extends React.Component<RChainTrans
   };
 
   onSendTransaction = () => {
-    const payload: fromCommon.SendRChainTransactionFromMiddlewarePayload = (this.props.modal as any).parameters;
+    const payload: fromCommon.SendRChainTransactionFromMiddlewarePayload = (this.props.modal as any)
+      .parameters;
 
     let validAfterBlockNumber = 0;
     let shardId = 'dev';
     if (this.props.rchainInfos && this.props.rchainInfos[payload.chainId]) {
       validAfterBlockNumber = this.props.rchainInfos[payload.chainId].info.lastFinalizedBlockNumber;
-      shardId = this.props.rchainInfos[payload.chainId].info.rchainShardId
+      shardId = this.props.rchainInfos[payload.chainId].info.rchainShardId;
     }
 
     let term = payload.parameters.term;
 
     if (term) {
-      term = term.replace(new RegExp('BOX_ID', 'g'), this.state.box || '');
-      term = term.replace(new RegExp('PUBLIC_KEY', 'g'), this.state.publickey);
+      term = term.replace(/BOX_ID/g, this.state.box || '');
+      term = term.replace(/PUBLIC_KEY/g, this.state.publickey);
     }
 
     if (payload.parameters.signatures) {
@@ -106,7 +108,9 @@ export class RChainTransactionModalComponent extends React.Component<RChainTrans
         if (!payload.parameters.signatures || !payload.parameters.signatures[k]) {
           return;
         }
-        const uInt8Array = new Uint8Array(payload.parameters.signatures[k].split(',').map((v) => parseInt(v, 10)));
+        const uInt8Array = new Uint8Array(
+          payload.parameters.signatures[k].split(',').map((v) => parseInt(v, 10))
+        );
         const blake2bHash = blake2b(uInt8Array, 0, 32);
         const signature = signSecp256k1(blake2bHash, this.state.privatekey);
         const signatureHex = Buffer.from(signature).toString('hex');
@@ -119,9 +123,9 @@ export class RChainTransactionModalComponent extends React.Component<RChainTrans
         term: term as string,
         timestamp: new Date().valueOf(),
         phloPrice: 1,
-        shardId: shardId,
+        shardId,
         phloLimit: this.state.phloLimit,
-        validAfterBlockNumber: validAfterBlockNumber,
+        validAfterBlockNumber,
       },
       this.state.privatekey
     );
@@ -169,12 +173,15 @@ export class RChainTransactionModalComponent extends React.Component<RChainTrans
     if (
       transactionId &&
       this.props.transactions[transactionId] &&
-      [TransactionStatus.Aired, TransactionStatus.Failed].includes(this.props.transactions[transactionId].status)
+      [TransactionStatus.Aired, TransactionStatus.Failed].includes(
+        this.props.transactions[transactionId].status
+      )
     ) {
       this.onJustCloseModal();
     }
 
-    const payload: fromCommon.SendRChainTransactionFromMiddlewarePayload = this.props.modal.parameters;
+    const payload: fromCommon.SendRChainTransactionFromMiddlewarePayload =
+      this.props.modal.parameters;
     const signatures = payload.parameters.signatures;
     let klasses = '';
     if (this.props.isMobile) {
@@ -232,14 +239,15 @@ export class RChainTransactionModalComponent extends React.Component<RChainTrans
             )}
           </section>
           <footer className="modal-card-foot">
-            <button type="button" className={`button is-light`} onClick={this.onCloseModal}>
+            <button type="button" className="button is-light" onClick={this.onCloseModal}>
               {t('discard transaction')}
             </button>
             <button
               type="button"
               disabled={!this.state.privatekey}
-              className={`button is-link`}
-              onClick={this.onSendTransaction}>
+              className="button is-link"
+              onClick={this.onSendTransaction}
+            >
               {t('send transaction')}
             </button>
           </footer>

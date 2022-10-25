@@ -11,8 +11,9 @@ interface RootProps {
   navigate: (navigationUrl: NavigationUrl) => void;
 }
 
-export class RootComponent extends React.Component<RootProps, {}> {
+export class RootComponent extends React.Component<RootProps> {
   state = {};
+
   testSentry = 0;
 
   componentWillUnmount() {
@@ -30,7 +31,6 @@ export class RootComponent extends React.Component<RootProps, {}> {
       this.testSentry = 0;
     }
     if (this.testSentry === 40) {
-      this.props.navigate.testSentry.testSentry;
       this.testSentry = 0;
     }
   };
@@ -45,7 +45,9 @@ export class RootComponent extends React.Component<RootProps, {}> {
               <a onClick={() => this.props.navigate('/settings')}>{t('menu settings')}</a>
             </li>
             <li className={this.props.navigationUrl === '/settings/blockchains' ? 'is-active' : ''}>
-              <a onClick={() => this.props.navigate('/settings/blockchains')}>{t('menu networks')}</a>
+              <a onClick={() => this.props.navigate('/settings/blockchains')}>
+                {t('menu networks')}
+              </a>
             </li>
             <li className={this.props.navigationUrl === '/settings/gcu' ? 'is-active' : ''}>
               <a onClick={() => this.props.navigate('/settings/gcu')}>{t('menu gcu')}</a>

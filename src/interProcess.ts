@@ -24,7 +24,10 @@ export const dappyLookup = (body: {
   return window.dappyLookup(body);
 };
 
-export const singleRequest = (body: Record<string, any>, node: DappyNetworkMember): Promise<SingleRequestResult> => {
+export const singleRequest = (
+  body: Record<string, any>,
+  node: DappyNetworkMember
+): Promise<SingleRequestResult> => {
   return window.dappySingleRequest(body, node);
 };
 
@@ -278,15 +281,12 @@ export const interProcess = (store: Store) => {
           if (r.success) {
             resolve(r.data as MultiRequestResult);
           } else {
-            reject(r as MultiRequestError);
+            reject(new Error(r.error));
           }
         } catch (e) {
           console.log(req.responseText);
           console.log(e);
-          reject({
-            error: { error: DappyLoadError.FailedToParseResponse, args: {} },
-            loadState: {},
-          } as MultiRequestError);
+          reject(new Error(DappyLoadError.FailedToParseResponse));
         }
       };
     });

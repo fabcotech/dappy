@@ -6,11 +6,9 @@ import { Blockchain, TransactionStatus, MultiRequestError, SingleRequestResult }
 import * as fromBlockchain from '..';
 import { buildUnforgeableNameQuery } from '/utils/buildUnforgeableNameQuery';
 import * as fromMain from '/store/main';
-import { multiRequest } from '/interProcess';
 import { Action, store } from '/store/';
 import * as fromSettings from '/store/settings';
-import { singleRequest } from '/interProcess';
-import { validateRchainTokenOperationResult } from '/store/decoders';
+import { singleRequest, multiRequest } from '/interProcess';
 import { getNodeIndex } from '/utils/getNodeIndex';
 
 const sendRChainTransaction = function* (action: Action) {
@@ -55,34 +53,14 @@ const sendRChainTransaction = function* (action: Action) {
 
   const node = rchainBlockchains[payload.blockchainId].nodes[0];
 
-  let previewPrivateName = ['record', 'rchain-token', 'transfer'].includes(payload.origin.origin);
-  if (previewPrivateName) {
-    try {
-      const channelRequest = {
-        deployer: payload.transaction.deployer,
-        timestamp: payload.transaction.data.timestamp,
-        nameQty: 1,
-      };
+  const previewPrivateName = ['record', 'rchain-token', 'transfer'].includes(payload.origin.origin);
 
-      // TODO random node / multiple nodes to avoid failing if
-      // downtime on deploy on a single node
-    } catch (err) {
-      const p: fromBlockchain.RChainTransactionErrorPayload = {
-        id: payload.id,
-        value: err.message,
-        alert: payload.alert,
-      };
-      if (payload.origin.origin === 'dapp') {
-        p.tabId = payload.origin.tabId;
-      }
-      store.dispatch(fromBlockchain.rChainTransactionErrorAction(p));
-      return;
-    }
-  }
-
-  let deployResponse: undefined | SingleRequestResult = undefined;
+  let deployResponse: undefined | SingleRequestResult;
   try {
-    deployResponse = yield singleRequest({ type: 'api/deploy', body: payload.transaction }, node as DappyNetworkMember);
+    deployResponse = yield singleRequest(
+      { type: 'api/deploy', body: payload.transaction },
+      node as DappyNetworkMember
+    );
     const resp = (deployResponse as SingleRequestResult).data as string;
     if (!resp.startsWith('"Success')) {
       yield put(
@@ -95,8 +73,11 @@ const sendRChainTransaction = function* (action: Action) {
       return;
     }
 
-    const unforgeableId = resp.toString().slice(resp.toString().indexOf(': ') + 2).replace('"', '');
-    console.log('unforgeableId', unforgeableId)
+    const unforgeableId = resp
+      .toString()
+      .slice(resp.toString().indexOf(': ') + 2)
+      .replace('"', '');
+    console.log('unforgeableId', unforgeableId);
 
     if (payload.alert) {
       let message = t('transaction successful');
@@ -138,7 +119,7 @@ const sendRChainTransaction = function* (action: Action) {
             const settings: fromSettings.Settings = fromSettings.getSettings(state);
             i += 1;
             if (i > 80) {
-              reject('20 minutes timeout exceeded');
+              reject(new Error('20 minutes timeout exceeded'));
               return;
             }
             try {
@@ -152,8 +133,7 @@ const sendRChainTransaction = function* (action: Action) {
                 },
                 {
                   chainId: payload.blockchainId,
-                  urls: rchainBlockchains[payload.blockchainId].nodes
-                    .map(getNodeIndex),
+                  urls: rchainBlockchains[payload.blockchainId].nodes.map(getNodeIndex),
                   resolverMode: settings.resolverMode,
                   resolverAccuracy: settings.resolverAccuracy,
                   resolverAbsolute: settings.resolverAbsolute,
@@ -166,27 +146,36 @@ const sendRChainTransaction = function* (action: Action) {
                     resolve(parsedResp.data.expr);
                     if (interval) clearInterval(interval);
                   } else {
-                    console.log('Did not find transaction data (unforgeable name), will try again in 15 seconds');
+                    console.log(
+                      'Did not find transaction data (unforgeable name), will try again in 15 seconds'
+                    );
                   }
                 })
                 .catch((err: MultiRequestError) => {
                   reject(err.error.error);
                 });
             } catch (err) {
-              reject(err.message || err);
+              if (err instanceof Error) {
+                reject(err);
+              }
             }
           }, 15000);
         });
       } catch (err) {
         if (interval) clearInterval(interval);
-        store.dispatch(
-          fromBlockchain.rChainTransactionErrorAction({
-            id: payload.id,
-            value: { status: 'failed', message: 'Deploy data could not be retreived ' + (err.message || err) },
-            alert: payload.alert,
-          })
-        );
-        return;
+        if (err instanceof Error) {
+          store.dispatch(
+            fromBlockchain.rChainTransactionErrorAction({
+              id: payload.id,
+              value: {
+                status: 'failed',
+                message: `Deploy data could not be retreived ${err.message}`,
+              },
+              alert: payload.alert,
+            })
+          );
+          return;
+        }
       }
 
       const jsValue = rchainToolkit.utils.rhoValToJs(dataAtNameResponseExpr);
@@ -201,20 +190,20 @@ const sendRChainTransaction = function* (action: Action) {
       }
     }
   } catch (err) {
-    const p: fromBlockchain.RChainTransactionErrorPayload = {
-      id: payload.id,
-      value: { status: 'failed', message: typeof err == 'string' ? err : err.message },
-      alert: payload.alert,
-    };
-    if (payload.origin.origin === 'dapp') {
-      p.tabId = payload.origin.tabId;
+    if (err instanceof Error) {
+      const p: fromBlockchain.RChainTransactionErrorPayload = {
+        id: payload.id,
+        value: { status: 'failed', message: err.message },
+        alert: payload.alert,
+      };
+      if (payload.origin.origin === 'dapp') {
+        p.tabId = payload.origin.tabId;
+      }
+      store.dispatch(fromBlockchain.rChainTransactionErrorAction(p));
     }
-    store.dispatch(fromBlockchain.rChainTransactionErrorAction(p));
   }
-
-  return true;
 };
 
-export const sendRChainTransactionSaga = function* () {
+export function* sendRChainTransactionSaga() {
   yield takeEvery(fromBlockchain.SEND_RCHAIN_TRANSACTION, sendRChainTransaction);
-};
+}

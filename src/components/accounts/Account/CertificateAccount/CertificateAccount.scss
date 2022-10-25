@@ -1,0 +1,32 @@
+.cert-account {
+  display: grid;
+  grid-template-columns: 100%;
+  grid-template-rows: 2rem 7rem 2rem;
+  width: 25rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1.5rem;
+
+  .header {    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    .name {
+      font-weight: 600;
+      &:hover {
+        color: black
+      }
+    }
+  }
+
+  .body {
+    align-self: center;
+    .address {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .footer {
+    align-self: end;
+    justify-self: end;
+  }
+}

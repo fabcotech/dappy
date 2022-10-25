@@ -52,7 +52,7 @@ export const validateBlockchainResponse = (
   const parsedResponse = JSON.parse(response);
   if (!parsedResponse.success) {
     return {
-      error: BeesLoadError.ResourceNotFound,
+      error: BeesLoadError.OutOfNodes,
       args: {
         search: searchedFor,
       },
@@ -61,7 +61,7 @@ export const validateBlockchainResponse = (
 
   if (['"Computation ran out of phlogistons."'].includes(parsedResponse.data)) {
     return {
-      error: BeesLoadError.FailedToParseResponse,
+      error: BeesLoadError.OutOfNodes,
       args: {
         message: parsedResponse.data,
       },
@@ -72,7 +72,7 @@ export const validateBlockchainResponse = (
   const valid = validate(parsedData);
   if (!valid) {
     return {
-      error: BeesLoadError.FailedToParseResponse,
+      error: BeesLoadError.OutOfNodes,
       args: {
         message: '[data] must be an object and have string at path ".expr[0].ExprString.data"',
       },
@@ -81,7 +81,7 @@ export const validateBlockchainResponse = (
 
   if (atLeastOneExpr && !parsedData.expr[0]) {
     return {
-      error: BeesLoadError.FailedToParseResponse,
+      error: BeesLoadError.OutOfNodes,
       args: {
         message: '[data] must be an object and have string at path ".expr[0].ExprString.data"',
       },

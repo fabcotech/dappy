@@ -24,7 +24,10 @@ interface AccountSelectComponentState {
   passwordSuccess: boolean;
   privatekey: undefined | string;
 }
-export class AccountModalComponent extends React.Component<AccountModalComponentProps, AccountSelectComponentState> {
+export class AccountModalComponent extends React.Component<
+  AccountModalComponentProps,
+  AccountSelectComponentState
+> {
   constructor(props: AccountModalComponentProps) {
     super(props);
     this.state = {
@@ -45,13 +48,15 @@ export class AccountModalComponent extends React.Component<AccountModalComponent
     this.stream.compose(debounce(800)).subscribe({
       next: (data) => {
         try {
-          const password = passwordFromStringToBytes(data.password);
-          const decrypted = decrypt(data.account.encrypted, password);
-          this.setState({
-            passwordSuccess: true,
-            passwordError: undefined,
-            privatekey: decrypted,
-          });
+          if (data.account.platform !== 'certificate') {
+            const password = passwordFromStringToBytes(data.password);
+            const decrypted = decrypt(data.account.encrypted, password);
+            this.setState({
+              passwordSuccess: true,
+              passwordError: undefined,
+              privatekey: decrypted,
+            });
+          }
         } catch (err) {
           this.setState({
             passwordError: t('wrong password'),
@@ -89,16 +94,16 @@ export class AccountModalComponent extends React.Component<AccountModalComponent
                 password: '',
               }}
               validate={(values) => {
-                let errors: {
+                const errors: {
                   password?: string;
                 } = {};
                 // always true
                 if (this.stream) {
-                  this.stream.shamefullySendNext({ account: account, password: values.password });
+                  this.stream.shamefullySendNext({ account, password: values.password });
                 }
                 return errors;
               }}
-              render={({ values, errors, touched, setFieldValue }) => {
+              render={({ touched }) => {
                 return (
                   <div className="account-form">
                     <div className="field is-horizontal">
@@ -107,58 +112,69 @@ export class AccountModalComponent extends React.Component<AccountModalComponent
                         <span>{account.name}</span>
                       </div>
                     </div>
-                    <div className="field is-horizontal">
-                      <label className="label">{t('address')}</label>
-                      <div className="control">
-                        <p className="private-or-public-key">{account.address}</p>
-                        <a type="button" className="underlined-link" onClick={() => copyToClipboard(account.address)}>
-                          <i className="fa fa-copy fa-before"></i>
-                          {t('copy address')}
-                        </a>
-                      </div>
-                    </div>
+                    {account.platform !== 'certificate' && (
+                      <>
+                        <div className="field is-horizontal">
+                          <label className="label">{t('address')}</label>
+                          <div className="control">
+                            <p className="private-or-public-key">{account.address}</p>
+                            <a
+                              type="button"
+                              className="underlined-link"
+                              onClick={() => copyToClipboard(account.address)}
+                            >
+                              <i className="fa fa-copy fa-before"></i>
+                              {t('copy address')}
+                            </a>
+                          </div>
+                        </div>
 
-                    <div className="field is-horizontal">
-                      <label className="label">{t('public key')}</label>
-                      <div className="control">
-                        <p className="private-or-public-key">{account.publicKey}</p>
-                        <a type="button" className="underlined-link" onClick={() => copyToClipboard(account.publicKey)}>
-                          <i className="fa fa-copy fa-before"></i>
-                          copy public key
-                        </a>
-                      </div>
-                    </div>
+                        <div className="field is-horizontal">
+                          <label className="label">{t('public key')}</label>
+                          <div className="control">
+                            <p className="private-or-public-key">{account.publicKey}</p>
+                            <a
+                              type="button"
+                              className="underlined-link"
+                              onClick={() => copyToClipboard(account.publicKey)}
+                            >
+                              <i className="fa fa-copy fa-before"></i>
+                              copy public key
+                            </a>
+                          </div>
+                        </div>
+                        <div className="field is-horizontal">
+                          <label className="label">{t('private key')}</label>
+                          <div className="control">
+                            {this.state.privatekey ? (
+                              <p className="private-or-public-key">{this.state.privatekey}</p>
+                            ) : (
+                              <p className="enter-password">Enter password to see private key</p>
+                            )}
+                          </div>
+                        </div>
 
-                    <div className="field is-horizontal">
-                      <label className="label">{t('private key')}</label>
-                      <div className="control">
-                        {this.state.privatekey ? (
-                          <p className="private-or-public-key">{this.state.privatekey}</p>
-                        ) : (
-                          <p className="enter-password">Enter password to see private key</p>
+                        <div className="field is-horizontal">
+                          <label className="label">
+                            <i className="fa fa-before fa-key"></i>
+                            {t('unlock account')}
+                          </label>
+                          <div className="control has-icons-right">
+                            <Field
+                              className={`input ${this.state.passwordSuccess ? 'is-success' : ''} ${
+                                this.state.passwordError ? 'is-danger' : ''
+                              }`}
+                              type="password"
+                              name="password"
+                              placeholder={`${t('password for')} ${account.name}`}
+                            />
+                            <p className="help">{t('unlock account to see private key')}</p>
+                          </div>
+                        </div>
+                        {touched.password && this.state.passwordError && (
+                          <p className="text-danger">{this.state.passwordError}</p>
                         )}
-                      </div>
-                    </div>
-
-                    <div className="field is-horizontal">
-                      <label className="label">
-                        <i className="fa fa-before fa-key"></i>
-                        {t('unlock account')}
-                      </label>
-                      <div className="control has-icons-right">
-                        <Field
-                          className={`input ${this.state.passwordSuccess ? 'is-success' : ''} ${
-                            this.state.passwordError ? 'is-danger' : ''
-                          }`}
-                          type="password"
-                          name="password"
-                          placeholder={`${t('password for')} ${account.name}`}
-                        />
-                        <p className="help">{t('unlock account to see private key')}</p>
-                      </div>
-                    </div>
-                    {touched.password && this.state.passwordError && (
-                      <p className="text-danger">{this.state.passwordError}</p>
+                      </>
                     )}
                   </div>
                 );
@@ -167,7 +183,7 @@ export class AccountModalComponent extends React.Component<AccountModalComponent
           </section>
           <footer className="modal-card-foot">
             <span />
-            <button type="button" className={`button is-link`} onClick={this.onCloseModal}>
+            <button type="button" className="button is-link" onClick={this.onCloseModal}>
               {t('ok')}
             </button>
           </footer>

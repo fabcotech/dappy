@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { Component } from 'react';
 import xs, { Stream } from 'xstream';
 import debounce from 'xstream/extra/debounce';
 import { connect } from 'react-redux';
@@ -11,13 +11,18 @@ import * as fromSettings from '/store/settings';
 import * as fromBlockchain from '/store/blockchain';
 import * as fromCommon from '/common';
 import { TransactionForm } from './TransactionForm';
-import { LOGREV_TO_REV_RATE, DEFAULT_PHLO_LIMIT } from '/CONSTANTS';
+import { LOGREV_TO_REV_RATE, DEFAULT_PHLO_LIMIT, REV_TRANSFER_PHLO_LIMIT } from '/CONSTANTS';
 import { formatAmount } from '/utils/formatAmount';
 import { rchainWallet, createTranferTerm } from '/utils/wallets';
 
 import './RChainTransactionModal.scss';
-import { TransactionState, Account, RChainInfos, Record, TransactionOrigin } from '/models';
-import { REV_TRANSFER_PHLO_LIMIT } from '/CONSTANTS';
+import {
+  TransactionState,
+  RChainInfos,
+  Record as DappyRecord,
+  TransactionOrigin,
+  BlockchainAccount,
+} from '/models';
 
 interface PaymentRequestModalComponentProps {
   modal: undefined | fromMain.Modal;
@@ -25,8 +30,8 @@ interface PaymentRequestModalComponentProps {
   isTablet: boolean;
   transactions: { [id: string]: TransactionState };
   rchainInfos: { [chainId: string]: RChainInfos };
-  accounts: { [accountName: string]: Account };
-  records: { [name: string]: Record };
+  accounts: Record<string, BlockchainAccount>;
+  records: { [name: string]: DappyRecord };
   recordsBlockchain: RChainInfos | undefined;
   closeDappModal: (a: fromMain.CloseDappModalPayload) => void;
   closeModal: () => void;
@@ -34,7 +39,7 @@ interface PaymentRequestModalComponentProps {
   saveFailedRChainTransaction: (a: fromBlockchain.SaveFailedRChainTransactionPayload) => void;
 }
 
-export class PaymentRequestModalComponent extends React.Component<PaymentRequestModalComponentProps, {}> {
+export class PaymentRequestModalComponent extends Component<PaymentRequestModalComponentProps> {
   state: {
     privatekey: string;
     publickey: string;
@@ -44,7 +49,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
     to: string;
     amount: number;
     seeCode: boolean;
-    foundRecord: Record | undefined;
+    foundRecord: DappyRecord | undefined;
     foundRecordError: string;
   } = {
     privatekey: '',
@@ -80,7 +85,8 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
               this.setState({
                 foundRecord: undefined,
                 to: undefined,
-                foundRecordError: `Network for names has not been found, cannot use the name system for transactions`,
+                foundRecordError:
+                  'Network for names has not been found, cannot use the name system for transactions',
               });
               return;
             }
@@ -119,7 +125,8 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
   }
 
   onCloseModal = () => {
-    const payload: fromCommon.SendRChainTransactionFromMiddlewarePayload = (this.props.modal as any).parameters;
+    const payload: fromCommon.SendRChainTransactionFromMiddlewarePayload = (this.props.modal as any)
+      .parameters;
     /*
       This modal can be opened from a dapp (third party),
       or from the tipping button (user action). In both cases
@@ -176,7 +183,9 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
   };
 
   onSendTransaction = () => {
-    const payload: fromCommon.SendRChainPaymentRequestFromMiddlewarePayload = (this.props.modal as any).parameters;
+    const payload: fromCommon.SendRChainPaymentRequestFromMiddlewarePayload = (
+      this.props.modal as any
+    ).parameters;
 
     const fromAddress = rchainToolkit.utils.revAddressFromPublicKey(this.state.publickey);
 
@@ -184,7 +193,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
     let shardId = 'dev';
     if (this.props.rchainInfos && this.props.rchainInfos[payload.chainId]) {
       validAfterBlockNumber = this.props.rchainInfos[payload.chainId].info.lastFinalizedBlockNumber;
-      shardId = this.props.rchainInfos[payload.chainId].info.rchainShardId
+      shardId = this.props.rchainInfos[payload.chainId].info.rchainShardId;
     }
 
     const deployOptions = rchainWallet.signTransaction(
@@ -194,11 +203,11 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
           to: payload.parameters.to || this.state.to,
           amount: payload.parameters.amount || this.state.amount,
         }),
-        shardId: shardId,
+        shardId,
         timestamp: new Date().valueOf(),
         phloPrice: 1,
         phloLimit: this.state.phloLimit,
-        validAfterBlockNumber: validAfterBlockNumber,
+        validAfterBlockNumber,
       },
       this.state.privatekey
     );
@@ -209,7 +218,10 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
       there will be payload.tabId
     */
     if (payload.tabId) {
-      let origin: TransactionOrigin = { origin: 'transfer', accountName: this.state.accountName as string };
+      let origin: TransactionOrigin = {
+        origin: 'transfer',
+        accountName: this.state.accountName as string,
+      };
       if (payload.origin.tabId) {
         origin = {
           origin: 'dapp',
@@ -224,16 +236,16 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
         if origin is "dapp", there should already be an id
         if not, create one
       */
-      let id: string | undefined = payload.id;
+      let { id } = payload;
       if (!id) {
         id = new Date().valueOf().toString() + Math.round(Math.random() * 1000000).toString();
       }
       this.props.sendRChainTransaction({
         transaction: deployOptions,
-        origin: origin,
+        origin,
         platform: 'rchain',
         blockchainId: payload.chainId,
-        id: id,
+        id,
         alert: false,
         sentAt: new Date().toISOString(),
       });
@@ -289,21 +301,18 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
       console.log('Error : there should be parameters in TransactionModal');
     }
 
-    const payload: fromCommon.SendRChainPaymentRequestFromMiddlewarePayload = this.props.modal.parameters;
+    const payload: fromCommon.SendRChainPaymentRequestFromMiddlewarePayload =
+      this.props.modal.parameters;
 
-    let foundAccountName: string | undefined = undefined;
-    let accounts = this.props.accounts;
+    let foundAccountName: string | undefined;
+    let targetAccounts = this.props.accounts;
     if (payload.parameters.from) {
-      const foundKeys = Object.keys(this.props.accounts).filter(
-        (k) => this.props.accounts[k].address === payload.parameters.from
+      targetAccounts = Object.fromEntries(
+        Object.entries(targetAccounts).filter(
+          ([, v]) => (v as BlockchainAccount).address === payload.parameters.from
+        )
       );
-      if (foundKeys[0]) {
-        foundAccountName = this.props.accounts[foundKeys[0]].name;
-        accounts = {};
-        foundKeys.forEach((fk) => {
-          accounts[fk] = this.props.accounts[fk];
-        });
-      }
+      foundAccountName = targetAccounts[0].name;
     }
 
     let Title = () => <span>{t('transfer revs')}</span>;
@@ -332,7 +341,7 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
           <section className="modal-card-body">
             <TransactionForm
               address={payload.parameters.from}
-              accounts={accounts}
+              accounts={targetAccounts}
               phloLimit={REV_TRANSFER_PHLO_LIMIT}
               filledTransactionData={this.onFilledTransactionData}
             />
@@ -342,10 +351,18 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
                   <div className="field is-horizontal form-to">
                     <label className="label">{t('to (rev address)')}*</label>
                     <div className="control">
-                      <input onChange={this.onChangeTo} className="input" type="string" name="to" placeholder="To" />
+                      <input
+                        onChange={this.onChangeTo}
+                        className="input"
+                        type="string"
+                        name="to"
+                        placeholder="To"
+                      />
                     </div>
                   </div>
-                  {this.state.foundRecordError && <p className="text-danger">{this.state.foundRecordError}</p>}
+                  {this.state.foundRecordError && (
+                    <p className="text-danger">{this.state.foundRecordError}</p>
+                  )}
                   {this.state.foundRecord && (
                     <div className="found-record">
                       <span>
@@ -383,7 +400,10 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
               <div>
                 <span className="label">{t('amount')}</span>
                 <b>
-                  {formatAmount((payload.parameters.amount || this.state.amount) / LOGREV_TO_REV_RATE)} {t('rev')}
+                  {formatAmount(
+                    (payload.parameters.amount || this.state.amount) / LOGREV_TO_REV_RATE
+                  )}{' '}
+                  {t('rev')}
                   <br />
                   {payload.parameters.amount || this.state.amount} {t('dust')}
                 </b>
@@ -392,7 +412,8 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
                 <div>
                   <span className="label">{t('from')}</span>
                   <span>
-                    {payload.parameters.from} {foundAccountName ? `(${foundAccountName})` : undefined}
+                    {payload.parameters.from}{' '}
+                    {foundAccountName ? `(${foundAccountName})` : undefined}
                   </span>
                 </div>
               ) : undefined}
@@ -404,14 +425,15 @@ export class PaymentRequestModalComponent extends React.Component<PaymentRequest
             </div>
           </section>
           <footer className="modal-card-foot">
-            <button type="button" className={`button is-light`} onClick={this.onCloseModal}>
+            <button type="button" className="button is-light" onClick={this.onCloseModal}>
               {t('discard transaction')}
             </button>
             <button
               type="button"
               disabled={!this.state.privatekey}
-              className={`button is-link`}
-              onClick={this.onSendTransaction}>
+              className="button is-link"
+              onClick={this.onSendTransaction}
+            >
               {t('send transaction')}
             </button>
           </footer>

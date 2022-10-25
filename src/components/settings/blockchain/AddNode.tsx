@@ -3,12 +3,13 @@ import { Formik, Field } from 'formik';
 
 import './Blockchains.scss';
 import { getIpAddressAndCert } from '/interProcess';
+import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 
 const REGEXP_HOST = /^(?!\.)^[a-z0-9.]*$/;
 
 interface AddNodeProps {
-  formNodes: { ip: string; hostname: string; port: string; caCert: string }[];
-  addNode: (values: { ip: string; port: string; hostname: string; caCert: string }) => void;
+  formNodes: DappyNetworkMember[];
+  addNode: (values: DappyNetworkMember) => void;
   cancel: () => void;
 }
 
@@ -28,7 +29,7 @@ export class AddNode extends React.Component<AddNodeProps, {}> {
           if (a.ip && a.cert && typeof a.ip === 'string' && typeof a.cert === 'string') {
             setFieldValue(`caCert`, a.cert);
             setFieldValue(`ip`, a.ip);
-            setFieldValue(`port`, "");
+            setFieldValue(`port`, '');
           }
           this.setState({
             retrieveError: '',
@@ -73,8 +74,12 @@ export class AddNode extends React.Component<AddNodeProps, {}> {
                   <Field className="input" type="text" name={`hostname`} placeholder="dappynode" />
                 </div>
               </div>
-              {this.state.retrieveError && <p className="text-danger">{this.state.retrieveError}</p>}
-              {touched && touched.hostname && errors.hostname && <p className="text-danger">{errors.hostname}</p>}
+              {this.state.retrieveError && (
+                <p className="text-danger">{this.state.retrieveError}</p>
+              )}
+              {touched && touched.hostname && errors.hostname && (
+                <p className="text-danger">{errors.hostname}</p>
+              )}
               <div className="field is-horizontal">
                 <label className="label">{t('ip address')}*</label>
                 <div className="control">
@@ -88,7 +93,9 @@ export class AddNode extends React.Component<AddNodeProps, {}> {
                   <Field className="input" type="text" name={`port`} placeholder="" />
                 </div>
               </div>
-              {touched && touched.port && errors.port && <p className="text-danger">{errors.port}</p>}
+              {touched && touched.port && errors.port && (
+                <p className="text-danger">{errors.port}</p>
+              )}
               <div className="field is-horizontal">
                 <label className="label">{t('certificate')}*</label>
                 <div className="control">
@@ -101,7 +108,9 @@ export class AddNode extends React.Component<AddNodeProps, {}> {
                   />
                 </div>
               </div>
-              {touched && touched.caCert && errors.caCert && <p className="text-danger">{errors.caCert}</p>}
+              {touched && touched.caCert && errors.caCert && (
+                <p className="text-danger">{errors.caCert}</p>
+              )}
 
               <div className="field is-horizontal is-grouped pt20">
                 <div className="control">
@@ -110,21 +119,26 @@ export class AddNode extends React.Component<AddNodeProps, {}> {
                     onClick={() => {
                       this.props.cancel();
                     }}
-                    className="button is-light">
+                    className="button is-light"
+                  >
                     Cancel
                   </button>{' '}
                   <button
                     type="button"
                     onClick={() => {
                       this.props.addNode({
+                        scheme: values.caCert ? 'https' : 'http',
                         ip: values.ip,
                         port: values.port,
                         hostname: values.hostname,
-                        caCert: values.caCert ? Buffer.from(values.caCert, 'utf8').toString('base64') : '',
+                        caCert: values.caCert
+                          ? Buffer.from(values.caCert, 'utf8').toString('base64')
+                          : '',
                       });
                     }}
                     className="button is-black"
-                    disabled={!!(errors.hostname || errors.ip || errors.caCert)}>
+                    disabled={!!(errors.hostname || errors.ip || errors.caCert)}
+                  >
                     Add node
                   </button>
                 </div>

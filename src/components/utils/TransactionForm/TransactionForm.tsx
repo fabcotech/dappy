@@ -1,18 +1,18 @@
 import React from 'react';
-import * as elliptic from 'elliptic';
+import { ec as Ec } from 'elliptic';
 import { Formik, Field } from 'formik';
 import * as rchainToolkit from '@fabcotech/rchain-toolkit';
 
-import { Account } from '/models';
+import { BlockchainAccount } from '/models';
 import { DEFAULT_PHLO_LIMIT } from '/CONSTANTS';
 import { AccountSelect } from '../AccountSelect';
 
 import './TransactionForm.scss';
 
-const ec = new elliptic.ec('secp256k1');
+const ec = new Ec('secp256k1');
 
 export interface TransactionFormProps {
-  accounts: Record<string, Account>;
+  accounts: Record<string, BlockchainAccount>;
   chooseBox?: boolean;
   publicKey?: string;
   phloLimit?: number;
@@ -25,9 +25,8 @@ export interface TransactionFormProps {
     accountName: string | undefined;
   }) => void;
 }
-interface TransactionFormState {}
 
-export class TransactionFormComponent extends React.Component<TransactionFormProps, TransactionFormState> {
+export class TransactionFormComponent extends React.Component<TransactionFormProps> {
   constructor(props: TransactionFormProps) {
     super(props);
     this.state = {};
@@ -41,8 +40,8 @@ export class TransactionFormComponent extends React.Component<TransactionFormPro
         <form className="transaction-form">
           <h5 className="is-6 title">{t('transaction')}</h5>
           <p className="pt10 pb10">
-            You need at least one account, configure an account with your private key in the <b>{t('accounts')}</b>{' '}
-            section
+            You need at least one account, configure an account with your private key in the{' '}
+            <b>{t('accounts')}</b> section
           </p>
         </form>
       );
@@ -58,7 +57,7 @@ export class TransactionFormComponent extends React.Component<TransactionFormPro
           phloLimit: this.props.phloLimit || DEFAULT_PHLO_LIMIT,
         }}
         validate={(values) => {
-          let errors: {
+          const errors: {
             name?: string;
             privatekey?: string;
             phloLimit?: string;
@@ -76,7 +75,8 @@ export class TransactionFormComponent extends React.Component<TransactionFormPro
                 errors.privatekey = t('private key does not match');
                 this.publickey = '';
               } else if (this.props.address) {
-                const addressFromPublicKey = rchainToolkit.utils.revAddressFromPublicKey(publickeyFromPrivateKey);
+                const addressFromPublicKey =
+                  rchainToolkit.utils.revAddressFromPublicKey(publickeyFromPrivateKey);
                 if (this.props.address !== addressFromPublicKey) {
                   errors.privatekey = t('private key does not match');
                   this.publickey = '';
@@ -116,7 +116,8 @@ export class TransactionFormComponent extends React.Component<TransactionFormPro
           }
 
           return errors;
-        }}>
+        }}
+      >
         {({ errors, touched, handleSubmit, setFieldValue }) => {
           return (
             <form className="transaction-form" onSubmit={handleSubmit}>
@@ -125,7 +126,13 @@ export class TransactionFormComponent extends React.Component<TransactionFormPro
                 <div className="field is-horizontal">
                   <label className="label">{t('for address')}</label>
                   <div className="control">
-                    <input disabled className="input" type="text" name="address" value={this.props.address} />
+                    <input
+                      disabled
+                      className="input"
+                      type="text"
+                      name="address"
+                      value={this.props.address}
+                    />
                   </div>
                 </div>
               ) : undefined}
@@ -146,12 +153,19 @@ export class TransactionFormComponent extends React.Component<TransactionFormPro
                 <div className="field-body">
                   <div className="field">
                     <div className="control">
-                      <Field className="input" type="number" name="phloLimit" placeholder={t('phlogiston limit')} />
+                      <Field
+                        className="input"
+                        type="number"
+                        name="phloLimit"
+                        placeholder={t('phlogiston limit')}
+                      />
                     </div>
                   </div>
                 </div>
               </div>
-              {touched.phloLimit && errors.phloLimit && <p className="text-danger">{(errors as any).phloLimit}</p>}
+              {touched.phloLimit && errors.phloLimit && (
+                <p className="text-danger">{(errors as any).phloLimit}</p>
+              )}
             </form>
           );
         }}

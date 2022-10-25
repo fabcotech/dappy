@@ -1,37 +1,32 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { Account as AccountModel, Blockchain } from '/models';
+import { BlockchainAccount, Blockchain } from '/models';
 import * as fromSettings from '/store/settings';
 import * as fromMain from '/store/main';
 import * as fromCommon from '/common';
 import { State } from '/store';
 import { getIsBalancesHidden } from '/store/ui';
-import { LOGREV_TO_REV_RATE, FAKE_BALANCE } from '/CONSTANTS';
-import { formatAmount } from '/utils/formatAmount';
 import { copyToClipboard } from '/interProcess';
-import { GlossaryHint } from '/components/utils/Hint';
 
 import './RChainAccount.scss';
 import { WalletAddress } from '/components/utils/WalletAddress';
 
 interface AccountComponentProps {
-  account: AccountModel;
+  account: BlockchainAccount;
   isBalancesHidden: boolean;
   namesBlockchain: Blockchain | undefined;
-  showAccountModal: (a: AccountModel) => void;
-  setAccountAsMain: (a: AccountModel) => void;
-  sendRChainPayment: (a: AccountModel, chainId: string) => void;
-  deleteAccount: (a: AccountModel) => void;
+  showAccountModal: (a: BlockchainAccount) => void;
+  setAccountAsMain: (a: BlockchainAccount) => void;
+  sendRChainPayment: (a: BlockchainAccount, chainId: string) => void;
+  deleteAccount: (a: BlockchainAccount) => void;
 }
 
 export const RChainAccountComponent = ({
   account,
-  isBalancesHidden,
   namesBlockchain,
   showAccountModal,
   setAccountAsMain,
-  sendRChainPayment,
   deleteAccount,
 }: AccountComponentProps) => {
   return (
@@ -46,17 +41,19 @@ export const RChainAccountComponent = ({
             <button
               title={t('set as main account')}
               onClick={() => setAccountAsMain(account)}
-              className="button is-light is-small">
+              className="button is-light is-small"
+            >
               {t('set as main account')}
             </button>
           )}
-          {!!namesBlockchain ? (
+          {namesBlockchain ? (
             <a
               title={t('send revs')}
               className="underlined-link disabled"
               onClick={() => {
                 // sendRChainPayment(account, (namesBlockchain as Blockchain).chainId)
-              }}>
+              }}
+            >
               <i className="fa fa-before fa-money-bill-wave"></i>
               {t('send revs')}
             </a>
@@ -80,25 +77,13 @@ export const RChainAccountComponent = ({
           </div>
           <WalletAddress address={account.address} />
         </div>
-        {
-          true ?
-          <span>Balances are disabled</span> :
-          <>
-            <span title={account.balance.toString()} className={`num ${isBalancesHidden ? 'blur' : ''}`}>
-              {formatAmount(isBalancesHidden ? FAKE_BALANCE : account.balance)}
-            </span>
-            <span className="unit">{t('rev', true)}</span>
-            <GlossaryHint term="what is rev ?" />
-            {!isBalancesHidden && (
-              <span className="dust">{account.balance * LOGREV_TO_REV_RATE}</span>
-            )}
-          </>
-        }
+        <span>Balances are disabled</span>
       </div>
       <a
         title="Remove the account forever"
         onClick={() => deleteAccount(account)}
-        className="remove-account underlined-link red">
+        className="remove-account underlined-link red"
+      >
         {t('remove account')}
       </a>
     </div>
@@ -113,7 +98,7 @@ export const RChainAccount = connect(
     isBalancesHidden: getIsBalancesHidden(state),
   }),
   (dispatch) => ({
-    setAccountAsMain: (a: AccountModel) =>
+    setAccountAsMain: (a: BlockchainAccount) =>
       dispatch(
         fromSettings.updateAccountAction({
           account: {
@@ -122,7 +107,7 @@ export const RChainAccount = connect(
           },
         })
       ),
-    showAccountModal: (a: AccountModel) =>
+    showAccountModal: (a: BlockchainAccount) =>
       dispatch(
         fromMain.openModalAction({
           title: 'ACCOUNT_MODAL',
@@ -137,7 +122,7 @@ export const RChainAccount = connect(
           ],
         })
       ),
-    sendRChainPayment: (a: AccountModel, chainId: string) => {
+    sendRChainPayment: (a: BlockchainAccount, chainId: string) => {
       const parameters: fromCommon.RChainPaymentRequestParameters = {
         from: a.address,
         to: undefined,
@@ -148,8 +133,8 @@ export const RChainAccount = connect(
           title: 'PAYMENT_REQUEST_MODAL',
           text: '',
           parameters: {
-            parameters: parameters,
-            chainId: chainId,
+            parameters,
+            chainId,
           },
           buttons: [],
         })
@@ -158,7 +143,7 @@ export const RChainAccount = connect(
     openModal: (t: fromMain.OpenModalPayload) => {
       dispatch(fromMain.openModalAction(t));
     },
-    deleteAccount: (a: AccountModel) =>
+    deleteAccount: (a: BlockchainAccount) =>
       dispatch(
         fromMain.openModalAction({
           title: 'REMOVE_ACCOUNT_MODAL',

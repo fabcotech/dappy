@@ -152,21 +152,25 @@ const loadResource = function* (action: Action) {
         chainId: namesBlockchain.chainId,
       });
     } catch (err) {
-      yield put(
-        fromDapps.loadResourceFailedAction({
-          tabId: tabId,
-          url: payload.url,
-          error: {
-            error: DappyLoadError.DappyLookup,
-            args: { message: err.message },
-          },
-        })
-      );
+      if (err instanceof Error) {
+        yield put(
+          fromDapps.loadResourceFailedAction({
+            tabId,
+            url: payload.url,
+            error: {
+              error: DappyLoadError.DappyLookup,
+              args: { message: err.message },
+            },
+          })
+        );
+      }
       return;
     }
 
     let publicKey = '';
-    const publicKeyRecord = (txts as NamePacket).answers.find((a) => a.data.startsWith('PUBLIC_KEY='));
+    const publicKeyRecord = (txts as NamePacket).answers.find((a) =>
+      a.data.startsWith('PUBLIC_KEY=')
+    );
     if (publicKeyRecord) {
       publicKey = (publicKeyRecord as NameAnswer).data.replace('PUBLIC_KEY=', '');
     }

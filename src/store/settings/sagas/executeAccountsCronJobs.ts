@@ -1,5 +1,5 @@
 import { takeEvery, select, put } from 'redux-saga/effects';
-import { BeesLoadCompleted, BeesLoadErrorWithArgs } from '@fabcotech/bees';
+import { BeesLoadCompleted } from '@fabcotech/bees';
 import Ajv from 'ajv';
 
 import * as fromSettings from '..';
@@ -8,8 +8,7 @@ import * as fromBlockchain from '/store/blockchain/';
 import { LOGREV_TO_REV_RATE } from '/CONSTANTS';
 import { blockchain as blockchainUtils } from '/utils/blockchain';
 import { getNodeIndex } from '/utils/getNodeIndex';
-import { Account, Blockchain, DappyLoadError, MultiRequestResult } from '/models';
-import { Action } from '../actions';
+import { Blockchain, BlockchainAccount, DappyLoadError, MultiRequestResult } from '/models';
 import { multiRequest } from '/interProcess';
 
 const ajv = new Ajv();
@@ -42,10 +41,8 @@ const balancesSchema = {
 ajv.addMetaSchema(require('ajv/lib/refs/json-schema-draft-06.json'));
 const validateBalances = ajv.compile(balancesSchema);
 
-const executeAccountsCronJobs = function* (action: Action) {
-  const accounts: {
-    [key: string]: Account;
-  } = yield select(fromSettings.getRChainAccounts);
+function* executeAccountsCronJobs() {
+  const accounts: Record<string, BlockchainAccount> = yield select(fromSettings.getRChainAccounts);
   const blockchains: {
     [key: string]: Blockchain;
   } = yield select(fromSettings.getBlockchains);
@@ -54,12 +51,16 @@ const executeAccountsCronJobs = function* (action: Action) {
     return;
   }
 
-  let multiRequestResult: MultiRequestResult | undefined = undefined;
+  let multiRequestResult: MultiRequestResult | undefined;
   try {
     multiRequestResult = yield multiRequest(
       {
         type: 'explore-deploy-x',
-        body: { terms: Object.keys(accounts).map((k) => blockchainUtils.rchain.balanceTerm(accounts[k].address)) },
+        body: {
+          terms: Object.keys(accounts).map((k) =>
+            blockchainUtils.rchain.balanceTerm(accounts[k].address)
+          ),
+        },
       },
       {
         // todo, accounts must be attached to a blockchain
@@ -72,13 +73,18 @@ const executeAccountsCronJobs = function* (action: Action) {
       }
     );
   } catch (e) {
-    yield put(
-      fromSettings.updateAccountBalanceFailedAction({
-        date: new Date().toISOString(),
-        error: e.error as BeesLoadErrorWithArgs,
-        loadState: e.loadState as BeesLoadCompleted,
-      })
-    );
+    if (e instanceof Error) {
+      yield put(
+        fromSettings.updateAccountBalanceFailedAction({
+          date: new Date().toISOString(),
+          error: {
+            error: e.message as DappyLoadError,
+            args: {},
+          },
+          loadState: {},
+        })
+      );
+    }
     return;
   }
 
@@ -86,16 +92,18 @@ const executeAccountsCronJobs = function* (action: Action) {
   try {
     responseParsed = JSON.parse((multiRequestResult as MultiRequestResult).result);
   } catch (e) {
-    yield put(
-      fromSettings.updateAccountBalanceFailedAction({
-        date: new Date().toISOString(),
-        error: {
-          error: DappyLoadError.FailedToParseResponse,
-          args: { message: e.message || e },
-        },
-        loadState: (multiRequestResult as MultiRequestResult).loadState,
-      })
-    );
+    if (e instanceof Error) {
+      yield put(
+        fromSettings.updateAccountBalanceFailedAction({
+          date: new Date().toISOString(),
+          error: {
+            error: DappyLoadError.FailedToParseResponse,
+            args: { message: e.message },
+          },
+          loadState: (multiRequestResult as MultiRequestResult).loadState,
+        })
+      );
+    }
     return;
   }
 
@@ -108,17 +116,19 @@ const executeAccountsCronJobs = function* (action: Action) {
         return r.success && validateBalances(JSON.parse(r.data));
       });
   } catch (err) {
-    yield put(
-      fromSettings.updateAccountBalanceFailedAction({
-        date: new Date().toISOString(),
-        error: {
-          error: DappyLoadError.FailedToParseResponse,
-          args: { message: err.message || err },
-        },
-        loadState: (multiRequestResult as MultiRequestResult).loadState,
-      })
-    );
-    return;
+    if (err instanceof Error) {
+      yield put(
+        fromSettings.updateAccountBalanceFailedAction({
+          date: new Date().toISOString(),
+          error: {
+            error: DappyLoadError.FailedToParseResponse,
+            args: { message: err.message },
+          },
+          loadState: (multiRequestResult as MultiRequestResult).loadState,
+        })
+      );
+      return;
+    }
   }
 
   if (valid) {
@@ -129,7 +139,8 @@ const executeAccountsCronJobs = function* (action: Action) {
             accountName: k,
             // todo can a dappy-node not send all the ED results ?
             balance: responseParsed.data.results[i]
-              ? JSON.parse(responseParsed.data.results[i].data).expr[0].ExprInt.data / LOGREV_TO_REV_RATE
+              ? JSON.parse(responseParsed.data.results[i].data).expr[0].ExprInt.data /
+                LOGREV_TO_REV_RATE
               : 0,
           };
         }),
@@ -146,7 +157,7 @@ const executeAccountsCronJobs = function* (action: Action) {
     return;
   }
   return;
-};
+}
 
 export const executeAccountsCronJobsSaga = function* () {
   yield takeEvery(fromSettings.EXECUTE_ACCOUNTS_CRON_JOBS, executeAccountsCronJobs);

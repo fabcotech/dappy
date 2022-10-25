@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import * as fromSettings from '/store/settings';
 
-import { Account, NavigationUrl } from '/models';
+import { Account, BlockchainAccount, NavigationUrl } from '/models';
 import './Root.scss';
 import { connect } from 'react-redux';
 import { copyToClipboard } from '/interProcess';
@@ -10,19 +10,19 @@ import { updateAccountAction } from '/store/settings';
 import { validateWhitelistDomain } from '/utils/validateWhitelistDomain';
 
 interface RootProps {
-  accounts: { [key: string]: Account };
+  accounts: Record<string, BlockchainAccount>;
   navigationUrl: NavigationUrl;
-  updateAccount: (a: Account) => void;
+  updateAccount: (a: BlockchainAccount) => void;
   navigate: (navigationUrl: NavigationUrl) => void;
 }
 
-export class RootComponent extends React.Component<RootProps, {}> {
+export class RootComponent extends React.Component<RootProps, unknown> {
   state: {
-    whitelists: { [key: string]: Account["whitelist"] }
-    errors: { [key: string]: string }
+    whitelists: { [key: string]: Account['whitelist'] };
+    errors: { [key: string]: string };
   } = {
     whitelists: {},
-    errors: {}
+    errors: {},
   };
 
   render() {
@@ -31,22 +31,23 @@ export class RootComponent extends React.Component<RootProps, {}> {
         <h3 className="subtitle is-3">{t('auth title')}</h3>
         <p className="text-mid limited-width mb-2">
           {t('auth 1')}
-          <br/><br/>
+          <br />
+          <br />
           {t('auth 2')}
         </p>
-        {
-          Object.keys(this.props.accounts).map(a => {
-            return <React.Fragment key={a} >
+        {Object.keys(this.props.accounts).map((a) => {
+          return (
+            <React.Fragment key={a}>
               <br />
               <h4 className="title is-4">Account {a}</h4>
               <div className="field">
                 <label className="label">
-                  Public key {' '}
-                  <b>{this.props.accounts[a].publicKey.slice(0,30)}…</b>
+                  Public key <b>{this.props.accounts[a].publicKey.slice(0, 30)}…</b>
                   <a
                     type="button"
                     className="underlined-link"
-                    onClick={() => copyToClipboard(this.props.accounts[a].publicKey)}>
+                    onClick={() => copyToClipboard(this.props.accounts[a].publicKey)}
+                  >
                     <i className="fa fa-copy fa-before fa-after"></i>
                     {t('copy public key')}
                   </a>
@@ -54,79 +55,81 @@ export class RootComponent extends React.Component<RootProps, {}> {
                 <label className="label">{t('whitelist of domains')}</label>
                 <div className="control">
                   <textarea
-                    className={`textarea ${!!this.state.errors[a] ? 'with-error' : ''}`}
+                    className={`textarea ${this.state.errors[a] ? 'with-error' : ''}`}
                     rows={8}
                     placeholder={`hello.d\nonlinewebservice.d\n*.onlinewebservice.d\nbitconnect.d`}
-                    defaultValue={this.props.accounts[a].whitelist.map(a => a.host).join('\n')}
+                    defaultValue={this.props.accounts[a].whitelist.map((a) => a.host).join('\n')}
                     onChange={(e) => {
                       try {
-                        const splitByLine = e.target.value.split('\n').filter(a => !!a);
-                        const validLines = splitByLine.filter(validateWhitelistDomain)
+                        const splitByLine = e.target.value.split('\n').filter((a) => !!a);
+                        const validLines = splitByLine.filter(validateWhitelistDomain);
                         if (validLines.length === splitByLine.length) {
                           this.setState({
                             errors: {
                               ...this.state.errors,
-                              [a]: undefined
+                              [a]: undefined,
                             },
                             whitelists: {
                               ...this.state.whitelists,
-                              [a]: validLines.map(a => {
-                                return { host: a, blitz: true, transactions: true }
+                              [a]: validLines.map((a) => {
+                                return { host: a, blitz: true, transactions: true };
                               }),
-                            }
+                            },
                           });
                         } else {
                           this.setState({
                             errors: {
                               ...this.state.errors,
-                              [a]: 'Invalid lines, please provide only valid hosts ex: hello.d'
+                              [a]: 'Invalid lines, please provide only valid hosts ex: hello.d',
                             },
                             whitelists: {
                               ...this.state.whitelists,
-                              [a]: this.props.accounts[a].whitelist
-                            }
+                              [a]: this.props.accounts[a].whitelist,
+                            },
                           });
                         }
                       } catch (err) {
                         this.setState({
                           errors: {
-                            [a]: 'Unable to parse'
+                            [a]: 'Unable to parse',
                           },
                           whitelists: {
                             ...this.state.whitelists,
-                            [a]: this.props.accounts[a].whitelist
-                          }
+                            [a]: this.props.accounts[a].whitelist,
+                          },
                         });
-                        return;
                       }
-                    }}></textarea>
-                    {
-                      this.state.errors[a] &&
-                      <p className="text-danger">{this.state.errors[a]}</p>
-                    }
+                    }}
+                  ></textarea>
+                  {this.state.errors[a] && <p className="text-danger">{this.state.errors[a]}</p>}
                 </div>
               </div>
             </React.Fragment>
-          })
-        }
+          );
+        })}
         <div className="field is-horizontal is-grouped pt20">
           <div className="control">
-            { Object.keys(this.props.accounts).length > 0 && <button
-              type="submit"
-              className="button is-link is-medium"
-              disabled={Object.keys(this.state.errors).filter(e => !!this.state.errors[e]).length > 0}
-              onClick={() => {
-                Object.keys(this.props.accounts).forEach(a => {
-                  if (this.state.whitelists[a]) {
-                    this.props.updateAccount({
-                      ...this.props.accounts[a],
-                      whitelist: this.state.whitelists[a]
-                    })
-                  }
-                })
-              }}>
-              {t('save auth')}
-            </button> }
+            {Object.keys(this.props.accounts).length > 0 && (
+              <button
+                type="submit"
+                className="button is-link is-medium"
+                disabled={
+                  Object.keys(this.state.errors).filter((e) => !!this.state.errors[e]).length > 0
+                }
+                onClick={() => {
+                  Object.keys(this.props.accounts).forEach((a) => {
+                    if (this.state.whitelists[a]) {
+                      this.props.updateAccount({
+                        ...this.props.accounts[a],
+                        whitelist: this.state.whitelists[a],
+                      });
+                    }
+                  });
+                }}
+              >
+                {t('save auth')}
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -1,7 +1,13 @@
 import { createSelector } from 'reselect';
 
 import * as fromActions from './actions';
-import { ACCESS_ACCOUNTS, ACCESS_SECURITY, ACCESS_SETTINGS, ACCESS_TRANSACTIONS, ACCESS_WHITELIST, LOGS_PER_CONTRACT } from '/CONSTANTS';
+import {
+  ACCESS_ACCOUNTS,
+  ACCESS_SECURITY,
+  ACCESS_SETTINGS,
+  ACCESS_TRANSACTIONS,
+  ACCESS_WHITELIST,
+} from '/CONSTANTS';
 import { Action } from '../';
 import { NavigationUrl, Language } from '/models';
 
@@ -36,7 +42,7 @@ export const initialState: State = {
   contractLogs: {},
   showAccountCreationAtStartup: true,
   isBalancesHidden: false,
-  whitelist: [{ host: '*', topLevel: true, secondLevel: true }]
+  whitelist: [{ host: '*', topLevel: true, secondLevel: true }],
 };
 
 export const updateShowAccountCreationAtStartupReducer = (state = initialState, action: Action) => {
@@ -91,13 +97,15 @@ export const reducer = (state = initialState, action: Action): State => {
           newTabsListDisplay = 1;
         }
       }
- 
-      if (payload.navigationUrl.startsWith('/settings') && !ACCESS_SETTINGS) payload.navigationUrl = '/'
-      if (payload.navigationUrl === '/accounts' && !ACCESS_ACCOUNTS) payload.navigationUrl = '/'
-      if (payload.navigationUrl === '/auth' && !ACCESS_SECURITY) payload.navigationUrl = '/'
-      if (payload.navigationUrl.startsWith('/deploy')) payload.navigationUrl = '/'
-      if (payload.navigationUrl === '/transactions' && !ACCESS_TRANSACTIONS) payload.navigationUrl = '/'
-      if (payload.navigationUrl === '/whitelist' && !ACCESS_WHITELIST) payload.navigationUrl = '/'
+
+      if (payload.navigationUrl.startsWith('/settings') && !ACCESS_SETTINGS)
+        payload.navigationUrl = '/';
+      if (payload.navigationUrl === '/accounts' && !ACCESS_ACCOUNTS) payload.navigationUrl = '/';
+      if (payload.navigationUrl === '/auth' && !ACCESS_SECURITY) payload.navigationUrl = '/';
+      if (payload.navigationUrl.startsWith('/deploy')) payload.navigationUrl = '/';
+      if (payload.navigationUrl === '/transactions' && !ACCESS_TRANSACTIONS)
+        payload.navigationUrl = '/';
+      if (payload.navigationUrl === '/whitelist' && !ACCESS_WHITELIST) payload.navigationUrl = '/';
 
       return {
         ...state,
@@ -167,17 +175,16 @@ export const reducer = (state = initialState, action: Action): State => {
 
 // SELECTORS
 
-interface PartialRootState {
-  ui: State;
-}
-
-export const getUiState = (state: PartialRootState) => state.ui;
+export const getUiState = (state: any) => state.ui;
 
 export const getLanguage = createSelector(getUiState, (state: State) => state.language);
 
 export const getMenuCollapsed = createSelector(getUiState, (state: State) => state.menuCollapsed);
 
-export const getTabsListDisplay = createSelector(getUiState, (state: State) => state.tabsListDisplay);
+export const getTabsListDisplay = createSelector(
+  getUiState,
+  (state: State) => state.tabsListDisplay
+);
 
 export const getDevMode = createSelector(getUiState, (state: State) => state.devMode);
 
@@ -189,16 +196,25 @@ export const getNavigationUrl = createSelector(getUiState, (state: State) => sta
 
 export const getGcu = createSelector(getUiState, (state: State) => state.gcu);
 
-export const getBodyDimensions = createSelector(getUiState, (state: State) => state.windowDimensions);
+export const getBodyDimensions = createSelector(
+  getUiState,
+  (state: State) => state.windowDimensions
+);
 
 export const getNavigationSuggestionsDisplayed = createSelector(
   getUiState,
   (state: State) => state.navigationSuggestionsDisplayed
 );
 
-export const getIsMobile = createSelector(getBodyDimensions, (dimensions) => !!(dimensions && dimensions[0] <= 769));
+export const getIsMobile = createSelector(
+  getBodyDimensions,
+  (dimensions) => !!(dimensions && dimensions[0] <= 769)
+);
 
-export const getIsTablet = createSelector(getBodyDimensions, (dimensions) => !!(dimensions && dimensions[0] <= 959));
+export const getIsTablet = createSelector(
+  getBodyDimensions,
+  (dimensions) => !!(dimensions && dimensions[0] <= 959)
+);
 
 export const getIsNavigationInSettings = createSelector(getNavigationUrl, (navigationUrl: string) =>
   navigationUrl.startsWith('/settings')
@@ -217,16 +233,21 @@ export const getIsNavigationInAuth = createSelector(getNavigationUrl, (navigatio
   navigationUrl.startsWith('/auth')
 );
 
-export const getIsNavigationInWhitelist = createSelector(getNavigationUrl, (navigationUrl: string) =>
-  navigationUrl.startsWith('/whitelist')
+export const getIsNavigationInWhitelist = createSelector(
+  getNavigationUrl,
+  (navigationUrl: string) => navigationUrl.startsWith('/whitelist')
 );
 
-export const getIsNavigationInTransactions = createSelector(getNavigationUrl, (navigationUrl: string) =>
-  navigationUrl.startsWith('/transactions')
+export const getIsNavigationInTransactions = createSelector(
+  getNavigationUrl,
+  (navigationUrl: string) => navigationUrl.startsWith('/transactions')
 );
 
 export const getContractLogs = createSelector(getUiState, (ui) => ui.contractLogs);
 
-export const showAccountCreationAtStartup = createSelector(getUiState, (ui) => ui.showAccountCreationAtStartup);
+export const showAccountCreationAtStartup = createSelector(
+  getUiState,
+  (ui) => ui.showAccountCreationAtStartup
+);
 
 export const getIsBalancesHidden = createSelector(getUiState, (ui) => ui.isBalancesHidden);

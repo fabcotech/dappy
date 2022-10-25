@@ -6,11 +6,15 @@ export const passwordFromStringToBytes = (password: string) => {
     throw new Error('Password should have between 8 and 32 characters');
   }
   const passwordBuffer = Buffer.from(password, 'utf8');
-  const rest = new Buffer(32 - password.length);
+  const rest = Buffer.alloc(32 - password.length);
   return new Uint8Array(Buffer.concat([passwordBuffer, rest]));
 };
 
-export const encrypt = (message: string, password: Uint8Array, nonceDoNotProvideThisParameter?: Uint8Array): string => {
+export const encrypt = (
+  message: string,
+  password: Uint8Array,
+  nonceDoNotProvideThisParameter?: Uint8Array
+): string => {
   let nonce: Uint8Array | undefined;
   if (nonceDoNotProvideThisParameter) {
     if (process.env.NODE_ENV !== 'test')

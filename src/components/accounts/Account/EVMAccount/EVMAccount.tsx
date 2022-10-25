@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { Account as AccountModel } from '/models';
+import { BlockchainAccount } from '/models';
 import { openModalAction, closeModalAction } from '/store/main';
 import { updateAccountAction } from '/store/settings';
 import { copyToClipboard } from '/interProcess';
@@ -11,10 +11,10 @@ import { WalletAddress } from '/components/utils/WalletAddress';
 import './EVMAccount.scss';
 
 interface EVMAccountProps {
-  account: AccountModel;
-  showAccountModal: (a: AccountModel) => void;
-  setAccountAsMain: (a: AccountModel) => void;
-  deleteAccount: (a: AccountModel) => void;
+  account: BlockchainAccount;
+  showAccountModal: (a: BlockchainAccount) => void;
+  setAccountAsMain: (a: BlockchainAccount) => void;
+  deleteAccount: (a: BlockchainAccount) => void;
 }
 
 export const EVMAccountComponent = ({
@@ -39,7 +39,8 @@ export const EVMAccountComponent = ({
             <button
               title={t('set as main account')}
               onClick={() => setAccountAsMain(account)}
-              className="button is-light is-small">
+              className="button is-light is-small"
+            >
               {t('set as main account')}
             </button>
           )}
@@ -65,7 +66,8 @@ export const EVMAccountComponent = ({
         <a
           title="Remove the account forever"
           onClick={() => deleteAccount(account)}
-          className="remove-account underlined-link red">
+          className="remove-account underlined-link red"
+        >
           {t('remove account')}
         </a>
       </div>
@@ -74,7 +76,7 @@ export const EVMAccountComponent = ({
 };
 
 export const EVMAccount = connect(undefined, (dispatch) => ({
-  setAccountAsMain: (a: AccountModel) =>
+  setAccountAsMain: (a: BlockchainAccount) =>
     dispatch(
       updateAccountAction({
         account: {
@@ -83,7 +85,7 @@ export const EVMAccount = connect(undefined, (dispatch) => ({
         },
       })
     ),
-  showAccountModal: (account: AccountModel) =>
+  showAccountModal: (account: BlockchainAccount) =>
     dispatch(
       openModalAction({
         title: 'ACCOUNT_MODAL',
@@ -98,7 +100,7 @@ export const EVMAccount = connect(undefined, (dispatch) => ({
         ],
       })
     ),
-  deleteAccount: (account: AccountModel) =>
+  deleteAccount: (account: BlockchainAccount) =>
     dispatch(
       openModalAction({
         title: 'REMOVE_ACCOUNT_MODAL',

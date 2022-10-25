@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Formik, Field } from 'formik';
 import { ec as Ec } from 'elliptic';
 
-import { Account } from '/models';
+import { BlockchainAccount } from '/models';
 import { encrypt, decrypt, passwordFromStringToBytes } from '/utils/crypto';
 import './AccountForm.scss';
 import { rchainWallet, evmWallet } from '/utils/wallets';
@@ -20,7 +20,7 @@ type PlatformKey = Platform['key'];
 
 interface AccountFormProps {
   names: string[];
-  fillAccount: (a: undefined | Account) => void;
+  fillAccount: (a: undefined | BlockchainAccount) => void;
 }
 
 const PASSWORD_REGEXP_UPPER = /^(?=.*?[A-Z])/;
@@ -61,12 +61,13 @@ function BlockchainAccountForm(props: AccountFormProps & { platform: PlatformKey
       onSubmit={() => undefined}
       initialValues={
         {
+          platform: props.platform,
+          name: '',
           privatekey: '',
           password: '',
-          name: '',
-          platform: 'evm',
-        } as Record<string, string> & {
-          platform?: Account['platform'];
+        } as Partial<BlockchainAccount> & {
+          privatekey: string;
+          password: string;
         }
       }
       validate={(values) => {
@@ -101,9 +102,6 @@ function BlockchainAccountForm(props: AccountFormProps & { platform: PlatformKey
                 address = rchainWallet.addressFromPublicKey(publicKey);
                 break;
               case 'evm':
-                address = evmWallet.addressFromPublicKey(publicKey);
-                break;
-              case 'certificate':
                 address = evmWallet.addressFromPublicKey(publicKey);
                 break;
               default:
@@ -144,7 +142,7 @@ function BlockchainAccountForm(props: AccountFormProps & { platform: PlatformKey
 
             props.fillAccount({
               platform: values.platform!,
-              name: values.name,
+              name: values.name!,
               publicKey,
               address,
               encrypted,
@@ -168,7 +166,12 @@ function BlockchainAccountForm(props: AccountFormProps & { platform: PlatformKey
             <div className="field is-horizontal">
               <label className="label">Name*</label>
               <div className="control is-medium">
-                <Field className="input is-medium" type="text" name="name" placeholder="Account name" />
+                <Field
+                  className="input is-medium"
+                  type="text"
+                  name="name"
+                  placeholder="Account name"
+                />
               </div>
             </div>
             {touched.name && errors.name && <p className="text-danger">{(errors as any).name}</p>}
@@ -176,16 +179,24 @@ function BlockchainAccountForm(props: AccountFormProps & { platform: PlatformKey
             <div className="field is-horizontal">
               <label className="label">{t('private key')}*</label>
               <div className="control">
-                <Field className="input is-medium" type="password" name="privatekey" placeholder={t('private key')} />
+                <Field
+                  className="input is-medium"
+                  type="password"
+                  name="privatekey"
+                  placeholder={t('private key')}
+                />
                 <button
                   type="button"
                   className="button is-link is-small generate-private-key"
-                  onClick={() => onGeneratePrivateKey(setFieldValue)}>
+                  onClick={() => onGeneratePrivateKey(setFieldValue)}
+                >
                   {t('generate private key')}
                 </button>
               </div>
             </div>
-            {touched.privatekey && errors.privatekey && <p className="text-danger">{(errors as any).privatekey}</p>}
+            {touched.privatekey && errors.privatekey && (
+              <p className="text-danger">{(errors as any).privatekey}</p>
+            )}
             <div className="field is-horizontal">
               <label className="label">{t('public key')}*</label>
               <div className="control is-medium">
@@ -201,10 +212,17 @@ function BlockchainAccountForm(props: AccountFormProps & { platform: PlatformKey
             <div className="field is-horizontal">
               <label className="label">{t('password')}*</label>
               <div className="control">
-                <Field className="input is-medium" type="password" name="password" placeholder={t('password')} />
+                <Field
+                  className="input is-medium"
+                  type="password"
+                  name="password"
+                  placeholder={t('password')}
+                />
               </div>
             </div>
-            {touched.password && errors.password && <p className="text-danger">{(errors as any).password}</p>}
+            {touched.password && errors.password && (
+              <p className="text-danger">{(errors as any).password}</p>
+            )}
             {touched.password && passwordWarnings.length
               ? passwordWarnings.map((p, i) => (
                   <p key={i} className="text-danger">

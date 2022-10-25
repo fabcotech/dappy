@@ -31,9 +31,10 @@ export const multiRequestParseAndValidate = async (
     options
   ).then((r) => {
     const dataFromBlockchain = r.result;
-    const dataFromBlockchainParsed: { data: { results: { data: string }[] } } = JSON.parse(dataFromBlockchain);
+    const dataFromBlockchainParsed: { data: { results: { data: string }[] } } =
+      JSON.parse(dataFromBlockchain);
 
-    var parsedResults = dataFromBlockchainParsed.data.results.map((r, i) => requests[i].parse(r));
+    const parsedResults = dataFromBlockchainParsed.data.results.map((r, i) => requests[i].parse(r));
 
     return requests.map(
       ({ validate }, i) =>

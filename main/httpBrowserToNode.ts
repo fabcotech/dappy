@@ -3,19 +3,20 @@ import https from 'https';
 
 import { VERSION, WS_PAYLOAD_PAX_SIZE } from '../src/CONSTANTS';
 
-export const httpBrowserToNode = (data: { [key: string]: any }, node: DappyNetworkMember, timeout?: number) => {
+export const httpBrowserToNode = (data: { [key: string]: any }, node: DappyNetworkMember) => {
   return new Promise((resolve, reject) => {
     const s = JSON.stringify(data);
     const l = Buffer.from(s).length;
     if (l > WS_PAYLOAD_PAX_SIZE) {
-      reject(`bn payload is ${l / 1000}kb, max size is ${WS_PAYLOAD_PAX_SIZE / 1000}kb`);
+      reject(new Error(`bn payload is ${l / 1000}kb, max size is ${WS_PAYLOAD_PAX_SIZE / 1000}kb`));
       return;
     }
     try {
-      const ip = node.ip;
-      const hostname = node.hostname;
-      const port = node.port;
-      const caCert = node.caCert ? Buffer.from(node.caCert, 'base64').toString('utf8') : 'INVALIDCERT';
+      const { ip, hostname, port } = node;
+      const caCert =
+        node.scheme === 'https' && node.caCert
+          ? Buffer.from(node.caCert, 'base64').toString('utf8')
+          : 'INVALIDCERT';
 
       const options: https.RequestOptions = {
         minVersion: 'TLSv1.3',
@@ -23,7 +24,7 @@ export const httpBrowserToNode = (data: { [key: string]: any }, node: DappyNetwo
         ca: caCert,
         host: ip,
         method: 'POST',
-        port: port,
+        port,
         path: `/${data.type}`,
         headers: {
           'Content-Type': 'application/json',

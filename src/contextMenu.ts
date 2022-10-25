@@ -1,9 +1,9 @@
 const paste = [
   'Paste',
   (div: HTMLDivElement, selected: string, target: HTMLTextAreaElement) => {
-    navigator.clipboard.readText().then(function (t) {
+    navigator.clipboard.readText().then((t) => {
       const val = target.value;
-      const selectionStart = target.selectionStart;
+      const { selectionStart } = target;
       target.value = val.slice(0, selectionStart) + t + val.slice(selectionStart);
     });
     div.remove();
@@ -32,7 +32,7 @@ const openDevTools = [
 export const contextMenu = (document: any) => {
   document.addEventListener('contextmenu', (e: any) => {
     let operations: any = [];
-    const selected = window.getSelection() && window.getSelection().toString();
+    const selected = window.getSelection() && window.getSelection()!.toString();
     if (selected) {
       operations = [copy];
     }
@@ -73,7 +73,9 @@ export const contextMenu = (document: any) => {
         d.style.color = '#fff';
       });
       d.innerText = o[0];
-      d.addEventListener('click', () => (o[1] as (a: any, b: any, c: any) => void)(div, selected, e.target));
+      d.addEventListener('click', () =>
+        (o[1] as (a: any, b: any, c: any) => void)(div, selected, e.target)
+      );
       div.appendChild(d);
     });
     document.body.appendChild(div);

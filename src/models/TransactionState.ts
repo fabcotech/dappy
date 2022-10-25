@@ -1,17 +1,17 @@
 import { EthereumTransaction } from '.';
 import { EthereumSignedTransaction } from './Ethereum';
-import {
-  DeployOptions,
-  TransactionOriginTransfer,
-} from './RChain';
-
+import { DeployOptions, TransactionOriginTransfer } from './RChain';
 
 export interface TransactionAddressValue {
   status: string;
   address: string;
 }
 
-export type TransactionData = undefined | DeployOptions | EthereumSignedTransaction | EthereumTransaction;
+export type TransactionData =
+  | undefined
+  | DeployOptions
+  | EthereumSignedTransaction
+  | EthereumTransaction;
 
 export enum TransactionStatus {
   Pending = 'pending',
@@ -22,11 +22,7 @@ export enum TransactionStatus {
   Signed = 'signed',
 }
 
-export type TransactionValue =
-  | string
-  | undefined
-  | TransactionAddressValue
-  | { message: string };
+export type TransactionValue = string | undefined | TransactionAddressValue | { message: string };
 
 export interface TransactionOriginDapp {
   origin: 'dapp';
@@ -36,9 +32,7 @@ export interface TransactionOriginDapp {
   callId: string;
 }
 
-export type TransactionOrigin =
-  | TransactionOriginDapp
-  | TransactionOriginTransfer;
+export type TransactionOrigin = TransactionOriginDapp | TransactionOriginTransfer;
 
 export interface TransactionState {
   platform: 'rchain' | 'evm';

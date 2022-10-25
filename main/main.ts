@@ -65,7 +65,9 @@ const dispatchFromMain = (a: DispatchFromMainArg) => {
 };
 
 const isHttpsUrl = (uri: string) =>
-  /^https:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/.test(uri);
+  /^https:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/.test(
+    uri
+  );
 
 /*
   Open external link
@@ -75,7 +77,7 @@ const openExternal = (url: string) => {
   else console.error('Only open external https urls');
 };
 
-let loadResourceWhenReady = undefined;
+let loadResourceWhenReady: string;
 const getLoadResourceWhenReady = () => loadResourceWhenReady;
 const validateAndProcessAddresses = (addresses: string[]) => {
   const validDappyAddress = addresses.find((a) => {
@@ -135,8 +137,8 @@ function createWindow() {
       nodeIntegration: false,
       sandbox: true,
       contextIsolation: true,
-      partition: partition,
-      devTools: /^true$/i.test(process.env.DAPPY_DEVTOOLS) || !process.env.PRODUCTION,
+      partition,
+      devTools: /^true$/i.test(process.env.DAPPY_DEVTOOLS || '') || !process.env.PRODUCTION,
     },
   });
   const browserSession = session.fromPartition(partition);

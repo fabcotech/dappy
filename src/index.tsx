@@ -16,7 +16,7 @@ if (!DEVELOPMENT) {
   Sentry.init({
     dsn: 'https://6a60897f868848289980868db72a98d6@sentry.io/1504943',
     release: VERSION,
-    beforeSend(event, hint) {
+    beforeSend(event) {
       console.error('sentry error beforeSend :');
       console.log(event);
 
@@ -39,14 +39,14 @@ if (!DEVELOPMENT) {
         event.exception.values[0].stacktrace.frames
       ) {
         const framesWithUrlUpdated = event.exception.values[0].stacktrace.frames.map((f) => {
-          let filename = f.filename;
+          let { filename } = f;
           if (filename && (filename.startsWith('file://') || filename.startsWith('/C:/'))) {
             const splitted = filename.split('/');
             filename = `app:///${splitted[splitted.length - 1]}`;
           }
           return {
             ...f,
-            filename: filename,
+            filename,
           };
         });
 
@@ -68,6 +68,6 @@ const renderApp = () => {
   );
 };
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
   renderApp();
 });

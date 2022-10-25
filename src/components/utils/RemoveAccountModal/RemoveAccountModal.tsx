@@ -10,7 +10,11 @@ export interface RemoveAccontModalProps {
   account: Account;
 }
 
-export const RemoveAccountModal = ({ onClose, dispatchModalAction, account }: RemoveAccontModalProps) => {
+export const RemoveAccountModal = ({
+  onClose,
+  dispatchModalAction,
+  account,
+}: RemoveAccontModalProps) => {
   const [decrypted, setDecrypted] = useState(false);
   return (
     <div className="modal fc">
@@ -20,26 +24,35 @@ export const RemoveAccountModal = ({ onClose, dispatchModalAction, account }: Re
           <p className="modal-card-title">{t('remove account')}</p>
           <i onClick={onClose} className="fa fa-times" />
         </header>
-        <section className="modal-card-body">
-          {t('remove account warning')}
-          <div style={{ width: '50%' }}>
-            <AccountPassword
-              encrypted={account.encrypted}
-              decryptedPrivateKey={(privateKey: undefined | string) => {
-                setDecrypted(!!privateKey);
-              }}
-            />
-          </div>
-        </section>
+        {account.platform !== 'certificate' && (
+          <section className="modal-card-body">
+            {t('remove account warning')}
+            <div style={{ width: '50%' }}>
+              <AccountPassword
+                encrypted={account.encrypted}
+                decryptedPrivateKey={(privateKey: undefined | string) => {
+                  setDecrypted(!!privateKey);
+                }}
+              />
+            </div>
+          </section>
+        )}
         <footer className="modal-card-foot">
-          <button type="button" className={`button is-light`} onClick={() => dispatchModalAction([closeModalAction()])}>
+          <button
+            type="button"
+            className="button is-light"
+            onClick={() => dispatchModalAction([closeModalAction()])}
+          >
             {t('cancel')}
           </button>
           <button
             type="button"
-            className={`button is-link`}
-            disabled={!decrypted}
-            onClick={() => dispatchModalAction([deleteAccountAction({ account }), closeModalAction()])}>
+            className="button is-link"
+            disabled={account.platform !== 'certificate' && !decrypted}
+            onClick={() =>
+              dispatchModalAction([deleteAccountAction({ account }), closeModalAction()])
+            }
+          >
             {t('delete account confirmation')}
           </button>
         </footer>

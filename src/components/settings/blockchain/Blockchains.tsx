@@ -27,14 +27,11 @@ const CheckBoxComponent = (props: any) => {
           onChange={() => {}}
           checked={props.checked}
         />
-        <label onClick={() => props.click()}>
-          {props.label}
-        </label>
+        <label onClick={() => props.click()}>{props.label}</label>
       </div>
     </div>
   );
 };
-
 
 interface BlockchainsProps {
   blockchains: { [chainId: string]: Blockchain };
@@ -52,10 +49,10 @@ interface BlockchainsState {
   dropErrors: string[];
   formKey: number;
   selectedBlockchain: undefined | Blockchain;
-  defaultNodes: { ip: string; port: string; hostname: string; caCert: string }[];
+  defaultNodes: DappyNetworkMember[];
 }
 
-export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> {
+export class BlockchainsComponent extends React.Component<BlockchainsProps> {
   state: BlockchainsState = {
     selectedChainId: undefined,
     addFormDisplayed: false,
@@ -65,14 +62,16 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
     selectedBlockchain: undefined,
     defaultNodes: [],
   };
+
   selectedBlockchain: undefined | Blockchain;
+
   dropEl: HTMLTextAreaElement | undefined = undefined;
 
-   static getDerivedStateFromProps(props: BlockchainsProps, state: BlockchainsState) {
+  static getDerivedStateFromProps(props: BlockchainsProps, state: BlockchainsState) {
     const updates: {
       formKey: number;
       selectedBlockchain: undefined | Blockchain;
-      defaultNodes: { hostname: string; ip: string; port: string; caCert: string }[];
+      defaultNodes: DappyNetworkMember[];
     } = {
       selectedBlockchain: state.selectedBlockchain,
       formKey: state.formKey,
@@ -83,7 +82,8 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
       updates.selectedBlockchain &&
       props.blockchains &&
       props.blockchains[updates.selectedBlockchain.chainId] &&
-      props.blockchains[updates.selectedBlockchain.chainId].nodes.length !== updates.selectedBlockchain.nodes.length
+      props.blockchains[updates.selectedBlockchain.chainId].nodes.length !==
+        updates.selectedBlockchain.nodes.length
     ) {
       updates.formKey = state.formKey + 1;
     }
@@ -100,21 +100,12 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
     const foundDefaultId = Object.keys(dappyNetworks).find(
       (pb) => updates.selectedBlockchain && pb === updates.selectedBlockchain.chainId
     );
-    const foundDefault = foundDefaultId && dappyNetworks[foundDefaultId as DappyNetworkId];
 
+    const foundDefault = foundDefaultId && dappyNetworks[foundDefaultId as DappyNetworkId];
     if (updates.selectedBlockchain && foundDefault) {
-      updates.defaultNodes = foundDefault
-        .filter((n) => {
-          return !(updates.selectedBlockchain as Blockchain).nodes.find((no) => no.ip === n.ip);
-        })
-        .map((d) => {
-          return {
-            ip: d.ip,
-            hostname: d.hostname,
-            port: d.port,
-            caCert: d.caCert || '',
-          };
-        });
+      updates.defaultNodes = foundDefault.filter((n) => {
+        return !(updates.selectedBlockchain as Blockchain).nodes.find((no) => no.ip === n.ip);
+      });
     } else {
       updates.defaultNodes = [];
     }
@@ -135,10 +126,15 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
     });
   };
 
-  onAddBlockchain = (values: { platform: "rchain", chainId: string; chainName: string; nodes: DappyNetworkMember[] }) => {
+  onAddBlockchain = (values: {
+    platform: 'rchain';
+    chainId: string;
+    chainName: string;
+    nodes: DappyNetworkMember[];
+  }) => {
     this.props.createBlockchain({
       ...values,
-      auto: !!dappyNetworks[values.chainId as DappyNetworkId]
+      auto: !!dappyNetworks[values.chainId as DappyNetworkId],
     });
   };
 
@@ -192,22 +188,20 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
 
   displayContent() {
     if (this.state.addFormDisplayed || !this.state.selectedBlockchain) {
-      return <AddBlockchain add={this.onAddBlockchain} existingChainIds={Object.keys(this.props.blockchains)} />;
+      return (
+        <AddBlockchain
+          add={this.onAddBlockchain}
+          existingChainIds={Object.keys(this.props.blockchains)}
+        />
+      );
     }
 
     return (
       <div>
         <Formik
-          key={this.state.selectedBlockchain.chainId + '-' + this.state.formKey}
+          key={`${this.state.selectedBlockchain.chainId}-${this.state.formKey}`}
           initialValues={{
-            formNodes: this.state.selectedBlockchain.nodes.map((n) => {
-              return {
-                ip: n.ip,
-                port: n.port,
-                hostname: n.hostname,
-                caCert: n.caCert,
-              };
-            }),
+            formNodes: this.state.selectedBlockchain.nodes,
           }}
           onSubmit={(values, { setSubmitting }) => {
             const b = this.state.selectedBlockchain as Blockchain;
@@ -216,12 +210,7 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
             });
             this.props.updateNodes({
               chainId: b.chainId,
-              nodes: values.formNodes.map((formNode) => {
-                return {
-                  ...formNode,
-                  scheme: "https",
-                };
-              }),
+              nodes: values.formNodes,
             });
             setSubmitting(false);
           }}
@@ -237,18 +226,19 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                 <table className="network-variables">
                   <tbody>
                     <tr>
-                        <td>{t('network id')}</td>
-                        <td>{selectedBlockchain.chainId}</td>
+                      <td>{t('network id')}</td>
+                      <td>{selectedBlockchain.chainId}</td>
                     </tr>
                   </tbody>
                 </table>
-                {this.props.namesBlockchain && this.props.namesBlockchain.chainId === selectedBlockchain.chainId ? (
+                {this.props.namesBlockchain &&
+                this.props.namesBlockchain.chainId === selectedBlockchain.chainId ? (
                   <div>
                     <br />
                     <article className="message is-primary">
                       <div className="message-body">
-                        This network <b>{selectedBlockchain.chainName}</b> will be used for deployments, name system,
-                        debug and REV transfers.
+                        This network <b>{selectedBlockchain.chainName}</b> will be used for
+                        deployments, name system, debug and REV transfers.
                       </div>
                     </article>
                   </div>
@@ -259,7 +249,7 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                   name="formNodes"
                   render={(arrayHelpers) => (
                     <div>
-                      { selectedBlockchain &&
+                      {selectedBlockchain && (
                         <>
                           <br />
                           <CheckBoxComponent
@@ -267,38 +257,45 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                             label="Auto update nodes"
                             click={() => {
                               this.props.createBlockchain({
-                                ...this.state.selectedBlockchain as Blockchain,
-                                auto: !selectedBlockchain.auto
+                                ...(this.state.selectedBlockchain as Blockchain),
+                                auto: !selectedBlockchain.auto,
                               });
-                            }
-                          }/>
+                            }}
+                          />
                         </>
-                      }
+                      )}
                       <br />
                       {values.formNodes && values.formNodes.length > 0
-                        ? values.formNodes.map((formNode, index) => {
-                            let ipIsDomainName = !REGEXP_IP.test(formNode.ip);
+                        ? values.formNodes.map((formNode) => {
+                            let ipIsDomainName = !REGEXP_IP.test(formNode.ip || '');
                             if (
-                              (formNode.ip.match(new RegExp(/[.]/g)) || []).length !== 3 &&
-                              (formNode.ip.match(new RegExp(/[:]/g)) || []).length !== 7
+                              ((formNode.ip || '').match(/[.]/g) || []).length !== 3 &&
+                              ((formNode.ip || '').match(/[:]/g) || []).length !== 7
                             ) {
                               ipIsDomainName = true;
                             }
 
                             return (
-                              <React.Fragment key={formNode.ip + formNode.port}>
+                              <React.Fragment key={`${formNode.ip || ''} ${formNode.port || ''}`}>
                                 <div className="node-field field has-addons">
                                   <div className="node-box">
-                                    <b className="ip">{formNode.ip}{formNode.port ? `:${formNode.port}` : ''}</b>
+                                    <b className="ip">
+                                      {formNode.ip}
+                                      {formNode.port ? `:${formNode.port}` : ''}
+                                    </b>
                                     <b className="host">{formNode.hostname}</b>
-                                    {formNode.caCert ? (
-                                      <span className="cert">{Buffer.from(formNode.caCert, "base64").toString('utf8').substr(100, 20)}</span>
+                                    {formNode.scheme === 'https' && formNode.caCert ? (
+                                      <span className="cert">
+                                        {Buffer.from(formNode.caCert, 'base64')
+                                          .toString('utf8')
+                                          .substr(100, 20)}
+                                      </span>
                                     ) : undefined}
                                   </div>
                                   {ipIsDomainName ? (
                                     <span className="ip-warning text-warning ">
-                                      This node seems to use URL instead of IP. This endpoint therefore relies on the
-                                      DNS.
+                                      This node seems to use URL instead of IP. This endpoint
+                                      therefore relies on the DNS.
                                     </span>
                                   ) : undefined}
                                 </div>
@@ -314,7 +311,8 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                             this.setState({
                               addNodeFormDisplayed: !this.state.addNodeFormDisplayed,
                             })
-                          }>
+                          }
+                        >
                           {t('add a node')}
                           <i className="fa fa-plus fa-after"></i>
                         </button>
@@ -325,13 +323,14 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                           cancel={() => {
                             this.setState({ addNodeFormDisplayed: false });
                           }}
-                          addNode={(values: { ip: string; port: string; caCert: string; hostname: undefined | string }) => {
+                          addNode={(values) => {
                             arrayHelpers.push(values);
                             this.setState({ addNodeFormDisplayed: false });
                             if (!errors || Object.keys(errors).length === 0) {
                               submitForm();
                             }
-                          }}></AddNode>
+                          }}
+                        ></AddNode>
                       ) : undefined}
                       <br />
                       {this.state.addNodeFormDisplayed ? undefined : (
@@ -341,7 +340,8 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                               type="button"
                               disabled={!touched || !touched.formNodes}
                               className="button is-light"
-                              onClick={this.onReloadFormik}>
+                              onClick={this.onReloadFormik}
+                            >
                               {t('cancel')}
                             </button>{' '}
                             {values.formNodes && Object.keys(values.formNodes).length === 0 ? (
@@ -352,7 +352,12 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
                               <button
                                 type="submit"
                                 className="button is-black"
-                                disabled={!touched || !touched.formNodes || (errors && !!Object.keys(errors).length)}>
+                                disabled={
+                                  !touched ||
+                                  !touched.formNodes ||
+                                  (errors && !!Object.keys(errors).length)
+                                }
+                              >
                                 {t('save nodes')}
                               </button>
                             )}
@@ -369,22 +374,13 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps, {}> 
             );
           }}
         />
-        {/* <h3 className="subtitle is-4">{t('change network')}</h3>
-        <div className="connect-tos">
-          {
-            ['d', 'gamma', 'empty'].map(n => {
-              return <button className="button is-greydark is-large mb-2" key={n}>
-                <strong>{n} network</strong>
-              </button>
-            })
-          }
-        </div> */}
 
         <button
           title={`Delete blockchain ${(this.state.selectedBlockchain as Blockchain).chainName}`}
           type="button"
           onClick={this.onRemoveBlockchain}
-          className="button is-danger is-small">
+          className="button is-danger is-small"
+        >
           <i className="fa fa-trash fa-before"></i>
           Remove network
         </button>

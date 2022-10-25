@@ -2,12 +2,11 @@ import React, { Fragment } from 'react';
 import * as elliptic from 'elliptic';
 import { Formik, Field } from 'formik';
 
-const ec = new elliptic.ec('secp256k1');
-
-import { Account, Identification } from '/models';
-
 import './TransactionForm/TransactionForm.scss'; // todo: extract style and create IdentificationForm.scss or use bulma css classes and remove import
+import { Account, BlockchainAccount, Identification } from '/models';
 import { AccountSelect } from './AccountSelect';
+
+const ec = new elliptic.ec('secp256k1');
 
 interface IdentificationFormProps {
   accounts?: { [accountName: string]: Account };
@@ -22,7 +21,10 @@ interface IdentificationFormState {
   okAccounts?: { [accountName: string]: Account };
 }
 
-export class IdentificationForm extends React.Component<IdentificationFormProps, IdentificationFormState> {
+export class IdentificationForm extends React.Component<
+  IdentificationFormProps,
+  IdentificationFormState
+> {
   constructor(props: IdentificationFormProps) {
     super(props);
     this.state = {
@@ -31,23 +33,18 @@ export class IdentificationForm extends React.Component<IdentificationFormProps,
     };
   }
 
-  static getDerivedStateFromProps(nextProps: IdentificationFormProps, prevState: {}) {
+  static getDerivedStateFromProps(nextProps: IdentificationFormProps) {
     if (nextProps.accounts && Object.keys(nextProps.accounts).length) {
       if (nextProps.identification.publicKey && nextProps.accounts) {
-        const okAccountNames = Object.keys(nextProps.accounts).filter(
-          (id) => nextProps.accounts && nextProps.accounts[id].publicKey === nextProps.identification.publicKey
-        );
-        const okAccounts: { [accountName: string]: Account } = {};
-        okAccountNames.forEach((n) => {
-          if (nextProps.accounts) okAccounts[n] = nextProps.accounts[n];
-        });
+        const okAccounts = Object.values(nextProps.accounts)
+          .filter((v) => v.platform !== 'certificate')
+          .filter((a) => (a as BlockchainAccount).publicKey === nextProps.identification.publicKey);
 
-        return { atLeastOneAccount: okAccountNames.length >= 1, okAccounts: okAccounts };
+        return { atLeastOneAccount: okAccounts.length >= 1, okAccounts };
       }
       return { atLeastOneAccount: true, okAccounts: nextProps.accounts };
-    } else {
-      return { atLeastOneAccount: false };
     }
+    return { atLeastOneAccount: false };
   }
 
   publicKey = '';
@@ -61,7 +58,7 @@ export class IdentificationForm extends React.Component<IdentificationFormProps,
           box: '',
         }}
         validate={(values) => {
-          let errors: {
+          const errors: {
             name?: string;
             privateKey?: string;
           } = {};
@@ -73,7 +70,10 @@ export class IdentificationForm extends React.Component<IdentificationFormProps,
             try {
               const keyPair = ec.keyFromPrivate(values.privateKey);
               this.publicKey = keyPair.getPublic().encode('hex', false) as string;
-              if (this.props.identification.publicKey && this.props.identification.publicKey !== this.publicKey) {
+              if (
+                this.props.identification.publicKey &&
+                this.props.identification.publicKey !== this.publicKey
+              ) {
                 errors.privateKey = t('private key does not match');
               }
             } catch {
@@ -100,7 +100,9 @@ export class IdentificationForm extends React.Component<IdentificationFormProps,
                 <div className="field is-horizontal">
                   <label className="label is-6 title">{t('public key to identify')}</label>
                   <div className="control">
-                    <span className="identify-public-key">{this.props.identification.publicKey}</span>
+                    <span className="identify-public-key">
+                      {this.props.identification.publicKey}
+                    </span>
                   </div>
                 </div>
               ) : undefined}
@@ -114,13 +116,15 @@ export class IdentificationForm extends React.Component<IdentificationFormProps,
                       onClick={() => {
                         setFieldValue('privateKey', '');
                         this.setState({ usePrivateKey: false });
-                      }}>
+                      }}
+                    >
                       {t('use account')}
                     </button>
                   </div>
                 </div>
               ) : undefined}
-              {!this.props.identification.publicKey && (!this.state.atLeastOneAccount || this.state.usePrivateKey) ? (
+              {!this.props.identification.publicKey &&
+              (!this.state.atLeastOneAccount || this.state.usePrivateKey) ? (
                 <div className="field is-horizontal">
                   <label className="label">{t('public key')}*</label>
                   <div className="control">
@@ -153,7 +157,12 @@ export class IdentificationForm extends React.Component<IdentificationFormProps,
                   <div className="field is-horizontal">
                     <label className="label">{t('private key')}*</label>
                     <div className="control">
-                      <Field className="input" type="password" name="privateKey" placeholder="Private key" />
+                      <Field
+                        className="input"
+                        type="password"
+                        name="privateKey"
+                        placeholder="Private key"
+                      />
                     </div>
                   </div>
                 </Fragment>

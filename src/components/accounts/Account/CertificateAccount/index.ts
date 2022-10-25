@@ -1,0 +1,1 @@
+export { CertificateAccount } from './CertificateAccount';

@@ -14,7 +14,7 @@ interface RootProps {
   };
 }
 
-export class TransactionsListComponent extends React.Component<RootProps, {}> {
+export class TransactionsListComponent extends React.Component<RootProps> {
   state = {};
 
   render() {
@@ -54,4 +54,4 @@ export const TransactionsList = connect((state) => {
     transactionStates: fromBlockchain.getTransactions(state),
     blockchains: fromSettings.getBlockchains(state),
   };
-}, undefined)(TransactionsListComponent);
+})(TransactionsListComponent);

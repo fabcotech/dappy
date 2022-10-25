@@ -1,7 +1,6 @@
 import { takeEvery, select, put } from 'redux-saga/effects';
-import path from 'path';
 import https from 'https';
-import { BrowserView, app, session } from 'electron';
+import { BrowserView, session } from 'electron';
 import { blake2b } from 'blakejs';
 import { DappyNetworkMember, lookup } from '@fabcotech/dappy-lookup';
 
@@ -13,7 +12,7 @@ import { overrideHttpsProtocol } from '../../overrideHttpsProtocol';
 import { overrideHttpProtocol } from '../../overrideHttpProtocol';
 import { registerDappyLocalProtocol } from '../../registerDappyLocalProtocol';
 import { preventAllPermissionRequests } from '../../preventAllPermissionRequests';
-import { store } from '../';
+import { store } from '..';
 
 import * as fromSettingsMain from '../settings';
 import * as fromBlockchainsMain from '../blockchains';
@@ -24,10 +23,12 @@ import { Blockchain, DappyLoadError, Tab } from '/models';
 
 const development = !!process.defaultApp;
 
-const loadOrReloadBrowserView = function* (action: any) {
+function* loadOrReloadBrowserView(action: any) {
   const payload: { tab: Tab } = action.payload;
   const settings: fromSettingsRenderer.Settings = yield select(fromSettingsMain.getSettings);
-  const blockchains: { [chainId: string]: Blockchain } = yield select(fromBlockchainsMain.getBlockchains);
+  const blockchains: { [chainId: string]: Blockchain } = yield select(
+    fromBlockchainsMain.getBlockchains
+  );
   const browserViews: {
     [tabId: string]: DappyBrowserView;
   } = yield select(fromBrowserViews.getBrowserViewsMain);
@@ -35,26 +36,23 @@ const loadOrReloadBrowserView = function* (action: any) {
     fromBrowserViews.getBrowserViewsPositionMain
   );
 
-  let dappyNetworkMembers: undefined | DappyNetworkMember[] = undefined;
-  if (payload.tab.data.isDappyNameSystem) {
-    if (blockchains[payload.tab.data.chainId as string]) {
-      dappyNetworkMembers = blockchains[payload.tab.data.chainId as string].nodes;
-    } else {
-      action.meta.dispatchFromMain({
-        action: fromDappsRenderer.loadResourceFailedAction({
-          tabId: payload.tab.id,
-          url: payload.tab.url,
-          error: {
-            error: DappyLoadError.DappyLookup,
-            args: {
-              message: 'Network not found',
-            },
+  if (payload.tab.data.isDappyNameSystem && !blockchains[payload.tab.data.chainId!]) {
+    action.meta.dispatchFromMain({
+      action: fromDappsRenderer.loadResourceFailedAction({
+        tabId: payload.tab.id,
+        url: payload.tab.url,
+        error: {
+          error: DappyLoadError.DappyLookup,
+          args: {
+            message: 'Network not found',
           },
-        }),
-      });
-      return;
-    }
+        },
+      }),
+    });
+    return;
   }
+
+  const dappyNetworkMembers = blockchains[payload.tab.data.chainId as string].nodes;
   const url = new URL(payload.tab.url);
   const viewSession = session.fromPartition(`persist:main:${url.host}`, { cache: true });
 
@@ -121,7 +119,7 @@ const loadOrReloadBrowserView = function* (action: any) {
 
   if (!position) {
     console.error('No position, cannot create browserView');
-    return undefined;
+    return;
   }
 
   const view = new BrowserView({
@@ -129,7 +127,7 @@ const loadOrReloadBrowserView = function* (action: any) {
       nodeIntegration: false,
       sandbox: true,
       contextIsolation: true,
-      devTools: /^true$/i.test(process.env.DAPPY_DEVTOOLS) || !process.env.PRODUCTION,
+      devTools: /^true$/i.test(process.env.DAPPY_DEVTOOLS || '') || !process.env.PRODUCTION,
       disableDialogs: true,
       partition: `persist:main:${url.host}`,
     },
@@ -163,14 +161,22 @@ const loadOrReloadBrowserView = function* (action: any) {
   // ==============================
 
   /*
-    Use for dev purpose, to identify the storage path / partition into which cookies, blobs, localstorage are
+    Use for dev purpose, to identify the storage path / partition into which cookies,
+    blobs, localstorage are
   */
   let partitionIdHash = '';
   if (!process.env.PRODUCTION) {
-    partitionIdHash = Buffer.from(blake2b(new Uint8Array(Buffer.from(viewSession.storagePath || '')), 0, 32))
+    partitionIdHash = Buffer.from(
+      blake2b(new Uint8Array(Buffer.from(viewSession.storagePath || '')), 0, 32)
+    )
       .toString('base64')
       .slice(0, 5);
-    console.log('[part] :', partitionIdHash, viewSession.storagePath, 'used for cookies, blobs, localstorage etc.');
+    console.log(
+      '[part] :',
+      partitionIdHash,
+      viewSession.storagePath,
+      'used for cookies, blobs, localstorage etc.'
+    );
   }
 
   let isFirstRequest = true;
@@ -182,18 +188,23 @@ const loadOrReloadBrowserView = function* (action: any) {
   };
   preventAllPermissionRequests(viewSession);
   // todo, avoid circular ref to "store" (see logs when "npm run build:main")
-  registerInterProcessDappProtocol(newBrowserViews[payload.tab.id], viewSession, store, action.meta.dispatchFromMain);
+  registerInterProcessDappProtocol(
+    newBrowserViews[payload.tab.id],
+    viewSession,
+    store,
+    action.meta.dispatchFromMain
+  );
   overrideHttpProtocol({
     session: viewSession,
   });
   if (payload.tab.data.isDappyNameSystem) {
     overrideHttpsProtocol({
       chainId: payload.tab.data.chainId || '',
-      dappyNetworkMembers: dappyNetworkMembers as DappyNetworkMember[],
+      dappyNetworkMembers,
       dappyBrowserView: newBrowserViews[payload.tab.id],
       dispatchFromMain: action.meta.dispatchFromMain,
       session: viewSession,
-      partitionIdHash: partitionIdHash,
+      partitionIdHash,
       setIsFirstRequest,
       getIsFirstRequest,
     });
@@ -231,20 +242,21 @@ const loadOrReloadBrowserView = function* (action: any) {
       view.webContents.openDevTools();
     }
   } catch (err) {
-    action.meta.dispatchFromMain({
-      action: fromDappsRenderer.loadResourceFailedAction({
-        tabId: payload.tab.id,
-        url: payload.tab.url,
-        error: {
-          error: DappyLoadError.ServerError,
-          args: {
-            url: payload.tab.url,
-            message: err.message,
+    if (err instanceof Error) {
+      action.meta.dispatchFromMain({
+        action: fromDappsRenderer.loadResourceFailedAction({
+          tabId: payload.tab.id,
+          url: payload.tab.url,
+          error: {
+            error: DappyLoadError.ServerError,
+            args: {
+              url: payload.tab.url,
+              message: err.message,
+            },
           },
-        },
-      }),
-    });
-    return;
+        }),
+      });
+    }
   }
 
   // ==============================
@@ -253,8 +265,10 @@ const loadOrReloadBrowserView = function* (action: any) {
 
   let title = '';
 
-  view.webContents.on('did-finish-load', (e: Electron.Event) => {
-    action.meta.browserWindow.webContents.executeJavaScript(`console.log('did-finish-load ${payload.tab.id}')`);
+  view.webContents.on('did-finish-load', () => {
+    action.meta.browserWindow.webContents.executeJavaScript(
+      `console.log('did-finish-load ${payload.tab.id}')`
+    );
     action.meta.dispatchFromMain({
       action: fromDappsRenderer.updateTransitoryStateAction({
         tabId: payload.tab.id,
@@ -263,8 +277,10 @@ const loadOrReloadBrowserView = function* (action: any) {
     });
   });
 
-  view.webContents.on('did-stop-loading', (e: Electron.Event) => {
-    action.meta.browserWindow.webContents.executeJavaScript(`console.log('did-stop-loading ${payload.tab.id}')`);
+  view.webContents.on('did-stop-loading', () => {
+    action.meta.browserWindow.webContents.executeJavaScript(
+      `console.log('did-stop-loading ${payload.tab.id}')`
+    );
     action.meta.dispatchFromMain({
       action: fromDappsRenderer.updateTransitoryStateAction({
         tabId: payload.tab.id,
@@ -275,16 +291,16 @@ const loadOrReloadBrowserView = function* (action: any) {
     title = view.webContents.getTitle();
     action.meta.dispatchFromMain({
       action: fromDappsRenderer.updateTabUrlAndTitleAction({
-        url: url,
+        url,
         tabId: payload.tab.id,
-        title: title,
+        title,
       }),
     });
     action.meta.dispatchFromMain({
       action: fromHistoryRenderer.didNavigateInPageAction({
-        url: url,
+        url,
         tabId: payload.tab.id,
-        title: title,
+        title,
       }),
     });
   });
@@ -294,7 +310,7 @@ const loadOrReloadBrowserView = function* (action: any) {
     This does not trigger, why ?
     (Electron ^17.0.1)
   */
-  view.webContents.on('did-navigate', (a, currentUrl, httpResponseCode, httpStatusText) => {
+  view.webContents.on('did-navigate', (_, currentUrl) => {
     const currentTitle = view.webContents.getTitle();
     /*
       When the page just finished navigating, title
@@ -308,14 +324,14 @@ const loadOrReloadBrowserView = function* (action: any) {
       action: fromHistoryRenderer.didNavigateInPageAction({
         url: currentUrl,
         tabId: payload.tab.id,
-        title: title,
+        title,
       }),
     });
     action.meta.dispatchFromMain({
       action: fromDappsRenderer.updateTabUrlAndTitleAction({
         url: currentUrl,
         tabId: payload.tab.id,
-        title: title,
+        title,
       }),
     });
   });
@@ -324,7 +340,7 @@ const loadOrReloadBrowserView = function* (action: any) {
     e.preventDefault();
   });
 
-  view.webContents.on('page-favicon-updated', async (a, favicons) => {
+  view.webContents.on('page-favicon-updated', async (_, favicons) => {
     if (favicons && favicons[0] && typeof favicons[0] === 'string') {
       if (favicons[0].startsWith('data:image')) {
         action.meta.dispatchFromMain({
@@ -339,12 +355,14 @@ const loadOrReloadBrowserView = function* (action: any) {
         try {
           if (urlFav.hostname.endsWith('.d')) {
             const networkHosts = (
-              await lookup(urlFav.hostname, 'A', { dappyNetwork: dappyNetworkMembers })
-            ).answers.map((a) => a.data);
-            const ca = (await lookup(urlFav.hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map(
-              (a) => a.data
-            );
-            let options: https.RequestOptions = {
+              (await lookup(urlFav.hostname, 'A', { dappyNetwork: dappyNetworkMembers })).answers ||
+              []
+            ).map((a) => a.data);
+            const ca = (
+              (await lookup(urlFav.hostname, 'CERT', { dappyNetwork: dappyNetworkMembers }))
+                .answers || []
+            ).map((a) => a.data);
+            const options: https.RequestOptions = {
               rejectUnauthorized: true,
               minVersion: 'TLSv1.2',
               /* no dns */
@@ -370,7 +388,8 @@ const loadOrReloadBrowserView = function* (action: any) {
                 });
                 res.on('end', () => {
                   // todo limit size of favicon ???
-                  const faviconAsBase64 = 'data:' + res.headers['content-type'] + ';base64,' + s.toString('base64');
+                  const faviconAsBase64 =
+                    'data:' + res.headers['content-type'] + ';base64,' + s.toString('base64');
                   action.meta.dispatchFromMain({
                     action: fromDappsRenderer.didChangeFaviconAction({
                       tabId: payload.tab.id,
@@ -385,7 +404,7 @@ const loadOrReloadBrowserView = function* (action: any) {
               })
               .end();
           } else {
-            let options: https.RequestOptions = {
+            const options: https.RequestOptions = {
               rejectUnauthorized: true,
               minVersion: 'TLSv1.2',
               /* no dns */
@@ -410,7 +429,8 @@ const loadOrReloadBrowserView = function* (action: any) {
                 });
                 res.on('end', () => {
                   // todo limit size of favicon ???
-                  const faviconAsBase64 = 'data:' + res.headers['content-type'] + ';base64,' + s.toString('base64');
+                  const faviconAsBase64 =
+                    'data:' + res.headers['content-type'] + ';base64,' + s.toString('base64');
                   action.meta.dispatchFromMain({
                     action: fromDappsRenderer.didChangeFaviconAction({
                       tabId: payload.tab.id,
@@ -433,21 +453,20 @@ const loadOrReloadBrowserView = function* (action: any) {
     }
   });
 
-  view.webContents.on('page-title-updated', (a, title) => {
+  view.webContents.on('page-title-updated', (_, title) => {
     if (title !== view.webContents.getTitle()) {
-      title = title;
       action.meta.dispatchFromMain({
         action: fromDappsRenderer.updateTabUrlAndTitleAction({
           url: view.webContents.getURL(),
           tabId: payload.tab.id,
-          title: title,
+          title,
         }),
       });
     }
   });
 
   const handleNavigation = (e: Electron.Event, futureUrl: string, tabFavorite: boolean) => {
-    let parsedFutureUrl: URL | undefined = undefined;
+    let parsedFutureUrl: URL | undefined;
     try {
       parsedFutureUrl = new URL(futureUrl);
     } catch (err) {
@@ -466,10 +485,11 @@ const loadOrReloadBrowserView = function* (action: any) {
           }),
         });
       } else {
-        let currentUrl = new URL(view.webContents.getURL());
+        const currentUrl = new URL(view.webContents.getURL());
         if (
           tabFavorite &&
-          (parsedFutureUrl.hostname !== currentUrl.hostname || parsedFutureUrl.pathname !== currentUrl.hostname)
+          (parsedFutureUrl.hostname !== currentUrl.hostname ||
+            parsedFutureUrl.pathname !== currentUrl.hostname)
         ) {
           e.preventDefault();
           action.meta.dispatchFromMain({
@@ -519,29 +539,15 @@ const loadOrReloadBrowserView = function* (action: any) {
     handleNavigation(e, futureUrl, payload.tab.favorite);
   });
   view.webContents.on('did-start-loading', (e: Electron.Event) => {
-    action.meta.browserWindow.webContents.executeJavaScript(`console.log('did-start-loading ${payload.tab.id}')`);
+    action.meta.browserWindow.webContents.executeJavaScript(
+      `console.log('did-start-loading ${payload.tab.id}')`
+    );
   });
   view.webContents.on('dom-ready', (a) => {
-    action.meta.browserWindow.webContents.executeJavaScript(`console.log('dom-ready ${payload.tab.id}')`);
+    action.meta.browserWindow.webContents.executeJavaScript(
+      `console.log('dom-ready ${payload.tab.id}')`
+    );
   });
-
-  /*
-    We have to do this dirty hack because "page-title-updated"
-    event does not work properly (Electron ^17.0.1)
-  */
-  const updateTitle = (newTitle: string) => {
-    console.log('updateTitle', newTitle);
-    if (view && view.webContents && newTitle && newTitle !== title) {
-      title = newTitle;
-      action.meta.dispatchFromMain({
-        action: fromDappsRenderer.updateTabUrlAndTitleAction({
-          url: view.webContents.getURL(),
-          tabId: payload.tab.id,
-          title: title,
-        }),
-      });
-    }
-  };
 
   // ==============================
   // In tab javascript executions
@@ -551,7 +557,7 @@ const loadOrReloadBrowserView = function* (action: any) {
     Send html page to the dapp that is currently
     an empty html file
   */
-  if (!!payload.tab.data.html) {
+  if (payload.tab.data.html) {
     yield view.webContents.executeJavaScript(`
     window.write("${encodeURIComponent(payload.tab.data.html)}")
     `);
@@ -573,8 +579,8 @@ const loadOrReloadBrowserView = function* (action: any) {
   yield view.webContents.executeJavaScript(`
   window.dappy = { host: "${url.host}", path: "${url.pathname}" };
   `);
-};
+}
 
-export const loadOrReloadBrowserViewSaga = function* () {
+export function* loadOrReloadBrowserViewSaga() {
   yield takeEvery(fromBrowserViews.LOAD_OR_RELOAD_BROWSER_VIEW, loadOrReloadBrowserView);
-};
+}

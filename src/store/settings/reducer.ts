@@ -1,8 +1,8 @@
 import { createSelector } from 'reselect';
 
 import * as fromActions from './actions';
-import { Blockchain, Account } from '/models';
-import { Action } from '../';
+import { Blockchain, Account, BlockchainAccount } from '/models';
+import { Action } from '..';
 
 export interface Settings {
   devMode: boolean;
@@ -50,7 +50,7 @@ export const reducer = (state = initialState, action: Action): State => {
 
       return {
         ...state,
-        blockchains: blockchains,
+        blockchains,
       };
     }
 
@@ -59,7 +59,7 @@ export const reducer = (state = initialState, action: Action): State => {
 
       return {
         ...state,
-        settings: settings,
+        settings,
       };
     }
 
@@ -114,7 +114,7 @@ export const reducer = (state = initialState, action: Action): State => {
       });
       return {
         ...state,
-        accounts: accounts,
+        accounts,
       };
     }
 
@@ -143,20 +143,18 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.UPDATE_ACCOUNTS_BALANCE: {
-      const payload: fromActions.UpdateAccountsBalancePayload = action.payload;
-
-      let newAccounts: { [accountName: string]: Account } = {};
-      payload.balances.forEach((k) => {
-        if (!!state.accounts[k.accountName]) {
-          newAccounts = {
-            ...newAccounts,
-            [k.accountName]: {
-              ...state.accounts[k.accountName],
-              balance: k.balance,
+      const { payload }: { payload: fromActions.UpdateAccountsBalancePayload } = action;
+      const newAccounts = Object.fromEntries(
+        payload.balances
+          .filter(({ accountName }) => accountName in state.accounts)
+          .map(({ accountName, balance }) => [
+            accountName,
+            {
+              ...state.accounts[accountName],
+              balance,
             },
-          };
-        }
-      });
+          ])
+      );
 
       return {
         ...state,
@@ -213,11 +211,15 @@ export const getBlockchains = createSelector(getSettingsState, (state: State) =>
 export const getAccounts = createSelector(getSettingsState, (state: State) => state.accounts);
 
 export const getRChainAccounts = createSelector(getSettingsState, (state: State) => {
-  return Object.fromEntries(Object.entries(state.accounts).filter(([_, account]) => account.platform === 'rchain'));
+  return Object.fromEntries(
+    Object.entries(state.accounts).filter(([_, account]) => account.platform === 'rchain')
+  ) as Record<string, BlockchainAccount>;
 });
 
 export const getEVMAccounts = createSelector(getSettingsState, (state: State) => {
-  return Object.fromEntries(Object.entries(state.accounts).filter(([_, account]) => account.platform === 'evm'));
+  return Object.fromEntries(
+    Object.entries(state.accounts).filter(([_, account]) => account.platform === 'evm')
+  ) as Record<string, BlockchainAccount>;
 });
 
 export const getExecutingAccountsCronJobs = createSelector(
@@ -242,22 +244,24 @@ export const getNamesBlockchain = createSelector(
     const chainId = Object.keys(availableBlockchains)[0];
     if (chainId) {
       return availableBlockchains[chainId];
-    } else {
-      return undefined;
     }
+    return undefined;
   }
 );
 
-export const getAvailableRChainBlockchains = createSelector(getAvailableBlockchains, (availableBlockchains) => {
-  const rchainBlockchains: { [chainId: string]: Blockchain } = {};
-  Object.keys(availableBlockchains).forEach((chainId) => {
-    if (availableBlockchains[chainId].platform === 'rchain') {
-      rchainBlockchains[chainId] = availableBlockchains[chainId];
-    }
-  });
+export const getAvailableRChainBlockchains = createSelector(
+  getAvailableBlockchains,
+  (availableBlockchains) => {
+    const rchainBlockchains: { [chainId: string]: Blockchain } = {};
+    Object.keys(availableBlockchains).forEach((chainId) => {
+      if (availableBlockchains[chainId].platform === 'rchain') {
+        rchainBlockchains[chainId] = availableBlockchains[chainId];
+      }
+    });
 
-  return rchainBlockchains;
-});
+    return rchainBlockchains;
+  }
+);
 
 // if modified, must be modified in main also
 export const getOkBlockchains = createSelector(getBlockchains, (blockchains) => {
@@ -283,12 +287,16 @@ export const getFirstReadyNode = createSelector(getBlockchains, (blockchains) =>
   return bc?.nodes[0];
 });
 
-export const getIsLoadReady = createSelector(getBlockchains, getSettings, (blockchains, settings) => {
-  const key = Object.keys(blockchains)[0];
-  const firstBlockchain = blockchains[key];
-  if (!firstBlockchain) {
-    return false;
-  }
+export const getIsLoadReady = createSelector(
+  getBlockchains,
+  getSettings,
+  (blockchains, settings) => {
+    const key = Object.keys(blockchains)[0];
+    const firstBlockchain = blockchains[key];
+    if (!firstBlockchain) {
+      return false;
+    }
 
-  return firstBlockchain.nodes.length >= settings.resolverAbsolute;
-});
+    return firstBlockchain.nodes.length >= settings.resolverAbsolute;
+  }
+);
