@@ -2,7 +2,7 @@ import { takeEvery, select, put } from 'redux-saga/effects';
 import https from 'https';
 import { BrowserView, session } from 'electron';
 import { blake2b } from 'blakejs';
-import { lookup } from '@fabcotech/dappy-lookup';
+import { DappyNetworkMember, lookup } from '@fabcotech/dappy-lookup';
 
 import * as fromBrowserViews from '../browserViews';
 import { DappyBrowserView } from '../../models';
