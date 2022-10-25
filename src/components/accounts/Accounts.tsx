@@ -203,6 +203,10 @@ export function AccountsComponent(props: AccountsProps) {
             className="limited-width text-mid"
             dangerouslySetInnerHTML={{ __html: t('add account paragraph') }}
           ></p>
+
+          <div className="mt-3">
+            <CertificateAccounts accounts={props.certificateAccounts} />
+          </div>
           <div className="my-3">
             <UpdateBalancesButton
               disabled={Object.keys(props.accounts).length === 0}
@@ -214,11 +218,8 @@ export function AccountsComponent(props: AccountsProps) {
               toggleBalancesVisibility={props.toggleBalancesVisibility}
             />
           </div>
-          <div>
-            <RChainAccounts accounts={props.accounts} setTab={setTab} />
-            <EVMAccounts accounts={props.accounts} />
-            <CertificateAccounts accounts={props.certificateAccounts} />
-          </div>
+          <RChainAccounts accounts={props.accounts} setTab={setTab} />
+          <EVMAccounts accounts={props.accounts} />
         </div>
       ) : undefined}
       {tab === 'add-account' ? <AddAccount setTab={(a: string) => setTab(a)} /> : undefined}
