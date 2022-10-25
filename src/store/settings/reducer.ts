@@ -64,7 +64,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.UPDATE_NODES_COMPLETED: {
-      const { payload } = action;
+      const { payload }: { payload: fromActions.UpdateNodesPayload } = action;
 
       if (!state.blockchains[payload.chainId]) {
         return state;
@@ -106,7 +106,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.UPDATE_ACCOUNTS_FROM_STORAGE: {
-      const { payload } = action;
+      const { payload }: { payload: fromActions.UpdateAccountsFromStoragePayload } = action;
 
       const accounts: { [id: string]: Account } = {};
       payload.accounts.forEach((a) => {
@@ -119,7 +119,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.CREATE_ACCOUNT_COMPLETED: {
-      const { payload } = action;
+      const { payload }: { payload: fromActions.CreateAccountPayload } = action;
 
       return {
         ...state,

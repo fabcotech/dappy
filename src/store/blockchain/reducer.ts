@@ -101,7 +101,7 @@ export const reducer = (state = initialState, action: any): State => {
     }
 
     case fromActions.UPDATE_RECORDS_FROM_STORAGE: {
-      const { payload } = action;
+      const { payload }: { payload: fromActions.UpdateRecordsFromStoragePayload } = action;
 
       const records: { [name: string]: Record } = {};
       payload.records.forEach((record) => {
@@ -180,7 +180,7 @@ export const reducer = (state = initialState, action: any): State => {
     }
 
     case fromActions.UPDATE_TRANSACTIONS_FROM_STORAGE: {
-      const { payload } = action;
+      const { payload }: { payload: { transactions: TransactionState[] } } = action;
 
       const newTransactions: { [id: string]: TransactionState } = {};
       payload.transactions.forEach((t) => {
@@ -368,7 +368,7 @@ export const getNamesBlockchainInfos = createSelector(
     if (namesBlockchain && rchainInfos[namesBlockchain.chainId]) {
       return rchainInfos[namesBlockchain.chainId];
     }
-      return undefined;
+    return undefined;
   }
 );
 

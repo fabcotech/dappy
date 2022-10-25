@@ -17,7 +17,7 @@ export const initialState: State = {
 export const reducer = (state = initialState, action: Action): State => {
   switch (action.type) {
     case fromActions.UPDATE_COOKIES_FROM_STORAGE: {
-      const { payload } = action;
+      const { payload }: { payload: fromActions.UpdateCookiesFromStoragePayload } = action;
 
       const newCookies: { [address: string]: Cookie[] } = {};
       payload.cookiesFromStorage.forEach((c) => {
