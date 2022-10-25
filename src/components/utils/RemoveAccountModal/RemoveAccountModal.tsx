@@ -24,9 +24,9 @@ export const RemoveAccountModal = ({
           <p className="modal-card-title">{t('remove account')}</p>
           <i onClick={onClose} className="fa fa-times" />
         </header>
-        {account.platform !== 'certificate' && (
-          <section className="modal-card-body">
-            {t('remove account warning')}
+        <section className="modal-card-body">
+          {t('remove account warning')}
+          {account.platform !== 'certificate' && (
             <div style={{ width: '50%' }}>
               <AccountPassword
                 encrypted={account.encrypted}
@@ -35,8 +35,8 @@ export const RemoveAccountModal = ({
                 }}
               />
             </div>
-          </section>
-        )}
+          )}
+        </section>
         <footer className="modal-card-foot">
           <button
             type="button"

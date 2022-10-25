@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 
 import * as fromActions from './actions';
-import { Blockchain, Account, BlockchainAccount } from '/models';
+import { Blockchain, Account, BlockchainAccount, CertificateAccount } from '/models';
 import { Action } from '..';
 
 export interface Settings {
@@ -220,6 +220,12 @@ export const getEVMAccounts = createSelector(getSettingsState, (state: State) =>
   return Object.fromEntries(
     Object.entries(state.accounts).filter(([_, account]) => account.platform === 'evm')
   ) as Record<string, BlockchainAccount>;
+});
+
+export const getCertificateAccounts = createSelector(getSettingsState, (state: State) => {
+  return Object.fromEntries(
+    Object.entries(state.accounts).filter(([, account]) => account.platform === 'certificate')
+  ) as Record<string, CertificateAccount>;
 });
 
 export const getExecutingAccountsCronJobs = createSelector(

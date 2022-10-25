@@ -1,10 +1,15 @@
 import { resolver } from '@fabcotech/bees';
+import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 
 import { getNodeFromIndex } from '../src/utils/getNodeFromIndex';
-import { MultiRequestBody, MultiRequestParameters, MultiRequestResult, MultiRequestError } from '../src/models/';
+import {
+  MultiRequestBody,
+  MultiRequestParameters,
+  MultiRequestResult,
+  MultiRequestError,
+} from '../src/models';
 import * as fromBlockchains from './store/blockchains';
 import { httpBrowserToNode } from './httpBrowserToNode';
-import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 
 /* browser to network */
 export const performMultiRequest = (
@@ -16,32 +21,36 @@ export const performMultiRequest = (
     resolver(
       (id) => {
         const a = getNodeFromIndex(id);
-        return new Promise(async (resolve2, reject2) => {
+        return new Promise(async (resolve2) => {
           let timeout = null;
           if (
             blockchains[parameters.chainId] &&
-            blockchains[parameters.chainId].nodes.find((n) => n.ip === a.ip && n.hostname === a.hostname)
+            blockchains[parameters.chainId].nodes.find(
+              (n) => n.ip === a.ip && n.hostname === a.hostname
+            )
           ) {
-            const node = blockchains[parameters.chainId].nodes.find((n) => n.ip === a.ip && n.hostname === a.hostname);
+            const node = blockchains[parameters.chainId].nodes.find(
+              (n) => n.ip === a.ip && n.hostname === a.hostname
+            );
             let over = false;
             timeout = setTimeout(() => {
               if (!over) {
                 resolve2({
                   type: 'ERROR',
                   status: 500,
-                  id: id,
+                  id,
                 });
                 over = true;
               }
             }, 50000);
             try {
-              const resp = await httpBrowserToNode(body, node as DappyNetworkMember, 50000);
+              const resp = await httpBrowserToNode(body, node as DappyNetworkMember);
               if (!over) {
                 clearTimeout(timeout);
                 resolve2({
                   type: 'SUCCESS',
                   data: resp as string,
-                  id: id,
+                  id,
                 });
                 over = true;
               }
@@ -49,7 +58,7 @@ export const performMultiRequest = (
               resolve2({
                 type: 'ERROR',
                 status: 500,
-                id: id,
+                id,
               });
               over = true;
               clearTimeout(timeout);
@@ -60,7 +69,7 @@ export const performMultiRequest = (
           resolve2({
             type: 'ERROR',
             status: 500,
-            id: id,
+            id,
           });
           if (timeout) clearTimeout(timeout);
         });

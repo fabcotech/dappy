@@ -4,6 +4,7 @@ import { CertificateAccountForm } from './CertificateAccountForm';
 
 describe('Accounts', () => {
   it('<CertificateAccountForm /> should be visible', () => {
+    window.generateCertificateAndKey = jest.fn(() => new Promise(() => {}));
     const {
       container: { firstChild },
     } = render(<CertificateAccountForm fillAccount={() => undefined} />);

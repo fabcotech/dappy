@@ -18,7 +18,7 @@ interface ModalComponentProps {
 }
 
 class ModalComponent extends React.Component<ModalComponentProps> {
-  onClose() {
+  onClose = () => {
     const { modal, dispatchModalAction } = this.props;
     if (modal) {
       if (modal.tabId) {
@@ -27,7 +27,7 @@ class ModalComponent extends React.Component<ModalComponentProps> {
         dispatchModalAction(fromMain.closeModalAction());
       }
     }
-  }
+  };
 
   render() {
     if (!this.props.modal) {

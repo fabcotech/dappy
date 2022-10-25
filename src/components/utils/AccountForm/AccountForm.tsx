@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { Formik, Field } from 'formik';
 import { ec as Ec } from 'elliptic';
 
-import { BlockchainAccount } from '/models';
+import { Account, BlockchainAccount } from '/models';
 import { encrypt, decrypt, passwordFromStringToBytes } from '/utils/crypto';
 import './AccountForm.scss';
 import { rchainWallet, evmWallet } from '/utils/wallets';
+import { CertificateAccountForm } from './CertificateAccountForm';
 
 const ecSecp256k1 = new Ec('secp256k1');
 
@@ -20,7 +21,7 @@ type PlatformKey = Platform['key'];
 
 interface AccountFormProps {
   names: string[];
-  fillAccount: (a: undefined | BlockchainAccount) => void;
+  fillAccount: (a: undefined | Account) => void;
 }
 
 const PASSWORD_REGEXP_UPPER = /^(?=.*?[A-Z])/;
@@ -258,6 +259,7 @@ export function AccountForm(props: AccountFormProps) {
         </div>
       </div>
       {plaformKey !== 'certificate' && <BlockchainAccountForm {...props} platform={plaformKey} />}
+      {plaformKey === 'certificate' && <CertificateAccountForm fillAccount={props.fillAccount} />}
     </form>
   );
 }

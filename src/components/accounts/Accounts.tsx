@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
 import { Account } from './Account';
-import { Account as AccountModel, Blockchain, RChainInfos } from '/models';
+import { Account as AccountModel, Blockchain, CertificateAccount } from '/models';
 import * as fromSettings from '/store/settings';
 import * as fromBlockchain from '/store/blockchain';
 import { State } from '/store';
@@ -19,29 +19,44 @@ import image_moonbeam from '/images/moonbeam120x120.png';
 import image_moonriver from '/images/moonriver120x120.png';
 import image_evmos from '/images/evmos120x120.png';
 import image_starkware from '/images/starkware120x120.png';
-import image_stark from '/images/stark.png';
 import image_binance_smart_chain from '/images/binance120x120.png';
 import image_avalanche from '/images/avalanche120x120.png';
 
 import './Accounts.scss';
 
-export const UpdateBalancesButton = ({ updating, updateBalances, disabled }: { updating: boolean; disabled: boolean; updateBalances: () => void; }) => {
+export const UpdateBalancesButton = ({
+  updating,
+  updateBalances,
+  disabled,
+}: {
+  updating: boolean;
+  disabled: boolean;
+  updateBalances: () => void;
+}) => {
   if (updating) {
-    return <a  title={t('update balances')} className="disabled underlined-link">
-      <i className="fa fa-before fa-redo rotating"></i>
-      {t('update balances')}
-    </a>;
+    return (
+      <a title={t('update balances')} className="disabled underlined-link">
+        <i className="fa fa-before fa-redo rotating"></i>
+        {t('update balances')}
+      </a>
+    );
   }
 
-  return <a title={t('update balances')} className={`${disabled ? 'disabled' : ''} underlined-link`} onClick={() => {
-    if (!disabled) {
-      updateBalances()
-    }
-  }}>
-    <i className="fa fa-before fa-redo"></i>
-    {t('update balances')}
-  </a>;
-}
+  return (
+    <a
+      title={t('update balances')}
+      className={`${disabled ? 'disabled' : ''} underlined-link`}
+      onClick={() => {
+        if (!disabled) {
+          updateBalances();
+        }
+      }}
+    >
+      <i className="fa fa-before fa-redo"></i>
+      {t('update balances')}
+    </a>
+  );
+};
 
 export const HideBalancesButton = ({
   isBalancesHidden,
@@ -50,13 +65,19 @@ export const HideBalancesButton = ({
   isBalancesHidden: boolean;
   toggleBalancesVisibility: () => void;
 }) => {
-  return <a
-    title={t(`${isBalancesHidden ? 'show' : 'hide'} balances`)}
-    className="underlined-link ml-2"
-    onClick={toggleBalancesVisibility}>
-    <i data-testid="hbb-icon" className={`fa fa-before fa-eye${isBalancesHidden ? '' : '-slash'}`}></i>
-    {isBalancesHidden ? t('show balances') : t('hide balances')}
-  </a>;
+  return (
+    <a
+      title={t(`${isBalancesHidden ? 'show' : 'hide'} balances`)}
+      className="underlined-link ml-2"
+      onClick={toggleBalancesVisibility}
+    >
+      <i
+        data-testid="hbb-icon"
+        className={`fa fa-before fa-eye${isBalancesHidden ? '' : '-slash'}`}
+      ></i>
+      {isBalancesHidden ? t('show balances') : t('hide balances')}
+    </a>
+  );
 };
 
 interface RChainAccountsProps {
@@ -65,7 +86,7 @@ interface RChainAccountsProps {
 }
 
 export const RChainAccounts = ({ accounts, setTab }: RChainAccountsProps) => {
-  if (!Object.values(accounts).filter(a => a.platform === 'rchain').length) return null;
+  if (!Object.values(accounts).filter((a) => a.platform === 'rchain').length) return null;
   return (
     <div className="mb-4">
       {Object.keys(accounts).length === 0 ? (
@@ -95,13 +116,16 @@ interface EVMAccountsProps {
   accounts: Record<string, AccountModel>;
 }
 
-export const EVMAcconts = ({ accounts }: EVMAccountsProps) => {
-  if (!Object.values(accounts).filter(a => a.platform === 'evm').length) return null;
+export const EVMAccounts = ({ accounts }: EVMAccountsProps) => {
+  if (!Object.values(accounts).filter((a) => a.platform === 'evm').length) return null;
   return (
     <div className="block">
       <h4 className="is-size-4 mb-2">Ethereum / EVM</h4>
       <p className="block mt-4">
-        <GlossaryHint term="why can't I see my balance for ETH and other EVM wallets ?" displayTerm />
+        <GlossaryHint
+          term="why can't I see my balance for ETH and other EVM wallets ?"
+          displayTerm
+        />
       </p>
       <div className="logos mb-4">
         <img src={image_ethereum} title="Ethereum" />
@@ -126,8 +150,27 @@ export const EVMAcconts = ({ accounts }: EVMAccountsProps) => {
   );
 };
 
+interface CertificateAccountsProps {
+  accounts: Record<string, CertificateAccount>;
+}
+
+export const CertificateAccounts = ({ accounts }: CertificateAccountsProps) => {
+  if (Object.values(accounts).length === 0) return null;
+  return (
+    <div className="block">
+      <h4 className="is-size-4 mb-2">Certificates</h4>
+      <div className="account-cards">
+        {Object.values(accounts).map((account) => (
+          <Account key={account.name} account={account} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 interface AccountsProps {
   accounts: { [name: string]: AccountModel };
+  certificateAccounts: Record<string, CertificateAccount>;
   namesBlockchain: Blockchain | undefined;
   executingAccountsCronJobs: boolean;
   isBalancesHidden: boolean;
@@ -156,7 +199,10 @@ export function AccountsComponent(props: AccountsProps) {
       {tab === 'accounts' ? (
         <div>
           <h3 className="subtitle is-4"></h3>
-          <p className="limited-width text-mid" dangerouslySetInnerHTML={{ __html: t('add account paragraph') }}></p>
+          <p
+            className="limited-width text-mid"
+            dangerouslySetInnerHTML={{ __html: t('add account paragraph') }}
+          ></p>
           <div className="my-3">
             <UpdateBalancesButton
               disabled={Object.keys(props.accounts).length === 0}
@@ -170,7 +216,8 @@ export function AccountsComponent(props: AccountsProps) {
           </div>
           <div>
             <RChainAccounts accounts={props.accounts} setTab={setTab} />
-            <EVMAcconts accounts={props.accounts} />
+            <EVMAccounts accounts={props.accounts} />
+            <CertificateAccounts accounts={props.certificateAccounts} />
           </div>
         </div>
       ) : undefined}
@@ -182,6 +229,7 @@ export function AccountsComponent(props: AccountsProps) {
 export const Accounts = connect(
   (state: State) => ({
     accounts: fromSettings.getAccounts(state),
+    certificateAccounts: fromSettings.getCertificateAccounts(state),
     namesBlockchain: fromSettings.getNamesBlockchain(state),
     executingAccountsCronJobs: fromSettings.getExecutingAccountsCronJobs(state),
     isBalancesHidden: getIsBalancesHidden(state),
