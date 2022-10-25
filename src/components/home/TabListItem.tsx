@@ -68,7 +68,8 @@ export class TabListItem extends React.Component<TabListItemProps, {}> {
           onClick={this.onLaunchOrFocusDapp}
           className={`tab-list-item small ${this.props.tab.active ? 'active' : ''} ${
             this.props.focused ? 'focused' : ''
-          }`}>
+          }`}
+        >
           <div title={this.props.tab.title} className="img-col fc">
             <DappImage
               small={true}
@@ -86,7 +87,8 @@ export class TabListItem extends React.Component<TabListItemProps, {}> {
         onClick={this.onLaunchOrFocusDapp}
         className={`tab-list-item ${this.props.tab.active ? 'active' : ''} ${
           this.props.focused ? 'focused' : ''
-        } pl5 pr5`}>
+        } pl5 pr5`}
+      >
         <div className="img-col fc">
           <DappImage
             title={this.props.tab.title}
@@ -95,32 +97,32 @@ export class TabListItem extends React.Component<TabListItemProps, {}> {
           />
         </div>
         <span className="tab-title pl5">
-          {this.props.tab.muted && this.props.tab.active ?
+          {this.props.tab.muted && this.props.tab.active ? (
             <i
               title="Unmute"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                this.props.onSetMuteTab(this.props.tab.id, false)
+                this.props.onSetMuteTab(this.props.tab.id, false);
               }}
               className="fa fa-before fa-volume-mute"
-            /> : undefined
-          }
-          {this.props.tab.favorite ?
+            />
+          ) : undefined}
+          {this.props.tab.favorite ? (
             <i
               title="Remove from bookmarks"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                this.props.onSetFavoriteTab(this.props.tab.id, false)
+                this.props.onSetFavoriteTab(this.props.tab.id, false);
               }}
               className="fa fa-before fa-star"
-            /> : undefined
-          }
+            />
+          ) : undefined}
           <span>{this.props.tab.title}</span>
         </span>
         <div className="tab-status">
-          {this.props.tab.active &&
+          {/* this.props.tab.active &&
           (!this.props.transitoryState ||
             !['launching', 'stopping', 'loading', 'reloading'].includes(this.props.transitoryState)) ? (
             <TabActions
@@ -131,9 +133,13 @@ export class TabListItem extends React.Component<TabListItemProps, {}> {
               removeTab={this.onRemoveTab}
               stopTab={this.onStopTab}
             />
-          ) : undefined}
+          ) : undefined */}
           {!this.props.transitoryState && !this.props.tab.favorite && !this.props.tab.active && (
-            <i onClick={this.onRemoveTab} className="fa fa-times fa-after" title={t('remove tab')} />
+            <i
+              onClick={this.onRemoveTab}
+              className="fa fa-times fa-after"
+              title={t('remove tab')}
+            />
           )}
         </div>
       </div>

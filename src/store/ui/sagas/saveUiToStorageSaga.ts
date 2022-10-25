@@ -25,28 +25,10 @@ const saveUiToStorage = function* (action: Action) {
   };
 
   let dappsTabsWidth = 0;
-  if (uiState.tabsListDisplay === 2) {
-    if (isMobile) {
-      dappsTabsWidth = 160;
-    } else if (isTablet) {
-      dappsTabsWidth = 220;
-    } else {
-      dappsTabsWidth = 320;
-    }
-  } else if (uiState.tabsListDisplay === 3) {
-    dappsTabsWidth = 28;
-  }
-
   let menuWidth = 0;
-  if (!isMobile) {
-    if (uiState.menuCollapsed) {
-      menuWidth = 55;
-    } else {
-      menuWidth = 194;
-    }
-  }
+
   const x = menuWidth + dappsTabsWidth;
-  const y = uiState.platform === 'darwin' ? 78 : 50;
+  const y = uiState.platform === 'darwin' ? 88 + 28 : 88;
   if (uiState.windowDimensions) {
     const browserViewsPosition = {
       x,

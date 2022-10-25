@@ -1,21 +1,43 @@
-@import "../style/variables.scss";
+@import '../style/variables.scss';
 
 @keyframes col {
-  0% { background: #111; }
-  50% { background: $primary; }
-  100% { background: #111; }
+  0% {
+    background: #111;
+  }
+  50% {
+    background: $primary;
+  }
+  100% {
+    background: #111;
+  }
 }
 @keyframes glissement {
-  0% { left: 0px; }
-  45% { left: calc(100% - 12px); }
-  55% { left: calc(100% - 12px); }
-  100% { left: Opx; }
+  0% {
+    left: 0px;
+  }
+  45% {
+    left: calc(100% - 12px);
+  }
+  55% {
+    left: calc(100% - 12px);
+  }
+  100% {
+    left: Opx;
+  }
 }
 
 @keyframes scaleout {
-  0% { opacity: 1; transform: scale(1);  }
-  80% { opacity: 0; }
-  100% { transform: scale(2); opacity: 0; }
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  80% {
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
 
 .root {
@@ -23,7 +45,7 @@
   min-height: 100%;
   position: relative;
   display: grid;
-  grid-template-rows: 100%;
+  grid-template-rows: 38px calc(100% - 30px);
   .loading {
     background: #eee;
     z-index: 2000;
@@ -57,21 +79,32 @@
       }
     }
   }
-  &.menu-collapsed {
-    grid-template-columns: 55px calc(100% - 55px);
-  }
   &.menu-not-collapsed {
-    grid-template-columns: 194px calc(100% - 194px);
+    grid-template-columns: 96px calc(100% - 96px);
+  }
+  & > .topbar {
+    z-index: 1;
+    grid-column-start: 1;
+    grid-column-end: 3;
+    grid-row: 1;
+  }
+  & > .root-full {
+    z-index: 1;
+    grid-row: 2;
+    grid-column-start: 1;
+    grid-column-end: 3;
   }
   & > .root-left {
-    grid-row: 1;
+    z-index: 2;
+    grid-row: 2;
     grid-column: 1;
     display: grid;
     grid-template-columns: 100%;
     grid-template-rows: max-content max-content auto;
   }
   & > .root-right {
-    grid-row: 1;
+    z-index: 2;
+    grid-row: 2;
     grid-column: 2;
     display: grid;
     grid-template-rows: 100%;
@@ -108,7 +141,6 @@
       z-index: 6;
     }
     .top-window-buttons {
-
       position: absolute;
       top: 0px;
       right: 15px;
@@ -117,7 +149,8 @@
       height: $navigationBarHeight;
       z-index: 10;
 
-      .drag-top, .drag-bottom {
+      .drag-top,
+      .drag-bottom {
         left: 0px;
         height: 12px;
         width: 100%;
@@ -157,4 +190,3 @@
     }
   }
 }
-  

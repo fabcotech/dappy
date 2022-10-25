@@ -1,35 +1,6 @@
-@import "../style/variables.scss";
-@import "node_modules/bulma/sass/utilities/initial-variables.sass";
+@import '../style/variables.scss';
+@import 'node_modules/bulma/sass/utilities/initial-variables.sass';
 
-li.dappy {
-  &.long {
-    font-size: 1.3rem;
-  }
-  &.short {
-    font-size: 2rem;
-  }
-  display: flex;
-  align-items: flex-start;
-  flex-direction: column;
-  justify-content: space-between;
-  color: #fff;
-  font-weight: 600;
-  font-size: 2rem;
-  .version {
-    padding-left: 2px;
-    font-weight: 600;
-    font-size: 0.8rem;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    .update {
-      color: #ffdd57;
-      text-decoration: underline;
-      cursor: pointer;
-      margin-left: 5px;
-    }
-  }
-}
 li.update-available {
   color: #fff;
   font-size: 0.9rem;
@@ -67,18 +38,12 @@ li.update-available {
       flex-direction: column;
     }
   }
-  &.collapsed {
-    a {
-      text-align: center;
-      i.rotated-d {
-        transform: rotate(-15deg) !important;
-      }
-    }
-  }
   .menu-list li {
     position: relative;
+    font-size: 1rem;
     a {
       font-weight: 600;
+      padding-left: 17px;
     }
     a:hover {
       cursor: default;
@@ -94,7 +59,8 @@ li.update-available {
       font-size: 1.3em;
       width: 26px;
     }
-    i.fa-eye, i.fa-eye-slash {
+    i.fa-eye,
+    i.fa-eye-slash {
       font-size: 0.8em;
       position: absolute;
       right: 0;

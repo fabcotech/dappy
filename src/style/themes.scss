@@ -8,7 +8,7 @@
   .button.is-link {
     background: linear-gradient(45deg, #103373, #3268ab);
     box-shadow: 0px 0px 23px #3268ab inset;
-    
+
     &:not(.disabled):hover {
       background: linear-gradient(45deg, #103373, #3268ab);
       box-shadow: 0px 0px 5px #3268ab inset;
@@ -27,7 +27,7 @@
         color: #f2f2f2;
       }
       a.is-active {
-        background-color: rgba(0,0,0,0.4);
+        background-color: rgba(0, 0, 0, 0.4);
         color: #fff;
       }
     }
@@ -93,69 +93,130 @@
   }
 }
 .theme-black {
+  background-image: repeating-linear-gradient(45deg, #000, #030303 1px, #111 1px, #111 5px);
+  .search-dapps {
+    color: #fff;
+  }
+  .tab-list-item.focused {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  .tab-list-item.active {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  .tab-list-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  .tab-title {
+    color: #fff;
+  }
   .root-left.menu {
-    background: linear-gradient(20deg, #000, #333);
+    // background: linear-gradient(20deg, #000, #333);
+    background: #111;
     .menu-list li {
       a {
-        color: #f2f2f2;
+        color: #ddd;
       }
       a.is-active {
-        background-color: darken(#555, 10%);
+        background-color: transparent;
+        text-decoration: underline;
+        font-weight: 800;
         color: #fff;
       }
     }
   }
-  .navigation-bar {
-    background-color: #333;
-    border-color: #222;
-    & > div.disabled {
-      i {
-        color: #666;
-      }
-    }
-    & > div:not(.disabled) {
-      i {
-        color: #ddd;
-        &:hover {
-          color: #fff;
-        }
-      }
-      i.disabled {
-        color: #666;
-      }
-    }
+  .navigation-bar-home {
     .form {
-      input {
-        background-color: #555;
-        color: #fff;
-        border: 1px solid #555;
+      input::placeholder {
+        color: #666;
       }
-      .lock-div {
-        border-color: rgba(#000, 0.4);
-        &.resource-loaded:hover {
-          cursor: pointer;
-          background: #222;
-          &:active {
-            background: #222;
-          }
-          .app-type {
+      input {
+        color: #fff;
+        background: transparent;
+      }
+    }
+  }
+  .resources {
+    background: transparent;
+    .display-error {
+      background: transparent;
+      .load-error {
+        .message {
+          background: rgba(255, 255, 255, 0.1);
+          h4,
+          p {
             color: #fff;
           }
         }
-        i {
-          color: #fff;
+      }
+      .retry {
+        background: transparent;
+        & > div {
+          color: #ddd;
+          &:hover {
+            color: #fff;
+          }
         }
       }
-      .tip-div {
-        &:not(.resource-loaded) > i:hover {
-          color: #aaa;
-        }
+    }
+    .navigation-bar {
+      background: #111;
+      // border-bottom: 1px solid $background-dark;
+      & > div.disabled {
         i {
-          color: #aaa;
+          color: #666;
         }
-        &.resource-loaded {
-          i {
+      }
+      & > div:not(.disabled) {
+        i {
+          color: #ddd;
+          &:hover {
+            color: #fff;
+          }
+        }
+        i.disabled {
+          color: #666;
+        }
+      }
+      .form {
+        input::placeholder {
+          color: #666;
+        }
+        input {
+          background-color: transparent;
+          color: #ddd;
+          border: none;
+          font-size: 1.2rem;
+        }
+        .lock-div {
+          border-color: rgba(#000, 0.4);
+          .app-type {
             color: #eee;
+          }
+          &.resource-loaded:hover {
+            cursor: pointer;
+            background: #222;
+            &:active {
+              background: #222;
+            }
+            .app-type {
+              color: #fff;
+            }
+          }
+          i {
+            color: #fff;
+          }
+        }
+        .tip-div {
+          &:not(.resource-loaded) > i:hover {
+            color: #aaa;
+          }
+          i {
+            color: #aaa;
+          }
+          &.resource-loaded {
+            i {
+              color: #eee;
+            }
           }
         }
       }
@@ -167,7 +228,7 @@
     background: linear-gradient(20deg, $themePinkDark, $themePink);
     .menu-list li {
       a {
-        color: rgba(0,0,0,0.7);
+        color: rgba(0, 0, 0, 0.7);
       }
       a.is-active {
         background-color: darken($themePink, 10%);
@@ -218,10 +279,10 @@
       }
       .tip-div {
         &:not(.resource-loaded) > i:hover {
-          color: rgba(0,0,0.7);
+          color: rgba(0, 0, 0.7);
         }
         i {
-          color: rgba(0,0,0.7);
+          color: rgba(0, 0, 0.7);
         }
         &.resource-loaded {
           i {

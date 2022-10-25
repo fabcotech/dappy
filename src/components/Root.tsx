@@ -7,7 +7,8 @@ import { State as RootState } from '/store';
 import * as fromUi from '/store/ui';
 import * as fromMain from '/store/main';
 import * as fromSettings from '/store/settings';
-import { Home } from './home';
+import { Home, TopBar } from './home';
+import { Home2 } from './home';
 import { Root as SettingsRoot } from './settings';
 import { Root as AuthRoot } from './auth';
 import { Root as WhitelistRoot } from './whitelist';
@@ -110,7 +111,7 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
       return <Gcu version={GCU_VERSION} text={GCU_TEXT} continue={this.props.updateGcu}></Gcu>;
     }
 
-    let klasses = 'root theme-default';
+    let klasses = 'root theme-black';
     if (this.props.isMobile) {
       klasses += ' is-mobile';
     }
@@ -130,47 +131,69 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
         {this.props.initializationOver && (
           <>
             {this.props.modal ? <Modal /> : undefined}
-            <Menu
-              tabsListDisplay={this.props.tabsListDisplay}
-              menuCollapsed={this.props.menuCollapsed}
-              toggleMenuCollapsed={this.props.toggleMenuCollapsed}
+            {!this.props.isNavigationInDapps && (
+              <Menu
+                tabsListDisplay={this.props.tabsListDisplay}
+                menuCollapsed={this.props.menuCollapsed}
+                toggleMenuCollapsed={this.props.toggleMenuCollapsed}
+                isNavigationInDapps={this.props.isNavigationInDapps}
+                isNavigationInSettings={this.props.isNavigationInSettings}
+                isNavigationInAccounts={this.props.isNavigationInAccounts}
+                isNavigationInTransactions={this.props.isNavigationInTransactions}
+                isNavigationInAuth={this.props.isNavigationInAuth}
+                isNavigationInWhitelist={this.props.isNavigationInWhitelist}
+                isMobile={this.props.isMobile}
+                isBeta={this.props.isBeta}
+                currentVersion={this.props.currentVersion}
+                isAwaitingUpdate={this.props.isAwaitingUpdate}
+                navigate={this.props.navigate}
+              />
+            )}
+            <TopBar
               isNavigationInDapps={this.props.isNavigationInDapps}
-              isNavigationInSettings={this.props.isNavigationInSettings}
-              isNavigationInAccounts={this.props.isNavigationInAccounts}
-              isNavigationInTransactions={this.props.isNavigationInTransactions}
-              isNavigationInAuth={this.props.isNavigationInAuth}
-              isNavigationInWhitelist={this.props.isNavigationInWhitelist}
-              isMobile={this.props.isMobile}
-              isBeta={this.props.isBeta}
-              currentVersion={this.props.currentVersion}
-              isAwaitingUpdate={this.props.isAwaitingUpdate}
               navigate={this.props.navigate}
-            />
-            <div className="root-right">
-              {this.props.platform && false && (
-                <div className="fc top-window-buttons">
-                  <div className="drag-top"></div>
-                  <div className="drag-bottom"></div>
-                  <i onClick={() => minimize()} className="fa fa-minus"></i>
-                  <i onClick={() => maximize()} className="square-max"></i>
-                  <i onClick={() => close()} className="fa fa-times"></i>
-                </div>
-              )}
-              {this.props.isNavigationInSettings ? (
-                <SettingsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
-              ) : undefined}
-              {this.props.isNavigationInAccounts ? (
-                <AccountsRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
-              ) : undefined}
-              {this.props.isNavigationInAuth ? (
-                <AuthRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
-              ) : undefined}
-              {this.props.isNavigationInWhitelist ? (
-                <WhitelistRoot navigationUrl={this.props.navigationUrl} navigate={this.props.navigate} />
-              ) : undefined}
-              <Home />
-              {this.props.isNavigationInTransactions ? <TransactionsRoot /> : undefined}
+            ></TopBar>
+            <div className="root-full">
+              <Home2 />
             </div>
+            {!this.props.isNavigationInDapps && (
+              <div className="root-right">
+                {this.props.platform && false && (
+                  <div className="fc top-window-buttons">
+                    <div className="drag-top"></div>
+                    <div className="drag-bottom"></div>
+                    <i onClick={() => minimize()} className="fa fa-minus"></i>
+                    <i onClick={() => maximize()} className="square-max"></i>
+                    <i onClick={() => close()} className="fa fa-times"></i>
+                  </div>
+                )}
+                {this.props.isNavigationInSettings ? (
+                  <SettingsRoot
+                    navigationUrl={this.props.navigationUrl}
+                    navigate={this.props.navigate}
+                  />
+                ) : undefined}
+                {this.props.isNavigationInAccounts ? (
+                  <AccountsRoot
+                    navigationUrl={this.props.navigationUrl}
+                    navigate={this.props.navigate}
+                  />
+                ) : undefined}
+                {this.props.isNavigationInAuth ? (
+                  <AuthRoot
+                    navigationUrl={this.props.navigationUrl}
+                    navigate={this.props.navigate}
+                  />
+                ) : undefined}
+                {this.props.isNavigationInWhitelist ? (
+                  <WhitelistRoot
+                    navigationUrl={this.props.navigationUrl}
+                    navigate={this.props.navigate}
+                  />
+                ) : undefined}
+                {this.props.isNavigationInTransactions ? <TransactionsRoot /> : undefined}
+              </div>
+            )}
           </>
         )}
       </div>
@@ -209,7 +232,8 @@ export const Root = connect(
     initializationOver: fromMain.getInitializationOver(state),
   }),
   (dispatch) => ({
-    navigate: (navigationUrl: NavigationUrl) => dispatch(fromUi.navigateAction({ navigationUrl: navigationUrl })),
+    navigate: (navigationUrl: NavigationUrl) =>
+      dispatch(fromUi.navigateAction({ navigationUrl: navigationUrl })),
     toggleMenuCollapsed: () => dispatch(fromUi.toggleMenuCollapsedAction()),
     updateGcu: () => dispatch(fromUi.updateGcuAction({ gcu: GCU_VERSION })),
   })

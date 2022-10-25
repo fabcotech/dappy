@@ -1,0 +1,21 @@
+@import '../../style/variables.scss';
+
+.home2 {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 60px calc(100% - 60px);
+  grid-template-columns: 100%;
+  background-image: repeating-linear-gradient(45deg, #000, #030303 1px, #111 1px, #111 5px);
+  & > .navigation-bar-home {
+    z-index: 1;
+    grid-column: 1;
+    grid-row: 1;
+  }
+  & > .resources {
+    grid-row-start: 1;
+    grid-row-end: 3;
+    grid-column: 1;
+    z-index: 2;
+  }
+}

@@ -75,7 +75,7 @@ export const reducer = (state = initialState, action: Action): State => {
           if (t.id === payload.tabId) {
             return {
               ...t,
-              lastError: undefined
+              lastError: undefined,
             };
           }
           return t;
@@ -139,7 +139,7 @@ export const reducer = (state = initialState, action: Action): State => {
           if (t.id === payload.tabId) {
             return {
               ...t,
-              lastError: { url: payload.url, error: payload.error }
+              lastError: { url: payload.url, error: payload.error },
             };
           }
           return t;
@@ -159,7 +159,9 @@ export const reducer = (state = initialState, action: Action): State => {
         return state;
       }
 
-      const newDappsFocusOrder = state.tabsFocusOrder.filter((id) => id !== payload.tabId).concat(payload.tabId);
+      const newDappsFocusOrder = state.tabsFocusOrder
+        .filter((id) => id !== payload.tabId)
+        .concat(payload.tabId);
 
       return {
         ...state,
@@ -175,7 +177,9 @@ export const reducer = (state = initialState, action: Action): State => {
         return state;
       }
 
-      const newDappsFocusOrder = state.tabsFocusOrder.filter((id) => id !== payload.tabId).concat(payload.tabId);
+      const newDappsFocusOrder = state.tabsFocusOrder
+        .filter((id) => id !== payload.tabId)
+        .concat(payload.tabId);
       const newTabs = state.tabs.map((t) => {
         if (t.id === payload.tabId) {
           return {
@@ -207,7 +211,7 @@ export const reducer = (state = initialState, action: Action): State => {
               url: payload.url,
             };
           }
-            return tab;
+          return tab;
         }),
       };
     }
@@ -232,7 +236,7 @@ export const reducer = (state = initialState, action: Action): State => {
             data: {
               publicKey: undefined,
               chainId: undefined,
-            }
+            },
           })
           .map((t, i) => ({
             ...t,
@@ -244,7 +248,7 @@ export const reducer = (state = initialState, action: Action): State => {
 
     case fromActions.DID_CHANGE_FAVICON: {
       const { payload } = action;
-       return {
+      return {
         ...state,
         tabs: state.tabs.map((tab, i) => {
           if (tab.id === payload.tabId) {
@@ -253,7 +257,7 @@ export const reducer = (state = initialState, action: Action): State => {
               img: payload.img,
             };
           }
-            return tab;
+          return tab;
         }),
       };
     }
@@ -286,7 +290,7 @@ export const reducer = (state = initialState, action: Action): State => {
             active: false,
           };
         }
-          return t;
+        return t;
       });
 
       const newTransitoryStates = { ...state.transitoryStates };
@@ -307,14 +311,16 @@ export const reducer = (state = initialState, action: Action): State => {
 
       return {
         ...state,
-        tabs: state.tabs.filter((dio) => dio.id !== payload.tabId).map((dio, i) => ({ ...dio, index: i })),
+        tabs: state.tabs
+          .filter((dio) => dio.id !== payload.tabId)
+          .map((dio, i) => ({ ...dio, index: i })),
       };
     }
 
     case fromActions.FOCUS_SEARCH_DAPP: {
       return {
         ...state,
-        tabsFocusOrder: state.tabsFocusOrder.filter((d) => d !== 'search').concat('search'),
+        tabsFocusOrder: [],
       };
     }
 
@@ -350,11 +356,11 @@ export const reducer = (state = initialState, action: Action): State => {
           if (tab.id === payload.tab.id) {
             return {
               ...payload.tab,
-              counter: payload.tab.counter + 1
+              counter: payload.tab.counter + 1,
             };
             return payload.tab;
           }
-            return tab;
+          return tab;
         }),
       };
     }
@@ -372,7 +378,7 @@ export const reducer = (state = initialState, action: Action): State => {
             },
           };
         }
-          return state;
+        return state;
       }
 
       let newTransitoryStates = state.transitoryStates;
@@ -391,7 +397,7 @@ export const reducer = (state = initialState, action: Action): State => {
           if (t.id === payload.tabId) {
             return {
               ...t,
-              lastError: undefined
+              lastError: undefined,
             };
           }
           return t;
@@ -411,7 +417,7 @@ export const reducer = (state = initialState, action: Action): State => {
               favorite: payload.favorite,
             };
           }
-            return tab;
+          return tab;
         }),
       };
     }
@@ -428,7 +434,7 @@ export const reducer = (state = initialState, action: Action): State => {
               muted: payload.muted,
             };
           }
-            return tab;
+          return tab;
         }),
       };
     }
@@ -445,7 +451,7 @@ export const reducer = (state = initialState, action: Action): State => {
               url: payload.url,
             };
           }
-            return tab;
+          return tab;
         }),
       };
     }
@@ -465,13 +471,25 @@ export const getDappsState = createSelector(
 export const getSearch = createSelector(getDappsState, (state: State) => state.search);
 export const getSearchError = createSelector(getDappsState, (state: State) => state.searchError);
 export const getSearching = createSelector(getDappsState, (state: State) => state.searching);
-export const getLastLoadErrors = createSelector(getDappsState, (state: State) => state.lastLoadErrors);
+export const getLastLoadErrors = createSelector(
+  getDappsState,
+  (state: State) => state.lastLoadErrors
+);
 export const getLoadStates = createSelector(getDappsState, (state: State) => state.loadStates);
-export const getTabsFocusOrder = createSelector(getDappsState, (state: State) => state.tabsFocusOrder);
+export const getTabsFocusOrder = createSelector(
+  getDappsState,
+  (state: State) => state.tabsFocusOrder
+);
 export const getTabs = createSelector(getDappsState, (state: State) => state.tabs);
-export const getDappsTransitoryStates = createSelector(getDappsState, (state: State) => state.transitoryStates);
+export const getDappsTransitoryStates = createSelector(
+  getDappsState,
+  (state: State) => state.transitoryStates
+);
 
-export const getIdentifications = createSelector(getDappsState, (state: State) => state.identifications);
+export const getIdentifications = createSelector(
+  getDappsState,
+  (state: State) => state.identifications
+);
 
 // COMBINED SELECTORS
 
@@ -495,10 +513,14 @@ export const getSearchTransitoryState = createSelector(
   (search, transitoryStates): undefined | TransitoryState => transitoryStates[search]
 );
 
-export const getSearchLoadStates = createSelector(getSearch, getLoadStates, (search, loadStates):
-  | undefined
-  | { completed: BeesLoadCompleted; errors: BeesLoadErrors; pending: string[] } =>
-  (search ? loadStates[search] : undefined)
+export const getSearchLoadStates = createSelector(
+  getSearch,
+  getLoadStates,
+  (
+    search,
+    loadStates
+  ): undefined | { completed: BeesLoadCompleted; errors: BeesLoadErrors; pending: string[] } =>
+    search ? loadStates[search] : undefined
 );
 
 export const getActiveTabs = createSelector(getTabs, (tabs) => {

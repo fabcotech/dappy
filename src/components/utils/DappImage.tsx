@@ -14,11 +14,11 @@ export const DappImage = (props: {
     ['launching', 'stopping', 'loading', 'reloading'].includes(props.transitoryState)
   ) {
     return (
-      <div className={props.small ? 'small' : ''}>
+      <div className={'fc ' + props.small ? 'small' : ''}>
         <i className="color-aaa fa fa-redo rotating"></i>
       </div>
     );
   } else {
-    return <div className={props.small ? 'small' : ''} />;
+    return <></>;
   }
 };

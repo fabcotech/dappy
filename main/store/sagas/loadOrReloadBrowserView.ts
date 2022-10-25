@@ -52,7 +52,7 @@ function* loadOrReloadBrowserView(action: any) {
     return;
   }
 
-  const dappyNetworkMembers = blockchains[payload.tab.data.chainId as string].nodes;
+  let dappyNetworkMembers: undefined | DappyNetworkMember[];
   const url = new URL(payload.tab.url);
   const viewSession = session.fromPartition(`persist:main:${url.host}`, { cache: true });
 
@@ -198,6 +198,7 @@ function* loadOrReloadBrowserView(action: any) {
     session: viewSession,
   });
   if (payload.tab.data.isDappyNameSystem) {
+    dappyNetworkMembers = blockchains[payload.tab.data.chainId as string].nodes;
     overrideHttpsProtocol({
       chainId: payload.tab.data.chainId || '',
       dappyNetworkMembers,
@@ -352,6 +353,9 @@ function* loadOrReloadBrowserView(action: any) {
         });
       } else if (favicons[0].startsWith('https://')) {
         const urlFav = new URL(favicons[0]);
+        if (!dappyNetworkMembers) {
+          return;
+        }
 
         try {
           if (urlFav.hostname.endsWith('.d')) {

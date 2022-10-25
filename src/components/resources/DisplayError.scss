@@ -1,7 +1,6 @@
 @import "../../style/variables.scss";
 
 .display-error {
-  background: #fff;
   .retry {
     width: 100%;
     height: 100%;
@@ -19,11 +18,9 @@
       display: flex;
       align-items: center;
       justify-content: space-around;
-      color: #555;
       cursor: pointer;
-      &:hover {
-        color: #111;
-      }
+      font-weight: 400;
+      font-size: 1.2rem;
     }
   }
   .load-error {

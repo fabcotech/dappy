@@ -1,4 +1,8 @@
-export const getHtmlError = (title: string, error: string, supp?: { type: 'ip app' | 'dapp'; log: string }): any => {
+export const getHtmlError = (
+  title: string,
+  error: string,
+  supp?: { type: 'ip app' | 'dapp'; log: string }
+): any => {
   return `
   <html>
     <head>
@@ -8,7 +12,7 @@ export const getHtmlError = (title: string, error: string, supp?: { type: 'ip ap
           box-sizing: border-box;  
         }
         body {
-          background: #fff;
+          background: #111;
           margin: 0;
           padding: 0;
           display: flex;
@@ -20,7 +24,7 @@ export const getHtmlError = (title: string, error: string, supp?: { type: 'ip ap
         }
         body > div.princ {
           margin-bottom: 10px;
-          color: #6a6a6a;
+          color: #fff;
           border-radius: 13px;
           width: 600px;
           height: 200px;
@@ -28,7 +32,7 @@ export const getHtmlError = (title: string, error: string, supp?: { type: 'ip ap
           border: 2px solid;
           box-shadow: 0px 0px 17px rgb(0 0 0 / 10%);
           padding: 2rem;
-          border-image: linear-gradient(45deg, #6c6c6c, lightgrey) 1;
+          border-image: linear-gradient(45deg, #ddd, #fff) 1;
         }
       </style>
     </head>

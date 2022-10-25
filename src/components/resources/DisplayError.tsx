@@ -39,12 +39,17 @@ class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps> 
 
   // we enter in render only when it must be loaded / reloaded
   render() {
-    const transitoryState = this.props.tab ? this.props.transitoryStates[this.props.tab.id] : undefined;
+    const transitoryState = this.props.tab
+      ? this.props.transitoryStates[this.props.tab.id]
+      : undefined;
 
     return (
       <div
         ref={this.setMainEl}
-        className={`display-error ${this.props.tab.id} ${this.props.tab.lastError ? 'with-error' : ''}`}>
+        className={`display-error ${this.props.tab.id} ${
+          this.props.tab.lastError ? 'with-error' : ''
+        }`}
+      >
         {!!this.props.tab.lastError ? (
           <div className="load-error">
             <div className="message scaling-and-appearing-once">
@@ -57,16 +62,22 @@ class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps> 
             </div>
           </div>
         ) : undefined}
-        {!!transitoryState && !this.props.tab.lastError ? (
+        {[undefined, 'loading'].includes(transitoryState) && !this.props.tab.lastError ? (
           <div className={`retry ${transitoryState}`}>
             <div
               onClick={(e) => {
                 if (transitoryState !== 'loading') {
                   this.props.loadResource(this.props.tab.url, this.props.tab.id);
                 }
-              }}>
+              }}
+            >
               <span>Retry</span>
-              <i className={`${transitoryState === 'loading' ? 'rotating' : ''} fa fa-redo fa-before`} title="Retry" />
+              <i
+                className={`${
+                  transitoryState === 'loading' ? 'rotating' : ''
+                } fa fa-redo fa-before`}
+                title="Retry"
+              />
             </div>
           </div>
         ) : undefined}
