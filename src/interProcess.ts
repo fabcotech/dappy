@@ -313,7 +313,9 @@ export const interProcess = (store: Store) => {
           const r = JSON.parse(req.responseText);
           resolve(r);
         } catch (e) {
-          reject(new Error('could not parse response'));
+          if (e instanceof Error) {
+            reject(new Error(`Could not parse response: ${e.message}`));
+          }
         }
       };
     });

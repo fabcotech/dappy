@@ -5,15 +5,21 @@ import { Account, CertificateAccount } from '/models';
 function useGetCertificate() {
   const [key, setKey] = useState<string>('');
   const [cert, setCert] = useState<string>('');
+  const [error, setError] = useState<Error>();
 
   useEffect(() => {
-    window.generateCertificateAndKey([]).then(({ key: pKey, certificate }) => {
-      setKey(pKey);
-      setCert(certificate);
-    });
-  });
+    window.generateCertificateAndKey([]).then(
+      ({ key: pKey, certificate }) => {
+        setKey(pKey);
+        setCert(certificate);
+      },
+      (err) => {
+        setError(err);
+      }
+    );
+  }, []);
 
-  return [key, cert];
+  return [key, cert, error] as const;
 }
 
 function containsNoError(
@@ -28,7 +34,7 @@ interface CertificateAccountFormProps {
 }
 
 export function CertificateAccountForm({ fillAccount }: CertificateAccountFormProps) {
-  const [key, certificate] = useGetCertificate();
+  const [key, certificate, certError] = useGetCertificate();
 
   return (
     <Formik
@@ -78,8 +84,7 @@ export function CertificateAccountForm({ fillAccount }: CertificateAccountFormPr
           </div>
         </div>
         <ErrorMessage name="name" render={(msg) => <p className="text-danger">{msg}</p>} />
-        <ErrorMessage name="certificate" render={(msg) => <p className="text-danger">{msg}</p>} />
-        <ErrorMessage name="key" render={(msg) => <p className="text-danger">{msg}</p>} />
+        {certError && <p className="text-danger">Certificate error: {certError?.message}</p>}
       </>
     </Formik>
   );
