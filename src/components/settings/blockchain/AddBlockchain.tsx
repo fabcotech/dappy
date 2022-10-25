@@ -14,7 +14,12 @@ const ERRORS: { [key: string]: string } = {
 };
 
 interface AddBlockchainProps {
-  add: (values: { platform: 'rchain'; chainId: string; chainName: string; nodes: DappyNetworkMember[] }) => void;
+  add: (values: {
+    platform: 'rchain';
+    chainId: string;
+    chainName: string;
+    nodes: DappyNetworkMember[];
+  }) => void;
   existingChainIds: string[];
 }
 
@@ -25,7 +30,11 @@ const FormChainIdComponent = (props: any) => (
       <div className="control">
         <Field
           className={`input ${
-            props.touched && props.touched.chainId && props.errors && props.errors.chainId && 'is-danger'
+            props.touched &&
+            props.touched.chainId &&
+            props.errors &&
+            props.errors.chainId &&
+            'is-danger'
           }`}
           type="text"
           name="chainId"
@@ -64,7 +73,7 @@ export class AddBlockchain extends React.Component<AddBlockchainProps, {}> {
             }
           }
           validate={(values) => {
-            let errors: {
+            const errors: {
               chainId?: string;
               platform?: string;
               chainName?: string;
@@ -72,8 +81,8 @@ export class AddBlockchain extends React.Component<AddBlockchainProps, {}> {
             if (typeof values.platform !== 'string') {
               errors.platform = 'REQUIRED';
             }
-            const chainId = values.chainId;
-            if (this.props.existingChainIds.find((a) => a === chainId)) {
+
+            if (this.props.existingChainIds.find((a) => a === values.chainId)) {
               errors.chainId = 'ID_ALREADY_EXISTS';
             }
             if (!values.chainId) {
@@ -116,11 +125,15 @@ export class AddBlockchain extends React.Component<AddBlockchainProps, {}> {
                 <GlossaryHint term="what is a dappy network ?" />
               </h3>
               <p className="limited-width">
-                Dappy can handle dapps from multiple networks, currently only RChain platform is supported.
+                Dappy can handle dapps from multiple networks, currently only RChain platform is
+                supported.
                 <br />
                 <br />
-                You can also configure a custom local/dev chain by filling the <i>Custom chainID</i> field and giving it
-                a name. If you use a local/dev network, don't forget to set your settings accordingly.
+                You can also configure a custom local/dev chain by filling the <i>
+                  Custom chainID
+                </i>{' '}
+                field and giving it a name. If you use a local/dev network, don't forget to set your
+                settings accordingly.
                 <br />
                 <br />
               </p>
@@ -150,12 +163,14 @@ export class AddBlockchain extends React.Component<AddBlockchainProps, {}> {
                     onChange={() => {}}
                     type="radio"
                     checked={values.defaultNodes === 'none'}
-                    name="defaultNodes"></input>
+                    name="defaultNodes"
+                  ></input>
                   <label
                     onClick={() => {
                       setFieldValue('nodes', []);
                       setFieldValue('defaultNodes', 'none');
-                    }}>
+                    }}
+                  >
                     Do not add any nodes by default
                   </label>
                   {Object.keys(dappyNetworks).map((pb: string) => {
@@ -166,7 +181,8 @@ export class AddBlockchain extends React.Component<AddBlockchainProps, {}> {
                           onChange={() => {}}
                           type="radio"
                           checked={values.defaultNodes === pb}
-                          name="defaultNodes"></input>
+                          name="defaultNodes"
+                        ></input>
                         <label
                           onClick={() => {
                             setFieldValue('chainId', pb);
@@ -175,7 +191,8 @@ export class AddBlockchain extends React.Component<AddBlockchainProps, {}> {
                             setFieldTouched('chainName');
                             setFieldValue('nodes', dappyNetworks[pb as DappyNetworkId]);
                             setFieldValue('defaultNodes', pb);
-                          }}>
+                          }}
+                        >
                           Add nodes of network <b>{pb}</b>
                         </label>
                       </Fragment>
@@ -189,7 +206,8 @@ export class AddBlockchain extends React.Component<AddBlockchainProps, {}> {
                   <button
                     type="submit"
                     className="button is-link is-medium"
-                    disabled={isSubmitting || (errors && !!Object.keys(errors).length)}>
+                    disabled={isSubmitting || (errors && !!Object.keys(errors).length)}
+                  >
                     {!isSubmitting && 'Add network'}
                     {isSubmitting && 'Submitting'}
                     {isSubmitting && <i className="fa fa-spin fa-spinner fa-after" />}

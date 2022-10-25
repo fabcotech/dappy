@@ -83,7 +83,16 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.CREATE_BLOCKCHAIN_COMPLETED: {
-      const { payload } = action;
+      const { payload }: { payload: fromActions.CreateBlockchainPayload } = action;
+
+      if (payload.override) {
+        return {
+          ...state,
+          blockchains: {
+            [payload.blockchain.chainId]: payload.blockchain,
+          },
+        };
+      }
 
       return {
         ...state,

@@ -13,6 +13,7 @@ const saveBlockchainsToStorage = function* (action: Action) {
   let blockchain: undefined | Blockchain;
   if (action.type === fromSettings.CREATE_BLOCKCHAIN) {
     const { payload } = action;
+    blockchain = payload.blockchain;
     yield put(fromSettings.createBlockchainCompletedAction(payload));
   } else if (action.type === fromSettings.UPDATE_NODES) {
     const { payload } = action;

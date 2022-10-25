@@ -19,12 +19,15 @@ class NavigationBarHome2Component extends WithSuggestions {
           <input
             spellCheck="false"
             ref={this.setInputEl}
-            placeholder={`dappy.d`}
+            placeholder={
+              this.props.namesBlockchainId ? `dappy.${this.props.namesBlockchainId}` : 'dappy.d'
+            }
             className={`${this.state.pristine ? 'pristine' : ''} input`}
             value={this.state.url || ''}
             onChange={this.onChange}
             onKeyDown={this.onKeyDown}
-            aria-label="address"></input>
+            aria-label="address"
+          ></input>
         </div>
       </div>
     );
@@ -56,7 +59,8 @@ export const NavigationBarHome2 = connect(
       stopTab: () => null,
       removeTab: () => null,
       showLoadInfos: () => null,
-      updateTabSearch: (a: fromDapps.UpdateTabSearchPayload) => dispatch(fromDapps.updateTabSearchAction(a)),
+      updateTabSearch: (a: fromDapps.UpdateTabSearchPayload) =>
+        dispatch(fromDapps.updateTabSearchAction(a)),
       loadResource: (a: fromDapps.LoadResourcePayload) => dispatch(fromDapps.loadResourceAction(a)),
     };
   }

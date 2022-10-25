@@ -48,17 +48,24 @@ export const updateSettingsCompletedAction = (settings: fromReducer.Settings) =>
   payload: settings,
 });
 
-export const updateSettingsFailedAction = (values: { errorCode: number; error: string; trace?: any }) => ({
+export const updateSettingsFailedAction = (values: {
+  errorCode: number;
+  error: string;
+  trace?: any;
+}) => ({
   type: UPDATE_SETTINGS_FAILED,
   payload: values,
 });
 
 export interface CreateBlockchainPayload {
-  platform: 'rchain';
-  chainId: string;
-  auto: boolean;
-  chainName: string;
-  nodes: DappyNetworkMember[];
+  override: boolean;
+  blockchain: {
+    platform: 'rchain';
+    chainId: string;
+    auto: boolean;
+    chainName: string;
+    nodes: DappyNetworkMember[];
+  };
 }
 export const createBlockchainAction = (values: CreateBlockchainPayload) => ({
   type: CREATE_BLOCKCHAIN,
@@ -100,7 +107,11 @@ export const updateNodeUrlsCompletedAction = (values: UpdateNodesPayload) => ({
   payload: values,
 });
 
-export const saveBlockchainsToStorageFailed = (values: { errorCode: number; error: string; trace?: string }) => ({
+export const saveBlockchainsToStorageFailed = (values: {
+  errorCode: number;
+  error: string;
+  trace?: string;
+}) => ({
   type: SAVE_BLOCKCHAINS_TO_STORAGE_FAILED,
   payload: values,
 });

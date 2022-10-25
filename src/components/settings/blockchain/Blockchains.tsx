@@ -133,8 +133,11 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps> {
     nodes: DappyNetworkMember[];
   }) => {
     this.props.createBlockchain({
-      ...values,
-      auto: !!dappyNetworks[values.chainId as DappyNetworkId],
+      override: true,
+      blockchain: {
+        ...values,
+        auto: !!dappyNetworks[values.chainId as DappyNetworkId],
+      },
     });
   };
 

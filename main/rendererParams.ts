@@ -1,5 +1,4 @@
-import { DappyNetworkId, dappyNetworks } from '@fabcotech/dappy-lookup';
-import { CREATE_BLOCKCHAIN } from '/store/settings';
+import { dappyNetworks } from '@fabcotech/dappy-lookup';
 
 function tryParseArg(
   arg: string
