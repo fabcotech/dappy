@@ -46,7 +46,7 @@
     "bulma": "0.9.3",
     "bulma-extensions": "^6.2.7",
     "dappy-reserved-domains": "github:fabcotech/dappy-reserved-domains",
-    "electron": "^21.0.0",
+    "electron": "^21.2.0",
     "electron-updater": "^5.0.5",
     "elliptic": "^6.5.4",
     "formik": "2.2.9",
