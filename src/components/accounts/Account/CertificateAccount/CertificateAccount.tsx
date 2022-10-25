@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 
 import { CertificateAccount as CertificateAccountModel } from '/models';
 import { openModalAction, closeModalAction } from '/store/main';
+import { copyToClipboard } from '/interProcess';
 
 import './CertificateAccount.scss';
 
@@ -28,7 +29,15 @@ export const CertificateAccountComponent = ({
           </b>
         </div>
       </div>
-      <div className="body"></div>
+      <div className="body">
+        <div className="address has-text-weight-bold ">
+          {t('certificate')}
+          <a className="ml-3 underlined-link" onClick={() => copyToClipboard(account.certificate)}>
+            <i className="fa fa-copy fa-before"></i>
+            {t('copy')}
+          </a>
+        </div>
+      </div>
       <div className="footer">
         <a
           title="Remove the account forever"
