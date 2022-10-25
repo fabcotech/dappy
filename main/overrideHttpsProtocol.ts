@@ -1,10 +1,17 @@
 import https from 'https';
-import { Session, CookiesSetDetails, CookiesGetFilter, ProtocolRequest, Cookie, ProtocolResponse } from 'electron';
+import {
+  Session,
+  CookiesSetDetails,
+  CookiesGetFilter,
+  ProtocolRequest,
+  Cookie,
+  ProtocolResponse,
+} from 'electron';
 import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 
 import * as fromCookies from '../src/store/cookies';
 import { DappyBrowserView } from './models';
-import { Cookie as DappyCookie } from '/models';
+import { CertificateAccount, Cookie as DappyCookie } from '/models';
 import { DispatchFromMainArg } from './main';
 import { tryToLoad } from './tryToLoad';
 
@@ -46,6 +53,7 @@ interface InterceptHttpsRequestsParams {
   dappyNetworkMembers: DappyNetworkMember[];
   dappyBrowserView: DappyBrowserView | undefined;
   partitionIdHash: string;
+  clientCertificate: CertificateAccount | undefined;
   setCookie: (cookieDetails: CookiesSetDetails) => Promise<void>;
   getBlobData: (blobUUID: string) => Promise<Buffer>;
   setIsFirstRequest: (a: boolean) => void;
@@ -57,6 +65,7 @@ const makeInterceptHttpsRequests = ({
   dappyNetworkMembers,
   dappyBrowserView,
   partitionIdHash,
+  clientCertificate,
   setCookie,
   getBlobData,
   setIsFirstRequest,
@@ -64,7 +73,10 @@ const makeInterceptHttpsRequests = ({
 }: InterceptHttpsRequestsParams) => {
   const debug = !process.env.PRODUCTION;
 
-  return async (request: ProtocolRequest, callback: (response: Electron.ProtocolResponse) => void) => {
+  return async (
+    request: ProtocolRequest,
+    callback: (response: Electron.ProtocolResponse) => void
+  ) => {
     // todo : cleaner sentry.io handling
     /*
     todo, forbid third party apps from talking to sentry.io without authorization
@@ -77,7 +89,9 @@ const makeInterceptHttpsRequests = ({
     }
 
     if (!dappyBrowserView) {
-      console.log('[https] An unauthorized process, maybe BrowserWindow, tried to make an https request');
+      console.log(
+        '[https] An unauthorized process, maybe BrowserWindow, tried to make an https request'
+      );
       callback({});
       return;
     }
@@ -93,6 +107,7 @@ const makeInterceptHttpsRequests = ({
             dns: false,
             debug,
             dappyBrowserView,
+            clientCertificate,
             setIsFirstRequest,
             getIsFirstRequest,
             setCookie,
@@ -108,7 +123,9 @@ const makeInterceptHttpsRequests = ({
       /* DNS */
     } else {
       console.log(
-        `Unknown TLD ${new URL(request.url).hostname} only .${chainId} is supported with current configuration`
+        `Unknown TLD ${
+          new URL(request.url).hostname
+        } only .${chainId} is supported with current configuration`
       );
       // forbidden for now
       callback({});
@@ -161,6 +178,7 @@ interface OverrideHttpProtocolsParams {
   dispatchFromMain: (a: DispatchFromMainArg) => void;
   setIsFirstRequest: (a: boolean) => void;
   getIsFirstRequest: () => boolean;
+  clientCertificate: CertificateAccount | undefined;
 }
 
 export const overrideHttpsProtocol = ({
@@ -169,6 +187,7 @@ export const overrideHttpsProtocol = ({
   dappyBrowserView,
   session,
   partitionIdHash,
+  clientCertificate,
   dispatchFromMain,
   setIsFirstRequest,
   getIsFirstRequest,
@@ -193,8 +212,9 @@ export const overrideHttpsProtocol = ({
       dappyNetworkMembers,
       dappyBrowserView,
       partitionIdHash,
+      clientCertificate,
       setCookie: (cookieDetails: CookiesSetDetails) => session.cookies.set(cookieDetails),
-      getBlobData: getBlobData,
+      getBlobData,
       setIsFirstRequest,
       getIsFirstRequest,
     })

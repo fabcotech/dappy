@@ -149,8 +149,9 @@ function createWindow() {
     dappyNetworkMembers: [],
     dappyBrowserView: undefined,
     session: browserSession,
-    dispatchFromMain,
+    clientCertificate: undefined,
     partitionIdHash: '',
+    dispatchFromMain,
     setIsFirstRequest: () => false,
     getIsFirstRequest: () => false,
   });

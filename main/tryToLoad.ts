@@ -8,6 +8,7 @@ import cookieParser from 'set-cookie-parser';
 import { getCookiesHeader, isCookieDomainSentWithHost } from './utils/cookie';
 import { getHtmlError } from './utils/getHtmlError';
 import { DappyBrowserView } from './models';
+import { CertificateAccount } from '/models';
 
 const { lookup } = require('@fabcotech/dappy-lookup');
 
@@ -34,6 +35,7 @@ interface makeTryToLoadParams {
   request: ProtocolRequest;
   dappyBrowserView: DappyBrowserView;
   partitionIdHash: string;
+  clientCertificate: CertificateAccount | undefined;
   setIsFirstRequest: (a: boolean) => void;
   getIsFirstRequest: () => boolean;
   setCookie: (cookieDetails: CookiesSetDetails) => Promise<void>;
@@ -48,6 +50,7 @@ export const tryToLoad = async ({
   request,
   partitionIdHash,
   dappyBrowserView,
+  clientCertificate,
   setIsFirstRequest,
   getIsFirstRequest,
   setCookie,
@@ -87,9 +90,9 @@ export const tryToLoad = async ({
   } else {
     try {
       // todo support ipv6 / AAAA ?
-      networkHosts = (await lookup(hostname, 'A', { dappyNetwork: dappyNetworkMembers })).answers.map(
-        (a: RRA) => a.data
-      );
+      networkHosts = (
+        await lookup(hostname, 'A', { dappyNetwork: dappyNetworkMembers })
+      ).answers.map((a: RRA) => a.data);
 
       if ((networkHosts as string[]).length) {
         console.log(`[name system     ] found A ${(networkHosts as string[]).join(',')}`);
@@ -97,7 +100,9 @@ export const tryToLoad = async ({
         console.log(`[name system err ] no A records`);
       }
 
-      ca = (await lookup(hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map((a: RRCERT) => a.data);
+      ca = (await lookup(hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map(
+        (a: RRCERT) => a.data
+      );
       if ((ca as string[])[0]) {
         console.log(`[name system     ] found CERT ${(ca as string[])[0].slice(0, 10)}...`);
       } else {
@@ -114,9 +119,11 @@ export const tryToLoad = async ({
   }
 
   // Content-Security-Policy through TXT records
-  let txts: string[] | undefined = undefined;
+  let txts: string[] | undefined;
   try {
-    txts = (await lookup(hostname, 'TXT', { dappyNetwork: dappyNetworkMembers })).answers.map((a: RRTXT) => a.data);
+    txts = (await lookup(hostname, 'TXT', { dappyNetwork: dappyNetworkMembers })).answers.map(
+      (a: RRTXT) => a.data
+    );
   } catch (err) {
     console.log(err);
     return Promise.resolve({
@@ -169,7 +176,10 @@ export const tryToLoad = async ({
   // ============
   async function load(i: number = 0) {
     if (!networkHosts || !(networkHosts as string[])[i]) {
-      if (debug) console.log(`[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${hostname})`);
+      if (debug)
+        console.log(
+          `[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${hostname})`
+        );
       const st = new stream.PassThrough();
       if (!networkHosts || networkHosts.length === 0) {
         st.push(getHtmlError('Lookup error', 'Name system zone has no A or AAAA record'));
@@ -216,11 +226,14 @@ export const tryToLoad = async ({
     }
 
     const host = new URL(url).host;
-    const cookies = await dappyBrowserView.browserView.webContents.session.cookies.get({ url: `https://${host}` });
+    const cookies = await dappyBrowserView.browserView.webContents.session.cookies.get({
+      url: `https://${host}`,
+    });
     const getCookiesHeaderResp = getCookiesHeader(cookies, isFirstRequest, host);
 
     /*
-      The next requests (next time tryToLoad is called) for same session / BrowserView will be a secondary requests, after the following line
+      The next requests (next time tryToLoad is called) for same session /
+      BrowserView will be a secondary requests, after the following line
       get isFirstRequest still true
     */
     setIsFirstRequest(false);
@@ -229,9 +242,9 @@ export const tryToLoad = async ({
       try {
         const options: https.RequestOptions = {
           host: (networkHosts as string[])[i] as string,
-          port: port,
+          port,
           method: request.method,
-          path: path,
+          path,
           ...(ca ? { ca: ca[0] } : {}),
           minVersion: 'TLSv1.2',
           rejectUnauthorized: true,
@@ -242,6 +255,11 @@ export const tryToLoad = async ({
             Origin: `https://${dappyBrowserView.host}`,
           },
         };
+
+        if (clientCertificate) {
+          options.key = clientCertificate.key;
+          options.cert = clientCertificate.certificate;
+        }
 
         s += rightPad(
           ` | cook: ${getCookiesHeaderResp.numberOfCookies.lax}lax ${getCookiesHeaderResp.numberOfCookies.strict}strict`,
@@ -347,7 +365,10 @@ export const tryToLoad = async ({
             /*
               Redirection is only ok if it is undergoing a first hand navigation / top-level
             */
-            if (isFirstRequest && [300, 301, 302, 303, 304, 307, 308, 309].find((a) => a === resp.statusCode)) {
+            if (
+              isFirstRequest &&
+              [300, 301, 302, 303, 304, 307, 308, 309].find((a) => a === resp.statusCode)
+            ) {
               s = s.replace(/CODE/g, `\x1b[34m${resp.statusCode}\x1b[0m`);
               if (respCookies.length) s += ` (${respCookies.length} cook)`;
               if (debug) console.log(s);
@@ -471,7 +492,9 @@ export const tryToLoad = async ({
           load(i + 1);
         } else {
           if (debug)
-            console.log(`[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${url.pathname})`);
+            console.log(
+              `[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${url.pathname})`
+            );
           /*
             Will catch in main/store/sagas/loadOrReloadBrowserView.ts L193
           */

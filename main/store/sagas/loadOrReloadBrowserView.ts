@@ -2,7 +2,7 @@ import { takeEvery, select, put } from 'redux-saga/effects';
 import https from 'https';
 import { BrowserView, session } from 'electron';
 import { blake2b } from 'blakejs';
-import { DappyNetworkMember, lookup } from '@fabcotech/dappy-lookup';
+import { lookup } from '@fabcotech/dappy-lookup';
 
 import * as fromBrowserViews from '../browserViews';
 import { DappyBrowserView } from '../../models';
@@ -19,12 +19,12 @@ import * as fromBlockchainsMain from '../blockchains';
 import * as fromSettingsRenderer from '../../../src/store/settings';
 import * as fromDappsRenderer from '../../../src/store/dapps';
 import * as fromHistoryRenderer from '../../../src/store/history';
-import { Blockchain, DappyLoadError, Tab } from '/models';
+import { Blockchain, CertificateAccount, DappyLoadError, Tab } from '/models';
 
 const development = !!process.defaultApp;
 
 function* loadOrReloadBrowserView(action: any) {
-  const payload: { tab: Tab } = action.payload;
+  const { payload }: { payload: { tab: Tab; clientCertificate: CertificateAccount } } = action;
   const settings: fromSettingsRenderer.Settings = yield select(fromSettingsMain.getSettings);
   const blockchains: { [chainId: string]: Blockchain } = yield select(
     fromBlockchainsMain.getBlockchains
@@ -205,6 +205,7 @@ function* loadOrReloadBrowserView(action: any) {
       dispatchFromMain: action.meta.dispatchFromMain,
       session: viewSession,
       partitionIdHash,
+      clientCertificate: payload.clientCertificate,
       setIsFirstRequest,
       getIsFirstRequest,
     });

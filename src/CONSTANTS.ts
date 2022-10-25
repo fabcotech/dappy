@@ -38,7 +38,7 @@ export const BLITZ_AUTHENTICATION = true;
 */
 export const ACCESS_SETTINGS = true;
 export const ACCESS_ACCOUNTS = true;
-export const ACCESS_SECURITY = false;
+export const ACCESS_SECURITY = true;
 export const ACCESS_WHITELIST = true;
 export const ACCESS_TRANSACTIONS = false;
 /*

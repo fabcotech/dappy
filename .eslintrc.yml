@@ -8,6 +8,8 @@ env:
   commonjs: true
   node: true
   mocha: true
+settings:
+  import/core-modules: [electron]
 extends:
   - eslint:recommended
   - plugin:@typescript-eslint/eslint-recommended

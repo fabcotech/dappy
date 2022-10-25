@@ -46,9 +46,8 @@ export const reducer = (state = initialState, action: any): State => {
           ...state,
           browserViews: newBrowserViews,
         };
-      } else {
-        return state;
       }
+      return state;
     }
 
     case UPDATE_BROWSER_VIEWS_POSITION: {
@@ -84,6 +83,12 @@ const getBrowserViewsMainState = createSelector(
   (state: any) => state.browserViews
 );
 
-export const getBrowserViewsMain = createSelector(getBrowserViewsMainState, (state: State) => state.browserViews);
+export const getBrowserViewsMain = createSelector(
+  getBrowserViewsMainState,
+  (state: State) => state.browserViews
+);
 
-export const getBrowserViewsPositionMain = createSelector(getBrowserViewsMainState, (state: State) => state.position);
+export const getBrowserViewsPositionMain = createSelector(
+  getBrowserViewsMainState,
+  (state: State) => state.position
+);

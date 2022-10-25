@@ -2,17 +2,16 @@ import * as React from 'react';
 
 import * as fromSettings from '/store/settings';
 
-import { Account, BlockchainAccount, NavigationUrl } from '/models';
+import { Account, CertificateAccount, NavigationUrl } from '/models';
 import './Root.scss';
 import { connect } from 'react-redux';
-import { copyToClipboard } from '/interProcess';
 import { updateAccountAction } from '/store/settings';
 import { validateWhitelistDomain } from '/utils/validateWhitelistDomain';
 
 interface RootProps {
-  accounts: Record<string, BlockchainAccount>;
+  accounts: Record<string, CertificateAccount>;
   navigationUrl: NavigationUrl;
-  updateAccount: (a: BlockchainAccount) => void;
+  updateAccount: (a: CertificateAccount) => void;
   navigate: (navigationUrl: NavigationUrl) => void;
 }
 
@@ -41,17 +40,6 @@ export class RootComponent extends React.Component<RootProps, unknown> {
               <br />
               <h4 className="title is-4">Account {a}</h4>
               <div className="field">
-                <label className="label">
-                  Public key <b>{this.props.accounts[a].publicKey.slice(0, 30)}…</b>
-                  <a
-                    type="button"
-                    className="underlined-link"
-                    onClick={() => copyToClipboard(this.props.accounts[a].publicKey)}
-                  >
-                    <i className="fa fa-copy fa-before fa-after"></i>
-                    {t('copy public key')}
-                  </a>
-                </label>
                 <label className="label">{t('whitelist of domains')}</label>
                 <div className="control">
                   <textarea
@@ -139,7 +127,7 @@ export class RootComponent extends React.Component<RootProps, unknown> {
 
 export const Root = connect(
   (state) => ({
-    accounts: fromSettings.getRChainAccounts(state),
+    accounts: fromSettings.getCertificateAccounts(state),
   }),
   (dispatch) => ({
     updateAccount: (a: Account) =>
