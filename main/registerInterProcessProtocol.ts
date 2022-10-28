@@ -4,7 +4,6 @@ import { DappyNetworkMember, lookup } from '@fabcotech/dappy-lookup';
 import { Store } from 'redux';
 import fs from 'fs';
 import path from 'path';
-import pem from 'pem';
 
 import { getIpAddressAndCert } from './getIpAddressAndCert';
 import { Blockchain, MultiRequestBody, MultiRequestParameters } from '../src/models';
@@ -13,6 +12,7 @@ import { performMultiRequest } from './performMultiRequest';
 import { performSingleRequest } from './performSingleRequest';
 import * as fromMainBrowserViews from './store/browserViews';
 import { DispatchFromMainArg } from './main';
+import { generateCertificateAndKey } from './generateCertificateAndKey';
 
 let uniqueEphemeralTokenAskedOnce = false;
 let uniqueEphemeralToken = '';
@@ -357,40 +357,55 @@ export const registerInterProcessProtocol = (
       );
     }
     if (request.url === 'interprocess://generate-certificate-and-key') {
-      try {
-        const data = JSON.parse(decodeURI(request.headers.Data));
-        pem.createCertificate(
-          { days: 1000000, selfSigned: true, altNames: data.parameters.altNames },
-          (err, keys) => {
-            if (err) {
-              console.log(err);
-              callback(
-                Buffer.from(
-                  err.message || '[interprocess] Error CRITICAL when generate-certificate-and-key'
-                )
-              );
-              return;
-            }
-            callback(
-              Buffer.from(
-                JSON.stringify({
-                  key: keys.clientKey,
-                  certificate: keys.certificate,
-                })
-              )
-            );
-          }
-        );
-      } catch (err) {
-        if (err instanceof Error) {
-          console.log(err);
-          callback(
-            Buffer.from(
-              err.message || '[interprocess] Error CRITICAL when generate-certificate-and-key'
-            )
-          );
-        }
-      }
+      const data = JSON.parse(decodeURI(request.headers.Data));
+      const [key, certificate] = generateCertificateAndKey({
+        days: 365 * 10,
+        selfSigned: true,
+        altNames: data.parameters.altNames,
+        now: new Date(),
+      });
+      callback(
+        Buffer.from(
+          JSON.stringify({
+            key,
+            certificate,
+          })
+        )
+      );
+      //   try {
+      //     const data = JSON.parse(decodeURI(request.headers.Data));
+      //     pem.createCertificate(
+      //       { days: 1000000, selfSigned: true, altNames: data.parameters.altNames },
+      //       (err, keys) => {
+      //         if (err) {
+      //           console.log(err);
+      //           callback(
+      //             Buffer.from(
+      //               err.message || '[interprocess] Error CRITICAL when generate-certificate-and-key'
+      //             )
+      //           );
+      //           return;
+      //         }
+      //         callback(
+      //           Buffer.from(
+      //             JSON.stringify({
+      //               key: keys.clientKey,
+      //               certificate: keys.certificate,
+      //             })
+      //           )
+      //         );
+      //       }
+      //     );
+      //   } catch (err) {
+      //     if (err instanceof Error) {
+      //       console.log(err);
+      //       callback(
+      //         Buffer.from(
+      //           err.message || '[interprocess] Error CRITICAL when generate-certificate-and-key'
+      //         )
+      //       );
+      //     }
+      //   }
     }
   });
 };
