@@ -91,6 +91,7 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
       window.Sentry.captureException(error);
     }
   }
+
   render() {
     /*
       Init window.t once

@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import { dappyNetworks } from '@fabcotech/dappy-lookup';
+import { DappyNetworkId, dappyNetworks } from '@fabcotech/dappy-lookup';
 
 import { State as StoreState } from '/store';
 import * as fromSettings from '/store/settings';
@@ -34,7 +34,7 @@ export const NetworkSwitcherComponent: FC<NetworkSwitcherComponentProps> = (prop
         <p>Your are not connected with any dappy network</p>
       )}
       <p>
-        {Object.keys(dappyNetworks).map((networkId: string) => {
+        {(Object.keys(dappyNetworks) as Array<DappyNetworkId>).map((networkId) => {
           return (
             <>
               <a

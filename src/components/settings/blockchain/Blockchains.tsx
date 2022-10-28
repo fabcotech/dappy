@@ -260,8 +260,11 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps> {
                             label="Auto update nodes"
                             click={() => {
                               this.props.createBlockchain({
-                                ...(this.state.selectedBlockchain as Blockchain),
-                                auto: !selectedBlockchain.auto,
+                                blockchain: {
+                                  ...(this.state.selectedBlockchain as Blockchain),
+                                  auto: !selectedBlockchain.auto,
+                                },
+                                override: false,
                               });
                             }}
                           />

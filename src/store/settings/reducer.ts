@@ -98,7 +98,7 @@ export const reducer = (state = initialState, action: Action): State => {
         ...state,
         blockchains: {
           ...state.blockchains,
-          [payload.chainId]: payload,
+          [payload.blockchain.chainId]: payload.blockchain,
         },
       };
     }
