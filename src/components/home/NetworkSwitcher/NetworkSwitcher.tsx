@@ -10,7 +10,7 @@ import './NetworkSwitcher.scss';
 const connector = connect(
   (state: StoreState) => {
     return {
-      namesBlockchain: fromSettings.getNamesBlockchain(state),
+      currentNetwork: fromSettings.getNamesBlockchain(state)?.chainId,
     };
   },
   (dispatch) => {
@@ -24,41 +24,38 @@ const connector = connect(
 type NetworkSwitcherComponentProps = ConnectedProps<typeof connector>;
 
 export const NetworkSwitcherComponent: FC<NetworkSwitcherComponentProps> = (props) => {
-  const { namesBlockchain, createBlockchain } = props;
+  const { currentNetwork, createBlockchain } = props;
 
   return (
     <div className="network-switcher">
-      {namesBlockchain ? (
-        <p className="mr-3">You are on network {namesBlockchain.chainId}</p>
+      {currentNetwork ? (
+        <p className="mr-3">You are on network {currentNetwork}</p>
       ) : (
         <p>Your are not connected with any dappy network</p>
       )}
       <p>
-        {(Object.keys(dappyNetworks) as Array<DappyNetworkId>).map((networkId) => {
-          return (
-            <>
-              <a
-                type="button"
-                onClick={() => {
-                  createBlockchain({
-                    override: true,
-                    blockchain: {
-                      platform: 'rchain',
-                      chainId: networkId,
-                      chainName: networkId,
-                      nodes: dappyNetworks[networkId],
-                      auto: true,
-                    },
-                  });
-                }}
-                key={networkId}
-              >
-                Restore or switch to network {networkId}
-              </a>
-              <br />
-            </>
-          );
-        })}
+        {(Object.keys(dappyNetworks) as Array<DappyNetworkId>)
+          .filter((n) => n !== currentNetwork)
+          .map((networkId) => (
+            <a
+              type="button"
+              onClick={() => {
+                createBlockchain({
+                  override: true,
+                  blockchain: {
+                    platform: 'rchain',
+                    chainId: networkId,
+                    chainName: networkId,
+                    nodes: dappyNetworks[networkId],
+                    auto: true,
+                  },
+                });
+              }}
+              key={networkId}
+            >
+              Switch to network {networkId}
+            </a>
+          ))}
       </p>
     </div>
   );
