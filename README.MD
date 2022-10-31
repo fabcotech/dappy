@@ -1,6 +1,6 @@
 ## Dappy
 
-🔒 Dappy is a name system powered by blockchain and secured in real-time by multiple independent companies, each exposing a DoH endpoint (co-resolution). Its design removes industry-wide structural limitations and defects for current naming systems (mainly DNS) and TLS security services (mainly the Certificate Authorities system).
+🔒 Dappy is a name system powered by blockchain and secured in real-time by multiple independent companies, each exposing a DoH endpoint (co-resolution). Its design removes industry-wide structural limitations and defects of current naming systems (mainly DNS) and TLS security services (mainly the Certificate Authorities system).
 
 Dappy is being built since 2018 in an open source and iterative fashion. The main goal is to provide any kind of web service : 🎮 web3, 💻 web2, 🪙 finance, 🛻 supply chain, 🤝 B2B, 🌍 non-profits with :
 
