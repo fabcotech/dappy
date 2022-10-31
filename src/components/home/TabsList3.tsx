@@ -26,7 +26,6 @@ class TabsList3Component extends React.Component<TabsList2Props, {}> {
   state = {};
 
   render() {
-    console.log(this.props.tabsFocusOrder);
     const focusedTabId = this.props.tabsFocusOrder[this.props.tabsFocusOrder.length - 1];
     return (
       <div className={`tabs-list-3 ${this.props.onlyIcons ? 'only-icons' : ''}`}>
@@ -62,21 +61,21 @@ export const TabsList3 = connect(
     };
   },
   (dispatch) => ({
-    focusTab: (tabId: string) => dispatch(fromDapps.focusTabAction({ tabId: tabId })),
+    focusTab: (tabId: string) => dispatch(fromDapps.focusTabAction({ tabId })),
     loadResource: (address: string, tabId: string) =>
       dispatch(
         fromDapps.loadResourceAction({
           url: address,
-          tabId: tabId,
+          tabId,
         })
       ),
-    removeTab: (tabId: string) => dispatch(fromDapps.removeTabAction({ tabId: tabId })),
-    stopTab: (tabId: string) => dispatch(fromDapps.stopTabAction({ tabId: tabId })),
+    removeTab: (tabId: string) => dispatch(fromDapps.removeTabAction({ tabId })),
+    stopTab: (tabId: string) => dispatch(fromDapps.stopTabAction({ tabId })),
     unfocusAllTabs: () => dispatch(fromDapps.unfocusAllTabsAction()),
     onSetFavoriteTab: (tabId: string, a: boolean) => {
       dispatch(
         fromDapps.setTabFavoriteAction({
-          tabId: tabId,
+          tabId,
           favorite: a,
         })
       );
@@ -84,7 +83,7 @@ export const TabsList3 = connect(
     onSetMuteTab: (tabId: string, a: boolean) => {
       dispatch(
         fromDapps.setTabMutedAction({
-          tabId: tabId,
+          tabId,
           muted: a,
         })
       );
