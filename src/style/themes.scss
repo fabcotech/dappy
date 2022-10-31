@@ -143,6 +143,22 @@
       }
     }
   }
+  .tabs-list-3 {
+    .tab {
+      background: linear-gradient(45deg, #000, #202020);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      .host span {
+        color: rgba(255, 255, 255, 0.8);
+      }
+      &.active {
+        border: 1px solid rgb(217 255 232 / 80%);
+        box-shadow: 0px 0px 8px rgb(227 255 247 / 80%);
+        .host span {
+          color: rgba(255, 255, 255, 1);
+        }
+      }
+    }
+  }
   .resources {
     background: transparent;
     .display-error {

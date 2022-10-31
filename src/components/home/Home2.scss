@@ -4,7 +4,7 @@
   width: 100vw;
   height: 100vh;
   display: grid;
-  grid-template-rows: 60px calc(100% - 60px);
+  grid-template-rows: 60px 50px calc(100% - 60px - 50px);
   grid-template-columns: 100%;
   background-image: repeating-linear-gradient(45deg, #000, #030303 1px, #111 1px, #111 5px);
   & > .navigation-bar-home {
@@ -14,7 +14,7 @@
   }
   & > .resources {
     grid-row-start: 1;
-    grid-row-end: 3;
+    grid-row-end: 4;
     grid-column: 1;
     z-index: 2;
   }

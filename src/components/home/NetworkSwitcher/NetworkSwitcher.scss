@@ -1,6 +1,8 @@
 .network-switcher {
   display: flex;
   flex-direction: column;
+  padding-left: 1rem;
+  height: fit-content;
   p {
     a {
       text-decoration: underline;
