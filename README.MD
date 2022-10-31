@@ -1,18 +1,16 @@
-# Dappy browser 💻🌍
+## Dappy
 
-Dappy is a no-DNS and no-CAs web browser, it works hand in hand with a blockchain platform. The dappy system is a decentralized alternative to the regular web, it allows for new kind of web applications being built and used by human beings and corporations.
+🔒 Dappy is a name system powered by blockchain and secured in real-time by multiple independent companies, each exposing a DoH endpoint (co-resolution). Its design removes industry-wide structural limitations and defects for current naming systems (mainly DNS) and TLS security services (mainly the Certificate Authorities system).
 
-The main features dappy includes are:
-- Decentralized name system on the blockchain, independant of the DNS and certificate authorities.
-- HTTPS only: HTTP + TLS encryption.
-- Secure javascript execution without any network access by default.
-- The dappy network as a source of authority, "à la place" of regular web centralized services.
+Dappy is being built since 2018 in an open source and iterative fashion. The main goal is to provide any kind of web service : 🎮 web3, 💻 web2, 🪙 finance, 🛻 supply chain, 🤝 B2B, 🌍 non-profits with :
 
-Two types of applications exist on dappy :
-- IP apps: HTTPS only websites that use the dappy name system instead of the DNS and Certificate Authorities.
-- Dapps: 100% blockchain hosted, no-server web applications (not actively developed currently).
+- **Ultra-security** : protected against HTTPS man-in-the-middle, many phishing scenarios, DNS hack through registrar or registry.
+- **Thin control over domain names and TLS identities**.
+- **Extended capabilities and expressiveness** that are not achievable with legacy naming systems such as DNS.
 
-Read more on [https://dappy.tech](https://dappy.tech).
+### Dappy browser
+
+This repository is the browser repository (built on chromium + electron), the tools and CLI are available in the [fabcotech/dappy-tools](https://github.com/fabcotech/dappy-tools) and [fabcotech/dappy-cli](https://github.com/fabcotech/dappy-cli) repositories.
 
 ## Installation
 
