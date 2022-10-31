@@ -13,7 +13,6 @@ interface TabsList2Props {
   tabsFocusOrder: string[];
   transitoryStates: { [dappId: string]: TransitoryState };
   isMobile: undefined | boolean;
-  isSearchFocused: boolean;
   onlyIcons: boolean;
   focusTab: (tabId: string) => void;
   loadResource: (address: string, tabId: string) => void;
@@ -21,7 +20,7 @@ interface TabsList2Props {
   stopTab: (tabId: string) => void;
   onSetMuteTab: (tabId: string, a: boolean) => void;
   onSetFavoriteTab: (tabId: string, a: boolean) => void;
-  focusSearchDapp: () => void;
+  unfocusAllTabs: () => void;
 }
 
 class TabsList2Component extends React.Component<TabsList2Props, {}> {
@@ -38,7 +37,7 @@ class TabsList2Component extends React.Component<TabsList2Props, {}> {
               key={tab.id}
               tab={tab}
               transitoryState={this.props.transitoryStates[tab.id]}
-              focused={!this.props.isSearchFocused && focusedTabId === tab.id}
+              focused={focusedTabId === tab.id}
               onlyIcons={this.props.onlyIcons}
               focusTab={this.props.focusTab}
               loadResource={this.props.loadResource}
@@ -49,22 +48,11 @@ class TabsList2Component extends React.Component<TabsList2Props, {}> {
             />
           );
         })}
-        {focusedTabId &&
-          (this.props.onlyIcons ? (
-            <div
-              className={`search-dapps-small ${this.props.isSearchFocused ? 'active' : ''}`}
-              onClick={this.props.focusSearchDapp}
-            >
-              <i className="fa fa-plus fa-after" />
-            </div>
-          ) : (
-            <div
-              className={`search-dapps ${this.props.isSearchFocused ? 'active' : ''}`}
-              onClick={this.props.focusSearchDapp}
-            >
-              <i className="fa fa-plus fa-after" />
-            </div>
-          ))}
+        {focusedTabId && (
+          <div className="search-dapps" onClick={this.props.unfocusAllTabs}>
+            <i className="fa fa-plus fa-after" />
+          </div>
+        )}
       </div>
     );
   }
@@ -75,9 +63,8 @@ export const TabsList2 = connect(
     return {
       transitoryStates: fromDapps.getDappsTransitoryStates(state),
       tabs: fromDapps.getTabs(state),
-      tabsFocusOrder: fromDapps.getTabsFocusOrderWithoutSearch(state),
+      tabsFocusOrder: fromDapps.getTabsFocusOrder(state),
       isMobile: fromUi.getIsMobile(state),
-      isSearchFocused: fromDapps.getIsSearchFocused(state),
       onlyIcons: fromUi.getTabsListDisplay(state) === 3,
     };
   },
@@ -92,7 +79,7 @@ export const TabsList2 = connect(
       ),
     removeTab: (tabId: string) => dispatch(fromDapps.removeTabAction({ tabId: tabId })),
     stopTab: (tabId: string) => dispatch(fromDapps.stopTabAction({ tabId: tabId })),
-    focusSearchDapp: () => dispatch(fromDapps.focusSearchDappAction()),
+    unfocusAllTabs: () => dispatch(fromDapps.unfocusAllTabsAction()),
     onSetFavoriteTab: (tabId: string, a: boolean) => {
       dispatch(
         fromDapps.setTabFavoriteAction({

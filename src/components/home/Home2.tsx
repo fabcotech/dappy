@@ -14,7 +14,6 @@ const connector = connect(
     return {
       activeTabs: fromDapps.getActiveTabs(state),
       tabsListDisplay: fromUi.getTabsListDisplay(state),
-      isSearchFocused: fromDapps.getIsSearchFocused(state),
     };
   },
   (dispatch) => {
@@ -30,7 +29,7 @@ type Home2Props = ConnectedProps<typeof connector>;
 export const Home2Component: FC<Home2Props> = (props) => {
   return (
     <div className="home2">
-      {Object.keys(props.activeTabs).length === 0 && <NavigationBarHome2 />}
+      <NavigationBarHome2 />
       <NetworkSwitcher />
       <Resources />
     </div>

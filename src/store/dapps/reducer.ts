@@ -317,7 +317,7 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
-    case fromActions.FOCUS_SEARCH_DAPP: {
+    case fromActions.UNFOCUS_ALL_TABS: {
       return {
         ...state,
         tabsFocusOrder: [],
@@ -493,17 +493,8 @@ export const getIdentifications = createSelector(
 
 // COMBINED SELECTORS
 
-export const getIsSearchFocused = createSelector(
-  getTabsFocusOrder,
-  (tabsFocusOrder) => tabsFocusOrder[tabsFocusOrder.length - 1] === 'search'
-);
-
-export const getTabsFocusOrderWithoutSearch = createSelector(getTabsFocusOrder, (tabsFocusOrder) =>
-  tabsFocusOrder.filter((d) => d !== 'search')
-);
-
 export const getFocusedTabId = createSelector(
-  getTabsFocusOrderWithoutSearch,
+  getTabsFocusOrder,
   (tabsFocusOrder) => tabsFocusOrder[tabsFocusOrder.length - 1]
 );
 

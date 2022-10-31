@@ -9,6 +9,7 @@ import { DisplayError, NavigationBar } from '.';
 import { Modal } from '../utils';
 
 interface ResourcesComponentProps {
+  focusedTabId: string | undefined;
   activeTabs: { [tabId: string]: Tab };
   dappModals: { [resourceId: string]: fromMain.Modal[] };
   tabsFocusOrder: string[];
@@ -20,20 +21,22 @@ interface ResourcesComponentProps {
 class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
   render() {
     return (
-      <div className={`resources ${Object.keys(this.props.activeTabs).length ? '' : 'hidden'}`}>
+      <div className={`resources ${this.props.focusedTabId ? '' : 'hidden'}`}>
         {Object.keys(this.props.activeTabs).map((tabId, index) => {
           const tab = this.props.activeTabs[tabId];
           if (this.props.dappModals[tab.id] && this.props.dappModals[tab.id][0]) {
             /*
               If there is a modal, the modal will be at DisplayError z index + 1
-              display is the following: dapp1 10, dapp1NavigationBar 12, dapp2 20, dapp2Modal 21, dapp2NavigationBar 22,
+              display is the following: dapp1 10, dapp1NavigationBar 12,
+              dapp2 20, dapp2Modal 21, dapp2NavigationBar 22,
               dapp3 30, dapp3Modal 31, dapp3NavigationBar 32 etc...
             */
             return (
               <div
                 key={tab.id}
                 style={{ zIndex: (this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10 + 1 }}
-                className="dapp-modal">
+                className="dapp-modal"
+              >
                 <Modal tabId={tab.id} />
               </div>
             );
@@ -85,8 +88,9 @@ class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
 export const Resources = connect(
   (state) => {
     return {
+      focusedTabId: fromDapps.getFocusedTabId(state),
       activeTabs: fromDapps.getActiveTabs(state),
-      tabsFocusOrder: fromDapps.getTabsFocusOrderWithoutSearch(state),
+      tabsFocusOrder: fromDapps.getTabsFocusOrder(state),
       transitoryStates: fromDapps.getDappsTransitoryStates(state),
       dappModals: fromMain.getDappModals(state),
     };
@@ -94,12 +98,12 @@ export const Resources = connect(
   (dispatch) => {
     return {
       clearSearchAndLoadError: (tabId: string, clearSearch: boolean) =>
-        dispatch(fromDapps.clearSearchAndLoadErrorAction({ tabId: tabId, clearSearch: clearSearch })),
+        dispatch(fromDapps.clearSearchAndLoadErrorAction({ tabId, clearSearch })),
       loadResource: (url: string, tabId: string) =>
         dispatch(
           fromDapps.loadResourceAction({
-            url: url,
-            tabId: tabId,
+            url,
+            tabId,
           })
         ),
     };

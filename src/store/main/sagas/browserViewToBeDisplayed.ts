@@ -8,7 +8,9 @@ import { dispatchInMain } from '/interProcess';
 
 // todo can it be triggered not for every actions ????
 const browserViewToBeDisplayed = function* (action: Action) {
-  const shouldBrowserViewsBeDisplayed: undefined | string = yield select(fromMain.getShouldBrowserViewsBeDisplayed);
+  const shouldBrowserViewsBeDisplayed: undefined | string = yield select(
+    fromMain.getShouldBrowserViewsBeDisplayed
+  );
 
   dispatchInMain({
     type: '[MAIN] Display only browser view x',
@@ -23,7 +25,7 @@ export const browserViewToBeDisplayedSaga = function* () {
   yield takeEvery(fromUi.NAVIGATE, browserViewToBeDisplayed);
   yield takeEvery(fromUi.UPDATE_NAVIGATION_SUGGESTIONS_DISPLAY, browserViewToBeDisplayed);
   yield takeEvery(fromDapps.FOCUS_TAB, browserViewToBeDisplayed);
-  yield takeEvery(fromDapps.FOCUS_SEARCH_DAPP, browserViewToBeDisplayed);
+  yield takeEvery(fromDapps.UNFOCUS_ALL_TABS, browserViewToBeDisplayed);
   yield takeEvery(fromDapps.FOCUS_AND_ACTIVATE_TAB, browserViewToBeDisplayed);
   yield takeEvery(fromDapps.STOP_TAB, browserViewToBeDisplayed);
   yield takeEvery(fromDapps.LAUNCH_TAB_COMPLETED, browserViewToBeDisplayed);

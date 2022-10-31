@@ -1,9 +1,5 @@
 import { BeesLoadErrors, BeesLoadCompleted, BeesLoadErrorWithArgs } from '@fabcotech/bees';
-import {
-  Tab,
-  Identification,
-  TransitoryState,
-} from '/models';
+import { Tab, Identification, TransitoryState } from '/models';
 import { DappyLoadErrorWithArgs } from '/models/DappyLoadError';
 
 export const UPDATE_TABS_FROM_STORAGE = '[Dapps] Update tabs from storage';
@@ -11,11 +7,12 @@ export const UPDATE_TABS_FROM_STORAGE = '[Dapps] Update tabs from storage';
 export const UPDATE_SEARCH = '[Dapps] Update search';
 export const CLEAR_SEARCH_AND_LOAD_ERROR = '[Dapps] Clear search and load error';
 export const LOAD_RESOURCE = '[Dapps] Load resource';
-export const INIT_TRANSITORY_STATE_AND_RESET_LOAD_ERROR = '[Dapps] Init transitory state and reset load error';
+export const INIT_TRANSITORY_STATE_AND_RESET_LOAD_ERROR =
+  '[Dapps] Init transitory state and reset load error';
 export const UPDATE_LOAD_STATE = '[Dapps] Update load state';
 export const LOAD_RESOURCE_FAILED = '[Dapps] Load resource failed';
 
-export const FOCUS_SEARCH_DAPP = '[Dapps] Focus search dapp';
+export const UNFOCUS_ALL_TABS = '[Dapps] Unfocus all tabs';
 export const DID_CHANGE_FAVICON = '[Dapps] Tab favicon did update';
 export const FOCUS_TAB = '[Dapps] Focus tab';
 export const FOCUS_AND_ACTIVATE_TAB = '[Dapps] Focus and activate tab';
@@ -59,7 +56,9 @@ export interface InitTransitoryStateAndResetLoadErrorPayload {
   tabId: string;
   resourceId: string;
 }
-export const initTransitoryStateAndResetLoadErrorAction = (payload: InitTransitoryStateAndResetLoadErrorPayload) => ({
+export const initTransitoryStateAndResetLoadErrorAction = (
+  payload: InitTransitoryStateAndResetLoadErrorPayload
+) => ({
   type: INIT_TRANSITORY_STATE_AND_RESET_LOAD_ERROR,
   payload,
 });
@@ -92,8 +91,8 @@ export const loadResourceFailedAction = (values: LoadResourceFailedPayload) => (
   payload: values,
 });
 
-export const focusSearchDappAction = () => ({
-  type: FOCUS_SEARCH_DAPP,
+export const unfocusAllTabsAction = () => ({
+  type: UNFOCUS_ALL_TABS,
 });
 
 export interface FocusTabPayload {
@@ -185,7 +184,7 @@ export const saveIdentificationAction = (values: SaveIdentificationPayload) => (
 });
 
 export interface LaunchTabCompletedPayload {
-  tab: Tab
+  tab: Tab;
 }
 export const launchTabCompletedAction = (values: LaunchTabCompletedPayload) => ({
   type: LAUNCH_TAB_COMPLETED,
