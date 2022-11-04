@@ -245,7 +245,7 @@ export function AccountForm(props: AccountFormProps) {
   return (
     <form className="account-form">
       <div className="field is-horizontal">
-        <label className="label">{t('blockchain type')}*</label>
+        <label className="label">{t('type')}*</label>
         <div className="control is-medium">
           <div className="select is-medium">
             <select onChange={(v) => setPlatformKey(v.target.value as PlatformKey)}>
