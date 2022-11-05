@@ -7,17 +7,9 @@ import { TransactionState } from '/models';
 import { dispatchInMain } from '/interProcess';
 
 const transferTransactionState = function* (action: Action) {
-  let payload:
-    | fromBlockchain.UpdateRChainTransactionStatusPayload
-    | fromBlockchain.UpdateRChainTransactionValuePayload
-    | fromBlockchain.SaveFailedRChainTransactionPayload
-    | undefined;
-  if (action.type === fromBlockchain.UPDATE_RCHAIN_TRANSACTION_STATUS) {
-    payload = action.payload as fromBlockchain.UpdateRChainTransactionStatusPayload;
-  } else if (action.type === fromBlockchain.UPDATE_RCHAIN_TRANSACTION_VALUE) {
-    payload = action.payload as fromBlockchain.UpdateRChainTransactionValuePayload;
-  } else {
-    payload = action.payload as fromBlockchain.SaveFailedRChainTransactionPayload;
+  let payload: undefined | fromBlockchain.SaveEthereumTransactionStatePayload;
+  if (action.type === fromBlockchain.SAVE_ETHEREUM_TRANSACTION) {
+    payload = action.payload as fromBlockchain.SaveEthereumTransactionStatePayload;
   }
   // should never happen
   if (!payload) {
@@ -37,8 +29,5 @@ const transferTransactionState = function* (action: Action) {
 };
 
 export const transferTransactionStateSaga = function* () {
-  yield takeEvery(fromBlockchain.UPDATE_RCHAIN_TRANSACTION_STATUS, transferTransactionState);
-  yield takeEvery(fromBlockchain.UPDATE_RCHAIN_TRANSACTION_VALUE, transferTransactionState);
-  yield takeEvery(fromBlockchain.SAVE_FAILED_RCHAIN_TRANSACTION, transferTransactionState);
   yield takeEvery(fromBlockchain.SAVE_ETHEREUM_TRANSACTION, transferTransactionState);
 };

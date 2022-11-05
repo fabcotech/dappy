@@ -1,10 +1,10 @@
-import { BeesLoadCompleted, BeesLoadErrors, BeesLoadErrorWithArgs } from '@fabcotech/bees';
+import { BeesLoadCompleted, BeesLoadErrors } from '@fabcotech/bees';
 import { Blockchain } from './Blockchain';
-import { DappyLoadErrorWithArgs } from './DappyLoadError';
+import { SimpleError } from './DappyLoadError';
 
 export interface LastLoadError {
   url: string;
-  error: BeesLoadErrorWithArgs | DappyLoadErrorWithArgs;
+  error: SimpleError;
 }
 
 export interface Tab {
@@ -20,17 +20,17 @@ export interface Tab {
   // lastError is not persisted in indexeddb
   lastError: LastLoadError | undefined;
   data: {
-    isIp?: boolean,
-    isDappyNameSystem?: boolean,
-    publicKey?: string | undefined,
-    chainId?: string | undefined,
-    blockchain?: Blockchain | undefined,
-    rchainNamesMasterRegistryUri?: string | undefined,
-    html?: string | undefined,
+    isIp?: boolean;
+    isDappyNameSystem?: boolean;
+    publicKey?: string | undefined;
+    chainId?: string | undefined;
+    blockchain?: Blockchain | undefined;
+    rchainNamesMasterRegistryUri?: string | undefined;
+    html?: string | undefined;
     loadState?: {
       completed: BeesLoadCompleted;
       errors: BeesLoadErrors;
       pending: string[];
-    }
-  }
+    };
+  };
 }

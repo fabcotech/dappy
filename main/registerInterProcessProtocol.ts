@@ -1,15 +1,13 @@
 import { Session, clipboard, dialog } from 'electron';
 import crypto from 'crypto';
-import { DappyNetworkMember, lookup } from '@fabcotech/dappy-lookup';
+import { lookup } from '@fabcotech/dappy-lookup';
 import { Store } from 'redux';
 import fs from 'fs';
 import path from 'path';
 
 import { getIpAddressAndCert } from './getIpAddressAndCert';
-import { Blockchain, MultiRequestBody, MultiRequestParameters } from '../src/models';
+import { Blockchain } from '../src/models';
 import * as fromBlockchainsMain from './store/blockchains';
-import { performMultiRequest } from './performMultiRequest';
-import { performSingleRequest } from './performSingleRequest';
 import * as fromMainBrowserViews from './store/browserViews';
 import { DispatchFromMainArg } from './main';
 import { generateCertificateAndKey } from './generateCertificateAndKey';
@@ -112,63 +110,6 @@ export const registerInterProcessProtocol = (
 
     if (request.url === 'interprocess://close') {
       browserWindow.close();
-    }
-
-    /* browser to node */
-    if (request.url === 'interprocess://dappy-multi-request') {
-      try {
-        const data = JSON.parse(decodeURI(request.headers.Data));
-        const parameters: MultiRequestParameters = data.parameters;
-        const body: MultiRequestBody = data.body;
-
-        parameters.comparer = (res) => res;
-
-        const blockchains = fromBlockchainsMain.getBlockchains(store.getState());
-        performMultiRequest(body, parameters, blockchains)
-          .then((result) => {
-            callback(
-              Buffer.from(
-                JSON.stringify({
-                  success: true,
-                  data: result,
-                })
-              )
-            );
-          })
-          .catch((err) => {
-            callback(Buffer.from(JSON.stringify(err)));
-          });
-      } catch (err: any) {
-        if (err instanceof Error) {
-          console.log(err);
-          callback(
-            Buffer.from(err.message || '[interprocess] Error CRITICAL when dappy-multi-request')
-          );
-        }
-      }
-    }
-
-    /* browser to node */
-    if (request.url === 'interprocess://dappy-single-request') {
-      try {
-        const data = JSON.parse(decodeURI(request.headers.Data));
-        const node: DappyNetworkMember = data.node;
-        const body: MultiRequestBody = data.body;
-        performSingleRequest(body, node)
-          .then((a) => {
-            callback(Buffer.from(a));
-          })
-          .catch((err) => {
-            callback(Buffer.from(JSON.stringify(err)));
-          });
-      } catch (err) {
-        if (err instanceof Error) {
-          console.log(err);
-          callback(
-            Buffer.from(err.message || '[interprocess] Error CRITICAL when dappy-single-request')
-          );
-        }
-      }
     }
 
     if (request.url === 'interprocess://dappy-lookup') {

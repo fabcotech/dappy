@@ -24,9 +24,6 @@ export const DELETE_ACCOUNT = '[Settings] Delete account';
 export const DELETE_ACCOUNT_COMPLETED = '[Settings] Delete account completed';
 export const UPDATE_ACCOUNT = '[Settings] Update account';
 export const UPDATE_ACCOUNTS_COMPLETED = '[Settings] Update accounts completed';
-export const UPDATE_ACCOUNTS_BALANCE = '[Settings] Update accounts balance';
-export const UPDATE_ACCOUNTS_BALANCE_FAILED = '[Settings] Update accounts balance failed';
-export const EXECUTE_ACCOUNTS_CRON_JOBS = '[Settings] Execute accounts cron jobs';
 
 export interface Action {
   type: string;
@@ -34,7 +31,7 @@ export interface Action {
 }
 
 export const updateBlockchainsFromStorageAction = (blockchains: Blockchain[]) => ({
-  type: UPDATE_BLOCKCHAINS_FROM_STORAGE,
+  type: UPDATE_BLOCKCHAINS_FOM_STORAGE,
   payload: blockchains,
 });
 
@@ -166,26 +163,4 @@ export interface UpdateAccountsCompletedPayload {
 export const updateAccountCompletedAction = (values: UpdateAccountsCompletedPayload) => ({
   type: UPDATE_ACCOUNTS_COMPLETED,
   payload: values,
-});
-
-export interface UpdateAccountsBalancePayload {
-  balances: { accountName: string; balance: number }[];
-}
-export const updateAccountBalanceAction = (values: UpdateAccountsBalancePayload) => ({
-  type: UPDATE_ACCOUNTS_BALANCE,
-  payload: values,
-});
-
-export interface UpdateAccountBalanceFailedPayload {
-  loadState: BeesLoadCompleted;
-  date: string;
-  error: BeesLoadErrorWithArgs | DappyLoadErrorWithArgs;
-}
-export const updateAccountBalanceFailedAction = (values: UpdateAccountBalanceFailedPayload) => ({
-  type: UPDATE_ACCOUNTS_BALANCE_FAILED,
-  payload: values,
-});
-
-export const executeAccountsCronJobsAction = () => ({
-  type: EXECUTE_ACCOUNTS_CRON_JOBS,
 });

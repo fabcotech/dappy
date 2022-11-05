@@ -7,7 +7,6 @@ import { DappyNetworkMember, lookup } from '@fabcotech/dappy-lookup';
 import * as fromBrowserViews from '../browserViews';
 import { DappyBrowserView } from '../../models';
 import { registerInterProcessDappProtocol } from '../../registerInterProcessDappProtocol';
-import { registerDappyNetworkProtocol } from '../../registerDappyNetworkProtocol';
 import { overrideHttpsProtocol } from '../../overrideHttpsProtocol';
 import { overrideHttpProtocol } from '../../overrideHttpProtocol';
 import { registerDappyLocalProtocol } from '../../registerDappyLocalProtocol';
@@ -63,7 +62,6 @@ function* loadOrReloadBrowserView(action: any) {
     if (development) {
       console.log('reload or self navigation, closing browserView and unregister protocols');
     }
-    const a = viewSession.protocol.unregisterProtocol('dappynetwork');
     const b = viewSession.protocol.unregisterProtocol('interprocessdapp');
     const c = viewSession.protocol.uninterceptProtocol('https');
     let d = true;
@@ -96,7 +94,6 @@ function* loadOrReloadBrowserView(action: any) {
       console.log('navigation in tab, closing browserView with same tabId');
     }
     const bv = browserViews[sameTabIdBrowserViewId];
-    const a = viewSession.protocol.unregisterProtocol('dappynetwork');
     const b = viewSession.protocol.unregisterProtocol('interprocessdapp');
     const c = viewSession.protocol.uninterceptProtocol('https');
     const d = viewSession.protocol.uninterceptProtocol('dappyl');
@@ -209,7 +206,6 @@ function* loadOrReloadBrowserView(action: any) {
       getIsFirstRequest,
     });
   }
-  registerDappyNetworkProtocol(newBrowserViews[payload.tab.id], viewSession, store);
   registerDappyLocalProtocol(viewSession);
 
   /*

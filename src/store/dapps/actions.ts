@@ -1,6 +1,6 @@
-import { BeesLoadErrors, BeesLoadCompleted, BeesLoadErrorWithArgs } from '@fabcotech/bees';
+import { BeesLoadErrors, BeesLoadCompleted } from '@fabcotech/bees';
 import { Tab, Identification, TransitoryState } from '/models';
-import { DappyLoadErrorWithArgs, SimpleError } from '/models/DappyLoadError';
+import { SimpleError } from '/models/DappyLoadError';
 
 export const UPDATE_TABS_FROM_STORAGE = '[Dapps] Update tabs from storage';
 
@@ -84,7 +84,7 @@ export const updateLoadStateAction = (values: UpdateLoadStatePayload) => ({
 export interface LoadResourceFailedPayload {
   url: string;
   tabId: string;
-  error: BeesLoadErrorWithArgs | DappyLoadErrorWithArgs | SimpleError;
+  error: SimpleError;
 }
 export const loadResourceFailedAction = (values: LoadResourceFailedPayload) => ({
   type: LOAD_RESOURCE_FAILED,

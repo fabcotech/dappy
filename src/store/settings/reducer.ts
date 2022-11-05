@@ -151,29 +151,6 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
-    case fromActions.UPDATE_ACCOUNTS_BALANCE: {
-      const { payload }: { payload: fromActions.UpdateAccountsBalancePayload } = action;
-      const newAccounts = Object.fromEntries(
-        payload.balances
-          .filter(({ accountName }) => accountName in state.accounts)
-          .map(({ accountName, balance }) => [
-            accountName,
-            {
-              ...state.accounts[accountName],
-              balance,
-            },
-          ])
-      );
-
-      return {
-        ...state,
-        accounts: {
-          ...state.accounts,
-          ...newAccounts,
-        },
-      };
-    }
-
     case fromActions.UPDATE_ACCOUNTS_COMPLETED: {
       const { payload } = action;
 
@@ -184,24 +161,6 @@ export const reducer = (state = initialState, action: Action): State => {
           ...payload.accounts,
         },
         executingAccountsCronJobs: false,
-      };
-    }
-
-    case fromActions.UPDATE_ACCOUNTS_BALANCE_FAILED: {
-      const { payload } = action;
-
-      return {
-        ...state,
-        executingAccountsCronJobs: false,
-      };
-    }
-
-    case fromActions.EXECUTE_ACCOUNTS_CRON_JOBS: {
-      const { payload } = action;
-
-      return {
-        ...state,
-        executingAccountsCronJobs: true,
       };
     }
 

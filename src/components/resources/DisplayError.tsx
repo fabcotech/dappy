@@ -50,7 +50,7 @@ class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps> 
           this.props.tab.lastError ? 'with-error' : ''
         }`}
       >
-        {!!this.props.tab.lastError ? (
+        {this.props.tab.lastError ? (
           <div className="load-error">
             <div className="message scaling-and-appearing-once">
               <div className="message-body">

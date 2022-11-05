@@ -25,7 +25,6 @@ import {
   validateSettings,
   validateBlockchains,
   validateUi,
-  validateDappyNodeFullInfo,
   validateTabs,
   validateTransactionStates,
 } from './decoders';
@@ -43,7 +42,7 @@ import { loggerSaga } from './utils';
 import { initCronJobs } from './initCronJobs';
 import { interProcess } from '../interProcess';
 
-import { Account, MultiRequestResult } from '../models';
+import { Account } from '../models';
 // import { upgrades } from './upgrades';
 
 declare global {
@@ -52,8 +51,6 @@ declare global {
     uniqueEphemeralToken: string;
     messageFromMain: (a: any) => void;
     dappyLookup: (parameters: any) => Promise<NamePacket>;
-    dappySingleRequest: (body: any, parameters: any) => Promise<any>;
-    dappyMultiRequest: (body: any, parameters: any) => Promise<MultiRequestResult>;
     getIpAddressAndCert: (a: { host: string }) => Promise<{ cert: string; ip: string }>;
     generateCertificateAndKey: (
       altNames: string[]
@@ -163,7 +160,7 @@ const sagas = function* rootSaga() {
 sagaMiddleware.run(sagas);
 
 const dispatchInitActions = () => {
-  if (asyncActionsOver === 8) {
+  if (asyncActionsOver === 7) {
     store.dispatch(
       fromUi.setBodyDimensionsAction({
         bodyDimensions: [document.body.clientWidth, document.body.clientHeight],
@@ -562,61 +559,6 @@ dbReq.onsuccess = (event) => {
             errorCode: 2037,
             error: 'Unable to read accounts from storage',
             trace: accounts,
-          })
-        );
-        dispatchInitActions();
-      });
-  };
-
-  // RCHAIN INFOS
-  const rchainInfosTx = openedDB.transaction('rchainInfos', 'readonly');
-  const rchainInfosStore = rchainInfosTx.objectStore('rchainInfos');
-  const requestRChainInfos = rchainInfosStore.getAll();
-  requestRChainInfos.onsuccess = (e) => {
-    let rchainInfos = requestRChainInfos.result;
-    if (!rchainInfos) {
-      asyncActionsOver += 1;
-      dispatchInitActions();
-      return;
-    }
-
-    rchainInfos = rchainInfos.map((ri) => {
-      // .wrappedRevContractId introuced in 0.5.4
-      if (ri.info && !ri.info.wrappedRevContractId) {
-        ri.info.wrappedRevContractId = 'notconfigured';
-      }
-      // rchain-token 16 new price format
-      if (ri.info && typeof ri.info.namePrice === 'number') {
-        ri.info.namePrice = null;
-      }
-      // dappy browser 0.5.5 and shardId in RChain DeployData
-      if (ri.info && typeof ri.info.rchainShardId !== 'string') {
-        ri.info.rchainShardId = 'unknown';
-      }
-
-      return ri;
-    });
-
-    Promise.all(
-      rchainInfos.map((ri: any) => {
-        return validateDappyNodeFullInfo(ri);
-      })
-    )
-      .then((valid) => {
-        asyncActionsOver += 1;
-        store.dispatch(
-          fromBlockchain.updateRChainBlockchainInfosFromStorageAction({ rchainInfos })
-        );
-        dispatchInitActions();
-      })
-      .catch((err) => {
-        console.error(err);
-        asyncActionsOver += 1;
-        store.dispatch(
-          fromMain.saveErrorAction({
-            errorCode: 2016,
-            error: 'Unable to read RChain infos from storage',
-            trace: err,
           })
         );
         dispatchInitActions();

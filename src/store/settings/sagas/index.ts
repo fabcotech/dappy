@@ -8,7 +8,6 @@ import { deleteAccountSaga } from './deleteAccountSaga';
 import { updateAccountSaga } from './updateAccountSaga';
 import { updateBlockchainsCompletedSaga } from './updateBlockchainsCompleted';
 import { updateSettingsCompletedSaga } from './updateSettingsCompleted';
-import { executeAccountsCronJobsSaga } from './executeAccountsCronJobs';
 
 export const sagas = function* rootSaga() {
   yield all([
@@ -20,6 +19,5 @@ export const sagas = function* rootSaga() {
     updateAccountSaga(),
     updateBlockchainsCompletedSaga(),
     updateSettingsCompletedSaga(),
-    executeAccountsCronJobsSaga(),
   ]);
 };

@@ -504,16 +504,6 @@ export const getSearchTransitoryState = createSelector(
   (search, transitoryStates): undefined | TransitoryState => transitoryStates[search]
 );
 
-export const getSearchLoadStates = createSelector(
-  getSearch,
-  getLoadStates,
-  (
-    search,
-    loadStates
-  ): undefined | { completed: BeesLoadCompleted; errors: BeesLoadErrors; pending: string[] } =>
-    search ? loadStates[search] : undefined
-);
-
 export const getActiveTabs = createSelector(getTabs, (tabs) => {
   const activeTabs: { [tabId: string]: Tab } = {};
   tabs.forEach((t) => {

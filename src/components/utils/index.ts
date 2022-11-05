@@ -1,7 +1,6 @@
 export * from './DappImage';
 export * from './LoadErrorHtml';
 export * from './Modal';
-export * from './RChainTransactionModal';
 export * from './TransactionForm';
 export * from './Pagination';
 export * from './RecordLoadErrorLight';

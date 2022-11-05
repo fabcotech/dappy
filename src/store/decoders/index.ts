@@ -6,7 +6,6 @@ export * from './LoadState';
 export * from './Main';
 export * from './Record';
 export * from './Tab';
-export * from './RChain';
 export * from './Nodes';
 export * from './TransactionState';
 export * from './RChainToken';

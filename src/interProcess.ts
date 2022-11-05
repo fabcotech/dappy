@@ -24,20 +24,6 @@ export const dappyLookup = (body: {
   return window.dappyLookup(body);
 };
 
-export const singleRequest = (
-  body: Record<string, any>,
-  node: DappyNetworkMember
-): Promise<SingleRequestResult> => {
-  return window.dappySingleRequest(body, node);
-};
-
-export const multiRequest = (
-  body: MultiRequestBody,
-  parameters: MultiRequestParameters
-): Promise<MultiRequestResult> => {
-  return window.dappyMultiRequest(body, parameters);
-};
-
 export const copyToClipboard = (a: string) => {
   return window.copyToClipboard(a);
 };
@@ -216,80 +202,6 @@ export const interProcess = (store: Store) => {
       )
     );
     req.send();
-  };
-
-  window.dappySingleRequest = (body, node) => {
-    return new Promise((resolve, reject) => {
-      const req = new XMLHttpRequest();
-      req.open('POST', 'interprocess://dappy-single-request');
-      req.setRequestHeader(
-        'Data',
-        encodeURI(
-          JSON.stringify({
-            uniqueEphemeralToken,
-            body,
-            node,
-          })
-        )
-      );
-      // this should never happen
-      req.onerror = (e) => {
-        console.log(e);
-        reject(new Error('Unknown error'));
-      };
-      req.send();
-      req.onload = () => {
-        try {
-          const r = JSON.parse(req.responseText);
-          if (r.success) {
-            resolve(r);
-          } else {
-            reject(r.error || { message: 'Unknown error' });
-          }
-        } catch (e) {
-          console.log(req.responseText);
-          console.log(e);
-          reject(new Error('could not parse response'));
-        }
-      };
-    });
-  };
-
-  window.dappyMultiRequest = (body, parameters) => {
-    return new Promise((resolve, reject) => {
-      const req = new XMLHttpRequest();
-      req.open('POST', 'interprocess://dappy-multi-request');
-      req.setRequestHeader(
-        'Data',
-        encodeURI(
-          JSON.stringify({
-            uniqueEphemeralToken,
-            parameters,
-            body,
-          })
-        )
-      );
-      req.send();
-      // this should never happen
-      req.onerror = (e) => {
-        console.log(e);
-        reject(new Error('Unknown error'));
-      };
-      req.onload = () => {
-        try {
-          const r = JSON.parse(req.responseText);
-          if (r.success) {
-            resolve(r.data as MultiRequestResult);
-          } else {
-            reject(new Error(r.error));
-          }
-        } catch (e) {
-          console.log(req.responseText);
-          console.log(e);
-          reject(new Error(DappyLoadError.FailedToParseResponse));
-        }
-      };
-    });
   };
 
   window.generateCertificateAndKey = (altNames: string[]) => {

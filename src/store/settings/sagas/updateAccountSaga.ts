@@ -30,8 +30,6 @@ const updateAccount = function* (action: Action) {
         main: false,
       };
     }
-  } else if (action.type === fromSettings.UPDATE_ACCOUNTS_BALANCE) {
-    accountsToUpdate = accounts;
   }
 
   try {
@@ -51,5 +49,4 @@ const updateAccount = function* (action: Action) {
 
 export const updateAccountSaga = function* () {
   yield takeEvery(fromSettings.UPDATE_ACCOUNT, updateAccount);
-  yield takeEvery(fromSettings.UPDATE_ACCOUNTS_BALANCE, updateAccount);
 };

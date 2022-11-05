@@ -236,10 +236,8 @@ export const Accounts = connect(
     isBalancesHidden: getIsBalancesHidden(state),
   }),
   (dispatch) => ({
-    updateBalances: () => dispatch(fromSettings.executeAccountsCronJobsAction()),
-    sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => {
-      dispatch(fromBlockchain.sendRChainTransactionAction(t));
-    },
+    updateBalances: () => null,
+    sendRChainTransaction: () => null,
     toggleBalancesVisibility: () => dispatch(toggleBalanceVisibility()),
   })
 )(AccountsComponent);

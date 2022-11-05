@@ -6,7 +6,7 @@ interface RChainTransaction {
   timestamp: number;
   phloLimit: number;
   phloPrice: number;
-  shardId: string,
+  shardId: string;
   validAfterBlockNumber: number;
   term: string;
 }
@@ -28,7 +28,7 @@ export const rchainWallet: Wallet<RChainTransaction, RChainSignedTransaction> = 
       phloPrice: tx.phloPrice,
       phloLimit: tx.phloLimit,
       // todo change to -1
-      validAfterBlockNumber: tx.validAfterBlockNumber || 1
+      validAfterBlockNumber: tx.validAfterBlockNumber || 1,
     });
 
     return dd;
@@ -41,13 +41,13 @@ export const rchainWallet: Wallet<RChainTransaction, RChainSignedTransaction> = 
   },
 };
 
-interface createTransferTermArgs {
+interface CreateTransferTermArgs {
   from: string;
   to: string;
   amount: number;
 }
 
-export const createTranferTerm = ({ from, to, amount }: createTransferTermArgs) => `new
+export const createTranferTerm = ({ from, to, amount }: CreateTransferTermArgs) => `new
     basket,
     rl(\`rho:registry:lookup\`),
     RevVaultCh,
