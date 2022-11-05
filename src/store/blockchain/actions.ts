@@ -17,18 +17,14 @@ import {
 
 export const EXECUTE_CRON_JOBS = '[Blockchain] Execute cron jobs';
 
-export const UPDATE_RCHAIN_BLOCKCHAIN_INFOS_FROM_STORAGE = '[Blockchain] Update RChain blockchain infos from storage';
-export const UPDATE_RCHAIN_BLOCKCHAIN_INFO_COMPLETED = '[Blockchain] Update RChain blockchain info completed';
+export const UPDATE_RCHAIN_BLOCKCHAIN_INFOS_FROM_STORAGE =
+  '[Blockchain] Update RChain blockchain infos from storage';
+export const UPDATE_RCHAIN_BLOCKCHAIN_INFO_COMPLETED =
+  '[Blockchain] Update RChain blockchain info completed';
 export const UPDATE_RCHAIN_BLOCKCHAIN_LAST_BLOCK_COMPLETED =
   '[Blockchain] Update RChain blockchain last block completed';
-export const UPDATE_RCHAIN_BLOCKCHAIN_INFO_FAILED = '[Blockchain] Update RChain blockchain info failed';
-
-export const UPDATE_RECORDS_FROM_STORAGE = '[Blockchain] Update records from storage';
-export const GET_ALL_RECORDS_FAILED = '[Blockchain] Get all records failed';
-export const GET_ONE_RECORD_COMPLETED = '[Blockchain] Get one record completed';
-export const REMOVE_OLD_RECORDS = '[Blockchain] Remove old records';
-export const REMOVE_OLD_RECORDS_COMPLETED = '[Blockchain] Remove old records completed';
-export const ADD_RECORD = '[Blockchain] Add record';
+export const UPDATE_RCHAIN_BLOCKCHAIN_INFO_FAILED =
+  '[Blockchain] Update RChain blockchain info failed';
 
 export const UPDATE_TRANSACTIONS_FROM_STORAGE = '[Blockchain] Update transactions from storage';
 export const ADD_RCHAIN_TRANSACTION = '[Blockchain] Add RChain transaction';
@@ -61,7 +57,9 @@ export interface UpdateRChainBlockchainInfoCompletedPayload {
   date: string;
   chainId: string;
 }
-export const updateRChainBlockchainInfoCompletedAction = (values: UpdateRChainBlockchainInfoCompletedPayload) => ({
+export const updateRChainBlockchainInfoCompletedAction = (
+  values: UpdateRChainBlockchainInfoCompletedPayload
+) => ({
   type: UPDATE_RCHAIN_BLOCKCHAIN_INFO_COMPLETED,
   payload: values,
 });
@@ -71,53 +69,10 @@ export interface UpdateRChainBlockchainInfoFailedPayload {
   date: string;
   error: BeesLoadErrorWithArgs | DappyLoadErrorWithArgs;
 }
-export const updateRChainBlockchainInfoFailedAction = (values: UpdateRChainBlockchainInfoFailedPayload) => ({
+export const updateRChainBlockchainInfoFailedAction = (
+  values: UpdateRChainBlockchainInfoFailedPayload
+) => ({
   type: UPDATE_RCHAIN_BLOCKCHAIN_INFO_FAILED,
-  payload: values,
-});
-
-export const getAllRecordsFailedAction = (values: LoadRecordsError) => ({
-  type: GET_ALL_RECORDS_FAILED,
-  payload: values,
-});
-
-export interface UpdateRecordsFromStoragePayload {
-  records: Record[];
-}
-export const updateRecordsFromStorageAction = (values: UpdateRecordsFromStoragePayload) => ({
-  type: UPDATE_RECORDS_FROM_STORAGE,
-  payload: values,
-});
-
-export interface GetOneRecordCompletedPayload {
-  record: Record;
-}
-export const getOneRecordCompletedAction = (values: GetOneRecordCompletedPayload) => ({
-  type: GET_ONE_RECORD_COMPLETED,
-  payload: values,
-});
-
-export interface RemoveOldRecordsPayload {
-  before: string;
-}
-export const removeOldRecordsAction = (values: RemoveOldRecordsPayload) => ({
-  type: REMOVE_OLD_RECORDS,
-  payload: values,
-});
-
-export interface RemoveOldRecordsCompletedPayload {
-  names: string[];
-}
-export const removeOldRecordsCompletedAction = (values: RemoveOldRecordsCompletedPayload) => ({
-  type: REMOVE_OLD_RECORDS_COMPLETED,
-  payload: values,
-});
-
-export interface AddRecordPayload {
-  record: Record;
-}
-export const addRecordAction = (values: AddRecordPayload) => ({
-  type: ADD_RECORD,
   payload: values,
 });
 
@@ -139,7 +94,9 @@ export interface SendRChainTransactionWithFilePayload {
   origin: TransactionOriginDeploy;
   sentAt: string;
 }
-export const sendRChainTransactionWithFileAction = (values: SendRChainTransactionWithFilePayload) => ({
+export const sendRChainTransactionWithFileAction = (
+  values: SendRChainTransactionWithFilePayload
+) => ({
   type: SEND_RCHAIN_TRANSACTION_WITH_FILE,
   payload: values,
 });
@@ -162,7 +119,9 @@ export const addRChainTransactionAction = (values: SendRChainTransactionPayload)
   payload: values,
 });
 
-export const updateTransactionsFromStorageAction = (values: { transactions: TransactionState[] }) => ({
+export const updateTransactionsFromStorageAction = (values: {
+  transactions: TransactionState[];
+}) => ({
   type: UPDATE_TRANSACTIONS_FROM_STORAGE,
   payload: values,
 });
@@ -177,7 +136,9 @@ export interface saveEthereumTransactionStatePayload {
   status: TransactionStatus;
 }
 
-export const saveEthereumTransactionStateAction = (values: saveEthereumTransactionStatePayload) => ({
+export const saveEthereumTransactionStateAction = (
+  values: saveEthereumTransactionStatePayload
+) => ({
   type: SAVE_ETHEREUM_TRANSACTION,
   payload: values,
 });
@@ -211,7 +172,9 @@ export interface UpdateRChainTransactionStatusPayload {
   status: TransactionStatus;
   value?: any;
 }
-export const updateRChainTransactionStatusAction = (values: UpdateRChainTransactionStatusPayload) => ({
+export const updateRChainTransactionStatusAction = (
+  values: UpdateRChainTransactionStatusPayload
+) => ({
   type: UPDATE_RCHAIN_TRANSACTION_STATUS,
   payload: values,
 });
@@ -220,7 +183,9 @@ export interface UpdateRChainTransactionValuePayload {
   id: string;
   value: TransactionValue;
 }
-export const updateRChainTransactionValueAction = (values: UpdateRChainTransactionValuePayload) => ({
+export const updateRChainTransactionValueAction = (
+  values: UpdateRChainTransactionValuePayload
+) => ({
   type: UPDATE_RCHAIN_TRANSACTION_VALUE,
   payload: values,
 });

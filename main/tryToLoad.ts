@@ -12,7 +12,7 @@ import { CertificateAccount } from '/models';
 
 const { lookup } = require('@fabcotech/dappy-lookup');
 
-let sameSites: { [a: string]: 'lax' | 'strict' | 'no_restriction' } = {
+const sameSites: { [a: string]: 'lax' | 'strict' | 'no_restriction' } = {
   lax: 'lax',
   Lax: 'lax',
   strict: 'strict',
@@ -65,26 +65,29 @@ export const tryToLoad = async ({
     hostname must be replaceed
     todo : this should be recursive
   */
-  let cname: undefined | string = undefined;
+  let cname: undefined | string;
   try {
-    cname = (await lookup(hostname, 'CNAME', { dappyNetwork: dappyNetworkMembers })).answers.map(
+    [cname] = (await lookup(hostname, 'CNAME', { dappyNetwork: dappyNetworkMembers })).answers.map(
       (a: RRCNAME) => a.data
-    )[0];
+    );
     if (cname) {
       console.log(`[name system    ] found CNAME ${url.hostname} -> ${cname}`);
       hostname = cname;
     }
   } catch (err) {
     console.log(err);
-    return Promise.resolve({
-      data: 'NS LOOKUP ERROR',
+    const st = new stream.PassThrough();
+    st.push(getHtmlError('🤨 Dappy network error', 'Error when trying to get the CNAME record'));
+    st.end();
+    return {
+      data: st,
       headers: {},
-      statusCode: 523,
-    });
+      statusCode: 503,
+    };
   }
 
-  let ca: string[] | undefined = undefined;
-  let networkHosts: string[] | undefined = undefined;
+  let ca: string[] | undefined;
+  let networkHosts: string[] | undefined;
   if (dns) {
     networkHosts = [url.hostname];
   } else {
@@ -97,7 +100,7 @@ export const tryToLoad = async ({
       if ((networkHosts as string[]).length) {
         console.log(`[name system     ] found A ${(networkHosts as string[]).join(',')}`);
       } else {
-        console.log(`[name system err ] no A records`);
+        console.log('[name system err ] no A records');
       }
 
       ca = (await lookup(hostname, 'CERT', { dappyNetwork: dappyNetworkMembers })).answers.map(
@@ -106,15 +109,23 @@ export const tryToLoad = async ({
       if ((ca as string[])[0]) {
         console.log(`[name system     ] found CERT ${(ca as string[])[0].slice(0, 10)}...`);
       } else {
-        console.log(`[name system err ] no CERT record`);
+        console.log('[name system err ] no CERT record');
       }
     } catch (err) {
       console.log(err);
-      return Promise.resolve({
-        data: 'NS LOOKUP ERROR',
+      const st = new stream.PassThrough();
+      st.push(
+        getHtmlError(
+          '🤨 Dappy network error',
+          'Error when trying to get CERT and A/AAAA records from the dappy name system.'
+        )
+      );
+      st.end();
+      return {
+        data: st,
         headers: {},
-        statusCode: 523,
-      });
+        statusCode: 503,
+      };
     }
   }
 
@@ -126,11 +137,19 @@ export const tryToLoad = async ({
     );
   } catch (err) {
     console.log(err);
-    return Promise.resolve({
-      data: 'NS LOOKUP ERROR',
+    const st = new stream.PassThrough();
+    st.push(
+      getHtmlError(
+        '🤨 Dappy network error',
+        'Error when trying to get TXT records from the dappy name system.'
+      )
+    );
+    st.end();
+    return {
+      data: st,
       headers: {},
-      statusCode: 523,
-    });
+      statusCode: 503,
+    };
   }
 
   let dappAddress = '';
@@ -151,7 +170,7 @@ export const tryToLoad = async ({
   // DAPP
   // ============
   if (dappAddress) {
-    console.log('dapp address resolved by name system ' + dappAddress);
+    console.log(`dapp address resolved by name system ${dappAddress}`);
 
     const st = new stream.PassThrough();
     st.push(getHtmlError('Dapp error', 'Failed to retreive HTML from the blockchain'));
@@ -174,20 +193,27 @@ export const tryToLoad = async ({
   // ============
   // IP APP
   // ============
-  async function load(i: number = 0) {
+  async function load(i = 0) {
     if (!networkHosts || !(networkHosts as string[])[i]) {
-      if (debug)
+      if (debug) {
         console.log(
           `[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${hostname})`
         );
+      }
+
       const st = new stream.PassThrough();
       if (!networkHosts || networkHosts.length === 0) {
-        st.push(getHtmlError('Lookup error', 'Name system zone has no A or AAAA record'));
+        st.push(
+          getHtmlError(
+            '🤔 Domain does not exist',
+            'It seems that the domain does not exist, are you sure to have typed correctly ?'
+          )
+        );
       } else {
         st.push(
           getHtmlError(
-            'IP app error',
-            'Failed to load IP application, check that the servers are reachable and properly configured',
+            '🤔 Server connection error',
+            'The web server could not be reached. Please contact the administrators of the server.',
             {
               type: 'ip app',
               log: (networkHosts || []).join('\n'),
@@ -215,9 +241,9 @@ export const tryToLoad = async ({
       }
     }
 
-    let port = url.port ? url.port : '443';
+    const port = url.port ? url.port : '443';
 
-    let path = `/`;
+    let path = '/';
     if (url.pathname) {
       path = url.pathname;
     }
@@ -427,16 +453,18 @@ export const tryToLoad = async ({
               }
 
               const st = new stream.PassThrough();
+              let title = '🤔 Server connection error';
+              let { message } = err;
+              if (err.message === 'self signed certificate') {
+                title = '🔓 TLS/HTTPS Error';
+                message =
+                  'A TLS/HTTPS handshake error occured, server cannot be securely authenticated.';
+              }
               st.push(
-                getHtmlError(
-                  'IP app error',
-                  err.message ||
-                    'Failed to load IP application, check that the servers are reachable and properly configured',
-                  {
-                    type: 'ip app',
-                    log: (networkHosts || []).join('\n'),
-                  }
-                )
+                getHtmlError(title, message, {
+                  type: 'ip app',
+                  log: (networkHosts || []).join('\n'),
+                })
               );
               st.end();
               resolve({
@@ -445,7 +473,6 @@ export const tryToLoad = async ({
                 statusCode: statusCode,
               });
               over = true;
-              return;
             }
           });
 
@@ -491,10 +518,11 @@ export const tryToLoad = async ({
         if ((networkHosts as string[])[i + 1]) {
           load(i + 1);
         } else {
-          if (debug)
+          if (debug) {
             console.log(
               `[https] Resource for app (${dappyBrowserView.tabId}) failed to load (${url.pathname})`
             );
+          }
           /*
             Will catch in main/store/sagas/loadOrReloadBrowserView.ts L193
           */
@@ -517,7 +545,6 @@ export const tryToLoad = async ({
             statusCode: statusCode,
           });
           over = true;
-          return;
         }
       }
     });

@@ -1,5 +1,3 @@
-import { BeesLoadCompleted, BeesLoadErrorWithArgs } from '@fabcotech/bees';
-
 export interface NodeFromNetwork {
   ip: string;
   host: string;

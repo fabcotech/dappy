@@ -1,4 +1,4 @@
-@import "../../style/variables.scss";
+@import '../../style/variables.scss';
 
 .display-error {
   .retry {
@@ -33,6 +33,7 @@
       max-width: 80%;
       min-width: 500px;
       max-width: 600px;
+      border-radius: 6px;
       max-height: 300px;
       background-color: transparent;
       display: flex;
@@ -42,6 +43,9 @@
         border-width: 0 0 0px 0px;
         border-radius: 0px;
         border-color: rgb(92, 92, 92);
+        p {
+          font-size: 1.2rem;
+        }
       }
     }
   }

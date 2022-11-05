@@ -37,9 +37,8 @@ class TabsList3Component extends React.Component<TabsList2Props, {}> {
               }`}
             >
               <div className="content">
-                {/* todo : is this safe ? (new URL) */}
                 <div className="host">
-                  <span>{new URL(tab.url).host}</span>
+                  <span>{tab.url}</span>
                 </div>
               </div>
             </div>

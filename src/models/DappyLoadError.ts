@@ -25,3 +25,8 @@ export interface DappyLoadErrorWithArgs {
     [key: string]: any;
   };
 }
+
+export interface SimpleError {
+  title: string;
+  message: string;
+}

@@ -42,10 +42,9 @@ function* loadOrReloadBrowserView(action: any) {
         tabId: payload.tab.id,
         url: payload.tab.url,
         error: {
-          error: DappyLoadError.DappyLookup,
-          args: {
-            message: 'Network not found',
-          },
+          title: '🤨 Dappy network error',
+          message:
+            'The dappy network was not found, make sure the TLD corresponds to the current network configuration (ex: .d, .gamma etc.)',
         },
       }),
     });
@@ -245,19 +244,29 @@ function* loadOrReloadBrowserView(action: any) {
     }
   } catch (err) {
     if (err instanceof Error) {
-      action.meta.dispatchFromMain({
-        action: fromDappsRenderer.loadResourceFailedAction({
-          tabId: payload.tab.id,
-          url: payload.tab.url,
-          error: {
-            error: DappyLoadError.ServerError,
-            args: {
-              url: payload.tab.url,
+      if ((err.message || '').includes('ERR_CERT_COMMON_NAME_INVALID')) {
+        action.meta.dispatchFromMain({
+          action: fromDappsRenderer.loadResourceFailedAction({
+            tabId: payload.tab.id,
+            url: payload.tab.url,
+            error: {
+              title: '🤔 Common name error',
+              message: `We were unable to resolve host name for ${payload.tab.url}. Are you sure domain exists ? Note that only https:// websites are supported.`,
+            },
+          }),
+        });
+      } else {
+        action.meta.dispatchFromMain({
+          action: fromDappsRenderer.loadResourceFailedAction({
+            tabId: payload.tab.id,
+            url: payload.tab.url,
+            error: {
+              title: '🤔 Server connection error',
               message: err.message,
             },
-          },
-        }),
-      });
+          }),
+        });
+      }
     }
   }
 
@@ -517,10 +526,8 @@ function* loadOrReloadBrowserView(action: any) {
           tabId: payload.tab.id,
           url: payload.tab.url,
           error: {
-            error: DappyLoadError.DangerousLink,
-            args: {
-              url: futureUrl,
-            },
+            title: '🚫 Unsupported protocol',
+            message: `The browser is trying to visit a non-https URL ${futureUrl}, this protocol is not supported and has been blocked.`,
           },
         }),
       });

@@ -9,8 +9,6 @@ import { Blockchain, Tab } from '../../../models';
 import { Action } from '../..';
 
 import { NamePacket } from '/models/FakeDappyLookup';
-import { MAIN_CHAIN_ID } from '/CONSTANTS';
-import { DappyLoadError } from '/models/DappyLoadError';
 import { checkIfValidIP } from '/utils/checkIfValidIp';
 
 const loadResource = function* (action: Action) {
@@ -35,10 +33,8 @@ const loadResource = function* (action: Action) {
           tabId,
           url: payload.url,
           error: {
-            error: DappyLoadError.UnknownCriticalError,
-            args: {
-              url: payload.url,
-            },
+            title: '💥 Critical error',
+            message: 'Could not find the tab into which resource must be loaded.',
           },
         })
       );
@@ -83,10 +79,8 @@ const loadResource = function* (action: Action) {
           tabId,
           url: payload.url,
           error: {
-            error: DappyLoadError.UnsupportedAddress,
-            args: {
-              plus: 'only https:// protocol is supported',
-            },
+            title: '🚫 Unsupported protocol',
+            message: `The browser is trying to visit a non-https URL ${payload.url}, this protocol is not supported and has been blocked.`,
           },
         })
       );
@@ -99,10 +93,9 @@ const loadResource = function* (action: Action) {
         tabId,
         url: payload.url,
         error: {
-          error: DappyLoadError.UnsupportedAddress,
-          args: {
-            plus: 'unknown parsing error',
-          },
+          title: '🤔 Address parsing error',
+          message:
+            'The URL could not be parsed, make sure you are loading a https:// website with valid domain name.',
         },
       })
     );
@@ -136,8 +129,9 @@ const loadResource = function* (action: Action) {
           tabId,
           url: payload.url,
           error: {
-            error: DappyLoadError.ChainNotFound,
-            args: { chainId: MAIN_CHAIN_ID },
+            title: '🤨 Dappy network error',
+            message:
+              'The dappy network was not found, make sure the TLD corresponds to the current network configuration (ex: .d, .gamma etc.)',
           },
         })
       );
@@ -159,8 +153,8 @@ const loadResource = function* (action: Action) {
             tabId,
             url: payload.url,
             error: {
-              error: DappyLoadError.DappyLookup,
-              args: { message: err.message },
+              title: '🤨 Dappy name system error',
+              message: 'Public key of the domain owner could not be retrieved.',
             },
           })
         );

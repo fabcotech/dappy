@@ -34,6 +34,8 @@ rules:
     - ForInStatement
     - LabeledStatement
     - WithStatement
+  prefer-destructuring: 0
+  object-shorthand: 0
   object-curly-newline: 0
   import/no-absolute-path: 0
   import/extensions:

@@ -24,12 +24,11 @@ export const getHtmlError = (
         }
         body > div.princ {
           margin-bottom: 10px;
-          color: #fff;
-          border-radius: 13px;
+          color: #ddd;
+          border-radius: 6px;
           width: 600px;
           height: 200px;
-          border: 1px solid #aaa;
-          border: 2px solid;
+          background: rgba(255, 255, 255, 0.1);
           box-shadow: 0px 0px 17px rgb(0 0 0 / 10%);
           padding: 2rem;
           border-image: linear-gradient(45deg, #ddd, #fff) 1;
@@ -38,12 +37,12 @@ export const getHtmlError = (
     </head>
     <body class="fc">
       <div class="princ">
-        <h3 style="margin-top: 0px; font-weight: 800; font-size: 1.6rem;">${title || 'Error'}</h3>
+        <h3 style="margin-top: 0px; font-weight: 800; font-size: 1.5rem;">${title || 'Error'}</h3>
         <p style="font-weight: 300; font-size: 1.2rem;">${error || 'Unknown error'}</p>
       </div>
       ${
         supp && supp.type === 'ip app'
-          ? `<div style="color: #5a5a5a; border-radius: 4px;width: 600px;border:1px solid #ddd;padding: 0.5rem; background: #efefef;">
+          ? `<div style="color: #ddd; background: rgba(255, 255, 255, 0.1); border-radius: 6px;width: 600px;padding: 0.5rem;">
           <p>Resolved as IP application</p>
           <pre style="padding: 4px;">${supp.log}</pre>
         </div>`
