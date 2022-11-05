@@ -1,11 +1,8 @@
 import { getDb, openConnection } from './index';
-import { ZoneRecord, Zone } from '/models';
-
-import { refreshOrAppendRecord } from '/utils/zone';
 
 export const browserUtils = {
   deleteStorageIndexed: (
-    key: 'previews' | 'tabs' | 'transactions' | 'networks' | 'records' | 'accounts' | 'cookies',
+    key: 'previews' | 'tabs' | 'transactions' | 'networks' | 'records' | 'accounts',
     value: string[]
   ) => {
     return new Promise<void>((resolve, reject) => {
@@ -13,15 +10,9 @@ export const browserUtils = {
       const doOperation = () => {
         try {
           if (
-            ![
-              'previews',
-              'tabs',
-              'networks',
-              'records',
-              'accounts',
-              'transactions',
-              'cookies',
-            ].find((k) => k === key)
+            !['previews', 'tabs', 'networks', 'records', 'accounts', 'transactions'].find(
+              (k) => k === key
+            )
           ) {
             i = 3;
             reject(new Error(`Unknown db key ${key}`));
@@ -52,52 +43,8 @@ export const browserUtils = {
     });
   },
 
-  saveZone: (host: string, records: ZoneRecord[]) => {
-    return new Promise<void>((resolve, reject) => {
-      let i = 0;
-      const doOperation = () => {
-        try {
-          const tx = getDb().transaction('zones', 'readwrite');
-          const objectStore = tx.objectStore(host);
-
-          let zone: { host: string; records: ZoneRecord[] } = { host, records: [] };
-          const found = objectStore.get(host) as unknown as Zone;
-
-          if (found) {
-            zone = found;
-          }
-
-          let newRecords = zone.records;
-          records.forEach((r) => {
-            newRecords = refreshOrAppendRecord(newRecords, r);
-          });
-
-          objectStore.put({
-            ...zone,
-            records: newRecords,
-          });
-          resolve();
-        } catch (e) {
-          console.log(e);
-          try {
-            openConnection();
-          } catch (e2) {
-            console.log(e2);
-          }
-          if (i < 3) {
-            i += 1;
-            console.log('indexedDB error, will retry in 1 second');
-            setTimeout(doOperation as () => void, 1000);
-          } else {
-            reject(e);
-          }
-        }
-      };
-      doOperation();
-    });
-  },
   saveStorageIndexed: (
-    key: 'previews' | 'tabs' | 'networks' | 'records' | 'accounts' | 'transactions' | 'cookies',
+    key: 'previews' | 'tabs' | 'networks' | 'accounts' | 'transactions',
     value: { [id: string]: any }
   ) => {
     return new Promise<void>((resolve, reject) => {
@@ -105,15 +52,9 @@ export const browserUtils = {
       const doOperation = () => {
         try {
           if (
-            ![
-              'previews',
-              'tabs',
-              'networks',
-              'records',
-              'accounts',
-              'transactions',
-              'cookies',
-            ].find((k) => k === key)
+            !['previews', 'tabs', 'networks', 'records', 'accounts', 'transactions'].find(
+              (k) => k === key
+            )
           ) {
             i = 3;
             reject(new Error(`Unknown db key ${key}`));

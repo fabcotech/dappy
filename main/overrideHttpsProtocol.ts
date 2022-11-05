@@ -1,18 +1,9 @@
 import https from 'https';
-import {
-  Session,
-  CookiesSetDetails,
-  CookiesGetFilter,
-  ProtocolRequest,
-  Cookie,
-  ProtocolResponse,
-} from 'electron';
+import { Session, CookiesSetDetails, ProtocolRequest, ProtocolResponse } from 'electron';
 import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 
-import * as fromCookies from '../src/store/cookies';
 import { DappyBrowserView } from './models';
-import { CertificateAccount, Cookie as DappyCookie } from '/models';
-import { DispatchFromMainArg } from './main';
+import { CertificateAccount } from '/models';
 import { tryToLoad } from './tryToLoad';
 
 const executeSentryRequest = (request: ProtocolRequest): Promise<ProtocolResponse> => {
@@ -133,49 +124,12 @@ const makeInterceptHttpsRequests = ({
   };
 };
 
-interface makeCookiesOnChangeParams {
-  dappyBrowserView: DappyBrowserView | undefined;
-  getCookies: (filter: CookiesGetFilter) => Promise<Electron.Cookie[]>;
-  dispatchFromMain: (a: any) => void;
-}
-
-const makeCookiesOnChange =
-  ({ dappyBrowserView, getCookies, dispatchFromMain }: makeCookiesOnChangeParams) =>
-  async (_: unknown, c: Cookie) => {
-    if (!dappyBrowserView) {
-      console.log('no browserView, cannot save cookies');
-      return;
-    }
-    const cookies = await getCookies({ url: `https://${c.domain}` });
-    const cookiesToBeStored = cookies
-      .filter((c) => typeof c.expirationDate === 'number')
-      .map(
-        (cook) =>
-          ({
-            sameSite: cook.sameSite === 'strict' ? 'strict' : 'lax',
-            domain: cook.domain,
-            name: cook.name,
-            value: cook.value,
-            expirationDate: cook.expirationDate,
-          } as DappyCookie)
-      );
-    if (cookiesToBeStored.length) {
-      dispatchFromMain({
-        action: fromCookies.saveCookiesForDomainAction({
-          host: dappyBrowserView.host,
-          cookies: cookiesToBeStored,
-        }),
-      });
-    }
-  };
-
 interface OverrideHttpProtocolsParams {
   chainId: string;
   dappyNetworkMembers: DappyNetworkMember[];
   dappyBrowserView: DappyBrowserView | undefined;
   session: Session;
   partitionIdHash: string;
-  dispatchFromMain: (a: DispatchFromMainArg) => void;
   setIsFirstRequest: (a: boolean) => void;
   getIsFirstRequest: () => boolean;
   clientCertificate: CertificateAccount | undefined;
@@ -188,22 +142,12 @@ export const overrideHttpsProtocol = ({
   session,
   partitionIdHash,
   clientCertificate,
-  dispatchFromMain,
   setIsFirstRequest,
   getIsFirstRequest,
 }: OverrideHttpProtocolsParams) => {
   const getBlobData = (blobUUID: string) => {
     return session.getBlobData(blobUUID);
   };
-
-  session.cookies.on(
-    'changed',
-    makeCookiesOnChange({
-      dappyBrowserView,
-      getCookies: (filter: CookiesGetFilter) => session.cookies.get(filter),
-      dispatchFromMain,
-    })
-  );
 
   return session.protocol.interceptStreamProtocol(
     'https',

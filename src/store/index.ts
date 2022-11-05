@@ -13,7 +13,6 @@ import { sagas as fromDappsSagas } from './dapps/sagas';
 import { sagas as fromSettingsSagas } from './settings/sagas';
 import { sagas as fromBlockchainSagas } from './blockchain/sagas';
 import { sagas as fromHistorySagas } from './history/sagas';
-import { sagas as fromCookiesSagas } from './cookies/sagas';
 
 import * as fromMain from './main';
 import * as fromUi from './ui';
@@ -21,7 +20,6 @@ import * as fromDapps from './dapps';
 import * as fromSettings from './settings';
 import * as fromBlockchain from './blockchain';
 import * as fromHistory from './history';
-import * as fromCookies from './cookies';
 
 import {
   validateSettings,
@@ -92,7 +90,6 @@ export interface State {
   settings: fromSettings.State;
   blockchain: fromBlockchain.State;
   history: fromHistory.State;
-  cookies: fromCookies.State;
 }
 
 const errorCatcherMiddleware = () => (next: (a: Action) => void) => (action: Action) => {
@@ -122,7 +119,6 @@ export const store: Store<State> = createStore(
     settings: fromSettings.reducer,
     blockchain: fromBlockchain.reducer,
     history: fromHistory.reducer,
-    cookies: fromCookies.reducer,
   }),
   composeEnhancers(applyMiddleware(...middlewares))
 );
@@ -138,7 +134,6 @@ const sagas = function* rootSaga() {
       fromBlockchainSagas(),
       fromUiSagas(),
       fromHistorySagas(),
-      fromCookiesSagas(),
     ];
   } else {
     sagas = [
@@ -149,7 +144,6 @@ const sagas = function* rootSaga() {
       fromBlockchainSagas(),
       fromUiSagas(),
       fromHistorySagas(),
-      fromCookiesSagas(),
     ];
   }
 

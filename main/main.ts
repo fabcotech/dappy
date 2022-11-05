@@ -151,7 +151,6 @@ function createWindow() {
     session: browserSession,
     clientCertificate: undefined,
     partitionIdHash: '',
-    dispatchFromMain,
     setIsFirstRequest: () => false,
     getIsFirstRequest: () => false,
   });

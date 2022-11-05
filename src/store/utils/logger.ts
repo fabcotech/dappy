@@ -14,7 +14,6 @@ const settingsColors = ['background:#0d961f;', 'background:#11c429;'];
 const blockchainColors = ['background:rgb(2, 77, 67);', 'background:rgb(2, 107, 87);'];
 const commonColors = ['background:#ee0055;', 'background:#ff0066;'];
 const historyColors = ['background:#ff9966;', 'background:#ffaa77;'];
-const cookiesColors = ['background:#6a1f73;', 'background:#9f24ad;'];
 
 const logger = function* (action: Action) {
   const state: State = yield select((s) => s);
@@ -31,8 +30,6 @@ const logger = function* (action: Action) {
     console.log('%caction', logCSSStyleAction + blockchainColors[1], action);
   } else if (action.type.includes('[History]')) {
     console.log('%caction', logCSSStyleAction + historyColors[1], action);
-  } else if (action.type.includes('[Cookies]')) {
-    console.log('%caction', logCSSStyleAction + cookiesColors[1], action);
   } else if (action.type.includes('[Common]')) {
     console.log('%caction', logCSSStyleAction + commonColors[1], action);
   } else {
@@ -46,11 +43,7 @@ const logger = function* (action: Action) {
   } else if (action.type.includes('[Dapps]')) {
     console.log('%cdapps', logCSSStyleState + dappsColors[0], state.dapps);
     if (
-      [
-        fromDapps.STOP_TAB,
-        fromDapps.LAUNCH_TAB_COMPLETED,
-        fromDapps.STOP_TAB,
-      ].includes(action.type)
+      [fromDapps.STOP_TAB, fromDapps.LAUNCH_TAB_COMPLETED, fromDapps.STOP_TAB].includes(action.type)
     ) {
       console.log('%chistory', logCSSStyleState + historyColors[0], state.history);
     }
@@ -61,8 +54,6 @@ const logger = function* (action: Action) {
     console.log('%cblockchain', logCSSStyleState + blockchainColors[0], state.blockchain);
   } else if (action.type.includes('[History]')) {
     console.log('%chistory', logCSSStyleState + historyColors[0], state.history);
-  } else if (action.type.includes('[Cookies]')) {
-    console.log('%ccookies', logCSSStyleState + cookiesColors[0], state.cookies);
   } else if (!action.type.includes('[Common]')) {
     console.log('%cstate ', logCSSStyleState, state);
   }

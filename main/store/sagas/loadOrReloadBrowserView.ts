@@ -202,7 +202,6 @@ function* loadOrReloadBrowserView(action: any) {
       chainId: payload.tab.data.chainId || '',
       dappyNetworkMembers,
       dappyBrowserView: newBrowserViews[payload.tab.id],
-      dispatchFromMain: action.meta.dispatchFromMain,
       session: viewSession,
       partitionIdHash,
       clientCertificate: payload.clientCertificate,
