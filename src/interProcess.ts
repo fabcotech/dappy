@@ -1,14 +1,6 @@
-import { DappyNetworkMember, NamePacket } from '@fabcotech/dappy-lookup';
+import { NamePacket } from '@fabcotech/dappy-lookup';
 import { Store } from 'redux';
 
-import {
-  DappyLoadError,
-  MultiRequestBody,
-  MultiRequestError,
-  MultiRequestParameters,
-  MultiRequestResult,
-  SingleRequestResult,
-} from '/models';
 import * as fromDapps from './store/dapps';
 import * as fromMain from './store/main';
 import { Action } from '/store';
