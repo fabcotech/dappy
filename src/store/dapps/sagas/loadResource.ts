@@ -1,5 +1,5 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
-import { NameAnswer } from '@fabcotech/dappy-lookup';
+import { NameAnswer, NamePacket } from '@fabcotech/dappy-lookup';
 
 import { dappyLookup } from '/interProcess';
 import * as fromDapps from '..';
@@ -8,7 +8,6 @@ import * as fromUi from '../../ui';
 import { Blockchain, Tab } from '../../../models';
 import { Action } from '../..';
 
-import { NamePacket } from '/models/FakeDappyLookup';
 import { checkIfValidIP } from '/utils/checkIfValidIp';
 
 const loadResource = function* (action: Action) {

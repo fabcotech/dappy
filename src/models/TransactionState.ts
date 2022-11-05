@@ -1,5 +1,4 @@
-import { EthereumTransaction } from '.';
-import { EthereumSignedTransaction } from './Ethereum';
+import { EthereumTransaction, EthereumSignedTransaction } from './Ethereum';
 import { DeployOptions, TransactionOriginTransfer } from './RChain';
 
 export interface TransactionAddressValue {
