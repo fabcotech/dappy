@@ -8,7 +8,6 @@ export * from './Navigation';
 export * from './Tab';
 export * from './Account';
 export * from './Nodes';
-export * from './Dappy';
 export * from './History';
 export * from './Language';
 export * from './Cookie';

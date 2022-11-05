@@ -9,7 +9,8 @@ export const SET_BODY_DIMENSIONS = '[Ui] Set body dimensions';
 export const UPDATE_NAVIGATION_SUGGESTIONS_DISPLAY = '[Ui] Update navigation suggestions display';
 export const UPDATE_LANGUAGE = '[Ui] Update language';
 export const UPDATE_GCU = '[Ui] Update gcu';
-export const UPDATE_SHOW_ACCOUNT_CREATION_AT_STARTUP = '[Ui] Update show account creation at startup';
+export const UPDATE_SHOW_ACCOUNT_CREATION_AT_STARTUP =
+  '[Ui] Update show account creation at startup';
 export const TOGGLE_BALANCES_VISIBILITY = '[Ui] Toggle balance visibility';
 export const UPDATE_PLATFORM = '[Ui] Update Platform';
 export const UPDATE_WHITELIST = '[Ui] Update whitelist';
@@ -61,7 +62,9 @@ export const setBodyDimensionsAction = (values: SetBodyDimensionsPayload) => ({
 export interface UpdateNavigationSuggestinsDisplayPayload {
   navigationSUggestionsDisplayed: boolean;
 }
-export const updateNavigationSuggestinsDisplayAction = (values: UpdateNavigationSuggestinsDisplayPayload) => ({
+export const updateNavigationSuggestinsDisplayAction = (
+  values: UpdateNavigationSuggestinsDisplayPayload
+) => ({
   type: UPDATE_NAVIGATION_SUGGESTIONS_DISPLAY,
   payload: values,
 });
@@ -87,11 +90,13 @@ export interface UpdateContractLogsPayload {
   logs: string[];
 }
 
-export interface updateShowAccountCreationAtStartupPayload {
+export interface UpdateShowAccountCreationAtStartupPayload {
   show: boolean;
 }
 
-export const updateShowAccountCreationAtStartup = (values: updateShowAccountCreationAtStartupPayload) => ({
+export const updateShowAccountCreationAtStartup = (
+  values: UpdateShowAccountCreationAtStartupPayload
+) => ({
   type: UPDATE_SHOW_ACCOUNT_CREATION_AT_STARTUP,
   payload: values,
 });

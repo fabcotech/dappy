@@ -8,8 +8,6 @@ import { dispatchInMain } from '/interProcess';
 
 const saveUiToStorage = function* (action: Action) {
   const uiState: fromUi.State = yield select(fromUi.getUiState);
-  const isTablet: boolean = yield select(fromUi.getIsTablet);
-  const isMobile: boolean = yield select(fromUi.getIsMobile);
 
   const uiStateToSave = {
     menuCollapsed: uiState.menuCollapsed,
@@ -24,8 +22,8 @@ const saveUiToStorage = function* (action: Action) {
     isBalancesHidden: uiState.isBalancesHidden,
   };
 
-  let dappsTabsWidth = 0;
-  let menuWidth = 0;
+  const dappsTabsWidth = 0;
+  const menuWidth = 0;
 
   const x = menuWidth + dappsTabsWidth;
   const y = uiState.platform === 'darwin' ? 88 + 28 : 88;

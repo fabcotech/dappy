@@ -12,13 +12,18 @@ const MILLISECONDS_IN_ONE_DAY = 24 * MILLISECONDS_IN_ONE_HOUR;
 
 export const toDuration = (milliseconds: number) => {
   const days = Math.trunc(milliseconds / MILLISECONDS_IN_ONE_DAY);
-  const hours = Math.trunc((milliseconds - days * MILLISECONDS_IN_ONE_DAY) / MILLISECONDS_IN_ONE_HOUR);
+  const hours = Math.trunc(
+    (milliseconds - days * MILLISECONDS_IN_ONE_DAY) / MILLISECONDS_IN_ONE_HOUR
+  );
   const minutes = Math.trunc(
-    (milliseconds - (days * MILLISECONDS_IN_ONE_DAY + hours * MILLISECONDS_IN_ONE_HOUR)) / MILLISECONDS_IN_ONE_MINUTE
+    (milliseconds - (days * MILLISECONDS_IN_ONE_DAY + hours * MILLISECONDS_IN_ONE_HOUR)) /
+      MILLISECONDS_IN_ONE_MINUTE
   );
   const seconds = Math.trunc(
     (milliseconds -
-      (days * MILLISECONDS_IN_ONE_DAY + hours * MILLISECONDS_IN_ONE_HOUR + minutes * MILLISECONDS_IN_ONE_MINUTE)) /
+      (days * MILLISECONDS_IN_ONE_DAY +
+        hours * MILLISECONDS_IN_ONE_HOUR +
+        minutes * MILLISECONDS_IN_ONE_MINUTE)) /
       MILLISECONDS_IN_ONE_SECOND
   );
   const millisecs = Math.trunc(
