@@ -4,7 +4,6 @@ import { SimpleError } from '/models/DappyLoadError';
 
 export const UPDATE_TABS_FROM_STORAGE = '[Dapps] Update tabs from storage';
 
-export const UPDATE_SEARCH = '[Dapps] Update search';
 export const CLEAR_SEARCH_AND_LOAD_ERROR = '[Dapps] Clear search and load error';
 export const LOAD_RESOURCE = '[Dapps] Load resource';
 export const INIT_TRANSITORY_STATE_AND_RESET_LOAD_ERROR =
@@ -18,6 +17,7 @@ export const FOCUS_TAB = '[Dapps] Focus tab';
 export const FOCUS_AND_ACTIVATE_TAB = '[Dapps] Focus and activate tab';
 export const CREATE_TAB = '[Dapps] Create tab';
 export const UPDATE_TAB_SEARCH = '[Dapps] Update tab search';
+export const UPDATE_TAB_CAN_GO = '[Dapps] Update tab can go (backward or forward)';
 export const LAUNCH_TAB_COMPLETED = '[Dapps] Launch tab completed';
 export const UPDATE_TRANSITORY_STATE = '[Dapps] Update transitory state';
 export const REMOVE_TAB = '[Dapps] Remove tab';
@@ -36,11 +36,6 @@ export interface UpdatTabsFromStoragePayload {
 export const updatTabsFromStorageAction = (values: UpdatTabsFromStoragePayload) => ({
   type: UPDATE_TABS_FROM_STORAGE,
   payload: values,
-});
-
-export const updateSearchAction = (search: string) => ({
-  type: UPDATE_SEARCH,
-  payload: search,
 });
 
 export interface ClearSearchAndLoadErrorPayload {
@@ -129,6 +124,16 @@ export interface UpdateTabSearchPayload {
 }
 export const updateTabSearchAction = (values: UpdateTabSearchPayload) => ({
   type: UPDATE_TAB_SEARCH,
+  payload: values,
+});
+
+export interface UpdateTabCanGoPayload {
+  canGoForward: boolean;
+  canGoBackward: boolean;
+  tabId: string;
+}
+export const updateTabCanGoAction = (values: UpdateTabCanGoPayload) => ({
+  type: UPDATE_TAB_CAN_GO,
   payload: values,
 });
 

@@ -27,7 +27,6 @@ class TabsList2Component extends React.Component<TabsList2Props, {}> {
   state = {};
 
   render() {
-    console.log(this.props.tabsFocusOrder);
     const focusedTabId = this.props.tabsFocusOrder[this.props.tabsFocusOrder.length - 1];
     return (
       <div className={`tabs-list-2 ${this.props.onlyIcons ? 'only-icons' : ''}`}>

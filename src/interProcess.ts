@@ -301,8 +301,6 @@ export const interProcess = (store: Store) => {
 
   window.inputEls = {};
   window.browserViewEvent = (type, payload) => {
-    console.log(type);
-    console.log(payload);
     if (payload.tabId && window.inputEls[payload.tabId]) {
       if (payload.tabId && payload.url) {
         let url = payload.url;
@@ -313,6 +311,9 @@ export const interProcess = (store: Store) => {
       }
     } else {
       console.warn('[browserViewEvent] Could not find tab ID');
+    }
+    if (['did-finish-load', 'did-stop-loading'].includes(type)) {
+      store.dispatch(fromDapps.updateTabCanGoAction(payload));
     }
   };
 };

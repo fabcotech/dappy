@@ -100,8 +100,6 @@ export class WithSuggestionsComponent extends React.Component<
   };
 
   onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-    console.log((this.inputEl as HTMLInputElement).value);
-    console.log(this.inputEl);
     if (e.key === 'Enter' && this.stream) {
       this.stream.shamefullySendNext({
         url: (this.inputEl as HTMLInputElement).value || '',

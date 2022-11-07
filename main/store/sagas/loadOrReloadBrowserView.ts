@@ -289,7 +289,9 @@ function* loadOrReloadBrowserView(action: any) {
 
   view.webContents.on('did-finish-load', () => {
     action.meta.browserWindow.webContents.executeJavaScript(
-      `console.log('did-finish-load ${payload.tab.id}')`
+      `window.browserViewEvent('did-finish-load', { tabId: '${
+        payload.tab.id
+      }', title: '${view.webContents.getTitle()}', url: '${view.webContents.getURL()}', canGoBackward: ${view.webContents.canGoBack()}, canGoForward: ${view.webContents.canGoForward()} })`
     );
     action.meta.dispatchFromMain({
       action: fromDappsRenderer.updateTransitoryStateAction({
@@ -299,9 +301,11 @@ function* loadOrReloadBrowserView(action: any) {
     });
   });
 
-  view.webContents.on('did-stop-loading', () => {
+  view.webContents.on('did-stop-loading', (e) => {
     action.meta.browserWindow.webContents.executeJavaScript(
-      `console.log('did-stop-loading ${payload.tab.id}')`
+      `window.browserViewEvent('did-stop-loading', { tabId: '${
+        payload.tab.id
+      }', title: '${view.webContents.getTitle()}', url: '${view.webContents.getURL()}', canGoBackward: ${view.webContents.canGoBack()}, canGoForward: ${view.webContents.canGoForward()} })`
     );
     action.meta.dispatchFromMain({
       action: fromDappsRenderer.updateTransitoryStateAction({
@@ -313,13 +317,6 @@ function* loadOrReloadBrowserView(action: any) {
     title = view.webContents.getTitle();
     action.meta.dispatchFromMain({
       action: fromDappsRenderer.updateTabUrlAndTitleAction({
-        url,
-        tabId: payload.tab.id,
-        title,
-      }),
-    });
-    action.meta.dispatchFromMain({
-      action: fromHistoryRenderer.didNavigateInPageAction({
         url,
         tabId: payload.tab.id,
         title,

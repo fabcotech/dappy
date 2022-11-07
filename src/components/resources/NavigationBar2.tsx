@@ -37,7 +37,7 @@ class NavigationBar2Component extends WithSuggestions {
       >
         <div className="actions pl-1 pr-1 actions-4">
           <div>
-            {this.props.canGoBackward ? (
+            {this.props.tab && this.props.tab.canGoBackward ? (
               <i
                 onClick={(e) => this.props.goBackward(tab.id)}
                 className="fa fa-arrow-left "
@@ -48,7 +48,7 @@ class NavigationBar2Component extends WithSuggestions {
             )}
           </div>
           <div>
-            {this.props.canGoForward ? (
+            {this.props.tab && this.props.tab.canGoForward ? (
               <i
                 onClick={(e) => this.props.goForward(tab.id)}
                 className="fa fa-arrow-right "
@@ -163,9 +163,6 @@ export const NavigationBar2 = connect(
       appType: appType,
       url: url,
       transitoryState: tab ? transitoryStates[tab.id] : undefined,
-      // todo, get from main process
-      canGoForward: true,
-      canGoBackward: true,
       navigationSuggestionsDisplayed: fromUi.getNavigationSuggestionsDisplayed(state),
       tab: tab,
     };

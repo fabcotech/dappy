@@ -9,9 +9,6 @@ function* goForwardOrBackward(action: any) {
     [tabId: string]: DappyBrowserView;
   } = yield select(fromBrowserViews.getBrowserViewsMain);
 
-  console.log(browserViews[payload.tabId]);
-  console.log(payload);
-
   if (browserViews[payload.tabId]) {
     if (type === fromBrowserViews.GO_BACKWARD) {
       if (browserViews[payload.tabId].browserView.webContents.canGoBack()) {

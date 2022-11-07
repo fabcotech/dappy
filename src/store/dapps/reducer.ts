@@ -57,12 +57,21 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
-    case fromActions.UPDATE_SEARCH: {
-      const search: string = action.payload;
+    case fromActions.UPDATE_TAB_CAN_GO: {
+      const payload = action.payload as fromActions.UpdateTabCanGoPayload;
 
       return {
         ...state,
-        search,
+        tabs: state.tabs.map((t) => {
+          if (t.id === payload.tabId) {
+            return {
+              ...t,
+              canGoBackward: payload.canGoBackward,
+              canGoForward: payload.canGoForward,
+            };
+          }
+          return t;
+        }),
       };
     }
 

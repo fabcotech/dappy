@@ -14,6 +14,8 @@ export interface Tab {
   title: string;
   active: boolean;
   favorite: boolean;
+  canGoForward?: boolean;
+  canGoBackward?: boolean;
   muted: boolean;
   index: number; // Index from top to bottom
   counter: number; // Incremented for each new tentative of navigation
