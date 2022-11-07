@@ -1,6 +1,7 @@
 export * from './Resources';
 export * from './DisplayError';
 export * from './NavigationBar';
+export * from './NavigationBar2';
 export * from './NavigationBarHome';
 export * from './NavigationBarHome2';
 export * from './DownloadFile';

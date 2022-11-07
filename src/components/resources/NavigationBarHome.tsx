@@ -37,12 +37,12 @@ class NavigationBarHomeComponent extends WithSuggestions {
           <input
             spellCheck="false"
             ref={this.setInputEl}
-            placeholder={``}
+            placeholder=""
             className={`${this.state.pristine ? 'pristine' : ''} input`}
-            value={this.state.url || ''}
             onChange={this.onChange}
             onKeyDown={this.onKeyDown}
-            aria-label="address"></input>
+            aria-label="address"
+          ></input>
         </div>
       </div>
     );
@@ -55,7 +55,6 @@ export const NavigationBarHome = connect(
 
     return {
       namesBlockchainId: namesBlockchain ? namesBlockchain.chainId : 'unknown',
-      sessionItem: undefined,
       appType: undefined,
       resourceLoaded: false,
       transitoryState: undefined,
@@ -74,7 +73,8 @@ export const NavigationBarHome = connect(
       stopTab: () => null,
       removeTab: () => null,
       showLoadInfos: () => null,
-      updateTabSearch: (a: fromDapps.UpdateTabSearchPayload) => dispatch(fromDapps.updateTabSearchAction(a)),
+      updateTabSearch: (a: fromDapps.UpdateTabSearchPayload) =>
+        dispatch(fromDapps.updateTabSearchAction(a)),
       loadResource: (a: fromDapps.LoadResourcePayload) => dispatch(fromDapps.loadResourceAction(a)),
     };
   }

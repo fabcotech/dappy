@@ -51,7 +51,24 @@ function* loadOrReloadBrowserView(action: any) {
   }
 
   let dappyNetworkMembers: undefined | DappyNetworkMember[];
-  const url = new URL(payload.tab.url);
+  let urlBeforeParse: undefined | URL;
+  try {
+    urlBeforeParse = new URL(payload.tab.url);
+  } catch (err) {
+    action.meta.dispatchFromMain({
+      action: fromDappsRenderer.loadResourceFailedAction({
+        tabId: payload.tab.id,
+        url: payload.tab.url,
+        error: {
+          title: '🤔 Invalid URL',
+          message: `We were unable to parse URL ${payload.tab.url}`,
+        },
+      }),
+    });
+    return;
+  }
+  const url = urlBeforeParse as URL;
+
   const viewSession = session.fromPartition(`persist:main:${url.host}`, { cache: true });
 
   /* reload
@@ -69,7 +86,7 @@ function* loadOrReloadBrowserView(action: any) {
       d = viewSession.protocol.uninterceptProtocol('http');
     }
     if (development) {
-      console.log(a, b, c, d);
+      console.log(b, c, d);
     }
     const bv = browserViews[payload.tab.id];
     if (bv && bv.browserView) {
@@ -102,7 +119,7 @@ function* loadOrReloadBrowserView(action: any) {
       e = viewSession.protocol.uninterceptProtocol('http');
     }
     if (development) {
-      console.log(a, b, c, d, e);
+      console.log(b, c, d, e);
     }
     if (bv && bv.browserView) {
       if (bv.browserView.webContents.isDevToolsOpened()) {
@@ -326,13 +343,9 @@ function* loadOrReloadBrowserView(action: any) {
     if (!currentTitle.startsWith('https://')) {
       title = currentTitle;
     }
-    action.meta.dispatchFromMain({
-      action: fromHistoryRenderer.didNavigateInPageAction({
-        url: currentUrl,
-        tabId: payload.tab.id,
-        title,
-      }),
-    });
+    action.meta.browserWindow.webContents.executeJavaScript(
+      `window.browserViewEvent('did-navigate', { tabId: '${payload.tab.id}', url: '${currentUrl}' })`
+    );
     action.meta.dispatchFromMain({
       action: fromDappsRenderer.updateTabUrlAndTitleAction({
         url: currentUrl,
@@ -484,7 +497,7 @@ function* loadOrReloadBrowserView(action: any) {
     }
 
     if (parsedFutureUrl.protocol === 'https:') {
-      if (parsedFutureUrl.host !== url.host) {
+      /* if (parsedFutureUrl.host !== url.host) {
         console.log('[nav] will navigate to another host', url.host, '->', parsedFutureUrl.host);
         e.preventDefault();
         action.meta.dispatchFromMain({
@@ -512,7 +525,7 @@ function* loadOrReloadBrowserView(action: any) {
           setIsFirstRequest(true);
           console.log('[nav] will navigate to same host');
         }
-      }
+      } */
     } else {
       e.preventDefault();
       // todo display error message instead of directly openning
@@ -547,12 +560,16 @@ function* loadOrReloadBrowserView(action: any) {
   });
   view.webContents.on('did-start-loading', (e: Electron.Event) => {
     action.meta.browserWindow.webContents.executeJavaScript(
-      `console.log('did-start-loading ${payload.tab.id}')`
+      `window.browserViewEvent('did-start-loading', { tabId: '${
+        payload.tab.id
+      }', url: '${e.sender.getURL()}' })`
     );
   });
-  view.webContents.on('dom-ready', (a) => {
+  view.webContents.on('dom-ready', (e) => {
     action.meta.browserWindow.webContents.executeJavaScript(
-      `console.log('dom-ready ${payload.tab.id}')`
+      `window.browserViewEvent('dom-ready', { tabId: '${
+        payload.tab.id
+      }', url: '${e.sender.getURL()}' })`
     );
   });
 

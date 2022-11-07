@@ -58,6 +58,8 @@ declare global {
     triggerCommand: (command: string, payload?: { [key: string]: string }) => void;
     initContextMenu: () => void;
     copyToClipboard: (a: string) => void;
+    inputEls: { [tabId: string]: HTMLInputElement };
+    browserViewEvent: (type: string, payload: any) => void;
     dispatchInMain: (a: Action) => void;
     maximize: () => void;
     minimize: () => void;

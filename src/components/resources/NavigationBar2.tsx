@@ -4,14 +4,14 @@ import { connect } from 'react-redux';
 import { WithSuggestions } from './WithSuggestions';
 import * as fromDapps from '/store/dapps';
 import * as fromSettings from '/store/settings';
-import * as fromHistory from '/store/history';
 import * as fromUi from '/store/ui';
 import * as fromMain from '/store/main';
 import { Tab } from '/models';
 import { State as StoreState } from '/store';
 import './NavigationBar.scss';
+import { dispatchInMain } from '/interProcess';
 
-class NavigationBarComponent extends WithSuggestions {
+class NavigationBar2Component extends WithSuggestions {
   onShowLoadInfo = () => {
     if (!this.props.tab || !this.props.resourceLoaded) {
       return;
@@ -30,18 +30,30 @@ class NavigationBarComponent extends WithSuggestions {
     const loadingOrReloading =
       this.props.transitoryState && ['loading', 'reloading'].includes(this.props.transitoryState);
     return (
-      <div style={{ zIndex: this.props.zIndex }} id={tab.id} className={`navigation-bar ${'active'}`}>
+      <div
+        style={{ zIndex: this.props.zIndex }}
+        id={tab.id}
+        className={`navigation-bar ${'active'}`}
+      >
         <div className="actions pl-1 pr-1 actions-4">
           <div>
             {this.props.canGoBackward ? (
-              <i onClick={(e) => this.props.goBackward(tab.id)} className="fa fa-arrow-left " title="Go backward" />
+              <i
+                onClick={(e) => this.props.goBackward(tab.id)}
+                className="fa fa-arrow-left "
+                title="Go backward"
+              />
             ) : (
               <i className="disabled fa fa-arrow-left "></i>
             )}
           </div>
           <div>
             {this.props.canGoForward ? (
-              <i onClick={(e) => this.props.goForward(tab.id)} className="fa fa-arrow-right " title="Go forward" />
+              <i
+                onClick={(e) => this.props.goForward(tab.id)}
+                className="fa fa-arrow-right "
+                title="Go forward"
+              />
             ) : (
               <i className="disabled fa fa-arrow-right "></i>
             )}
@@ -89,12 +101,13 @@ class NavigationBarComponent extends WithSuggestions {
         <div className={`form pl-1 pr-2 ${this.props.resourceLoaded ? 'with-app-type' : ''}`}>
           {this.props.resourceLoaded ? (
             <div
-              className={`lock-div mr-1 with-type resource-loaded`}
+              className="lock-div mr-1 with-type resource-loaded"
               onClick={() => {
                 if (this.props.tab) {
                   this.onShowLoadInfo();
                 }
-              }}>
+              }}
+            >
               <i className="fa fa-lock" />
               <span className="app-type fc">{this.props.appType}</span>
             </div>
@@ -107,31 +120,25 @@ class NavigationBarComponent extends WithSuggestions {
           <input
             spellCheck="false"
             ref={this.setInputEl}
-            placeholder={``}
+            placeholder=""
             className={`${this.state.pristine ? 'pristine' : ''} input`}
-            value={this.state.url || ''}
             onChange={this.onChange}
             onKeyDown={this.onKeyDown}
           />
-          {this.state.pristine ? undefined : (
-            <span className="reset" onClick={this.onReset}>
-              <i className="fa fa-times" />
-            </span>
-          )}
         </div>
       </div>
     );
   }
 }
 
-export const NavigationBar = connect(
+export const NavigationBar2 = connect(
   (state: StoreState, ownProps: { tab: Tab }) => {
     const tab = ownProps.tab;
 
     const transitoryStates = fromDapps.getDappsTransitoryStates(state);
     let resourceLoaded = false;
     let appType: 'DA' | 'IP' = 'IP';
-    let url = undefined;
+    let url;
     if (tab) {
       url = tab.url;
       try {
@@ -144,27 +151,21 @@ export const NavigationBar = connect(
       if (appType === 'DA') {
         resourceLoaded = true;
       } else {
-        resourceLoaded = !transitoryStates[tab.id] || !['loading', 'reloading'].includes(transitoryStates[tab.id]);
+        resourceLoaded =
+          !transitoryStates[tab.id] || !['loading', 'reloading'].includes(transitoryStates[tab.id]);
       }
-    }
-
-    const sessions = fromHistory.getSessions(state);
-    const session = sessions[tab.id];
-    let sessionItem = undefined;
-    if (session) {
-      sessionItem = session.items[session.cursor];
     }
 
     const namesBlockchain = fromSettings.getNamesBlockchain(state);
     return {
       namesBlockchainId: namesBlockchain ? namesBlockchain.chainId : 'unknown',
-      sessionItem: sessionItem,
       resourceLoaded: resourceLoaded,
       appType: appType,
       url: url,
       transitoryState: tab ? transitoryStates[tab.id] : undefined,
-      canGoForward: fromHistory.getCanGoForward(state),
-      canGoBackward: fromHistory.getCanGoBackward(state),
+      // todo, get from main process
+      canGoForward: true,
+      canGoBackward: true,
       navigationSuggestionsDisplayed: fromUi.getNavigationSuggestionsDisplayed(state),
       tab: tab,
     };
@@ -172,7 +173,9 @@ export const NavigationBar = connect(
   (dispatch, ownProps) => {
     return {
       isDisplayed: (a: boolean) =>
-        dispatch(fromUi.updateNavigationSuggestinsDisplayAction({ navigationSUggestionsDisplayed: a })),
+        dispatch(
+          fromUi.updateNavigationSuggestinsDisplayAction({ navigationSUggestionsDisplayed: a })
+        ),
       stopTab: (tabId: string) => dispatch(fromDapps.stopTabAction({ tabId: tabId })),
       removeTab: (tabId: string) => dispatch(fromDapps.removeTabAction({ tabId: tabId })),
       showLoadInfos: (tabId: string, parameters: any) =>
@@ -186,9 +189,20 @@ export const NavigationBar = connect(
           })
         ),
       loadResource: (a: fromDapps.LoadResourcePayload) => dispatch(fromDapps.loadResourceAction(a)),
-      updateTabSearch: (a: fromDapps.UpdateTabSearchPayload) => dispatch(fromDapps.updateTabSearchAction(a)),
-      goForward: (tabId: string) => dispatch(fromHistory.goForwardAction({ tabId: tabId })),
-      goBackward: (tabId: string) => dispatch(fromHistory.goBackwardAction({ tabId: tabId })),
+      updateTabSearch: (a: fromDapps.UpdateTabSearchPayload) =>
+        dispatch(fromDapps.updateTabSearchAction(a)),
+      goForward: (tabId: string) => {
+        dispatchInMain({
+          type: '[MAIN] Go forward',
+          payload: { tabId },
+        });
+      },
+      goBackward: (tabId: string) => {
+        dispatchInMain({
+          type: '[MAIN] Go backward',
+          payload: { tabId },
+        });
+      },
     };
   }
-)(NavigationBarComponent);
+)(NavigationBar2Component);

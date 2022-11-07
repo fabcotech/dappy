@@ -5,7 +5,7 @@ import './Resources.scss';
 import * as fromDapps from '/store/dapps';
 import * as fromMain from '/store/main';
 import { TransitoryState, Tab } from '/models';
-import { DisplayError, NavigationBar } from '.';
+import { DisplayError, NavigationBar, NavigationBar2 } from '.';
 import { Modal } from '../utils';
 
 interface ResourcesComponentProps {
@@ -51,7 +51,7 @@ class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
           if (tab.lastError) {
             return (
               <React.Fragment key={tabId}>
-                <NavigationBar
+                <NavigationBar2
                   key={`${tabId}-${zIndex}`}
                   zIndex={(this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10 + 2}
                   tab={tab}
@@ -69,7 +69,7 @@ class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
 
           return (
             <React.Fragment key={tabId}>
-              <NavigationBar key={`${tabId}-${zIndex}`} zIndex={zIndex} tab={tab} />
+              <NavigationBar2 key={`${tabId}-${zIndex}`} zIndex={zIndex} tab={tab} />
               <DisplayError
                 zIndex={(this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10}
                 transitoryStates={this.props.transitoryStates}

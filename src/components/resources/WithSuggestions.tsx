@@ -5,7 +5,7 @@ import debounce from 'xstream/extra/debounce';
 
 import * as fromDapps from '/store/dapps';
 import './NavigationBar.scss';
-import { TransitoryState, Tab, SessionItem } from '/models';
+import { TransitoryState, Tab } from '/models';
 
 export interface WithSuggestionsComponentProps {
   resourceLoaded: boolean;
@@ -13,7 +13,6 @@ export interface WithSuggestionsComponentProps {
   tab: undefined | Tab;
   canGoForward: boolean;
   canGoBackward: boolean;
-  sessionItem: undefined | SessionItem;
   namesBlockchainId: string;
   appType: 'IP' | 'DA' | undefined;
   url: string | undefined;
@@ -30,92 +29,22 @@ export interface WithSuggestionsComponentProps {
 }
 export interface WithSuggestionsComponentState {
   pristine: boolean;
-  url: undefined | string;
-  currentCounter: number;
-  lastUpdateTriggeredByUserAction: boolean;
-  currentSessionItem: undefined | SessionItem;
 }
 export class WithSuggestionsComponent extends React.Component<
   WithSuggestionsComponentProps,
   WithSuggestionsComponentState
 > {
-  constructor(props: WithSuggestionsComponentProps) {
-    super(props);
-  }
-
   stream: undefined | Stream<{ url: string | undefined; launch: boolean }>;
-  dispatchTabUpdateStream: undefined | Stream<{ tabId: string | undefined; url: string | undefined }>;
+
+  dispatchTabUpdateStream:
+    | undefined
+    | Stream<{ tabId: string | undefined; url: string | undefined }>;
+
   state = {
     pristine: true,
-    url: undefined,
-    currentCounter: 0,
-    lastUpdateTriggeredByUserAction: false,
-    currentSessionItem: undefined,
   };
-  inputEl: HTMLInputElement | null = null;
 
-  static getDerivedStateFromProps(nextProps: WithSuggestionsComponentProps, prevState: WithSuggestionsComponentState) {
-    /*
-      Component has just been created
-    */
-    if (nextProps.tab && typeof prevState.url === 'undefined') {
-      let newUrl = nextProps.tab.url;
-      if (newUrl.startsWith('https://')) {
-        newUrl = newUrl.slice(8);
-      }
-      return {
-        url: newUrl,
-        currentCounter: nextProps.tab.counter,
-        pristine: true,
-        lastUpdateTriggeredByUserAction: false,
-        currentSessionItem: nextProps.sessionItem,
-      };
-      /*
-        Tab has been focused
-      */
-    } else if (nextProps.tab && nextProps.tab.counter > prevState.currentCounter) {
-      let newUrl = nextProps.tab.url;
-      if (newUrl.startsWith('https://')) {
-        newUrl = newUrl.slice(8);
-      }
-      return {
-        url: newUrl,
-        currentCounter: nextProps.tab.counter,
-        pristine: true,
-        lastUpdateTriggeredByUserAction: false,
-        currentSessionItem: nextProps.sessionItem,
-      };
-      /*
-        Counter is the same,
-        there might be a navigation going on
-        OR the user is typing (prevState.lastUpdateTriggeredByUserAction === true)
-      */
-    } else {
-      let newUrl = prevState.url;
-      /*
-        Probably always true
-      */
-      if (
-        !prevState.lastUpdateTriggeredByUserAction &&
-        nextProps.sessionItem &&
-        // change the url ONLY IF a navigation is going on (forward/backward)
-        nextProps.sessionItem !== prevState.currentSessionItem &&
-        nextProps.tab
-      ) {
-        if (nextProps.sessionItem.url !== newUrl) {
-          newUrl = nextProps.sessionItem.url;
-          if (newUrl.startsWith('https://')) {
-            newUrl = newUrl.slice(8);
-          }
-        }
-      }
-      return {
-        url: newUrl,
-        lastUpdateTriggeredByUserAction: false,
-        currentSessionItem: nextProps.sessionItem,
-      };
-    }
-  }
+  inputEl: HTMLInputElement | null = null;
 
   onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (this.stream) {
@@ -144,9 +73,7 @@ export class WithSuggestionsComponent extends React.Component<
       next: (e: { url: string | undefined; launch: boolean }) => {
         if (e.launch) {
           this.setState({
-            url: '',
             pristine: true,
-            lastUpdateTriggeredByUserAction: true,
           });
 
           this.props.loadResource({
@@ -165,9 +92,7 @@ export class WithSuggestionsComponent extends React.Component<
             });
           }
           this.setState({
-            url: e.url,
             pristine: this.props.tab ? this.props.tab.url === e.url : false,
-            lastUpdateTriggeredByUserAction: true,
           });
         }
       },
@@ -175,19 +100,21 @@ export class WithSuggestionsComponent extends React.Component<
   };
 
   onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+    console.log((this.inputEl as HTMLInputElement).value);
+    console.log(this.inputEl);
     if (e.key === 'Enter' && this.stream) {
-      this.stream.shamefullySendNext({ url: this.state.url || '', launch: true });
+      this.stream.shamefullySendNext({
+        url: (this.inputEl as HTMLInputElement).value || '',
+        launch: true,
+      });
     }
   };
 
-  onReset = (e: any) => {
-    this.setState({
-      url: (this.props.tab as Tab).url,
-      pristine: true,
-    });
-  };
-
   setInputEl = (e: HTMLInputElement) => {
+    const tabId = this.props.tab ? this.props.tab.id : 'home';
+    if (!window.inputEls[tabId]) {
+      window.inputEls[tabId] = e;
+    }
     if (this.inputEl) {
       return;
     }

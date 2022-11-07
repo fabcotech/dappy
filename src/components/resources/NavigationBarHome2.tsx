@@ -23,7 +23,6 @@ class NavigationBarHome2Component extends WithSuggestions {
               this.props.namesBlockchainId ? `dappy.${this.props.namesBlockchainId}` : 'dappy.d'
             }
             className={`${this.state.pristine ? 'pristine' : ''} input`}
-            value={this.state.url || ''}
             onChange={this.onChange}
             onKeyDown={this.onKeyDown}
             aria-label="address"

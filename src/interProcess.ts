@@ -298,4 +298,21 @@ export const interProcess = (store: Store) => {
     );
     req.send();
   };
+
+  window.inputEls = {};
+  window.browserViewEvent = (type, payload) => {
+    console.log(type);
+    console.log(payload);
+    if (payload.tabId && window.inputEls[payload.tabId]) {
+      if (payload.tabId && payload.url) {
+        let url = payload.url;
+        if (url.startsWith('https://')) {
+          url = url.slice(8);
+        }
+        window.inputEls[payload.tabId].value = url;
+      }
+    } else {
+      console.warn('[browserViewEvent] Could not find tab ID');
+    }
+  };
 };

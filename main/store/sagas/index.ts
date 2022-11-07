@@ -1,6 +1,7 @@
 import { all } from 'redux-saga/effects';
 
 import { loadOrReloadBrowserViewSaga } from './loadOrReloadBrowserView';
+import { goForwardOrBackwardSaga } from './goForwardOrBackward';
 import { displayOnlyBrowserViewXSaga } from './displayOnlyBrowserViewX';
 import { setBrowserViewMutedSaga } from './setBrowserViewMuted';
 import { transferIdentificationsSaga } from './transferIdentifications';
@@ -10,6 +11,7 @@ export const sagas = function* rootSaga() {
   yield all([
     loadOrReloadBrowserViewSaga(),
     displayOnlyBrowserViewXSaga(),
+    goForwardOrBackwardSaga(),
     setBrowserViewMutedSaga(),
     transferTransactionsSaga(),
     transferIdentificationsSaga(),

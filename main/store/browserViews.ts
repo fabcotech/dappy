@@ -1,6 +1,8 @@
 import { createSelector } from 'reselect';
 import { DappyBrowserView } from '../models';
 
+export const GO_FORWARD = '[MAIN] Go forward';
+export const GO_BACKWARD = '[MAIN] Go backward';
 export const LOAD_OR_RELOAD_BROWSER_VIEW = '[MAIN] Load or reload browser view';
 export const LOAD_OR_RELOAD_BROWSER_VIEW_COMPLETED = '[MAIN] Load or reload browser view completed';
 export const DESTROY_BROWSER_VIEW = '[MAIN] Destroy browser view';
