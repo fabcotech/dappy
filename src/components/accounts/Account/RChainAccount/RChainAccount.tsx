@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { BlockchainAccount, Blockchain } from '/models';
+import { BlockchainAccount } from '/models';
 import * as fromSettings from '/store/settings';
 import * as fromMain from '/store/main';
 import * as fromCommon from '/common';
@@ -9,13 +9,11 @@ import { State } from '/store';
 import { getIsBalancesHidden } from '/store/ui';
 import { copyToClipboard } from '/interProcess';
 
-import './RChainAccount.scss';
 import { WalletAddress } from '/components/utils/WalletAddress';
 
 interface AccountComponentProps {
   account: BlockchainAccount;
   isBalancesHidden: boolean;
-  namesBlockchain: Blockchain | undefined;
   showAccountModal: (a: BlockchainAccount) => void;
   setAccountAsMain: (a: BlockchainAccount) => void;
   sendRChainPayment: (a: BlockchainAccount, chainId: string) => void;
@@ -24,13 +22,12 @@ interface AccountComponentProps {
 
 export const RChainAccountComponent = ({
   account,
-  namesBlockchain,
   showAccountModal,
   setAccountAsMain,
   deleteAccount,
 }: AccountComponentProps) => {
   return (
-    <div className="rchain-account box">
+    <div className="evm-account box">
       <div className="header">
         <b className="name" onClick={() => showAccountModal(account)}>
           {account.name}
@@ -46,27 +43,13 @@ export const RChainAccountComponent = ({
               {t('set as main account')}
             </button>
           )}
-          {namesBlockchain ? (
-            <a
-              title={t('send revs')}
-              className="underlined-link disabled"
-              onClick={() => {
-                // sendRChainPayment(account, (namesBlockchain as Blockchain).chainId)
-              }}
-            >
-              <i className="fa fa-before fa-money-bill-wave"></i>
-              {t('send revs')}
-            </a>
-          ) : (
-            <p className="text-danger">{t('no network cannot send revs')}</p>
-          )}
           <a onClick={() => showAccountModal(account)} className="underlined-link">
             <i className="fa fa-before fa-eye"></i>
             {t('check account')}
           </a>
         </div>
       </div>
-      <div className="balance">
+      <div className="body">
         <div>
           <div className="address has-text-weight-bold ">
             {t('address')}
@@ -77,15 +60,16 @@ export const RChainAccountComponent = ({
           </div>
           <WalletAddress address={account.address} />
         </div>
-        <span>Balances are disabled</span>
       </div>
-      <a
-        title="Remove the account forever"
-        onClick={() => deleteAccount(account)}
-        className="remove-account underlined-link red"
-      >
-        {t('remove account')}
-      </a>
+      <div className="footer">
+        <a
+          title="Remove the account forever"
+          onClick={() => deleteAccount(account)}
+          className="remove-account underlined-link red"
+        >
+          {t('remove account')}
+        </a>
+      </div>
     </div>
   );
 };
@@ -93,7 +77,6 @@ export const RChainAccountComponent = ({
 export const RChainAccount = connect(
   (state: State) => ({
     blockchains: fromSettings.getOkBlockchains(state),
-    namesBlockchain: fromSettings.getNamesBlockchain(state),
     executingAccountsCronJobs: fromSettings.getExecutingAccountsCronJobs(state),
     isBalancesHidden: getIsBalancesHidden(state),
   }),

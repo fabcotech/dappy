@@ -90,7 +90,6 @@ function BlockchainAccountForm(props: AccountFormProps & { platform: PlatformKey
         } else if (values.password.length < 8) {
           errors.password = t('password length');
         }
-        console.log('PLATFORM', values.platform);
 
         if (!values.privatekey) {
           errors.privatekey = t('field required');
@@ -258,7 +257,9 @@ export function AccountForm(props: AccountFormProps) {
           </div>
         </div>
       </div>
-      {plaformKey !== 'certificate' && <BlockchainAccountForm {...props} platform={plaformKey} />}
+      {plaformKey !== 'certificate' && (
+        <BlockchainAccountForm key={plaformKey} {...props} platform={plaformKey} />
+      )}
       {plaformKey === 'certificate' && <CertificateAccountForm fillAccount={props.fillAccount} />}
     </form>
   );
