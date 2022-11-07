@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const src = fs.readFileSync('../dist/renderer/src.840a20f5.js', 'utf8');
+const src = fs.readFileSync('../dist/renderer/src.eccc14b0.js', 'utf8');
 
 const translations = require('../src/translations_en').translations;
 

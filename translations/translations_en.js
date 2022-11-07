@@ -1,13 +1,5 @@
 module.exports.translations = [
   {
-    "term": "menu deploy",
-    "definition": "Deploy",
-    "context": "deploy in main menu",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "menu settings",
     "definition": "Settings",
     "context": "settings in main menu",
@@ -74,7 +66,7 @@ module.exports.translations = [
   },
   {
     "term": "menu accounts",
-    "definition": "Accounts",
+    "definition": "Wallets",
     "context": "accounts for money transfer and transaction signing",
     "term_plural": "",
     "reference": "",
@@ -122,15 +114,7 @@ module.exports.translations = [
   },
   {
     "term": "set as main account",
-    "definition": "Set as main account",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "send revs",
-    "definition": "send REVs",
+    "definition": "Set as main wallet",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -138,7 +122,7 @@ module.exports.translations = [
   },
   {
     "term": "remove account",
-    "definition": "Remove account",
+    "definition": "Remove wallet",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -182,14 +166,6 @@ module.exports.translations = [
   {
     "term": "phlogiston limit",
     "definition": "Phlogiston limit",
-    "context": "transfer REV popup",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "to (rev address)",
-    "definition": "To (REV address)",
     "context": "transfer REV popup",
     "term_plural": "",
     "reference": "",
@@ -279,22 +255,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "rchain network",
-    "definition": "RChain network",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name price",
-    "definition": "Name price",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "last known block height",
     "definition": "Last known block height",
     "context": "Settings > Network",
@@ -362,33 +322,9 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "node requests errors",
-    "definition": "Node requests errors",
-    "context": "Settings > Network > Requests",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "requested at",
-    "definition": "Requested at",
-    "context": "Settings > Network > Requests",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "network id",
     "definition": "Network ID",
     "context": "Settings > Network > Requests",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "show only names my accounts",
-    "definition": "Show only the names that belong to one of my accounts",
-    "context": "Settings > Names > Names",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -565,22 +501,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "update name",
-    "definition": "Update name",
-    "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "update a name",
-    "definition": "Update a name",
-    "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "requested at",
     "definition": "Requested at",
     "context": "Settings > Names > Requests",
@@ -608,41 +528,9 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "deploy (step 1)",
-    "definition": "Deploy (step 1)",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy dapp note",
-    "definition": "<b>Note:</b> file upload and block creation on mainnet takes time. Dappy does try do get the address for 15 minutes. You can use dappy-cli JS library to upload any file or web application to the blockchain.",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "next",
     "definition": "Next",
     "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "file",
-    "definition": "File",
-    "context": "Deploy > File",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "rholang",
-    "definition": "Rholang",
-    "context": "Deploy > Rholang",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -778,7 +666,7 @@ module.exports.translations = [
   },
   {
     "term": "add account",
-    "definition": "Add account",
+    "definition": "Add wallet",
     "context": "Settings > Accounts > Add account",
     "term_plural": "",
     "reference": "",
@@ -866,7 +754,7 @@ module.exports.translations = [
   },
   {
     "term": "use account",
-    "definition": "Use account",
+    "definition": "Use wallet",
     "context": "Transaction form",
     "term_plural": "",
     "reference": "",
@@ -908,14 +796,6 @@ module.exports.translations = [
     "term": "next",
     "definition": "Next page",
     "context": "Pagination",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "dapp requests payment",
-    "definition": "Dapp requests for a blockchain payment",
-    "context": "Payment request modal",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1041,22 +921,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "deploy (step 2)",
-    "definition": "Deploy (step 2)",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy rholang (step 2)",
-    "definition": "Rholang deployment (step 2)",
-    "context": "Deploy > Rholang",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "mute",
     "definition": "Mute",
     "context": "Tab",
@@ -1084,14 +948,6 @@ module.exports.translations = [
     "term": "save nodes",
     "definition": "Save nodes",
     "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy dapp",
-    "definition": "Deploy dapp",
-    "context": "Deploy > Dapp",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1156,16 +1012,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "save box",
-    "definition": "Save box",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "password for account",
-    "definition": "Password for account",
+    "definition": "Password for wallet",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1180,51 +1028,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "remove box",
-    "definition": "Remove box",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "token box",
-    "definition": {
-      "one": "Token box",
-      "other": ""
-    },
-    "context": "Settings > Accounts",
-    "term_plural": "token boxes",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "add existing token box",
-    "definition": "Add an existing token box",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "failed to deploy box",
-    "definition": "Failed to deploy box",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "at least one node network",
     "definition": "You need to be connected to a network with at least one endpoint available",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy a new token box",
-    "definition": "Deploy a new token box",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1247,22 +1052,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "box definition",
-    "definition": "A box can contain one or more purses from one or more contracts. A purse can be a NFT, or a represent fungible tokens depending on the rchain-token contract it is linked to.",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "box super key definition",
-    "definition": "A box can store super keys. Usually you own a super key for a contract that you have deployed, this capabability allows you to create purses, you can also lock the contract to loose this capability.",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "quantity",
     "definition": "Quantity",
     "context": "Settings > Accounts , quantity of tokens in a purse",
@@ -1274,22 +1063,6 @@ module.exports.translations = [
     "term": "type",
     "definition": "Type",
     "context": "Settings > Accounts , type of token (gold, silver, pokemon etc.)",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy ft",
-    "definition": "Deploy a contract for fungibles (FT)",
-    "context": "Home",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy nft",
-    "definition": "Deploy a contract for non-fungibles (NFT)",
-    "context": "Home",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1311,24 +1084,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "at price",
-    "definition": "at price",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "name is for sale",
     "definition": "Name is for sale !",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name is not for sale",
-    "definition": "Name is already taken and not for sale",
     "context": "Settings > Names > Purchase name",
     "term_plural": "",
     "reference": "",
@@ -1351,57 +1108,9 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "name box address and box address different",
-    "definition": "Name's box differs from your account's box address, the transaction will likely fail",
-    "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "contract",
     "definition": "Contract",
     "context": "Settings > Accounts > Boxes",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy ft contract",
-    "definition": "Deploy a FT contract if the tokens that will be created, traded and exchanged are fungible, for example they could represent shares in a company, gold tokens, ERC-20-like tokens etc.",
-    "context": "Deploy > Dapps",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy nft contract",
-    "definition": "Deploy a NFT contract if the tokens represent unique objects, like a specific seat in a movie theatre, a rare or unique item in a video game, or a unique name in a name system (like the dappy name system) etc.",
-    "context": "Deploy > Dapps",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "rchain token nft",
-    "definition": "RChain token for non-fungibles tokens (NFT)",
-    "context": "Deploy > Dapps",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "rchain token ft",
-    "definition": "RChain token for fungibles tokens (FT)",
-    "context": "Deploy > Dapps",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy contract",
-    "definition": "Deploy contract",
-    "context": "Deploy > Dapps",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1415,81 +1124,9 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "operation on name successful",
-    "definition": "✓ Transaction was successfully sent to the blockchain. Your name should appear or be updated in thirty or fourty minutes, after the transaction is processed, and the new name indexed by network members.",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "warning wait for update",
-    "definition": "Do not try to update or purchase a name many times a day, just check the transaction status and wait.",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "you need box",
-    "definition": "You must have an account with a token box deployed to purchase a name (NFT",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "add one locally 2",
-    "definition": "Add a local name for testing",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "update name paragraph 2",
-    "definition": "Often a zone file is associated with a name. Just like in the DNS, administrator can add A, AAAA, CERT or TEXT records. Dappy browser right now does not provide full features interface for managing a zone.",
-    "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "update name properties",
-    "definition": "Update name properties",
-    "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "input your password",
     "definition": "You need to input a valid password for your account",
     "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "no boxes",
-    "definition": "There is no token boxes linked to your account, please deploy or link an existing box contract to your account.",
-    "context": "Settings > Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "wait for synchronization",
-    "definition": "Please wait for\n            synchronization.",
-    "context": "Settings > Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "infos not retrieved",
-    "definition": "Infos not retrieved from the network",
-    "context": "Settings > Deploy",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1506,54 +1143,6 @@ module.exports.translations = [
     "term": "transaction successful",
     "definition": "The transaction has been successfully sent to the network, check the transactions list, the address of the contract will be available soon.",
     "context": "Settings",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "transaction successful rev",
-    "definition": "The transaction has been successfully sent to the network. Your balance should update after few minutes.",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "transaction successful box",
-    "definition": "Box has been deployed. Please do not quit, your account should update after few minutes.",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "just transaction successful",
-    "definition": "Transaction successful",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "transaction successful update price",
-    "definition": "Transaction for updating the purse price has been deployed.",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "not for sale",
-    "definition": "not for sale",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "account locked",
-    "definition": "Account is locked",
-    "context": "Settings > Account",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1583,72 +1172,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "withdraw ft",
-    "definition": "Withdraw",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "withdraw nft",
-    "definition": "Send NFT",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "transaction successful withdraw",
-    "definition": "Withdraw transaction has been deployed.",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "box to withdraw to",
-    "definition": "Box to withdraw to",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "copy box id",
-    "definition": "Copy box id",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "download image for social networks",
-    "definition": "Download image for social networks",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "check account",
-    "definition": "check account",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "not locked title",
-    "definition": "The contract is not locked, the owner can delete tokens and create tokens",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "not locked",
-    "definition": "Not locked",
+    "definition": "check wallet",
     "context": "Settings > Account",
     "term_plural": "",
     "reference": "",
@@ -1674,24 +1199,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "rchain token fee",
-    "definition": "Fee/charge on resale",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "and",
     "definition": "and",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "share image",
-    "definition": "Share image",
     "context": "Settings > Account",
     "term_plural": "",
     "reference": "",
@@ -1705,22 +1214,6 @@ module.exports.translations = [
     },
     "context": "Settings > Account",
     "term_plural": "days",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "locked title",
-    "definition": "The contract is locked, owner cannot delete tokens or create tokens",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "locked",
-    "definition": "Locked",
-    "context": "Settings > Account",
-    "term_plural": "",
     "reference": "",
     "comment": ""
   },
@@ -1749,110 +1242,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "contract id",
-    "definition": "Contract ID",
-    "context": "RChain token",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "counter",
-    "definition": "Counter",
-    "context": "RChain token",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name lookup placeholder",
-    "definition": "Purse ID / NFT ID",
-    "context": "RChain token",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "box",
-    "definition": "Token box",
-    "context": "RChain token",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "locked",
-    "definition": "Locked",
-    "context": "RChain token",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name / id",
-    "definition": "Name / ID",
-    "context": "RChain token",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy ft and tips contract",
-    "definition": "Deploy a unique board where you can receive tips / funding from your friends and fans. You can precisly choose the unit price of the tokens, and the amount of tokens to release.",
-    "context": "Settings > Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "tips",
-    "definition": "Tips with RChain token",
-    "context": "Settings > Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name system logs",
-    "definition": "Recent activity on the name system contract",
-    "context": "logs",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "new name",
-    "definition": "New name",
-    "context": "logs",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "was purchased for",
-    "definition": "was purchased for",
-    "context": "logs",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "was traded for",
-    "definition": "was traded for",
-    "context": "logs",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "don't ask again",
-    "definition": "Do not ask again",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "skip",
     "definition": "Skip",
     "context": "Settings > Accounts",
@@ -1862,48 +1251,8 @@ module.exports.translations = [
   },
   {
     "term": "dappy account description",
-    "definition": "We noticed you have no accounts configured. You can create or import one upfront. Don't worry you will also be able to do it later !",
+    "definition": "We noticed you have no wallets configured. You can create or import one upfront. Don't worry you will also be able to do it later !",
     "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "create account",
-    "definition": "Create account",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "no accounts configured",
-    "definition": "No accounts configured",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "box not found",
-    "definition": "No token boxes found",
-    "context": "Settings > Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "email for record help",
-    "definition": "Email address is used to send warning emails before the expiration of the name. It is not mandatory and you can ignore it. This email address is public and stored the blockchain.",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "email for record",
-    "definition": "Public email address (expiration warning)",
-    "context": "Settings > Names > Purchase name",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1925,54 +1274,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "rchain token create-purses",
-    "definition": "RChain token - create purses (NFT or FT contract)",
-    "context": "Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy create-purses",
-    "definition": "Quickly create NFT or fungible tokens into one contract that you own. Easy CSV-like syntax.",
-    "context": "Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "nft example",
-    "definition": "Example for non-fungible tokens",
-    "context": "Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "ft example",
-    "definition": "Example for fungible tokens",
-    "context": "Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "structure for nft",
-    "definition": "Syntax for NFTs",
-    "context": "Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "structure for ft",
-    "definition": "Syntax for FTs",
-    "context": "Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "only rchain-token version",
     "definition": "Considering only rchain token version",
     "context": "Deploy",
@@ -1989,14 +1290,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "price 0 not for sale",
-    "definition": "Choose price 0 if you don't want tokens to be for sale",
-    "context": "Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "copy url",
     "definition": "Copy URL",
     "context": "Download",
@@ -2006,7 +1299,7 @@ module.exports.translations = [
   },
   {
     "term": "remove account warning",
-    "definition": "The account/wallet will be removed forever. Private key will be lost if you did not save it anywhere else.",
+    "definition": "The wallet will be removed forever. Private key will be lost if you did not save it anywhere else.",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -2015,14 +1308,6 @@ module.exports.translations = [
   {
     "term": "token quantity",
     "definition": "Quantity of tokens",
-    "context": "Purchase record",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "max gas fees",
-    "definition": "Max gas fees",
     "context": "Purchase record",
     "term_plural": "",
     "reference": "",
@@ -2069,48 +1354,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "name system master registry uri",
-    "definition": "Name system master registry URI",
-    "context": "Settings > Networks",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name system contract id",
-    "definition": "Name system contract ID",
-    "context": "Settings > Networks",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "wrapped rev contract id",
-    "definition": "Wrapped REV contract ID",
-    "context": "Settings > Networks",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "what is a dappy network ?",
     "definition": "What is a dappy network ?",
-    "context": "Help",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "use public ca paragraph",
-    "definition": "Use certificates from the public Certificate Authorities",
-    "context": "Purchase record",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "what is a box ?",
-    "definition": "What is a box ?",
     "context": "Help",
     "term_plural": "",
     "reference": "",
@@ -2160,14 +1405,6 @@ module.exports.translations = [
     "term": "what is multi-requests ?",
     "definition": "What is multi-requests ?",
     "context": "Help",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "rchain shard id",
-    "definition": "Shard ID",
-    "context": "Settings > Networks",
     "term_plural": "",
     "reference": "",
     "comment": ""

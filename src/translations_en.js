@@ -1,7 +1,4 @@
 module.exports.translations = {
-  "menu deploy": {
-    "one": "Deploy"
-  },
   "menu settings": {
     "one": "Settings"
   },
@@ -27,7 +24,7 @@ module.exports.translations = {
     "one": "reload"
   },
   "menu accounts": {
-    "one": "Accounts"
+    "one": "Wallets"
   },
   "menu networks": {
     "one": "Networks"
@@ -45,13 +42,10 @@ module.exports.translations = {
     "one": "Development mode"
   },
   "set as main account": {
-    "one": "Set as main account"
-  },
-  "send revs": {
-    "one": "send REVs"
+    "one": "Set as main wallet"
   },
   "remove account": {
-    "one": "Remove account"
+    "one": "Remove wallet"
   },
   "transfer revs": {
     "one": "Transfer REVs"
@@ -68,9 +62,6 @@ module.exports.translations = {
   },
   "phlogiston limit": {
     "one": "Phlogiston limit"
-  },
-  "to (rev address)": {
-    "one": "To (REV address)"
   },
   "amount": {
     "one": "Amount"
@@ -103,12 +94,6 @@ module.exports.translations = {
   "generate private key": {
     "one": "Generate private key"
   },
-  "rchain network": {
-    "one": "RChain network"
-  },
-  "name price": {
-    "one": "Name price"
-  },
   "last known block height": {
     "one": "Last known block height"
   },
@@ -134,17 +119,8 @@ module.exports.translations = {
     "one": "Request",
     "other": "Requests "
   },
-  "node requests errors": {
-    "one": "Node requests errors"
-  },
-  "requested at": {
-    "one": "Requested at"
-  },
   "network id": {
     "one": "Network ID"
-  },
-  "show only names my accounts": {
-    "one": "Show only the names that belong to one of my accounts"
   },
   "type": {
     "one": "Type"
@@ -210,11 +186,8 @@ module.exports.translations = {
   "password for": {
     "one": "password for"
   },
-  "update name": {
-    "one": "Update name"
-  },
-  "update a name": {
-    "one": "Update a name"
+  "requested at": {
+    "one": "Requested at"
   },
   "duration": {
     "one": "Duration"
@@ -223,20 +196,8 @@ module.exports.translations = {
     "one": "Error",
     "other": "Errors"
   },
-  "deploy (step 1)": {
-    "one": "Deploy (step 1)"
-  },
-  "deploy dapp note": {
-    "one": "<b>Note:</b> file upload and block creation on mainnet takes time. Dappy does try do get the address for 15 minutes. You can use dappy-cli JS library to upload any file or web application to the blockchain."
-  },
   "next": {
     "one": "Next page"
-  },
-  "file": {
-    "one": "File"
-  },
-  "rholang": {
-    "one": "Rholang"
   },
   "sent at": {
     "one": "Sent at"
@@ -287,7 +248,7 @@ module.exports.translations = {
     "one": "Warning : we advise you to have at least one special character #?!@$%^&*- in your password"
   },
   "add account": {
-    "one": "Add account"
+    "one": "Add wallet"
   },
   "ok": {
     "one": "Ok"
@@ -320,7 +281,7 @@ module.exports.translations = {
     "one": "Private key does not match with the public key the dapp requires to identify"
   },
   "use account": {
-    "one": "Use account"
+    "one": "Use wallet"
   },
   "dapp requires identification": {
     "one": "Dapp requires an identification"
@@ -333,9 +294,6 @@ module.exports.translations = {
   },
   "previous": {
     "one": "Previous"
-  },
-  "dapp requests payment": {
-    "one": "Dapp requests for a blockchain payment"
   },
   "discard transaction": {
     "one": "Discard transaction"
@@ -379,12 +337,6 @@ module.exports.translations = {
   "to": {
     "one": "to"
   },
-  "deploy (step 2)": {
-    "one": "Deploy (step 2)"
-  },
-  "deploy rholang (step 2)": {
-    "one": "Rholang deployment (step 2)"
-  },
   "mute": {
     "one": "Mute"
   },
@@ -396,9 +348,6 @@ module.exports.translations = {
   },
   "save nodes": {
     "one": "Save nodes"
-  },
-  "deploy dapp": {
-    "one": "Deploy dapp"
   },
   "remove tab": {
     "one": "Close tab"
@@ -422,33 +371,14 @@ module.exports.translations = {
   "menu gcu": {
     "one": "GCU"
   },
-  "save box": {
-    "one": "Save box"
-  },
   "password for account": {
-    "one": "Password for account"
+    "one": "Password for wallet"
   },
   "copy contract address": {
     "one": "Copy contract address"
   },
-  "remove box": {
-    "one": "Remove box"
-  },
-  "token box": {
-    "one": "Token box",
-    "other": "token boxes"
-  },
-  "add existing token box": {
-    "one": "Add an existing token box"
-  },
-  "failed to deploy box": {
-    "one": "Failed to deploy box"
-  },
   "at least one node network": {
     "one": "You need to be connected to a network with at least one endpoint available"
-  },
-  "deploy a new token box": {
-    "one": "Deploy a new token box"
   },
   "no network cannot send revs": {
     "one": "No network found, cannot send REVs"
@@ -456,20 +386,8 @@ module.exports.translations = {
   "back to accounts": {
     "one": "Back to accounts"
   },
-  "box definition": {
-    "one": "A box can contain one or more purses from one or more contracts. A purse can be a NFT, or a represent fungible tokens depending on the rchain-token contract it is linked to."
-  },
-  "box super key definition": {
-    "one": "A box can store super keys. Usually you own a super key for a contract that you have deployed, this capabability allows you to create purses, you can also lock the contract to loose this capability."
-  },
   "quantity": {
     "one": "Quantity"
-  },
-  "deploy ft": {
-    "one": "Deploy a contract for fungibles (FT)"
-  },
-  "deploy nft": {
-    "one": "Deploy a contract for non-fungibles (NFT)"
   },
   "copy address": {
     "one": "copy address"
@@ -477,14 +395,8 @@ module.exports.translations = {
   "name is available": {
     "one": "Name is available !"
   },
-  "at price": {
-    "one": "at price"
-  },
   "name is for sale": {
     "one": "Name is for sale !"
-  },
-  "name is not for sale": {
-    "one": "Name is already taken and not for sale"
   },
   "lookup name": {
     "one": "Lookup name"
@@ -492,83 +404,20 @@ module.exports.translations = {
   "reset": {
     "one": "Reset"
   },
-  "name box address and box address different": {
-    "one": "Name's box differs from your account's box address, the transaction will likely fail"
-  },
   "contract": {
     "one": "Contract"
-  },
-  "deploy ft contract": {
-    "one": "Deploy a FT contract if the tokens that will be created, traded and exchanged are fungible, for example they could represent shares in a company, gold tokens, ERC-20-like tokens etc."
-  },
-  "deploy nft contract": {
-    "one": "Deploy a NFT contract if the tokens represent unique objects, like a specific seat in a movie theatre, a rare or unique item in a video game, or a unique name in a name system (like the dappy name system) etc."
-  },
-  "rchain token nft": {
-    "one": "RChain token for non-fungibles tokens (NFT)"
-  },
-  "rchain token ft": {
-    "one": "RChain token for fungibles tokens (FT)"
-  },
-  "deploy contract": {
-    "one": "Deploy contract"
   },
   "purchase a name 2": {
     "one": "A name is your identifier in the dappy network. Your name can be used to exposed websites to the internet, and in some case to authenticate securely to protected websites."
   },
-  "operation on name successful": {
-    "one": "✓ Transaction was successfully sent to the blockchain. Your name should appear or be updated in thirty or fourty minutes, after the transaction is processed, and the new name indexed by network members."
-  },
-  "warning wait for update": {
-    "one": "Do not try to update or purchase a name many times a day, just check the transaction status and wait."
-  },
-  "you need box": {
-    "one": "You must have an account with a token box deployed to purchase a name (NFT"
-  },
-  "add one locally 2": {
-    "one": "Add a local name for testing"
-  },
-  "update name paragraph 2": {
-    "one": "Often a zone file is associated with a name. Just like in the DNS, administrator can add A, AAAA, CERT or TEXT records. Dappy browser right now does not provide full features interface for managing a zone."
-  },
-  "update name properties": {
-    "one": "Update name properties"
-  },
   "input your password": {
     "one": "You need to input a valid password for your account"
-  },
-  "no boxes": {
-    "one": "There is no token boxes linked to your account, please deploy or link an existing box contract to your account."
-  },
-  "wait for synchronization": {
-    "one": "Please wait for\n            synchronization."
-  },
-  "infos not retrieved": {
-    "one": "Infos not retrieved from the network"
   },
   "no networks": {
     "one": "No networks has been configured. A network must be configured, and have at least one active node to deploy Rholang or smart contracts."
   },
   "transaction successful": {
     "one": "The transaction has been successfully sent to the network, check the transactions list, the address of the contract will be available soon."
-  },
-  "transaction successful rev": {
-    "one": "The transaction has been successfully sent to the network. Your balance should update after few minutes."
-  },
-  "transaction successful box": {
-    "one": "Box has been deployed. Please do not quit, your account should update after few minutes."
-  },
-  "just transaction successful": {
-    "one": "Transaction successful"
-  },
-  "transaction successful update price": {
-    "one": "Transaction for updating the purse price has been deployed."
-  },
-  "not for sale": {
-    "one": "not for sale"
-  },
-  "account locked": {
-    "one": "Account is locked"
   },
   "unlock account help text": {
     "one": "Input your password to be able to perform any operation on your tokens"
@@ -579,32 +428,8 @@ module.exports.translations = {
   "unlock account to see private key": {
     "one": "Input your password to be able to see private key"
   },
-  "withdraw ft": {
-    "one": "Withdraw"
-  },
-  "withdraw nft": {
-    "one": "Send NFT"
-  },
-  "transaction successful withdraw": {
-    "one": "Withdraw transaction has been deployed."
-  },
-  "box to withdraw to": {
-    "one": "Box to withdraw to"
-  },
-  "copy box id": {
-    "one": "Copy box id"
-  },
-  "download image for social networks": {
-    "one": "Download image for social networks"
-  },
   "check account": {
-    "one": "check account"
-  },
-  "not locked title": {
-    "one": "The contract is not locked, the owner can delete tokens and create tokens"
-  },
-  "not locked": {
-    "one": "Not locked"
+    "one": "check wallet"
   },
   "expiration": {
     "one": "Expiry duration"
@@ -613,24 +438,12 @@ module.exports.translations = {
     "one": "hour",
     "other": "hours"
   },
-  "rchain token fee": {
-    "one": "Fee/charge on resale"
-  },
   "and": {
     "one": "and"
-  },
-  "share image": {
-    "one": "Share image"
   },
   "days": {
     "one": "day",
     "other": "days"
-  },
-  "locked title": {
-    "one": "The contract is locked, owner cannot delete tokens or create tokens"
-  },
-  "locked": {
-    "one": "Locked"
   },
   "name system": {
     "one": "Name system"
@@ -638,62 +451,11 @@ module.exports.translations = {
   "name system not available": {
     "one": "The name system is not available, you cannot purchase a name, update a name that you own, or consult the list. Make sure you are connected to a network (for example d network or gamma network), and that this network is linked to a name system."
   },
-  "contract id": {
-    "one": "Contract ID"
-  },
-  "counter": {
-    "one": "Counter"
-  },
-  "name lookup placeholder": {
-    "one": "Purse ID / NFT ID"
-  },
-  "box": {
-    "one": "Token box"
-  },
-  "name / id": {
-    "one": "Name / ID"
-  },
-  "deploy ft and tips contract": {
-    "one": "Deploy a unique board where you can receive tips / funding from your friends and fans. You can precisly choose the unit price of the tokens, and the amount of tokens to release."
-  },
-  "tips": {
-    "one": "Tips with RChain token"
-  },
-  "name system logs": {
-    "one": "Recent activity on the name system contract"
-  },
-  "new name": {
-    "one": "New name"
-  },
-  "was purchased for": {
-    "one": "was purchased for"
-  },
-  "was traded for": {
-    "one": "was traded for"
-  },
-  "don't ask again": {
-    "one": "Do not ask again"
-  },
   "skip": {
     "one": "Skip"
   },
   "dappy account description": {
-    "one": "We noticed you have no accounts configured. You can create or import one upfront. Don't worry you will also be able to do it later !"
-  },
-  "create account": {
-    "one": "Create account"
-  },
-  "no accounts configured": {
-    "one": "No accounts configured"
-  },
-  "box not found": {
-    "one": "No token boxes found"
-  },
-  "email for record help": {
-    "one": "Email address is used to send warning emails before the expiration of the name. It is not mandatory and you can ignore it. This email address is public and stored the blockchain."
-  },
-  "email for record": {
-    "one": "Public email address (expiration warning)"
+    "one": "We noticed you have no wallets configured. You can create or import one upfront. Don't worry you will also be able to do it later !"
   },
   "update available": {
     "one": "Update available"
@@ -701,44 +463,20 @@ module.exports.translations = {
   "download page": {
     "one": "Download page"
   },
-  "rchain token create-purses": {
-    "one": "RChain token - create purses (NFT or FT contract)"
-  },
-  "deploy create-purses": {
-    "one": "Quickly create NFT or fungible tokens into one contract that you own. Easy CSV-like syntax."
-  },
-  "nft example": {
-    "one": "Example for non-fungible tokens"
-  },
-  "ft example": {
-    "one": "Example for fungible tokens"
-  },
-  "structure for nft": {
-    "one": "Syntax for NFTs"
-  },
-  "structure for ft": {
-    "one": "Syntax for FTs"
-  },
   "only rchain-token version": {
     "one": "Considering only rchain token version"
   },
   "rchain-token master": {
     "one": "RChain token master"
   },
-  "price 0 not for sale": {
-    "one": "Choose price 0 if you don't want tokens to be for sale"
-  },
   "copy url": {
     "one": "Copy URL"
   },
   "remove account warning": {
-    "one": "The account/wallet will be removed forever. Private key will be lost if you did not save it anywhere else."
+    "one": "The wallet will be removed forever. Private key will be lost if you did not save it anywhere else."
   },
   "token quantity": {
     "one": "Quantity of tokens"
-  },
-  "max gas fees": {
-    "one": "Max gas fees"
   },
   "hide balances": {
     "one": "Hide balances"
@@ -755,23 +493,8 @@ module.exports.translations = {
   "sign transaction": {
     "one": "Sign transaction"
   },
-  "name system master registry uri": {
-    "one": "Name system master registry URI"
-  },
-  "name system contract id": {
-    "one": "Name system contract ID"
-  },
-  "wrapped rev contract id": {
-    "one": "Wrapped REV contract ID"
-  },
   "what is a dappy network ?": {
     "one": "What is a dappy network ?"
-  },
-  "use public ca paragraph": {
-    "one": "Use certificates from the public Certificate Authorities"
-  },
-  "what is a box ?": {
-    "one": "What is a box ?"
   },
   "what is rev ?": {
     "one": "What is REV ?"
@@ -790,9 +513,6 @@ module.exports.translations = {
   },
   "what is multi-requests ?": {
     "one": "What is multi-requests ?"
-  },
-  "rchain shard id": {
-    "one": "Shard ID"
   },
   "auth 1": {
     "one": "Dappy allows you to protect your wallets and accounts by listing the domains that are authorized to interact with them."

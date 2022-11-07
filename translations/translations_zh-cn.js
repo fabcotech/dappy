@@ -1,13 +1,5 @@
 module.exports.translations = [
   {
-    "term": "menu deploy",
-    "definition": "部署",
-    "context": "deploy in main menu",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "menu settings",
     "definition": "设置",
     "context": "settings in main menu",
@@ -24,17 +16,9 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "search dapps",
-    "definition": "搜索dapp",
-    "context": "search dapps in tabs list",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "ip application",
     "definition": {
-      "other": "IP应用"
+      "other": "IP 应用"
     },
     "context": "IP Application",
     "term_plural": "IP applications",
@@ -44,7 +28,7 @@ module.exports.translations = [
   {
     "term": "ip app",
     "definition": {
-      "other": "IP应用"
+      "other": "IP 应用"
     },
     "context": "",
     "term_plural": "IP apps",
@@ -54,7 +38,7 @@ module.exports.translations = [
   {
     "term": "dapp",
     "definition": {
-      "other": "Dapp"
+      "other": "DApp"
     },
     "context": "",
     "term_plural": "Dapps",
@@ -62,25 +46,9 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "ip app security paragraph",
-    "definition": "所有数据（例如您访问的页面，输入的密码）仅以加密方式传输到以下授权服务器：",
-    "context": "when you click on IP",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "decentralized application",
     "definition": "分布式应用",
     "context": "full term for dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "dapp security paragraph",
-    "definition": "该应用程序已直接从Dappy网络（区块链）加载。\n它已从以下端点加载：",
-    "context": "",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -105,54 +73,6 @@ module.exports.translations = [
     "term": "menu networks",
     "definition": "网络",
     "context": "",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "settings network paragraph",
-    "definition": "Dappy从区块链加载资源时会执行多个请求。每当第三方Web应用程序的用户希望加载区块链资源（可以是文件或任何类型的数据）时， Dappy将查询区块链网络中的多个成员。\n\n您可以配置dappy接受或拒绝资源查询结果所应用的规则。\n\n<b>节点数：</ b> 在每个资源负载下将查询多少个节点，它必须小于或等于区块链的可用节点数。\n<b>准确性：</ b> 用于定义是否接受回复的规则。如果我们将其设置为100％，则如果任何节点的响应不同于其他节点，则将丢弃该响应和查询。如果将其设置为70％，则如果至少70％的查询节点已发送相同的响应，则该响应将被视为可信任/安全。",
-    "context": "Settings > Settings",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "resolver",
-    "definition": "解析器",
-    "context": "Settings > Settings",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "auto",
-    "definition": "自动",
-    "context": "Settings > Settings",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "custom",
-    "definition": "自定义",
-    "context": "Settings > Settings",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "number of nodes",
-    "definition": "节点数量",
-    "context": "Settings > Settings",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "accuracy",
-    "definition": "精确度",
-    "context": "Settings > Settings",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -198,14 +118,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "send revs",
-    "definition": "发送REV",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "remove account",
     "definition": "注销账户",
     "context": "Settings > Accounts",
@@ -215,7 +127,7 @@ module.exports.translations = [
   },
   {
     "term": "transfer revs",
-    "definition": "转账REV",
+    "definition": "转账 REV",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -250,14 +162,6 @@ module.exports.translations = [
   {
     "term": "phlogiston limit",
     "definition": "燃素限制",
-    "context": "transfer REV popup",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "to (rev address)",
-    "definition": "发送至（REV地址）",
     "context": "transfer REV popup",
     "term_plural": "",
     "reference": "",
@@ -346,22 +250,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "rchain network",
-    "definition": "RChain网络",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name price",
-    "definition": "域名价格",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "last known block height",
     "definition": "最近已知区块高度",
     "context": "Settings > Network",
@@ -371,23 +259,7 @@ module.exports.translations = [
   },
   {
     "term": "nodes paragraph",
-    "definition": "您可以根据需要添加任意数量的节点。每次请求时，dappy都会在可用节点中随机选择n个节点（n是<i>节点数</ i>值）并执行调用。节点越多则导航越准确、安全和分散。\n\ndappy每天都会运行基准测试以检查可用节点。",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "added by the user",
-    "definition": "由用户添加",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "retreived from dappy network",
-    "definition": "从分布式网络中恢复",
+    "definition": "节点段",
     "context": "Settings > Network",
     "term_plural": "",
     "reference": "",
@@ -444,33 +316,9 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "node requests errors",
-    "definition": "节点请求错误",
-    "context": "Settings > Network > Requests",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "requested at",
-    "definition": "请求",
-    "context": "Settings > Network > Requests",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "network id",
     "definition": "网络ID",
     "context": "Settings > Network > Requests",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "show only names my accounts",
-    "definition": "仅显示属于我的一个帐户的名称",
-    "context": "Settings > Names > Names",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -526,14 +374,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "add local name paragraph",
-    "definition": "除了从区块链自动加载的名称之外，您还可以添加仅在本地使用的自定义名称。您必须知道将用于验证加载的数据的公共密钥以及区块链地址。",
-    "context": "Settings > Names > Add local name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "record",
     "definition": "保存",
     "context": "Settings > Names > Add local name",
@@ -554,16 +394,6 @@ module.exports.translations = [
     "definition": "IP",
     "context": "Settings > Names > Add local name",
     "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "ip server",
-    "definition": {
-      "other": "IP服务器"
-    },
-    "context": "Settings > Names > Add local name",
-    "term_plural": "IP servers",
     "reference": "",
     "comment": ""
   },
@@ -664,30 +494,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "update name",
-    "definition": "更新域名",
-    "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "update a name",
-    "definition": "更新一个域名",
-    "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name request successes",
-    "definition": "域名请求成功",
-    "context": "Settings > Names > Requests",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "requested at",
     "definition": "请求至",
     "context": "Settings > Names > Requests",
@@ -704,22 +510,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "nodes reached",
-    "definition": "已连接节点",
-    "context": "Settings > Names > Requests",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "nodes not reached",
-    "definition": "未连接节点",
-    "context": "Settings > Names > Requests",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "error",
     "definition": {
       "other": "错误"
@@ -730,51 +520,9 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "success",
-    "definition": {
-      "other": "成功"
-    },
-    "context": "Settings > Names > Requests",
-    "term_plural": "Successes",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy (step 1)",
-    "definition": "部署（第1步）",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy dapp note",
-    "definition": "<b>注意：</ b> 在主网上上传文件和创建区块需要时间。 Dappy目前尝试15分钟的时间标准来获取地址。您可以使用dappy-cli JS库将任何文件或Web应用程序上传到区块链。",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "next",
     "definition": "下一个",
     "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "file",
-    "definition": "文件",
-    "context": "Deploy > File",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "rholang",
-    "definition": "rholang",
-    "context": "Deploy > Rholang",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -822,22 +570,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "value must between 1 and 10",
-    "definition": "值的范围需在1-10之间",
-    "context": "error in form",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "value must between 51 and 100",
-    "definition": "值的范围需在51-100之间",
-    "context": "error in form",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "account",
     "definition": {
       "other": "账户"
@@ -849,7 +581,7 @@ module.exports.translations = [
   },
   {
     "term": "add account paragraph",
-    "definition": "通过使用帐户，您可以避免每次发送交易时都输入私钥，并对REV余额进行跟踪。您可以根据需要拥有任意数量的帐户。使用密码对私钥进行了加密，创建者是唯一知晓者。\n\n当要求选择用于支付交易的账户时，将自动选择主账户。\n\n<b>注意：</ b> 通过主请求进行区块创建和余额更新需要大约10分钟。",
+    "definition": "添加账户段",
     "context": "Settings > Accounts > Add account",
     "term_plural": "",
     "reference": "",
@@ -930,14 +662,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "import nodes",
-    "definition": "导入节点",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "ok",
     "definition": "OK",
     "context": "",
@@ -946,56 +670,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "do you want import nodes",
-    "definition": "是否要导入以下节点？",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "yes import",
-    "definition": "是的，请导入",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "this node is on",
-    "definition": "此节点已打开，单击以将其禁用",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "this node is off",
-    "definition": "该节点已关闭，单击以将其激活",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "add a node",
     "definition": "新增节点",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "ssl established",
-    "definition": "建立加密的SSL连接",
-    "context": "Settings > Network",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "ssl not established",
-    "definition": "无法建立加密的SSL连接",
     "context": "Settings > Network",
     "term_plural": "",
     "reference": "",
@@ -1045,14 +721,6 @@ module.exports.translations = [
     "term": "cert must be set",
     "definition": "必须设置证书",
     "context": "error in form",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name request errors",
-    "definition": "名称请求错误",
-    "context": "Settings > Names > Requests",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1117,14 +785,6 @@ module.exports.translations = [
     "term": "next",
     "definition": "下一个",
     "context": "Pagination",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "dapp requests payment",
-    "definition": "Dapp要求区块链付款",
-    "context": "Payment request modal",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1250,22 +910,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "deploy (step 2)",
-    "definition": "部署（第2步）",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy rholang (step 2)",
-    "definition": "部署rholang （第2步)",
-    "context": "Deploy > Rholang",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "mute",
     "definition": "静音",
     "context": "Tab",
@@ -1298,14 +942,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "deploy dapp",
-    "definition": "部署应用",
-    "context": "Deploy > Dapp",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "remove tab",
     "definition": "关闭选项卡",
     "context": "Tab",
@@ -1317,14 +953,6 @@ module.exports.translations = [
     "term": "stop tab",
     "definition": "停止选项卡",
     "context": "Tab",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "reputation badges",
-    "definition": "徽章",
-    "context": "Settings > Names > Purchase name",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1372,14 +1000,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "save box",
-    "definition": "安全盒",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "password for account",
     "definition": "密码帐户",
     "context": "Settings > Accounts",
@@ -1396,40 +1016,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "remove box",
-    "definition": "移除盒子",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "token box",
-    "definition": {
-      "other": "代币盒子"
-    },
-    "context": "Settings > Accounts",
-    "term_plural": "token boxes",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "add existing token box",
-    "definition": "添加一个现有的代币盒",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "failed to deploy box",
-    "definition": "部署盒子失败",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "at least one node network",
     "definition": "您需要连接到一个至少有一个端点可用的网络上",
     "context": "Settings > Accounts",
@@ -1438,16 +1024,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "deploy a new token box",
-    "definition": "部署一个新的代币盒",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "no network cannot send revs",
-    "definition": "没有找到网络，不能发送REVs",
+    "definition": "没有找到网络，不能发送 REVs",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1456,22 +1034,6 @@ module.exports.translations = [
   {
     "term": "back to accounts",
     "definition": "返回账户",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "box definition",
-    "definition": "一个盒子可以包含来自一个或多个合约的一个或多个钱包。一个钱包可以是一个NFT，也可以是一个代表可替换的代币，这取决于它所链接的RChain-Token合约。",
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "box super key definition",
-    "definition": "一个盒子可以储存超级钥匙。通常情况下，您为您部署的合约拥有一把超级钥匙，此功能使您能够创建钱包，您也可以锁定合约，使其失去这种能力。",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -1494,57 +1056,9 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "check accounts",
-    "definition": "检查您的钱包/账户",
-    "context": "Home",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy ft",
-    "definition": "部署一份可替换物品的合约（FT）",
-    "context": "Home",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy nft",
-    "definition": "部署非同质化（NFT）的合同",
-    "context": "Home",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "d network is live",
-    "definition": "d 网络是可用的",
-    "context": "Home",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "d network definition",
-    "definition": "d网络是dappy的主要网络。加入互联网的未来，现在就在dappy上获得一个域名吧！",
-    "context": "Home",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "copy address",
     "definition": "复制地址",
     "context": "Transactions",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "record length",
-    "definition": "名称长度必须在1到24之间",
-    "context": "Settings > Names > Purchase name",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1558,24 +1072,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "at price",
-    "definition": "根据价格",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "name is for sale",
     "definition": "域名可以出售！",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name is not for sale",
-    "definition": "域名已被占用，不出售",
     "context": "Settings > Names > Purchase name",
     "term_plural": "",
     "reference": "",
@@ -1598,14 +1096,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "name box address and box address different",
-    "definition": "域名盒不同于您的帐户地址，交易可能会失败",
-    "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "contract",
     "definition": "合约",
     "context": "Settings > Accounts > Boxes",
@@ -1614,113 +1104,9 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "deploy ft contract",
-    "definition": "如果将创建、交易和交换的代币是可替换的，例如它们可以代表公司的股份、黄金代币、类似ERC-20的代币等，则部署一个FT合约。",
-    "context": "Deploy > Dapps",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy nft contract",
-    "definition": "如果代币代表稀缺的对象，如电影院中的特定座位、视频游戏中的稀缺物品，或域名系统（如dappy名字系统）中的稀缺域名等，则部署NFT合约。",
-    "context": "Deploy > Dapps",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "rchain token nft",
-    "definition": "RChain代币，用于非同质代币（NFT）",
-    "context": "Deploy > Dapps",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "rchain token ft",
-    "definition": "可替换代币的RChain代币",
-    "context": "Deploy > Dapps",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy contract",
-    "definition": "部署合同",
-    "context": "Deploy > Dapps",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "dappy opensource warning",
-    "definition": "这个程序不与FABCO / DAPPY的任何私人服务器互动。它不依赖于任何中心化的服务或服务器。私钥存储在您的计算机上，并以您的密码加密。Dappy浏览器是开放的soruce，但基本上不受审计的软件。我们建议您只使用不重要的REV/ETH地址和小金额的账户。\n\n使用Dappy，转移资金，参考私钥和公钥，风险自负。",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "purchase a name 2",
-    "definition": "域名是dappy生态系统的核心资产，您可以用一个域名来引用您在互联网网络上的网站（IP应用），您可以把您的域名指向一个HTML文件或您在区块链（dapp）上上传的任何其他文件，您也可以用它来接收付款，或作为一种投机资产。",
+    "definition": "购买一个域名 2",
     "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "operation on name successful",
-    "definition": "✓ 交易已成功发送至区块链。在交易处理完毕后，您的域名应该在三十或四十分钟内出现或被更新，新的域名被网络成员索引。",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "warning wait for update",
-    "definition": "不要多次尝试更新或购买域名在同一天，只需检查交易状态并等待。",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "you need box",
-    "definition": "您必须有一个部署了代币盒的账户，才能购买一个域名（NFT",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "add one locally 2",
-    "definition": "添加一个用于测试的本地域名",
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "update name paragraph 2",
-    "definition": "与一个域名相关的数据可以由所有者随时更新。它可以指向区块链上的另一个文件，或者从dapp变成IP应用，反之亦然。",
-    "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "add local name dev",
-    "definition": "添加本地域名（开发）",
-    "context": "Settings > Names",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "update name properties",
-    "definition": "更新域名属性",
-    "context": "Settings > Names > Update name",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1729,30 +1115,6 @@ module.exports.translations = [
     "term": "input your password",
     "definition": "您需要为你的账户输入一个有效密码",
     "context": "Settings > Names > Update name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "no boxes",
-    "definition": "您的账户没有链接到代币盒，请部署或链接一个现有代币盒合约到您的账户。",
-    "context": "Settings > Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "wait for synchronization",
-    "definition": "请稍等……\n同步中……",
-    "context": "Settings > Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "infos not retrieved",
-    "definition": "未从网络中检索到信息",
-    "context": "Settings > Deploy",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1769,94 +1131,6 @@ module.exports.translations = [
     "term": "transaction successful",
     "definition": "交易已成功发送到网络，查看交易列表，合约地址将很快可用。",
     "context": "Settings",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "transaction successful rev",
-    "definition": "该交易已成功发送到网络。几分钟后，您的余额将被更新。",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "transaction successful box",
-    "definition": "代币盒已经部署完毕。请不要退出，您的账户应该在几分钟后更新。",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "just transaction successful",
-    "definition": "交易成功",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "update nft purse price",
-    "definition": "更新钱包（NFT）价格",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "update per token price",
-    "definition": "更新每个代币价格（FT）",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "transaction successful update price",
-    "definition": "更新钱包价格的交易已被部署。",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "nft for sale",
-    "definition": "NFT 出售",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "for sale",
-    "definition": "代币出售",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "per token",
-    "definition": "每个代币",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "not for sale",
-    "definition": "不出售",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "account locked",
-    "definition": "账户被锁定",
-    "context": "Settings > Account",
     "term_plural": "",
     "reference": "",
     "comment": ""
@@ -1886,88 +1160,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "withdraw ft",
-    "definition": "提现",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "withdraw nft",
-    "definition": "发送 NFT",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "transaction successful withdraw",
-    "definition": "提现交易已经部署完毕。",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "box to withdraw to",
-    "definition": "撤回到代币盒",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "copy box id",
-    "definition": "复制代币盒 id",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "download image for social networks",
-    "definition": "下载图片用于社交网络",
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "csp",
-    "definition": "Content Security Policy header",
-    "context": "",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "update cost of minting",
-    "definition": null,
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "check account",
-    "definition": null,
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "not locked title",
-    "definition": null,
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "not locked",
-    "definition": null,
+    "definition": "检查账户",
     "context": "Settings > Account",
     "term_plural": "",
     "reference": "",
@@ -1975,7 +1169,7 @@ module.exports.translations = [
   },
   {
     "term": "expiration",
-    "definition": null,
+    "definition": "到期",
     "context": "Expiration",
     "term_plural": "",
     "reference": "",
@@ -1984,7 +1178,7 @@ module.exports.translations = [
   {
     "term": "hours",
     "definition": {
-      "other": ""
+      "other": "小时"
     },
     "context": "Settings > Account",
     "term_plural": "hours",
@@ -1992,24 +1186,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "rchain token fee",
-    "definition": null,
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "and",
-    "definition": null,
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "share image",
-    "definition": null,
+    "definition": "和",
     "context": "Settings > Account",
     "term_plural": "",
     "reference": "",
@@ -2018,7 +1196,7 @@ module.exports.translations = [
   {
     "term": "days",
     "definition": {
-      "other": ""
+      "other": "每天"
     },
     "context": "Settings > Account",
     "term_plural": "days",
@@ -2026,24 +1204,8 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "locked title",
-    "definition": null,
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "locked",
-    "definition": null,
-    "context": "Settings > Account",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "name system",
-    "definition": null,
+    "definition": "域名系统",
     "context": "Name system",
     "term_plural": "",
     "reference": "",
@@ -2051,7 +1213,7 @@ module.exports.translations = [
   },
   {
     "term": "name system not available",
-    "definition": null,
+    "definition": "域名系统不可用",
     "context": "Settings > Name system",
     "term_plural": "",
     "reference": "",
@@ -2059,119 +1221,15 @@ module.exports.translations = [
   },
   {
     "term": "name system",
-    "definition": null,
+    "definition": "域名系统",
     "context": "",
     "term_plural": "",
     "reference": "",
     "comment": ""
   },
   {
-    "term": "contract id",
-    "definition": null,
-    "context": "RChain token",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "counter",
-    "definition": null,
-    "context": "RChain token",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name lookup placeholder",
-    "definition": null,
-    "context": "RChain token",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "box",
-    "definition": null,
-    "context": "RChain token",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "locked",
-    "definition": null,
-    "context": "RChain token",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name / id",
-    "definition": null,
-    "context": "RChain token",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy ft and tips contract",
-    "definition": null,
-    "context": "Settings > Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "tips",
-    "definition": null,
-    "context": "Settings > Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name system logs",
-    "definition": null,
-    "context": "logs",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "new name",
-    "definition": null,
-    "context": "logs",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "was purchased for",
-    "definition": null,
-    "context": "logs",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "was traded for",
-    "definition": null,
-    "context": "logs",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "don't ask again",
-    "definition": null,
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "skip",
-    "definition": null,
+    "definition": "跳过",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -2179,55 +1237,15 @@ module.exports.translations = [
   },
   {
     "term": "dappy account description",
-    "definition": null,
+    "definition": "Dappy 帐户描述",
     "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "create account",
-    "definition": null,
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "no accounts configured",
-    "definition": null,
-    "context": "Settings > Accounts",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "box not found",
-    "definition": null,
-    "context": "Settings > Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "email for record help",
-    "definition": null,
-    "context": "Settings > Names > Purchase name",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "email for record",
-    "definition": null,
-    "context": "Settings > Names > Purchase name",
     "term_plural": "",
     "reference": "",
     "comment": ""
   },
   {
     "term": "update available",
-    "definition": null,
+    "definition": "可更新",
     "context": "Download",
     "term_plural": "",
     "reference": "",
@@ -2235,63 +1253,15 @@ module.exports.translations = [
   },
   {
     "term": "download page",
-    "definition": null,
+    "definition": "下载页面",
     "context": "Download",
     "term_plural": "",
     "reference": "",
     "comment": ""
   },
   {
-    "term": "rchain token create-purses",
-    "definition": null,
-    "context": "Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "deploy create-purses",
-    "definition": null,
-    "context": "Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "nft example",
-    "definition": null,
-    "context": "Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "ft example",
-    "definition": null,
-    "context": "Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "structure for nft",
-    "definition": null,
-    "context": "Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "structure for ft",
-    "definition": null,
-    "context": "Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "only rchain-token version",
-    "definition": null,
+    "definition": "仅 RChain 代币版本",
     "context": "Deploy",
     "term_plural": "",
     "reference": "",
@@ -2299,15 +1269,7 @@ module.exports.translations = [
   },
   {
     "term": "rchain-token master",
-    "definition": null,
-    "context": "Deploy",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "price 0 not for sale",
-    "definition": null,
+    "definition": "主要 RChain 代币",
     "context": "Deploy",
     "term_plural": "",
     "reference": "",
@@ -2315,7 +1277,7 @@ module.exports.translations = [
   },
   {
     "term": "copy url",
-    "definition": null,
+    "definition": "复制 URL",
     "context": "Download",
     "term_plural": "",
     "reference": "",
@@ -2323,7 +1285,7 @@ module.exports.translations = [
   },
   {
     "term": "remove account warning",
-    "definition": null,
+    "definition": "删除账户警告",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -2331,31 +1293,7 @@ module.exports.translations = [
   },
   {
     "term": "token quantity",
-    "definition": null,
-    "context": "Purchase record",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "price per token",
-    "definition": null,
-    "context": "Purchase record",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "max gas fees",
-    "definition": null,
-    "context": "Purchase record",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "max total cost",
-    "definition": null,
+    "definition": "代币数量",
     "context": "Purchase record",
     "term_plural": "",
     "reference": "",
@@ -2363,7 +1301,7 @@ module.exports.translations = [
   },
   {
     "term": "hide balances",
-    "definition": null,
+    "definition": "隐藏余额",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -2371,7 +1309,7 @@ module.exports.translations = [
   },
   {
     "term": "show balances",
-    "definition": null,
+    "definition": "显示余额",
     "context": "Settings > Accounts",
     "term_plural": "",
     "reference": "",
@@ -2379,7 +1317,7 @@ module.exports.translations = [
   },
   {
     "term": "signing ethereum transaction",
-    "definition": null,
+    "definition": "签署以太坊转账",
     "context": "Modal",
     "term_plural": "",
     "reference": "",
@@ -2387,7 +1325,7 @@ module.exports.translations = [
   },
   {
     "term": "signing rchain transaction",
-    "definition": null,
+    "definition": "签署日链转账",
     "context": "Modal",
     "term_plural": "",
     "reference": "",
@@ -2395,55 +1333,15 @@ module.exports.translations = [
   },
   {
     "term": "sign transaction",
-    "definition": null,
+    "definition": "签署转账",
     "context": "Modal",
     "term_plural": "",
     "reference": "",
     "comment": ""
   },
   {
-    "term": "name system master registry uri",
-    "definition": "Name system master registry URI",
-    "context": "Settings > Networks",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "name system contract id",
-    "definition": "Name system contract ID",
-    "context": "Settings > Networks",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "wrapped rev contract id",
-    "definition": "Wrapped REV contract ID",
-    "context": "Settings > Networks",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "what is a dappy network ?",
-    "definition": "什么是dappy网络？",
-    "context": "Help",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "use public ca paragraph",
-    "definition": null,
-    "context": "Purchase record",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "what is a box ?",
-    "definition": "什么是盒子 ?",
+    "definition": "什么是 Dappy 网络？",
     "context": "Help",
     "term_plural": "",
     "reference": "",
@@ -2451,7 +1349,7 @@ module.exports.translations = [
   },
   {
     "term": "what is rev ?",
-    "definition": "rev是什么 ?",
+    "definition": "REV 是什么 ?",
     "context": "Help",
     "term_plural": "",
     "reference": "",
@@ -2459,7 +1357,7 @@ module.exports.translations = [
   },
   {
     "term": "why can't I see my balance for ETH and other EVM wallets ?",
-    "definition": "为什么我不能在我的eth或EVM钱包里看到我的数量 ?",
+    "definition": "为什么我不能在我的以太坊或 EVM 钱包里看到我的数量 ?",
     "context": "Help",
     "term_plural": "",
     "reference": "",
@@ -2467,7 +1365,7 @@ module.exports.translations = [
   },
   {
     "term": "copy",
-    "definition": null,
+    "definition": "复制",
     "context": "",
     "term_plural": "",
     "reference": "",
@@ -2493,6 +1391,78 @@ module.exports.translations = [
     "term": "what is multi-requests ?",
     "definition": "什么是多路请求 ?",
     "context": "Help",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "auth 1",
+    "definition": null,
+    "context": "Auth",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "auth 2",
+    "definition": null,
+    "context": "Auth",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "menu auth",
+    "definition": null,
+    "context": "Auth",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "save auth",
+    "definition": null,
+    "context": "Auth",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "menu whitelist",
+    "definition": null,
+    "context": "Whitelist",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "whitelist 1",
+    "definition": null,
+    "context": "Whitelist",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "whitelist title",
+    "definition": null,
+    "context": "Whitelist",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "auth title",
+    "definition": null,
+    "context": "Auth",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "whitelist of domains",
+    "definition": null,
+    "context": "Auth",
     "term_plural": "",
     "reference": "",
     "comment": ""

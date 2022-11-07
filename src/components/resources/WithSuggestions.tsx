@@ -4,7 +4,7 @@ import throttle from 'xstream/extra/throttle';
 import debounce from 'xstream/extra/debounce';
 
 import * as fromDapps from '/store/dapps';
-import './NavigationBar.scss';
+import './NavigationBar2.scss';
 import { TransitoryState, Tab } from '/models';
 
 export interface WithSuggestionsComponentProps {
