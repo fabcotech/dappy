@@ -31,7 +31,7 @@ export interface Action {
 }
 
 export const updateBlockchainsFromStorageAction = (blockchains: Blockchain[]) => ({
-  type: UPDATE_BLOCKCHAINS_FOM_STORAGE,
+  type: UPDATE_BLOCKCHAINS_FROM_STORAGE,
   payload: blockchains,
 });
 
