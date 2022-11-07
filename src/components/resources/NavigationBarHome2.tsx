@@ -5,7 +5,7 @@ import * as fromDapps from '/store/dapps';
 import * as fromSettings from '/store/settings';
 import { WithSuggestions } from './WithSuggestions';
 
-import './NavigationBarHome.scss';
+import './NavigationBarHome2.scss';
 
 class NavigationBarHome2Component extends WithSuggestions {
   render() {

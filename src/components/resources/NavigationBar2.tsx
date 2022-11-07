@@ -8,7 +8,7 @@ import * as fromUi from '/store/ui';
 import * as fromMain from '/store/main';
 import { Tab } from '/models';
 import { State as StoreState } from '/store';
-import './NavigationBar.scss';
+import './NavigationBar2.scss';
 import { dispatchInMain } from '/interProcess';
 
 class NavigationBar2Component extends WithSuggestions {
