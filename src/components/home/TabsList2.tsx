@@ -28,6 +28,21 @@ class TabsList2Component extends React.Component<TabsList2Props, {}> {
 
   render() {
     const focusedTabId = this.props.tabsFocusOrder[this.props.tabsFocusOrder.length - 1];
+
+    if (focusedTabId) {
+      const tab = this.props.tabs.find((t) => t.id === focusedTabId);
+      return (
+        <div className="simple-tab">
+          <div>
+            <span className="tab-favicon"></span>
+          </div>
+          <div>
+            <p className="tab-title">{(tab as Tab).title}</p>
+          </div>
+        </div>
+      );
+    }
+    return <></>;
     return (
       <div className={`tabs-list-2 ${this.props.onlyIcons ? 'only-icons' : ''}`}>
         {this.props.tabs.map((tab) => {

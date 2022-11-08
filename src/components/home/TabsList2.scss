@@ -1,5 +1,28 @@
 @import '../../style/variables.scss';
 
+.simple-tab {
+  display: grid;
+  grid-template-columns: 38px auto;
+  padding-left: 1rem;
+  & > div {
+    display: flex;
+    align-items: center;
+    justify-self: flex-start;
+  }
+  .tab-favicon {
+    width: 25px;
+    height: 25px;
+    background: #faf;
+  }
+  .tab-title {
+    user-select: none;
+    max-width: 600px;
+    line-height: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
 .tabs-list-2 {
   margin-left: 8px;
   padding-left: 8px;
