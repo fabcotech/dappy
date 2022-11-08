@@ -1,4 +1,4 @@
-@import "../../style/variables.scss";
+@import '../../style/variables.scss';
 
 .navigation-bar {
   background-color: #fafafa;
@@ -52,42 +52,18 @@
     align-items: center;
     position: relative;
     .lock-div {
-      width: 4rem;
-      height: 3rem;
-    }
-    &.with-app-type {
-      .lock-div {
-        width: 5rem;
-        border-radius: 0.25rem;
-      }
-      .tip-div {
-        width: 2.5rem;
-        i {
-          cursor: default;
-        }
-        &.resource-loaded {
-          i {
-            cursor: pointer;
-          }
-        }
-      }
-    }
-    .lock-div {
       user-select: none;
-      &.resource-loaded:hover {
-        cursor: pointer;
-      }
+      width: 2.5rem;
+      transform: translateY(-2px);
       height: 2.25em;
       display: flex;
       align-items: center;
       justify-content: space-evenly;
-      .app-type {
-        border-radius: 0.25rem;
-        min-width: 18px;
-        font-weight: 600;
+      img.lock {
+        width: 24px;
       }
-      i {
-        font-size: 0.9rem;
+      &.resource-loaded:hover {
+        cursor: pointer;
       }
     }
     .reset {
@@ -97,10 +73,11 @@
       cursor: default;
     }
     input {
+      padding-left: 0.5rem;
       font-weight: 500;
       &:focus {
-        box-shadow: 0px 0px 5px rgba(0,0,0,0.15) inset !important;
+        box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.15) inset !important;
       }
     }
-  } 
+  }
 }

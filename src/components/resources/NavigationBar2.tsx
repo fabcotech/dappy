@@ -9,6 +9,8 @@ import * as fromMain from '/store/main';
 import { Tab } from '/models';
 import { State as StoreState } from '/store';
 import './NavigationBar2.scss';
+import locked_gold from '/images/locked_gold.png';
+import locked_grey from '/images/locked_grey.png';
 import { dispatchInMain } from '/interProcess';
 
 class NavigationBar2Component extends WithSuggestions {
@@ -76,7 +78,7 @@ class NavigationBar2Component extends WithSuggestions {
             <div>
               <i
                 onClick={(e) => this.props.loadResource({ tabId: tab.id, url: tab.url })}
-                className={`fa fa-redo `}
+                className="fa fa-redo"
                 title="Reload"
               />
             </div>
@@ -101,20 +103,21 @@ class NavigationBar2Component extends WithSuggestions {
         <div className={`form pl-1 pr-2 ${this.props.resourceLoaded ? 'with-app-type' : ''}`}>
           {this.props.resourceLoaded ? (
             <div
-              className="lock-div mr-1 with-type resource-loaded"
+              className="lock-div mr-1 resource-loaded"
               onClick={() => {
                 if (this.props.tab) {
                   this.onShowLoadInfo();
                 }
               }}
             >
-              <i className="fa fa-lock" />
-              <span className="app-type fc">{this.props.appType}</span>
+              {this.props.tab && this.props.tab.data && this.props.tab.data.isDappyNameSystem ? (
+                <img className="lock" src={locked_gold}></img>
+              ) : (
+                <img className="lock" src={locked_grey}></img>
+              )}
             </div>
           ) : (
-            <span className="lock-div">
-              <i className="fa fa-lock" />
-            </span>
+            <div className="lock-div"></div>
           )}
 
           <input
