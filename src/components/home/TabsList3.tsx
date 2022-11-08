@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 
 import { State as StoreState } from '/store';
@@ -6,6 +6,25 @@ import * as fromDapps from '/store/dapps';
 import * as fromUi from '/store/ui';
 import { TransitoryState, Tab } from '/models';
 import './TabsList3.scss';
+import { AppCards } from './AppCards';
+import { Api, ApiContext } from './AppCards/Api';
+import { App, Page, Wallet } from './AppCards/model';
+
+const groupByDomain = (pages: Page[]) => {
+  const result = pages.reduce<Record<string, App>>((groups, page) => {
+    const domain = new URL(page.url).hostname;
+    if (!groups[domain]) {
+      groups[domain] = {
+        name: domain,
+        image: page.image,
+        pages: [],
+      };
+    }
+    groups[domain].pages.push(page);
+    return groups;
+  }, {});
+  return Object.values(result);
+};
 
 interface TabsList2Props {
   tabs: Tab[];
@@ -22,32 +41,56 @@ interface TabsList2Props {
   unfocusAllTabs: () => void;
 }
 
-class TabsList3Component extends React.Component<TabsList2Props, {}> {
-  state = {};
+const TabsList3Component = (props: TabsList2Props) => {
+  const [pages, setPages] = useState<Page[]>(
+    props.tabs.map((t) => ({
+      url: t.url,
+      title: t.title,
+      image: t.img,
+      favorite: t.favorite,
+    }))
+  );
 
-  render() {
-    const focusedTabId = this.props.tabsFocusOrder[this.props.tabsFocusOrder.length - 1];
-    return (
-      <div className={`tabs-list-3 ${this.props.onlyIcons ? 'only-icons' : ''}`}>
-        {this.props.tabs.map((tab) => {
-          return (
-            <div
-              className={`tab ${focusedTabId === tab.id ? 'focused' : ''} ${
-                tab.active ? 'active' : ''
-              }`}
-            >
-              <div className="content">
-                <div className="host">
-                  <span>{tab.url}</span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
-}
+  const [wallets] = useState<Wallet[]>([]);
+
+  const api: Api = {
+    getPages: () => pages,
+    deleteApp: (url: string) => setPages(pages.filter((p) => p.url !== url)),
+    toggleFavorite: (url: string) => {
+      const page = pages.find((p) => p.url === url);
+      if (page) {
+        page.favorite = !page.favorite;
+      }
+      setPages([...pages]);
+    },
+    getWallets: () => wallets,
+  };
+
+  const focusedTabId = props.tabsFocusOrder[props.tabsFocusOrder.length - 1];
+  return (
+    <ApiContext.Provider value={api}>
+      <AppCards groupBy={groupByDomain} />
+    </ApiContext.Provider>
+    // <div className={`tabs-list-3 ${props.onlyIcons ? 'only-icons' : ''}`}>
+    //   {props.tabs.map((tab) => {
+    //     return (
+    //       <div
+    //         className={`tab ${focusedTabId === tab.id ? 'focused' : ''} ${
+    //           tab.active ? 'active' : ''
+    //         }`}
+    //       >
+    //         <div className="content">
+    //           {/* todo : is this safe ? (new URL) */}
+    //           <div className="host">
+    //             <span>{new URL(tab.url).host}</span>
+    //           </div>
+    //         </div>
+    //       </div>
+    //     );
+    //   })}
+    // </div>
+  );
+};
 
 export const TabsList3 = connect(
   (state: StoreState) => {
