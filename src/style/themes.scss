@@ -1,3 +1,20 @@
+body {
+  --font-family: "Fira Sans", sans-serif;
+  --text-main-color: #999;
+  --text-secondary-color: #fff;
+  --card-bg-color: #222;
+  --card-border-color: #3b4040;
+  --card-font-size: 1.25rem;
+  --border-radius: 5px;
+  --bg-image: repeating-linear-gradient(
+    45deg,
+    #000,
+    #030303 1px,
+    #111 1px,
+    #111 5px
+  );
+}
+
 .theme-default {
   .top-window-buttons {
     i {
@@ -244,6 +261,88 @@
           }
         }
       }
+    }
+  }
+  .appCard {
+    font-size: var(--card-font-size);
+
+    .header a {
+      color: var(--text-main-color);
+    }
+    
+    .header .buttonBar button {
+      color: var(--text-main-color);
+    }
+    
+    .header .buttonBar button:hover {
+      color: var(--text-secondary-color);
+    }
+    
+    .pageTabs .tab {
+      background-color: var(--card-bg-color);
+      border: 1px solid var(--card-border-color);
+      border-bottom: 0;
+      background-color: #191919;
+    }
+    
+    .pageTabs .tab i {
+      color: var(--card-border-color);
+      font-size: 6px;
+    }
+    
+    .pageTabs .tab.selected {
+      background-color: var(--card-bg-color);
+    }
+    
+    .pageTabs .tab.selected i {
+      color: var(--text-main-color);
+    }
+    
+    .pageTabs :not(.selected) {
+      border: 1px solid var(--card-bg-color);
+    }
+
+    .wallets {
+      color: var(--text-main-color);
+      border-left: 0;
+      border-top-right-radius: calc(2 * var(--border-radius));
+      border-bottom-right-radius: calc(2 * var(--border-radius));
+      background-color: #333;
+      position: absolute;
+      left: -1px;
+      bottom: 1.5rem;
+      padding-right: 1rem;
+      flex: inherit;
+      right: 3rem;
+
+      .label {
+        color: var(--text-main-color);
+        /* border-right: 1px solid var(--card-border-color); */
+        padding: 1rem;
+      }
+
+      .value {
+        margin: 1rem;
+      }
+    }
+  }
+  
+  .pageCard {
+    background: var(--card-bg-color);
+    border: 1px solid var(--card-border-color);
+    position: relative;
+    text-decoration: none;
+
+    .content {
+      color: var(--text-main-color);
+    }
+    
+    .content .title {
+      color: var(--text-secondary-color);
+    }
+    
+    .content .description {
+      height: 3.5rem;
     }
   }
 }
