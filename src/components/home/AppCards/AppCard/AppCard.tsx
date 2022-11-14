@@ -70,7 +70,7 @@ export const AppCard = ({ app }: AppCardProps) => {
     setCurrentPageIndex(app.pages.length - 1);
   }, [app.pages.length]);
 
-  const { deleteApp, toggleFavorite, openOrFocusPage } = useContext(ApiContext);
+  const { deletePage, toggleFavorite, openOrFocusPage } = useContext(ApiContext);
 
   const openPage = (e: SyntheticEvent) => {
     e.preventDefault();
@@ -109,8 +109,8 @@ export const AppCard = ({ app }: AppCardProps) => {
           key={app.pages[currentPageIndex].url}
           {...app.pages[currentPageIndex]}
           onClick={openPage}
-          onClose={() => deleteApp(app.pages[currentPageIndex].url)}
-          onToggleFavorite={() => toggleFavorite(app.pages[currentPageIndex].url)}
+          onClose={() => deletePage(app.pages[currentPageIndex])}
+          onToggleFavorite={() => toggleFavorite(app.pages[currentPageIndex])}
         />
       )}
     </div>

@@ -6,7 +6,7 @@ import * as fromMain from '../../main';
 import { browserUtils } from '../../browser-utils';
 import { Tab } from '../../../models';
 
-const removeTab = function* (action: Action) {
+function* removeTab(action: Action) {
   const { payload } = action;
   const { tabId } = payload;
   const tabs: Tab[] = yield select(fromDapps.getTabs);
@@ -30,9 +30,7 @@ const removeTab = function* (action: Action) {
 
     yield browserUtils.removeInStorage('tabs', tabId);
 
-    store.dispatch(
-      fromDapps.removeTabCompletedAction({ tabId })
-    );
+    store.dispatch(fromDapps.removeTabCompletedAction({ tabId }));
   } catch (e) {
     yield put(
       fromMain.saveErrorAction({
@@ -42,8 +40,8 @@ const removeTab = function* (action: Action) {
       })
     );
   }
-};
+}
 
-export const removeTabSaga = function* () {
+export function* removeTabSaga() {
   yield takeEvery(fromDapps.REMOVE_TAB, removeTab);
-};
+}
