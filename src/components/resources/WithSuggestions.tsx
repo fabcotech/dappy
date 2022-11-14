@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { Component } from 'react';
 import xs, { Stream } from 'xstream';
 import throttle from 'xstream/extra/throttle';
 import debounce from 'xstream/extra/debounce';
@@ -30,7 +30,7 @@ export interface WithSuggestionsComponentProps {
 export interface WithSuggestionsComponentState {
   pristine: boolean;
 }
-export class WithSuggestionsComponent extends React.Component<
+export class WithSuggestionsComponent extends Component<
   WithSuggestionsComponentProps,
   WithSuggestionsComponentState
 > {
@@ -42,6 +42,11 @@ export class WithSuggestionsComponent extends React.Component<
 
   state = {
     pristine: true,
+  };
+
+  static defaultProps = {
+    canGoBackward: false,
+    canGoForward: false,
   };
 
   inputEl: HTMLInputElement | null = null;

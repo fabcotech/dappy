@@ -175,7 +175,6 @@ interface AccountsProps {
   executingAccountsCronJobs: boolean;
   isBalancesHidden: boolean;
   updateBalances: () => void;
-  sendRChainTransaction: (t: fromBlockchain.SendRChainTransactionPayload) => void;
   toggleBalancesVisibility: () => void;
 }
 
@@ -237,7 +236,6 @@ export const Accounts = connect(
   }),
   (dispatch) => ({
     updateBalances: () => null,
-    sendRChainTransaction: () => null,
     toggleBalancesVisibility: () => dispatch(toggleBalanceVisibility()),
   })
 )(AccountsComponent);

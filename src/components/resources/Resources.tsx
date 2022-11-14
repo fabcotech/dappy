@@ -1,11 +1,11 @@
-import * as React from 'react';
+import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 
 import './Resources.scss';
 import * as fromDapps from '/store/dapps';
 import * as fromMain from '/store/main';
 import { TransitoryState, Tab } from '/models';
-import { DisplayError, NavigationBar, NavigationBar2 } from '.';
+import { DisplayError, NavigationBar2 } from '.';
 import { Modal } from '../utils';
 
 interface ResourcesComponentProps {
@@ -68,7 +68,7 @@ class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
           }
 
           return (
-            <React.Fragment key={tabId}>
+            <Fragment key={tabId}>
               <NavigationBar2 key={`${tabId}-${zIndex}`} zIndex={zIndex} tab={tab} />
               <DisplayError
                 zIndex={(this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10}
@@ -77,7 +77,7 @@ class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
                 clearSearchAndLoadError={this.props.clearSearchAndLoadError}
                 loadResource={this.props.loadResource}
               />
-            </React.Fragment>
+            </Fragment>
           );
         })}
       </div>

@@ -46,7 +46,7 @@ export const initialState: State = {
 };
 
 export const updateShowAccountCreationAtStartupReducer = (state = initialState, action: Action) => {
-  const { show }: fromActions.updateShowAccountCreationAtStartupPayload = action.payload;
+  const { show }: fromActions.UpdateShowAccountCreationAtStartupPayload = action.payload;
 
   return {
     ...state,
@@ -98,11 +98,13 @@ export const reducer = (state = initialState, action: Action): State => {
         }
       }
 
-      if (payload.navigationUrl.startsWith('/settings') && !ACCESS_SETTINGS) payload.navigationUrl = '/';
+      if (payload.navigationUrl.startsWith('/settings') && !ACCESS_SETTINGS)
+        payload.navigationUrl = '/';
       if (payload.navigationUrl === '/accounts' && !ACCESS_ACCOUNTS) payload.navigationUrl = '/';
       if (payload.navigationUrl === '/auth' && !ACCESS_SECURITY) payload.navigationUrl = '/';
       if (payload.navigationUrl.startsWith('/deploy')) payload.navigationUrl = '/';
-      if (payload.navigationUrl === '/transactions' && !ACCESS_TRANSACTIONS) payload.navigationUrl = '/';
+      if (payload.navigationUrl === '/transactions' && !ACCESS_TRANSACTIONS)
+        payload.navigationUrl = '/';
       if (payload.navigationUrl === '/whitelist' && !ACCESS_WHITELIST) payload.navigationUrl = '/';
 
       return {

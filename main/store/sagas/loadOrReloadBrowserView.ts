@@ -301,7 +301,7 @@ function* loadOrReloadBrowserView(action: any) {
     });
   });
 
-  view.webContents.on('did-stop-loading', (e) => {
+  view.webContents.on('did-stop-loading', () => {
     action.meta.browserWindow.webContents.executeJavaScript(
       `window.browserViewEvent('did-stop-loading', { tabId: '${
         payload.tab.id
@@ -441,20 +441,6 @@ function* loadOrReloadBrowserView(action: any) {
     console.log('will-navigate', futureUrl);
     // todo select tab here to know if tab is favorite or not
     handleNavigation(e, futureUrl, payload.tab.favorite);
-  });
-  view.webContents.on('did-start-loading', (e: Electron.Event) => {
-    action.meta.browserWindow.webContents.executeJavaScript(
-      `window.browserViewEvent('did-start-loading', { tabId: '${
-        payload.tab.id
-      }', url: '${e.sender.getURL()}' })`
-    );
-  });
-  view.webContents.on('dom-ready', (e) => {
-    action.meta.browserWindow.webContents.executeJavaScript(
-      `window.browserViewEvent('dom-ready', { tabId: '${
-        payload.tab.id
-      }', url: '${e.sender.getURL()}' })`
-    );
   });
 
   // ==============================
