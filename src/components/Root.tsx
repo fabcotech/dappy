@@ -115,11 +115,6 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
     if (this.props.isMobile) {
       klasses += ' is-mobile';
     }
-    if (this.props.menuCollapsed) {
-      klasses += ' menu-collapsed';
-    } else {
-      klasses += ' menu-not-collapsed';
-    }
 
     return (
       <div className={klasses}>

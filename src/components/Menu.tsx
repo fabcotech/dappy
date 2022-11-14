@@ -40,7 +40,7 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
     return (
       <aside
         style={backgroundMenuLeft ? { background: backgroundMenuLeft } : {}}
-        className={`root-left menu not-collapsed`}
+        className="root-left menu"
       >
         <ul className="menu-list">
           {ACCESS_SETTINGS && (

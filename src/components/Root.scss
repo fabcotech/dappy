@@ -45,7 +45,8 @@
   min-height: 100%;
   position: relative;
   display: grid;
-  grid-template-rows: 38px calc(100% - 30px);
+  grid-template-rows: 38px;
+  grid-template-columns: 96px;
   .loading {
     background: #eee;
     z-index: 2000;
@@ -78,9 +79,6 @@
         animation-iteration-count: infinite;
       }
     }
-  }
-  &.menu-not-collapsed {
-    grid-template-columns: 96px calc(100% - 96px);
   }
   & > .topbar {
     z-index: 1;

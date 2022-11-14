@@ -10,6 +10,7 @@ li.update-available {
 }
 
 .root-left.menu {
+  width: 96px;
   &.menu-dev {
     padding-top: 10px;
     // background: linear-gradient(20deg, #000, #002);
@@ -21,22 +22,20 @@ li.update-available {
     &.collapsed {
       flex-direction: column;
     }
-    &.not-collapsed {
-      li.with-img {
-        height: auto;
-      }
-      li:nth-child(1) {
-        -webkit-user-select: none;
-        user-select: none;
-        -webkit-app-region: drag;
-      }
-      width: 100%;
+    li.with-img {
       height: auto;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      flex-direction: column;
     }
+    li:nth-child(1) {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-app-region: drag;
+    }
+    width: 100%;
+    height: auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
   }
   .menu-list li {
     position: relative;

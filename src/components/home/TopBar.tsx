@@ -1,38 +1,52 @@
-import * as React from 'react';
+import React from 'react';
 
 import { NavigationUrl } from '/models';
-
 import './TopBar.scss';
-import { TabsList2 } from './';
+
+import { TabsList2 } from '.';
 
 interface TopBarComponentProps {
   isNavigationInDapps: boolean;
   navigate: (navigationUrl: NavigationUrl) => void;
 }
 
-class TopBarComponent extends React.Component<TopBarComponentProps, {}> {
-  state = {};
-
-  render() {
-    return (
-      <div className="topbar">
-        <a
-          onClick={() => {
-            if (this.props.isNavigationInDapps) {
-              this.props.navigate('/settings');
-            } else {
-              this.props.navigate('/');
-            }
-          }}
-          className="settings-home"
-          type="button"
-        >
-          {this.props.isNavigationInDapps ? 'Settings' : 'Back'}
-        </a>
-        {this.props.isNavigationInDapps && <TabsList2 />}
-      </div>
-    );
-  }
+function TopBarComponent({ isNavigationInDapps, navigate }: TopBarComponentProps) {
+  return (
+    <div
+      style={{
+        paddingLeft: '5px',
+        display: 'flex',
+        height: '38px',
+        gridColumn: 'span 2',
+      }}
+    >
+      <button
+        type="button"
+        className="tb-button"
+        onClick={() => {
+          if (isNavigationInDapps) {
+            navigate('/settings');
+          } else {
+            navigate('/');
+          }
+        }}
+      >
+        {isNavigationInDapps ? (
+          <i className="fas fa-wrench fa-lg" title="settings" />
+        ) : (
+          <i className="fas fa-caret-square-left fa-lg" title="back to navigation" />
+        )}
+      </button>
+      {isNavigationInDapps && (
+        <>
+          <button className="tb-button">
+            <i className="fas fa-home fa-lg" title="go to home" />
+          </button>
+          <TabsList2 />
+        </>
+      )}
+    </div>
+  );
 }
 
 export const TopBar = TopBarComponent;
