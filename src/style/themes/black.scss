@@ -1,114 +1,3 @@
-body {
-  --font-family: "Fira Sans", sans-serif;
-  --text-main-color: #999;
-  --text-secondary-color: #fff;
-  --card-bg-color: #222;
-  --card-border-color: #3b4040;
-  --card-font-size: 1.25rem;
-  --border-radius: 5px;
-  --bg-image: repeating-linear-gradient(
-    45deg,
-    #000,
-    #030303 1px,
-    #111 1px,
-    #111 5px
-  );
-}
-
-.theme-default {
-  .top-window-buttons {
-    i {
-      border-color: #111;
-      color: #111;
-    }
-  }
-  .button.is-link {
-    background: linear-gradient(45deg, #103373, #3268ab);
-    box-shadow: 0px 0px 23px #3268ab inset;
-
-    &:not(.disabled):hover {
-      background: linear-gradient(45deg, #103373, #3268ab);
-      box-shadow: 0px 0px 5px #3268ab inset;
-    }
-    &:not(.disabled):active {
-      background: linear-gradient(45deg, #0b2657, #3268ab);
-      border: 1px solid #21518b;
-      box-shadow: 0px 0px 5px #3268ab inset;
-    }
-  }
-
-  .root-left.menu {
-    background: linear-gradient(20deg, $menu-bottom, $primary);
-    .menu-list li {
-      a {
-        color: #f2f2f2;
-      }
-      a.is-active {
-        background-color: rgba(0, 0, 0, 0.4);
-        color: #fff;
-      }
-    }
-  }
-  .navigation-bar {
-    border-bottom: 1px solid #eaeaea;
-    background-color: #f7f7f7;
-    & > div.disabled {
-      i {
-        color: #aaa;
-      }
-    }
-    & > div:not(.disabled) {
-      i {
-        color: #555;
-        &:hover {
-          color: #111;
-        }
-      }
-      i.disabled {
-        color: #aaa;
-      }
-    }
-    .form {
-      input {
-        background: #fafafa;
-        color: #555;
-        border: 1px solid #eee;
-      }
-      .lock-div {
-        border-color: rgba($primary, 0.4);
-        .app-type {
-          color: #555;
-        }
-        &.resource-loaded:hover {
-          cursor: pointer;
-          background: #eaeaea;
-          &:active {
-            background: #e0e0e0;
-          }
-          .app-type {
-            color: #555;
-          }
-        }
-        i {
-          color: $primary;
-        }
-      }
-      .tip-div {
-        &:not(.resource-loaded) > i:hover {
-          color: #aaa;
-        }
-        i {
-          color: #aaa;
-        }
-        &.resource-loaded {
-          i {
-            color: #555;
-          }
-        }
-      }
-    }
-  }
-}
 .theme-black {
   background-image: repeating-linear-gradient(45deg, #000, #030303 1px, #111 1px, #111 5px);
   .search-dapps {
@@ -263,46 +152,46 @@ body {
       }
     }
   }
-  .appCard {
+  .ac-appCard {
     font-size: var(--card-font-size);
 
-    .header a {
+    .ac-header a {
       color: var(--text-main-color);
     }
     
-    .header .buttonBar button {
+    .ac-header .ac-buttonBar button {
       color: var(--text-main-color);
     }
     
-    .header .buttonBar button:hover {
+    .ac-header .ac-buttonBar button:hover {
       color: var(--text-secondary-color);
     }
     
-    .pageTabs .tab {
+    .ac-pageTabs .ac-tab {
       background-color: var(--card-bg-color);
       border: 1px solid var(--card-border-color);
       border-bottom: 0;
       background-color: #191919;
     }
     
-    .pageTabs .tab i {
+    .ac-pageTabs .ac-tab i {
       color: var(--card-border-color);
       font-size: 6px;
     }
     
-    .pageTabs .tab.selected {
+    .ac-pageTabs .ac-tab.ac-selected {
       background-color: var(--card-bg-color);
     }
     
-    .pageTabs .tab.selected i {
+    .ac-pageTabs .ac-tab.ac-selected i {
       color: var(--text-main-color);
     }
     
-    .pageTabs :not(.selected) {
+    .ac-pageTabs :not(.ac-selected) {
       border: 1px solid var(--card-bg-color);
     }
 
-    .wallets {
+    .ac-wallets {
       color: var(--text-main-color);
       border-left: 0;
       border-top-right-radius: calc(2 * var(--border-radius));
@@ -315,104 +204,34 @@ body {
       flex: inherit;
       right: 3rem;
 
-      .label {
+      .ac-label {
         color: var(--text-main-color);
         /* border-right: 1px solid var(--card-border-color); */
         padding: 1rem;
       }
 
-      .value {
+      .ac-value {
         margin: 1rem;
       }
     }
   }
   
-  .pageCard {
+  .ac-pageCard {
     background: var(--card-bg-color);
     border: 1px solid var(--card-border-color);
     position: relative;
     text-decoration: none;
 
-    .content {
+    .ac-content {
       color: var(--text-main-color);
     }
     
-    .content .title {
+    .ac-content .ac-title {
       color: var(--text-secondary-color);
     }
     
-    .content .description {
+    .ac-content .ac-description {
       height: 3.5rem;
-    }
-  }
-}
-.theme-pink {
-  .root-left.menu {
-    background: linear-gradient(20deg, $themePinkDark, $themePink);
-    .menu-list li {
-      a {
-        color: rgba(0, 0, 0, 0.7);
-      }
-      a.is-active {
-        background-color: darken($themePink, 10%);
-        color: #222;
-      }
-    }
-  }
-  .navigation-bar {
-    background-color: $themePink;
-    border-color: $themePinkDark;
-    & > div.disabled {
-      i {
-        color: $themePinkDisabled;
-      }
-    }
-    & > div:not(.disabled) {
-      i {
-        color: #333;
-        &:hover {
-          color: #222;
-        }
-      }
-      i.disabled {
-        color: $themePinkDisabled;
-      }
-    }
-    .form {
-      input {
-        background-color: $themePinkDark;
-        color: #fff;
-        border: 1px solid $themePinkDark;
-      }
-      .lock-div {
-        border-color: rgba(#000, 0.4);
-        &.resource-loaded:hover {
-          cursor: pointer;
-          background: $themePinkDark;
-          &:active {
-            background: $themePinkDark;
-          }
-          .app-type {
-            color: #000;
-          }
-        }
-        i {
-          color: #000;
-        }
-      }
-      .tip-div {
-        &:not(.resource-loaded) > i:hover {
-          color: rgba(0, 0, 0.7);
-        }
-        i {
-          color: rgba(0, 0, 0.7);
-        }
-        &.resource-loaded {
-          i {
-            color: #222;
-          }
-        }
-      }
     }
   }
 }
