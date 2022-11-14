@@ -8,9 +8,10 @@ import { PageTabs } from './PageTabs';
 
 interface AppHeaderProps {
   app: App;
+  onClick: (e: SyntheticEvent) => void;
 }
 
-const AppHeader = ({ app }: AppHeaderProps) => {
+const AppHeader = ({ app, onClick }: AppHeaderProps) => {
   return (
     <div
       className="ac-header"
@@ -43,6 +44,8 @@ const AppHeader = ({ app }: AppHeaderProps) => {
         <NameSystemChip domain={app.name} />
         <a
           href={app.name}
+          target="_blank"
+          onClick={onClick}
           style={{
             textDecoration: 'none',
             textOverflow: 'ellipsis',
@@ -69,6 +72,11 @@ export const AppCard = ({ app }: AppCardProps) => {
 
   const { deleteApp, toggleFavorite, openOrFocusPage } = useContext(ApiContext);
 
+  const openPage = (e: SyntheticEvent) => {
+    e.preventDefault();
+    openOrFocusPage(app.pages[currentPageIndex]);
+  };
+
   return (
     <div
       className="ac-appCard"
@@ -83,7 +91,7 @@ export const AppCard = ({ app }: AppCardProps) => {
           marginBottom: '1rem',
         }}
       >
-        <AppHeader app={app} />
+        <AppHeader app={app} onClick={openPage} />
       </div>
 
       <PageTabs
@@ -100,10 +108,7 @@ export const AppCard = ({ app }: AppCardProps) => {
         <PageCard
           key={app.pages[currentPageIndex].url}
           {...app.pages[currentPageIndex]}
-          onClick={(e: SyntheticEvent) => {
-            e.preventDefault();
-            openOrFocusPage(app.pages[currentPageIndex]);
-          }}
+          onClick={openPage}
           onClose={() => deleteApp(app.pages[currentPageIndex].url)}
           onToggleFavorite={() => toggleFavorite(app.pages[currentPageIndex].url)}
         />
