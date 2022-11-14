@@ -11,7 +11,7 @@ interface PageBarProps {
 export const PageTabs = ({ pages, onMouseOver, currentIndex }: PageBarProps) => {
   return (
     <div
-      className="pageTabs"
+      className="ac-pageTabs"
       style={{
         display: 'flex',
         gap: '0.5rem',
