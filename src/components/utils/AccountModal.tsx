@@ -123,7 +123,7 @@ export class AccountModalComponent extends React.Component<
                               className="underlined-link"
                               onClick={() => copyToClipboard(account.address)}
                             >
-                              <i className="fa fa-copy fa-before"></i>
+                              <i className="fas fa-copy mr-1"></i>
                               {t('copy address')}
                             </a>
                           </div>
@@ -138,7 +138,7 @@ export class AccountModalComponent extends React.Component<
                               className="underlined-link"
                               onClick={() => copyToClipboard(account.publicKey)}
                             >
-                              <i className="fa fa-copy fa-before"></i>
+                              <i className="fas fa-copy mr-1"></i>
                               copy public key
                             </a>
                           </div>
@@ -156,7 +156,7 @@ export class AccountModalComponent extends React.Component<
 
                         <div className="field is-horizontal">
                           <label className="label">
-                            <i className="fa fa-before fa-key"></i>
+                            <i className="fas mr-1 fa-key"></i>
                             {t('unlock account')}
                           </label>
                           <div className="control has-icons-right">

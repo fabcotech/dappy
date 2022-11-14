@@ -320,7 +320,7 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps> {
                           }
                         >
                           {t('add a node')}
-                          <i className="fa fa-plus fa-after"></i>
+                          <i className="fas fa-plus ml-1"></i>
                         </button>
                       )}
                       {this.state.addNodeFormDisplayed ? (
@@ -387,7 +387,7 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps> {
           onClick={this.onRemoveBlockchain}
           className="button is-danger is-small"
         >
-          <i className="fa fa-trash fa-before"></i>
+          <i className="fas fa-trash mr-1"></i>
           Remove network
         </button>
       </div>

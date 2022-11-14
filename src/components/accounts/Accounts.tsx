@@ -36,7 +36,7 @@ export const UpdateBalancesButton = ({
   if (updating) {
     return (
       <a title={t('update balances')} className="disabled underlined-link">
-        <i className="fa fa-before fa-redo rotating"></i>
+        <i className="fas fa-redo rotating mr-1"></i>
         {t('update balances')}
       </a>
     );
@@ -52,7 +52,7 @@ export const UpdateBalancesButton = ({
         }
       }}
     >
-      <i className="fa fa-before fa-redo"></i>
+      <i className="fas fa-redo mr-1"></i>
       {t('update balances')}
     </a>
   );
@@ -73,7 +73,7 @@ export const HideBalancesButton = ({
     >
       <i
         data-testid="hbb-icon"
-        className={`fa fa-before fa-eye${isBalancesHidden ? '' : '-slash'}`}
+        className={`mr-1 fas fa-eye${isBalancesHidden ? '' : '-slash'}`}
       ></i>
       {isBalancesHidden ? t('show balances') : t('hide balances')}
     </a>
@@ -92,7 +92,7 @@ export const RChainAccounts = ({ accounts, setTab }: RChainAccountsProps) => {
       {Object.keys(accounts).length === 0 ? (
         <button onClick={() => setTab('add-account')} className="button is-link">
           {t('add account')}
-          <i className="fa fa-plus fa-after"></i>
+          <i className="fas fa-plus ml-1"></i>
         </button>
       ) : undefined}
       <div className="block">
@@ -190,7 +190,7 @@ export function AccountsComponent(props: AccountsProps) {
           </li>
           <li className={tab === 'add-account' ? 'is-active' : ''}>
             <a onClick={() => setTab('add-account')}>
-              {t('add account')} <i className="fa fa-plus fa-after" />
+              {t('add account')} <i className="ml-2 fas fa-plus" />
             </a>
           </li>
         </ul>

@@ -64,7 +64,7 @@ class TabsList2Component extends React.Component<TabsList2Props, {}> {
         })}
         {focusedTabId && (
           <div className="search-dapps" onClick={this.props.unfocusAllTabs}>
-            <i className="fa fa-plus fa-after" />
+            <i className="fas fa-plus fa-after" />
           </div>
         )}
       </div>

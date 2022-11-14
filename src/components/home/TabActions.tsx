@@ -46,7 +46,11 @@ export class TabActions extends React.Component<TabActionsProps, {}> {
     if (!this.el) {
       return;
     }
-    if (this.state.active && this.el.parentElement && !this.el.parentElement.querySelector(':hover')) {
+    if (
+      this.state.active &&
+      this.el.parentElement &&
+      !this.el.parentElement.querySelector(':hover')
+    ) {
       this.setState({
         active: false,
       });
@@ -63,14 +67,19 @@ export class TabActions extends React.Component<TabActionsProps, {}> {
     return (
       <div className={`dropdown ${this.state.active ? 'is-active' : ''}`}>
         <div className="dropdown-trigger">
-          <i className="three-points" onClick={this.onToggle} aria-haspopup="true" aria-controls="dropdown-menu">
+          <i
+            className="three-points"
+            onClick={this.onToggle}
+            aria-haspopup="true"
+            aria-controls="dropdown-menu"
+          >
             ...
           </i>
         </div>
         <div ref={this.setEl} className="dropdown-menu" id="dropdown-menu" role="menu">
           <div className="dropdown-content">
             <a className="dropdown-item" onClick={this.onReloadResource}>
-              <i className="fa fa-before fa-redo"></i>
+              <i className="fas fa-redo mr-1"></i>
               {`${t('reload')}`}
             </a>
 
@@ -79,16 +88,17 @@ export class TabActions extends React.Component<TabActionsProps, {}> {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                this.props.onSetMuteTab(this.props.tab.id, !this.props.tab.muted)
-              }}>
+                this.props.onSetMuteTab(this.props.tab.id, !this.props.tab.muted);
+              }}
+            >
               {!!this.props.tab.muted ? (
                 <React.Fragment>
-                  <i className="fa fa-before fa-volume-up" />
+                  <i className="fas mr-1 fa-volume-up" />
                   {t('unmute')}
                 </React.Fragment>
               ) : (
                 <React.Fragment>
-                  <i className="fa fa-before fa-volume-mute" />
+                  <i className="fas mr-1 fa-volume-mute" />
                   {t('mute')}
                 </React.Fragment>
               )}
@@ -98,36 +108,45 @@ export class TabActions extends React.Component<TabActionsProps, {}> {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                this.props.onSetFavoriteTab(this.props.tab.id, !this.props.tab.favorite)
-              }}>
+                this.props.onSetFavoriteTab(this.props.tab.id, !this.props.tab.favorite);
+              }}
+            >
               {!!this.props.tab.favorite ? (
                 <React.Fragment>
-                  <i className="fa fa-before fa-star" />
+                  <i className="fas mr-1 fa-star" />
                   {t('remove from bookmarks')}
                 </React.Fragment>
               ) : (
                 <React.Fragment>
-                  <i className="fa fa-before fa-star" />
+                  <i className="fas mr-1 fa-star" />
                   {t('add to bookmarks')}
                 </React.Fragment>
               )}
             </a>
-            <a className="dropdown-item" onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              this.props.stopTab()
-            }}>
-              <i className="fa fa-before fa-stop"></i>
+            <a
+              className="dropdown-item"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.props.stopTab();
+              }}
+            >
+              <i className="fas mr-1 fa-stop"></i>
               {t('stop tab')}
             </a>
-            { !this.props.tab.favorite && <a className="dropdown-item" onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              this.props.removeTab()
-            }}>
-              <i className="fa fa-before fa-times"></i>
-              {t('remove tab')}
-            </a>}
+            {!this.props.tab.favorite && (
+              <a
+                className="dropdown-item"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  this.props.removeTab();
+                }}
+              >
+                <i className="fas mr-1 fa-times"></i>
+                {t('remove tab')}
+              </a>
+            )}
           </div>
         </div>
       </div>

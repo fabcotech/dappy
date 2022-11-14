@@ -22,7 +22,7 @@ export const RemoveAccountModal = ({
       <div className="modal-card">
         <header className="modal-card-head">
           <p className="modal-card-title">{t('remove account')}</p>
-          <i onClick={onClose} className="fa fa-times" />
+          <i onClick={onClose} className="fas fa-times" />
         </header>
         <section className="modal-card-body">
           {t('remove account warning')}

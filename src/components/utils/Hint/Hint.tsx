@@ -21,7 +21,7 @@ export const makeHintComponent =
     (
       <a className="hint" title={title} onClick={() => link && open(link)}>
         {displayTerm && <span className="has-text-weight-bold">{title}</span>}
-        <i className="fa fa-sm fa-info-circle ml-2" />
+        <i className="fas fa-sm fa-info-circle ml-2" />
       </a>
     );
 
@@ -49,9 +49,20 @@ interface GlossaryHintProps {
   loadResource: (url: string) => void;
 }
 
-export const GlossaryHintComponent = ({ term, displayTerm, namesBlockChain, loadResource }: GlossaryHintProps) => {
+export const GlossaryHintComponent = ({
+  term,
+  displayTerm,
+  namesBlockChain,
+  loadResource,
+}: GlossaryHintProps) => {
   const Hint = makeHintComponent(loadResource);
-  return <Hint title={t(term)} link={getHelpLink(namesBlockChain, glossary[term])} displayTerm={!!displayTerm} />;
+  return (
+    <Hint
+      title={t(term)}
+      link={getHelpLink(namesBlockChain, glossary[term])}
+      displayTerm={!!displayTerm}
+    />
+  );
 };
 
 export const GlossaryHint = connect(

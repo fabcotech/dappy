@@ -33,7 +33,7 @@ export const CertificateAccountComponent = ({
         <div className="address has-text-weight-bold ">
           {t('certificate')}
           <a className="ml-3 underlined-link" onClick={() => copyToClipboard(account.certificate)}>
-            <i className="fa fa-copy fa-before"></i>
+            <i className="mr-1 fas fa-copy"></i>
             {t('copy')}
           </a>
         </div>

@@ -210,7 +210,7 @@ export class AddBlockchain extends React.Component<AddBlockchainProps, {}> {
                   >
                     {!isSubmitting && 'Add network'}
                     {isSubmitting && 'Submitting'}
-                    {isSubmitting && <i className="fa fa-spin fa-spinner fa-after" />}
+                    {isSubmitting && <i className="fas fa-spin fa-spinner ml-1" />}
                   </button>
                 </div>
               </div>

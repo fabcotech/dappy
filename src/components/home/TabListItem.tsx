@@ -104,7 +104,7 @@ export class TabListItem extends React.Component<TabListItemProps> {
                 e.stopPropagation();
                 this.props.onSetMuteTab(this.props.tab.id, false);
               }}
-              className="fa fa-before fa-volume-mute"
+              className="fas mr-1 fa-volume-mute"
             />
           ) : undefined}
           {this.props.tab.favorite ? (
@@ -115,7 +115,7 @@ export class TabListItem extends React.Component<TabListItemProps> {
                 e.stopPropagation();
                 this.props.onSetFavoriteTab(this.props.tab.id, false);
               }}
-              className="fa fa-before fa-star"
+              className="fas mr-1 fa-star"
             />
           ) : undefined}
           <span>{this.props.tab.title}</span>
@@ -134,11 +134,7 @@ export class TabListItem extends React.Component<TabListItemProps> {
             />
           ) : undefined */}
           {!this.props.transitoryState && !this.props.tab.favorite && !this.props.tab.active && (
-            <i
-              onClick={this.onRemoveTab}
-              className="fa fa-times fa-after"
-              title={t('remove tab')}
-            />
+            <i onClick={this.onRemoveTab} className="fas fa-times ml-1" title={t('remove tab')} />
           )}
         </div>
       </div>

@@ -53,7 +53,7 @@ interface TabsList2Props {
 }
 
 const TabsList3Component = (props: TabsList2Props) => {
-  const { transitoryStates, focusTab, loadResource, tabs } = props;
+  const { transitoryStates, focusTab, loadResource, tabs, removeTab } = props;
   const [pages, setPages] = useState<Page[]>(mapToPages(tabs));
 
   useEffect(() => setPages(mapToPages(tabs)), [tabs]);
@@ -69,13 +69,13 @@ const TabsList3Component = (props: TabsList2Props) => {
       }
     },
     getPages: () => pages,
-    deleteApp: (url: string) => setPages(pages.filter((p) => p.url !== url)),
-    toggleFavorite: (url: string) => {
-      const page = pages.find((p) => p.url === url);
-      if (page) {
-        page.favorite = !page.favorite;
-      }
-      setPages([...pages]);
+    deletePage: (page: Page) => removeTab(page.id),
+    toggleFavorite: (page: Page) => {
+      // const page = pages.find((p) => p.url === url);
+      // if (page) {
+      // }
+      // page.favorite = !page.favorite;
+      // setPages([...pages]);
     },
     getWallets: () => wallets,
   };

@@ -73,9 +73,7 @@ class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps> 
             >
               <span>Retry</span>
               <i
-                className={`${
-                  transitoryState === 'loading' ? 'rotating' : ''
-                } fa fa-redo fa-before`}
+                className={`${transitoryState === 'loading' ? 'rotating' : ''} fas fa-redo mr-1`}
                 title="Retry"
               />
             </div>

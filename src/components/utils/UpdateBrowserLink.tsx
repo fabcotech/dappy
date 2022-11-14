@@ -32,15 +32,16 @@ export const UpdateBrowserLink = (props: {
       <a
         title={t('update available')}
         onClick={props.clickWarning}
-        className={downloadLink.includes('?warning') ? 'menu-icon warning' : 'menu-icon'}>
-        <i className="fa fa-exclamation-triangle"></i>
+        className={downloadLink.includes('?warning') ? 'menu-icon warning' : 'menu-icon'}
+      >
+        <i className="fas fa-exclamation-triangle"></i>
       </a>
     );
   }
   return (
     <>
       <span className={downloadLink.includes('?warning') ? 'warning' : ''}>
-        <i className="fa fa-exclamation-triangle"></i>
+        <i className="fas fa-exclamation-triangle"></i>
         {t('update available')}
       </span>
       <br />
@@ -48,7 +49,9 @@ export const UpdateBrowserLink = (props: {
         <a className="pt-1 pb-1 underlined-link" onClick={() => openExternal(downloadLink)}>
           {t('download page')}
         </a>
-        <a className="pt-1 pb-1 underlined-link" onClick={() => copyToClipboard(downloadLink)}>{t('copy url')}</a>
+        <a className="pt-1 pb-1 underlined-link" onClick={() => copyToClipboard(downloadLink)}>
+          {t('copy url')}
+        </a>
       </div>
     </>
   );

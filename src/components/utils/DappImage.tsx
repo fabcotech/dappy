@@ -15,7 +15,7 @@ export const DappImage = (props: {
   ) {
     return (
       <div className={'fc ' + props.small ? 'small' : ''}>
-        <i className="color-aaa fa fa-redo rotating"></i>
+        <i className="color-aaa fas fa-redo rotating"></i>
       </div>
     );
   } else {

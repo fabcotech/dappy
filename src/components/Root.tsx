@@ -162,9 +162,9 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
                   <div className="fc top-window-buttons">
                     <div className="drag-top"></div>
                     <div className="drag-bottom"></div>
-                    <i onClick={() => minimize()} className="fa fa-minus"></i>
+                    <i onClick={() => minimize()} className="fas fa-minus"></i>
                     <i onClick={() => maximize()} className="square-max"></i>
-                    <i onClick={() => close()} className="fa fa-times"></i>
+                    <i onClick={() => close()} className="fas fa-times"></i>
                   </div>
                 )}
                 {this.props.isNavigationInSettings ? (

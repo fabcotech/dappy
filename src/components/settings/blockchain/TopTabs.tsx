@@ -16,7 +16,10 @@ export const TopTabs = (props: TopTabsProps) => {
       <ul>
         {keys.map((key) => (
           <li key={key}>
-            <a className={key === 'd' ? 'tab-d-network' : ''} onClick={() => props.onSelectChain(key)}>
+            <a
+              className={key === 'd' ? 'tab-d-network' : ''}
+              onClick={() => props.onSelectChain(key)}
+            >
               {props.blockchains[key].chainName}
             </a>
           </li>
@@ -26,9 +29,10 @@ export const TopTabs = (props: TopTabsProps) => {
             <a
               onClick={() => {
                 props.onToggleAddForm();
-              }}>
+              }}
+            >
               {t('add network')}
-              <i className="fa fa-plus fa-after" />
+              <i className="fas fa-plus ml-1" />
             </a>
           </li>
         )}

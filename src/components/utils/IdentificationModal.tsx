@@ -20,13 +20,17 @@ interface IdentificationModalComponentProps {
   saveIdentification: (a: fromDapps.SaveIdentificationPayload) => void;
 }
 
-export class IdentificationModalComponent extends React.Component<IdentificationModalComponentProps, {}> {
+export class IdentificationModalComponent extends React.Component<
+  IdentificationModalComponentProps,
+  {}
+> {
   state: {
     identification?: Identification;
   } = {};
 
   onCloseModal = () => {
-    const payload: fromCommon.IdentifyFromSandboxPayload = this.props.modal && this.props.modal.parameters;
+    const payload: fromCommon.IdentifyFromSandboxPayload =
+      this.props.modal && this.props.modal.parameters;
 
     this.props.saveIdentification({
       tabId: payload.tabId,
@@ -66,7 +70,7 @@ export class IdentificationModalComponent extends React.Component<Identification
         <div className="modal-card">
           <header className="modal-card-head">
             <p className="modal-card-title">{t('dapp requires identification')}</p>
-            <i onClick={this.onCloseModal} className="fa fa-times" />
+            <i onClick={this.onCloseModal} className="fas fa-times" />
           </header>
           <section className="modal-card-body">
             <IdentificationForm
@@ -89,7 +93,8 @@ export class IdentificationModalComponent extends React.Component<Identification
                     identified: false,
                   },
                 })
-              }>
+              }
+            >
               {t('discard identification')}
             </button>
             <button
@@ -102,7 +107,8 @@ export class IdentificationModalComponent extends React.Component<Identification
                   callId: payload.callId,
                   identification: this.state.identification as Identification,
                 })
-              }>
+              }
+            >
               {t('identify')}
             </button>
           </footer>

@@ -42,34 +42,38 @@ class NavigationBar2Component extends WithSuggestions {
             {this.props.tab && this.props.tab.canGoBackward ? (
               <i
                 onClick={(e) => this.props.goBackward(tab.id)}
-                className="fa fa-arrow-left "
+                className="fas fa-arrow-left "
                 title="Go backward"
               />
             ) : (
-              <i className="disabled fa fa-arrow-left "></i>
+              <i className="disabled fas fa-arrow-left "></i>
             )}
           </div>
           <div>
             {this.props.tab && this.props.tab.canGoForward ? (
               <i
                 onClick={(e) => this.props.goForward(tab.id)}
-                className="fa fa-arrow-right "
+                className="fas fa-arrow-right "
                 title="Go forward"
               />
             ) : (
-              <i className="disabled fa fa-arrow-right "></i>
+              <i className="disabled fas fa-arrow-right "></i>
             )}
           </div>
           <div>
             {this.props.tab && this.props.tab.favorite ? (
-              <i onClick={(e) => this.props.stopTab(tab.id)} className="fa fa-stop " title="Stop" />
+              <i
+                onClick={(e) => this.props.stopTab(tab.id)}
+                className="fas fa-stop "
+                title="Stop"
+              />
             ) : (
               <i
                 onClick={(e) => {
                   this.props.stopTab(tab.id);
                   this.props.removeTab(tab.id);
                 }}
-                className="fa fa-times "
+                className="fas fa-times "
                 title="Close"
               />
             )}
@@ -78,7 +82,7 @@ class NavigationBar2Component extends WithSuggestions {
             <div>
               <i
                 onClick={(e) => this.props.loadResource({ tabId: tab.id, url: tab.url })}
-                className="fa fa-redo"
+                className="fas fa-redo"
                 title="Reload"
               />
             </div>
@@ -93,7 +97,7 @@ class NavigationBar2Component extends WithSuggestions {
                     });
                   }
                 }}
-                className={`${loadingOrReloading ? 'rotating' : ''} fa fa-redo `}
+                className={`${loadingOrReloading ? 'rotating' : ''} fas fa-redo `}
                 title="Retry"
               />
             </div>

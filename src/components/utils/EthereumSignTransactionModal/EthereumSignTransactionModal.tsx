@@ -31,7 +31,7 @@ const StaticField = (props: { label: string; value: number | string; copy?: bool
           <span className="pr-2">{props.value}</span>
           {props.value !== 'none' && props.copy && (
             <a className="underlined-link" onClick={() => copyToClipboard(props.value.toString())}>
-              <i className="fa fa-copy fa-before"></i>
+              <i className="fas fa-copy mr-1"></i>
               {t('copy')}
             </a>
           )}
@@ -111,7 +111,7 @@ export const EthereumSignTransactionModalComponent = ({
           <p className="modal-card-title">{t('signing ethereum transaction')}</p>
           <i
             onClick={() => close(txData.chainId, txData, origin, modal.tabId!)}
-            className="fa fa-times"
+            className="fas fa-times"
           />
         </header>
         <section className="modal-card-body modal-card-body-sign-ethereum-modal">

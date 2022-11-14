@@ -86,7 +86,7 @@ export const PageCard = (props: PageCardProps) => {
                   onClose();
                 }}
               >
-                <i className="fa fa-times fa-lg"></i>
+                <i className="fas fa-times fa-lg"></i>
               </button>
             )}
           </div>

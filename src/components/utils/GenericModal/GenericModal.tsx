@@ -39,7 +39,7 @@ export const GenericModal = ({ modal, dispatchModalAction, onClose }: GenericMod
       <div className="modal-card">
         <header className="modal-card-head">
           <p className="modal-card-title">{modal.title}</p>
-          <i onClick={onClose} className="fa fa-times" />
+          <i onClick={onClose} className="fas fa-times" />
         </header>
         <section className="modal-card-body">
           {modal.text}
@@ -52,7 +52,8 @@ export const GenericModal = ({ modal, dispatchModalAction, onClose }: GenericMod
                 key={b.text}
                 type="button"
                 className={`button ${b.classNames}`}
-                onClick={() => dispatchModalAction(b.action)}>
+                onClick={() => dispatchModalAction(b.action)}
+              >
                 {b.text}
               </button>
             ))}

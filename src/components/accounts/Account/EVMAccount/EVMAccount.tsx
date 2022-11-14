@@ -45,7 +45,7 @@ export const EVMAccountComponent = ({
             </button>
           )}
           <a onClick={() => showAccountModal(account)} className="underlined-link">
-            <i className="fa fa-before fa-eye"></i>
+            <i className="fas fa-eye mr-1"></i>
             {t('check account')}
           </a>
         </div>
@@ -55,7 +55,7 @@ export const EVMAccountComponent = ({
           <div className="address has-text-weight-bold ">
             {t('address')}
             <a className="ml-3 underlined-link" onClick={() => copyToClipboard(account.address)}>
-              <i className="fa fa-copy fa-before"></i>
+              <i className="mr-1 fas fa-copy"></i>
               {t('copy')}
             </a>
           </div>
