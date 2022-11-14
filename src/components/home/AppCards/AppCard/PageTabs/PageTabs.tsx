@@ -21,8 +21,8 @@ export const PageTabs = ({ pages, onMouseOver, currentIndex }: PageBarProps) => 
     >
       {pages.map(({ favorite, url }, pageIndex) => (
         <div
-          className={`tab ${favorite ? 'favorite' : 'active'} ${
-            currentIndex === pageIndex ? 'selected' : ''
+          className={`ac-tab ${favorite ? 'ac-favorite' : 'ac-active'} ${
+            currentIndex === pageIndex ? 'ac-selected' : ''
           }`}
           style={{
             width: '2rem',
