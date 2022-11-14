@@ -46,7 +46,7 @@ class NavigationBar2Component extends WithSuggestions {
                 title="Go backward"
               />
             ) : (
-              <i className="disabled fas fa-arrow-left "></i>
+              <i className="disabled fas fa-arrow-left"></i>
             )}
           </div>
           <div>
@@ -57,51 +57,31 @@ class NavigationBar2Component extends WithSuggestions {
                 title="Go forward"
               />
             ) : (
-              <i className="disabled fas fa-arrow-right "></i>
+              <i className="disabled fas fa-arrow-right"></i>
             )}
           </div>
-          <div>
-            {this.props.tab && this.props.tab.favorite ? (
-              <i
-                onClick={(e) => this.props.stopTab(tab.id)}
-                className="fas fa-stop "
-                title="Stop"
-              />
-            ) : (
-              <i
-                onClick={(e) => {
-                  this.props.stopTab(tab.id);
-                  this.props.removeTab(tab.id);
-                }}
-                className="fas fa-times "
-                title="Close"
-              />
-            )}
-          </div>
-          {this.props.resourceLoaded && !loadingOrReloading ? (
-            <div>
-              <i
-                onClick={(e) => this.props.loadResource({ tabId: tab.id, url: tab.url })}
-                className="fas fa-redo"
-                title="Reload"
-              />
-            </div>
+          {this.props.tab && this.props.tab.favorite ? (
+            <button className="nb-button" onClick={(e) => this.props.stopTab(tab.id)}>
+              <i className="fas fa-stop" title="stop" />
+            </button>
           ) : (
-            <div className={`${loadingOrReloading ? 'disabled' : ''}`}>
-              <i
-                onClick={(e) => {
-                  if (!loadingOrReloading) {
-                    this.props.loadResource({
-                      url: tab.url,
-                      tabId: tab.id,
-                    });
-                  }
-                }}
-                className={`${loadingOrReloading ? 'rotating' : ''} fas fa-redo `}
-                title="Retry"
-              />
-            </div>
+            <button
+              className="nb-button"
+              onClick={() => {
+                this.props.stopTab(tab.id);
+                this.props.removeTab(tab.id);
+              }}
+            >
+              <i className="fas fa-times" title="close" />
+            </button>
           )}
+
+          <button
+            className="nb-button"
+            onClick={() => this.props.loadResource({ tabId: tab.id, url: tab.url })}
+          >
+            <i className={`fas fa-redo ${loadingOrReloading ? 'rotating' : ''}`} title="Reload" />
+          </button>
         </div>
 
         <div className={`form pl-1 pr-2 ${this.props.resourceLoaded ? 'with-app-type' : ''}`}>
@@ -166,15 +146,15 @@ export const NavigationBar2 = connect(
     const namesBlockchain = fromSettings.getNamesBlockchain(state);
     return {
       namesBlockchainId: namesBlockchain ? namesBlockchain.chainId : 'unknown',
-      resourceLoaded: resourceLoaded,
-      appType: appType,
-      url: url,
+      resourceLoaded,
+      appType,
+      url,
       transitoryState: tab ? transitoryStates[tab.id] : undefined,
       navigationSuggestionsDisplayed: fromUi.getNavigationSuggestionsDisplayed(state),
-      tab: tab,
+      tab,
     };
   },
-  (dispatch, ownProps) => {
+  (dispatch) => {
     return {
       isDisplayed: (a: boolean) =>
         dispatch(
