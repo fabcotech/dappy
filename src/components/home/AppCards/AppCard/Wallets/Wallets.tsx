@@ -49,18 +49,18 @@ export const Wallets = ({ domain }: WalletsProps) => {
 
   return (
     <div
-      className="wallets"
+      className="ac-wallets"
       style={{
         display: 'flex',
         alignItems: 'center',
         gap: '0.5rem',
       }}
     >
-      <div className="label">
+      <div className="ac-label">
         <i className="fa-solid fa-lock fa-xl"></i>
       </div>
       <div
-        className="value"
+        className="ac-value"
         style={{
           display: 'flex',
           flexDirection: 'row',

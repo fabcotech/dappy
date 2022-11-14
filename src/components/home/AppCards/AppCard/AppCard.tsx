@@ -13,7 +13,7 @@ interface AppHeaderProps {
 const AppHeader = ({ app }: AppHeaderProps) => {
   return (
     <div
-      className="header"
+      className="ac-header"
       style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -71,7 +71,7 @@ export const AppCard = ({ app }: AppCardProps) => {
 
   return (
     <div
-      className="appCard"
+      className="ac-appCard"
       style={{
         display: 'flex',
         flexDirection: 'column',

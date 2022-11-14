@@ -1,6 +1,4 @@
 import React, { useContext } from 'react';
-// import '../styles.css';
-// import '../theme.css';
 import { App, Page } from './model';
 import { AppCard } from './AppCard';
 import { Api, ApiContext } from './Api';
@@ -14,7 +12,6 @@ export const AppCards = ({ groupBy }: AppCardsProps) => {
 
   return (
     <div
-      className="theme-black"
       style={{
         padding: '1rem',
         display: 'inline-flex',

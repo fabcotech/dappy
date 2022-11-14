@@ -13,7 +13,7 @@ export const PageCard = (props: PageCardProps) => {
   const titleDefaultToUrl = title || url;
   return (
     <a
-      className="pageCard"
+      className="ac-pageCard"
       rel="noreferrer"
       title={`go to ${url}`}
       href={url}
@@ -35,10 +35,10 @@ export const PageCard = (props: PageCardProps) => {
           overflow: 'hidden',
           width: '100%',
         }}
-        className="content"
+        className="ac-content"
       >
         <div
-          className="header"
+          className="ac-header"
           style={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -46,7 +46,7 @@ export const PageCard = (props: PageCardProps) => {
           }}
         >
           <div
-            className="title"
+            className="ac-title"
             style={{
               textOverflow: 'ellipsis',
               overflow: 'hidden',
@@ -57,7 +57,7 @@ export const PageCard = (props: PageCardProps) => {
           >
             {titleDefaultToUrl}
           </div>
-          <div className="buttonBar">
+          <div className="ac-buttonBar">
             <button
               style={{
                 border: 0,
@@ -92,7 +92,7 @@ export const PageCard = (props: PageCardProps) => {
           </div>
         </div>
         <div
-          className="description"
+          className="ac-description"
           title={description}
           style={{
             overflow: 'hidden',
