@@ -1,0 +1,70 @@
+.theme-pink {
+  .root-left.menu {
+    background: linear-gradient(20deg, $themePinkDark, $themePink);
+    .menu-list li {
+      a {
+        color: rgba(0, 0, 0, 0.7);
+      }
+      a.is-active {
+        background-color: darken($themePink, 10%);
+        color: #222;
+      }
+    }
+  }
+  .navigation-bar {
+    background-color: $themePink;
+    border-color: $themePinkDark;
+    & > div.disabled {
+      i {
+        color: $themePinkDisabled;
+      }
+    }
+    & > div:not(.disabled) {
+      i {
+        color: #333;
+        &:hover {
+          color: #222;
+        }
+      }
+      i.disabled {
+        color: $themePinkDisabled;
+      }
+    }
+    .form {
+      input {
+        background-color: $themePinkDark;
+        color: #fff;
+        border: 1px solid $themePinkDark;
+      }
+      .lock-div {
+        border-color: rgba(#000, 0.4);
+        &.resource-loaded:hover {
+          cursor: pointer;
+          background: $themePinkDark;
+          &:active {
+            background: $themePinkDark;
+          }
+          .app-type {
+            color: #000;
+          }
+        }
+        i {
+          color: #000;
+        }
+      }
+      .tip-div {
+        &:not(.resource-loaded) > i:hover {
+          color: rgba(0, 0, 0.7);
+        }
+        i {
+          color: rgba(0, 0, 0.7);
+        }
+        &.resource-loaded {
+          i {
+            color: #222;
+          }
+        }
+      }
+    }
+  }
+}
