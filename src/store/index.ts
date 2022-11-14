@@ -587,7 +587,7 @@ dbReq.onsuccess = (event) => {
 
   const windowResizeStream = fromEvent(window, 'resize', true);
   xstream
-    .merge(windowResizeStream.compose(throttle(600)), windowResizeStream.compose(debounce(600)))
+    .merge(windowResizeStream.compose(throttle(200)), windowResizeStream.compose(debounce(200)))
     .subscribe({
       next: (x) => {
         store.dispatch(
