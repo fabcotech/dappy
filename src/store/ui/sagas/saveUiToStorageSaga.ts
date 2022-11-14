@@ -32,7 +32,7 @@ const saveUiToStorage = function* (action: Action) {
       x,
       y,
       width: uiState.windowDimensions[0] - x,
-      height: uiState.windowDimensions[1] - y,
+      height: uiState.windowDimensions[1] - 88,
     };
 
     dispatchInMain({
