@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { SyntheticEvent, useContext, useEffect, useState } from 'react';
 
 import { PageCard } from './PageCard';
 import { App } from '../model';
@@ -67,7 +67,7 @@ export const AppCard = ({ app }: AppCardProps) => {
     setCurrentPageIndex(app.pages.length - 1);
   }, [app.pages.length]);
 
-  const { deleteApp, toggleFavorite } = useContext(ApiContext);
+  const { deleteApp, toggleFavorite, openOrFocusPage } = useContext(ApiContext);
 
   return (
     <div
@@ -100,6 +100,10 @@ export const AppCard = ({ app }: AppCardProps) => {
         <PageCard
           key={app.pages[currentPageIndex].url}
           {...app.pages[currentPageIndex]}
+          onClick={(e: SyntheticEvent) => {
+            e.preventDefault();
+            openOrFocusPage(app.pages[currentPageIndex]);
+          }}
           onClose={() => deleteApp(app.pages[currentPageIndex].url)}
           onToggleFavorite={() => toggleFavorite(app.pages[currentPageIndex].url)}
         />

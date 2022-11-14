@@ -1,8 +1,7 @@
-import * as React from 'react';
+import React from 'react';
 import xs, { Subscription } from 'xstream';
 
 import { DappImage } from '../utils';
-import { TabActions } from '.';
 import { TransitoryState, Tab } from '/models';
 import './TabListItem.scss';
 
@@ -19,7 +18,7 @@ interface TabListItemProps {
   stopTab: (tabId: string) => void;
 }
 
-export class TabListItem extends React.Component<TabListItemProps, {}> {
+export class TabListItem extends React.Component<TabListItemProps> {
   renderSubscription: Subscription | undefined = undefined;
 
   state = {};

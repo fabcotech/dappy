@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { SyntheticEvent } from 'react';
 
 import { Page } from '../../model';
 import { Wallets } from '../Wallets';
 
 interface PageCardProps extends Page {
   onClose: () => void;
+  onClick: (e: SyntheticEvent) => void;
   onToggleFavorite: () => void;
 }
 
 export const PageCard = (props: PageCardProps) => {
-  const { title, description, favorite, onClose, onToggleFavorite, url } = props;
+  const { title, description, favorite, onClick, onClose, onToggleFavorite, url } = props;
   const titleDefaultToUrl = title || url;
   return (
     <a
@@ -18,6 +19,7 @@ export const PageCard = (props: PageCardProps) => {
       title={`go to ${url}`}
       href={url}
       target="_blank"
+      onClick={onClick}
       style={{
         borderRadius: '0.5rem',
         display: 'flex',

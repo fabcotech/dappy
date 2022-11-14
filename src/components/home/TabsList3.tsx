@@ -42,8 +42,10 @@ interface TabsList2Props {
 }
 
 const TabsList3Component = (props: TabsList2Props) => {
+  const { transitoryStates, focusTab, loadResource, tabs, tabsFocusOrder } = props;
   const [pages, setPages] = useState<Page[]>(
-    props.tabs.map((t) => ({
+    tabs.map((t) => ({
+      id: t.id,
       url: t.url,
       title: t.title,
       image: t.img,
@@ -54,6 +56,13 @@ const TabsList3Component = (props: TabsList2Props) => {
   const [wallets] = useState<Wallet[]>([]);
 
   const api: Api = {
+    openOrFocusPage: (page: Page) => {
+      if (!transitoryStates[page.id]) {
+        loadResource(page.url, page.id);
+      } else {
+        focusTab(page.id);
+      }
+    },
     getPages: () => pages,
     deleteApp: (url: string) => setPages(pages.filter((p) => p.url !== url)),
     toggleFavorite: (url: string) => {
@@ -66,29 +75,10 @@ const TabsList3Component = (props: TabsList2Props) => {
     getWallets: () => wallets,
   };
 
-  const focusedTabId = props.tabsFocusOrder[props.tabsFocusOrder.length - 1];
   return (
     <ApiContext.Provider value={api}>
       <AppCards groupBy={groupByDomain} />
     </ApiContext.Provider>
-    // <div className={`tabs-list-3 ${props.onlyIcons ? 'only-icons' : ''}`}>
-    //   {props.tabs.map((tab) => {
-    //     return (
-    //       <div
-    //         className={`tab ${focusedTabId === tab.id ? 'focused' : ''} ${
-    //           tab.active ? 'active' : ''
-    //         }`}
-    //       >
-    //         <div className="content">
-    //           {/* todo : is this safe ? (new URL) */}
-    //           <div className="host">
-    //             <span>{new URL(tab.url).host}</span>
-    //           </div>
-    //         </div>
-    //       </div>
-    //     );
-    //   })}
-    // </div>
   );
 };
 
