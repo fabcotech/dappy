@@ -38,7 +38,7 @@ export const PageTabs = ({ pages, onMouseOver, currentIndex }: PageBarProps) => 
           key={url}
           onMouseEnter={() => onMouseOver(pageIndex)}
         >
-          {favorite && <i className="fa-solid fa-circle fa-2xs"></i>}
+          {favorite && <i className="fas fa-circle fa-2xs"></i>}
         </div>
       ))}
     </div>

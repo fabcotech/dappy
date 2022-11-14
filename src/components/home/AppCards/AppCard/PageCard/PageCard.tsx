@@ -69,9 +69,7 @@ export const PageCard = (props: PageCardProps) => {
                 onToggleFavorite();
               }}
             >
-              <i
-                className={`${favorite ? 'fa-location-pin' : 'fa-location-dot'} fa-solid fa-lg`}
-              ></i>
+              <i className={`${favorite ? 'fa-map-marker' : 'fa-map-marker-alt'} fas fa-lg`}></i>
             </button>
             {!favorite && (
               <button
@@ -86,7 +84,7 @@ export const PageCard = (props: PageCardProps) => {
                   onClose();
                 }}
               >
-                <i className="fa-regular fa-circle-xmark fa-lg"></i>
+                <i className="fa fa-times fa-lg"></i>
               </button>
             )}
           </div>
