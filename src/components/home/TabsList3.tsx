@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 
 import { State as StoreState } from '/store';
@@ -9,6 +9,7 @@ import './TabsList3.scss';
 import { AppCards } from './AppCards';
 import { Api, ApiContext } from './AppCards/Api';
 import { App, Page, Wallet } from './AppCards/model';
+import { tab } from '@testing-library/user-event/dist/tab';
 
 const groupByDomain = (pages: Page[]) => {
   const result = pages.reduce<Record<string, App>>((groups, page) => {
@@ -24,6 +25,16 @@ const groupByDomain = (pages: Page[]) => {
     return groups;
   }, {});
   return Object.values(result);
+};
+
+const mapToPages = (tabs: Tab[]) => {
+  return tabs.map((tab) => ({
+    id: tab.id,
+    title: tab.title,
+    url: tab.url,
+    image: tab.img,
+    favorite: tab.favorite,
+  }));
 };
 
 interface TabsList2Props {
@@ -42,16 +53,10 @@ interface TabsList2Props {
 }
 
 const TabsList3Component = (props: TabsList2Props) => {
-  const { transitoryStates, focusTab, loadResource, tabs, tabsFocusOrder } = props;
-  const [pages, setPages] = useState<Page[]>(
-    tabs.map((t) => ({
-      id: t.id,
-      url: t.url,
-      title: t.title,
-      image: t.img,
-      favorite: t.favorite,
-    }))
-  );
+  const { transitoryStates, focusTab, loadResource, tabs } = props;
+  const [pages, setPages] = useState<Page[]>(mapToPages(tabs));
+
+  useEffect(() => setPages(mapToPages(tabs)), [tabs]);
 
   const [wallets] = useState<Wallet[]>([]);
 
