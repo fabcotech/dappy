@@ -5,19 +5,7 @@ import { dispatchInMain } from '/interProcess';
 import { getCertificateAccounts } from '/store/settings';
 import * as fromDapps from '..';
 import { Action } from '../..';
-
-export function getDomainClientCertificate(
-  clientCertificates: Record<string, CertificateAccount>,
-  domain: string
-) {
-  return Object.entries(clientCertificates)
-    .map(([, a]) => a)
-    .sort((a1, a2) => Number(a2.main) - Number(a1.main))
-    .find((a) => {
-      const hosts = a.whitelist.map(({ host }) => host);
-      return hosts.includes(domain) || hosts.includes('*');
-    });
-}
+import { getDomainWallets } from '/utils/wallets';
 
 function* launchTabCompleted(action: Action) {
   const { payload } = action;
@@ -33,7 +21,10 @@ function* launchTabCompleted(action: Action) {
     type: '[MAIN] Load or reload browser view',
     payload: {
       tab,
-      clientCertificate: getDomainClientCertificate(clientCertificates, new URL(tab.url).hostname),
+      clientCertificate: getDomainWallets(clientCertificates, {
+        domain: new URL(tab.url).hostname,
+        platform: 'certificate',
+      }),
     },
   });
 }

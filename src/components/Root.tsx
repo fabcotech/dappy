@@ -102,7 +102,7 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
       this.t = new Date().getTime();
     }
 
-    let k = `root loading`;
+    let k = 'root loading';
     if (this.props.initializationOver && !this.state.transitionOver) {
       k += ' scaleout';
     }
@@ -111,7 +111,7 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
       return <Gcu version={GCU_VERSION} text={GCU_TEXT} continue={this.props.updateGcu}></Gcu>;
     }
 
-    let klasses = 'root theme theme-dappy';
+    let klasses = 'root theme theme-black';
     if (this.props.isMobile) {
       klasses += ' is-mobile';
     }

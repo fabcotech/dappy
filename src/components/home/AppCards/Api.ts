@@ -7,7 +7,7 @@ const defaultApi = {
   deletePage: (page: Page) => {},
   toggleFavorite: (pagz: Page) => {},
   getPages: (): Page[] => [],
-  getWallets: (): Wallet[] => [],
+  getWalletsByDomain: (domain: string): Wallet[] => [],
 };
 
 export type Api = typeof defaultApi;

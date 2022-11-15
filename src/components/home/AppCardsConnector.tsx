@@ -18,6 +18,7 @@ import {
   stopTabAction,
   unfocusAllTabsAction,
 } from '/store/dapps';
+import { getDomainWallets } from '/utils/wallets';
 
 const mapToPages = (tabs: Tab[]) => {
   return tabs.map((tab) => ({
@@ -34,7 +35,7 @@ const connector = connect(
     return {
       transitoryStates: getDappsTransitoryStates(state),
       pages: mapToPages(getTabs(state)),
-      wallets: Object.values(getAccounts(state)),
+      wallets: getAccounts(state),
       tabsFocusOrder: getTabsFocusOrder(state),
       isMobile: fromUi.getIsMobile(state),
       onlyIcons: fromUi.getTabsListDisplay(state) === 3,
@@ -111,7 +112,7 @@ const AppCardsConnectorComponent = ({
     toggleFavorite: (page: Page) => {
       onSetFavoriteTab(page.id, !page.favorite);
     },
-    getWallets: () => wallets,
+    getWalletsByDomain: (domain: string) => getDomainWallets(wallets, { domain }),
   };
 
   return (

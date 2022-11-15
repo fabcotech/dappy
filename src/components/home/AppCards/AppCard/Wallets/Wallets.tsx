@@ -65,10 +65,8 @@ interface WalletsProps {
 }
 
 export const Wallets = ({ domain }: WalletsProps) => {
-  const { getWallets } = useContext(ApiContext);
-  const wallets = getWallets().filter(({ whitelist }) =>
-    whitelist.find(({ host }) => (domain || '').includes(host))
-  );
+  const { getWalletsByDomain } = useContext(ApiContext);
+  const wallets = getWalletsByDomain(domain);
 
   if (!wallets.length) {
     return null;

@@ -9,9 +9,9 @@ import { updateAccountAction } from '/store/settings';
 import { validateWhitelistDomain } from '/utils/validateWhitelistDomain';
 
 interface RootProps {
-  accounts: Record<string, CertificateAccount>;
+  accounts: Record<string, Account>;
   navigationUrl: NavigationUrl;
-  updateAccount: (a: CertificateAccount) => void;
+  updateAccount: (a: Account) => void;
   navigate: (navigationUrl: NavigationUrl) => void;
 }
 
@@ -45,7 +45,7 @@ export class RootComponent extends React.Component<RootProps, unknown> {
                   <textarea
                     className={`textarea ${this.state.errors[a] ? 'with-error' : ''}`}
                     rows={8}
-                    placeholder={`hello.d\nonlinewebservice.d\n*.onlinewebservice.d\nbitconnect.d`}
+                    placeholder="hello.d\nonlinewebservice.d\n*.onlinewebservice.d\nbitconnect.d`"
                     defaultValue={this.props.accounts[a].whitelist.map((a) => a.host).join('\n')}
                     onChange={(e) => {
                       try {
@@ -127,7 +127,7 @@ export class RootComponent extends React.Component<RootProps, unknown> {
 
 export const Root = connect(
   (state) => ({
-    accounts: fromSettings.getCertificateAccounts(state),
+    accounts: fromSettings.getAccounts(state),
   }),
   (dispatch) => ({
     updateAccount: (a: Account) =>
