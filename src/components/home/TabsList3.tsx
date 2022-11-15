@@ -5,10 +5,9 @@ import { State as StoreState } from '/store';
 import * as fromDapps from '/store/dapps';
 import * as fromUi from '/store/ui';
 import { Tab } from '/models';
+import { AppCards, Api, ApiContext, App, Page, Wallet } from './AppCards';
+
 import './TabsList3.scss';
-import { AppCards } from './AppCards';
-import { Api, ApiContext } from './AppCards/Api';
-import { App, Page, Wallet } from './AppCards/model';
 
 const connector = connect(
   (state: StoreState) => {
