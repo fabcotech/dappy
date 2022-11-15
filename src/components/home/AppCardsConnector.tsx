@@ -7,8 +7,6 @@ import * as fromUi from '/store/ui';
 import { Tab } from '/models';
 import { AppCards, Api, ApiContext, App, Page, Wallet } from './AppCards';
 
-import './TabsList3.scss';
-
 const connector = connect(
   (state: StoreState) => {
     return {
@@ -31,11 +29,11 @@ const connector = connect(
     removeTab: (tabId: string) => dispatch(fromDapps.removeTabAction({ tabId })),
     stopTab: (tabId: string) => dispatch(fromDapps.stopTabAction({ tabId })),
     unfocusAllTabs: () => dispatch(fromDapps.unfocusAllTabsAction()),
-    onSetFavoriteTab: (tabId: string, a: boolean) => {
+    onSetFavoriteTab: (tabId: string, favorite: boolean) => {
       dispatch(
         fromDapps.setTabFavoriteAction({
           tabId,
-          favorite: a,
+          favorite,
         })
       );
     },
@@ -50,7 +48,7 @@ const connector = connect(
   })
 );
 
-type TabsList2Props = ConnectedProps<typeof connector>;
+type AppCardConnectorProps = ConnectedProps<typeof connector>;
 
 const groupByDomain = (pages: Page[]) => {
   const result = pages.reduce<Record<string, App>>((groups, page) => {
@@ -78,13 +76,14 @@ const mapToPages = (tabs: Tab[]) => {
   }));
 };
 
-const TabsList3Component = ({
+const AppCardsConnectorComponent = ({
   transitoryStates,
   tabs,
   focusTab,
   loadResource,
   removeTab,
-}: TabsList2Props) => {
+  onSetFavoriteTab,
+}: AppCardConnectorProps) => {
   const [pages, setPages] = useState<Page[]>(mapToPages(tabs));
 
   useEffect(() => setPages(mapToPages(tabs)), [tabs]);
@@ -101,7 +100,9 @@ const TabsList3Component = ({
     },
     getPages: () => pages,
     deletePage: (page: Page) => removeTab(page.id),
-    toggleFavorite: (page: Page) => {},
+    toggleFavorite: (page: Page) => {
+      onSetFavoriteTab(page.id, !page.favorite);
+    },
     getWallets: () => wallets,
   };
 
@@ -112,4 +113,4 @@ const TabsList3Component = ({
   );
 };
 
-export const TabsList3 = connector(TabsList3Component);
+export const AppCardsConnector = connector(AppCardsConnectorComponent);

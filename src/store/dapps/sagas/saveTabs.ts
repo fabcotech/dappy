@@ -7,7 +7,7 @@ import { browserUtils } from '../../browser-utils';
 import { Action } from '../..';
 import { dispatchInMain } from '/interProcess';
 
-const saveTabs = function* (action: Action) {
+function* saveTabs() {
   const tabs: Tab[] = yield select(fromDapps.getTabs);
 
   const tabsToSave: { [id: string]: Omit<Tab, 'lastError' | 'data'> } = {};
@@ -41,13 +41,13 @@ const saveTabs = function* (action: Action) {
       })
     );
   }
-};
+}
 
-export const saveTabsSaga = function* () {
+export function* saveTabsSaga() {
   yield takeEvery(fromDapps.LAUNCH_TAB_COMPLETED, saveTabs);
   yield takeEvery(fromDapps.UPDATE_TABS_FROM_STORAGE, saveTabs);
   yield takeEvery(fromDapps.SET_TAB_MUTED, saveTabs);
   yield takeEvery(fromDapps.SET_TAB_FAVORITE, saveTabs);
   yield takeEvery(fromDapps.DID_CHANGE_FAVICON, saveTabs);
   yield takeEvery(fromDapps.UPDATE_TAB_URL_AND_TITLE, saveTabs);
-};
+}

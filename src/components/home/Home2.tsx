@@ -8,7 +8,7 @@ import * as fromUi from '/store/ui';
 import { NavigationBarHome2, Resources } from '../resources';
 import './Home2.scss';
 import { NetworkSwitcher } from './NetworkSwitcher';
-import { TabsList3 } from '.';
+import { AppCardsConnector } from './AppCardsConnector';
 
 const connector = connect(
   (state: StoreState) => {
@@ -32,7 +32,7 @@ export const Home2Component: FC<Home2Props> = (props) => {
     <div className="home2">
       <NavigationBarHome2 />
       <NetworkSwitcher />
-      <TabsList3 />
+      <AppCardsConnector />
       <Resources />
     </div>
   );
