@@ -98,7 +98,7 @@ export const Wallets = ({ domain }: WalletsProps) => {
             key={name}
             style={{
               display: 'flex',
-              alignItems: 'end',
+              alignItems: 'center',
               gap: '0.5rem',
             }}
           >
