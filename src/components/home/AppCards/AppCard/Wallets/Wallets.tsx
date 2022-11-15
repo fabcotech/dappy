@@ -91,6 +91,7 @@ export const Wallets = ({ domain }: WalletsProps) => {
           flexDirection: 'row',
           alignItems: 'center',
           gap: '1.5rem',
+          overflow: 'hidden',
         }}
       >
         {wallets.map(({ name, platform }) => (
@@ -100,6 +101,7 @@ export const Wallets = ({ domain }: WalletsProps) => {
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
+              whiteSpace: 'nowrap',
             }}
           >
             <WalletChip platform={platform} />
