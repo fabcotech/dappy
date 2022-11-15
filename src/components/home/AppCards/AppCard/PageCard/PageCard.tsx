@@ -67,7 +67,7 @@ export const PageCard = (props: PageCardProps) => {
                 cursor: 'pointer',
               }}
               onClick={(e) => {
-                e.preventDefault();
+                e.stopPropagation();
                 onToggleFavorite();
               }}
             >
@@ -82,7 +82,7 @@ export const PageCard = (props: PageCardProps) => {
                   paddingRight: 0,
                 }}
                 onClick={(e) => {
-                  e.preventDefault();
+                  e.stopPropagation();
                   onClose();
                 }}
               >
