@@ -1,37 +1,60 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
 import { State as StoreState } from '/store';
-import * as fromDapps from '/store/dapps';
 import * as fromUi from '/store/ui';
 import { Tab } from '/models';
 import { AppCards, Api, ApiContext, App, Page, Wallet } from './AppCards';
+import { getAccounts } from '/store/settings';
+import {
+  focusTabAction,
+  getDappsTransitoryStates,
+  getTabs,
+  getTabsFocusOrder,
+  loadResourceAction,
+  removeTabAction,
+  setTabFavoriteAction,
+  setTabMutedAction,
+  stopTabAction,
+  unfocusAllTabsAction,
+} from '/store/dapps';
+
+const mapToPages = (tabs: Tab[]) => {
+  return tabs.map((tab) => ({
+    id: tab.id,
+    title: tab.title,
+    url: tab.url,
+    image: tab.img,
+    favorite: tab.favorite,
+  }));
+};
 
 const connector = connect(
   (state: StoreState) => {
     return {
-      transitoryStates: fromDapps.getDappsTransitoryStates(state),
-      tabs: fromDapps.getTabs(state),
-      tabsFocusOrder: fromDapps.getTabsFocusOrder(state),
+      transitoryStates: getDappsTransitoryStates(state),
+      pages: mapToPages(getTabs(state)),
+      wallets: Object.values(getAccounts(state)),
+      tabsFocusOrder: getTabsFocusOrder(state),
       isMobile: fromUi.getIsMobile(state),
       onlyIcons: fromUi.getTabsListDisplay(state) === 3,
     };
   },
   (dispatch) => ({
-    focusTab: (tabId: string) => dispatch(fromDapps.focusTabAction({ tabId })),
+    focusTab: (tabId: string) => dispatch(focusTabAction({ tabId })),
     loadResource: (address: string, tabId: string) =>
       dispatch(
-        fromDapps.loadResourceAction({
+        loadResourceAction({
           url: address,
           tabId,
         })
       ),
-    removeTab: (tabId: string) => dispatch(fromDapps.removeTabAction({ tabId })),
-    stopTab: (tabId: string) => dispatch(fromDapps.stopTabAction({ tabId })),
-    unfocusAllTabs: () => dispatch(fromDapps.unfocusAllTabsAction()),
+    removeTab: (tabId: string) => dispatch(removeTabAction({ tabId })),
+    stopTab: (tabId: string) => dispatch(stopTabAction({ tabId })),
+    unfocusAllTabs: () => dispatch(unfocusAllTabsAction()),
     onSetFavoriteTab: (tabId: string, favorite: boolean) => {
       dispatch(
-        fromDapps.setTabFavoriteAction({
+        setTabFavoriteAction({
           tabId,
           favorite,
         })
@@ -39,7 +62,7 @@ const connector = connect(
     },
     onSetMuteTab: (tabId: string, a: boolean) => {
       dispatch(
-        fromDapps.setTabMutedAction({
+        setTabMutedAction({
           tabId,
           muted: a,
         })
@@ -66,30 +89,15 @@ const groupByDomain = (pages: Page[]) => {
   return Object.values(result);
 };
 
-const mapToPages = (tabs: Tab[]) => {
-  return tabs.map((tab) => ({
-    id: tab.id,
-    title: tab.title,
-    url: tab.url,
-    image: tab.img,
-    favorite: tab.favorite,
-  }));
-};
-
 const AppCardsConnectorComponent = ({
   transitoryStates,
-  tabs,
+  pages,
+  wallets,
   focusTab,
   loadResource,
   removeTab,
   onSetFavoriteTab,
 }: AppCardConnectorProps) => {
-  const [pages, setPages] = useState<Page[]>(mapToPages(tabs));
-
-  useEffect(() => setPages(mapToPages(tabs)), [tabs]);
-
-  const [wallets] = useState<Wallet[]>([]);
-
   const api: Api = {
     openOrFocusPage: (page: Page) => {
       if (!transitoryStates[page.id]) {
