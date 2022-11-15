@@ -1,16 +1,16 @@
-.theme-black {
+.theme-dappy {
   --font-family: 'Fira Sans', sans-serif;
-  --text-main-color: #999;
+  --text-main-color: #ddd;
   --text-secondary-color: #fff;
-  --bg-main-color: #111;
-  --bg-secondary-color: #333;
-  --border-color: #3b4040;
+  --bg-main-color: #036873;
+  --bg-secondary-color: #005c66;
+  --border-color: #005760;
   --card-font-size: 1.25rem;
   --border-radius: 5px;
   --bg-image: repeating-linear-gradient(
     45deg,
-    #000,
-    #030303 1px,
+    #00545d,
+    #006a76 1px,
     var(--bg-main-color) 1px,
     var(--bg-main-color) 5px
   );

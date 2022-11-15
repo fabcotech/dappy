@@ -111,7 +111,7 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
       return <Gcu version={GCU_VERSION} text={GCU_TEXT} continue={this.props.updateGcu}></Gcu>;
     }
 
-    let klasses = 'root theme-black';
+    let klasses = 'root theme theme-dappy';
     if (this.props.isMobile) {
       klasses += ' is-mobile';
     }

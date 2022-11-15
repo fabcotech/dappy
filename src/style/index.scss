@@ -1,26 +1,26 @@
-@import "./variables.scss";
+@import './variables.scss';
 
-@import "node_modules/bulma/sass/utilities/_all.sass";
+@import 'node_modules/bulma/sass/utilities/_all.sass';
 
-@import "node_modules/bulma/sass/helpers/_all.sass";
+@import 'node_modules/bulma/sass/helpers/_all.sass';
 
-@import "node_modules/bulma/sass/base/_all.sass";
-@import "node_modules/bulma/sass/grid/_all.sass";
+@import 'node_modules/bulma/sass/base/_all.sass';
+@import 'node_modules/bulma/sass/grid/_all.sass';
 
-@import "node_modules/bulma/sass/form/_all.sass";
+@import 'node_modules/bulma/sass/form/_all.sass';
 
-@import "node_modules/bulma/sass/elements/_all.sass";
+@import 'node_modules/bulma/sass/elements/_all.sass';
 
-@import "node_modules/bulma/sass/components/card.sass";
-@import "node_modules/bulma/sass/components/message.sass";
-@import "node_modules/bulma/sass/components/menu.sass";
-@import "node_modules/bulma/sass/components/modal.sass";
-@import "node_modules/bulma/sass/components/dropdown.sass";
-@import "node_modules/bulma/sass/components/tabs.sass";
-@import "node_modules/bulma/sass/components/pagination.sass";
+@import 'node_modules/bulma/sass/components/card.sass';
+@import 'node_modules/bulma/sass/components/message.sass';
+@import 'node_modules/bulma/sass/components/menu.sass';
+@import 'node_modules/bulma/sass/components/modal.sass';
+@import 'node_modules/bulma/sass/components/dropdown.sass';
+@import 'node_modules/bulma/sass/components/tabs.sass';
+@import 'node_modules/bulma/sass/components/pagination.sass';
 
-@import "node_modules/bulma-extensions/bulma-tooltip/dist/css/bulma-tooltip.sass";
-@import "node_modules/bulma-extensions/bulma-checkradio/dist/css/bulma-checkradio.sass";
+@import 'node_modules/bulma-extensions/bulma-tooltip/dist/css/bulma-tooltip.sass';
+@import 'node_modules/bulma-extensions/bulma-checkradio/dist/css/bulma-checkradio.sass';
 
 @import './themes/all.scss';
 @import './main.scss';

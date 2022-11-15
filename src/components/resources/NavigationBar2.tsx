@@ -84,7 +84,7 @@ class NavigationBar2Component extends WithSuggestions {
           </button>
         </div>
 
-        <div className={`form pl-1 pr-2 ${this.props.resourceLoaded ? 'with-app-type' : ''}`}>
+        <div className={`form pl-1 ${this.props.resourceLoaded ? 'with-app-type' : ''}`}>
           {this.props.resourceLoaded ? (
             <div
               className="lock-div mr-1 resource-loaded"
@@ -108,7 +108,7 @@ class NavigationBar2Component extends WithSuggestions {
             spellCheck="false"
             ref={this.setInputEl}
             placeholder=""
-            className={`${this.state.pristine ? 'pristine' : ''} input`}
+            className={`addressBar ${this.state.pristine ? 'pristine' : ''} input`}
             onChange={this.onChange}
             onKeyDown={this.onKeyDown}
           />

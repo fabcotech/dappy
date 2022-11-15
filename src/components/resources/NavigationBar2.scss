@@ -3,8 +3,10 @@
 .navigation-bar {
   background-color: #fafafa;
   display: grid;
-  grid-template-columns: 10rem calc(100% - 10rem - 115px);
+  grid-template-columns: 10rem;
   grid-template-rows: 100%;
+  margin-bottom: 5px;
+  margin-right: 2px;
   .actions {
     display: grid;
     &.actions-4 {
@@ -23,9 +25,9 @@
       }
     }
     .nb-button {
-      color: #FFF;
+      color: #fff;
       background: transparent;
-      cursor:pointer;
+      cursor: pointer;
       border: none;
       &:hover {
         background: #222;

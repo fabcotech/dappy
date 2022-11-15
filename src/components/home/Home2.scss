@@ -6,7 +6,6 @@
   display: grid;
   grid-template-rows: 60px 50px calc(100% - 60px - 50px);
   grid-template-columns: 100%;
-  background-image: repeating-linear-gradient(45deg, #000, #030303 1px, #111 1px, #111 5px);
   & > .navigation-bar-home {
     z-index: 1;
     grid-column: 1;
