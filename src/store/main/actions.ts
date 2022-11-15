@@ -1,4 +1,4 @@
-import * as fromReducer from './reducer';
+import { ModalButton, State } from './types';
 
 export const UPDATE_MAIN_FROM_STORAGE = '[Main] Upate main from storage';
 export const SAVE_ERROR = '[Main] Save error';
@@ -12,7 +12,7 @@ export const DISPATCH_WHEN_INITIALIZATION_OVER = '[Main] Dispatch when initializ
 export const UPDATE_LOAD_RESOURCE_WHEN_READY = '[Main] Update load resource when ready';
 
 export interface UpdateMainFromStoragePayload {
-  mainState: Partial<fromReducer.State>;
+  mainState: Partial<State>;
 }
 export const updateMainFromStorageAction = (values: UpdateMainFromStoragePayload) => ({
   type: UPDATE_MAIN_FROM_STORAGE,
@@ -32,7 +32,7 @@ export interface OpenModalPayload {
   parameters?: any;
   title: string;
   text: string;
-  buttons: fromReducer.ModalButton[];
+  buttons: ModalButton[];
 }
 export const openModalAction = (values: OpenModalPayload) => ({
   type: OPEN_MODAL,
@@ -69,7 +69,9 @@ export const updateInitializationOverAction = () => ({
 export interface DispatchWhenInitializationOverPayload {
   payload: { type: string; payload: any };
 }
-export const dispatchWhenInitializationOverAction = (payload: DispatchWhenInitializationOverPayload) => ({
+export const dispatchWhenInitializationOverAction = (
+  payload: DispatchWhenInitializationOverPayload
+) => ({
   type: DISPATCH_WHEN_INITIALIZATION_OVER,
   payload,
 });

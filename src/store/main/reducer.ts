@@ -3,36 +3,9 @@ import { createSelector } from 'reselect';
 import * as fromDapps from '../dapps';
 import * as fromUi from '../ui';
 import * as fromActions from './actions';
-import { Action } from '..';
 import { VERSION } from '/CONSTANTS';
-
-export interface ModalButton {
-  classNames: string;
-  text: string;
-  action?: { type: string; payload?: any } | { type: string; payload?: any }[];
-}
-
-export interface Modal {
-  tabId?: string;
-  parameters?: any;
-  title: string;
-  text: string;
-  buttons: ModalButton[];
-}
-
-export interface State {
-  currentVersion: undefined | string;
-  isBeta: boolean;
-  versionAwaitingUpdate: undefined | string;
-  errors: { errorCode: number; error: string; trace?: string }[];
-  modals: Modal[];
-  dappModals: {
-    [resourceId: string]: Modal[];
-  };
-  initializationOver: boolean;
-  dispatchWhenInitializationOver: fromActions.DispatchWhenInitializationOverPayload['payload'][];
-  loadResourceWhenReady: undefined | string;
-}
+import { Modal, State } from './types';
+import { Action } from '../types';
 
 export const initialState: State = {
   currentVersion: VERSION,
@@ -142,7 +115,9 @@ export const reducer = (state = initialState, action: Action): State => {
       const { payload } = action;
 
       // ugly, I know, should we include dappId in the payload ?
-      const dappModalsToRemove = Object.keys(state.dappModals).filter((tabId) => tabId.includes(payload.tabId));
+      const dappModalsToRemove = Object.keys(state.dappModals).filter((tabId) =>
+        tabId.includes(payload.tabId)
+      );
       const newDappModals = { ...state.dappModals };
 
       dappModalsToRemove.forEach((tabId) => {
@@ -166,7 +141,9 @@ export const reducer = (state = initialState, action: Action): State => {
       const { payload } = action;
       return {
         ...state,
-        dispatchWhenInitializationOver: state.dispatchWhenInitializationOver.concat(payload.payload),
+        dispatchWhenInitializationOver: state.dispatchWhenInitializationOver.concat(
+          payload.payload
+        ),
       };
     }
 
@@ -194,14 +171,23 @@ export const getMainState = createSelector(
 export const getErrors = createSelector(getMainState, (state: State) => state.errors);
 export const getModal = createSelector(getMainState, (state: State) => state.modals[0]);
 export const getDappModals = createSelector(getMainState, (state: State) => state.dappModals);
-export const getCurrentVersion = createSelector(getMainState, (state: State) => state.currentVersion);
+export const getCurrentVersion = createSelector(
+  getMainState,
+  (state: State) => state.currentVersion
+);
 export const getIsBeta = createSelector(getMainState, (state: State) => state.isBeta);
-export const getInitializationOver = createSelector(getMainState, (state: State) => state.initializationOver);
+export const getInitializationOver = createSelector(
+  getMainState,
+  (state: State) => state.initializationOver
+);
 export const getDispatchWhenInitializationOver = createSelector(
   getMainState,
   (state: State) => state.dispatchWhenInitializationOver
 );
-export const getLoadResourceWhenReady = createSelector(getMainState, (state: State) => state.loadResourceWhenReady);
+export const getLoadResourceWhenReady = createSelector(
+  getMainState,
+  (state: State) => state.loadResourceWhenReady
+);
 
 export const getShouldBrowserViewsBeDisplayed = createSelector(
   fromUi.getIsNavigationInDapps,
@@ -210,9 +196,14 @@ export const getShouldBrowserViewsBeDisplayed = createSelector(
   getModal,
   fromDapps.getTabsFocusOrder,
   fromDapps.getTabs,
-  (isNavigationInDapps, navigationSuggestionsDisplayed, dappModals, modal, tabsFocusOrder, tabs) => {
-    // return undefined : no browser views displayed
-    // return resourceId: string : the browser view corresponding to this resourceId should be displayed
+  (
+    isNavigationInDapps,
+    navigationSuggestionsDisplayed,
+    dappModals,
+    modal,
+    tabsFocusOrder,
+    tabs
+  ) => {
     if (modal) {
       return undefined;
     }
@@ -225,6 +216,6 @@ export const getShouldBrowserViewsBeDisplayed = createSelector(
 
       return undefined;
     }
-      return undefined;
+    return undefined;
   }
 );

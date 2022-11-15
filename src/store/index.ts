@@ -45,6 +45,8 @@ import { interProcess } from '../interProcess';
 import { Account } from '../models';
 // import { upgrades } from './upgrades';
 
+import { Action } from './types';
+export type { Action } from './types';
 declare global {
   interface Window {
     Sentry: any;
@@ -75,11 +77,6 @@ declare global {
     dispatchFromMainProcess: (a: Action) => void;
     dispatchWhenReady: undefined | Action;
   }
-}
-
-export interface Action {
-  type: string;
-  payload: any;
 }
 
 export interface State {
