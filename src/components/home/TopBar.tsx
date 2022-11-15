@@ -1,16 +1,22 @@
 import React from 'react';
+import { connect, ConnectedProps } from 'react-redux';
 
-import { NavigationUrl } from '/models';
 import './TopBar.scss';
 
+import { NavigationUrl } from '/models';
+import { unfocusAllTabsAction } from '/store/dapps';
 import { TabsList2 } from '.';
 
-interface TopBarComponentProps {
+const connector = connect(undefined, {
+  unfocusAllTabs: unfocusAllTabsAction,
+});
+
+type TopBarComponentProps = {
   isNavigationInDapps: boolean;
   navigate: (navigationUrl: NavigationUrl) => void;
-}
+} & ConnectedProps<typeof connector>;
 
-function TopBarComponent({ isNavigationInDapps, navigate }: TopBarComponentProps) {
+function TopBarComponent({ isNavigationInDapps, unfocusAllTabs, navigate }: TopBarComponentProps) {
   return (
     <div
       style={{
@@ -39,7 +45,7 @@ function TopBarComponent({ isNavigationInDapps, navigate }: TopBarComponentProps
       </button>
       {isNavigationInDapps && (
         <>
-          <button className="tb-button">
+          <button className="tb-button" onClick={unfocusAllTabs}>
             <i className="fas fa-home fa-lg" title="go to home" />
           </button>
           <TabsList2 />
@@ -49,4 +55,4 @@ function TopBarComponent({ isNavigationInDapps, navigate }: TopBarComponentProps
   );
 }
 
-export const TopBar = TopBarComponent;
+export const TopBar = connector(TopBarComponent);
