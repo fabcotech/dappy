@@ -1,10 +1,12 @@
 import React, { useContext } from 'react';
 
 import { Chip } from '../Chip';
-import metamaskImage from './metamask.png';
-import ledgerImage from './ledger.png';
 import { ApiContext } from '../../Api';
 import { Wallet } from '../../model';
+
+import metamaskImage from './metamask.png';
+import ledgerImage from './ledger.png';
+import ethImage from './eth.svg';
 
 const LedgerChip = () => (
   <Chip bgColor="#FFF">
@@ -18,6 +20,27 @@ const MetamaskChip = () => (
   </Chip>
 );
 
+const ClientCertificateChip = () => (
+  <Chip
+    bgColor="#333"
+    style={{
+      alignSelf: 'center',
+    }}
+  >
+    <i className="fas fa-certificate" />
+  </Chip>
+);
+
+const EVMChip = () => (
+  <Chip
+    style={{
+      alignSelf: 'center',
+    }}
+  >
+    <img alt="evm" width="16" src={ethImage} />
+  </Chip>
+);
+
 interface WalletChipProps {
   platform: Wallet['platform'];
 }
@@ -28,6 +51,10 @@ const WalletChip = ({ platform }: WalletChipProps) => {
       return <MetamaskChip />;
     case 'ledger':
       return <LedgerChip />;
+    case 'evm':
+      return <EVMChip />;
+    case 'certificate':
+      return <ClientCertificateChip />;
     default:
       return null;
   }
@@ -57,7 +84,7 @@ export const Wallets = ({ domain }: WalletsProps) => {
       }}
     >
       <div className="ac-label">
-        <i className="fa-solid fa-lock fa-xl"></i>
+        <i className="fas fa-lock fa-xl"></i>
       </div>
       <div
         className="ac-value"

@@ -1,11 +1,12 @@
-import React, { ReactChild } from 'react';
+import React, { CSSProperties, ReactChild } from 'react';
 
 interface ChipProps {
-  bgColor: string;
+  bgColor: string | undefined;
   children: ReactChild;
+  style: CSSProperties;
 }
 
-export const Chip = ({ bgColor, children }: ChipProps) => (
+export const Chip = ({ bgColor, children, style }: ChipProps) => (
   <div
     style={{
       padding: '2px 4px',
@@ -14,8 +15,14 @@ export const Chip = ({ bgColor, children }: ChipProps) => (
       color: '#FFF',
       backgroundColor: bgColor,
       display: 'flex',
+      ...style,
     }}
   >
     {children}
   </div>
 );
+
+Chip.defaultProps = {
+  style: {},
+  bgColor: undefined,
+};

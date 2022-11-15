@@ -14,7 +14,7 @@ export interface App {
 }
 
 export interface Wallet {
-  platform: 'ledger' | 'metamask';
+  platform: 'rchain' | 'evm' | 'certificate' | 'ledger' | 'metamask';
   name: string;
   whitelist: { host: string }[];
 }

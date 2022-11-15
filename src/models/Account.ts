@@ -4,7 +4,7 @@ export interface BaseAccount {
   whitelist: { host: string; blitz: boolean; transactions: boolean }[];
 }
 export interface BlockchainAccount extends BaseAccount {
-  platform: 'rchain' | 'evm';
+  platform: 'rchain' | 'evm' | 'metamask' | 'ledger';
   publicKey: string;
   address: string;
   encrypted: string;
