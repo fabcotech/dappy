@@ -4,7 +4,7 @@ import { browserUtils } from '/store/browser-utils';
 import * as fromSettings from '..';
 import { Action } from '/store';
 
-const updateSettings = function* (action: Action) {
+function* updateSettings(action: Action) {
   let settings: fromSettings.Settings = yield select(fromSettings.getSettings);
   if (action.type === fromSettings.UPDATE_DEV_MODE) {
     const { payload } = action;
@@ -30,9 +30,9 @@ const updateSettings = function* (action: Action) {
   }
 
   yield put(fromSettings.updateSettingsCompletedAction(settings));
-};
+}
 
-export const updateSettingsSaga = function* () {
+export function* updateSettingsSaga() {
   yield takeEvery(fromSettings.UPDATE_RESOLVER_SETTINGS, updateSettings);
   yield takeEvery(fromSettings.UPDATE_DEV_MODE, updateSettings);
-};
+}

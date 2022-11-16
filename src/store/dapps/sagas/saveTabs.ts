@@ -4,7 +4,6 @@ import * as fromDapps from '..';
 import * as fromMain from '../../main';
 import { Tab } from '../../../models';
 import { browserUtils } from '../../browser-utils';
-import { Action } from '../..';
 import { dispatchInMain } from '/interProcess';
 
 function* saveTabs() {

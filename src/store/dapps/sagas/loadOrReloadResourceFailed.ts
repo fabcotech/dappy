@@ -6,7 +6,7 @@ import { Tab } from '../../../models';
 import { Action } from '../..';
 import { dispatchInMain } from '/interProcess';
 
-const loadOrReloadResourceFailed = function* (action: Action) {
+function* loadOrReloadResourceFailed(action: Action) {
   const { payload } = action;
 
   const tabs: Tab[] = yield select(fromDapps.getTabs);
@@ -26,8 +26,8 @@ const loadOrReloadResourceFailed = function* (action: Action) {
     type: '[MAIN] Destroy browser view',
     payload: { tabId: tab.id },
   });
-};
+}
 
-export const loadOrReloadResourceFailedSaga = function* () {
+export function* loadOrReloadResourceFailedSaga() {
   yield takeEvery(fromDapps.LOAD_RESOURCE_FAILED, loadOrReloadResourceFailed);
-};
+}

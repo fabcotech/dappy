@@ -7,10 +7,9 @@ import * as fromSettings from '../../settings';
 import * as fromUi from '../../ui';
 import { Blockchain, Tab } from '../../../models';
 import { Action } from '../..';
-
 import { checkIfValidIP } from '/utils/checkIfValidIp';
 
-const loadResource = function* (action: Action) {
+function* loadResource(action: Action) {
   const { payload } = action;
   const namesBlockchain: undefined | Blockchain = yield select(fromSettings.getNamesBlockchain);
   let tabs: Tab[] = yield select(fromDapps.getTabs);
@@ -220,12 +219,12 @@ const loadResource = function* (action: Action) {
       },
     })
   );
-};
+}
 
-export const loadResourceSaga = function* () {
+export function* loadResourceSaga() {
   try {
     yield takeEvery(fromDapps.LOAD_RESOURCE, loadResource);
   } catch (err) {
     console.log(err);
   }
-};
+}

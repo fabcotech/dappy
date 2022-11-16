@@ -6,7 +6,7 @@ import * as fromMain from '/store/main';
 import { Action } from '/store';
 import { Account } from '/models';
 
-const createAccount = function* (action: Action) {
+function* createAccount(action: Action) {
   const { payload } = action;
   let { account } = payload;
   const accounts: {
@@ -32,8 +32,8 @@ const createAccount = function* (action: Action) {
   }
 
   yield put(fromSettings.createAccountCompletedAction({ account }));
-};
+}
 
-export const createAccountSaga = function* () {
+export function* createAccountSaga() {
   yield takeEvery(fromSettings.CREATE_ACCOUNT, createAccount);
-};
+}

@@ -5,7 +5,7 @@ import * as fromSettings from '..';
 import * as fromMain from '/store/main';
 import { Action } from '/store/';
 
-const removeBlockchainsToStorage = function* (action: Action) {
+function* removeBlockchainsToStorage(action: Action) {
   const { payload } = action;
 
   try {
@@ -22,8 +22,8 @@ const removeBlockchainsToStorage = function* (action: Action) {
   }
 
   yield put(fromSettings.removeBlockchainCompletedAction(payload));
-};
+}
 
-export const removeBlockchainsToStorageSaga = function* () {
+export function* removeBlockchainsToStorageSaga() {
   yield takeEvery(fromSettings.REMOVE_BLOCKCHAIN, removeBlockchainsToStorage);
-};
+}

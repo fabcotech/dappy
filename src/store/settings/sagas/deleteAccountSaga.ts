@@ -5,7 +5,7 @@ import * as fromSettings from '..';
 import * as fromMain from '/store/main';
 import { Action } from '/store';
 
-const deleteAccount = function* (action: Action) {
+function* deleteAccount(action: Action) {
   const { payload } = action;
 
   try {
@@ -21,8 +21,8 @@ const deleteAccount = function* (action: Action) {
   }
 
   yield put(fromSettings.deleteAccountCompletedAction(payload));
-};
+}
 
-export const deleteAccountSaga = function* () {
+export function* deleteAccountSaga() {
   yield takeEvery(fromSettings.DELETE_ACCOUNT, deleteAccount);
-};
+}

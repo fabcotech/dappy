@@ -1,24 +1,18 @@
 import { put, takeEvery, select } from 'redux-saga/effects';
 
-import { Blockchain, RChainInfos } from '/models';
+import { Blockchain } from '/models';
 import { browserUtils } from '/store/browser-utils';
 import * as fromSettings from '..';
-import * as fromBlockchain from '/store/blockchain';
 import * as fromMain from '/store/main';
 import { Action } from '/store/';
 
-const saveBlockchainsToStorage = function* (action: Action) {
+function* saveBlockchainsToStorage(action: Action) {
   let blockchains: { [chainId: string]: Blockchain } = yield select(fromSettings.getBlockchains);
 
-  let blockchain: undefined | Blockchain;
   if (action.type === fromSettings.CREATE_BLOCKCHAIN) {
-    const { payload } = action;
-    blockchain = payload.blockchain;
-    yield put(fromSettings.createBlockchainCompletedAction(payload));
+    yield put(fromSettings.createBlockchainCompletedAction(action.payload));
   } else if (action.type === fromSettings.UPDATE_NODES) {
-    const { payload } = action;
-    blockchain = blockchains[payload.chainId];
-    yield put(fromSettings.updateNodeUrlsCompletedAction(payload));
+    yield put(fromSettings.updateNodeUrlsCompletedAction(action.payload));
   }
 
   blockchains = yield select(fromSettings.getBlockchains);
@@ -33,11 +27,11 @@ const saveBlockchainsToStorage = function* (action: Action) {
       })
     );
   }
-};
+}
 
-export const saveBlockchainsToStorageSaga = function* () {
+export function* saveBlockchainsToStorageSaga() {
   yield takeEvery(fromSettings.UPDATE_BLOCKCHAINS_FROM_STORAGE, saveBlockchainsToStorage);
   yield takeEvery(fromSettings.UPDATE_NODES, saveBlockchainsToStorage);
   yield takeEvery(fromSettings.CREATE_BLOCKCHAIN, saveBlockchainsToStorage);
   yield takeEvery(fromSettings.UPDATE_BLOCKCHAINS_FROM_STORAGE, saveBlockchainsToStorage);
-};
+}

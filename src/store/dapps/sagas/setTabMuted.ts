@@ -6,7 +6,7 @@ import { Tab } from '../../../models';
 import { Action } from '../..';
 import { dispatchInMain } from '/interProcess';
 
-const setTabMuted = function* (action: Action) {
+function* setTabMuted(action: Action) {
   const { payload } = action;
   const tabs: Tab[] = yield select(fromDapps.getTabs);
   const tab = tabs.find((t) => t.id === payload.tabId);
@@ -26,8 +26,8 @@ const setTabMuted = function* (action: Action) {
       id: tab.id,
     },
   });
-};
+}
 
-export const setTabMutedSaga = function* () {
+export function* setTabMutedSaga() {
   yield takeEvery(fromDapps.SET_TAB_MUTED, setTabMuted);
-};
+}

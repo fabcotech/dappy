@@ -3,10 +3,9 @@ import { put, takeEvery, select } from 'redux-saga/effects';
 import { browserUtils } from '/store/browser-utils';
 import * as fromUi from '..';
 import * as fromMain from '/store/main';
-import { Action } from '/store/';
 import { dispatchInMain } from '/interProcess';
 
-const saveUiToStorage = function* (action: Action) {
+function* saveUiToStorage() {
   const uiState: fromUi.State = yield select(fromUi.getUiState);
 
   const uiStateToSave = {
@@ -52,9 +51,9 @@ const saveUiToStorage = function* (action: Action) {
       })
     );
   }
-};
+}
 
-export const saveUiToStorageSaga = function* () {
+export function* saveUiToStorageSaga() {
   yield takeEvery(fromUi.TOGGLE_MENU_COLLAPSED, saveUiToStorage);
   yield takeEvery(fromUi.TOGGLE_DAPPS_DISPLAY, saveUiToStorage);
   yield takeEvery(fromUi.NAVIGATE, saveUiToStorage);
@@ -65,4 +64,4 @@ export const saveUiToStorageSaga = function* () {
   yield takeEvery(fromUi.UPDATE_WHITELIST, saveUiToStorage);
   yield takeEvery(fromUi.UPDATE_SHOW_ACCOUNT_CREATION_AT_STARTUP, saveUiToStorage);
   yield takeEvery(fromUi.TOGGLE_BALANCES_VISIBILITY, saveUiToStorage);
-};
+}

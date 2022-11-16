@@ -45,7 +45,7 @@ export const initialState: State = {
   whitelist: [{ host: '*', topLevel: true, secondLevel: true }],
 };
 
-export const updateShowAccountCreationAtStartupReducer = (state = initialState, action: Action) => {
+export const updateShowAccountCreationAtStartupReducer = (action: Action, state = initialState) => {
   const { show }: fromActions.UpdateShowAccountCreationAtStartupPayload = action.payload;
 
   return {
@@ -54,7 +54,7 @@ export const updateShowAccountCreationAtStartupReducer = (state = initialState, 
   };
 };
 
-export const toggleBalanceVisibilityReducer = (state = initialState, action: Action) => {
+export const toggleBalanceVisibilityReducer = (state = initialState) => {
   return {
     ...state,
     isBalancesHidden: !state.isBalancesHidden,
@@ -161,11 +161,11 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.UPDATE_SHOW_ACCOUNT_CREATION_AT_STARTUP: {
-      return updateShowAccountCreationAtStartupReducer(state, action);
+      return updateShowAccountCreationAtStartupReducer(action, state);
     }
 
     case fromActions.TOGGLE_BALANCES_VISIBILITY: {
-      return toggleBalanceVisibilityReducer(state, action);
+      return toggleBalanceVisibilityReducer(state);
     }
 
     default:

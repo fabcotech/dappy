@@ -15,7 +15,7 @@ const blockchainColors = ['background:rgb(2, 77, 67);', 'background:rgb(2, 107, 
 const commonColors = ['background:#ee0055;', 'background:#ff0066;'];
 const historyColors = ['background:#ff9966;', 'background:#ffaa77;'];
 
-const logger = function* (action: Action) {
+const logger = function* gen(action: Action) {
   const state: State = yield select((s) => s);
 
   if (action.type.includes('[Main]')) {
@@ -42,12 +42,6 @@ const logger = function* (action: Action) {
     console.log('%cui', logCSSStyleState + uiColors[0], state.ui);
   } else if (action.type.includes('[Dapps]')) {
     console.log('%cdapps', logCSSStyleState + dappsColors[0], state.dapps);
-    if (
-      [fromDapps.STOP_TAB, fromDapps.LAUNCH_TAB_COMPLETED, fromDapps.STOP_TAB].includes(action.type)
-    ) {
-      console.log('%chistory', logCSSStyleState + historyColors[0], state.history);
-    }
-    console.log('%cdapps', logCSSStyleState + dappsColors[0], state.dapps);
   } else if (action.type.includes('[Settings]')) {
     console.log('%csettings', logCSSStyleState + settingsColors[0], state.settings);
   } else if (action.type.includes('[Blockchain]')) {
@@ -61,6 +55,6 @@ const logger = function* (action: Action) {
   return state;
 };
 
-export const loggerSaga = function* () {
+export const loggerSaga = function* gen() {
   yield takeEvery('*', logger);
 };

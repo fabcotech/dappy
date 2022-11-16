@@ -4,12 +4,12 @@ import * as fromDapps from '..';
 import { Action } from '../..';
 import { dispatchInMain } from '/interProcess';
 
-const transferIdentification = function* (action: Action) {
+function transferIdentification(action: Action) {
   const { payload } = action;
 
   dispatchInMain({ type: '[MAIN] Transfer identification', payload });
-};
+}
 
-export const transferIdentificationSaga = function* () {
+export function* transferIdentificationSaga() {
   yield takeEvery(fromDapps.SAVE_IDENTIFICATION, transferIdentification);
-};
+}

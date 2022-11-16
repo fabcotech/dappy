@@ -25,7 +25,7 @@ describe('reducer ui', () => {
 
   it('should toggle balance visibility', () => {
     const state: State = JSON.parse(JSON.stringify(initialState));
-    const newState = toggleBalanceVisibilityReducer(state, toggleBalanceVisibility());
+    const newState = toggleBalanceVisibilityReducer(state);
     expect(
       getIsBalancesHidden({
         ui: newState,

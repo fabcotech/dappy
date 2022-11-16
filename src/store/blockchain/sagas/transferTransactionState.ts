@@ -1,4 +1,3 @@
-import { Transaction } from 'electron';
 import { takeEvery, select } from 'redux-saga/effects';
 
 import * as fromBlockchain from '..';
@@ -6,7 +5,7 @@ import { Action } from '/store';
 import { TransactionState } from '/models';
 import { dispatchInMain } from '/interProcess';
 
-const transferTransactionState = function* (action: Action) {
+function* transferTransactionState(action: Action) {
   let payload: undefined | fromBlockchain.SaveEthereumTransactionStatePayload;
   if (action.type === fromBlockchain.SAVE_ETHEREUM_TRANSACTION) {
     payload = action.payload as fromBlockchain.SaveEthereumTransactionStatePayload;
@@ -26,8 +25,8 @@ const transferTransactionState = function* (action: Action) {
       payload: transaction,
     });
   }
-};
+}
 
-export const transferTransactionStateSaga = function* () {
+export function* transferTransactionStateSaga() {
   yield takeEvery(fromBlockchain.SAVE_ETHEREUM_TRANSACTION, transferTransactionState);
-};
+}
