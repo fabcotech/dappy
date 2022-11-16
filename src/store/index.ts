@@ -326,17 +326,15 @@ dbReq.onsuccess = (event) => {
         store.dispatch(fromUi.updateUiFromStorageAction({ uiState: ui }));
         dispatchInitActions();
       })
-      .catch((e) => {
-        if (ui) {
-          console.error(e);
-        }
+      .catch((errUi) => {
+        console.error(errUi);
         asyncActionsOver += 1;
         dispatchInitActions();
         store.dispatch(
           fromMain.saveErrorAction({
             errorCode: 2003,
             error: 'Unable to read ui from storage',
-            trace: e,
+            trace: errUi,
           })
         );
       });
@@ -363,17 +361,15 @@ dbReq.onsuccess = (event) => {
         store.dispatch(fromSettings.updateSettingsCompletedAction(settings));
         dispatchInitActions();
       })
-      .catch((e) => {
-        if (settings) {
-          console.error(e);
-        }
+      .catch((errSettings) => {
+        console.error(errSettings);
         asyncActionsOver += 1;
         dispatchInitActions();
         store.dispatch(
           fromMain.saveErrorAction({
             errorCode: 2011,
             error: 'Unable to read settings from storage',
-            trace: e,
+            trace: errSettings,
           })
         );
       });
@@ -394,13 +390,13 @@ dbReq.onsuccess = (event) => {
         }
         dispatchInitActions();
       })
-      .catch((e) => {
+      .catch((errFavs) => {
         asyncActionsOver += 1;
         store.dispatch(
           fromMain.saveErrorAction({
             errorCode: 2048,
             error: 'Unable to read favs from storage',
-            trace: e,
+            trace: errFavs,
           })
         );
         dispatchInitActions();
@@ -432,13 +428,14 @@ dbReq.onsuccess = (event) => {
         }
         dispatchInitActions();
       })
-      .catch((e) => {
+      .catch((errTabs) => {
+        console.error(errTabs);
         asyncActionsOver += 1;
         store.dispatch(
           fromMain.saveErrorAction({
             errorCode: 2005,
             error: 'Unable to read tabs from storage',
-            trace: e,
+            trace: errTabs,
           })
         );
         dispatchInitActions();
@@ -502,8 +499,8 @@ dbReq.onsuccess = (event) => {
           }
           dispatchInitActions();
         })
-        .catch((e) => {
-          console.log(e);
+        .catch((errBc) => {
+          console.error(errBc);
           asyncActionsOver += 1;
           const chainId = Object.keys(dappyNetworks)[0];
           store.dispatch(
@@ -521,7 +518,7 @@ dbReq.onsuccess = (event) => {
             fromMain.saveErrorAction({
               errorCode: 2004,
               error: 'Unable to read blockchains from storage',
-              trace: e,
+              trace: errBc,
             })
           );
           dispatchInitActions();
@@ -545,13 +542,14 @@ dbReq.onsuccess = (event) => {
         );
         dispatchInitActions();
       })
-      .catch((e) => {
+      .catch((errTransactions) => {
+        console.error(errTransactions);
         asyncActionsOver += 1;
         store.dispatch(
           fromMain.saveErrorAction({
             errorCode: 2047,
             error: 'Unable to read transactions from storage',
-            trace: e,
+            trace: errTransactions,
           })
         );
         dispatchInitActions();
@@ -582,14 +580,14 @@ dbReq.onsuccess = (event) => {
         );
         dispatchInitActions();
       })
-      .catch((err) => {
-        console.error(err);
+      .catch((errAccounts) => {
+        console.error(errAccounts);
         asyncActionsOver += 1;
         store.dispatch(
           fromMain.saveErrorAction({
             errorCode: 2037,
             error: 'Unable to read accounts from storage',
-            trace: accounts,
+            trace: errAccounts,
           })
         );
         dispatchInitActions();

@@ -13,8 +13,8 @@ describe('reducer ui', () => {
   it('should update show account creation form', () => {
     const state: State = JSON.parse(JSON.stringify(initialState));
     const newState = updateShowAccountCreationAtStartupReducer(
-      state,
-      updateShowAccountCreationAtStartup({ show: true })
+      updateShowAccountCreationAtStartup({ show: true }),
+      state
     );
     expect(
       showAccountCreationAtStartup({
