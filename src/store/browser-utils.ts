@@ -2,7 +2,7 @@ import { getDb, openConnection } from './index';
 
 export const browserUtils = {
   deleteStorageIndexed: (
-    key: 'previews' | 'tabs' | 'transactions' | 'networks' | 'records' | 'accounts',
+    key: 'previews' | 'tabs' | 'favs' | 'transactions' | 'networks' | 'records' | 'accounts',
     value: string[]
   ) => {
     return new Promise<void>((resolve, reject) => {
@@ -10,7 +10,7 @@ export const browserUtils = {
       const doOperation = () => {
         try {
           if (
-            !['previews', 'tabs', 'networks', 'records', 'accounts', 'transactions'].find(
+            !['previews', 'tabs', 'favs', 'networks', 'records', 'accounts', 'transactions'].find(
               (k) => k === key
             )
           ) {
@@ -44,7 +44,7 @@ export const browserUtils = {
   },
 
   saveStorageIndexed: (
-    key: 'previews' | 'tabs' | 'networks' | 'accounts' | 'transactions',
+    key: 'previews' | 'tabs' | 'favs' | 'networks' | 'accounts' | 'transactions',
     value: { [id: string]: any }
   ) => {
     return new Promise<void>((resolve, reject) => {
@@ -52,7 +52,7 @@ export const browserUtils = {
       const doOperation = () => {
         try {
           if (
-            !['previews', 'tabs', 'networks', 'records', 'accounts', 'transactions'].find(
+            !['previews', 'tabs', 'favs', 'networks', 'records', 'accounts', 'transactions'].find(
               (k) => k === key
             )
           ) {

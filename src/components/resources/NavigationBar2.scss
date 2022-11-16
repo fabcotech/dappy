@@ -3,14 +3,14 @@
 .navigation-bar {
   background-color: #fafafa;
   display: grid;
-  grid-template-columns: 10rem;
+  grid-template-columns: 12rem;
   grid-template-rows: 100%;
   margin-bottom: 5px;
   margin-right: 2px;
   .actions {
     display: grid;
-    &.actions-4 {
-      grid-template-columns: 1fr 1fr 1fr 1fr;
+    &.actions-5 {
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
     }
     grid-template-rows: 100%;
     & > div {
@@ -48,6 +48,8 @@
       input {
         border-radius: 0.25rem;
         box-shadow: none;
+        padding: 0px 0.8rem;
+        height: 42px;
         &:focus {
           box-shadow: none;
         }

@@ -4,6 +4,7 @@ import { BeesLoadErrors, BeesLoadCompleted } from '@fabcotech/bees';
 import { TransitoryState, Tab, Fav, LastLoadError, Identification } from '/models';
 import * as fromActions from './actions';
 import { Action } from '..';
+import { SetTabFavoritePayload } from './actions';
 
 export interface State {
   search: string;
@@ -36,6 +37,7 @@ export const initialState: State = {
   lastLoadErrors: {},
   loadStates: {},
   tabs: [],
+  favs: [],
   tabsFocusOrder: [],
   transitoryStates: {},
   identifications: {},
@@ -54,6 +56,15 @@ export const reducer = (state = initialState, action: Action): State => {
           active: false,
           error: undefined,
         })),
+      };
+    }
+
+    case fromActions.UPDATE_FAVS_FROM_STORAGE: {
+      const payload = action.payload as fromActions.UpdatFavsFromStoragePayload;
+
+      return {
+        ...state,
+        favs: payload.favs,
       };
     }
 
@@ -412,18 +423,19 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.SET_TAB_FAVORITE: {
-      const { payload } = action;
+      const payload: SetTabFavoritePayload = action.payload;
 
+      const tab = state.tabs.find((t) => t.id === payload.tabId);
+      if (!tab) {
+        return state;
+      }
       return {
         ...state,
-        tabs: state.tabs.map((tab: Tab) => {
-          if (tab.id === payload.tabId) {
-            return {
-              ...tab,
-              favorite: payload.favorite,
-            };
-          }
-          return tab;
+        favs: state.favs.concat({
+          id: tab.id,
+          img: tab.img,
+          url: tab.url,
+          title: tab.title,
         }),
       };
     }
@@ -487,6 +499,7 @@ export const getTabsFocusOrder = createSelector(
   (state: State) => state.tabsFocusOrder
 );
 export const getTabs = createSelector(getDappsState, (state: State) => state.tabs);
+export const getFavs = createSelector(getDappsState, (state: State) => state.favs);
 export const getDappsTransitoryStates = createSelector(
   getDappsState,
   (state: State) => state.transitoryStates

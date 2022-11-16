@@ -3,6 +3,7 @@ export * from './Blockchains';
 export * from './Ui';
 export * from './Main';
 export * from './Tab';
+export * from './Fav';
 export * from './Nodes';
 export * from './TransactionState';
 export * from './Validate';

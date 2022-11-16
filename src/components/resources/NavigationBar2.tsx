@@ -46,7 +46,7 @@ class NavigationBar2Component extends WithSuggestions {
         id={tab.id}
         className={`navigation-bar ${'active'}`}
       >
-        <div className="actions pl-1 pr-1 actions-4">
+        <div className="actions pl-1 pr-1 actions-5">
           {this.props.tab && this.props.tab.canGoBackward ? (
             <button className="nb-button">
               <i
@@ -95,12 +95,9 @@ class NavigationBar2Component extends WithSuggestions {
           >
             <i className={`fas fa-redo ${loadingOrReloading ? 'rotating' : ''}`} title="Reload" />
           </button>
-        </div>
-
-        <div className={`form pl-1 ${this.props.resourceLoaded ? 'with-app-type' : ''}`}>
-          {this.props.resourceLoaded ? (
-            <div
-              className="lock-div mr-1 resource-loaded"
+          {this.props.resourceLoaded && (
+            <button
+              className="nb-button"
               onClick={() => {
                 if (this.props.tab) {
                   this.onShowLoadInfo();
@@ -112,11 +109,11 @@ class NavigationBar2Component extends WithSuggestions {
               ) : (
                 <img className="lock" src={locked_grey}></img>
               )}
-            </div>
-          ) : (
-            <div className="lock-div"></div>
+            </button>
           )}
+        </div>
 
+        <div className={`form pl-1 ${this.props.resourceLoaded ? 'with-app-type' : ''}`}>
           <input
             spellCheck="false"
             ref={this.setInputEl}

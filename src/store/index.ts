@@ -26,6 +26,7 @@ import {
   validateBlockchains,
   validateUi,
   validateTabs,
+  validateFavs,
   validateTransactionStates,
 } from './decoders';
 import {
@@ -159,7 +160,7 @@ const sagas = function* rootSaga() {
 sagaMiddleware.run(sagas);
 
 const dispatchInitActions = () => {
-  if (asyncActionsOver === 7) {
+  if (asyncActionsOver === 8) {
     store.dispatch(
       fromUi.setBodyDimensionsAction({
         bodyDimensions: [document.body.clientWidth, document.body.clientHeight],
@@ -172,7 +173,7 @@ const dispatchInitActions = () => {
   }
 };
 
-const DB_MIGRATION_NUMBER = 24;
+const DB_MIGRATION_NUMBER = 25;
 export const dbReq: IDBOpenDBRequest = window.indexedDB.open('dappy', DB_MIGRATION_NUMBER);
 export let db: undefined | IDBDatabase;
 
@@ -193,6 +194,9 @@ dbReq.onupgradeneeded = (event) => {
   }
   if (!db.objectStoreNames.contains('tabs')) {
     db.createObjectStore('tabs', { keyPath: 'id' });
+  }
+  if (!db.objectStoreNames.contains('favs')) {
+    db.createObjectStore('favs', { keyPath: 'id' });
   }
   if (!db.objectStoreNames.contains('networks')) {
     db.createObjectStore('networks', { keyPath: 'chainId' });
@@ -372,6 +376,34 @@ dbReq.onsuccess = (event) => {
             trace: e,
           })
         );
+      });
+  };
+
+  // FAVS
+  const favsTx = openedDB.transaction('favs', 'readonly');
+  const favsStore = favsTx.objectStore('favs');
+  const requestFavs = favsStore.getAll();
+  requestFavs.onsuccess = (e) => {
+    let favsToCheck = requestFavs.result;
+
+    validateFavs(favsToCheck)
+      .then((favs) => {
+        asyncActionsOver += 1;
+        if (favs.length) {
+          store.dispatch(fromDapps.updatFavsFromStorageAction({ favs }));
+        }
+        dispatchInitActions();
+      })
+      .catch((e) => {
+        asyncActionsOver += 1;
+        store.dispatch(
+          fromMain.saveErrorAction({
+            errorCode: 2048,
+            error: 'Unable to read favs from storage',
+            trace: e,
+          })
+        );
+        dispatchInitActions();
       });
   };
 

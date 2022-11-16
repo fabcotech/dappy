@@ -4,6 +4,7 @@ import { loadResourceSaga } from './loadResource';
 import { launchTabCompletedSaga } from './launchTabCompleted';
 import { removeTabSaga } from './removeTab';
 import { saveTabsSaga } from './saveTabs';
+import { saveFavsSaga } from './saveFavs';
 import { transferIdentificationSaga } from './transferIdentification';
 import { stopSaga } from './stopTab';
 import { loadOrReloadResourceFailedSaga } from './loadOrReloadResourceFailed';
@@ -15,6 +16,7 @@ export const sagas = function* rootSaga() {
     launchTabCompletedSaga(),
     removeTabSaga(),
     saveTabsSaga(),
+    saveFavsSaga(),
     transferIdentificationSaga(),
     stopSaga(),
     loadOrReloadResourceFailedSaga(),

@@ -1,8 +1,9 @@
 import { BeesLoadErrors, BeesLoadCompleted } from '@fabcotech/bees';
-import { Tab, Identification, TransitoryState } from '/models';
+import { Tab, Identification, TransitoryState, Fav } from '/models';
 import { SimpleError } from '/models/DappyLoadError';
 
 export const UPDATE_TABS_FROM_STORAGE = '[Dapps] Update tabs from storage';
+export const UPDATE_FAVS_FROM_STORAGE = '[Dapps] Update favs from storage';
 
 export const CLEAR_SEARCH_AND_LOAD_ERROR = '[Dapps] Clear search and load error';
 export const LOAD_RESOURCE = '[Dapps] Load resource';
@@ -35,6 +36,14 @@ export interface UpdatTabsFromStoragePayload {
 }
 export const updatTabsFromStorageAction = (values: UpdatTabsFromStoragePayload) => ({
   type: UPDATE_TABS_FROM_STORAGE,
+  payload: values,
+});
+
+export interface UpdatFavsFromStoragePayload {
+  tavs: Fav[];
+}
+export const updatFavsFromStorageAction = (values: UpdatFavsFromStoragePayload) => ({
+  type: UPDATE_FAVS_FROM_STORAGE,
   payload: values,
 });
 
