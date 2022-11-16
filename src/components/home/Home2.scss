@@ -4,7 +4,7 @@
   width: 100vw;
   height: 100vh;
   display: grid;
-  grid-template-rows: 60px 50px calc(100% - 60px - 50px);
+  grid-template-rows: 60px 50px 140px calc(100% - 50px - 60px - 140px);
   grid-template-columns: 100%;
   & > .navigation-bar-home {
     z-index: 1;
@@ -13,7 +13,7 @@
   }
   & > .resources {
     grid-row-start: 1;
-    grid-row-end: 4;
+    grid-row-end: 5;
     grid-column: 1;
     z-index: 2;
   }

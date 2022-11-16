@@ -335,6 +335,17 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
+    case fromActions.REMOVE_FAV_COMPLETED: {
+      const { payload } = action;
+
+      return {
+        ...state,
+        favs: state.favs
+          .filter((fav) => fav.id !== payload.tabId)
+          .map((fav, i) => ({ ...fav, index: i })),
+      };
+    }
+
     case fromActions.UNFOCUS_ALL_TABS: {
       return {
         ...state,

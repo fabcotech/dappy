@@ -1,0 +1,23 @@
+.favs {
+  padding: 30px 1rem;
+  width: 100%;
+  .fav {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    transform: scale(1);
+    transition: all ease-out 0.2s;
+    cursor: default;
+    margin-right: 0.5rem;
+    &:hover {
+      transform: scale(1.05);
+    }
+    .square {
+      border: 1px solid #eee;
+      border-radius: 0.2rem;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  }
+}

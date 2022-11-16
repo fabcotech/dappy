@@ -21,6 +21,8 @@ export const UPDATE_TAB_SEARCH = '[Dapps] Update tab search';
 export const UPDATE_TAB_CAN_GO = '[Dapps] Update tab can go (backward or forward)';
 export const LAUNCH_TAB_COMPLETED = '[Dapps] Launch tab completed';
 export const UPDATE_TRANSITORY_STATE = '[Dapps] Update transitory state';
+export const REMOVE_FAV = '[Dapps] Remove fav';
+export const REMOVE_FAV_COMPLETED = '[Dapps] Remove fav completed';
 export const REMOVE_TAB = '[Dapps] Remove tab';
 export const REMOVE_TAB_COMPLETED = '[Dapps] Remove tab completed';
 export const STOP_TAB = '[Dapps] Stop tab';
@@ -45,6 +47,18 @@ export interface UpdatFavsFromStoragePayload {
 export const updatFavsFromStorageAction = (values: UpdatFavsFromStoragePayload) => ({
   type: UPDATE_FAVS_FROM_STORAGE,
   payload: values,
+});
+
+export interface RemoveFabPayload {
+  favId: string;
+}
+export const removeFavAction = (payload: RemoveFabPayload) => ({
+  type: REMOVE_FAV,
+  payload,
+});
+export const removeFavCompletedAction = (payload: RemoveFabPayload) => ({
+  type: REMOVE_FAV_COMPLETED,
+  payload,
 });
 
 export interface ClearSearchAndLoadErrorPayload {
