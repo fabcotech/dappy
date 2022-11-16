@@ -40,7 +40,7 @@ export const updatTabsFromStorageAction = (values: UpdatTabsFromStoragePayload) 
 });
 
 export interface UpdatFavsFromStoragePayload {
-  tavs: Fav[];
+  favs: Fav[];
 }
 export const updatFavsFromStorageAction = (values: UpdatFavsFromStoragePayload) => ({
   type: UPDATE_FAVS_FROM_STORAGE,

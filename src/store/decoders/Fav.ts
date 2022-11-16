@@ -24,7 +24,7 @@ export const validateFav = (fav: any) =>
       });
   });
 
-export const validateFavs = (fabs: any): Promise<Tab[]> => {
+export const validateFavs = (fabs: any): Promise<Fav[]> => {
   return new Promise((resolve, reject) => {
     if (!fabs || !Array.isArray(fabs)) {
       reject();

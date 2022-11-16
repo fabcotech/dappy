@@ -384,7 +384,7 @@ dbReq.onsuccess = (event) => {
   const favsStore = favsTx.objectStore('favs');
   const requestFavs = favsStore.getAll();
   requestFavs.onsuccess = (e) => {
-    let favsToCheck = requestFavs.result;
+    const favsToCheck = requestFavs.result;
 
     validateFavs(favsToCheck)
       .then((favs) => {
