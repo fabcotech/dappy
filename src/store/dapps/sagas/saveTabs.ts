@@ -46,7 +46,7 @@ export function* saveTabsSaga() {
   yield takeEvery(fromDapps.LAUNCH_TAB_COMPLETED, saveTabs);
   yield takeEvery(fromDapps.UPDATE_TABS_FROM_STORAGE, saveTabs);
   yield takeEvery(fromDapps.SET_TAB_MUTED, saveTabs);
-  yield takeEvery(fromDapps.SET_TAB_FAVORITE, saveTabs);
+  yield takeEvery(fromDapps.CREATE_FAV, saveTabs);
   yield takeEvery(fromDapps.DID_CHANGE_FAVICON, saveTabs);
   yield takeEvery(fromDapps.UPDATE_TAB_URL_AND_TITLE, saveTabs);
 }

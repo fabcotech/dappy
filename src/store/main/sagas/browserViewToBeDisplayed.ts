@@ -26,7 +26,7 @@ export function* browserViewToBeDisplayedSaga() {
   yield takeEvery(fromDapps.FOCUS_TAB, browserViewToBeDisplayed);
   yield takeEvery(fromDapps.UNFOCUS_ALL_TABS, browserViewToBeDisplayed);
   yield takeEvery(fromDapps.FOCUS_AND_ACTIVATE_TAB, browserViewToBeDisplayed);
-  yield takeEvery(fromDapps.STOP_TAB, browserViewToBeDisplayed);
+  yield takeEvery(fromDapps.REMOVE_TAB, browserViewToBeDisplayed);
   yield takeEvery(fromDapps.LAUNCH_TAB_COMPLETED, browserViewToBeDisplayed);
   yield takeEvery(fromMain.UPDATE_INITIALIZATION_OVER, browserViewToBeDisplayed);
   yield takeEvery(fromMain.OPEN_DAPP_MODAL, browserViewToBeDisplayed);

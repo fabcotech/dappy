@@ -11,7 +11,7 @@ export interface Fav {
   id: string;
   url: string;
   img?: string;
-  title: string;
+  title: string | undefined;
 }
 export interface Tab {
   id: string;

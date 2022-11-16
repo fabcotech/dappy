@@ -25,10 +25,8 @@ export const REMOVE_FAV = '[Dapps] Remove fav';
 export const REMOVE_FAV_COMPLETED = '[Dapps] Remove fav completed';
 export const REMOVE_TAB = '[Dapps] Remove tab';
 export const REMOVE_TAB_COMPLETED = '[Dapps] Remove tab completed';
-export const STOP_TAB = '[Dapps] Stop tab';
-export const REMOVE_RESOURCE = '[Dapps] Remove resource';
 export const SET_TAB_MUTED = '[Dapps] Set tab muted';
-export const SET_TAB_FAVORITE = '[Dapps] Set tab favorite';
+export const CREATE_FAV = '[Dapps] Create fav';
 export const UPDATE_TAB_URL_AND_TITLE = '[Dapps] Update tab url and title';
 
 export const SAVE_IDENTIFICATION = '[Dapps] Save identification';
@@ -160,22 +158,6 @@ export const updateTabCanGoAction = (values: UpdateTabCanGoPayload) => ({
   payload: values,
 });
 
-export interface StopTabPayload {
-  tabId: string;
-}
-export const stopTabAction = (values: StopTabPayload) => ({
-  type: STOP_TAB,
-  payload: values,
-});
-
-export interface RemoveResourcePayload {
-  tabId: string;
-}
-export const removeResourceAction = (values: RemoveResourcePayload) => ({
-  type: REMOVE_RESOURCE,
-  payload: values,
-});
-
 export interface RemoveTabPayload {
   tabId: string;
 }
@@ -238,11 +220,10 @@ export const setTabMutedAction = (values: SetTabMutedPayload) => ({
 });
 
 export interface SetTabFavoritePayload {
-  tabId: string;
-  favorite: boolean;
+  fav: Fav;
 }
-export const setTabFavoriteAction = (values: SetTabFavoritePayload) => ({
-  type: SET_TAB_FAVORITE,
+export const createFavAction = (values: SetTabFavoritePayload) => ({
+  type: CREATE_FAV,
   payload: values,
 });
 

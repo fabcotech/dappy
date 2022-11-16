@@ -5,7 +5,7 @@ import { Page, Wallet } from './model';
 const defaultApi = {
   openOrFocusPage: (page: Page) => {},
   deletePage: (page: Page) => {},
-  toggleFavorite: (pagz: Page) => {},
+  createFav: (page: Page) => {},
   getPages: (): Page[] => [],
   getWalletsByDomain: (domain: string): Wallet[] => [],
 };

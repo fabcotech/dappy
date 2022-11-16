@@ -73,21 +73,14 @@ class NavigationBar2Component extends WithSuggestions {
               <i className="disabled fas fa-arrow-right"></i>
             </button>
           )}
-          {this.props.tab && this.props.tab.favorite ? (
-            <button className="nb-button" onClick={(e) => this.props.stopTab(tab.id)}>
-              <i className="fas fa-stop" title="stop" />
-            </button>
-          ) : (
-            <button
-              className="nb-button"
-              onClick={() => {
-                this.props.stopTab(tab.id);
-                this.props.removeTab(tab.id);
-              }}
-            >
-              <i className="fas fa-times" title="close" />
-            </button>
-          )}
+          <button
+            className="nb-button"
+            onClick={() => {
+              this.props.removeTab(tab.id);
+            }}
+          >
+            <i className="fas fa-times" title="close" />
+          </button>
 
           <button
             className="nb-button"
@@ -171,7 +164,6 @@ export const NavigationBar2 = connect(
         dispatch(
           fromUi.updateNavigationSuggestinsDisplayAction({ navigationSUggestionsDisplayed: a })
         ),
-      stopTab: (tabId: string) => dispatch(fromDapps.stopTabAction({ tabId: tabId })),
       removeTab: (tabId: string) => dispatch(fromDapps.removeTabAction({ tabId: tabId })),
       showLoadInfos: (tabId: string, parameters: any) =>
         dispatch(

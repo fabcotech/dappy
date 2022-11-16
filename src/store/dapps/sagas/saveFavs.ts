@@ -9,7 +9,7 @@ function* saveFavs() {
   const favs: Fav[] = yield select(fromDapps.getFavs);
 
   const favsToSave: { [id: string]: Fav } = {};
-  favs.forEach((t, i) => {
+  favs.forEach((t) => {
     favsToSave[t.id] = {
       id: t.id,
       title: t.title,
@@ -32,5 +32,5 @@ function* saveFavs() {
 }
 
 export function* saveFavsSaga() {
-  yield takeEvery(fromDapps.SET_TAB_FAVORITE, saveFavs);
+  yield takeEvery(fromDapps.CREATE_FAV, saveFavs);
 }

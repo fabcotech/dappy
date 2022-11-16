@@ -15,7 +15,6 @@ interface TabListItemProps {
   onSetMuteTab: (tabId: string, a: boolean) => void;
   onSetFavoriteTab: (tabId: string, a: boolean) => void;
   removeTab: (tabId: string) => void;
-  stopTab: (tabId: string) => void;
 }
 
 export class TabListItem extends React.Component<TabListItemProps> {
@@ -57,7 +56,7 @@ export class TabListItem extends React.Component<TabListItemProps> {
       e.preventDefault();
       e.stopPropagation();
     }
-    this.props.stopTab(this.props.tab.id);
+    this.props.removeTab(this.props.tab.id);
   };
 
   render() {

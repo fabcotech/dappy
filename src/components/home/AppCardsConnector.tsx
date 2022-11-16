@@ -13,12 +13,12 @@ import {
   getTabsFocusOrder,
   loadResourceAction,
   removeTabAction,
-  setTabFavoriteAction,
+  createFavAction,
   setTabMutedAction,
-  stopTabAction,
   unfocusAllTabsAction,
 } from '/store/dapps';
 import { getDomainWallets } from '/utils/wallets';
+import { generateNonce } from '/utils/generateNonce';
 
 const mapToPages = (tabs: Tab[]): Page[] => {
   return tabs.map((tab) => {
@@ -67,13 +67,16 @@ const connector = connect(
         })
       ),
     removeTab: (tabId: string) => dispatch(removeTabAction({ tabId })),
-    stopTab: (tabId: string) => dispatch(stopTabAction({ tabId })),
     unfocusAllTabs: () => dispatch(unfocusAllTabsAction()),
-    onSetFavoriteTab: (tabId: string, favorite: boolean) => {
+    createFav: (page: Page) => {
       dispatch(
-        setTabFavoriteAction({
-          tabId,
-          favorite,
+        createFavAction({
+          fav: {
+            img: page.image,
+            url: page.url,
+            title: page.title,
+            id: generateNonce(),
+          },
         })
       );
     },
@@ -112,7 +115,7 @@ const AppCardsConnectorComponent = ({
   focusTab,
   loadResource,
   removeTab,
-  onSetFavoriteTab,
+  createFav,
 }: AppCardConnectorProps) => {
   const api: Api = {
     openOrFocusPage: (page: Page) => {
@@ -124,8 +127,8 @@ const AppCardsConnectorComponent = ({
     },
     getPages: () => pages,
     deletePage: (page: Page) => removeTab(page.id),
-    toggleFavorite: (page: Page) => {
-      onSetFavoriteTab(page.id, !page.favorite);
+    createFav: (page: Page) => {
+      createFav(page);
     },
     getWalletsByDomain: (domain: string) => getDomainWallets(wallets, { domain }),
   };

@@ -5,6 +5,7 @@ import * as fromDapps from '..';
 import * as fromMain from '../../main';
 import { browserUtils } from '../../browser-utils';
 import { Tab } from '../../../models';
+import { dispatchInMain } from '/interProcess';
 
 function* removeTab(action: Action) {
   const { payload } = action;
@@ -24,18 +25,18 @@ function* removeTab(action: Action) {
       return;
     }
 
-    if (tab.active) {
-      yield put(fromDapps.stopTabAction({ tabId: tab.id }));
-    }
+    dispatchInMain({
+      type: '[MAIN] Destroy browser view',
+      payload: { tabId: tab.id },
+    });
 
     yield browserUtils.removeInStorage('tabs', tabId);
-
     store.dispatch(fromDapps.removeTabCompletedAction({ tabId }));
   } catch (e) {
     yield put(
       fromMain.saveErrorAction({
         errorCode: 2019,
-        error: 'Unable to remove dapp',
+        error: 'Unable to remove tab',
         trace: e,
       })
     );

@@ -65,7 +65,6 @@ export const PageCard = (props: PageCardProps) => {
               style={{
                 border: 0,
                 background: 'transparent',
-                cursor: 'pointer',
               }}
               onClick={(e) => {
                 e.preventDefault();
@@ -80,7 +79,6 @@ export const PageCard = (props: PageCardProps) => {
                 style={{
                   border: 0,
                   background: 'transparent',
-                  cursor: 'pointer',
                   paddingRight: 0,
                 }}
                 onClick={(e) => {

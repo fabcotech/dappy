@@ -268,7 +268,7 @@ export const reducer = (state = initialState, action: Action): State => {
       const { payload } = action;
       return {
         ...state,
-        tabs: state.tabs.map((tab, i) => {
+        tabs: state.tabs.map((tab) => {
           if (tab.id === payload.tabId) {
             return {
               ...tab,
@@ -280,58 +280,21 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
-    case fromActions.REMOVE_RESOURCE: {
-      const payload = action.payload as fromActions.RemoveResourcePayload;
+    case fromActions.REMOVE_TAB_COMPLETED: {
+      const payload: fromActions.RemoveTabPayload = action.payload;
 
       const newTransitoryStates = { ...state.transitoryStates };
       delete newTransitoryStates[payload.tabId];
 
-      return {
-        ...state,
-        transitoryStates: newTransitoryStates,
-      };
-    }
-
-    case fromActions.STOP_TAB: {
-      const payload = action.payload as fromActions.StopTabPayload;
-
-      const tab = state.tabs.find((t) => t.id === payload.tabId);
-      if (!tab) {
-        console.error(`tab ${payload.tabId} should exist`);
-        return state;
-      }
-
-      const newTabs = state.tabs.map((t) => {
-        if (t.id === payload.tabId) {
-          return {
-            ...t,
-            active: false,
-          };
-        }
-        return t;
-      });
-
-      const newTransitoryStates = { ...state.transitoryStates };
-      delete newTransitoryStates[tab.id];
-
-      const newDappsFocusOrder = state.tabsFocusOrder.filter((id) => id !== payload.tabId);
-
-      return {
-        ...state,
-        tabsFocusOrder: newDappsFocusOrder,
-        transitoryStates: newTransitoryStates,
-        tabs: newTabs,
-      };
-    }
-
-    case fromActions.REMOVE_TAB_COMPLETED: {
-      const { payload } = action;
+      const newTabsFocusOrder = state.tabsFocusOrder.filter((id) => id !== payload.tabId);
 
       return {
         ...state,
         tabs: state.tabs
           .filter((dio) => dio.id !== payload.tabId)
           .map((dio, i) => ({ ...dio, index: i })),
+        tabsFocusOrder: newTabsFocusOrder,
+        transitoryStates: newTransitoryStates,
       };
     }
 
@@ -433,21 +396,12 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
-    case fromActions.SET_TAB_FAVORITE: {
+    case fromActions.CREATE_FAV: {
       const payload: SetTabFavoritePayload = action.payload;
 
-      const tab = state.tabs.find((t) => t.id === payload.tabId);
-      if (!tab) {
-        return state;
-      }
       return {
         ...state,
-        favs: state.favs.concat({
-          id: tab.id,
-          img: tab.img,
-          url: tab.url,
-          title: tab.title,
-        }),
+        favs: state.favs.concat(payload.fav),
       };
     }
 

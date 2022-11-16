@@ -17,7 +17,6 @@ interface TabsList2Props {
   focusTab: (tabId: string) => void;
   loadResource: (address: string, tabId: string) => void;
   removeTab: (tabId: string) => void;
-  stopTab: (tabId: string) => void;
   onSetMuteTab: (tabId: string, a: boolean) => void;
   onSetFavoriteTab: (tabId: string, a: boolean) => void;
   unfocusAllTabs: () => void;
@@ -29,8 +28,11 @@ class TabsList2Component extends React.Component<TabsList2Props, {}> {
   render() {
     const focusedTabId = this.props.tabsFocusOrder[this.props.tabsFocusOrder.length - 1];
 
-    if (focusedTabId) {
-      const tab = this.props.tabs.find((t) => t.id === focusedTabId);
+    console.log('this.props.tabsFocusOrder', this.props.tabsFocusOrder);
+    console.log('focusedTabId', focusedTabId);
+
+    const tab = this.props.tabs.find((t) => t.id === focusedTabId);
+    if (focusedTabId && tab) {
       return (
         <div className="simple-tab">
           <div>
@@ -56,7 +58,7 @@ class TabsList2Component extends React.Component<TabsList2Props, {}> {
               focusTab={this.props.focusTab}
               loadResource={this.props.loadResource}
               removeTab={this.props.removeTab}
-              stopTab={this.props.stopTab}
+              stopTab={this.props.removeTab}
               onSetMuteTab={this.props.onSetMuteTab}
               onSetFavoriteTab={this.props.onSetFavoriteTab}
             />
@@ -92,7 +94,6 @@ export const TabsList2 = connect(
         })
       ),
     removeTab: (tabId: string) => dispatch(fromDapps.removeTabAction({ tabId: tabId })),
-    stopTab: (tabId: string) => dispatch(fromDapps.stopTabAction({ tabId: tabId })),
     unfocusAllTabs: () => dispatch(fromDapps.unfocusAllTabsAction()),
     onSetFavoriteTab: (tabId: string, a: boolean) => {
       dispatch(
