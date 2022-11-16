@@ -18,6 +18,7 @@ export const AppCards = ({ groupBy }: AppCardsProps) => {
         flexWrap: 'wrap',
         gap: '2rem',
         placeContent: 'flex-start',
+        overflow: 'auto',
       }}
     >
       {groupBy(api.getPages()).map((app) => (

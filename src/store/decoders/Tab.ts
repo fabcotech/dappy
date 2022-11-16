@@ -11,7 +11,7 @@ export const TabSchema = yup
     active: yup.boolean().required(),
     favorite: yup.boolean().required(),
     muted: yup.boolean().required(),
-    counter: yup.number().required(),
+    counter: yup.number(),
     index: yup.number().required(),
     url: yup.string().required(),
   })

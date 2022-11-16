@@ -18,7 +18,6 @@ const AppHeader = ({ app, onClick }: AppHeaderProps) => {
       style={{
         display: 'flex',
         justifyContent: 'space-between',
-        marginBottom: '0.5rem',
       }}
     >
       {app.image && (
@@ -41,7 +40,7 @@ const AppHeader = ({ app, onClick }: AppHeaderProps) => {
           alignItems: 'center',
         }}
       >
-        <NameSystemChip domain={app.name} />
+        {/* <NameSystemChip domain={app.name} /> */}
         <a
           href={app.name}
           target="_blank"
@@ -88,7 +87,7 @@ export const AppCard = ({ app }: AppCardProps) => {
     >
       <div
         style={{
-          marginBottom: '1rem',
+          marginBottom: '.5rem',
         }}
       >
         <AppHeader app={app} onClick={openPage} />

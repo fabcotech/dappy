@@ -31,6 +31,15 @@ class NavigationBar2Component extends WithSuggestions {
     const tab = this.props.tab as Tab;
     const loadingOrReloading =
       this.props.transitoryState && ['loading', 'reloading'].includes(this.props.transitoryState);
+
+    let defaultValue = '';
+    if (this.props.tab) {
+      if (this.props.tab.url.startsWith('https://')) {
+        defaultValue = this.props.tab.url.slice(8);
+      } else {
+        defaultValue = this.props.tab.url;
+      }
+    }
     return (
       <div
         style={{ zIndex: this.props.zIndex }}
@@ -38,28 +47,32 @@ class NavigationBar2Component extends WithSuggestions {
         className={`navigation-bar ${'active'}`}
       >
         <div className="actions pl-1 pr-1 actions-4">
-          <div>
-            {this.props.tab && this.props.tab.canGoBackward ? (
+          {this.props.tab && this.props.tab.canGoBackward ? (
+            <button className="nb-button">
               <i
                 onClick={(e) => this.props.goBackward(tab.id)}
                 className="fas fa-arrow-left "
                 title="Go backward"
               />
-            ) : (
-              <i className="disabled fas fa-arrow-left"></i>
-            )}
-          </div>
-          <div>
-            {this.props.tab && this.props.tab.canGoForward ? (
+            </button>
+          ) : (
+            <button className="nb-button disabled">
+              <i className="fas fa-arrow-left"></i>
+            </button>
+          )}
+          {this.props.tab && this.props.tab.canGoForward ? (
+            <button className="nb-button">
               <i
                 onClick={(e) => this.props.goForward(tab.id)}
                 className="fas fa-arrow-right "
                 title="Go forward"
               />
-            ) : (
+            </button>
+          ) : (
+            <button className="nb-button disabled">
               <i className="disabled fas fa-arrow-right"></i>
-            )}
-          </div>
+            </button>
+          )}
           {this.props.tab && this.props.tab.favorite ? (
             <button className="nb-button" onClick={(e) => this.props.stopTab(tab.id)}>
               <i className="fas fa-stop" title="stop" />
@@ -107,6 +120,7 @@ class NavigationBar2Component extends WithSuggestions {
           <input
             spellCheck="false"
             ref={this.setInputEl}
+            defaultValue={defaultValue}
             placeholder=""
             className={`addressBar ${this.state.pristine ? 'pristine' : ''} input`}
             onChange={this.onChange}

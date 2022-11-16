@@ -1,5 +1,15 @@
 .theme {
   background-image: var(--bg-image);
+  .tb-button {
+    i {
+      color: var(--text-main-color);
+    }
+    &:hover {
+      i {
+        color: var(--text-secondary-color);
+      }
+    }
+  }
   .search-dapps {
     color: var(--text-secondary-color);
   }
@@ -79,20 +89,18 @@
     .navigation-bar {
       background: var(--bg-main-color);
       // border-bottom: 1px solid $background-dark;
-      & > div.disabled {
-        i {
-          color: var(--text-main-color);
-        }
-      }
-      & > div:not(.disabled) {
-        i {
-          color: var(--text-main-color);
-          &:hover {
-            color: var(--text-secondary-color);
+      .actions {
+        .nb-button {
+          i {
+            color: var(--text-main-color);
           }
         }
-        i.disabled {
-          color: var(--text-main-color);
+        .nb-button:not(.disabled) {
+          &:hover {
+            i {
+              color: var(--text-secondary-color);
+            }
+          }
         }
       }
       .form {
@@ -160,7 +168,6 @@
     .ac-pageTabs .ac-tab {
       background-color: var(--bg-main-color);
       border: 1px solid var(--border-color);
-      border-bottom: 0;
       background-color: var(--bg-secondary-color);
     }
 
@@ -207,10 +214,19 @@
 
   .ac-pageCard {
     background: var(--bg-main-color);
+    background-size: 400% 400%;
+    background: var(--ac-pagecard-background);
+    background-position: 0% 0%;
+    transition: all ease-in-out 0.2s;
     border: 1px solid var(--border-color);
     position: relative;
     text-decoration: none;
-
+    &:hover {
+      background: var(--ac-pagecard-active-background);
+      border: var(--ac-pagecard-active-border);
+    }
+    &.active {
+    }
     .ac-content {
       color: var(--text-main-color);
     }

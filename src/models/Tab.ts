@@ -7,6 +7,12 @@ export interface LastLoadError {
   error: SimpleError;
 }
 
+export interface Fav {
+  id: string;
+  url: string;
+  img?: string;
+  title: string;
+}
 export interface Tab {
   id: string;
   url: string;
@@ -18,7 +24,6 @@ export interface Tab {
   canGoBackward?: boolean;
   muted: boolean;
   index: number; // Index from top to bottom
-  counter: number; // Incremented for each new tentative of navigation
   // lastError is not persisted in indexeddb
   lastError: LastLoadError | undefined;
   data: {

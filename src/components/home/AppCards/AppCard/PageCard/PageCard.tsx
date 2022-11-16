@@ -10,22 +10,24 @@ interface PageCardProps extends Page {
 }
 
 export const PageCard = (props: PageCardProps) => {
-  const { title, description, favorite, onClick, onClose, onToggleFavorite, url } = props;
+  const { domain, title, description, favorite, onClick, onClose, onToggleFavorite, url, active } =
+    props;
   const titleDefaultToUrl = title || url;
   return (
     <a
-      className="ac-pageCard"
+      className={`ac-pageCard ${active ? 'active' : ''}`}
       rel="noreferrer"
       title={`go to ${url}`}
       href={url}
       target="_blank"
       onClick={onClick}
       style={{
-        borderRadius: '0.5rem',
+        borderRadius: '0rem',
         display: 'flex',
         width: '35rem',
         height: '14rem',
         fontSize: '1rem',
+        cursor: 'default',
       }}
     >
       <div
@@ -44,7 +46,6 @@ export const PageCard = (props: PageCardProps) => {
           style={{
             display: 'flex',
             justifyContent: 'space-between',
-            marginBottom: '0.5rem',
           }}
         >
           <div
@@ -106,7 +107,7 @@ export const PageCard = (props: PageCardProps) => {
         >
           {description}
         </div>
-        <Wallets domain={new URL(props.url).hostname} />
+        <Wallets domain={domain} />
       </div>
     </a>
   );

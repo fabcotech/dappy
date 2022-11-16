@@ -25,12 +25,11 @@
       }
     }
     .nb-button {
-      color: #fff;
       background: transparent;
-      cursor: pointer;
       border: none;
-      &:hover {
-        background: #222;
+      cursor: default;
+      & > i.fa-times {
+        font-size: 1.1rem;
       }
     }
   }

@@ -14,4 +14,8 @@
     var(--bg-main-color) 1px,
     var(--bg-main-color) 5px
   );
+  --ac-tab-active-background: rgb(99, 161, 169);
+  --ac-pagecard-background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(20, 20, 20, 1) 100%);
+  --ac-pagecard-active-background: linear-gradient(90deg, #102a20 0%, #222d2e 100%);
+  --ac-pagecard-active-border: 1px solid #1e6a6c;
 }

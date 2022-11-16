@@ -20,14 +20,30 @@ import {
 } from '/store/dapps';
 import { getDomainWallets } from '/utils/wallets';
 
-const mapToPages = (tabs: Tab[]) => {
-  return tabs.map((tab) => ({
-    id: tab.id,
-    title: tab.title,
-    url: tab.url,
-    image: tab.img,
-    favorite: tab.favorite,
-  }));
+const mapToPages = (tabs: Tab[]): Page[] => {
+  return tabs.map((tab) => {
+    let url = tab.url || '';
+    if (!url.startsWith('https://')) {
+      url = `https://${url}`;
+    }
+    let domain = '';
+    try {
+      domain = new URL(tab.url).hostname;
+    } catch (err) {
+      console.log('could not parse URL, setting to unknown');
+      console.log(err);
+      domain = 'unknown';
+    }
+    return {
+      id: tab.id,
+      title: tab.title,
+      url: tab.url,
+      domain: domain,
+      image: tab.img,
+      favorite: tab.favorite,
+      active: tab.active,
+    };
+  });
 };
 
 const connector = connect(
@@ -76,15 +92,14 @@ type AppCardConnectorProps = ConnectedProps<typeof connector>;
 
 const groupByDomain = (pages: Page[]) => {
   const result = pages.reduce<Record<string, App>>((groups, page) => {
-    const domain = new URL(page.url).hostname;
-    if (!groups[domain]) {
-      groups[domain] = {
-        name: domain,
+    if (!groups[page.domain]) {
+      groups[page.domain] = {
+        name: page.domain,
         image: page.image,
         pages: [],
       };
     }
-    groups[domain].pages.push(page);
+    groups[page.domain].pages.push(page);
     return groups;
   }, {});
   return Object.values(result);
@@ -101,10 +116,10 @@ const AppCardsConnectorComponent = ({
 }: AppCardConnectorProps) => {
   const api: Api = {
     openOrFocusPage: (page: Page) => {
-      if (!transitoryStates[page.id]) {
-        loadResource(page.url, page.id);
-      } else {
+      if (page.active) {
         focusTab(page.id);
+      } else {
+        loadResource(page.url, page.id);
       }
     },
     getPages: () => pages,

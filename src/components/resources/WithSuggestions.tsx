@@ -59,20 +59,6 @@ export class WithSuggestionsComponent extends Component<
 
   init = () => {
     this.dispatchTabUpdateStream = xs.create();
-    xs.merge(
-      this.dispatchTabUpdateStream.compose(throttle(600)),
-      this.dispatchTabUpdateStream.compose(debounce(600))
-    ).subscribe({
-      next: (x) => {
-        if (x.tabId && x.url) {
-          this.props.updateTabSearch({
-            tabId: x.tabId,
-            url: x.url,
-          });
-        }
-      },
-    });
-
     this.stream = xs.create();
     this.stream.subscribe({
       next: (e: { url: string | undefined; launch: boolean }) => {
@@ -80,6 +66,7 @@ export class WithSuggestionsComponent extends Component<
           this.setState({
             pristine: true,
           });
+          console.log('if navigation bar and same host, must navigate instead of load resource');
 
           this.props.loadResource({
             url: e.url as string,
@@ -87,15 +74,9 @@ export class WithSuggestionsComponent extends Component<
           });
           if (this.inputEl) {
             this.inputEl.blur();
+            this.inputEl.value = '';
           }
         } else {
-          // always true
-          if (this.dispatchTabUpdateStream) {
-            this.dispatchTabUpdateStream.shamefullySendNext({
-              tabId: this.props.tab ? this.props.tab.id : undefined,
-              url: e.url,
-            });
-          }
           this.setState({
             pristine: this.props.tab ? this.props.tab.url === e.url : false,
           });

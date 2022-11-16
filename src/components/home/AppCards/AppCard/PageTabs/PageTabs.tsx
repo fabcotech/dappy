@@ -15,31 +15,25 @@ export const PageTabs = ({ pages, onMouseOver, currentIndex }: PageBarProps) => 
       style={{
         display: 'flex',
         gap: '0.5rem',
-        marginBottom: '-2px',
-        marginLeft: '5px',
+        marginBottom: '5px',
       }}
     >
-      {pages.map(({ favorite, url }, pageIndex) => (
+      {pages.map(({ active, url }, pageIndex) => (
         <div
-          className={`ac-tab ${favorite ? 'ac-favorite' : 'ac-active'} ${
+          className={`ac-tab ${active ? 'ac-active' : ''} ${
             currentIndex === pageIndex ? 'ac-selected' : ''
           }`}
           style={{
             width: '2rem',
             height: '1.5rem',
-            borderTopLeftRadius: '0.5rem',
-            borderTopRightRadius: '0.5rem',
             zIndex: currentIndex === pageIndex ? 1 : undefined,
-            cursor: 'pointer',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
           }}
-          key={url}
+          key={url + pageIndex}
           onMouseEnter={() => onMouseOver(pageIndex)}
-        >
-          {favorite && <i className="fas fa-circle fa-2xs"></i>}
-        </div>
+        ></div>
       ))}
     </div>
   );

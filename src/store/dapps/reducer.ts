@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 import { BeesLoadErrors, BeesLoadCompleted } from '@fabcotech/bees';
 
-import { TransitoryState, Tab, LastLoadError, Identification } from '/models';
+import { TransitoryState, Tab, Fav, LastLoadError, Identification } from '/models';
 import * as fromActions from './actions';
 import { Action } from '..';
 
@@ -18,6 +18,7 @@ export interface State {
     };
   };
   tabs: Tab[];
+  favs: Fav[];
   tabsFocusOrder: string[];
   transitoryStates: { [resourceId: string]: TransitoryState };
   identifications: {
@@ -51,7 +52,6 @@ export const reducer = (state = initialState, action: Action): State => {
         tabs: payload.tabs.map((t) => ({
           ...t,
           active: false,
-          counter: 0,
           error: undefined,
         })),
       };
@@ -195,7 +195,6 @@ export const reducer = (state = initialState, action: Action): State => {
             ...t,
             active: true,
             url: payload.url,
-            counter: t.counter + 1,
           };
         }
         return t;
@@ -239,7 +238,6 @@ export const reducer = (state = initialState, action: Action): State => {
             active: true,
             muted: false,
             index: state.tabs.length,
-            counter: 0,
             favorite: false,
             lastError: undefined,
             data: {
@@ -365,7 +363,6 @@ export const reducer = (state = initialState, action: Action): State => {
           if (tab.id === payload.tab.id) {
             return {
               ...payload.tab,
-              counter: payload.tab.counter + 1,
             };
             return payload.tab;
           }

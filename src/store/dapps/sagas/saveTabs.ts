@@ -20,7 +20,6 @@ function* saveTabs() {
       active: tabs[0].id === t.id,
       muted: t.muted,
       index: i,
-      counter: 0,
       url: t.url,
     };
   });

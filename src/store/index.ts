@@ -396,7 +396,7 @@ dbReq.onsuccess = (event) => {
       .then((tabs) => {
         asyncActionsOver += 1;
         if (tabs.length) {
-          store.dispatch(fromDapps.updatTabsFromStorageAction({ tabs }));
+          store.dispatch(fromDapps.updatTabsFromStorageAction({ tabs: [] }));
         }
         dispatchInitActions();
       })

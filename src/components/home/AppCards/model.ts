@@ -3,8 +3,10 @@ export interface Page {
   title?: string;
   description?: string;
   url: string;
+  domain: string;
   image?: string;
   favorite: boolean;
+  active: boolean;
 }
 
 export interface App {

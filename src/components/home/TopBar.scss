@@ -1,10 +1,6 @@
 .tb-button {
-  color: #fff;
   background: transparent;
   border: none;
-  cursor: pointer;
+  cursor: default;
   width: 50px;
-  &:hover {
-    background: #222;
-  }
 }
