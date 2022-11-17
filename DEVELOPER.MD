@@ -7,6 +7,7 @@ This document is about introducing the stack and structure of the project. It is
 If you don't understand some terms, please refer first to the [glossary](https://dappy.tech/glossary).
 
 **⚫ Main process**, 1 process, permanent :
+
 - Entry point: `main/main.ts`, compile (rollup) `npm run build:main`.
 - Main electron JS process (Node JS + Typescript).
 - Node JS + typescript.
@@ -15,29 +16,31 @@ If you don't understand some terms, please refer first to the [glossary](https:/
 - Handles the HTTPS traffic coming from tab processes and browser process, see `main/overrideHttpProtocols.ts`.
 
 **🐶 Browser process**, 1 process, permanent :
+
 - Entry point `src/index.tsx`, compile (parcel) `npm run build`.
 - Main browser layout process (React JS + Redux JS + Redux saga + HTML/CSS + Typescript).
 - Includes a redux store divided in 7/8 parts (`dapps`, `ui`, `main` etc).
 
-**🌍 Tab processes** n processes, 1 per dapp or IP app, ephemeral :
-- If dapp, entry point is `src/dapp-sandboxed.ts` compile (parcel) `npm run build:dapp-sandboxed`.
-- If IP app, no entry point, website loaded through HTTP + TLS.
-- Tab processes/windows are created in `main/store/sagas/loadOrReloadBrowserView.ts`.
-- Sandboxed environment with controlled internet access, each tab is identified by a randomId in user agent, see `main/overrideHttpProtocols.ts`.
+**🌍 Tab processes** n processes, 1 per website, ephemeral :
 
+- Tab (or processes or windows) are created in `main/store/sagas/loadOrReloadBrowserView.ts`.
+- Each tab is identified by a randomId in user agent, see `main/overrideHttpsProtocols.ts`.
 
-**Name system and multi requests**
+**Name system, IP addresses and cert retreival**
 
-Dappy is no-DNS, name requests (DNS lookups) are similar to any other request addressed to the dappy network (explore-deploy is an example). See everywhere `multiCall()` or `singleCall()` functions are called in the **browser process**. In the **main process** it resolves to `main/performMultiRequest.ts` and `main/performSingleRequest.ts` and then `main/httpBrowserToNode.ts` which does the HTTP + TLSv1.3 request, it does not use the DNS (directly hits IP `host: server.ip`).
+Dappy is no-DNS and an alternative web PKI. It uses co-resolution to get certificates or IP addresses from the blockchain (independent agents maintain the nodes). `dappy-lookup` is the component responsible for co-resolution not dappy browser.
 
 ## Quick start
+
 ```
 npm install
 
 # Parcel server on localhost:3033, live reload of css and js
 npm run start:renderer
 
-# Electron
+# Electron process (compile)
+npm run build:main:dev
+# Electron process (run)
 npm run start:main
 ```
 
@@ -46,6 +49,7 @@ Please join us anytime [https://discord.gg/8Cu5UFV](https://discord.gg/8Cu5UFV) 
 ## Global dependencies
 
 Install global dependencies (sudo)
+
 ```
 # Add --unsafe-perm=true --allow-root if you have an error
 
@@ -59,6 +63,7 @@ Please join us anytime [https://discord.gg/8Cu5UFV](https://discord.gg/8Cu5UFV) 
 ## Sentry
 
 At each releases, js and js.map files must be uploaded, add the following lines to /home/YOURNAME/.sentryclirc :
+
 ```
 [auth]
 token=TOKEN
@@ -66,38 +71,18 @@ token=TOKEN
 org=fabco
 project=dappy-alpha / dappy-beta etc...
 ```
+
 ## Translations
 
 The service used for translations is [poeditor.com](https://poeditor.com).
 
 See `./translations/README.MD`.
 
-## Tags
-
-Dappy browser interact with two kind of entities: a dappy network, or a private/final server. Private/final server is only for IP applications navigation, all other networks requests follow the multi-request paradigm.
-
-![Dappy browser connections](https://dappy.tech/images/dappy_browser_connections.jpg)
-
-Tags have been added to the code so you can quickly find where those connections / requests are made.
-- **no dns**: Dappy browser does not use the Domain Name System, and does raw IP requests, check this tag to see where it occurs.
-- **browser to server**: See how IP apps and no-DNS navigation is done.
-- **browser to network**: See how Dappy browsers queries the Dappy network.
-- **browser to node**: In case of a deploy (not a read query), multi-request is inadequat, a single browser to node (instead of network) query is performed.
-- **tab process - main process**: Inter-process secure communication between a tab and the main process.
-- **browser process - main process**: Inter-process secure communication between the browser process and the main process.
-
-## Add dappy local js/css libraries
-
-- Add the library in dapp-libs/js or dapp-libs/js
-- Add the type in src/models/DappManifest.ts
-- Add the corresponding entry in src/RESSOURCES.ts
-
 ## Dev upgrade the version of dappy
 
 This is the process you must respect to upgrade Dappy.
 
 - upgrade version number in `package.json`
-- upgrade version number in `src/CONSTANTS`
 
 ## Build for production
 
@@ -118,6 +103,7 @@ Important : do this after you have built and tested on all platforms, the file n
 Each new release must be registered to sentry, and .js and .js.map files uploaded.
 
 Create a ~/.sentryclirc` file with the right values :
+
 ```
 [auth]
 token=TOKEN
@@ -126,8 +112,8 @@ org=ORG
 project=PROJECT
 ```
 
-
 See https://docs.sentry.io/platforms/javascript/sourcemaps/
+
 ```
 sentry-cli releases new RELEASE
 sentry-cli releases files RELEASE upload-sourcemaps ./dist/ --validate
@@ -139,6 +125,7 @@ sentry-cli releases finalize RELEASE
 Check the version in package.json, it will be the app version
 
 ### On every OS
+
 ```
 npm ci
 ```
@@ -148,14 +135,16 @@ npm ci
 #### Sign app
 
 2 choices:
+
 - By modifing electron-builder.yml file:
-  - Fill the certificateFile entry:         C:\Users\joe\path\to\certificate.p12
-  - Fill the certificatePassword entry:          password_for_certificate
+  - Fill the certificateFile entry: C:\Users\joe\path\to\certificate.p12
+  - Fill the certificatePassword entry: password_for_certificate
 - By adding the two following environment variables to your system:
   - CSC_LINK: base 64 encoded pfx/p12 file (`base64 <certificate_file>`) (windows env variables must be less than 8192 characters, otherwise they will be truncated)
   - CSC_KEY_PASSWORD: password_for_certificate
 
 If your certificate p12/pfx file is longer than 8192 characters (`wc -c <certificate_file>`), obviously it contains certificates that are not needed to sign electron app. You can prune them using openssl cli using this procedure:
+
 - Converting certificate p12/pfx file to pem: `openssl pkcs12 -info -in <certificate_file> -nodes -out <certificate_file>.pem`
 - Prune unecessary certificates using a text editor
 - Converting certifcate pem file to pfx: `openssl pkcs12 -in <certificate_file>.pem -export -out <certificate_file>.pfx`
@@ -180,12 +169,12 @@ npm run package:linux:rpm
 ```
 
 ### On mac (on macOS)
+
 ```
 # Install XCode
 npm run package:mac
 ```
 
 See https://www.electron.build/code-signing.html for signing on macOS
-
 
 Please join us anytime [https://discord.gg/8Cu5UFV](https://discord.gg/8Cu5UFV) if you have question(s)/issue(s).
