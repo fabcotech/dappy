@@ -111,25 +111,6 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
-    case fromDapps.STOP_TAB: {
-      const { payload } = action;
-
-      // ugly, I know, should we include dappId in the payload ?
-      const dappModalsToRemove = Object.keys(state.dappModals).filter((tabId) =>
-        tabId.includes(payload.tabId)
-      );
-      const newDappModals = { ...state.dappModals };
-
-      dappModalsToRemove.forEach((tabId) => {
-        delete newDappModals[tabId];
-      });
-
-      return {
-        ...state,
-        dappModals: newDappModals,
-      };
-    }
-
     case fromActions.UPDATE_INITIALIZATION_OVER: {
       return {
         ...state,
