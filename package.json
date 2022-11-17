@@ -2,7 +2,7 @@
   "name": "dappy",
   "repository": "https://github.com/fabcotech/dappy",
   "productName": "dappy",
-  "description": "Dappy is a no-DNS and no-CAs web browser, it works hand in hand with a blockchain platform. The dappy system is a decentralized alternative to the regular web, it allows for new kind of web applications being built and used by human beings and corporations.",
+  "description": "A web chromium-based web browser browser that uses dappy, a new name and webPKI system powered by blockchain, and engineered for critical web services.",
   "homepage": "https://github.com/fabcotech/dappy",
   "author": "FABCO <contact@fabco.tech>",
   "version": "0.6.1",
