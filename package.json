@@ -5,7 +5,7 @@
   "description": "Dappy is a no-DNS and no-CAs web browser, it works hand in hand with a blockchain platform. The dappy system is a decentralized alternative to the regular web, it allows for new kind of web applications being built and used by human beings and corporations.",
   "homepage": "https://github.com/fabcotech/dappy",
   "author": "FABCO <contact@fabco.tech>",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "main": "dist/main/main.js",
   "scripts": {
     "start:renderer": "npx parcel serve src/index.html -p 3033 --target browser",
