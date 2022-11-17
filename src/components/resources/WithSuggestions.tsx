@@ -66,7 +66,6 @@ export class WithSuggestionsComponent extends Component<
             pristine: true,
           });
           console.log('if navigation bar and same host, must navigate instead of load resource');
-
           this.props.loadResource({
             url: e.url as string,
             tabId: this.props.tab ? this.props.tab.id : undefined,
