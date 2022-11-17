@@ -55,7 +55,6 @@ export const NavigationBarHome2 = connect(
     return {
       goForward: () => null,
       goBackward: () => null,
-      stopTab: () => null,
       removeTab: () => null,
       showLoadInfos: () => null,
       updateTabSearch: (a: fromDapps.UpdateTabSearchPayload) =>

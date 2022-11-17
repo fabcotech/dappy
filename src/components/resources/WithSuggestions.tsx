@@ -20,7 +20,6 @@ export interface WithSuggestionsComponentProps {
   zIndex?: number;
   showLoadInfos: (tabId: string, parameters: any) => void;
   isDisplayed?: (a: boolean) => void;
-  stopTab: (tabId: string) => void;
   removeTab: (tabId: string) => void;
   loadResource: (a: fromDapps.LoadResourcePayload) => void;
   updateTabSearch: (a: fromDapps.UpdateTabSearchPayload) => void;

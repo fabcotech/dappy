@@ -3,7 +3,6 @@ import { Tab } from '/models';
 
 interface TabActionsProps {
   tab: Tab;
-  stopTab: () => void;
   removeTab: () => void;
   reloadTab: () => void;
   onSetMuteTab: (tabId: string, a: boolean) => void;
@@ -111,7 +110,7 @@ export class TabActions extends React.Component<TabActionsProps, {}> {
                 this.props.onSetFavoriteTab(this.props.tab.id, !this.props.tab.favorite);
               }}
             >
-              {!!this.props.tab.favorite ? (
+              {this.props.tab.favorite ? (
                 <React.Fragment>
                   <i className="fas mr-1 fa-star" />
                   {t('remove from bookmarks')}
@@ -128,7 +127,6 @@ export class TabActions extends React.Component<TabActionsProps, {}> {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                this.props.stopTab();
               }}
             >
               <i className="fas mr-1 fa-stop"></i>
