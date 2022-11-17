@@ -16,7 +16,6 @@ import * as fromSettingsMain from '../settings';
 import * as fromBlockchainsMain from '../blockchains';
 import * as fromSettingsRenderer from '../../../src/store/settings';
 import * as fromDappsRenderer from '../../../src/store/dapps';
-import * as fromHistoryRenderer from '../../../src/store/history';
 import { Blockchain, CertificateAccount, Tab } from '/models';
 
 const development = !!process.defaultApp;
@@ -50,9 +49,8 @@ function* loadOrReloadBrowserView(action: any) {
   }
 
   let dappyNetworkMembers: undefined | DappyNetworkMember[];
-  let urlBeforeParse: undefined | URL;
   try {
-    urlBeforeParse = new URL(payload.tab.url);
+    new URL(payload.tab.url);
   } catch (err) {
     action.meta.dispatchFromMain({
       action: fromDappsRenderer.loadResourceFailedAction({
@@ -66,8 +64,8 @@ function* loadOrReloadBrowserView(action: any) {
     });
     return;
   }
-  const url = urlBeforeParse as URL;
 
+  let url: URL = new URL(payload.tab.url);
   const viewSession = session.fromPartition(`persist:main:${url.host}`, { cache: true });
 
   /* reload
@@ -313,11 +311,15 @@ function* loadOrReloadBrowserView(action: any) {
         transitoryState: undefined,
       }),
     });
-    const url = view.webContents.getURL();
+    try {
+      url = new URL(view.webContents.getURL());
+    } catch (err) {
+      console.log('Error parsing URL after did-stop-loading');
+    }
     title = view.webContents.getTitle();
     action.meta.dispatchFromMain({
       action: fromDappsRenderer.updateTabUrlAndTitleAction({
-        url,
+        url: url.href,
         tabId: payload.tab.id,
         title,
       }),
@@ -339,8 +341,13 @@ function* loadOrReloadBrowserView(action: any) {
     if (!currentTitle.startsWith('https://')) {
       title = currentTitle;
     }
+    try {
+      url = new URL(view.webContents.getURL());
+    } catch (err) {
+      console.log('Error parsing URL after did-stop-loading');
+    }
     action.meta.browserWindow.webContents.executeJavaScript(
-      `window.browserViewEvent('did-navigate', { tabId: '${payload.tab.id}', url: '${currentUrl}' })`
+      `window.browserViewEvent('did-navigate', { tabId: '${payload.tab.id}', url: '${url.href}' })`
     );
     action.meta.dispatchFromMain({
       action: fromDappsRenderer.updateTabUrlAndTitleAction({
@@ -351,12 +358,15 @@ function* loadOrReloadBrowserView(action: any) {
     });
   });
 
-  view.webContents.on('new-window', (e) => {
+  view.webContents.on('new-window', (e, a) => {
     e.preventDefault();
+    console.log(e);
+    console.log(a);
   });
 
   view.webContents.on('page-favicon-updated', async (_, favicons) => {
     console.log('page-favicon-updated');
+    console.log(favicons);
   });
 
   view.webContents.on('page-title-updated', (_, title) => {
@@ -371,45 +381,29 @@ function* loadOrReloadBrowserView(action: any) {
     }
   });
 
-  const handleNavigation = (e: Electron.Event, futureUrl: string, tabFavorite: boolean) => {
+  const handleNavigation = (e: Electron.Event, futureUrl: string) => {
     let parsedFutureUrl: URL | undefined;
     try {
       parsedFutureUrl = new URL(futureUrl);
     } catch (err) {
+      console.log(err);
+      console.log('could not parse current or future url');
       e.preventDefault();
       return;
     }
-
     if (parsedFutureUrl.protocol === 'https:') {
-      /* if (parsedFutureUrl.host !== url.host) {
-        console.log('[nav] will navigate to another host', url.host, '->', parsedFutureUrl.host);
+      if (parsedFutureUrl.host === url.host) {
+        // do nothing let navigation go
+      } else {
         e.preventDefault();
+        console.log('[nav] will navigate to another host', url.host, '->', parsedFutureUrl.host);
         action.meta.dispatchFromMain({
           action: fromDappsRenderer.loadResourceAction({
             url: futureUrl,
             tabId: payload.tab.id,
           }),
         });
-      } else {
-        const currentUrl = new URL(view.webContents.getURL());
-        if (
-          tabFavorite &&
-          (parsedFutureUrl.hostname !== currentUrl.hostname ||
-            parsedFutureUrl.pathname !== currentUrl.hostname)
-        ) {
-          e.preventDefault();
-          action.meta.dispatchFromMain({
-            action: fromDappsRenderer.loadResourceAction({
-              url: futureUrl,
-              tabId: payload.tab.id,
-            }),
-          });
-        } else {
-          // to not e.preventDefault(); and honor navigation
-          setIsFirstRequest(true);
-          console.log('[nav] will navigate to same host');
-        }
-      } */
+      }
     } else {
       e.preventDefault();
       // todo display error message instead of directly openning
@@ -440,7 +434,7 @@ function* loadOrReloadBrowserView(action: any) {
   view.webContents.on('will-navigate', (e, futureUrl) => {
     console.log('will-navigate', futureUrl);
     // todo select tab here to know if tab is favorite or not
-    handleNavigation(e, futureUrl, payload.tab.favorite);
+    handleNavigation(e, futureUrl);
   });
 
   // ==============================
