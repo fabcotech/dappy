@@ -358,10 +358,27 @@ function* loadOrReloadBrowserView(action: any) {
     });
   });
 
-  view.webContents.on('new-window', (e, a) => {
+  view.webContents.on('new-window', (e, futureUrl) => {
     e.preventDefault();
-    console.log(e);
-    console.log(a);
+    let parsedFutureUrl: URL | undefined;
+    console.log('new-window', futureUrl);
+    try {
+      parsedFutureUrl = new URL(futureUrl);
+    } catch (err) {
+      console.log(err);
+      console.log('could not parse current or future url');
+      return;
+    }
+    if (parsedFutureUrl.protocol === 'https:') {
+      action.meta.dispatchFromMain({
+        action: fromDappsRenderer.loadResourceAction({
+          url: futureUrl,
+          tabId: undefined,
+        }),
+      });
+    } else {
+      console.log('[todo] handle non-https new-window');
+    }
   });
 
   view.webContents.on('page-favicon-updated', async (_, favicons) => {
