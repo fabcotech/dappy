@@ -1,10 +1,11 @@
 .evm-account {
+  position: relative;
+  height: 12rem;
   display: grid;
   grid-template-columns: 100%;
   grid-template-rows: 2rem 7rem 2rem;
   width: 25rem;
   padding: 0.5rem 1rem;
-  margin-bottom: 1.5rem;
 
   .header {
     display: grid;
@@ -34,5 +35,39 @@
   .footer {
     align-self: end;
     justify-self: end;
+  }
+  .link-network {
+    grid-row: 4;
+    padding-left: 0.5rem;
+    position: absolute;
+    bottom: -2rem;
+    img {
+      width: 1.5rem;
+    }
+    .linked-network {
+      a {
+        display: flex;
+        align-items: center;
+        color: #333;
+        font-weight: 600;
+      }
+    }
+    .networks {
+      display: flex;
+      justify-content: flex-start;
+      a {
+        color: #111;
+      }
+      .fa {
+        font-size: 1.1rem;
+        transform: translateY(2px);
+        cursor: pointer;
+      }
+      img {
+        &:hover {
+          transform: scale(1.15);
+        }
+      }
+    }
   }
 }

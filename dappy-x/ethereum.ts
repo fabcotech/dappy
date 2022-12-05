@@ -11,7 +11,6 @@ function Ethereum() {
       interProcess.onload = (a: any) => {
         try {
           const r = JSON.parse(a.target.responseText);
-          console.log(r);
           if (r.success) {
             resolve(r.data);
           } else {

@@ -9,7 +9,7 @@ export interface BaseAccount {
   whitelist: { host: string; blitz: boolean; transactions: boolean }[];
 }
 
-interface EvmNetworks {
+export interface EvmNetworks {
   [networkId: string]: [string, string];
 }
 export const evmNetworks: EvmNetworks = {
@@ -29,6 +29,7 @@ export interface BlockchainAccount extends BaseAccount {
   address: string;
   encrypted: string;
   balance: number;
+  chainId?: keyof EvmNetworks;
   boxes: string[];
 }
 

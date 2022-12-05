@@ -11,16 +11,6 @@ import { AddAccount } from './AddAccount';
 import { GlossaryHint } from '/components/utils/Hint';
 
 import image_rchain from '/images/rchain40.png';
-import image_ethereum from '/images/ethereum120x120.png';
-import image_polygon from '/images/polygon120x120.png';
-import image_arbitrum from '/images/arbitrum120x120.png';
-import image_fantom_opera from '/images/fantom120x120.png';
-import image_moonbeam from '/images/moonbeam120x120.png';
-import image_moonriver from '/images/moonriver120x120.png';
-import image_evmos from '/images/evmos120x120.png';
-import image_starkware from '/images/starkware120x120.png';
-import image_binance_smart_chain from '/images/binance120x120.png';
-import image_avalanche from '/images/avalanche120x120.png';
 
 import './Accounts.scss';
 
@@ -127,18 +117,6 @@ export const EVMAccounts = ({ accounts }: EVMAccountsProps) => {
           displayTerm
         />
       </p>
-      <div className="logos mb-4">
-        <img src={image_ethereum} title="Ethereum" />
-        <img src={image_polygon} title="Polygon" />
-        <img src={image_arbitrum} title="Arbitrum" />
-        <img src={image_fantom_opera} title="Fantom opera" />
-        <img src={image_starkware} title="Starkware" />
-        <img src={image_moonbeam} title="Polkadot moonbeam" />
-        <img src={image_moonriver} title="Polkadot moonriver" />
-        <img src={image_evmos} title="Evmos" />
-        <img src={image_binance_smart_chain} title="Binance smart chain" />
-        <img src={image_avalanche} title="Avalanche" />
-      </div>
       <div className="account-cards">
         {Object.values(accounts)
           .filter((a) => a.platform === 'evm')

@@ -22,6 +22,7 @@ export const blockchainAccountSchema = yup
       .required(),
     name: yup.string().required(),
     publicKey: yup.string().required(),
+    chainId: yup.string(),
     address: yup.string().required(),
     main: yup.boolean().required(),
     encrypted: yup.string().required(),
