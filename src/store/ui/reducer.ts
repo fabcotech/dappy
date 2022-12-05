@@ -98,13 +98,15 @@ export const reducer = (state = initialState, action: Action): State => {
         }
       }
 
-      if (payload.navigationUrl.startsWith('/settings') && !ACCESS_SETTINGS)
+      if (payload.navigationUrl.startsWith('/settings') && !ACCESS_SETTINGS) {
         payload.navigationUrl = '/';
+      }
       if (payload.navigationUrl === '/accounts' && !ACCESS_ACCOUNTS) payload.navigationUrl = '/';
       if (payload.navigationUrl === '/auth' && !ACCESS_SECURITY) payload.navigationUrl = '/';
       if (payload.navigationUrl.startsWith('/deploy')) payload.navigationUrl = '/';
-      if (payload.navigationUrl === '/transactions' && !ACCESS_TRANSACTIONS)
+      if (payload.navigationUrl === '/transactions' && !ACCESS_TRANSACTIONS) {
         payload.navigationUrl = '/';
+      }
       if (payload.navigationUrl === '/whitelist' && !ACCESS_WHITELIST) payload.navigationUrl = '/';
 
       return {

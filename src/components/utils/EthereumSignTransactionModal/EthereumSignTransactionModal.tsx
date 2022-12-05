@@ -144,10 +144,10 @@ export const EthereumSignTransactionModalComponent = ({
         <section className="modal-card-body modal-card-body-sign-ethereum-modal">
           <div className="transaction-body">
             <EvmNetwork chainId={modal.parameters.parameters.chainId} />
+            <StaticField label="type" bold value={transactionType} />
             {modal.parameters.parameters.from ? (
               <StaticField copy label="from" value={modal.parameters.parameters.from} />
             ) : undefined}
-            <StaticField label="type" bold value={transactionType} />
             <StaticField copy label="to" value={modal.parameters.parameters.to || 'none'} />
             <StaticField label="nonce" value={toNumber(modal.parameters.parameters.nonce)} />
             <StaticField label="gasLimit" value={toNumber(modal.parameters.parameters.gasLimit)} />
