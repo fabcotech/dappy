@@ -21,8 +21,8 @@ describe('EthereumSignTransactionModal', () => {
     expect(isHexaString('0x1230x123')).toBeFalsy();
   });
   it('toGwei', () => {
-    expect(toGwei(`0x${Math.pow(10, 11).toString(16)}`)).toEqual('100 gwei');
-    expect(toGwei(`1`)).toEqual(t('none'));
+    expect(toGwei(`0x${(10 ** 11).toString(16)}`)).toEqual('100 gwei');
+    expect(toGwei('1')).toEqual(t('none'));
   });
   it('toNumber', () => {
     expect(toNumber('0x123')).toEqual(291);
@@ -30,12 +30,12 @@ describe('EthereumSignTransactionModal', () => {
   });
   it('toHumanReadableEthUnit', () => {
     expect(toHumanReadableEthUnit('1')).toEqual('none');
-    expect(toHumanReadableEthUnit(`0x${Math.pow(10, 11).toString(16)}`)).toEqual('100 gwei');
+    expect(toHumanReadableEthUnit(`0x${(10 ** 11).toString(16)}`)).toEqual('100 gwei');
     expect(toHumanReadableEthUnit('0x1')).toEqual('1 wei');
-    expect(toHumanReadableEthUnit(`0x${Math.pow(10, 5).toString(16)}`)).toEqual('100000 wei');
-    expect(toHumanReadableEthUnit(`0x${Math.pow(10, 6).toString(16)}`)).toEqual('0.001 gwei');
-    expect(toHumanReadableEthUnit(`0x${Math.pow(10, 14).toString(16)}`)).toEqual('100000 gwei');
-    expect(toHumanReadableEthUnit(`0x${Math.pow(10, 15).toString(16)}`)).toEqual('0.001 ether');
+    expect(toHumanReadableEthUnit(`0x${(10 ** 5).toString(16)}`)).toEqual('100000 wei');
+    expect(toHumanReadableEthUnit(`0x${(10 ** 6).toString(16)}`)).toEqual('0.001 gwei');
+    expect(toHumanReadableEthUnit(`0x${(10 ** 14).toString(16)}`)).toEqual('100000 gwei');
+    expect(toHumanReadableEthUnit(`0x${(10 ** 15).toString(16)}`)).toEqual('0.001 ether');
   });
   it('should be able to sign transaction only if valid password is entered', async () => {
     const returnSignedTransaction = jest.fn();

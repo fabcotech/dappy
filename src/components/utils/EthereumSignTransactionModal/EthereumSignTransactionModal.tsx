@@ -81,7 +81,7 @@ export const toHumanReadableEthUnit = (hexaString: string) => {
   if (n < 10 ** 6) {
     return `${n} wei`;
   }
-  if (n >= 10 ** 6 && n < 10 ** 6) {
+  if (n >= 10 ** 6 && n < 10 ** 15) {
     return `${fromWei(hexaString, 'gwei')} gwei`;
   }
   return `${fromWei(hexaString, 'ether')} ether`;
