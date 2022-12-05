@@ -1,6 +1,8 @@
 import { takeEvery, select, put } from 'redux-saga/effects';
-import { BrowserView, session } from 'electron';
+import { BrowserView, session, app } from 'electron';
 import { blake2b } from 'blakejs';
+import fs from 'fs';
+import path from 'path';
 import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 
 import * as fromBrowserViews from '../browserViews';
@@ -468,6 +470,16 @@ function* loadOrReloadBrowserView(action: any) {
     `);
   }
 
+  // const ethereum = view.webContents.executeJavaScript();
+  try {
+    const ethereum = fs.readFileSync(
+      path.join(app.getAppPath(), 'dist/renderer/js/ethereum.js'),
+      'utf8'
+    );
+    yield view.webContents.executeJavaScript(ethereum);
+  } catch (err) {
+    console.log(err);
+  }
   /*
     Context menu
     IP app will instantly execute window.initContextMenu();

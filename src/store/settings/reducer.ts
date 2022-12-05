@@ -259,8 +259,8 @@ export const getOkBlockchains = createSelector(getBlockchains, (blockchains) => 
 });
 
 export const getFirstReadyNode = createSelector(getBlockchains, (blockchains) => {
-  const bc = Object.values(blockchains).find((bc) => {
-    return bc.nodes[0];
+  const bc = Object.values(blockchains).find((b) => {
+    return b.nodes[0];
   });
   return bc?.nodes[0];
 });

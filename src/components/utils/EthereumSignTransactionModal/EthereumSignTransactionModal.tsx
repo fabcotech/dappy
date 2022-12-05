@@ -20,15 +20,35 @@ import { EvmNetwork } from '../EvmNetwork';
 
 import './EthereumSignTransactionModal.scss';
 
-const StaticField = (props: { label: string; value: number | string; copy?: boolean }) => (
+const labels: { [a: string]: string } = {
+  chainId: 'Chain ID',
+  from: 'From',
+  to: 'To',
+  gasLimit: 'Gas limit',
+  gasPrice: 'Gas price',
+  value: 'Value',
+  data: 'Data',
+};
+
+const StaticField = (props: {
+  label: string;
+  value: number | string;
+  copy?: boolean;
+  bold?: boolean;
+}) => (
   <div className="field is-horizontal">
     <div className="field-label is-normal">
-      <label className="label">{props.label}</label>
+      <label className="label">{labels[props.label] || props.label}</label>
     </div>
     <div className="field-body">
       <div className="field">
         <p className="control">
-          <span className="pr-2">{props.value}</span>
+          {props.bold ? (
+            <b className="pr-2">{props.value}</b>
+          ) : (
+            <span className="pr-2">{props.value}</span>
+          )}
+
           {props.value !== 'none' && props.copy && (
             <a className="underlined-link" onClick={() => copyToClipboard(props.value.toString())}>
               <i className="fas fa-copy mr-1"></i>
@@ -44,11 +64,13 @@ const StaticField = (props: { label: string; value: number | string; copy?: bool
 export const isHexaString = (hexaString: string) =>
   hexaString && hexaString.length && /^0x[\da-f]+$/i.test(hexaString);
 
-export const toGwei = (hexaString: string) =>
-  isHexaString(hexaString) ? `${fromWei(hexaString, 'gwei')} gwei` : t('none');
+export const toGwei = (hexaString: string) => {
+  return isHexaString(hexaString) ? `${fromWei(hexaString, 'gwei')} gwei` : t('none');
+};
 
-export const toNumber = (hexaString: string) =>
-  isHexaString(hexaString) ? Number(hexaString) : 'none';
+export const toNumber = (hexaString: string) => {
+  return isHexaString(hexaString) ? Number(hexaString) : 'none';
+};
 
 export const toHumanReadableEthUnit = (hexaString: string) => {
   if (!isHexaString(hexaString)) {
@@ -56,14 +78,13 @@ export const toHumanReadableEthUnit = (hexaString: string) => {
   }
   const n = Number(hexaString);
 
-  if (n < Math.pow(10, 6)) {
+  if (n < 10 ** 6) {
     return `${n} wei`;
   }
-  if (n >= Math.pow(10, 6) && n < Math.pow(10, 15)) {
+  if (n >= 10 ** 6 && n < 10 ** 6) {
     return `${fromWei(hexaString, 'gwei')} gwei`;
-  } else {
-    return `${fromWei(hexaString, 'ether')} ether`;
   }
+  return `${fromWei(hexaString, 'ether')} ether`;
 };
 
 interface EthereumSignTransactionModalProps {
@@ -103,6 +124,12 @@ export const EthereumSignTransactionModalComponent = ({
     });
   } */
 
+  let transactionType = 'Regular (transfer)';
+  if (!txData.to) {
+    transactionType = 'Contract deployment';
+  } else if (txData.data) {
+    transactionType = 'Contract execution / calling';
+  }
   return (
     <div className="modal fc est">
       <div className="modal-background" />
@@ -120,6 +147,7 @@ export const EthereumSignTransactionModalComponent = ({
             {modal.parameters.parameters.from ? (
               <StaticField copy label="from" value={modal.parameters.parameters.from} />
             ) : undefined}
+            <StaticField label="type" bold value={transactionType} />
             <StaticField copy label="to" value={modal.parameters.parameters.to || 'none'} />
             <StaticField label="nonce" value={toNumber(modal.parameters.parameters.nonce)} />
             <StaticField label="gasLimit" value={toNumber(modal.parameters.parameters.gasLimit)} />

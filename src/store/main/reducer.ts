@@ -37,7 +37,7 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.OPEN_MODAL: {
-      const { payload } = action;
+      const payload: fromActions.OpenModalPayload = action.payload;
 
       return {
         ...state,

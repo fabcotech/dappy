@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import * as fromCommon from '../src/common';
 import * as fromIdentificationsMain from './store/identifications';
 import * as fromTransactionsMain from './store/transactions';
+import * as fromSettingsMain from './store/settings';
 import * as fromMain from '../src/store/main';
 import { DappyBrowserView } from './models';
 import { DispatchFromMainArg } from './main';
@@ -69,6 +70,75 @@ export const registerInterProcessDappProtocol = (
       console.error(e);
       callback(Buffer.from('invalid payload'));
       return;
+    }
+
+    if (request.url === 'interprocessdapp://eth_chainId') {
+      console.log('interprocessdapp://eth_chainId');
+      // todo at least one account whitelisted
+      let success = false;
+      let returnData: any = null;
+      if (true) {
+        success = true;
+        returnData = '0x4';
+      } else {
+        returnData = {
+          code: 4001,
+          message: 'User rejected the request.',
+        };
+      }
+      callback(
+        Buffer.from(
+          JSON.stringify({
+            success: success,
+            data: returnData,
+          })
+        )
+      );
+    }
+
+    if (request.url === 'interprocessdapp://eth_sendTransaction') {
+      console.log('interprocessdapp://eth_sendTransaction');
+      dispatchFromMain({
+        action: fromMain.openDappModalAction({
+          tabId: dappyBrowserView.tabId,
+          title: 'ETHEREUM_SIGN_TRANSACTION_MODAL',
+          text: '',
+          parameters: {
+            parameters: data.params[0],
+            origin: 'unexpectedthought50012450.gamma:3004',
+          },
+          buttons: [],
+        }),
+      });
+    }
+
+    // ETHEREUM
+    if (request.url === 'interprocessdapp://eth_requestAccounts') {
+      console.log('interprocessdapp://eth_requestAccounts');
+      const evmAccounts = fromSettingsMain.getEVMAccounts(store.getState());
+      const accounts: string[] = Object.keys(evmAccounts).map((id: string) => {
+        return evmAccounts[id].address;
+      });
+      // todo at least one account whitelisted
+      let success = false;
+      let returnData: any = null;
+      if (true) {
+        success = true;
+        returnData = accounts;
+      } else {
+        returnData = {
+          code: 4001,
+          message: 'User rejected the request.',
+        };
+      }
+      callback(
+        Buffer.from(
+          JSON.stringify({
+            success: success,
+            data: returnData,
+          })
+        )
+      );
     }
 
     if (request.url === 'interprocessdapp://get-identifications') {

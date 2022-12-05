@@ -20,87 +20,101 @@ const getImgAndNetworkName = (chainId: number): { img: undefined | string; name:
       img: image_ethereum,
       name: 'Ethereum Mainnet',
     };
-  } else if (chainId === 3) {
+  }
+  if (chainId === 3) {
     return {
       img: image_ethereum,
       name: 'Ethereum Testnet Ropsten',
     };
-  } else if (chainId === 4) {
+  }
+  if (chainId === 4) {
     return {
       img: image_ethereum,
       name: 'Ethereum Testnet Rinkeby',
     };
-  } else if (chainId === 61) {
+  }
+  if (chainId === 61) {
     return {
       img: image_ethereum,
       name: 'Ethereum Classic Mainnet',
     };
-  } else if (chainId === 137) {
+  }
+  if (chainId === 137) {
     return {
       img: image_polygon,
       name: 'Polygon Mainnet',
     };
-  } else if (chainId === 80001) {
+  }
+  if (chainId === 80001) {
     return {
       img: image_polygon,
       name: 'Polygon Testnet',
     };
-  } else if (chainId === 42161) {
+  }
+  if (chainId === 42161) {
     return {
       img: image_arbitrum,
       name: 'Arbitrum One',
     };
-  } else if (chainId === 421611) {
+  }
+  if (chainId === 421611) {
     return {
       img: image_arbitrum,
       name: 'Arbitrum Rinkeby',
     };
-  } else if (chainId === 250) {
+  }
+  if (chainId === 250) {
     return {
       img: image_fantom_opera,
       name: 'Fantom Opera',
     };
-  } else if (chainId === 4002) {
+  }
+  if (chainId === 4002) {
     return {
       img: image_fantom_opera,
       name: 'Fantom Testnet',
     };
-  } else if (chainId === 1284) {
+  }
+  if (chainId === 1284) {
     return {
       img: image_moonbeam,
       name: 'Moonbeam',
     };
-  } else if (chainId === 1285) {
+  }
+  if (chainId === 1285) {
     return {
       img: image_moonriver,
       name: 'Moonriver',
     };
-  } else if (chainId === 56) {
+  }
+  if (chainId === 56) {
     return {
       img: image_binance_smart_chain,
       name: 'Binance Smart Chain Mainnet',
     };
-  } else if (chainId === 97) {
+  }
+  if (chainId === 97) {
     return {
       img: image_binance_smart_chain,
       name: 'Binance Smart Chain Testnet',
     };
-  } else if (chainId === 43113) {
+  }
+  if (chainId === 43113) {
     return {
       img: image_avalanche,
       name: 'Avalanche Fuji Testnet',
     };
-  } else if (chainId === 43114) {
+  }
+  if (chainId === 43114) {
     return {
       img: image_avalanche,
       name: 'Avalanche Mainnet',
     };
-  } else {
-    return {
-      img: undefined,
-      name: 'Unknown network',
-    };
   }
+  return {
+    img: undefined,
+    name: 'Unknown network',
+  };
 };
 
 interface EvmNetworkProps {

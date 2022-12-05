@@ -8,6 +8,8 @@ import { GenericModal } from './GenericModal';
 import { LoadInfo } from '../resources';
 import { EthereumSignTransactionModal } from './EthereumSignTransactionModal';
 
+import './Modal.scss';
+
 interface ModalComponentProps {
   tabId?: string;
   modal: undefined | fromMain.Modal;
