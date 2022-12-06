@@ -21,7 +21,7 @@ export interface State {
 export const initialState: State = { browserViews: {}, position: undefined };
 
 // todo DO a saga
-export const reducer = (state = initialState, action: any): State => {
+export const reducer = (state = initialState, action: any = {}): State => {
   switch (action.type) {
     case LOAD_OR_RELOAD_BROWSER_VIEW_COMPLETED: {
       return {
@@ -41,7 +41,7 @@ export const reducer = (state = initialState, action: any): State => {
         }
         browserView.browserView.webContents.forcefullyCrashRenderer();
         action.meta.browserWindow.removeBrowserView(browserView.browserView);
-        let newBrowserViews = { ...state.browserViews };
+        const newBrowserViews = { ...state.browserViews };
         delete newBrowserViews[action.payload.tabId];
 
         return {

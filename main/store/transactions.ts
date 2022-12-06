@@ -12,7 +12,7 @@ export interface State {
 
 export const initialState: State = {};
 
-export const reducer = (state = initialState, action: any): State => {
+export const reducer = (state = initialState, action: any = {}): State => {
   switch (action.type) {
     case TRANSFER_TRANSACTIONS: {
       const payload: TransactionState = action.payload;
@@ -35,4 +35,7 @@ const getTransactionsMainState = createSelector(
   (state: any) => state.transactions
 );
 
-export const getTransactionsMain = createSelector(getTransactionsMainState, (state: State) => state);
+export const getTransactionsMain = createSelector(
+  getTransactionsMainState,
+  (state: State) => state
+);

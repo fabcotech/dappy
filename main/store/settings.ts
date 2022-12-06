@@ -15,7 +15,7 @@ export const initialState: State = {
   accounts: {},
 };
 
-export const reducer = (state = initialState, action: any): State => {
+export const reducer = (state = initialState, action: any = {}): State => {
   switch (action.type) {
     case SYNC_SETTINGS: {
       return {
