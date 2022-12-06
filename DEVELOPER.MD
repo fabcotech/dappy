@@ -136,7 +136,7 @@ npm ci
 
 2 choices:
 
-- By modifing electron-builder.yml file:
+- By modifing dappy-builder.yml file:
   - Fill the certificateFile entry: C:\Users\joe\path\to\certificate.p12
   - Fill the certificatePassword entry: password_for_certificate
 - By adding the two following environment variables to your system:
