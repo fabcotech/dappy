@@ -44,12 +44,31 @@ export const ACCESS_SECURITY = true;
 export const ACCESS_TRANSACTIONS = false;
 export const ACCESS_WHITELIST = true;
 
+export const parseWhitelist = (
+  whitelist: string | undefined
+): undefined | fromUi.State['whitelist'] => {
+  if (!whitelist) {
+    return undefined;
+  }
+
+  return whitelist
+    .split(';')
+    .filter((host) => host.trim())
+    .map((host) => ({
+      host: host.trim(),
+      topLevel: true,
+      secondLevel: true,
+    }));
+};
+
 /*
   Global whitelist for navigation, set it to undefined if you don't
   want a hardcoded global whitelist but want to allow user to change it
   ex: = [{ host: 'app.uniswap.org', topLevel: true, secondLevel: true }];
 */
-export const HARDCODED_WHITELIST: undefined | fromUi.State['whitelist'] = undefined;
+export const HARDCODED_WHITELIST: undefined | fromUi.State['whitelist'] = parseWhitelist(
+  process.env.HARDCODED_WHITELIST
+);
 
 /*
   Remove LEFT_MENU_COLORS or set it to undefined if
