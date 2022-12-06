@@ -360,29 +360,6 @@ function* loadOrReloadBrowserView(action: any) {
     });
   });
 
-  view.webContents.on('new-window', (e, futureUrl) => {
-    e.preventDefault();
-    let parsedFutureUrl: URL | undefined;
-    console.log('new-window', futureUrl);
-    try {
-      parsedFutureUrl = new URL(futureUrl);
-    } catch (err) {
-      console.log(err);
-      console.log('could not parse current or future url');
-      return;
-    }
-    if (parsedFutureUrl.protocol === 'https:') {
-      action.meta.dispatchFromMain({
-        action: fromDappsRenderer.loadResourceAction({
-          url: futureUrl,
-          tabId: undefined,
-        }),
-      });
-    } else {
-      console.log('[todo] handle non-https new-window');
-    }
-  });
-
   view.webContents.on('page-favicon-updated', async (_, favicons) => {
     console.log('page-favicon-updated');
     console.log(favicons);
