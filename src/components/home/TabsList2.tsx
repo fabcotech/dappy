@@ -5,7 +5,7 @@ import { State as StoreState } from '/store';
 import * as fromDapps from '/store/dapps';
 import * as fromUi from '/store/ui';
 import { TransitoryState, Tab } from '/models';
-import { TabListItem } from '.';
+
 import './TabsList2.scss';
 
 interface TabsList2Props {
@@ -33,7 +33,7 @@ class TabsList2Component extends React.Component<TabsList2Props, {}> {
       return (
         <div className="simple-tab">
           <div>
-            <span className="tab-favicon"></span>
+            {tab.img ? <img src={`${tab.img}`}></img> : <span className="tab-favicon"></span>}
           </div>
           <div>
             <p className="tab-title">{(tab as Tab).title}</p>
@@ -42,31 +42,6 @@ class TabsList2Component extends React.Component<TabsList2Props, {}> {
       );
     }
     return <></>;
-    return (
-      <div className={`tabs-list-2 ${this.props.onlyIcons ? 'only-icons' : ''}`}>
-        {this.props.tabs.map((tab) => {
-          return (
-            <TabListItem
-              key={tab.id}
-              tab={tab}
-              transitoryState={this.props.transitoryStates[tab.id]}
-              focused={focusedTabId === tab.id}
-              onlyIcons={this.props.onlyIcons}
-              focusTab={this.props.focusTab}
-              loadResource={this.props.loadResource}
-              removeTab={this.props.removeTab}
-              onSetMuteTab={this.props.onSetMuteTab}
-              onSetFavoriteTab={() => {}}
-            />
-          );
-        })}
-        {focusedTabId && (
-          <div className="search-dapps" onClick={this.props.unfocusAllTabs}>
-            <i className="fas fa-plus fa-after" />
-          </div>
-        )}
-      </div>
-    );
   }
 }
 

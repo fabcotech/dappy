@@ -259,17 +259,31 @@ export const reducer = (state = initialState, action: Action): State => {
     }
 
     case fromActions.DID_CHANGE_FAVICON: {
-      const { payload } = action;
+      const payload: fromActions.DidChangeFaviconPayload = action.payload;
+
+      const tab = state.tabs.find((t) => t.id === payload.tabId);
+      const newFavs = state.favs.map((f) => {
+        try {
+          if (tab && new URL(f.url).hostname === new URL(tab.url).host) {
+            f.img = payload.img;
+          }
+        } catch (err) {
+          console.log(err);
+        }
+        return f;
+      });
+
       return {
         ...state,
-        tabs: state.tabs.map((tab) => {
-          if (tab.id === payload.tabId) {
+        favs: newFavs,
+        tabs: state.tabs.map((t) => {
+          if (t.id === payload.tabId) {
             return {
-              ...tab,
+              ...t,
               img: payload.img,
             };
           }
-          return tab;
+          return t;
         }),
       };
     }

@@ -13,6 +13,7 @@ import { overrideHttpProtocol } from '../../overrideHttpProtocol';
 import { registerDappyLocalProtocol } from '../../registerDappyLocalProtocol';
 import { preventAllPermissionRequests } from '../../preventAllPermissionRequests';
 import { store } from '..';
+import { getFavicon } from '../../utils/getFavicon';
 
 import * as fromSettingsMain from '../settings';
 import * as fromBlockchainsMain from '../blockchains';
@@ -361,8 +362,15 @@ function* loadOrReloadBrowserView(action: any) {
   });
 
   view.webContents.on('page-favicon-updated', async (_, favicons) => {
-    console.log('page-favicon-updated');
-    console.log(favicons);
+    const fav = await getFavicon(favicons.find((a) => a && a.includes('.png')) || '');
+    if (fav) {
+      action.meta.dispatchFromMain({
+        action: fromDappsRenderer.didChangeFaviconAction({
+          tabId: payload.tab.id,
+          img: fav,
+        }),
+      });
+    }
   });
 
   view.webContents.on('page-title-updated', (_, title) => {

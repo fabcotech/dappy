@@ -9,10 +9,14 @@
     align-items: center;
     justify-self: flex-start;
   }
+  img {
+    width: 30px;
+    height: auto;
+  }
   .tab-favicon {
     width: 25px;
     height: 25px;
-    background: #faf;
+    background: #111;
   }
   .tab-title {
     user-select: none;

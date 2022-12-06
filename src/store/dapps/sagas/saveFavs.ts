@@ -33,4 +33,5 @@ function* saveFavs() {
 
 export function* saveFavsSaga() {
   yield takeEvery(fromDapps.CREATE_FAV, saveFavs);
+  yield takeEvery(fromDapps.DID_CHANGE_FAVICON, saveFavs);
 }

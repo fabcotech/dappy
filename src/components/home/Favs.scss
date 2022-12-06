@@ -9,6 +9,10 @@
     transition: all ease-out 0.2s;
     cursor: default;
     margin-right: 0.5rem;
+    img {
+      height: 30px;
+      width: 30px;
+    }
     &:hover {
       transform: scale(1.05);
     }
