@@ -1,9 +1,10 @@
-@import "../../style/variables.scss";
+@import '../../style/variables.scss';
 
 .auth {
   background: #fafafa;
+  padding-bottom: 60px;
 
-  &>h3 {
+  & > h3 {
     @media screen and (max-width: 769px) {
       padding-left: 58px;
     }

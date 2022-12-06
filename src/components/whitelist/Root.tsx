@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { NavigationUrl } from '/models';
+import { HARDCODED_WHITELIST } from '/CONSTANTS';
 import './Root.scss';
 import { connect } from 'react-redux';
 import { validateWhitelistDomain } from '/utils/validateWhitelistDomain';
@@ -22,19 +23,26 @@ export class RootComponent extends React.Component<RootProps> {
     error: undefined,
   };
 
+  componentDidMount() {
+    this.setState({
+      whitelist: this.props.whitelist,
+    });
+  }
+
   render() {
     return (
       <div className="p20 whitelist">
         <h3 className="subtitle is-3">{t('whitelist title')}</h3>
-        <p className="text-mid limited-width mb-2">{t('whitelist 1')}</p>
+        {!HARDCODED_WHITELIST && <p className="text-mid limited-width mb-2">{t('whitelist 1')}</p>}
         <div className="field">
           <label className="label">{t('whitelist of domains')}</label>
           <div className="control">
             <textarea
+              disabled={!!HARDCODED_WHITELIST}
               className={`textarea ${this.state.error ? 'with-error' : ''}`}
               rows={8}
-              placeholder="hello.d\nonlinewebservice.d\n*.onlinewebservice.d\nbitconnect.d"
-              defaultValue={this.props.whitelist.map((a) => a.host).join('\n')}
+              placeholder="bitconnect.d"
+              defaultValue={this.state.whitelist.map((a) => a.host).join('\n')}
               onChange={(e) => {
                 try {
                   const splitByLine = e.target.value.split('\n').filter((a) => !!a);
@@ -63,22 +71,24 @@ export class RootComponent extends React.Component<RootProps> {
             {this.state.error && <p className="text-danger">{this.state.error}</p>}
           </div>
         </div>
-        <div className="field is-horizontal is-grouped pt20">
-          <div className="control">
-            <button
-              type="submit"
-              className="button is-link is-medium"
-              disabled={!!this.state.error}
-              onClick={() => {
-                if (this.state.whitelist) {
-                  this.props.updateWhitelist(this.state.whitelist);
-                }
-              }}
-            >
-              {t('save whitelist')}
-            </button>
+        {!HARDCODED_WHITELIST && (
+          <div className="field is-horizontal is-grouped pt20">
+            <div className="control">
+              <button
+                type="submit"
+                className="button is-link is-medium"
+                disabled={!!HARDCODED_WHITELIST || !!this.state.error}
+                onClick={() => {
+                  if (this.state.whitelist) {
+                    this.props.updateWhitelist(this.state.whitelist);
+                  }
+                }}
+              >
+                {t('save whitelist')}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   }

@@ -1,3 +1,5 @@
+import * as fromUi from '/store/ui';
+
 export const RELOAD_INDEXEDDB_PERIOD = 1000 * 60 * 10;
 export const CRON_JOBS_SUBSCRIPTION_PERIOD_INFOS = 40 * 1000;
 export const RCHAIN_INFOS_EXPIRATION = 0;
@@ -39,8 +41,16 @@ export const BLITZ_AUTHENTICATION = true;
 export const ACCESS_SETTINGS = true;
 export const ACCESS_ACCOUNTS = true;
 export const ACCESS_SECURITY = true;
-export const ACCESS_WHITELIST = true;
 export const ACCESS_TRANSACTIONS = false;
+export const ACCESS_WHITELIST = true;
+
+/*
+  Global whitelist for navigation, set it to undefined if you don't
+  want a hardcoded global whitelist but want to allow user to change it
+  ex: = [{ host: 'app.uniswap.org', topLevel: true, secondLevel: true }];
+*/
+export const HARDCODED_WHITELIST: undefined | fromUi.State['whitelist'] = undefined;
+
 /*
   Remove LEFT_MENU_COLORS or set it to undefined if
   you don't want special colors ex: ['#7fcaff', '#8fdaff']
