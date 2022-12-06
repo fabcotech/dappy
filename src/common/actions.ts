@@ -1,21 +1,21 @@
-import { TransactionState, Identification, TransactionOriginDapp, EthereumTransaction } from '/models';
+import { TransactionState, TransactionOriginDapp, EthereumTransaction } from '/models';
 
 export const EXECUTE_TRANSACTION = '[Common] Execute transaction';
 export const NAVIGATE = '[Common] Navigate';
 
 export const SEND_RCHAIN_TRANSACTION_FROM_SANDBOX = '[Common] Send RChain transaction from sandbox';
-export const SEND_RCHAIN_PAYMENT_REQUEST_FROM_SANDBOX = '[Common] Send RChain payment request from sandbox';
+export const SEND_RCHAIN_PAYMENT_REQUEST_FROM_SANDBOX =
+  '[Common] Send RChain payment request from sandbox';
 
 export const UPDATE_RCHAIN_TRANSACTION_STATUS = '[Common] Update RChain transaction status';
 export const UPDATE_RCHAIN_TRANSACTION_VALUE = '[Common] Update RChain transaction value';
 
-export const IDENTIFY_FROM_SANDBOX = '[Common] Identify from sandbox';
-
 export const UPDATE_TRANSACTIONS = '[Common] Update transactions';
-export const UPDATE_IDENTIFICATIONS = '[Common] Update identifications';
 
-export const SIGN_ETHEREUM_TRANSACTION_FROM_SANDBOX = '[Common] Sign Ethereum transaction from sandbox';
-export const SEND_ETHEREUM_PAYMENT_REQUEST_FROM_SANDBOX = '[Common] Send Ethereum payment request from sandbox';
+export const SIGN_ETHEREUM_TRANSACTION_FROM_SANDBOX =
+  '[Common] Sign Ethereum transaction from sandbox';
+export const SEND_ETHEREUM_PAYMENT_REQUEST_FROM_SANDBOX =
+  '[Common] Send Ethereum payment request from sandbox';
 
 // ======
 // RChain
@@ -41,7 +41,9 @@ export interface SendRChainTransactionFromSandboxAction {
   type: '[SandBox] Send RChain transaction from sandbox';
   payload: SendRChainTransactionFromSandboxPayload;
 }
-export const sendRChainTransactionFromSandboxAction = (values: SendRChainTransactionFromSandboxPayload) => {
+export const sendRChainTransactionFromSandboxAction = (
+  values: SendRChainTransactionFromSandboxPayload
+) => {
   return {
     type: SEND_RCHAIN_TRANSACTION_FROM_SANDBOX,
     payload: values,
@@ -73,7 +75,9 @@ export interface SendRChainPaymentRequestFromSandboxAction {
   type: '[Common] Send RChain payment request from sandbox';
   payload: SendRChainPaymentRequestFromSandboxPayload;
 }
-export const sendRChainPaymentRequestFromSandboxAction = (values: SendRChainPaymentRequestFromSandboxPayload) => {
+export const sendRChainPaymentRequestFromSandboxAction = (
+  values: SendRChainPaymentRequestFromSandboxPayload
+) => {
   return {
     type: SEND_RCHAIN_PAYMENT_REQUEST_FROM_SANDBOX,
     payload: values,
@@ -99,7 +103,9 @@ export interface SignEthereumTransactionFromSandboxAction {
   type: '[SandBox] Sign ethereum transaction';
   payload: SignEthereumTransactionFromSandboxPayload;
 }
-export const signEthereumTransactionFromSandboxAction = (values: SignEthereumTransactionFromSandboxPayload) => {
+export const signEthereumTransactionFromSandboxAction = (
+  values: SignEthereumTransactionFromSandboxPayload
+) => {
   return {
     type: SIGN_ETHEREUM_TRANSACTION_FROM_SANDBOX,
     payload: values,
@@ -129,40 +135,6 @@ export interface UpdateTransactionsAction {
 export const updateTransactionsAction = (values: UpdateTransactionsPayload) => {
   return {
     type: UPDATE_TRANSACTIONS,
-    payload: values,
-  };
-};
-
-export interface IdentifyFromSandboxPayload {
-  parameters: {
-    publicKey: undefined | string;
-  };
-  callId: string;
-  tabId: string;
-}
-export interface IdentifyFromSandboxAction {
-  type: '[SandBox] Identify from sandbox';
-  payload: IdentifyFromSandboxPayload;
-}
-export const identifyFromSandboxAction = (values: IdentifyFromSandboxPayload) => {
-  return {
-    type: IDENTIFY_FROM_SANDBOX,
-    payload: values,
-  };
-};
-
-export interface UpdateIdentificationsPayload {
-  identifications: {
-    [callId: string]: Identification;
-  };
-}
-export interface UpdateIdentificationsAction {
-  type: '[Common] Update identifications';
-  payload: UpdateIdentificationsPayload;
-}
-export const updateIdentificationsAction = (values: UpdateIdentificationsPayload) => {
-  return {
-    type: UPDATE_IDENTIFICATIONS,
     payload: values,
   };
 };

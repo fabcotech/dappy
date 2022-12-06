@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 import { BeesLoadErrors, BeesLoadCompleted } from '@fabcotech/bees';
 
-import { TransitoryState, Tab, Fav, LastLoadError, Identification } from '/models';
+import { TransitoryState, Tab, Fav, LastLoadError } from '/models';
 import * as fromActions from './actions';
 import { Action } from '..';
 import { SetTabFavoritePayload } from './actions';
@@ -22,11 +22,6 @@ export interface State {
   favs: Fav[];
   tabsFocusOrder: string[];
   transitoryStates: { [resourceId: string]: TransitoryState };
-  identifications: {
-    [dappId: string]: {
-      [callId: string]: Identification;
-    };
-  };
   errors: { errorCode: number; error: string; trace?: string }[];
 }
 
@@ -40,7 +35,6 @@ export const initialState: State = {
   favs: [],
   tabsFocusOrder: [],
   transitoryStates: {},
-  identifications: {},
   errors: [],
 };
 
@@ -316,26 +310,6 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
-    case fromActions.SAVE_IDENTIFICATION: {
-      const { payload } = action;
-
-      let dappIdentifications = state.identifications[payload.tabId];
-      if (!dappIdentifications) {
-        dappIdentifications = {};
-      }
-
-      return {
-        ...state,
-        identifications: {
-          ...state.identifications,
-          [payload.tabId]: {
-            ...dappIdentifications,
-            [payload.callId]: payload.identification,
-          },
-        },
-      };
-    }
-
     case fromActions.LAUNCH_TAB_COMPLETED: {
       const { payload } = action;
 
@@ -468,11 +442,6 @@ export const getFavs = createSelector(getDappsState, (state: State) => state.fav
 export const getDappsTransitoryStates = createSelector(
   getDappsState,
   (state: State) => state.transitoryStates
-);
-
-export const getIdentifications = createSelector(
-  getDappsState,
-  (state: State) => state.identifications
 );
 
 // COMBINED SELECTORS

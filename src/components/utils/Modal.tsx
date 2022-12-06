@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import * as fromMain from '/store/main';
 import { connect } from 'react-redux';
-import { AccountModal, IdentificationModal } from '.';
+import { AccountModal } from '.';
 import { RemoveAccountModal } from './RemoveAccountModal';
 import { GenericModal } from './GenericModal';
 import { LoadInfo } from '../resources';
@@ -42,8 +42,6 @@ class ModalComponent extends React.Component<ModalComponentProps> {
     switch (this.props.modal.title) {
       case 'ETHEREUM_SIGN_TRANSACTION_MODAL':
         return <EthereumSignTransactionModal modal={this.props.modal} />;
-      case 'IDENTIFICATION_MODAL':
-        return <IdentificationModal modal={this.props.modal} />;
       case 'ACCOUNT_MODAL':
         return <AccountModal modal={this.props.modal} />;
       case 'LOAD_INFO_MODAL':

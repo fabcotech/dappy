@@ -1,5 +1,5 @@
 import { BeesLoadErrors, BeesLoadCompleted } from '@fabcotech/bees';
-import { Tab, Identification, TransitoryState, Fav } from '/models';
+import { Tab, TransitoryState, Fav } from '/models';
 import { SimpleError } from '/models/DappyLoadError';
 
 export const UPDATE_TABS_FROM_STORAGE = '[Dapps] Update tabs from storage';
@@ -28,8 +28,6 @@ export const REMOVE_TAB_COMPLETED = '[Dapps] Remove tab completed';
 export const SET_TAB_MUTED = '[Dapps] Set tab muted';
 export const CREATE_FAV = '[Dapps] Create fav';
 export const UPDATE_TAB_URL_AND_TITLE = '[Dapps] Update tab url and title';
-
-export const SAVE_IDENTIFICATION = '[Dapps] Save identification';
 
 export interface UpdatTabsFromStoragePayload {
   tabs: Tab[];
@@ -181,16 +179,6 @@ export interface RemoveTabCompletedPayload {
 export const removeTabCompletedAction = (payload: RemoveTabCompletedPayload) => ({
   type: REMOVE_TAB_COMPLETED,
   payload,
-});
-
-export interface SaveIdentificationPayload {
-  tabId: string;
-  callId: string;
-  identification: Identification;
-}
-export const saveIdentificationAction = (values: SaveIdentificationPayload) => ({
-  type: SAVE_IDENTIFICATION,
-  payload: values,
 });
 
 export interface LaunchTabCompletedPayload {

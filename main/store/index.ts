@@ -5,8 +5,6 @@ import { all } from 'redux-saga/effects';
 import * as fromSettings from './settings';
 import * as fromBlockchains from './blockchains';
 import * as fromBrowserViews from './browserViews';
-import * as fromTransactions from './transactions';
-import * as fromIdentifications from './identifications';
 import * as fromTabs from './tabs';
 import * as fromUi from './ui';
 
@@ -15,8 +13,6 @@ import { sagas } from './sagas';
 export interface State {
   settings: fromSettings.State;
   blockchains: fromBlockchains.State;
-  transactions: fromTransactions.State;
-  identifications: fromIdentifications.State;
   browserViews: fromBrowserViews.State;
   tabs: fromTabs.State;
 }
@@ -32,8 +28,6 @@ export const store: Store<State> = createStore(
     settings: fromSettings.reducer,
     blockchains: fromBlockchains.reducer,
     browserViews: fromBrowserViews.reducer,
-    transactions: fromTransactions.reducer,
-    identifications: fromIdentifications.reducer,
     tabs: fromTabs.reducer,
     ui: fromUi.reducer,
   }),

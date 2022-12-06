@@ -1,9 +1,9 @@
-import { takeEvery, select, put } from 'redux-saga/effects';
+import { takeEvery, select } from 'redux-saga/effects';
 
 import * as fromBrowserViews from '../browserViews';
 import { DappyBrowserView } from '../../models';
 
-const setBrowserViewMuted = function* (action: any) {
+function* setBrowserViewMuted(action: any) {
   const payload = action.payload;
   const browserViews: {
     [tabId: string]: DappyBrowserView;
@@ -15,10 +15,8 @@ const setBrowserViewMuted = function* (action: any) {
   }
 
   browserViews[payload.tabId].browserView.webContents.setAudioMuted(payload.muted);
+}
 
-  return undefined;
-};
-
-export const setBrowserViewMutedSaga = function* () {
+export function* setBrowserViewMutedSaga() {
   yield takeEvery(fromBrowserViews.SET_BROWSER_VIEW_MUTED, setBrowserViewMuted);
-};
+}

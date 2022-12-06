@@ -2,8 +2,6 @@ import { Session } from 'electron';
 import { Store } from 'redux';
 import * as yup from 'yup';
 import * as fromCommon from '../src/common';
-import * as fromIdentificationsMain from './store/identifications';
-import * as fromTransactionsMain from './store/transactions';
 import * as fromSettingsMain from './store/settings';
 import * as fromMain from '../src/store/main';
 import { DappyBrowserView } from './models';
@@ -141,13 +139,6 @@ export const registerInterProcessDappProtocol = (
       );
     }
 
-    if (request.url === 'interprocessdapp://get-identifications') {
-      const identifications = fromIdentificationsMain.getIdentificationsMain(store.getState());
-      callback(
-        Buffer.from(JSON.stringify({ identifications: identifications[dappyBrowserView.tabId] }))
-      );
-    }
-
     if (request.url === 'interprocessdapp://get-transactions') {
       const transactions = fromTransactionsMain.getTransactionsMain(store.getState());
       callback(Buffer.from(JSON.stringify({ transactions: transactions[dappyBrowserView.tabId] })));
@@ -163,32 +154,6 @@ export const registerInterProcessDappProtocol = (
             '[interprocessdapp://] dapp dispatched a transaction with an invalid payload'
           );
           callback(Buffer.from('invalid payload'));
-          return;
-        }
-
-        if (data.action.type === fromCommon.IDENTIFY_FROM_SANDBOX) {
-          identifyFromSandboxSchema
-            .validate(payloadBeforeValid)
-            .then(() => {
-              dispatchFromMain({
-                action: fromMain.openDappModalAction({
-                  tabId: dappyBrowserView.tabId,
-                  title: 'IDENTIFICATION_MODAL',
-                  text: '',
-                  parameters: {
-                    ...payloadBeforeValid,
-                    tabId: dappyBrowserView.tabId,
-                  },
-                  buttons: [],
-                }),
-              });
-              callback(Buffer.from(''));
-            })
-            .catch((err: Error) => {
-              console.error('A dapp tried to trigger an identification with an invalid schema');
-              console.error(err);
-              callback(Buffer.from(err.message));
-            });
           return;
         }
 

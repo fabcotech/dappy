@@ -4,8 +4,6 @@ import { loadOrReloadBrowserViewSaga } from './loadOrReloadBrowserView';
 import { goForwardOrBackwardSaga } from './goForwardOrBackward';
 import { displayOnlyBrowserViewXSaga } from './displayOnlyBrowserViewX';
 import { setBrowserViewMutedSaga } from './setBrowserViewMuted';
-import { transferIdentificationsSaga } from './transferIdentifications';
-import { transferTransactionsSaga } from './transferTransactions';
 
 export const sagas = function* rootSaga() {
   yield all([
@@ -13,7 +11,5 @@ export const sagas = function* rootSaga() {
     displayOnlyBrowserViewXSaga(),
     goForwardOrBackwardSaga(),
     setBrowserViewMutedSaga(),
-    transferTransactionsSaga(),
-    transferIdentificationsSaga(),
   ]);
 };

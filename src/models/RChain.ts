@@ -48,9 +48,3 @@ export interface TransactionOriginDeploy {
   origin: 'deploy';
   accountName: string;
 }
-
-export interface Identification {
-  publicKey: undefined | string;
-  box: undefined | string;
-  identified: boolean;
-}
