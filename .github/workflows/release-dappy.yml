@@ -1,4 +1,4 @@
-name: Publish on github
+name: Release dappy
 
 on:
   push:
@@ -11,91 +11,103 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.release.target_commitish }}    
+          ref: ${{ github.event.release.target_commitish }}
       - name: Use Node.js 16
         uses: actions/setup-node@v2
         with:
           node-version: 16
           cache: 'npm'
-      - run: .\scripts\build-win-ia32.bat
+      - run: .\scripts\build.bat
         env:
+          TARGET: dappy
+          PLATFORM: windows:32
           CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}      
-          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}   
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
   publish_on_win_64:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.release.target_commitish }}    
+          ref: ${{ github.event.release.target_commitish }}
       - name: Use Node.js 16
         uses: actions/setup-node@v2
         with:
           node-version: 16
           cache: 'npm'
-      - run: .\scripts\build-win-x64.bat
+      - run: .\scripts\build.bat
         env:
+          TARGET: dappy
+          PLATFORM: windows:64
           CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}      
-          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}          
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
   publish_rpm:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.release.target_commitish }}    
+          ref: ${{ github.event.release.target_commitish }}
       - name: Use Node.js 16
         uses: actions/setup-node@v2
         with:
           node-version: 16
           cache: 'npm'
-      - run: ./scripts/build-linux-x86_64.sh
+      - run: ./scripts/build.sh
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}         
+          TARGET: dappy
+          PLATFORM: linux:rpm
+          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
   publish_deb:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.release.target_commitish }}    
+          ref: ${{ github.event.release.target_commitish }}
       - name: Use Node.js 16
         uses: actions/setup-node@v2
         with:
           node-version: 16
           cache: 'npm'
-      - run: ./scripts/build-linux-amd64-deb.sh
+      - run: ./scripts/build.sh
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}        
+          TARGET: dappy
+          PLATFORM: linux:deb
+          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
   publish_app_image:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.release.target_commitish }}    
+          ref: ${{ github.event.release.target_commitish }}
       - name: Use Node.js 16
         uses: actions/setup-node@v2
         with:
           node-version: 16
           cache: 'npm'
-      - run: ./scripts/build-linux-x86_64.AppImage.sh
+      - run: ./scripts/build.sh
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}          
-  publish_on_macos: 
+          TARGET: dappy
+          PLATFORM: linux:app-image
+          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
+  publish_on_macos:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: ${{ github.event.release.target_commitish }}    
+          ref: ${{ github.event.release.target_commitish }}
       - name: Use Node.js 16
         uses: actions/setup-node@v2
         with:
           node-version: 16
           cache: 'npm'
-      - run: ./scripts/build-macos-x64.sh
+      - run: ./scripts/build.sh
         env:
+          TARGET: dappy
+          PLATFORM: mac
           GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
           CSC_LINK: ${{ secrets.CSC_LINK_MAC }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD_MAC }}             
-          CSC_IDENTITY_AUTO_DISCOVERY: "true"
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD_MAC }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'true'
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}

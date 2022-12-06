@@ -1,0 +1,113 @@
+name: Release atlantic
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  publish_on_win_32:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.release.target_commitish }}
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'npm'
+      - run: .\scripts\build.bat
+        env:
+          TARGET: atlantic
+          PLATFORM: windows:32
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
+  publish_on_win_64:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.release.target_commitish }}
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'npm'
+      - run: .\scripts\build.bat
+        env:
+          TARGET: atlantic
+          PLATFORM: windows:64
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
+  publish_rpm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.release.target_commitish }}
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'npm'
+      - run: ./scripts/build.sh
+        env:
+          TARGET: atlantic
+          PLATFORM: linux:rpm
+          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
+  publish_deb:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.release.target_commitish }}
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'npm'
+      - run: ./scripts/build.sh
+        env:
+          TARGET: atlantic
+          PLATFORM: linux:deb
+          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
+  publish_app_image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.release.target_commitish }}
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'npm'
+      - run: ./scripts/build.sh
+        env:
+          TARGET: atlantic
+          PLATFORM: linux:app-image
+          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
+  publish_on_macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.release.target_commitish }}
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'npm'
+      - run: ./scripts/build.sh
+        env:
+          TARGET: atlantic
+          PLATFORM: mac
+          GITHUB_TOKEN: ${{ secrets.GH_API_TOKEN }}
+          CSC_LINK: ${{ secrets.CSC_LINK_MAC }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD_MAC }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'true'
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}

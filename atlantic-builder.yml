@@ -1,0 +1,38 @@
+appId: atlantic.dappy
+artifactName: atlantic-${version}-${os}-${arch}.${ext}
+productName: atlantic
+
+directories:
+  output: ./output
+files:
+  # TODO exclude not needed stuff in 'files:' section to reduce app packages size, can save megabytes, so a significant improvement
+  - 'dist/**/*'
+  - 'icons/**/*'
+extraMetadata:
+  main: dist/main/main.js
+asar: true
+
+afterSign: ./scripts/notarize.js
+
+win:
+  target: NSIS
+  icon: icons/ico/icon-win256x256.ico
+
+nsis:
+  installerIcon: icons/ico/icon-win256x256.ico
+  uninstallerIcon: icons/ico/icon-win256x256.ico
+  installerHeaderIcon: icons/ico/icon-win256x256.ico
+  perMachine: true
+
+linux:
+  icon: icons/png
+  category: Network
+  packageCategory: Office
+
+mac:
+  category: public.app-category.productivity
+  icon: icons/png/icon-512x512.png
+  entitlements: ./scripts/entitlements.mac.plist
+
+dmg:
+  sign: false
