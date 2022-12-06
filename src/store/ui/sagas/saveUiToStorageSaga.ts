@@ -38,6 +38,11 @@ function* saveUiToStorage() {
       type: '[MAIN] Update browser views position',
       payload: browserViewsPosition,
     });
+
+    dispatchInMain({
+      type: '[MAIN] Sync ui',
+      payload: uiStateToSave,
+    });
   }
 
   try {

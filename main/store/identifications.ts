@@ -13,7 +13,7 @@ export interface State {
 
 export const initialState: State = {};
 
-export const reducer = (state = initialState, action: any): State => {
+export const reducer = (state = initialState, action: any = {}): State => {
   switch (action.type) {
     case TRANSFER_IDENTIFICATIONS: {
       const payload: fromDapps.SaveIdentificationPayload = action.payload;
@@ -37,4 +37,7 @@ const getIdentificationsMainState = createSelector(
   (state: any) => state.identifications
 );
 
-export const getIdentificationsMain = createSelector(getIdentificationsMainState, (state: State) => state);
+export const getIdentificationsMain = createSelector(
+  getIdentificationsMainState,
+  (state: State) => state
+);

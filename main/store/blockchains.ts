@@ -10,7 +10,7 @@ export interface State {
 
 export const initialState: State = {};
 
-export const reducer = (state = initialState, action: any): State => {
+export const reducer = (state = initialState, action: any = {}): State => {
   switch (action.type) {
     case SYNC_BLOCKCHAINS: {
       return action.payload;
@@ -29,18 +29,21 @@ const getBlockchainsMainState = createSelector(
 export const getBlockchains = createSelector(getBlockchainsMainState, (state: State) => state);
 
 // if modified, must be modified in renderer also
-export const getOkBlockchainsMain = createSelector(getBlockchainsMainState, (blockchains: State) => {
-  const okBlockchains: { [chainId: string]: Blockchain } = {};
-  Object.keys(blockchains).forEach((chainId) => {
-    if (!blockchains[chainId].nodes.length) {
-      return;
-    }
+export const getOkBlockchainsMain = createSelector(
+  getBlockchainsMainState,
+  (blockchains: State) => {
+    const okBlockchains: { [chainId: string]: Blockchain } = {};
+    Object.keys(blockchains).forEach((chainId) => {
+      if (!blockchains[chainId].nodes.length) {
+        return;
+      }
 
-    okBlockchains[chainId] = {
-      ...blockchains[chainId],
-      nodes: blockchains[chainId].nodes,
-    };
-  });
+      okBlockchains[chainId] = {
+        ...blockchains[chainId],
+        nodes: blockchains[chainId].nodes,
+      };
+    });
 
-  return okBlockchains;
-});
+    return okBlockchains;
+  }
+);

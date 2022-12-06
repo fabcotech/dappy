@@ -13,14 +13,14 @@ export const initialState: State = {
   tabs: fromDappsRenderer.initialState.tabs,
 };
 
-export const reducer = (state = initialState, action: any): State => {
+export const reducer = (state = initialState, action: any = {}): State => {
   switch (action.type) {
     case TRANSFER_TABS: {
       const payload: Tab[] = action.payload;
       return {
         ...state,
         tabs: payload,
-      }
+      };
     }
 
     default:
