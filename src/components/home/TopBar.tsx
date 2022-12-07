@@ -1,11 +1,11 @@
 import React from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
-import './TopBar.scss';
-
 import { NavigationUrl } from '/models';
 import { unfocusAllTabsAction } from '/store/dapps';
 import { TabsList2 } from '.';
+
+import './TopBar.scss';
 
 const connector = connect(undefined, {
   unfocusAllTabs: unfocusAllTabsAction,
@@ -18,14 +18,7 @@ type TopBarComponentProps = {
 
 function TopBarComponent({ isNavigationInDapps, unfocusAllTabs, navigate }: TopBarComponentProps) {
   return (
-    <div
-      style={{
-        paddingLeft: '5px',
-        display: 'flex',
-        height: '38px',
-        gridColumn: 'span 2',
-      }}
-    >
+    <div className="topbar">
       <button
         type="button"
         className="tb-button"

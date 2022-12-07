@@ -1,8 +1,9 @@
 @import '../../style/variables.scss';
 
 .simple-tab {
-  display: grid;
-  grid-template-columns: 38px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding-left: 1rem;
   & > div {
     display: flex;

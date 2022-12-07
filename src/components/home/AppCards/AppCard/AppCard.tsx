@@ -24,9 +24,8 @@ const AppHeader = ({ app, onClick }: AppHeaderProps) => {
         <div
           style={{
             background: `url(${app.image}) 50% 50% no-repeat`,
-            flexGrow: 0,
-            flexShrink: 0,
-            flexBasis: '20px',
+            width: '30px',
+            height: 'auto',
             backgroundSize: 'cover',
             marginRight: '0.5rem',
           }}

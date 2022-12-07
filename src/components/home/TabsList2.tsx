@@ -35,7 +35,7 @@ class TabsList2Component extends React.Component<TabsList2Props, {}> {
           <div>
             {tab.img ? <img src={`${tab.img}`}></img> : <span className="tab-favicon"></span>}
           </div>
-          <div>
+          <div className="pl-2">
             <p className="tab-title">{(tab as Tab).title}</p>
           </div>
         </div>

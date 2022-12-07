@@ -47,40 +47,8 @@ interface RootComponentProps {
   navigate: (navigationUrl: NavigationUrl) => void;
 }
 
-interface RootComponentState {
-  accountCreationFormClosed: boolean;
-  transitionOver: boolean;
-}
-
-class RootComponent extends React.Component<RootComponentProps, RootComponentState> {
-  state = {
-    accountCreationFormClosed: false,
-    transitionOver: false,
-  };
-
-  loadingEl: HTMLDivElement | undefined = undefined;
-  t: number | undefined = undefined;
-
-  setLoadingEl = (el: HTMLDivElement) => {
-    if (!this.loadingEl) {
-      this.loadingEl = el;
-    }
-  };
-
-  shouldComponentUpdate = (nextProps: RootComponentProps) => {
-    if (this.props.initializationOver === false && nextProps.initializationOver === true) {
-      /* No animation if less than 200ms of loading */
-      if (new Date().getTime() - (this.t as number) < 200) {
-        this.setState({ transitionOver: true });
-      } else {
-        setTimeout(() => {
-          this.setState({ transitionOver: true });
-        }, 1000);
-      }
-    }
-
-    return true;
-  };
+class RootComponent extends React.Component<RootComponentProps> {
+  state = {};
 
   componentDidCatch(error: Error) {
     console.error('An error occured in components');
@@ -98,14 +66,8 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
     if (!window.t) {
       initTranslate(this.props.language);
     }
-    if (!this.t) {
-      this.t = new Date().getTime();
-    }
 
     let k = 'root loading';
-    if (this.props.initializationOver && !this.state.transitionOver) {
-      k += ' scaleout';
-    }
 
     if (this.props.initializationOver && this.props.gcu !== GCU_VERSION) {
       return <Gcu version={GCU_VERSION} text={GCU_TEXT} continue={this.props.updateGcu}></Gcu>;
@@ -118,9 +80,9 @@ class RootComponent extends React.Component<RootComponentProps, RootComponentSta
 
     return (
       <div className={klasses}>
-        {(!this.props.initializationOver || !this.state.transitionOver) && (
-          <div ref={this.setLoadingEl} className={k}>
-            <p>dappy browser</p>
+        {!this.props.initializationOver && (
+          <div className={'loading'}>
+            <p>loading</p>
           </div>
         )}
         {this.props.initializationOver && (

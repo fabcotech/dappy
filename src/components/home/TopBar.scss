@@ -4,3 +4,12 @@
   cursor: default;
   width: 50px;
 }
+.topbar {
+  padding-left: '5px';
+  display: 'flex';
+  height: '38px';
+  grid-column: 'span 2';
+  display: grid;
+  grid-template-columns: 50px 50px auto;
+  grid-template-rows: 100%;
+}

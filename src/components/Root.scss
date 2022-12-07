@@ -45,40 +45,19 @@
   min-height: 100%;
   position: relative;
   display: grid;
-  grid-template-rows: 38px;
+  grid-template-rows: 50px;
   grid-template-columns: 96px;
   .loading {
-    background: #eee;
+    background: var(--bg-image);
+    color: var(--text-secondary-color);
+    grid-row-start: 1;
+    grid-row-end: 3;
     z-index: 2000;
-    grid-row: 1;
     grid-column-start: 1;
     grid-column-end: 3;
-    &.scaleout {
-      animation: scaleout 1s ease-in;
-      animation-fill-mode: forwards;
-      animation-iteration-count: 1;
-    }
     display: flex;
     justify-content: center;
     align-items: center;
-
-    & > p {
-      font-size: 1.3rem;
-      font-weight: 600;
-      position: relative;
-      &:before {
-        content: '';
-        left: 0px;
-        bottom: -16px;
-        width: 12px;
-        height: 12px;
-        border-radius: 2px;
-        display: block;
-        position: absolute;
-        animation: glissement 1.3s, col 1.9s;
-        animation-iteration-count: infinite;
-      }
-    }
   }
   & > .topbar {
     z-index: 1;
