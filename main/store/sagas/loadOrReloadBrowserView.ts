@@ -6,6 +6,7 @@ import path from 'path';
 import { DappyNetworkMember } from '@fabcotech/dappy-lookup';
 
 import * as fromBrowserViews from '../browserViews';
+import * as fromUi from '../ui';
 import { DappyBrowserView } from '../../models';
 import { registerInterProcessDappProtocol } from '../../registerInterProcessDappProtocol';
 import { overrideHttpsProtocol } from '../../overrideHttpsProtocol';
@@ -18,14 +19,17 @@ import { getFavicon } from '../../utils/getFavicon';
 import * as fromSettingsMain from '../settings';
 import * as fromBlockchainsMain from '../blockchains';
 import * as fromSettingsRenderer from '../../../src/store/settings';
+import * as fromUiRenderer from '../../../src/store/ui';
 import * as fromDappsRenderer from '../../../src/store/dapps';
 import { Blockchain, CertificateAccount, Tab } from '/models';
+import { atLeastOneMatchInWhitelist } from '/utils/matchesWhitelist';
 
 const development = !!process.defaultApp;
 
 function* loadOrReloadBrowserView(action: any) {
   const { payload }: { payload: { tab: Tab; clientCertificate: CertificateAccount } } = action;
   const settings: fromSettingsRenderer.Settings = yield select(fromSettingsMain.getSettings);
+  const whitelist: fromUiRenderer.State['whitelist'] = yield select(fromUi.getWhitelist);
   const blockchains: { [chainId: string]: Blockchain } = yield select(
     fromBlockchainsMain.getBlockchains
   );
@@ -69,6 +73,20 @@ function* loadOrReloadBrowserView(action: any) {
   }
 
   let url: URL = new URL(payload.tab.url);
+  if (!atLeastOneMatchInWhitelist(whitelist, url.hostname)) {
+    action.meta.dispatchFromMain({
+      action: fromDappsRenderer.loadResourceFailedAction({
+        tabId: payload.tab.id,
+        url: payload.tab.url,
+        error: {
+          title: '🛑 Navigation blocked by whitelist',
+          message: `This host (${url.hostname}) is not whitelisted, navigation has been blocked`,
+        },
+      }),
+    });
+    return;
+  }
+
   const viewSession = session.fromPartition(`persist:main:${url.host}`, { cache: true });
 
   /* reload
@@ -288,6 +306,64 @@ function* loadOrReloadBrowserView(action: any) {
 
   let title = '';
 
+  const handleNavigation = (e: Electron.Event | null, futureUrl: string) => {
+    let parsedFutureUrl: URL | undefined;
+    try {
+      parsedFutureUrl = new URL(futureUrl);
+    } catch (err) {
+      console.log(err);
+      console.log('could not parse current or future url');
+      if (e) e.preventDefault();
+      return;
+    }
+
+    if (parsedFutureUrl.protocol === 'https:') {
+      if (parsedFutureUrl.host === url.host) {
+        // do nothing let navigation go
+      } else {
+        if (e) e.preventDefault();
+        if (atLeastOneMatchInWhitelist(whitelist, parsedFutureUrl.host)) {
+          console.log('[nav] will navigate to another host', url.host, '->', parsedFutureUrl.host);
+          action.meta.dispatchFromMain({
+            action: fromDappsRenderer.loadResourceAction({
+              url: futureUrl,
+              tabId: payload.tab.id,
+            }),
+          });
+        } else {
+          action.meta.dispatchFromMain({
+            action: fromDappsRenderer.loadResourceFailedAction({
+              tabId: payload.tab.id,
+              url: payload.tab.url,
+              error: {
+                title: '🛑 Navigation blocked by whitelist',
+                message: `This host (${parsedFutureUrl.host}) is not whitelisted, navigation has been blocked`,
+              },
+            }),
+          });
+        }
+      }
+    } else {
+      if (e) e.preventDefault();
+      // todo display error message instead of directly openning
+      action.meta.dispatchFromMain({
+        action: fromDappsRenderer.loadResourceFailedAction({
+          tabId: payload.tab.id,
+          url: payload.tab.url,
+          error: {
+            title: '🚫 Unsupported protocol',
+            message: `The browser is trying to visit a non-https URL ${futureUrl}, this protocol is not supported and has been blocked.`,
+          },
+        }),
+      });
+    }
+  };
+
+  view.webContents.setWindowOpenHandler((details: Electron.HandlerDetails) => {
+    handleNavigation(null, details.url);
+    return { action: 'deny' };
+  });
+
   view.webContents.on('did-finish-load', () => {
     action.meta.browserWindow.webContents.executeJavaScript(
       `window.browserViewEvent('did-finish-load', { tabId: '${
@@ -384,45 +460,6 @@ function* loadOrReloadBrowserView(action: any) {
       });
     }
   });
-
-  const handleNavigation = (e: Electron.Event, futureUrl: string) => {
-    let parsedFutureUrl: URL | undefined;
-    try {
-      parsedFutureUrl = new URL(futureUrl);
-    } catch (err) {
-      console.log(err);
-      console.log('could not parse current or future url');
-      e.preventDefault();
-      return;
-    }
-    if (parsedFutureUrl.protocol === 'https:') {
-      if (parsedFutureUrl.host === url.host) {
-        // do nothing let navigation go
-      } else {
-        e.preventDefault();
-        console.log('[nav] will navigate to another host', url.host, '->', parsedFutureUrl.host);
-        action.meta.dispatchFromMain({
-          action: fromDappsRenderer.loadResourceAction({
-            url: futureUrl,
-            tabId: payload.tab.id,
-          }),
-        });
-      }
-    } else {
-      e.preventDefault();
-      // todo display error message instead of directly openning
-      action.meta.dispatchFromMain({
-        action: fromDappsRenderer.loadResourceFailedAction({
-          tabId: payload.tab.id,
-          url: payload.tab.url,
-          error: {
-            title: '🚫 Unsupported protocol',
-            message: `The browser is trying to visit a non-https URL ${futureUrl}, this protocol is not supported and has been blocked.`,
-          },
-        }),
-      });
-    }
-  };
 
   view.webContents.on('will-redirect', (e, futureUrl) => {
     console.log('will-redirect', futureUrl);

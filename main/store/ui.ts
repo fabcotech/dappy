@@ -31,3 +31,7 @@ export const getUiMainState = createSelector(
 );
 
 export const getUi = createSelector(getUiMainState, (state: State) => state.ui);
+
+export const getWhitelist = createSelector(getUi, (ui) => {
+  return ui.whitelist;
+});

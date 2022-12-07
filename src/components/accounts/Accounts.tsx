@@ -4,11 +4,9 @@ import { connect } from 'react-redux';
 import { Account } from './Account';
 import { Account as AccountModel, Blockchain, CertificateAccount } from '/models';
 import * as fromSettings from '/store/settings';
-import * as fromBlockchain from '/store/blockchain';
 import { State } from '/store';
 import { getIsBalancesHidden, toggleBalanceVisibility } from '/store/ui';
 import { AddAccount } from './AddAccount';
-import { GlossaryHint } from '/components/utils/Hint';
 
 import image_rchain from '/images/rchain40.png';
 
@@ -111,12 +109,6 @@ export const EVMAccounts = ({ accounts }: EVMAccountsProps) => {
   return (
     <div className="block">
       <h4 className="is-size-4 mb-2">Ethereum / EVM</h4>
-      <p className="block mt-4">
-        <GlossaryHint
-          term="why can't I see my balance for ETH and other EVM wallets ?"
-          displayTerm
-        />
-      </p>
       <div className="account-cards">
         {Object.values(accounts)
           .filter((a) => a.platform === 'evm')

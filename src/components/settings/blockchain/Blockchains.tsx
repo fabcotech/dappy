@@ -224,7 +224,6 @@ export class BlockchainsComponent extends React.Component<BlockchainsProps> {
                 <h3 className="subtitle is-4 blockchain-title">
                   {t('network')}
                   {selectedBlockchain.chainName}
-                  <GlossaryHint term="what is a dappy network ?" />
                 </h3>
                 <table className="network-variables">
                   <tbody>

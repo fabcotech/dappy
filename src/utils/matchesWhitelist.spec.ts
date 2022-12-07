@@ -1,6 +1,10 @@
 import { matchesInWhitelist, atLeastOneMatchInWhitelist } from './matchesWhitelist';
 
 describe('utils/matchesWhitelist', () => {
+  it('Should find correct matches with empty whitelist', () => {
+    expect(matchesInWhitelist([], 'uniswap.org')).toEqual([]);
+    expect(atLeastOneMatchInWhitelist([], 'uuniswap.org')).toEqual(true);
+  });
   it('Should find correct matches with whitelist 1', () => {
     const whitelist1 = [{ host: 'uniswap.org', topLevel: true, secondLevel: true }];
     expect(matchesInWhitelist(whitelist1, 'uniswap.org')).toEqual([whitelist1[0]]);
@@ -24,5 +28,12 @@ describe('utils/matchesWhitelist', () => {
     expect(matchesInWhitelist(whitelist3, 'api.uniswap.org')).toEqual([whitelist3[0]]);
     expect(matchesInWhitelist(whitelist3, 'dappy.d')).toEqual([whitelist3[0]]);
     expect(atLeastOneMatchInWhitelist(whitelist3, 'dappy.d')).toEqual(true);
+  });
+  it('Should find correct matches with whitelist 4', () => {
+    const whitelist4 = [{ host: 'uniswap.org:444', topLevel: true, secondLevel: true }];
+    expect(matchesInWhitelist(whitelist4, 'uniswap.org:443')).toEqual([]);
+    expect(matchesInWhitelist(whitelist4, 'uniswap.org:444')).toEqual([whitelist4[0]]);
+    expect(matchesInWhitelist(whitelist4, 'uniswap.org')).toEqual([]);
+    expect(atLeastOneMatchInWhitelist(whitelist4, 'uniswap.org:444')).toEqual(true);
   });
 });

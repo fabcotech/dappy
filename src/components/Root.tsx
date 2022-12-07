@@ -67,8 +67,6 @@ class RootComponent extends React.Component<RootComponentProps> {
       initTranslate(this.props.language);
     }
 
-    let k = 'root loading';
-
     if (this.props.initializationOver && this.props.gcu !== GCU_VERSION) {
       return <Gcu version={GCU_VERSION} text={GCU_TEXT} continue={this.props.updateGcu}></Gcu>;
     }

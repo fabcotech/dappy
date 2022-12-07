@@ -153,6 +153,8 @@ export const reducer = (state = initialState, action: Action): State => {
           if (t.id === payload.tabId) {
             return {
               ...t,
+              img: undefined,
+              title: '',
               lastError: { url: payload.url, error: payload.error },
             };
           }

@@ -30,5 +30,8 @@ export const atLeastOneMatchInWhitelist = (
   whitelist: fromUi.State['whitelist'],
   hostnameToMatch: string
 ) => {
+  if (whitelist.length === 0) {
+    return true;
+  }
   return matchesInWhitelist(whitelist, hostnameToMatch).length > 0;
 };
