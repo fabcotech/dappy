@@ -2,13 +2,10 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 
 import './LoadInfo.scss';
-import { Blockchain, Tab } from '/models';
-import * as fromSettings from '/store/settings';
+import { Tab } from '/models';
 
 interface LoadInfoComponentProps {
   tab: Tab;
-  namesBlockchain: undefined | Blockchain;
-  closeDappModal: (a: { tabId: string }) => void;
 }
 
 class LoadInfoComponent extends React.Component<LoadInfoComponentProps> {
@@ -38,9 +35,7 @@ class LoadInfoComponent extends React.Component<LoadInfoComponentProps> {
 
 export const LoadInfo = connect(
   (state) => {
-    return {
-      namesBlockchain: fromSettings.getNamesBlockchain(state),
-    };
+    return {};
   },
   (dispatch) => ({})
 )(LoadInfoComponent);
