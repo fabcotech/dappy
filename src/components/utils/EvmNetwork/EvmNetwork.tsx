@@ -2,13 +2,15 @@ import * as React from 'react';
 
 import './EvmNetwork.scss';
 import { evmNetworks } from '/models';
+import { toHex } from '/utils/toHex';
 
 // https://chainlist.org/
-const getImgAndNetworkName = (chainId: number): { img: undefined | string; name: string } => {
-  if (Object.keys(evmNetworks).find((cid) => parseInt(cid, 10) === chainId)) {
+const getImgAndNetworkName = (chainId: string): { img: undefined | string; name: string } => {
+  const foundChainId = Object.keys(evmNetworks).find((cid) => toHex(cid) === `${chainId}`);
+  if (foundChainId) {
     return {
-      name: evmNetworks[chainId][0],
-      img: evmNetworks[chainId][1],
+      name: evmNetworks[foundChainId][0],
+      img: evmNetworks[foundChainId][1],
     };
   }
   return {
@@ -18,7 +20,7 @@ const getImgAndNetworkName = (chainId: number): { img: undefined | string; name:
 };
 
 interface EvmNetworkProps {
-  chainId: number | undefined;
+  chainId: string | undefined;
 }
 
 export const EvmNetwork = ({ chainId }: EvmNetworkProps) => {

@@ -1,4 +1,4 @@
-import { BrowserView, Session } from 'electron';
+import { Session } from 'electron';
 import { Store } from 'redux';
 import * as yup from 'yup';
 
@@ -77,6 +77,52 @@ export const registerInterProcessDappProtocol = (
     // ETHEREUM
     if (request.url === 'interprocessdapp://eth_sendTransaction') {
       console.log('interprocessdapp://eth_sendTransaction');
+      console.log(data.params[0]);
+      if (!data.params || !data.params[0] || !data.params[0].chainId || !data.params[0].from) {
+        console.log(
+          `[eth] browser view ${dappyBrowserView.tabId} invalid payload eth_sendTransaction`
+        );
+        callback(
+          Buffer.from(
+            JSON.stringify({
+              success: false,
+              data: {
+                code: 4100,
+                message: 'Unauthorized',
+              },
+            })
+          )
+        );
+        return;
+      }
+
+      let oneAccountAuthorized = false;
+      const evmAccounts = fromSettingsMain.getEVMAccounts(store.getState());
+      Object.keys(dappyBrowserView.connections).forEach((a) => {
+        if (toHex(dappyBrowserView.connections[a].chainId as string) === data.params[0].chainId) {
+          if (evmAccounts[a].address === data.params[0].from) {
+            oneAccountAuthorized = true;
+          }
+        }
+      });
+      if (!oneAccountAuthorized) {
+        console.log(
+          `[eth] browser view ${dappyBrowserView.tabId} unauthorized eth_sendTransaction`
+        );
+        callback(
+          Buffer.from(
+            JSON.stringify({
+              success: false,
+              data: {
+                code: 4100,
+                message: 'Unauthorized',
+              },
+            })
+          )
+        );
+        return;
+      }
+
       dispatchFromMain({
         action: fromMain.openDappModalAction({
           tabId: dappyBrowserView.tabId,
@@ -84,7 +130,7 @@ export const registerInterProcessDappProtocol = (
           text: '',
           parameters: {
             parameters: data.params[0],
-            origin: 'unexpectedthought50012450.gamma:3004',
+            origin: dappyBrowserView.host,
           },
           buttons: [],
         }),
@@ -134,7 +180,7 @@ export const registerInterProcessDappProtocol = (
         success = true;
         returnData = [evmAccount.address];
         dappyBrowserView.connections[evmAccount.name] = {
-          chainId: evmAccount.chainId,
+          chainId: evmAccount.chainId as string,
         };
         console.log(
           `[eth] browser view ${dappyBrowserView.tabId} connected with account ${evmAccount.name}`

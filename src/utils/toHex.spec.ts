@@ -2,6 +2,8 @@ import { toHex } from './toHex';
 
 describe('toHex', () => {
   it('should generate correct hexas from chain IDs (ex: "1" -> "0x1)"', () => {
+    expect(toHex('')).toEqual('0x');
+    expect(toHex(undefined)).toEqual('0x');
     expect(toHex('1')).toEqual('0x1');
     expect(toHex('1')).toEqual('0x1');
     expect(toHex('3')).toEqual('0x3');
