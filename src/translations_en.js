@@ -283,12 +283,6 @@ module.exports.translations = {
   "use account": {
     "one": "Use wallet"
   },
-  "dapp requires identification": {
-    "one": "Dapp requires an identification"
-  },
-  "discard identification": {
-    "one": "Discard identification"
-  },
   "identify": {
     "one": "Identify"
   },
@@ -521,10 +515,10 @@ module.exports.translations = {
     "one": "Diligently list the domains that you trust for each account. You can also use wildcard * to authorize all of them."
   },
   "menu auth": {
-    "one": "Account security"
+    "one": "Wallets whitelists"
   },
   "save auth": {
-    "one": "Save security settings"
+    "one": "Save wallets whitelists"
   },
   "menu whitelist": {
     "one": "Whitelist"
@@ -536,9 +530,15 @@ module.exports.translations = {
     "one": "Global whitelist (browsing security)"
   },
   "auth title": {
-    "one": "Accounts whitelists (wallets and authentication security)"
+    "one": "Wallets whitelists"
   },
   "whitelist of domains": {
     "one": "Whitelist of domains"
+  },
+  "unauthorized ethereum operation modal": {
+    "one": "Unauthorized ethereum operation"
+  },
+  "close and go to wallets whitelist": {
+    "one": "Close and go to wallets whitelist"
   }
 }

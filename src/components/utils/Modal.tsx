@@ -9,6 +9,7 @@ import { LoadInfo } from '../resources';
 import { EthereumSignTransactionModal } from './EthereumSignTransactionModal';
 
 import './Modal.scss';
+import { EthereumUnauthorizedOperationModal } from './EthereumUnauthorizedOperationModal/EthereumUnauthorizedOperationModal';
 
 interface ModalComponentProps {
   tabId?: string;
@@ -42,6 +43,8 @@ class ModalComponent extends React.Component<ModalComponentProps> {
     switch (this.props.modal.title) {
       case 'ETHEREUM_SIGN_TRANSACTION_MODAL':
         return <EthereumSignTransactionModal modal={this.props.modal} />;
+      case 'ETHEREUM_UNAUTHORIZED_OPERATION_MODAL':
+        return <EthereumUnauthorizedOperationModal modal={this.props.modal} />;
       case 'ACCOUNT_MODAL':
         return <AccountModal modal={this.props.modal} />;
       case 'LOAD_INFO_MODAL':

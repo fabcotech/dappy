@@ -10,7 +10,6 @@ function* browserViewToBeDisplayed() {
   const shouldBrowserViewsBeDisplayed: undefined | string = yield select(
     fromMain.getShouldBrowserViewsBeDisplayed
   );
-
   dispatchInMain({
     type: '[MAIN] Display only browser view x',
     payload: {

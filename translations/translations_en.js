@@ -761,22 +761,6 @@ module.exports.translations = [
     "comment": ""
   },
   {
-    "term": "dapp requires identification",
-    "definition": "Dapp requires an identification",
-    "context": "Identifcation modal",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
-    "term": "discard identification",
-    "definition": "Discard identification",
-    "context": "Identifcation modal",
-    "term_plural": "",
-    "reference": "",
-    "comment": ""
-  },
-  {
     "term": "identify",
     "definition": "Identify",
     "context": "Identifcation modal",
@@ -1427,7 +1411,7 @@ module.exports.translations = [
   },
   {
     "term": "menu auth",
-    "definition": "Account security",
+    "definition": "Wallets whitelists",
     "context": "Auth",
     "term_plural": "",
     "reference": "",
@@ -1435,7 +1419,7 @@ module.exports.translations = [
   },
   {
     "term": "save auth",
-    "definition": "Save security settings",
+    "definition": "Save wallets whitelists",
     "context": "Auth",
     "term_plural": "",
     "reference": "",
@@ -1467,7 +1451,7 @@ module.exports.translations = [
   },
   {
     "term": "auth title",
-    "definition": "Accounts whitelists (wallets and authentication security)",
+    "definition": "Wallets whitelists",
     "context": "Auth",
     "term_plural": "",
     "reference": "",
@@ -1477,6 +1461,22 @@ module.exports.translations = [
     "term": "whitelist of domains",
     "definition": "Whitelist of domains",
     "context": "Auth",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "unauthorized ethereum operation modal",
+    "definition": "Unauthorized ethereum operation",
+    "context": "",
+    "term_plural": "",
+    "reference": "",
+    "comment": ""
+  },
+  {
+    "term": "close and go to wallets whitelist",
+    "definition": "Close and go to wallets whitelist",
+    "context": "",
     "term_plural": "",
     "reference": "",
     "comment": ""

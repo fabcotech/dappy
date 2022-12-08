@@ -27,6 +27,28 @@ const getEvmAccountForHost = (
   return undefined;
 };
 
+const dispatchEthereumUnauthorizedOperation = (
+  dispatchFromMain: (a: any) => void,
+  tabId: string,
+  host: string,
+  text: string,
+  method: string
+) => {
+  dispatchFromMain({
+    action: fromMain.openDappModalAction({
+      tabId: tabId,
+      title: 'ETHEREUM_UNAUTHORIZED_OPERATION_MODAL',
+      text: '',
+      parameters: {
+        text: text,
+        host: host,
+        method: method,
+      },
+      buttons: [],
+    }),
+  });
+};
+
 const hexString = yup
   .string()
   .matches(/^0x[0-9a-fA-F]+$/, 'string must be in hexadecimal and starts with 0x');
@@ -77,7 +99,6 @@ export const registerInterProcessDappProtocol = (
     // ETHEREUM
     if (request.url === 'interprocessdapp://eth_sendTransaction') {
       console.log('interprocessdapp://eth_sendTransaction');
-      console.log(data.params[0]);
       if (!data.params || !data.params[0] || !data.params[0].chainId || !data.params[0].from) {
         console.log(
           `[eth] browser view ${dappyBrowserView.tabId} invalid payload eth_sendTransaction`
@@ -96,6 +117,12 @@ export const registerInterProcessDappProtocol = (
         return;
       }
 
+      let chainIdDecimal = '';
+      try {
+        // todo, turn into decimal
+        chainIdDecimal = data.params[0].chainId;
+      } catch (err) {}
+
       let oneAccountAuthorized = false;
       const evmAccounts = fromSettingsMain.getEVMAccounts(store.getState());
       Object.keys(dappyBrowserView.connections).forEach((a) => {
@@ -108,6 +135,13 @@ export const registerInterProcessDappProtocol = (
       if (!oneAccountAuthorized) {
         console.log(
           `[eth] browser view ${dappyBrowserView.tabId} unauthorized eth_sendTransaction`
+        );
+        dispatchEthereumUnauthorizedOperation(
+          dispatchFromMain,
+          dappyBrowserView.tabId,
+          dappyBrowserView.host,
+          `A dapp tried to send a transaction through a wallet, but was blocked. You need to manually add this host to a wallet whitelist, and make sure the dapp uses the same network ID (in this case "${chainIdDecimal}") as your wallet.`,
+          'eth_sendTransaction'
         );
         callback(
           Buffer.from(
@@ -149,6 +183,13 @@ export const registerInterProcessDappProtocol = (
           `[eth] browser view ${dappyBrowserView.tabId} connected with account ${evmAccount.name}`
         );
       } else {
+        dispatchEthereumUnauthorizedOperation(
+          dispatchFromMain,
+          dappyBrowserView.tabId,
+          dappyBrowserView.host,
+          'A dapp is asking for a network ID and was blocked. You need to manually add this host to a wallet whitelist, and link your wallet to a network.',
+          'eth_chainId'
+        );
         returnData = {
           code: 4100,
           message: 'Unauthorized',
@@ -186,6 +227,13 @@ export const registerInterProcessDappProtocol = (
           `[eth] browser view ${dappyBrowserView.tabId} connected with account ${evmAccount.name}`
         );
       } else {
+        dispatchEthereumUnauthorizedOperation(
+          dispatchFromMain,
+          dappyBrowserView.tabId,
+          dappyBrowserView.host,
+          'A dapp is asking for an address and was blocked. You need to manually add this host to a wallet whitelist, and link your wallet to a network.',
+          request.url.includes('eth_requestAccounts') ? 'eth_requestAccounts' : 'eth_accounts'
+        );
         returnData = {
           code: 4100,
           message: 'Unauthorized',
