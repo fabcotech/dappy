@@ -6,7 +6,7 @@ export const TabSchema = yup
   .shape({
     id: yup.string().required(),
     resourceId: yup.string(),
-    title: yup.string().required(),
+    title: yup.string(),
     img: yup.string(),
     active: yup.boolean().required(),
     favorite: yup.boolean().required(),

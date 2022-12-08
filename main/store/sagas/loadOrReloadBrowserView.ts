@@ -73,7 +73,7 @@ function* loadOrReloadBrowserView(action: any) {
   }
 
   let url: URL = new URL(payload.tab.url);
-  if (!atLeastOneMatchInWhitelist(whitelist, url.hostname)) {
+  if (!atLeastOneMatchInWhitelist(whitelist, url.host)) {
     action.meta.dispatchFromMain({
       action: fromDappsRenderer.loadResourceFailedAction({
         tabId: payload.tab.id,
@@ -179,6 +179,7 @@ function* loadOrReloadBrowserView(action: any) {
     title: payload.tab.title,
     host: new URL(payload.tab.url).host,
     browserView: view,
+    connections: {},
     data: {
       ...payload.tab.data,
       blockchain: blockchains[payload.tab.data.chainId as string] as Blockchain,

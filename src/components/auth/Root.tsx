@@ -45,7 +45,7 @@ export class RootComponent extends React.Component<RootProps, unknown> {
                   <textarea
                     className={`textarea ${this.state.errors[a] ? 'with-error' : ''}`}
                     rows={8}
-                    placeholder="hello.d\nonlinewebservice.d\n*.onlinewebservice.d\nbitconnect.d`"
+                    placeholder="bitconnect.d`"
                     defaultValue={this.props.accounts[a].whitelist.map((a) => a.host).join('\n')}
                     onChange={(e) => {
                       try {

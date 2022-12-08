@@ -1,33 +1,35 @@
-import { Session } from 'electron';
+import { BrowserView, Session } from 'electron';
 import { Store } from 'redux';
 import * as yup from 'yup';
+
 import * as fromCommon from '../src/common';
 import * as fromSettingsMain from './store/settings';
 import * as fromMain from '../src/store/main';
+import { toHex } from '../src/utils/toHex';
+import { atLeastOneMatchInWhitelist } from '../src/utils/matchesWhitelist';
 import { DappyBrowserView } from './models';
 import { DispatchFromMainArg } from './main';
+import { BlockchainAccount } from '/models';
+
+const getEvmAccountForHost = (
+  evmAccounts: Record<string, BlockchainAccount>,
+  host: string
+): BlockchainAccount | undefined => {
+  const accountId = Object.keys(evmAccounts).find((id) => {
+    if (atLeastOneMatchInWhitelist(evmAccounts[id].whitelist, host) && evmAccounts[id].chainId) {
+      return true;
+    }
+    return false;
+  });
+  if (accountId) {
+    return evmAccounts[accountId];
+  }
+  return undefined;
+};
 
 const hexString = yup
   .string()
   .matches(/^0x[0-9a-fA-F]+$/, 'string must be in hexadecimal and starts with 0x');
-
-const identifyFromSandboxSchema = yup
-  .object()
-  .shape({
-    parameters: yup
-      .object()
-      .shape({
-        publicKey: yup.string(),
-      })
-      .noUnknown()
-      .strict(true)
-      .required(),
-    callId: yup.string().required(),
-    tabId: yup.string(),
-  })
-  .noUnknown()
-  .strict(true)
-  .required();
 
 const signEthereumTransactionFromSandboxSchema = yup
   .object()
@@ -70,30 +72,9 @@ export const registerInterProcessDappProtocol = (
       return;
     }
 
-    if (request.url === 'interprocessdapp://eth_chainId') {
-      console.log('interprocessdapp://eth_chainId');
-      // todo at least one account whitelisted
-      let success = false;
-      let returnData: any = null;
-      if (true) {
-        success = true;
-        returnData = '0x4';
-      } else {
-        returnData = {
-          code: 4001,
-          message: 'User rejected the request.',
-        };
-      }
-      callback(
-        Buffer.from(
-          JSON.stringify({
-            success: success,
-            data: returnData,
-          })
-        )
-      );
-    }
+    console.log('interprocessdapp://', dappyBrowserView.tabId);
 
+    // ETHEREUM
     if (request.url === 'interprocessdapp://eth_sendTransaction') {
       console.log('interprocessdapp://eth_sendTransaction');
       dispatchFromMain({
@@ -110,25 +91,27 @@ export const registerInterProcessDappProtocol = (
       });
     }
 
-    // ETHEREUM
-    if (request.url === 'interprocessdapp://eth_requestAccounts') {
-      console.log('interprocessdapp://eth_requestAccounts');
+    if (request.url === 'interprocessdapp://eth_chainId') {
       const evmAccounts = fromSettingsMain.getEVMAccounts(store.getState());
-      const accounts: string[] = Object.keys(evmAccounts).map((id: string) => {
-        return evmAccounts[id].address;
-      });
-      // todo at least one account whitelisted
+      const evmAccount = getEvmAccountForHost(evmAccounts, dappyBrowserView.host);
       let success = false;
       let returnData: any = null;
-      if (true) {
+      if (evmAccount) {
         success = true;
-        returnData = accounts;
+        returnData = evmAccount.chainId ? toHex(evmAccount.chainId as string) : null;
+        console.log(
+          `[eth] browser view ${dappyBrowserView.tabId} connected with account ${evmAccount.name}`
+        );
       } else {
         returnData = {
-          code: 4001,
-          message: 'User rejected the request.',
+          code: 4100,
+          message: 'Unauthorized',
         };
+        console.log(
+          `[eth] browser view ${dappyBrowserView.tabId} could not connect with any account`
+        );
       }
+
       callback(
         Buffer.from(
           JSON.stringify({
@@ -139,9 +122,41 @@ export const registerInterProcessDappProtocol = (
       );
     }
 
-    if (request.url === 'interprocessdapp://get-transactions') {
-      const transactions = fromTransactionsMain.getTransactionsMain(store.getState());
-      callback(Buffer.from(JSON.stringify({ transactions: transactions[dappyBrowserView.tabId] })));
+    if (
+      request.url === 'interprocessdapp://eth_requestAccounts' ||
+      request.url === 'interprocessdapp://eth_accounts'
+    ) {
+      const evmAccounts = fromSettingsMain.getEVMAccounts(store.getState());
+      const evmAccount = getEvmAccountForHost(evmAccounts, dappyBrowserView.host);
+      let success = false;
+      let returnData: any = null;
+      if (evmAccount) {
+        success = true;
+        returnData = [evmAccount.address];
+        dappyBrowserView.connections[evmAccount.name] = {
+          chainId: evmAccount.chainId,
+        };
+        console.log(
+          `[eth] browser view ${dappyBrowserView.tabId} connected with account ${evmAccount.name}`
+        );
+      } else {
+        returnData = {
+          code: 4100,
+          message: 'Unauthorized',
+        };
+        console.log(
+          `[eth] browser view ${dappyBrowserView.tabId} could not connect with any account`
+        );
+      }
+
+      callback(
+        Buffer.from(
+          JSON.stringify({
+            success: success,
+            data: returnData,
+          })
+        )
+      );
     }
 
     if (request.url === 'interprocessdapp://message-from-dapp-sandboxed') {

@@ -5,6 +5,7 @@ import { browserUtils } from '/store/browser-utils';
 import * as fromSettings from '..';
 import * as fromMain from '/store/main';
 import { Action } from '/store';
+import { dispatchInMain } from '/interProcess';
 
 function* updateAccount(action: Action) {
   const accounts: {
@@ -13,24 +14,28 @@ function* updateAccount(action: Action) {
   let accountsToUpdate: {
     [key: string]: Account;
   } = {};
-  if (action.type === fromSettings.UPDATE_ACCOUNT) {
-    const { payload } = action;
-    const { account } = payload;
 
-    accountsToUpdate = {
-      [account.name]: account,
+  const { payload } = action;
+  const { account } = payload;
+
+  accountsToUpdate = {
+    [account.name]: account,
+  };
+
+  const otherMainAccountName: undefined | string = Object.keys(accounts).find(
+    (k) => otherMainAccountName !== account.name && accounts[k].main === true
+  );
+  if (account.main && otherMainAccountName) {
+    accountsToUpdate[otherMainAccountName] = {
+      ...accounts[otherMainAccountName],
+      main: false,
     };
-
-    const otherMainAccountName: undefined | string = Object.keys(accounts).find(
-      (k) => otherMainAccountName !== account.name && accounts[k].main === true
-    );
-    if (account.main && otherMainAccountName) {
-      accountsToUpdate[otherMainAccountName] = {
-        ...accounts[otherMainAccountName],
-        main: false,
-      };
-    }
   }
+
+  dispatchInMain({
+    type: '[MAIN] Eventually update connections',
+    payload: { accountId: account.name, chainId: account.chainId },
+  });
 
   try {
     yield browserUtils.saveStorageIndexed('accounts', accountsToUpdate);

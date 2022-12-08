@@ -1,5 +1,5 @@
 import { BrowserView } from 'electron';
-import { Tab } from '/models';
+import { EvmNetworks, Tab } from '/models';
 
 export interface DappyBrowserView {
   tabId: string;
@@ -7,5 +7,6 @@ export interface DappyBrowserView {
   visible: boolean;
   browserView: BrowserView;
   host: string;
-  data: Tab["data"];
+  connections: { [accountId: string]: { chainId: keyof EvmNetworks } };
+  data: Tab['data'];
 }

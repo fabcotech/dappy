@@ -10,6 +10,7 @@ export const UPDATE_BROWSER_VIEWS_POSITION = '[MAIN] Update browser views positi
 export const DISPLAY_ONLY_BROWSER_VIEW_X = '[MAIN] Display only browser view x';
 export const DISPLAY_ONLY_BROWSER_VIEW_X_COMPLETED = '[MAIN] Display only browser view x completed';
 export const SET_BROWSER_VIEW_MUTED = '[MAIN] Set browser view muted';
+export const EVENTUALLY_UPDATE_CONNECTION = '[MAIN] Eventually update connections';
 
 export interface State {
   browserViews: {

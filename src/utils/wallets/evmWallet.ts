@@ -16,7 +16,9 @@ export const evmWallet: Wallet<TxData & { chainId: number }, JsonTx> = {
       tx.gasPrice = tx.gasPrice;
     }
     const pKey = Buffer.from(privateKey, 'hex');
-    const signedtx = Transaction.fromTxData(tx, { common: Common.custom({ chainId: tx.chainId }) }).sign(pKey);
+    const signedtx = Transaction.fromTxData(tx, {
+      common: Common.custom({ chainId: tx.chainId }),
+    }).sign(pKey);
     return signedtx.toJSON();
   },
 

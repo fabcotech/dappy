@@ -4,6 +4,7 @@ import { loadOrReloadBrowserViewSaga } from './loadOrReloadBrowserView';
 import { goForwardOrBackwardSaga } from './goForwardOrBackward';
 import { displayOnlyBrowserViewXSaga } from './displayOnlyBrowserViewX';
 import { setBrowserViewMutedSaga } from './setBrowserViewMuted';
+import { eventuallyUpdateConnectionsSaga } from './eventuallyUpdateConnections';
 
 export const sagas = function* rootSaga() {
   yield all([
@@ -11,5 +12,6 @@ export const sagas = function* rootSaga() {
     displayOnlyBrowserViewXSaga(),
     goForwardOrBackwardSaga(),
     setBrowserViewMutedSaga(),
+    eventuallyUpdateConnectionsSaga(),
   ]);
 };

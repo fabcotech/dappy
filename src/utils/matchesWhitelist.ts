@@ -1,17 +1,15 @@
-import * as fromUi from '/store/ui';
-
 export const matchesInWhitelist = (
-  whitelist: fromUi.State['whitelist'],
+  whitelist: { [key: string]: boolean | string }[],
   hostnameToMatch: string
 ) => {
   const partsHostnameToMatch = hostnameToMatch.split('.').reverse();
   const foundHosts = whitelist.filter((wl) => {
     let everyPartMatch = true;
-    const parts = wl.host.split('.').reverse();
+    const parts = (wl.host as string).split('.').reverse();
     if (parts.length === 1 && parts[0] === '*') return true;
     if (parts.length !== partsHostnameToMatch.length) return false;
 
-    parts.forEach((p, i) => {
+    parts.forEach((p: string, i: number) => {
       if (!partsHostnameToMatch[i] || partsHostnameToMatch[i].length === 0) {
         everyPartMatch = false;
       }
@@ -27,7 +25,7 @@ export const matchesInWhitelist = (
 };
 
 export const atLeastOneMatchInWhitelist = (
-  whitelist: fromUi.State['whitelist'],
+  whitelist: { [key: string]: boolean | string }[],
   hostnameToMatch: string
 ) => {
   if (whitelist.length === 0) {
