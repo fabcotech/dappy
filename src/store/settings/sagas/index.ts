@@ -6,6 +6,7 @@ import { removeBlockchainsToStorageSaga } from './removeBlockchainToStorageSaga'
 import { createAccountSaga } from './createAccountSaga';
 import { deleteAccountSaga } from './deleteAccountSaga';
 import { updateAccountSaga } from './updateAccountSaga';
+import { executeAccountsCronJobsSaga } from './executeAccountsCronJobsSaga';
 import { updateBlockchainsCompletedSaga } from './updateBlockchainsCompleted';
 import { updateSettingsCompletedSaga } from './updateSettingsCompleted';
 
@@ -17,6 +18,7 @@ export const sagas = function* rootSaga() {
     createAccountSaga(),
     deleteAccountSaga(),
     updateAccountSaga(),
+    executeAccountsCronJobsSaga(),
     updateBlockchainsCompletedSaga(),
     updateSettingsCompletedSaga(),
   ]);

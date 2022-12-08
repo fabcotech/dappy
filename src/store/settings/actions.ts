@@ -25,6 +25,8 @@ export const DELETE_ACCOUNT_COMPLETED = '[Settings] Delete account completed';
 export const UPDATE_ACCOUNT = '[Settings] Update account';
 export const UPDATE_ACCOUNTS_COMPLETED = '[Settings] Update accounts completed';
 
+export const EXECUTE_ACCOUNTS_CRON_JOBS = '[Settings] Execute accounts cron jobs';
+
 export interface Action {
   type: string;
   payload?: any;
@@ -163,4 +165,8 @@ export interface UpdateAccountsCompletedPayload {
 export const updateAccountCompletedAction = (values: UpdateAccountsCompletedPayload) => ({
   type: UPDATE_ACCOUNTS_COMPLETED,
   payload: values,
+});
+
+export const executeAccountsCronJobsAction = () => ({
+  type: EXECUTE_ACCOUNTS_CRON_JOBS,
 });
