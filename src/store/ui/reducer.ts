@@ -8,6 +8,7 @@ import {
   ACCESS_TRANSACTIONS,
   ACCESS_WHITELIST,
   parseWhitelist,
+  getWhitelistArgument,
 } from '/CONSTANTS';
 import { Action } from '..';
 import { NavigationUrl, Language } from '/models';
@@ -76,7 +77,7 @@ export const reducer = (state = initialState, action: Action): State => {
     case fromActions.UPDATE_UI_FROM_STORAGE: {
       const payload = action.payload as fromActions.UpdateUiFromStoragePayload;
 
-      const harcodedWhitelist = parseWhitelist();
+      const harcodedWhitelist = parseWhitelist(getWhitelistArgument(window.location.search));
       const whitelist = harcodedWhitelist || payload.uiState.whitelist;
 
       return {

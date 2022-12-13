@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { NavigationUrl } from '/models';
-import { parseWhitelist } from '/CONSTANTS';
+import { getWhitelistArgument, parseWhitelist } from '/CONSTANTS';
 import './Root.scss';
 import { connect } from 'react-redux';
 import { validateWhitelistDomain } from '/utils/validateWhitelistDomain';
@@ -26,7 +26,7 @@ export class RootComponent extends React.Component<RootProps> {
   harcodedWhitelist: undefined | fromUi.State['whitelist'];
 
   componentDidMount() {
-    this.harcodedWhitelist = parseWhitelist();
+    this.harcodedWhitelist = parseWhitelist(getWhitelistArgument(window.location.search));
     this.setState({
       whitelist: this.harcodedWhitelist || this.props.whitelist,
     });

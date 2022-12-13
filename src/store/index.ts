@@ -76,9 +76,6 @@ declare global {
       };
     };
     dispatchFromMainProcess: (a: Action) => void;
-    env: {
-      HARDCODED_WHITELIST: string;
-    };
     dispatchWhenReady: undefined | Action;
   }
 }
