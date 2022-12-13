@@ -3,7 +3,7 @@ import { getDb, openConnection } from './index';
 export const browserUtils = {
   deleteStorageIndexed: (
     key: 'previews' | 'tabs' | 'favs' | 'transactions' | 'networks' | 'records' | 'accounts',
-    value: string[]
+    value: string[] | 'clear'
   ) => {
     return new Promise<void>((resolve, reject) => {
       let i = 0;
@@ -19,9 +19,14 @@ export const browserUtils = {
           }
           const tx = getDb().transaction(key, 'readwrite');
           const objectStore = tx.objectStore(key);
-          value.forEach((i) => {
-            objectStore.delete(i);
-          });
+
+          if (value === 'clear') {
+            objectStore.clear();
+          } else {
+            value.forEach((j) => {
+              objectStore.delete(j);
+            });
+          }
           resolve();
         } catch (e) {
           console.log(e);

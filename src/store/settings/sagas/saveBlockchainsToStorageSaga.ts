@@ -17,6 +17,7 @@ function* saveBlockchainsToStorage(action: Action) {
 
   blockchains = yield select(fromSettings.getBlockchains);
   try {
+    yield browserUtils.deleteStorageIndexed('networks', 'clear');
     yield browserUtils.saveStorageIndexed('networks', blockchains);
   } catch (e) {
     yield put(
