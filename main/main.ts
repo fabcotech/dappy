@@ -141,6 +141,12 @@ function createWindow() {
       devTools: /^true$/i.test(process.env.DAPPY_DEVTOOLS || '') || !process.env.PRODUCTION,
     },
   });
+
+  browserWindow.webContents.executeJavaScript(`
+  window.env = {
+    HARDCODED_WHITELIST: "${process.env.HARDCODED_WHITELIST || ''}",
+  }
+  `);
   const browserSession = session.fromPartition(partition);
   preventAllPermissionRequests(browserSession);
   overrideHttpProtocol({ session: browserSession });
@@ -167,13 +173,16 @@ function createWindow() {
   browserWindow.setMenuBarVisibility(false);
 
   const rendererParams = getRendererParams(process.argv.slice(2));
+  const env = JSON.stringify({
+    HARDCODED_WHITELIST: process.env.HARDCODED_WHITELIST,
+  });
   // and load the index.html of the app.
   if (process.env.PRODUCTION) {
-    browserWindow.loadFile('dist/renderer/index.html', {
+    browserWindow.loadFile(`dist/renderer/index.html?env=${encodeURI(env)}`, {
       search: rendererParams,
     });
   } else {
-    browserWindow.loadURL(`http://localhost:3033${rendererParams}`);
+    browserWindow.loadURL(`http://localhost:3033?env=${encodeURI(env)}`);
   }
 
   // Open the DevTools.

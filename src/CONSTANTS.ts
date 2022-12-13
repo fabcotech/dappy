@@ -44,15 +44,25 @@ export const ACCESS_SECURITY = true;
 export const ACCESS_TRANSACTIONS = false;
 export const ACCESS_WHITELIST = true;
 
+/* Only use in render process */
+export const getWhitelist = () => {
+  return JSON.parse(decodeURI(window.location.search.slice(5))).HARDCODED_WHITELIST;
+};
+
+/*
+  Global whitelist for navigation, set it to undefined if you don't
+  want a hardcoded global whitelist but want to allow user to change it
+  ex: = [{ host: 'app.uniswap.org', topLevel: true, secondLevel: true }];
+*/
 export const parseWhitelist = (
-  whitelist: string | undefined
+  whitelist: string | undefined = getWhitelist()
 ): undefined | fromUi.State['whitelist'] => {
   if (!whitelist) {
     return undefined;
   }
 
   return whitelist
-    .split(';')
+    .split(',')
     .filter((host) => host.trim())
     .map((host) => ({
       host: host.trim(),
@@ -61,11 +71,6 @@ export const parseWhitelist = (
     }));
 };
 
-/*
-  Global whitelist for navigation, set it to undefined if you don't
-  want a hardcoded global whitelist but want to allow user to change it
-  ex: = [{ host: 'app.uniswap.org', topLevel: true, secondLevel: true }];
-*/
 export const HARDCODED_WHITELIST: undefined | fromUi.State['whitelist'] = parseWhitelist(
   process.env.HARDCODED_WHITELIST
 );
