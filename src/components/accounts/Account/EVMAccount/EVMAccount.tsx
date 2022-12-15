@@ -44,8 +44,9 @@ export const EVMAccountComponent = ({
           </a>
         </div>
       </div>
-      <div className="body">
-        <div>
+      <div className="body"></div>
+      <div className="footer">
+        <div className="address-block">
           <div className="address has-text-weight-bold ">
             {t('address')}
             <a className="ml-3 underlined-link" onClick={() => copyToClipboard(account.address)}>
@@ -55,15 +56,15 @@ export const EVMAccountComponent = ({
           </div>
           <WalletAddress address={account.address} />
         </div>
-      </div>
-      <div className="footer">
-        <a
-          title="Remove the account forever"
-          onClick={() => deleteAccount(account)}
-          className="remove-account underlined-link red"
-        >
-          {t('remove account')}
-        </a>
+        <div className="bottom-actions">
+          <a
+            title="Remove the account forever"
+            onClick={() => deleteAccount(account)}
+            className="remove-account underlined-link red"
+          >
+            {t('remove account')}
+          </a>
+        </div>
       </div>
       <div className="link-network">
         {changeChainIdMode && (

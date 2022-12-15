@@ -3,7 +3,7 @@
   height: 12rem;
   display: grid;
   grid-template-columns: 100%;
-  grid-template-rows: 2rem 7rem 2rem;
+  grid-template-rows: 2rem 6rem 3rem;
   width: 25rem;
   padding: 0.5rem 1rem;
 
@@ -26,15 +26,16 @@
 
   .body {
     align-self: center;
-    .address {
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
   }
 
   .footer {
-    align-self: end;
-    justify-self: end;
+    display: flex;
+    justify-content: space-between;
+    .bottom-actions {
+      display: flex;
+      justify-content: flex-end;
+      flex-direction: column;
+    }
   }
   .link-network {
     grid-row: 4;

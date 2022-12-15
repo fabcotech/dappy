@@ -159,11 +159,4 @@
       }
     }
   }
-  &.is-mobile {
-    grid-template-columns: 100%;
-    & > .root-right {
-      grid-row: 1;
-      grid-column: 1;
-    }
-  }
 }
