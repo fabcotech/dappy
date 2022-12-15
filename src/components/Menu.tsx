@@ -18,7 +18,6 @@ interface MenuComponentProps {
   isNavigationInSettings: boolean;
   isNavigationInAccounts: boolean;
   isNavigationInTransactions: boolean;
-  isNavigationInAuth: boolean;
   isNavigationInWhitelist: boolean;
   isBeta: boolean;
   currentVersion: undefined | string;
@@ -58,16 +57,6 @@ class MenuComponent extends React.Component<MenuComponentProps, {}> {
                 onClick={() => this.props.navigate('/accounts')}
               >
                 {t('menu accounts')}
-              </a>
-            </li>
-          )}
-          {ACCESS_SECURITY && (
-            <li>
-              <a
-                className={this.props.isNavigationInAuth ? 'is-active' : ''}
-                onClick={() => this.props.navigate('/auth')}
-              >
-                {t('menu auth')}
               </a>
             </li>
           )}

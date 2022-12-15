@@ -12,6 +12,7 @@ import './EVMAccount.scss';
 
 interface EVMAccountProps {
   account: BlockchainAccount;
+  updateWhitelist: (accountName: string) => void;
   showAccountModal: (a: BlockchainAccount) => void;
   setAccountAsMain: (a: BlockchainAccount) => void;
   setAccountChainId: (a: BlockchainAccount) => void;
@@ -23,6 +24,7 @@ export const EVMAccountComponent = ({
   showAccountModal,
   deleteAccount,
   setAccountChainId,
+  updateWhitelist,
 }: EVMAccountProps) => {
   const [changeChainIdMode, setChangeChainIdMode] = useState(false);
 
@@ -69,8 +71,11 @@ export const EVMAccountComponent = ({
       <div className="link-network">
         {changeChainIdMode && (
           <ChangeLinkedChainId
-            setChainId={(chainId: keyof EvmNetworks | undefined) => {
-              setChangeChainIdMode(false);
+            setChainId={(chainId: keyof EvmNetworks | undefined | null) => {
+              if (chainId === null) {
+                setChangeChainIdMode(false);
+                return;
+              }
               setAccountChainId({
                 ...account,
                 chainId,
@@ -82,6 +87,7 @@ export const EVMAccountComponent = ({
         {!changeChainIdMode && account.chainId && (
           <div className="linked-network">
             <a
+              title={t('click to choose a network')}
               onClick={(e) => {
                 e.preventDefault();
                 setChangeChainIdMode(true);
@@ -104,6 +110,20 @@ export const EVMAccountComponent = ({
             No network linked
           </a>
         )}
+      </div>
+      <div className="link-whitelist">
+        <div className="update-whitelist">
+          <a
+            title={t('click to update whitelist')}
+            onClick={(e) => {
+              e.preventDefault();
+              updateWhitelist(account.name);
+            }}
+            href="#"
+          >
+            Whitelist ({account.whitelist.length})
+          </a>
+        </div>
       </div>
     </div>
   );

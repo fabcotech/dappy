@@ -37,6 +37,16 @@
       flex-direction: column;
     }
   }
+  .update-whitelist {
+    grid-row: 4;
+    position: absolute;
+    bottom: -2rem;
+    right: 0px;
+    a {
+      color: #333;
+      font-weight: 600;
+    }
+  }
   .link-network {
     grid-row: 4;
     padding-left: 0.5rem;

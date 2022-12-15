@@ -11,6 +11,7 @@ import { AddAccount } from './AddAccount';
 import image_rchain from '/images/rchain40.png';
 
 import './Accounts.scss';
+import { AccountWhitelist } from './AccountWhitelist';
 
 export const UpdateBalancesButton = ({
   updating,
@@ -70,19 +71,13 @@ export const HideBalancesButton = ({
 
 interface RChainAccountsProps {
   accounts: Record<string, AccountModel>;
-  setTab: (tab: string) => void;
+  updateWhitelist: (accountName: string) => void;
 }
 
-export const RChainAccounts = ({ accounts, setTab }: RChainAccountsProps) => {
+export const RChainAccounts = ({ accounts, updateWhitelist }: RChainAccountsProps) => {
   if (!Object.values(accounts).filter((a) => a.platform === 'rchain').length) return null;
   return (
     <div className="mb-4">
-      {Object.keys(accounts).length === 0 ? (
-        <button onClick={() => setTab('add-account')} className="button is-link">
-          {t('add account')}
-          <i className="fas fa-plus ml-1"></i>
-        </button>
-      ) : undefined}
       <div className="block">
         <h4 className="is-size-4 mb-2">RChain</h4>
         <div className="logos mb-4">
@@ -92,7 +87,7 @@ export const RChainAccounts = ({ accounts, setTab }: RChainAccountsProps) => {
           {Object.values(accounts)
             .filter((a) => a.platform === 'rchain')
             .map((account) => (
-              <Account key={account.name} account={account} />
+              <Account key={account.name} account={account} updateWhitelist={updateWhitelist} />
             ))}
         </div>
       </div>
@@ -102,9 +97,10 @@ export const RChainAccounts = ({ accounts, setTab }: RChainAccountsProps) => {
 
 interface EVMAccountsProps {
   accounts: Record<string, AccountModel>;
+  updateWhitelist: (accountName: string) => void;
 }
 
-export const EVMAccounts = ({ accounts }: EVMAccountsProps) => {
+export const EVMAccounts = ({ accounts, updateWhitelist }: EVMAccountsProps) => {
   if (!Object.values(accounts).filter((a) => a.platform === 'evm').length) return null;
   return (
     <div className="block">
@@ -113,7 +109,7 @@ export const EVMAccounts = ({ accounts }: EVMAccountsProps) => {
         {Object.values(accounts)
           .filter((a) => a.platform === 'evm')
           .map((account) => (
-            <Account key={account.name} account={account} />
+            <Account key={account.name} account={account} updateWhitelist={updateWhitelist} />
           ))}
       </div>
     </div>
@@ -122,16 +118,17 @@ export const EVMAccounts = ({ accounts }: EVMAccountsProps) => {
 
 interface CertificateAccountsProps {
   accounts: Record<string, CertificateAccount>;
+  updateWhitelist: (accountName: string) => void;
 }
 
-export const CertificateAccounts = ({ accounts }: CertificateAccountsProps) => {
+export const CertificateAccounts = ({ accounts, updateWhitelist }: CertificateAccountsProps) => {
   if (Object.values(accounts).length === 0) return null;
   return (
     <div className="block">
       <h4 className="is-size-4 mb-2">Certificates</h4>
       <div className="account-cards">
         {Object.values(accounts).map((account) => (
-          <Account key={account.name} account={account} />
+          <Account key={account.name} account={account} updateWhitelist={updateWhitelist} />
         ))}
       </div>
     </div>
@@ -150,6 +147,7 @@ interface AccountsProps {
 
 export function AccountsComponent(props: AccountsProps) {
   const [tab, setTab] = useState('accounts');
+  const [accountName, setAccountName] = useState<string | undefined>(undefined);
 
   return (
     <div className="settings-accounts pb20 accounts">
@@ -165,6 +163,15 @@ export function AccountsComponent(props: AccountsProps) {
           </li>
         </ul>
       </div>
+      {tab === 'whitelist' ? (
+        <AccountWhitelist
+          account={props.accounts[accountName as string]}
+          back={() => {
+            setAccountName(undefined);
+            setTab('accounts');
+          }}
+        ></AccountWhitelist>
+      ) : null}
       {tab === 'accounts' ? (
         <div>
           <h3 className="subtitle is-4"></h3>
@@ -174,7 +181,14 @@ export function AccountsComponent(props: AccountsProps) {
           ></p>
 
           <div className="mt-3">
-            <CertificateAccounts accounts={props.certificateAccounts} />
+            <CertificateAccounts
+              accounts={props.certificateAccounts}
+              updateWhitelist={(an: string) => {
+                console.log('an', an);
+                setAccountName(an);
+                setTab('whitelist');
+              }}
+            />
           </div>
           <div className="my-3">
             <UpdateBalancesButton
@@ -187,8 +201,21 @@ export function AccountsComponent(props: AccountsProps) {
               toggleBalancesVisibility={props.toggleBalancesVisibility}
             />
           </div>
-          <RChainAccounts accounts={props.accounts} setTab={setTab} />
-          <EVMAccounts accounts={props.accounts} />
+          <RChainAccounts
+            accounts={props.accounts}
+            updateWhitelist={(an: string) => {
+              setAccountName(an);
+              setTab('whitelist');
+            }}
+          />
+          <EVMAccounts
+            accounts={props.accounts}
+            updateWhitelist={(an: string) => {
+              console.log(an);
+              setAccountName(an);
+              setTab('whitelist');
+            }}
+          />
         </div>
       ) : undefined}
       {tab === 'add-account' ? <AddAccount setTab={(a: string) => setTab(a)} /> : undefined}

@@ -31,7 +31,6 @@ import {
 } from './decoders';
 import {
   ACCESS_ACCOUNTS,
-  ACCESS_SECURITY,
   ACCESS_SETTINGS,
   ACCESS_TRANSACTIONS,
   ACCESS_WHITELIST,
@@ -299,12 +298,13 @@ dbReq.onsuccess = (event) => {
       ui.navigationUrl = '/names';
     } else if (ui.navigationUrl.startsWith('/deploy')) {
       ui.navigationUrl = '/';
+    } else if (ui.navigationUrl.startsWith('/auth')) {
+      ui.navigationUrl = '/';
     }
 
     if (ui.navigationUrl === '/names') ui.navigationUrl = '/';
     if (ui.navigationUrl.startsWith('/settings') && !ACCESS_SETTINGS) ui.navigationUrl = '/';
     if (ui.navigationUrl === '/accounts' && !ACCESS_ACCOUNTS) ui.navigationUrl = '/';
-    if (ui.navigationUrl === '/auth' && !ACCESS_SECURITY) ui.navigationUrl = '/';
     if (ui.navigationUrl === '/transactions' && !ACCESS_TRANSACTIONS) ui.navigationUrl = '/';
     if (ui.navigationUrl === '/whitelist' && !ACCESS_WHITELIST) ui.navigationUrl = '/';
 

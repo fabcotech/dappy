@@ -109,7 +109,6 @@ export const reducer = (state = initialState, action: Action): State => {
         payload.navigationUrl = '/';
       }
       if (payload.navigationUrl === '/accounts' && !ACCESS_ACCOUNTS) payload.navigationUrl = '/';
-      if (payload.navigationUrl === '/auth' && !ACCESS_SECURITY) payload.navigationUrl = '/';
       if (payload.navigationUrl.startsWith('/deploy')) payload.navigationUrl = '/';
       if (payload.navigationUrl === '/transactions' && !ACCESS_TRANSACTIONS) {
         payload.navigationUrl = '/';
@@ -236,10 +235,6 @@ export const getIsNavigationInAccounts = createSelector(getNavigationUrl, (navig
 export const getIsNavigationInDapps = createSelector(
   getNavigationUrl,
   (navigationUrl: string) => navigationUrl === '/' || navigationUrl.startsWith('/dapps')
-);
-
-export const getIsNavigationInAuth = createSelector(getNavigationUrl, (navigationUrl: string) =>
-  navigationUrl.startsWith('/auth')
 );
 
 export const getIsNavigationInWhitelist = createSelector(

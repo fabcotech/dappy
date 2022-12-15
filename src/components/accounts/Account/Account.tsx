@@ -8,14 +8,15 @@ import { CertificateAccount } from './CertificateAccount';
 
 interface AccountProps {
   account: AccountModel;
+  updateWhitelist: (accountName: string) => void;
 }
 
-export const Account = ({ account }: AccountProps) => {
+export const Account = ({ account, updateWhitelist }: AccountProps) => {
   switch (account.platform) {
     case 'rchain':
       return <RChainAccount account={account} />;
     case 'evm':
-      return <EVMAccount account={account} />;
+      return <EVMAccount account={account} updateWhitelist={updateWhitelist} />;
     case 'certificate':
       return <CertificateAccount account={account} />;
     default:

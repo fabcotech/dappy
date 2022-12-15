@@ -75,7 +75,7 @@ export const EthereumUnauthorizedOperationModal = connect(
       if (alsoGoToAccountsSecurity) {
         dispatch(
           navigateAction({
-            navigationUrl: '/auth',
+            navigationUrl: '/accounts',
           })
         );
       }

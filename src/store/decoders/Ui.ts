@@ -11,7 +11,6 @@ const navigationPaths = [
   '/settings/blockchain',
   '/settings/gcu',
   '/names',
-  '/auth',
   '/whitelist',
   '/accounts',
   '/deploy/file-upload',
@@ -39,11 +38,16 @@ export const uiSchema = yup
     language: yup.string().matches(/en|cn/).required().strict(true),
     showAccountCreationAtStartup: yup.bool(),
     isBalancesHidden: yup.bool(),
-    whitelist: yup.array().of(yup.object().shape({
-      host: yup.string().required(),
-      topLevel: yup.boolean().required(),
-      secondLevel: yup.boolean().required(),
-    }).required()),
+    whitelist: yup.array().of(
+      yup
+        .object()
+        .shape({
+          host: yup.string().required(),
+          topLevel: yup.boolean().required(),
+          secondLevel: yup.boolean().required(),
+        })
+        .required()
+    ),
   })
   .required()
   .noUnknown(true)
