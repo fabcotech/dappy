@@ -2,11 +2,7 @@ import https from 'https';
 
 export const getFavicon = async (address: string): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const req = https.get(address, (res, err) => {
-      if (err) {
-        reject(err);
-        return;
-      }
+    const req = https.get(address, (res) => {
       if (res.statusCode !== 200) {
         reject(new Error('Status code not 200'));
         return;
@@ -16,7 +12,7 @@ export const getFavicon = async (address: string): Promise<string> => {
         s = Buffer.concat([s, a]);
       });
       res.on('end', () => {
-        if (!['image/png', 'image/jpeg'].includes(res.headers['content-type'])) {
+        if (!['image/png', 'image/jpeg'].includes(res.headers['content-type']!)) {
           reject(new Error('Unknown favicon img format'));
           return;
         }

@@ -1,1 +1,1 @@
-export { EthereumSignTransactionModal } from './EthereumSignTransactionModal';
+export { EthereumUnauthorizedOperationModal } from './EthereumUnauthorizedOperationModal';

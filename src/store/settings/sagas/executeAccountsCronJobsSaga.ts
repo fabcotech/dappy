@@ -1,11 +1,12 @@
 import { takeEvery, select } from 'redux-saga/effects';
 
 import * as fromSettings from '..';
+import { BlockchainAccount } from '/models';
 import { Action } from '/store';
 
 function* executeAccountsCronJobs(action: Action) {
   console.log('executeAccountsCronJobs');
-  const evmAccounts = yield select(fromSettings.getEVMAccounts);
+  const evmAccounts: Record<string, BlockchainAccount> = yield select(fromSettings.getEVMAccounts);
   console.log('evmAccounts');
   console.log(evmAccounts);
 }
