@@ -111,19 +111,17 @@ export const EVMAccountComponent = ({
           </a>
         )}
       </div>
-      <div className="link-whitelist">
-        <div className="update-whitelist">
-          <a
-            title={t('click to update whitelist')}
-            onClick={(e) => {
-              e.preventDefault();
-              updateWhitelist(account.name);
-            }}
-            href="#"
-          >
-            Whitelist ({account.whitelist.length})
-          </a>
-        </div>
+      <div className="update-whitelist">
+        <a
+          title={t('click to update whitelist')}
+          onClick={(e) => {
+            e.preventDefault();
+            updateWhitelist(account.name);
+          }}
+          href="#"
+        >
+          Whitelist ({account.whitelist.length})
+        </a>
       </div>
     </div>
   );

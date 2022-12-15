@@ -1,10 +1,13 @@
 import * as React from 'react';
+import isEqual from 'lodash.isequal';
 
 import { Account } from '/models';
 import './Root.scss';
 import { connect } from 'react-redux';
 import { updateAccountAction } from '/store/settings';
 import { validateWhitelistDomain } from '/utils/validateWhitelistDomain';
+
+import './AccountWhitelist.scss';
 
 interface AccountWhitelistProps {
   account: Account;
@@ -21,9 +24,15 @@ export class AccountWhitelistComponent extends React.Component<AccountWhitelistP
     error: undefined,
   };
 
+  componentDidMount() {
+    this.setState({
+      whitelist: this.props.account.whitelist,
+    });
+  }
+
   render() {
     return (
-      <div className="auth">
+      <div className="account-whitelist">
         <a
           href="#"
           className="underlined-link"
@@ -87,7 +96,10 @@ export class AccountWhitelistComponent extends React.Component<AccountWhitelistP
             <button
               type="submit"
               className="button is-link is-medium"
-              disabled={!!this.state.error}
+              disabled={
+                !!this.state.error ||
+                isEqual(this.props.account.whitelist, this.state.whitelist || [])
+              }
               onClick={() => {
                 this.props.updateAccount({
                   ...this.props.account,
