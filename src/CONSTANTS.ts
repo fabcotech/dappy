@@ -46,7 +46,7 @@ export const ACCESS_WHITELIST = true;
 
 /* Only use in render process */
 export const getWhitelistArgument = (windowLocationSearch: string) => {
-  return JSON.parse(decodeURI(windowLocationSearch.slice(5))).HARDCODED_WHITELIST as string;
+  return new URLSearchParams(windowLocationSearch).get('whitelist');
 };
 
 /*
@@ -55,7 +55,7 @@ export const getWhitelistArgument = (windowLocationSearch: string) => {
   ex: = [{ host: 'app.uniswap.org', topLevel: true, secondLevel: true }];
 */
 export const parseWhitelist = (
-  whitelist: string | undefined
+  whitelist: string | undefined | null
 ): undefined | fromUi.State['whitelist'] => {
   if (!whitelist) {
     return undefined;

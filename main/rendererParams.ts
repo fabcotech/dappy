@@ -25,10 +25,10 @@ const allArgs: Record<string, (value: string) => string> = {
   network: (networkId: string): string => {
     if (Object.keys(dappyNetworks).includes(networkId)) {
       return `network=${networkId}`;
-    } else {
-      throw new Error(`Unknown dappy network ${networkId}`);
     }
+    throw new Error(`Unknown dappy network ${networkId}`);
   },
+  whitelist: (env: string) => `whitelist=${env}`,
 };
 
 export function getRendererParams(args: string[]) {

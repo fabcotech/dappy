@@ -20,7 +20,7 @@ test.describe('dappy browser should works', () => {
     const window = await app.firstWindow();
 
     // Validate GCU form
-    await window.getByRole('checkbox').click();
+    await window.getByLabel('I have read and I agree to the general conditions of use').click();
     await window.getByRole('button').click();
 
     await window.locator('[aria-label="address"]').fill(`default.dappy.${config.dappyNetwork}`);
