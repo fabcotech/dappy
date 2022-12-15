@@ -5,7 +5,7 @@ import { SimpleError } from '/models/DappyLoadError';
 export const UPDATE_TABS_FROM_STORAGE = '[Dapps] Update tabs from storage';
 export const UPDATE_FAVS_FROM_STORAGE = '[Dapps] Update favs from storage';
 
-export const CLEAR_SEARCH_AND_LOAD_ERROR = '[Dapps] Clear search and load error';
+export const CLEAR_LOAD_ERROR = '[Dapps] Clear load error';
 export const LOAD_RESOURCE = '[Dapps] Load resource';
 export const INIT_TRANSITORY_STATE_AND_RESET_LOAD_ERROR =
   '[Dapps] Init transitory state and reset load error';
@@ -57,12 +57,12 @@ export const removeFavCompletedAction = (payload: RemoveFabPayload) => ({
   payload,
 });
 
-export interface ClearSearchAndLoadErrorPayload {
+export interface ClearLoadErrorPayload {
   tabId: string;
   clearSearch: boolean;
 }
-export const clearSearchAndLoadErrorAction = (values: ClearSearchAndLoadErrorPayload) => ({
-  type: CLEAR_SEARCH_AND_LOAD_ERROR,
+export const clearLoadErrorAction = (values: ClearLoadErrorPayload) => ({
+  type: CLEAR_LOAD_ERROR,
   payload: values,
 });
 

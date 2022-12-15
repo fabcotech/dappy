@@ -80,7 +80,7 @@ export const reducer = (state = initialState, action: Action): State => {
       };
     }
 
-    case fromActions.CLEAR_SEARCH_AND_LOAD_ERROR: {
+    case fromActions.CLEAR_LOAD_ERROR: {
       const { payload } = action;
 
       return {
@@ -94,7 +94,6 @@ export const reducer = (state = initialState, action: Action): State => {
           }
           return t;
         }),
-        search: payload.clearSearch ? '' : state.search,
       };
     }
 

@@ -4,7 +4,8 @@ import { connect } from 'react-redux';
 import './Resources.scss';
 import * as fromDapps from '/store/dapps';
 import * as fromMain from '/store/main';
-import { TransitoryState, Tab } from '/models';
+import * as fromUi from '/store/ui';
+import { TransitoryState, Tab, NavigationUrl } from '/models';
 import { DisplayError, NavigationBar2 } from '.';
 import { Modal } from '../utils';
 
@@ -14,8 +15,9 @@ interface ResourcesComponentProps {
   dappModals: { [resourceId: string]: fromMain.Modal[] };
   tabsFocusOrder: string[];
   transitoryStates: { [resourceId: string]: TransitoryState };
-  clearSearchAndLoadError: (tabId: string, clearSearch: boolean) => void;
+  clearLoadError: (tabId: string, clearSearch: boolean) => void;
   loadResource: (address: string, tabId: string) => void;
+  navigate: (navigationUrl: NavigationUrl) => void;
 }
 
 class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
@@ -60,7 +62,8 @@ class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
                   zIndex={(this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10}
                   transitoryStates={this.props.transitoryStates}
                   tab={tab}
-                  clearSearchAndLoadError={this.props.clearSearchAndLoadError}
+                  clearLoadError={this.props.clearLoadError}
+                  navigate={this.props.navigate}
                   loadResource={this.props.loadResource}
                 />
               </React.Fragment>
@@ -74,7 +77,8 @@ class ResourcesComponent extends React.Component<ResourcesComponentProps, {}> {
                 zIndex={(this.props.tabsFocusOrder.indexOf(tabId) + 1) * 10}
                 transitoryStates={this.props.transitoryStates}
                 tab={tab}
-                clearSearchAndLoadError={this.props.clearSearchAndLoadError}
+                navigate={this.props.navigate}
+                clearLoadError={this.props.clearLoadError}
                 loadResource={this.props.loadResource}
               />
             </Fragment>
@@ -97,8 +101,10 @@ export const Resources = connect(
   },
   (dispatch) => {
     return {
-      clearSearchAndLoadError: (tabId: string, clearSearch: boolean) =>
-        dispatch(fromDapps.clearSearchAndLoadErrorAction({ tabId, clearSearch })),
+      navigate: (navigationUrl: NavigationUrl) =>
+        dispatch(fromUi.navigateAction({ navigationUrl: navigationUrl })),
+      clearLoadError: (tabId: string, clearSearch: boolean) =>
+        dispatch(fromDapps.clearLoadErrorAction({ tabId, clearSearch })),
       loadResource: (url: string, tabId: string) =>
         dispatch(
           fromDapps.loadResourceAction({

@@ -1,15 +1,16 @@
 import * as React from 'react';
 
 import './DisplayError.scss';
-import { TransitoryState, Tab } from '/models';
+import { TransitoryState, Tab, NavigationUrl } from '/models';
 import { LoadErrorHtml } from '../utils';
 
 interface DisplayErrorComponentProps {
   transitoryStates: { [tabId: string]: TransitoryState };
   zIndex: number;
   tab: Tab;
-  clearSearchAndLoadError: (tabId: string, clearSearch: boolean) => void;
+  clearLoadError: (tabId: string, clearSearch: boolean) => void;
   loadResource: (url: string, tabId: string) => void;
+  navigate: (navigationUrl: NavigationUrl) => void;
 }
 
 class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps> {
@@ -23,8 +24,13 @@ class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps> 
     return true;
   }
 
-  onClearSearchAndLoadError = () => {
-    this.props.clearSearchAndLoadError(this.props.tab.id, true);
+  onClear = () => {
+    this.props.clearLoadError(this.props.tab.id, true);
+  };
+
+  onClearAndNavigate = (path: NavigationUrl) => {
+    this.props.clearLoadError(this.props.tab.id, true);
+    this.props.navigate(path);
   };
 
   componentDidMount() {
@@ -56,7 +62,8 @@ class DisplayErrorComponent extends React.Component<DisplayErrorComponentProps> 
               <div className="message-body">
                 <LoadErrorHtml
                   loadError={this.props.tab.lastError.error}
-                  clearSearchAndLoadError={this.onClearSearchAndLoadError}
+                  clear={this.onClear}
+                  clearAndNavigate={this.onClearAndNavigate}
                 />
               </div>
             </div>
