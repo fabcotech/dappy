@@ -82,7 +82,8 @@ type DappHandler = (
   store: Store,
   dispatchFromMain: (a: DispatchFromMainArg) => void,
   data: any,
-  callback: (a: Buffer | Electron.ProtocolResponse) => void
+  callback: (a: Buffer | Electron.ProtocolResponse) => void,
+  url: string
 ) => void;
 
 export const sendTransaction: DappHandler = (
@@ -204,7 +205,8 @@ export const accounts: DappHandler = (
   store,
   dispatchFromMain,
   data,
-  callback
+  callback,
+  url
 ) => {
   const evmAccounts = fromSettingsMain.getEVMAccounts(store.getState());
   const evmAccount = getEvmAccountForHost(evmAccounts, dappyBrowserView.host);
@@ -222,7 +224,7 @@ export const accounts: DappHandler = (
       dappyBrowserView.tabId,
       dappyBrowserView.host,
       'A dapp is asking for an address and was blocked. You need to manually add this host to a wallet whitelist, and link your wallet to a network.',
-      request.url.includes('eth_requestAccounts') ? 'eth_requestAccounts' : 'eth_accounts'
+      url.includes('eth_requestAccounts') ? 'eth_requestAccounts' : 'eth_accounts'
     );
     returnData = {
       code: 4100,
@@ -323,7 +325,14 @@ export const registerInterProcessDappProtocol = (
       return;
     }
 
-    const handleArgs = [dappyBrowserView, store, dispatchFromMain, data, callback] as const;
+    const handleArgs = [
+      dappyBrowserView,
+      store,
+      dispatchFromMain,
+      data,
+      callback,
+      request.url,
+    ] as const;
 
     switch (request.url) {
       case 'interprocessdapp://eth_sendTransaction':
