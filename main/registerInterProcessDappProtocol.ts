@@ -10,6 +10,7 @@ import { atLeastOneMatchInWhitelist } from '../src/utils/matchesWhitelist';
 import { DappyBrowserView } from './models';
 import { DispatchFromMainArg } from './main';
 import { BlockchainAccount } from '/models';
+import { fetchEthBlockNumber } from './jsonRPCRequest';
 
 const getEvmAccountForHost = (
   evmAccounts: Record<string, BlockchainAccount>,
@@ -82,37 +83,45 @@ type DappHandler = (
   store: Store,
   dispatchFromMain: (a: DispatchFromMainArg) => void,
   data: any,
-  callback: (a: Buffer | Electron.ProtocolResponse) => void,
   url: string
 ) => void;
 
-export const sendTransaction: DappHandler = (
+export const triggerUnauthorizedOperation = (
+  dappyBrowserView: DappyBrowserView,
+  dispatchFromMain: (a: DispatchFromMainArg) => void,
+  operation: string
+) => {
+  dispatchEthereumUnauthorizedOperation(
+    dispatchFromMain,
+    dappyBrowserView.tabId,
+    dappyBrowserView.host,
+    'A dapp is asking for a network ID and was blocked. You need to manually add this host to a wallet whitelist, and link your wallet to a network.',
+    operation
+  );
+  return {
+    success: false,
+    data: {
+      code: 4100,
+      message: 'Unauthorized',
+    },
+  };
+};
+
+export const sendTransaction: DappHandler = async (
   dappyBrowserView,
   store,
   dispatchFromMain,
-  data,
-  callback
+  data
 ) => {
   if (!data.params || !data.params[0] || !data.params[0].chainId || !data.params[0].from) {
-    // console.log(
-    //   `[eth] browser view ${dappyBrowserView.tabId} invalid payload eth_sendTransaction`
-    // );
-    callback(
-      Buffer.from(
-        JSON.stringify({
-          success: false,
-          data: {
-            code: 4100,
-            message: 'Unauthorized',
-          },
-        })
-      )
-    );
-    return;
+    return {
+      success: false,
+      data: {
+        code: 4100,
+        message: 'Unauthorized',
+      },
+    };
   }
-
-  let chainIdDecimal = '';
-  chainIdDecimal = data.params[0].chainId;
 
   let oneAccountAuthorized = false;
   const evmAccounts = fromSettingsMain.getEVMAccounts(store.getState());
@@ -124,28 +133,7 @@ export const sendTransaction: DappHandler = (
     }
   });
   if (!oneAccountAuthorized) {
-    // console.log(
-    //   `[eth] browser view ${dappyBrowserView.tabId} unauthorized eth_sendTransaction`
-    // );
-    dispatchEthereumUnauthorizedOperation(
-      dispatchFromMain,
-      dappyBrowserView.tabId,
-      dappyBrowserView.host,
-      `A dapp tried to send a transaction through a wallet, but was blocked. You need to manually add this host to a wallet whitelist, and make sure the dapp uses the same network ID (in this case "${chainIdDecimal}") as your wallet.`,
-      'eth_sendTransaction'
-    );
-    callback(
-      Buffer.from(
-        JSON.stringify({
-          success: false,
-          data: {
-            code: 4100,
-            message: 'Unauthorized',
-          },
-        })
-      )
-    );
-    return;
+    return triggerUnauthorizedOperation(dappyBrowserView, dispatchFromMain, 'eth_sendTransaction');
   }
 
   dispatchFromMain({
@@ -160,152 +148,122 @@ export const sendTransaction: DappHandler = (
       buttons: [],
     }),
   });
+  return {};
 };
 
-export const chainId: DappHandler = (dappyBrowserView, store, dispatchFromMain, data, callback) => {
+export const getChainId = (store: Store, hostname: string) => {
   const evmAccounts = fromSettingsMain.getEVMAccounts(store.getState());
-  const evmAccount = getEvmAccountForHost(evmAccounts, dappyBrowserView.host);
-  let success = false;
-  let returnData: any = null;
-  if (evmAccount) {
-    success = true;
-    returnData = evmAccount.chainId ? toHex(evmAccount.chainId as string) : null;
-    // console.log(
-    //   `[eth] browser view ${dappyBrowserView.tabId} connected with account ${evmAccount.name}`
-    // );
-  } else {
-    dispatchEthereumUnauthorizedOperation(
-      dispatchFromMain,
-      dappyBrowserView.tabId,
-      dappyBrowserView.host,
-      'A dapp is asking for a network ID and was blocked. You need to manually add this host to a wallet whitelist, and link your wallet to a network.',
-      'eth_chainId'
-    );
-    returnData = {
-      code: 4100,
-      message: 'Unauthorized',
-    };
-    // console.log(
-    //   `[eth] browser view ${dappyBrowserView.tabId} could not connect with any account`
-    // );
+  const evmAccount = getEvmAccountForHost(evmAccounts, hostname);
+  return evmAccount?.chainId ? toHex(evmAccount.chainId as string) : undefined;
+};
+
+export const chainId: DappHandler = async (dappyBrowserView, store, dispatchFromMain) => {
+  const id = getChainId(store, dappyBrowserView.host);
+
+  if (!id) {
+    return triggerUnauthorizedOperation(dappyBrowserView, dispatchFromMain, 'eth_chainId');
   }
 
-  callback(
-    Buffer.from(
-      JSON.stringify({
-        success: success,
-        data: returnData,
-      })
-    )
-  );
+  return {
+    success: true,
+    data: id,
+  };
 };
 
-export const accounts: DappHandler = (
-  dappyBrowserView,
-  store,
-  dispatchFromMain,
-  data,
-  callback,
-  url
-) => {
+export const accounts: DappHandler = (dappyBrowserView, store, dispatchFromMain, data, action) => {
   const evmAccounts = fromSettingsMain.getEVMAccounts(store.getState());
   const evmAccount = getEvmAccountForHost(evmAccounts, dappyBrowserView.host);
-  let success = false;
-  let returnData: any = null;
-  if (evmAccount) {
-    success = true;
-    returnData = [evmAccount.address];
-    dappyBrowserView.connections[evmAccount.name] = {
-      chainId: evmAccount.chainId as string,
-    };
-  } else {
-    dispatchEthereumUnauthorizedOperation(
-      dispatchFromMain,
-      dappyBrowserView.tabId,
-      dappyBrowserView.host,
-      'A dapp is asking for an address and was blocked. You need to manually add this host to a wallet whitelist, and link your wallet to a network.',
-      url.includes('eth_requestAccounts') ? 'eth_requestAccounts' : 'eth_accounts'
-    );
-    returnData = {
-      code: 4100,
-      message: 'Unauthorized',
+
+  if (!evmAccount) {
+    return triggerUnauthorizedOperation(dappyBrowserView, dispatchFromMain, action);
+  }
+
+  dappyBrowserView.connections[evmAccount.name] = {
+    chainId: evmAccount.chainId as string,
+  };
+
+  return {
+    success: true,
+    data: [evmAccount.address],
+  };
+};
+
+export const blockNumber: DappHandler = async (dappyBrowserView, store, dispatchFromMain) => {
+  const id = getChainId(store, dappyBrowserView.host);
+
+  if (!id) {
+    triggerUnauthorizedOperation(dappyBrowserView, dispatchFromMain, 'eth_blockNumber');
+    return {
+      success: false,
+      data: {
+        code: 4100,
+        message: 'Unauthorized',
+      },
     };
   }
 
-  callback(
-    Buffer.from(
-      JSON.stringify({
-        success: success,
-        data: returnData,
-      })
-    )
-  );
+  const ethBlockNumber = await fetchEthBlockNumber(id);
+
+  return {
+    success: true,
+    data: ethBlockNumber,
+  };
 };
 
-export const messageFromDapp: DappHandler = (
+export const messageFromDapp: DappHandler = async (
   dappyBrowserView,
-  store,
+  _store,
   dispatchFromMain,
-  data,
-  callback
+  data
 ) => {
-  try {
-    const payloadBeforeValid = data.action.payload;
+  const payloadBeforeValid = data.action.payload;
 
-    if (!payloadBeforeValid) {
-      console.error('[interprocessdapp://] dapp dispatched a transaction with an invalid payload');
-      callback(Buffer.from('invalid payload'));
-      return;
-    }
+  if (!payloadBeforeValid) {
+    console.error('[interprocessdapp://] dapp dispatched a transaction with an invalid payload');
+    return 'invalid payload';
+  }
 
-    // ETHEREUM / EVM
-    if (data.action.type === fromCommon.SIGN_ETHEREUM_TRANSACTION_FROM_SANDBOX) {
-      signEthereumTransactionFromSandboxSchema
-        .validate(payloadBeforeValid)
-        .then(() => {
-          const payload: fromCommon.SignEthereumTransactionFromSandboxPayload = payloadBeforeValid;
-          const id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
-          const payload2: fromCommon.SignEthereumTransactionFromMiddlewarePayload = {
-            parameters: payload.parameters,
-            origin: {
-              origin: 'dapp',
-              accountName: undefined,
-              tabId: dappyBrowserView.tabId,
-              dappTitle: dappyBrowserView.title,
-              callId: payload.callId,
-            },
+  // ETHEREUM / EVM
+  if (data.action.type === fromCommon.SIGN_ETHEREUM_TRANSACTION_FROM_SANDBOX) {
+    return signEthereumTransactionFromSandboxSchema
+      .validate(payloadBeforeValid)
+      .then(() => {
+        const payload: fromCommon.SignEthereumTransactionFromSandboxPayload = payloadBeforeValid;
+        const id = new Date().getTime() + Math.round(Math.random() * 10000).toString();
+        const payload2: fromCommon.SignEthereumTransactionFromMiddlewarePayload = {
+          parameters: payload.parameters,
+          origin: {
+            origin: 'dapp',
+            accountName: undefined,
             tabId: dappyBrowserView.tabId,
-            chainId: '',
-            id,
-          };
+            dappTitle: dappyBrowserView.title,
+            callId: payload.callId,
+          },
+          tabId: dappyBrowserView.tabId,
+          chainId: '',
+          id,
+        };
 
-          dispatchFromMain({
-            action: fromMain.openDappModalAction({
-              tabId: dappyBrowserView.tabId,
-              title: 'ETHEREUM_SIGN_TRANSACTION_MODAL',
-              text: '',
-              parameters: payload2,
-              buttons: [],
-            }),
-          });
-          callback(Buffer.from(''));
-        })
-        .catch((err: Error) => {
-          console.error(
-            '[interprocessdapp://] a dapp tried to request Sign Ethereum transaction with an invalid schema'
-          );
-          console.error(err.message);
-          callback(Buffer.from(err.message));
+        dispatchFromMain({
+          action: fromMain.openDappModalAction({
+            tabId: dappyBrowserView.tabId,
+            title: 'ETHEREUM_SIGN_TRANSACTION_MODAL',
+            text: '',
+            parameters: payload2,
+            buttons: [],
+          }),
         });
-      return;
-    }
-  } catch (err) {
-    console.error('[interprocessdapp://] An error occured');
-    console.error(err);
-    if (err instanceof Error) {
-      callback(Buffer.from(err.message));
-    }
+        return '';
+      })
+      .catch((err: Error) => {
+        console.error(
+          '[interprocessdapp://] a dapp tried to request Sign Ethereum transaction with an invalid schema'
+        );
+        console.error(err.message);
+        return err.message;
+      });
   }
+  return '';
 };
 
 /* browser process - main process */
@@ -315,7 +273,7 @@ export const registerInterProcessDappProtocol = (
   store: Store,
   dispatchFromMain: (a: DispatchFromMainArg) => void
 ) => {
-  return session.protocol.registerBufferProtocol('interprocessdapp', (request, callback) => {
+  return session.protocol.registerBufferProtocol('interprocessdapp', async (request, callback) => {
     let data: { [a: string]: any } = {};
     try {
       data = JSON.parse(request.headers.Data);
@@ -325,31 +283,24 @@ export const registerInterProcessDappProtocol = (
       return;
     }
 
-    const handleArgs = [
-      dappyBrowserView,
-      store,
-      dispatchFromMain,
-      data,
-      callback,
-      request.url,
-    ] as const;
+    const action = request.url.replace('interprocessdapp://', '');
+    const handleArgs = [dappyBrowserView, store, dispatchFromMain, data, request.url] as const;
 
-    switch (request.url) {
-      case 'interprocessdapp://eth_sendTransaction':
-        sendTransaction(...handleArgs);
-        break;
-      case 'interprocessdapp://eth_chainId':
-        chainId(...handleArgs);
-        break;
-      case 'interprocessdapp://eth_requestAccounts':
-      case 'interprocessdapp://eth_accounts':
-        accounts(...handleArgs);
-        break;
-      case 'interprocessdapp://message-from-dapp-sandboxed':
-        messageFromDapp(...handleArgs);
-        break;
-      default:
-        break;
+    const handlers = {
+      eth_sendTransaction: sendTransaction,
+      eth_chainId: chainId,
+      eth_requestAccounts: accounts,
+      eth_accounts: accounts,
+      eth_blockNumber: blockNumber,
+      'message-from-dapp-sandboxed': messageFromDapp,
+    };
+
+    if (Object.keys(handlers).includes(action)) {
+      callback(
+        Buffer.from(JSON.stringify(await handlers[action as keyof typeof handlers](...handleArgs)))
+      );
+    } else {
+      console.log('unknown dapp action', request.url, data);
     }
   });
 };
