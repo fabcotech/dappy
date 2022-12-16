@@ -1,9 +1,7 @@
 name: Release atlantic
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:
 
 jobs:
   publish_on_win_32:
