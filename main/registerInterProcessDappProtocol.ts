@@ -10,7 +10,7 @@ import { atLeastOneMatchInWhitelist } from '../src/utils/matchesWhitelist';
 import { DappyBrowserView } from './models';
 import { DispatchFromMainArg } from './main';
 import { BlockchainAccount } from '/models';
-import { fetchEthBlockNumber } from './jsonRPCRequest';
+import { fetchEthBlockNumber, fetchEthCall } from './jsonRPCRequest';
 
 const getEvmAccountForHost = (
   evmAccounts: Record<string, BlockchainAccount>,
@@ -210,6 +210,28 @@ export const blockNumber: DappHandler = async (dappyBrowserView, store, dispatch
   };
 };
 
+export const call: DappHandler = async (dappyBrowserView, store, dispatchFromMain, data) => {
+  const id = getChainId(store, dappyBrowserView.host);
+
+  if (!id) {
+    triggerUnauthorizedOperation(dappyBrowserView, dispatchFromMain, 'eth_blockNumber');
+    return {
+      success: false,
+      data: {
+        code: 4100,
+        message: 'Unauthorized',
+      },
+    };
+  }
+
+  const callResponse = await fetchEthCall(id, data.params);
+
+  return {
+    success: true,
+    data: callResponse,
+  };
+};
+
 export const messageFromDapp: DappHandler = async (
   dappyBrowserView,
   _store,
@@ -292,6 +314,7 @@ export const registerInterProcessDappProtocol = (
       eth_requestAccounts: accounts,
       eth_accounts: accounts,
       eth_blockNumber: blockNumber,
+      eth_call: call,
       'message-from-dapp-sandboxed': messageFromDapp,
     };
 

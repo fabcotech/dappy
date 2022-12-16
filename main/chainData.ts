@@ -2,6 +2,8 @@
 
 export const CHAINS_ENUM = {
   ETH: 'ETH',
+  ETH_SEPOLIA: 'ETH_SEPOLIA',
+  ETH_GOERLI: 'ETH_GOERLI',
   BSC: 'BSC',
   GNOSIS: 'GNOSIS',
   HECO: 'HECO',
@@ -81,6 +83,42 @@ export const CHAINS_RAW: Record<string, ChainRaw> = {
     nativeTokenAddress: 'eth',
     scanLink: 'https://etherscan.io/tx/_s_',
     thirdPartyRPC: 'https://eth-mainnet.alchemyapi.io/v2/hVcflvG3Hp3ufTgyfj-s9govLX5OYluf',
+    eip: {
+      1559: true,
+    },
+  },
+  [CHAINS_ENUM.ETH_SEPOLIA]: {
+    id: 5,
+    serverId: 'eth',
+    name: 'Ethereum Sepolia',
+    hex: '0xAA36A7',
+    enum: CHAINS_ENUM.ETH_SEPOLIA,
+    network: '11155111',
+    nativeTokenSymbol: 'SEP',
+    nativeTokenLogo:
+      'https://static.debank.com/image/token/logo_url/eth/935ae4e4d1d12d59a99717a24f2540b5.png',
+    nativeTokenDecimals: 18,
+    nativeTokenAddress: 'SEP',
+    scanLink: 'https://sepolia.etherscan.io/tx/_s_',
+    thirdPartyRPC: 'https://rpc.sepolia.org',
+    eip: {
+      1559: true,
+    },
+  },
+  [CHAINS_ENUM.ETH_GOERLI]: {
+    id: 5,
+    serverId: 'eth',
+    name: 'Ethereum Goerli',
+    hex: '0x5',
+    enum: CHAINS_ENUM.ETH_GOERLI,
+    network: '5',
+    nativeTokenSymbol: 'ETH',
+    nativeTokenLogo:
+      'https://static.debank.com/image/token/logo_url/eth/935ae4e4d1d12d59a99717a24f2540b5.png',
+    nativeTokenDecimals: 18,
+    nativeTokenAddress: 'eth',
+    scanLink: 'https://goerli.etherscan.io/tx/_s_',
+    thirdPartyRPC: 'https://eth-goerli.public.blastapi.io',
     eip: {
       1559: true,
     },

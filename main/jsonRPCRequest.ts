@@ -69,3 +69,17 @@ export const fetchEthBlockNumber = (chainId: string) =>
     },
     (r: string) => JSON.parse(r).result
   );
+
+export const fetchEthCall = (chainId: string, params: unknown[]) =>
+  fetch(
+    {
+      ...JSONRPCOptions,
+      ...getRPCUrl(chainId),
+    },
+    {
+      ...JSONRPCData,
+      method: 'eth_call',
+      params,
+    },
+    (r: string) => JSON.parse(r).result
+  );

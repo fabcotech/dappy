@@ -14,8 +14,8 @@ export interface EvmNetworks {
 }
 export const evmNetworks: EvmNetworks = {
   1: ['Ethereum Mainnet', image_ethereum],
-  3: ['Ethereum Testnet (Ropsten)', image_ethereum],
-  4: ['Ethereum Testnet (Rinkeby)', image_ethereum],
+  5: ['Ethereum Testnet (Goerli)', image_ethereum],
+  11155111: ['Ethereum Testnet (Sepolia)', image_ethereum],
   56: ['Binance Smart Chain Mainnet', image_binance_smart_chain],
   97: ['Binance Smart Chain TestNet', image_binance_smart_chain],
   137: ['Polygon Mainnet', image_polygon],
