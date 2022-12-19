@@ -107,32 +107,21 @@ export const triggerUnauthorizedOperation = (
   };
 };
 
+export const getChainId = (store: Store, hostname: string) => {
+  const evmAccounts = fromSettingsMain.getEVMAccounts(store.getState());
+  const evmAccount = getEvmAccountForHost(evmAccounts, hostname);
+  return evmAccount?.chainId ? toHex(evmAccount.chainId as string) : undefined;
+};
+
 export const sendTransaction: DappHandler = async (
   dappyBrowserView,
   store,
   dispatchFromMain,
   data
 ) => {
-  if (!data.params || !data.params[0] || !data.params[0].chainId || !data.params[0].from) {
-    return {
-      success: false,
-      data: {
-        code: 4100,
-        message: 'Unauthorized',
-      },
-    };
-  }
+  const id = getChainId(store, dappyBrowserView.host);
 
-  let oneAccountAuthorized = false;
-  const evmAccounts = fromSettingsMain.getEVMAccounts(store.getState());
-  Object.keys(dappyBrowserView.connections).forEach((a) => {
-    if (toHex(dappyBrowserView.connections[a].chainId as string) === data.params[0].chainId) {
-      if (evmAccounts[a].address === data.params[0].from) {
-        oneAccountAuthorized = true;
-      }
-    }
-  });
-  if (!oneAccountAuthorized) {
+  if (!id) {
     return triggerUnauthorizedOperation(dappyBrowserView, dispatchFromMain, 'eth_sendTransaction');
   }
 
@@ -149,12 +138,6 @@ export const sendTransaction: DappHandler = async (
     }),
   });
   return {};
-};
-
-export const getChainId = (store: Store, hostname: string) => {
-  const evmAccounts = fromSettingsMain.getEVMAccounts(store.getState());
-  const evmAccount = getEvmAccountForHost(evmAccounts, hostname);
-  return evmAccount?.chainId ? toHex(evmAccount.chainId as string) : undefined;
 };
 
 export const chainId: DappHandler = async (dappyBrowserView, store, dispatchFromMain) => {
