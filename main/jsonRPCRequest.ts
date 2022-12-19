@@ -47,6 +47,7 @@ export const getRPCUrl = (chainId: string) => {
 
 const JSONRPCData = {
   jsonrpc: '2.0',
+  id: 1,
 };
 
 const JSONRPCOptions = {
