@@ -111,3 +111,17 @@ export const fetchGasPrice = (chainId: string) =>
     },
     (r: string) => JSON.parse(r).result
   );
+
+export const fetchGetTransactionCount = (chainId: string, address: string) =>
+  fetch(
+    {
+      ...JSONRPCOptions,
+      ...getRPCUrl(chainId),
+    },
+    {
+      ...JSONRPCData,
+      method: 'eth_getTransactionCount',
+      params: [address, 'latest'],
+    },
+    (r: string) => JSON.parse(r).result
+  );

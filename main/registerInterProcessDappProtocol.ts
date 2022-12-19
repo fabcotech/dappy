@@ -16,6 +16,7 @@ import {
   fetchEthBlockNumber,
   fetchEthCall,
   fetchGasPrice,
+  fetchGetTransactionCount,
 } from './jsonRPCRequest';
 
 const MAX_PRIORITY_FEE_PER_GAS = 2 * 10 ** 9; // 2 Gwei
@@ -136,6 +137,7 @@ export const sendTransaction: DappHandler = async (
   const gasPrice = BigNumber.from(await fetchGasPrice(id));
   const maxPriorityFeePerGas = BigNumber.from(MAX_PRIORITY_FEE_PER_GAS);
   const maxFeePerGas = gasPrice.mul(2).add(maxPriorityFeePerGas);
+  const nonce = await fetchGetTransactionCount(id, data.params[0].from);
 
   dispatchFromMain({
     action: fromMain.openDappModalAction({
@@ -148,6 +150,7 @@ export const sendTransaction: DappHandler = async (
           chainId: id,
           maxFeePerGas: maxFeePerGas.toHexString(),
           maxPriorityFeePerGas: maxPriorityFeePerGas.toHexString(),
+          nonce,
         },
         origin: dappyBrowserView.host,
       },
