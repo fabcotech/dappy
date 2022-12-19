@@ -142,7 +142,14 @@ export const EthereumSignTransactionModalComponent = ({
             <StaticField copy label="to" value={modal.parameters.parameters.to || 'none'} />
             <StaticField label="nonce" value={toNumber(modal.parameters.parameters.nonce)} />
             <StaticField label="gasLimit" value={toNumber(modal.parameters.parameters.gasLimit)} />
-            <StaticField label="gasPrice" value={toGwei(modal.parameters.parameters.gasPrice)} />
+            <StaticField
+              label="maxFeePerGas"
+              value={toGwei(modal.parameters.parameters.maxFeePerGas)}
+            />
+            <StaticField
+              label="maxPriorityFeePerGas"
+              value={toGwei(modal.parameters.parameters.maxPriorityFeePerGas)}
+            />
             <StaticField
               label="value"
               value={toHumanReadableEthUnit(modal.parameters.parameters.value)}

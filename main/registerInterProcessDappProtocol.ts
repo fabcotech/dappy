@@ -1,6 +1,7 @@
 import { Session } from 'electron';
 import { Store } from 'redux';
 import * as yup from 'yup';
+import { BigNumber } from 'ethers';
 
 import * as fromCommon from '../src/common';
 import * as fromSettingsMain from './store/settings';
@@ -10,7 +11,14 @@ import { atLeastOneMatchInWhitelist } from '../src/utils/matchesWhitelist';
 import { DappyBrowserView } from './models';
 import { DispatchFromMainArg } from './main';
 import { BlockchainAccount } from '/models';
-import { fetchEstimatedGas, fetchEthBlockNumber, fetchEthCall } from './jsonRPCRequest';
+import {
+  fetchEstimatedGas,
+  fetchEthBlockNumber,
+  fetchEthCall,
+  fetchGasPrice,
+} from './jsonRPCRequest';
+
+const MAX_PRIORITY_FEE_PER_GAS = 2 * 10 ** 9; // 2 Gwei
 
 const getEvmAccountForHost = (
   evmAccounts: Record<string, BlockchainAccount>,
@@ -125,13 +133,22 @@ export const sendTransaction: DappHandler = async (
     return triggerUnauthorizedOperation(dappyBrowserView, dispatchFromMain, 'eth_sendTransaction');
   }
 
+  const gasPrice = BigNumber.from(await fetchGasPrice(id));
+  const maxPriorityFeePerGas = BigNumber.from(MAX_PRIORITY_FEE_PER_GAS);
+  const maxFeePerGas = gasPrice.mul(2).add(maxPriorityFeePerGas);
+
   dispatchFromMain({
     action: fromMain.openDappModalAction({
       tabId: dappyBrowserView.tabId,
       title: 'ETHEREUM_SIGN_TRANSACTION_MODAL',
       text: '',
       parameters: {
-        parameters: data.params[0],
+        parameters: {
+          ...data.params[0],
+          chainId: id,
+          maxFeePerGas: maxFeePerGas.toHexString(),
+          maxPriorityFeePerGas: maxPriorityFeePerGas.toHexString(),
+        },
         origin: dappyBrowserView.host,
       },
       buttons: [],

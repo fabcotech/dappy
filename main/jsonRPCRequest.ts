@@ -98,3 +98,16 @@ export const fetchEstimatedGas = (chainId: string, params: unknown[]) =>
     },
     (r: string) => JSON.parse(r).result
   );
+
+export const fetchGasPrice = (chainId: string) =>
+  fetch(
+    {
+      ...JSONRPCOptions,
+      ...getRPCUrl(chainId),
+    },
+    {
+      ...JSONRPCData,
+      method: 'eth_gasPrice',
+    },
+    (r: string) => JSON.parse(r).result
+  );
