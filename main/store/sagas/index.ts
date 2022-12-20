@@ -5,6 +5,7 @@ import { goForwardOrBackwardSaga } from './goForwardOrBackward';
 import { displayOnlyBrowserViewXSaga } from './displayOnlyBrowserViewX';
 import { setBrowserViewMutedSaga } from './setBrowserViewMuted';
 import { eventuallyUpdateConnectionsSaga } from './eventuallyUpdateConnections';
+import { sendTransactionSaga } from './sendTransaction';
 
 export const sagas = function* rootSaga() {
   yield all([
@@ -13,5 +14,6 @@ export const sagas = function* rootSaga() {
     goForwardOrBackwardSaga(),
     setBrowserViewMutedSaga(),
     eventuallyUpdateConnectionsSaga(),
+    sendTransactionSaga(),
   ]);
 };

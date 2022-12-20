@@ -40,8 +40,9 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@ethereumjs/common": "^2.6.0",
-    "@ethereumjs/tx": "^3.4.0",
+    "@ethereumjs/common": "^3.0.2",
+    "@ethereumjs/tx": "^4.0.2",
+    "@ethereumjs/util": "^8.0.3",
     "@fabcotech/bees": "2.0.5",
     "@fabcotech/dappy-lookup": "^2.3.14",
     "@fabcotech/rchain-token": "17.0.6",
@@ -55,6 +56,7 @@
     "dappy-reserved-domains": "github:fabcotech/dappy-reserved-domains",
     "electron-updater": "^5.0.5",
     "elliptic": "^6.5.4",
+    "ethereumjs-util": "^7.1.5",
     "ethers": "^5.7.2",
     "formik": "2.2.9",
     "lodash.isequal": "^4.5.0",
@@ -123,5 +125,6 @@
     "source-map-loader": "^0.2.3",
     "ts-jest": "^27.0.5",
     "typescript": "^4.6.2"
-  }
+  },
+  "browserslist": {}
 }

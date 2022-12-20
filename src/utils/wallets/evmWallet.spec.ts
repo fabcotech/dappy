@@ -5,8 +5,9 @@ describe('EVM Wallet', () => {
     const signedTx = evmWallet.signTransaction(
       {
         nonce: 0,
-        gasPrice: 20000,
-        gasLimit: 10,
+        gasLimit: '0x6d3e',
+        maxFeePerGas: '0x77377318',
+        maxPriorityFeePerGas: '0x77359400',
         to: '0x0000000000000000000000000000000000000000',
         value: 1,
         data: '0x7f7465737432000000000000000000000000000000000000000000000000000000600057',

@@ -7,10 +7,8 @@ import * as fromCommon from '../src/common';
 import * as fromSettingsMain from './store/settings';
 import * as fromMain from '../src/store/main';
 import { toHex } from '../src/utils/toHex';
-import { atLeastOneMatchInWhitelist } from '../src/utils/matchesWhitelist';
 import { DappyBrowserView } from './models';
 import { DispatchFromMainArg } from './main';
-import { BlockchainAccount } from '/models';
 import {
   fetchEstimatedGas,
   fetchEthBlockNumber,
@@ -18,24 +16,9 @@ import {
   fetchGasPrice,
   fetchGetTransactionCount,
 } from './jsonRPCRequest';
+import { getEvmAccountForHost } from '/utils/matchesWhitelist';
 
 const MAX_PRIORITY_FEE_PER_GAS = 2 * 10 ** 9; // 2 Gwei
-
-const getEvmAccountForHost = (
-  evmAccounts: Record<string, BlockchainAccount>,
-  host: string
-): BlockchainAccount | undefined => {
-  const accountId = Object.keys(evmAccounts).find((id) => {
-    if (atLeastOneMatchInWhitelist(evmAccounts[id].whitelist, host) && evmAccounts[id].chainId) {
-      return true;
-    }
-    return false;
-  });
-  if (accountId) {
-    return evmAccounts[accountId];
-  }
-  return undefined;
-};
 
 const dispatchEthereumUnauthorizedOperation = (
   dispatchFromMain: (a: any) => void,
@@ -148,6 +131,7 @@ export const sendTransaction: DappHandler = async (
         parameters: {
           ...data.params[0],
           chainId: id,
+          gasLimit: data.params[0].gas,
           maxFeePerGas: maxFeePerGas.toHexString(),
           maxPriorityFeePerGas: maxPriorityFeePerGas.toHexString(),
           nonce,

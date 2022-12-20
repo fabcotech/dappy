@@ -1,3 +1,5 @@
+import { BlockchainAccount } from '/models';
+
 export const matchesInWhitelist = (
   whitelist: { [key: string]: boolean | string }[],
   hostnameToMatch: string
@@ -32,4 +34,20 @@ export const atLeastOneMatchInWhitelist = (
     return true;
   }
   return matchesInWhitelist(whitelist, hostnameToMatch).length > 0;
+};
+
+export const getEvmAccountForHost = (
+  evmAccounts: Record<string, BlockchainAccount>,
+  host: string
+): BlockchainAccount | undefined => {
+  const accountId = Object.keys(evmAccounts).find((id) => {
+    if (atLeastOneMatchInWhitelist(evmAccounts[id].whitelist, host) && evmAccounts[id].chainId) {
+      return true;
+    }
+    return false;
+  });
+  if (accountId) {
+    return evmAccounts[accountId];
+  }
+  return undefined;
 };

@@ -3,7 +3,7 @@ import { ChainRaw, CHAINS_RAW_LIST } from './chainData';
 
 export const fetch = <T>(
   options: https.RequestOptions,
-  data: object,
+  data: Record<string, any>,
   parseResponse: (r: string) => T
 ) => {
   return new Promise<string>((resolve, reject) => {
@@ -122,6 +122,20 @@ export const fetchGetTransactionCount = (chainId: string, address: string) =>
       ...JSONRPCData,
       method: 'eth_getTransactionCount',
       params: [address, 'latest'],
+    },
+    (r: string) => JSON.parse(r).result
+  );
+
+export const sendRawTransaction = (chainId: string, serializedTx: string) =>
+  fetch(
+    {
+      ...JSONRPCOptions,
+      ...getRPCUrl(chainId),
+    },
+    {
+      ...JSONRPCData,
+      method: 'eth_sendRawTransaction',
+      params: [serializedTx],
     },
     (r: string) => JSON.parse(r).result
   );

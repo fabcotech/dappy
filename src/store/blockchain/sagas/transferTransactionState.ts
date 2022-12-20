@@ -19,12 +19,10 @@ function* transferTransactionState(action: Action) {
     [transactionId: string]: TransactionState;
   } = yield select(fromBlockchain.getTransactions);
   const transaction: TransactionState = transactions[payload.id];
-  if (transaction.origin.origin === 'dapp') {
-    dispatchInMain({
-      type: '[MAIN] Transfer transactions',
-      payload: transaction,
-    });
-  }
+  dispatchInMain({
+    type: '[MAIN] Transfer transactions',
+    payload: transaction,
+  });
 }
 
 export function* transferTransactionStateSaga() {

@@ -207,6 +207,8 @@ export const registerInterProcessProtocol = (
           store.dispatch({ ...action, meta: { browserWindow } });
         } else if (action.type === fromBlockchainsMain.SYNC_BLOCKCHAINS) {
           store.dispatch(action);
+        } else if (action.type === fromBlockchainsMain.TRANSFER_TRANSACTION) {
+          store.dispatch(action);
         } else {
           store.dispatch(action);
         }

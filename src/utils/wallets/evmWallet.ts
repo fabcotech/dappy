@@ -1,23 +1,28 @@
-import { TxData, Transaction, JsonTx } from '@ethereumjs/tx';
-import Common from '@ethereumjs/common';
+import { JsonTx, FeeMarketEIP1559TxData, FeeMarketEIP1559Transaction } from '@ethereumjs/tx';
+import { BigIntLike } from '@ethereumjs/util';
+import { Common, Hardfork } from '@ethereumjs/common';
 import * as rchainToolkit from '@fabcotech/rchain-toolkit';
 
 import { Wallet } from './wallet';
 
-export const evmWallet: Wallet<TxData & { chainId: number }, JsonTx> = {
+export const convertToNumber = (value: BigIntLike | undefined): number => {
+  if (typeof value === 'number') {
+    return value;
+  }
+  if (typeof value === 'string') {
+    if (value.startsWith('0x')) {
+      return parseInt(value, 16);
+    }
+    return parseInt(value, 10);
+  }
+  return NaN;
+};
+
+export const evmWallet: Wallet<FeeMarketEIP1559TxData, JsonTx> = {
   signTransaction: (tx, privateKey) => {
-    if (tx.value) {
-      tx.value = tx.value;
-    }
-    if (tx.gasLimit) {
-      tx.gasLimit = tx.gasLimit;
-    }
-    if (tx.gasPrice) {
-      tx.gasPrice = tx.gasPrice;
-    }
     const pKey = Buffer.from(privateKey, 'hex');
-    const signedtx = Transaction.fromTxData(tx, {
-      common: Common.custom({ chainId: tx.chainId }),
+    const signedtx = FeeMarketEIP1559Transaction.fromTxData(tx, {
+      common: new Common({ chain: convertToNumber(tx.chainId), hardfork: Hardfork.London }),
     }).sign(pKey);
     return signedtx.toJSON();
   },

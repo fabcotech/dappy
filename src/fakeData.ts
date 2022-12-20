@@ -39,7 +39,14 @@ export const getFakeEVMAccount = (account: Partial<BlockchainAccount> = {}): Blo
   main: true,
   balance: 1000000,
   boxes: [],
-  whitelist: [],
+  chainId: '0x1',
+  whitelist: [
+    {
+      host: 'localhost',
+      blitz: true,
+      transactions: true,
+    },
+  ],
   ...account,
 });
 

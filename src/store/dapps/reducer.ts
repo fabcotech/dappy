@@ -503,3 +503,11 @@ export const getActiveTab = createSelector(
     return undefined;
   }
 );
+
+export const getActiveTabHostname = createSelector(getActiveTab, (tab): string | undefined => {
+  if (!tab) {
+    return undefined;
+  }
+
+  return new URL(tab.url).hostname;
+});

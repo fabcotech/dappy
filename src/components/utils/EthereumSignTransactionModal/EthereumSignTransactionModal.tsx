@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { fromWei } from 'web3-utils';
 
-import { AccountSelect } from '../AccountSelect';
 import { copyToClipboard } from '/interProcess';
 import { Modal, closeDappModalAction } from '/store/main';
 import { getEVMAccounts } from '/store/settings';
 import {
-  Account,
+  BlockchainAccount,
   EthereumSignedTransaction,
   EthereumTransaction,
   TransactionOriginDapp,
@@ -19,6 +18,9 @@ import { getUniqueTransactionId } from '/utils';
 import { EvmNetwork } from '../EvmNetwork';
 
 import './EthereumSignTransactionModal.scss';
+import { AccountPassword } from '../AccountPassword';
+import { getActiveTabHostname } from '/store/dapps';
+import { getEvmAccountForHost } from '/utils/matchesWhitelist';
 
 const labels: { [a: string]: string } = {
   chainId: 'Chain ID',
@@ -95,25 +97,35 @@ interface EthereumSignTransactionModalProps {
     origin: TransactionOriginDapp,
     tabId: string
   ) => void;
-  accounts: Record<string, Account>;
   returnSignedTransaction: (
     chainId: number,
     signedTx: EthereumSignedTransaction,
     origin: TransactionOriginDapp,
     tabId: string
   ) => void;
+  accounts: Record<string, BlockchainAccount>;
+  hostname: string | undefined;
 }
 
 export const EthereumSignTransactionModalComponent = ({
   modal,
   close,
   accounts,
+  hostname,
   returnSignedTransaction,
 }: EthereumSignTransactionModalProps) => {
   const [privateKey, setPrivateKey] = useState<string>();
-  const [address, setAddress] = useState<string>();
   const txData: EthereumTransaction = modal.parameters.parameters;
   const origin: TransactionOriginDapp = modal.parameters.origin;
+  if (!hostname) {
+    return null;
+  }
+
+  const account = getEvmAccountForHost(accounts, hostname);
+
+  if (!account) {
+    return null;
+  }
 
   let transactionType = 'Regular (transfer)';
   if (!txData.to) {
@@ -156,17 +168,14 @@ export const EthereumSignTransactionModalComponent = ({
             />
             <StaticField copy label="data" value={modal.parameters.parameters.data || 'none'} />
           </div>
-          <AccountSelect
-            chooseBox={false}
-            updatePrivateKey={(a) => {
-              setAddress(a.address);
-              setPrivateKey(a.privatekey);
+          <AccountPassword
+            encrypted={account.encrypted}
+            decryptedPrivateKey={(pKey) => {
+              setPrivateKey(pKey);
             }}
-            accounts={accounts}
           />
-          {address &&
-            modal.parameters.parameters.from &&
-            address !== modal.parameters.parameters.from && (
+          {modal.parameters.parameters.from &&
+            account.address !== modal.parameters.parameters.from && (
               <span className="text-warning same-as-label">
                 Address of the account does not match .from property
               </span>
@@ -201,6 +210,7 @@ export const EthereumSignTransactionModalComponent = ({
 export const EthereumSignTransactionModal = connect(
   (state) => ({
     accounts: getEVMAccounts(state),
+    hostname: getActiveTabHostname(state),
   }),
   (dispatch) => ({
     close: (

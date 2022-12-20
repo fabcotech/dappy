@@ -47,7 +47,7 @@ describe('EthereumSignTransactionModal', () => {
       parameters: {
         origin: '',
         parameters: {
-          chainId: 123,
+          chainId: '0x1',
         },
       },
     };
@@ -59,12 +59,13 @@ describe('EthereumSignTransactionModal', () => {
         close={jest.fn()}
         returnSignedTransaction={returnSignedTransaction}
         modal={modal}
+        hostname="localhost"
       />
     );
     const btn = screen.getByText(t('sign transaction'));
     expect(btn).toBeDisabled();
 
-    const passwordInput = screen.getByLabelText('Password*');
+    const passwordInput = screen.getByPlaceholderText('password for account');
     userEvent.type(passwordInput, 'Dappy00!');
 
     await waitFor(() => {
@@ -83,7 +84,7 @@ describe('EthereumSignTransactionModal', () => {
       parameters: {
         origin: '',
         parameters: {
-          chainId: 123,
+          chainId: '0x1',
         },
       },
     };
@@ -95,6 +96,7 @@ describe('EthereumSignTransactionModal', () => {
         close={onClose}
         returnSignedTransaction={jest.fn()}
         modal={modal}
+        hostname="localhost"
       />
     );
     const discardBtn = screen.getByText(t('discard transaction'));
