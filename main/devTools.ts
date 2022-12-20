@@ -6,12 +6,12 @@ export function installDevToolsExtensionsOnlyForDev(partition: string) {
   if (!process.env.PRODUCTION) {
     const reduxDevTools = path.join(
       os.homedir(),
-      '/Library/Application Support/Google/Chrome/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/3.0.11_5'
+      '/Library/Application Support/Google/Chrome/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/3.0.16_1'
     );
 
     const reactDevTools = path.join(
       os.homedir(),
-      '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.25.0_0'
+      '/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.27.1_8'
     );
 
     app.whenReady().then(() => {
