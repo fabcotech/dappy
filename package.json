@@ -13,7 +13,7 @@
     "clean:dist": "rm -rf dist",
     "build:main:dev": " mkdir -p dist/renderer/ && cp -r dapp-libs/* dist/renderer/ && npx rollup -c rollup.main.config.js",
     "build:main:dev:watch": "npm run build:main:dev -- -w",
-    "build:renderer:prod": "cross-env NODE_ENV=production npx parcel build src/index.html --public-url . --out-dir dist/renderer && cp -r dapp-libs/* dist/renderer/",
+    "build:renderer:prod": "cross-env NODE_ENV=production npx parcel build --no-minify src/index.html --public-url . --out-dir dist/renderer && cp -r dapp-libs/* dist/renderer/",
     "build:main:prod": "cross-env PRODUCTION=true NODE_ENV=production npx rollup -c rollup.main.config.js",
     "build:all:prod": "npm run clean:dist && npm run build:renderer:prod && npm run build:main:prod",
     "build:dappyrchain": "cross-env NODE_ENV=production npx rollup -c rollup.dappy-rchain.config.js",
