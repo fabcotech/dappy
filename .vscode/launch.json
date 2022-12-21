@@ -42,7 +42,8 @@
       ],
       "outputCapture": "std",
       "env": {
-        "PARTITION": "persist:test"
+        "PARTITION": "persist:test",
+        "DAPPY_DEVTOOLS": "true"
       }
     },
   ]
