@@ -7,6 +7,10 @@ import { Action } from '/store';
 
 const actionsAwaitingEphemeralToken: any[] = [];
 
+export const evmRpc = (body: { host: string; path: string; payload: any }): Promise<any> => {
+  return window.evmRpc(body);
+};
+
 export const dappyLookup = (body: {
   method: 'lookup';
   hostname: string;
@@ -99,6 +103,40 @@ export const interProcess = (store: Store) => {
       }
     };
   }, 0);
+
+  window.evmRpc = (a) => {
+    console.log('window.evmRpc');
+    return new Promise((resolve, reject) => {
+      const req = new XMLHttpRequest();
+      req.open('POST', 'interprocess://evm-rpc');
+      req.setRequestHeader(
+        'Data',
+        encodeURI(
+          JSON.stringify({
+            uniqueEphemeralToken,
+            payload: a.payload,
+            host: a.host,
+            path: a.path,
+          })
+        )
+      );
+      req.send();
+      req.onload = () => {
+        try {
+          const r = JSON.parse(req.responseText);
+          if (r.success) {
+            resolve(r.data);
+          } else {
+            reject(new Error(r.error));
+          }
+        } catch (e) {
+          console.log(req.responseText);
+          console.log(e);
+          reject(new Error('could not parse response'));
+        }
+      };
+    });
+  };
 
   window.dappyLookup = (a) => {
     return new Promise((resolve, reject) => {

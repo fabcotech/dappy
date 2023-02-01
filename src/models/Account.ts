@@ -10,17 +10,32 @@ export interface BaseAccount {
 }
 
 export interface EvmNetworks {
-  [networkId: string]: [string, string];
+  [networkId: string]: [string, string, string];
 }
 export const evmNetworks: EvmNetworks = {
-  1: ['Ethereum Mainnet', image_ethereum],
-  5: ['Ethereum Testnet (Goerli)', image_ethereum],
-  11155111: ['Ethereum Testnet (Sepolia)', image_ethereum],
-  56: ['Binance Smart Chain Mainnet', image_binance_smart_chain],
-  97: ['Binance Smart Chain TestNet', image_binance_smart_chain],
-  137: ['Polygon Mainnet', image_polygon],
-  80001: ['Polygon Testnet', image_polygon],
-  43114: ['Avalanche C-Chain', image_avalanche],
+  1: ['Ethereum Mainnet', image_ethereum, 'ETH'],
+  5: ['Ethereum Testnet (Goerli)', image_ethereum, 'ETH (Goerli)'],
+  11155111: ['Ethereum Testnet (Sepolia)', image_ethereum, 'ETH (Sepolia)'],
+  56: ['Binance Smart Chain Mainnet', image_binance_smart_chain, 'BNB'],
+  97: ['Binance Smart Chain TestNet', image_binance_smart_chain, 'BNB (TestNet)'],
+  137: ['Polygon Mainnet', image_polygon, 'MATIC'],
+  80001: ['Polygon Testnet', image_polygon, 'MATIC (Testnet)'],
+  43114: ['Avalanche C-Chain', image_avalanche, 'AVAX'],
+};
+
+export const rpcs: { [chainId: string]: { host: string; path: string }[] } = {
+  1: [
+    {
+      host: 'eth-mainnet.alchemyapi.io',
+      path: '/v2/apikey',
+    },
+  ],
+  137: [
+    {
+      host: 'polygon-mainnet.g.alchemy.com',
+      path: '/v2/apikey',
+    },
+  ],
 };
 
 export interface BlockchainAccount extends BaseAccount {

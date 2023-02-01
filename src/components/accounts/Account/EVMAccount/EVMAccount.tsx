@@ -9,6 +9,7 @@ import { ChangeLinkedChainId } from './ChangeLinkedChainId';
 import { WalletAddress } from '/components/utils/WalletAddress';
 
 import './EVMAccount.scss';
+import { formatAmount } from '/utils/formatAmount';
 
 interface EVMAccountProps {
   account: BlockchainAccount;
@@ -46,7 +47,28 @@ export const EVMAccountComponent = ({
           </a>
         </div>
       </div>
-      <div className="body"></div>
+      <div className="body">
+        {account.balance === -1 && (
+          <span className="unable">
+            Unable to retreive balance (
+            {evmNetworks[account.chainId as string]
+              ? evmNetworks[account.chainId as string][0]
+              : undefined}
+            )
+          </span>
+        )}
+        {account.balance !== -1 && (
+          <>
+            <span className="balance">{formatAmount(account.balance)}</span>
+            <span className="unit">
+              {' '}
+              {evmNetworks[account.chainId as string]
+                ? evmNetworks[account.chainId as string][2]
+                : undefined}
+            </span>
+          </>
+        )}
+      </div>
       <div className="footer">
         <div className="address-block">
           <div className="address has-text-weight-bold ">

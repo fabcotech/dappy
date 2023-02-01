@@ -1,3 +1,5 @@
+@import '../../../../style/variables.scss';
+
 .evm-account {
   position: relative;
   height: 12rem;
@@ -26,6 +28,18 @@
 
   .body {
     align-self: center;
+    .unable {
+      font-weight: 600;
+      color: $failed;
+    }
+    .balance {
+      font-size: 3rem;
+      font-weight: 600;
+    }
+    .unit {
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
   }
 
   .footer {

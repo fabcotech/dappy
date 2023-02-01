@@ -52,6 +52,7 @@ declare global {
     Sentry: any;
     uniqueEphemeralToken: string;
     messageFromMain: (a: any) => void;
+    evmRpc: (parameters: any) => Promise<any>;
     dappyLookup: (parameters: any) => Promise<NamePacket>;
     getIpAddressAndCert: (a: { host: string }) => Promise<{ cert: string; ip: string }>;
     generateCertificateAndKey: (

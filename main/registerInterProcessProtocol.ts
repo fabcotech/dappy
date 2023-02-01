@@ -1,3 +1,4 @@
+import https from 'https';
 import { Session, clipboard, dialog } from 'electron';
 import crypto from 'crypto';
 import { lookup } from '@fabcotech/dappy-lookup';
@@ -63,6 +64,65 @@ export const registerInterProcessProtocol = (
       console.log(request.url);
       console.log('[https] An unauthorized app tried to make an interprocess request');
       callback(Buffer.from(''));
+      return undefined;
+    }
+
+    if (request.url === 'interprocess://evm-rpc') {
+      let host = '';
+      let pathh = '';
+      let payload = {};
+      try {
+        host = JSON.parse(decodeURI(request.headers.Data)).host;
+        pathh = JSON.parse(decodeURI(request.headers.Data)).path;
+        payload = JSON.parse(decodeURI(request.headers.Data)).payload;
+      } catch (e) {
+        callback(
+          Buffer.from(
+            JSON.stringify({
+              success: false,
+              error: { message: 'Unable to get balance' },
+            })
+          )
+        );
+        return undefined;
+      }
+      const options = {
+        host: host,
+        method: 'POST',
+        path: pathh,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+      const req = https.request(options, (res) => {
+        if (res.statusCode !== 200) {
+          callback(
+            Buffer.from(
+              JSON.stringify({
+                success: false,
+                error: { message: 'Unable to get balance' },
+              })
+            )
+          );
+          return;
+        }
+        let data = '';
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
+        res.on('end', () => {
+          callback(
+            Buffer.from(
+              JSON.stringify({
+                success: true,
+                data: data,
+              })
+            )
+          );
+        });
+      });
+      req.end(JSON.stringify(payload));
+
       return undefined;
     }
 
